@@ -1,7 +1,7 @@
-/**
- * ═════════════════════════════════════════════════════════════════════
- * 🛡️ ELSAJANA ERP 2026 - PRODUCTION PWA SERVICE WORKER (V3.0)
- * ═════════════════════════════════════════════════════════════════════
+﻿/**
+ * â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+ * ًں›،ï¸ڈ ELSAJANA ERP 2026 - PRODUCTION PWA SERVICE WORKER (V3.0)
+ * â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
  * Features:
  * - Offline-First App Shell for 1-Tap Home Screen Standalone Experience
  * - Instant Stale-While-Revalidate for CSS, JS, Fonts & Vector Assets
@@ -9,7 +9,7 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-11-08-v45';
+const CACHE_NAME = 'magaiees-pwa-v2027.99-11-08-v2027.99';
 
 const PRECACHE_ASSETS = [
     './',
@@ -36,19 +36,19 @@ const PRECACHE_ASSETS = [
     './css/design-system.css',
     './css/theme.css',
     './css/components.css',
-    './css/magaiees-royal-buttons.css?v=2026_royal_v2',
-    './css/mobile-suite.css?v=2026_10_15_v17',
+    './css/magaiees-royal-buttons.css?v2027.99_royal_v2027.99',
+    './css/mobile-suite.css?v2027.99_10_15_v2027.99',
     './js/tailwind.min.js',
     './js/localforage.min.js',
-    './js/magaiees-royal-buttons.js?v=2026_royal_v2',
-    './js/pwa-manager.js?v=2026_10_15_v16',
+    './js/magaiees-royal-buttons.js?v2027.99_royal_v2027.99',
+    './js/pwa-manager.js?v2027.99_10_15_v2027.99',
     './js/magaies-offline-sync.js',
-    './js/mobile-suite.js?v=2026_10_15_v16',
+    './js/mobile-suite.js?v2027.99_10_15_v2027.99',
     './js/app.js',
     './js/single-cash-payment.js',
     './js/multi-cash-payment.js',
-    './js/direct-sales-v3.js',
-    './js/purchase-pro-v5.js',
+    './js/direct-sales-v2027.99.js',
+    './js/purchase-pro-v2027.99.js',
     './js/sales-delivery.js'
 ];
 
@@ -164,7 +164,7 @@ async function findBestCachedPage(request, url) {
 self.addEventListener('fetch', (event) => {
     const request = event.request;
 
-    // فحص انتهازي صامت (كل 5 ثوانٍ) لرفع أي حركات أوفلاين معلقة في IndexedDB بمجرد مرور أي نشاط شبكي
+    // ظپط­طµ ط§ظ†طھظ‡ط§ط²ظٹ طµط§ظ…طھ (ظƒظ„ 5 ط«ظˆط§ظ†ظچ) ظ„ط±ظپط¹ ط£ظٹ ط­ط±ظƒط§طھ ط£ظˆظپظ„ط§ظٹظ† ظ…ط¹ظ„ظ‚ط© ظپظٹ IndexedDB ط¨ظ…ط¬ط±ط¯ ظ…ط±ظˆط± ط£ظٹ ظ†ط´ط§ط· ط´ط¨ظƒظٹ
     if (self.navigator && self.navigator.onLine !== false && !_swSyncInProgress) {
         const nowMs = Date.now();
         if (nowMs - _lastSwOpportunisticCheck > 5000 && !request.url.includes('sync_offline_batch')) {
@@ -231,7 +231,7 @@ self.addEventListener('fetch', (event) => {
 
                 // Safe non-looping offline fallback screen (only shown if browser cache was completely cleared while offline)
                 return new Response(
-                    '<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>مقاييس ERP - وضع الأوفلاين</title></head><body style="background:#0f172a;color:#fff;font-family:Tajawal,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center;padding:20px;"><div style="max-width:400px;background:#1e293b;border:1px solid rgba(56,189,248,0.3);border-radius:20px;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.5);"><div style="font-size:42px;margin-bottom:10px;">⚡</div><h2 style="margin:0 0 10px;font-size:18px;color:#38bdf8;">نظام مقاييس - وضع الأوفلاين الفوري</h2><p style="font-size:13px;color:#cbd5e1;line-height:1.6;margin-bottom:18px;">اختر الشاشة التي ترغب بفتحها في وضع الأوفلاين:</p><div style="display:flex;flex-direction:column;gap:10px;"><a href="mobile-voucher.php" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;text-decoration:none;padding:12px;border-radius:12px;font-weight:bold;font-size:14px;">💸 سند حركة مالية (جوال)</a><a href="mobile-suite.html" style="background:linear-gradient(135deg,#0284c7,#0369a1);color:#fff;text-decoration:none;padding:12px;border-radius:12px;font-weight:bold;font-size:14px;">📱 منظومة الجوال الشاملة</a><a href="magaiees_unified_dashboard.php" style="background:rgba(255,255,255,0.1);color:#e2e8f0;text-decoration:none;padding:12px;border-radius:12px;font-weight:bold;font-size:14px;">💻 منظومة اللابتوب الشاملة</a></div></div></body></html>',
+                    '<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ظ…ظ‚ط§ظٹظٹط³ ERP - ظˆط¶ط¹ ط§ظ„ط£ظˆظپظ„ط§ظٹظ†</title></head><body style="background:#0f172a;color:#fff;font-family:Tajawal,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;text-align:center;padding:20px;"><div style="max-width:400px;background:#1e293b;border:1px solid rgba(56,189,248,0.3);border-radius:20px;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.5);"><div style="font-size:42px;margin-bottom:10px;">âڑ،</div><h2 style="margin:0 0 10px;font-size:18px;color:#38bdf8;">ظ†ط¸ط§ظ… ظ…ظ‚ط§ظٹظٹط³ - ظˆط¶ط¹ ط§ظ„ط£ظˆظپظ„ط§ظٹظ† ط§ظ„ظپظˆط±ظٹ</h2><p style="font-size:13px;color:#cbd5e1;line-height:1.6;margin-bottom:18px;">ط§ط®طھط± ط§ظ„ط´ط§ط´ط© ط§ظ„طھظٹ طھط±ط؛ط¨ ط¨ظپطھط­ظ‡ط§ ظپظٹ ظˆط¶ط¹ ط§ظ„ط£ظˆظپظ„ط§ظٹظ†:</p><div style="display:flex;flex-direction:column;gap:10px;"><a href="mobile-voucher.php" style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;text-decoration:none;padding:12px;border-radius:12px;font-weight:bold;font-size:14px;">ًں’¸ ط³ظ†ط¯ ط­ط±ظƒط© ظ…ط§ظ„ظٹط© (ط¬ظˆط§ظ„)</a><a href="mobile-suite.html" style="background:linear-gradient(135deg,#0284c7,#0369a1);color:#fff;text-decoration:none;padding:12px;border-radius:12px;font-weight:bold;font-size:14px;">ًں“± ظ…ظ†ط¸ظˆظ…ط© ط§ظ„ط¬ظˆط§ظ„ ط§ظ„ط´ط§ظ…ظ„ط©</a><a href="magaiees_unified_dashboard.php" style="background:rgba(255,255,255,0.1);color:#e2e8f0;text-decoration:none;padding:12px;border-radius:12px;font-weight:bold;font-size:14px;">ًں’» ظ…ظ†ط¸ظˆظ…ط© ط§ظ„ظ„ط§ط¨طھظˆط¨ ط§ظ„ط´ط§ظ…ظ„ط©</a></div></div></body></html>',
                     { status: 200, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
                 );
             })()
@@ -294,11 +294,11 @@ self.addEventListener('fetch', (event) => {
     }
 });
 
-// ────────────────────────────────────────────────────────────────────
-// 🚀 محرك المزامنة الذاتية في الخلفية بدون فتح التطبيق (Zero-UI Autonomous Background Sync)
-// يقرأ الحركات المعلقة من IndexedDB ويرفعها مباشرة إلى MariaDB فور عودة الإنترنت
-// حتى لو كان المستخدم نائماً أو الهاتف مقفلاً والتطبيق مغلقاً بالكامل
-// ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ًںڑ€ ظ…ط­ط±ظƒ ط§ظ„ظ…ط²ط§ظ…ظ†ط© ط§ظ„ط°ط§طھظٹط© ظپظٹ ط§ظ„ط®ظ„ظپظٹط© ط¨ط¯ظˆظ† ظپطھط­ ط§ظ„طھط·ط¨ظٹظ‚ (Zero-UI Autonomous Background Sync)
+// ظٹظ‚ط±ط£ ط§ظ„ط­ط±ظƒط§طھ ط§ظ„ظ…ط¹ظ„ظ‚ط© ظ…ظ† IndexedDB ظˆظٹط±ظپط¹ظ‡ط§ ظ…ط¨ط§ط´ط±ط© ط¥ظ„ظ‰ MariaDB ظپظˆط± ط¹ظˆط¯ط© ط§ظ„ط¥ظ†طھط±ظ†طھ
+// ط­طھظ‰ ظ„ظˆ ظƒط§ظ† ط§ظ„ظ…ط³طھط®ط¯ظ… ظ†ط§ط¦ظ…ط§ظ‹ ط£ظˆ ط§ظ„ظ‡ط§طھظپ ظ…ظ‚ظپظ„ط§ظ‹ ظˆط§ظ„طھط·ط¨ظٹظ‚ ظ…ط؛ظ„ظ‚ط§ظ‹ ط¨ط§ظ„ظƒط§ظ…ظ„
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 let _swSyncInProgress = false;
 let _lastSwOpportunisticCheck = 0;
 
@@ -306,7 +306,7 @@ function openSwIDB() {
     return new Promise((resolve) => {
         if (typeof indexedDB === 'undefined') return resolve(null);
         try {
-            const req = indexedDB.open('MagaiesOfflineIDB_v1', 2);
+            const req = indexedDB.open('MagaiesOfflineIDB_v2027.99', 2);
             req.onupgradeneeded = (e) => {
                 const db = e.target.result;
                 if (!db.objectStoreNames.contains('outbox')) {
@@ -338,7 +338,7 @@ async function flushIndexedDBOutboxInSW() {
 
         const scopeBase = self.registration.scope.replace(/\/$/, '');
 
-        // 1. فحص ورفع أي تعديلات معلقة من شاشات النظام الشاملة (js/app.js -> cloud_push_outbox)
+        // 1. ظپط­طµ ظˆط±ظپط¹ ط£ظٹ طھط¹ط¯ظٹظ„ط§طھ ظ…ط¹ظ„ظ‚ط© ظ…ظ† ط´ط§ط´ط§طھ ط§ظ„ظ†ط¸ط§ظ… ط§ظ„ط´ط§ظ…ظ„ط© (js/app.js -> cloud_push_outbox)
         const cloudOutbox = await new Promise((resolve) => {
             try {
                 const tx = db.transaction(['meta'], 'readonly');
@@ -377,7 +377,7 @@ async function flushIndexedDBOutboxInSW() {
             }
         }
 
-        // 2. فحص ورفع طابور الحركات الموحد والسندات والمبيعات والمشتريات (MagaiesOffline -> outbox)
+        // 2. ظپط­طµ ظˆط±ظپط¹ ط·ط§ط¨ظˆط± ط§ظ„ط­ط±ظƒط§طھ ط§ظ„ظ…ظˆط­ط¯ ظˆط§ظ„ط³ظ†ط¯ط§طھ ظˆط§ظ„ظ…ط¨ظٹط¹ط§طھ ظˆط§ظ„ظ…ط´طھط±ظٹط§طھ (MagaiesOffline -> outbox)
         const items = await new Promise((resolve) => {
             try {
                 const tx = db.transaction(['outbox'], 'readonly');
@@ -388,7 +388,7 @@ async function flushIndexedDBOutboxInSW() {
         });
 
         if (!Array.isArray(items) || items.length === 0) {
-            // حتى لو كان IndexedDB فارغاً، نرسل إشارة لأي نافذة مفتوحة إن وجدت
+            // ط­طھظ‰ ظ„ظˆ ظƒط§ظ† IndexedDB ظپط§ط±ط؛ط§ظ‹طŒ ظ†ط±ط³ظ„ ط¥ط´ط§ط±ط© ظ„ط£ظٹ ظ†ط§ظپط°ط© ظ…ظپطھظˆط­ط© ط¥ظ† ظˆط¬ط¯طھ
             const openClients = await self.clients.matchAll({ includeUncontrolled: true });
             openClients.forEach((c) => c.postMessage({ type: 'TRIGGER_OFFLINE_SYNC' }));
             return true;
@@ -433,7 +433,7 @@ async function flushIndexedDBOutboxInSW() {
             items.forEach((it) => {
                 if (it && it.offline_id) outboxMap[String(it.offline_id)] = it;
             });
-            // مسح الحركات المرفوعة من outbox وتسجيلها في synced_ack لتتحدث الشاشات لاحقاً دون إعادة رفع
+            // ظ…ط³ط­ ط§ظ„ط­ط±ظƒط§طھ ط§ظ„ظ…ط±ظپظˆط¹ط© ظ…ظ† outbox ظˆطھط³ط¬ظٹظ„ظ‡ط§ ظپظٹ synced_ack ظ„طھطھط­ط¯ط« ط§ظ„ط´ط§ط´ط§طھ ظ„ط§ط­ظ‚ط§ظ‹ ط¯ظˆظ† ط¥ط¹ط§ط¯ط© ط±ظپط¹
             await new Promise((resolve) => {
                 try {
                     const tx = db.transaction(['outbox', 'synced_ack'], 'readwrite');
@@ -446,7 +446,7 @@ async function flushIndexedDBOutboxInSW() {
                             const p = orig.payload || sItem.record || {};
                             const party = p.customerName || p.customer || p.supplierName || p.supplier ||
                                 ((p.fromAccountName || p.fromAccount) && (p.toAccountName || p.toAccount)
-                                    ? `${p.fromAccountName || p.fromAccount} ➔ ${p.toAccountName || p.toAccount}`
+                                    ? `${p.fromAccountName || p.fromAccount} â‍” ${p.toAccountName || p.toAccount}`
                                     : (p.toAccountName || p.fromAccountName || ''));
                             const amount = Number(p.amountLocal || p.total || p.netTotal || p.amount || 0);
                             ackStore.put({
@@ -468,7 +468,7 @@ async function flushIndexedDBOutboxInSW() {
                 } catch (e) { resolve(false); }
             });
 
-            // إعلام أي نافذة مفتوحة بتحديث أرقامها فوراً
+            // ط¥ط¹ظ„ط§ظ… ط£ظٹ ظ†ط§ظپط°ط© ظ…ظپطھظˆط­ط© ط¨طھط­ط¯ظٹط« ط£ط±ظ‚ط§ظ…ظ‡ط§ ظپظˆط±ط§ظ‹
             const clients = await self.clients.matchAll({ includeUncontrolled: true });
             clients.forEach((client) => {
                 client.postMessage({
@@ -477,14 +477,14 @@ async function flushIndexedDBOutboxInSW() {
                 });
             });
 
-            // إظهار إشعار على شاشة القفل (إن كانت الصلاحية مفعلة) لطمأنة المستخدم أن الحركات ارتفعت تلقائياً
+            // ط¥ط¸ظ‡ط§ط± ط¥ط´ط¹ط§ط± ط¹ظ„ظ‰ ط´ط§ط´ط© ط§ظ„ظ‚ظپظ„ (ط¥ظ† ظƒط§ظ†طھ ط§ظ„طµظ„ط§ط­ظٹط© ظ…ظپط¹ظ„ط©) ظ„ط·ظ…ط£ظ†ط© ط§ظ„ظ…ط³طھط®ط¯ظ… ط£ظ† ط§ظ„ط­ط±ظƒط§طھ ط§ط±طھظپط¹طھ طھظ„ظ‚ط§ط¦ظٹط§ظ‹
             try {
                 if (self.Notification && self.Notification.permission === 'granted' && out.synced.length > 0) {
                     const count = out.synced.length;
                     const first = out.synced[0];
                     const docInfo = first ? ` (#${first.real_id || first.offline_id})` : '';
-                    await self.registration.showNotification('🟢 مقاييس ERP: تم رفع الحركات تلقائياً', {
-                        body: `تم في الخلفية ترحيل واعتماد ${count} حركة أوفلاين إلى قاعدة البيانات بنجاح${docInfo} دون الحاجة لفتح التطبيق.`,
+                    await self.registration.showNotification('ًںں¢ ظ…ظ‚ط§ظٹظٹط³ ERP: طھظ… ط±ظپط¹ ط§ظ„ط­ط±ظƒط§طھ طھظ„ظ‚ط§ط¦ظٹط§ظ‹', {
+                        body: `طھظ… ظپظٹ ط§ظ„ط®ظ„ظپظٹط© طھط±ط­ظٹظ„ ظˆط§ط¹طھظ…ط§ط¯ ${count} ط­ط±ظƒط© ط£ظˆظپظ„ط§ظٹظ† ط¥ظ„ظ‰ ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ ط¨ظ†ط¬ط§ط­${docInfo} ط¯ظˆظ† ط§ظ„ط­ط§ط¬ط© ظ„ظپطھط­ ط§ظ„طھط·ط¨ظٹظ‚.`,
                         icon: './assets/icon-192.png',
                         badge: './assets/icon-192.png',
                         tag: 'magaiees-bg-sync-success',
@@ -499,7 +499,7 @@ async function flushIndexedDBOutboxInSW() {
         return false;
     } catch (err) {
         console.warn('[SW BackgroundSync] Deferred until stable connection:', err && err.message ? err.message : err);
-        throw err; // إرجاع الخطأ ليعيد نظام تشغيل الهاتف (OS) المحاولة تلقائياً عند استقرار الشبكة
+        throw err; // ط¥ط±ط¬ط§ط¹ ط§ظ„ط®ط·ط£ ظ„ظٹط¹ظٹط¯ ظ†ط¸ط§ظ… طھط´ط؛ظٹظ„ ط§ظ„ظ‡ط§طھظپ (OS) ط§ظ„ظ…ط­ط§ظˆظ„ط© طھظ„ظ‚ط§ط¦ظٹط§ظ‹ ط¹ظ†ط¯ ط§ط³طھظ‚ط±ط§ط± ط§ظ„ط´ط¨ظƒط©
     } finally {
         _swSyncInProgress = false;
     }
@@ -540,28 +540,28 @@ self.addEventListener('message', (event) => {
     }
 });
 
-// 1. OS-Level Background Sync Event: يعمل تلقائياً فور عودة الإنترنت للهاتف حتى والتطبيق مغلق تماماً
+// 1. OS-Level Background Sync Event: ظٹط¹ظ…ظ„ طھظ„ظ‚ط§ط¦ظٹط§ظ‹ ظپظˆط± ط¹ظˆط¯ط© ط§ظ„ط¥ظ†طھط±ظ†طھ ظ„ظ„ظ‡ط§طھظپ ط­طھظ‰ ظˆط§ظ„طھط·ط¨ظٹظ‚ ظ…ط؛ظ„ظ‚ طھظ…ط§ظ…ط§ظ‹
 self.addEventListener('sync', (event) => {
     if (event.tag === 'sync-offline-outbox' || event.tag.startsWith('sync-offline')) {
         event.waitUntil(flushIndexedDBOutboxInSW());
     }
 });
 
-// 2. Periodic Background Sync Event: فحص دوري في الخلفية لرفع أي حركات معلقة
+// 2. Periodic Background Sync Event: ظپط­طµ ط¯ظˆط±ظٹ ظپظٹ ط§ظ„ط®ظ„ظپظٹط© ظ„ط±ظپط¹ ط£ظٹ ط­ط±ظƒط§طھ ظ…ط¹ظ„ظ‚ط©
 self.addEventListener('periodicsync', (event) => {
     if (event.tag === 'periodic-offline-outbox' || event.tag.startsWith('periodic-offline')) {
         event.waitUntil(flushIndexedDBOutboxInSW().catch(() => {}));
     }
 });
 
-// ────────────────────────────────────────────────────────────────────
-// 🔔 Web Push Event: Triggers when notification arrives while phone is locked
-// ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ًں”” Web Push Event: Triggers when notification arrives while phone is locked
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 self.addEventListener('push', (event) => {
     console.log('[SW Push] Background push event received:', event);
     let payload = {
-        title: '🔔 إشعار فوري: مقاييس ERP',
-        body: 'تنبيه تنفيذي جديد يتطلب انتباهك على شاشة الجوال',
+        title: 'ًں”” ط¥ط´ط¹ط§ط± ظپظˆط±ظٹ: ظ…ظ‚ط§ظٹظٹط³ ERP',
+        body: 'طھظ†ط¨ظٹظ‡ طھظ†ظپظٹط°ظٹ ط¬ط¯ظٹط¯ ظٹطھط·ظ„ط¨ ط§ظ†طھط¨ط§ظ‡ظƒ ط¹ظ„ظ‰ ط´ط§ط´ط© ط§ظ„ط¬ظˆط§ظ„',
         icon: './assets/icon-192.png',
         badge: './assets/icon-192.png',
         tag: 'magaiees-alert-' + Date.now(),
@@ -587,8 +587,8 @@ self.addEventListener('push', (event) => {
         vibrate: [300, 100, 300, 100, 400],
         data: payload.data || { url: './mobile-dashboard.php' },
         actions: [
-            { action: 'open', title: 'عرض في مقاييس 🚀' },
-            { action: 'dismiss', title: 'تجاهل' }
+            { action: 'open', title: 'ط¹ط±ط¶ ظپظٹ ظ…ظ‚ط§ظٹظٹط³ ًںڑ€' },
+            { action: 'dismiss', title: 'طھط¬ط§ظ‡ظ„' }
         ]
     };
 
@@ -600,9 +600,9 @@ self.addEventListener('push', (event) => {
     );
 });
 
-// ────────────────────────────────────────────────────────────────────
-// 📲 Notification Click Event: When user taps the lockscreen notification
-// ────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ًں“² Notification Click Event: When user taps the lockscreen notification
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 self.addEventListener('notificationclick', (event) => {
     event.notification.close();
     if (event.action === 'dismiss') return;
@@ -624,3 +624,4 @@ self.addEventListener('notificationclick', (event) => {
         })
     );
 });
+

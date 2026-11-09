@@ -447,3 +447,113 @@
     mountScriptIfMissing('global_background_media', 'js/global_background_media.js?v=20261022_v23');
     mountScriptIfMissing('magaies-smart-guide', 'js/magaies-smart-guide.js?v=20261102_cinema_v2');
 })();
+
+// 🧭 UNIVERSAL LIFO NAVIGATION STACK & STATE PRESERVATION ENGINE (تسلسل زر رجوع خطوة بخطوة + زر خروج للرئيسية + حفظ الحالة 0ms)
+(function() {
+    const STACK_KEY = 'magaies_lifo_nav_stack_v1';
+    const STATE_KEY = 'magaies_lifo_screen_state_v1';
+    const curPath = (window.location.pathname.split('/').pop() || 'index.php') + (window.location.search || '');
+    const isMainDash = /magaiees_unified_dashboard\.php|dashboard-pro\.php|^index\.php/i.test(curPath);
+
+    window.magaiesSaveCurrentScreenState = function() {
+        try {
+            const allStates = JSON.parse(sessionStorage.getItem(STATE_KEY) || '{}');
+            const inputs = {};
+            document.querySelectorAll('input[id]:not([type="password"]):not([type="file"]), select[id], textarea[id]').forEach(el => {
+                if (el.id) inputs[el.id] = (el.type === 'checkbox' || el.type === 'radio') ? el.checked : el.value;
+            });
+            const edView = document.getElementById('purchase-editor-view') || document.getElementById('sales-editor-view');
+            allStates[curPath] = {
+                ts: Date.now(),
+                scrollY: window.scrollY || 0,
+                inEditor: edView ? (window.getComputedStyle(edView).display !== 'none') : false,
+                inputs: inputs
+            };
+            sessionStorage.setItem(STATE_KEY, JSON.stringify(allStates));
+        } catch (_) {}
+    };
+
+    window.magaiesRestoreScreenState = function() {
+        try {
+            if (sessionStorage.getItem('magaies_lifo_returning') !== '1') return;
+            sessionStorage.removeItem('magaies_lifo_returning');
+            const allStates = JSON.parse(sessionStorage.getItem(STATE_KEY) || '{}');
+            const st = allStates[curPath];
+            if (!st) return;
+            if (st.inEditor && typeof window.openPurchaseEditor === 'function' && document.getElementById('purchase-editor-view')) {
+                window.openPurchaseEditor('direct');
+            }
+            if (st.inputs) {
+                Object.keys(st.inputs).forEach(id => {
+                    const el = document.getElementById(id);
+                    if (!el || el.value === st.inputs[id]) return;
+                    if (el.type === 'checkbox' || el.type === 'radio') el.checked = !!st.inputs[id];
+                    else el.value = st.inputs[id];
+                });
+            }
+            if (st.scrollY) setTimeout(() => window.scrollTo(0, st.scrollY), 30);
+        } catch (_) {}
+    };
+
+    try {
+        let stack = JSON.parse(sessionStorage.getItem(STACK_KEY) || '[]');
+        if (!Array.isArray(stack)) stack = [];
+        if (isMainDash) {
+            stack = [curPath];
+        } else if (stack[stack.length - 1] !== curPath) {
+            stack.push(curPath);
+            if (stack.length > 25) stack = stack.slice(-25);
+        }
+        sessionStorage.setItem(STACK_KEY, JSON.stringify(stack));
+    } catch (_) {}
+
+    window.addEventListener('pagehide', window.magaiesSaveCurrentScreenState);
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', window.magaiesRestoreScreenState);
+    else setTimeout(window.magaiesRestoreScreenState, 20);
+
+    // 1-Step Sequential Back (LIFO: Open Modal -> Editor-to-Hub -> Previous Screen in Stack)
+    window.magaiesGoBackStepLIFO = function() {
+        const openModals = Array.from(document.querySelectorAll('.modal-overlay, #grid-settings-modal, #purchase-ai-audit-modal, #ocr-review-modal, #price-history-overlay')).filter(m => window.getComputedStyle(m).display !== 'none' && window.getComputedStyle(m).visibility !== 'hidden');
+        if (openModals.length > 0) {
+            const topModal = openModals[openModals.length - 1];
+            topModal.style.display = 'none';
+            topModal.classList.remove('active');
+            return false;
+        }
+        const purEd = document.getElementById('purchase-editor-view');
+        const purHub = document.getElementById('purchase-hub-view');
+        if (purEd && purHub && window.getComputedStyle(purEd).display !== 'none') {
+            window.magaiesSaveCurrentScreenState();
+            if (typeof window.showPurchaseHub === 'function') window.showPurchaseHub();
+            else { purEd.style.display = 'none'; purHub.style.display = 'flex'; }
+            return false;
+        }
+        window.magaiesSaveCurrentScreenState();
+        try {
+            let stack = JSON.parse(sessionStorage.getItem(STACK_KEY) || '[]');
+            if (stack.length > 1) {
+                stack.pop(); // remove current
+                const prev = stack[stack.length - 1];
+                sessionStorage.setItem(STACK_KEY, JSON.stringify(stack));
+                sessionStorage.setItem('magaies_lifo_returning', '1');
+                if (prev && prev !== curPath) {
+                    window.location.href = prev;
+                    return false;
+                }
+            }
+        } catch (_) {}
+        if (typeof window.magaieesGoBack === 'function') return window.magaieesGoBack();
+        window.location.href = 'magaiees_unified_dashboard.php';
+        return false;
+    };
+
+    // Direct Exit to Main Dashboard Screen
+    window.magaiesExitToMainDashboard = function() {
+        window.magaiesSaveCurrentScreenState();
+        window.isNavigatingBack = true;
+        window.formDirty = false;
+        window.onbeforeunload = null;
+        window.location.href = 'magaiees_unified_dashboard.php';
+        return false;
+    };
+})();

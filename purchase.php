@@ -3564,8 +3564,14 @@ try {
             
             <div class="toolbar-actions" style="display: flex; gap: 7px; width: 100%; align-items: center; flex-wrap: nowrap;">
                 
-                <!-- Exit Button -->
-                <button type="button" class="btn-action royal-crystal-btn royal-btn-exit btn-exit" style="flex: 0.78 1 0%; min-width: 0; height: 44px; font-weight: 900; border-radius: 11px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; white-space: nowrap; padding: 0 9px;" onclick="if(typeof showPurchaseHub === 'function' && document.getElementById('purchase-hub-view')) { showPurchaseHub(); } else if(typeof magaieesGoBack === 'function') { magaieesGoBack(); } else { window.location.href='magaiees_unified_dashboard.php'; }" title="الخروج والرجوع لبوابة المشتريات أو الرئيسية">
+                <!-- 1-Step LIFO Back Button (رجوع خطوة بخطوة مع حفظ الحالة) -->
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-back btn-back-lifo" style="flex: 0.78 1 0%; min-width: 0; height: 44px; font-weight: 900; border-radius: 11px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; white-space: nowrap; padding: 0 9px; background: linear-gradient(135deg, #d97706, #b45309) !important; border: 1.5px solid #fde047 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;" onclick="if(typeof window.magaiesGoBackStepLIFO === 'function') { window.magaiesGoBackStepLIFO(); } else if(typeof showPurchaseHub === 'function' && document.getElementById('purchase-hub-view')) { showPurchaseHub(); } else if(typeof magaieesGoBack === 'function') { magaieesGoBack(); }" title="رجوع خطوة واحدة للخلف مع حفظ حالة الشاشة (LIFO)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                    <span class="btn-fit-label" style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;">رجوع</span>
+                </button>
+
+                <!-- Direct Exit to Main Dashboard Button (خروج للشاشة الرئيسية) -->
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-exit btn-exit" style="flex: 0.78 1 0%; min-width: 0; height: 44px; font-weight: 900; border-radius: 11px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; white-space: nowrap; padding: 0 9px;" onclick="if(typeof window.magaiesExitToMainDashboard === 'function') { window.magaiesExitToMainDashboard(); } else { window.location.href='magaiees_unified_dashboard.php'; }" title="الخروج المباشر إلى الشاشة الرئيسية مع حفظ حالة الشاشة">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                     <span class="btn-fit-label">خروج</span>
                 </button>
@@ -10775,14 +10781,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (pop.style.display === 'block') { pop.style.display = 'none'; return; }
                 const isDarkNow = !document.documentElement.classList.contains('light-theme');
-                pop.style.cssText = 'position:fixed;z-index:9999999;background:' + (isDarkNow ? 'linear-gradient(145deg,#0f172a,#1e293b)' : 'linear-gradient(145deg,#fffbf2,#f3ead8)') + ';border:2px solid #fbbf24;border-radius:14px;padding:10px;box-shadow:0 18px 42px rgba(0,0,0,0.65),0 0 22px rgba(245,158,11,0.35);min-width:255px;direction:rtl;font-family:Tajawal,Cairo,sans-serif;';
-                const cur = isDarkNow ? 'dark_midnight' : (document.documentElement.getAttribute('data-light-tone') || 'ivory_default');
+                pop.style.cssText = 'position:fixed;z-index:9999999;background:' + (isDarkNow ? 'linear-gradient(145deg,#0f172a,#1e293b)' : 'linear-gradient(145deg,#fffbf2,#f3ead8)') + ';border:2px solid #fbbf24;border-radius:14px;padding:10px;box-shadow:0 18px 42px rgba(0,0,0,0.65),0 0 22px rgba(245,158,11,0.35);min-width:270px;max-height:86vh;overflow-y:auto;direction:rtl;font-family:Tajawal,Cairo,sans-serif;';
+                const rawToneAttr = document.documentElement.getAttribute('data-light-tone') || localStorage.getItem('magaies_light_tone') || (isDarkNow ? 'dark_midnight' : 'ivory_default');
+                const cur = TONES.some(x => x.id === rawToneAttr) ? rawToneAttr : (isDarkNow ? 'dark_midnight' : 'ivory_default');
                 const hdrCol = isDarkNow ? '#fde047' : '#000000';
-                pop.innerHTML = `<div style="color:${hdrCol}!important;-webkit-text-fill-color:${hdrCol}!important;font-weight:900;font-size:0.92rem;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(148,163,184,0.35);display:flex;justify-content:space-between;align-items:center;"><span>🎨 السمات ونغمات النظام (9)</span><span style="font-size:0.75rem;color:${isDarkNow?'#94a3b8':'#000000'}!important;-webkit-text-fill-color:${isDarkNow?'#94a3b8':'#000000'}!important;">موحد 100%</span></div>` +
+                pop.innerHTML = `<div style="color:${hdrCol}!important;-webkit-text-fill-color:${hdrCol}!important;font-weight:900;font-size:0.92rem;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(148,163,184,0.35);display:flex;justify-content:space-between;align-items:center;"><span>🎨 المظهر ونغمات النظام (13 لوناً)</span><span style="font-size:0.75rem;color:${isDarkNow?'#94a3b8':'#000000'}!important;-webkit-text-fill-color:${isDarkNow?'#94a3b8':'#000000'}!important;">0ms موحد 100%</span></div>` +
                     TONES.map(t => {
                         const txtCol = t.isDark ? '#ffffff' : '#000000';
                         const btnBg = t.isDark ? `linear-gradient(135deg,${t.fg} 0%,${t.bg} 100%)` : `linear-gradient(135deg,#ffffff 0%,${t.fg} 100%)`;
-                        return `<button type="button" data-tone-dark="${t.isDark?'1':'0'}" onclick="window.applyPurchaseLightTone('${t.id}',true);document.getElementById('pur-light-tone-popover').style.display='none';" style="width:100%;display:flex;align-items:center;gap:10px;padding:7px 10px;margin-bottom:5px;border-radius:9px;cursor:pointer;background:${btnBg}!important;border:${cur===t.id?'2.5px solid #d97706':'1.5px solid '+t.brd}!important;color:${txtCol}!important;-webkit-text-fill-color:${txtCol}!important;font-weight:900;font-size:0.88rem;text-align:right;"><span style="width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,${t.fg} 0%,${t.bg} 100%);border:2px solid ${t.brd};flex-shrink:0;"></span><span style="flex:1;color:${txtCol}!important;-webkit-text-fill-color:${txtCol}!important;">${t.name}</span>${cur===t.id?`<span style="color:${t.isDark?'#fde047':'#047857'}!important;-webkit-text-fill-color:${t.isDark?'#fde047':'#047857'}!important;">✓</span>`:''}</button>`;
+                        return `<button type="button" data-tone-dark="${t.isDark?'1':'0'}" onclick="window.applyPurchaseLightTone('${t.id}',true);if(window.playGlobalErpSystemSoundTone)window.playGlobalErpSystemSoundTone();document.getElementById('pur-light-tone-popover').style.display='none';" style="width:100%;display:flex;align-items:center;gap:10px;padding:7px 10px;margin-bottom:5px;border-radius:9px;cursor:pointer;background:${btnBg}!important;border:${cur===t.id?'2.5px solid #d97706':'1.5px solid '+t.brd}!important;color:${txtCol}!important;-webkit-text-fill-color:${txtCol}!important;font-weight:900;font-size:0.88rem;text-align:right;"><span style="width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,${t.fg} 0%,${t.bg} 100%);border:2px solid ${t.brd};flex-shrink:0;"></span><span style="flex:1;color:${txtCol}!important;-webkit-text-fill-color:${txtCol}!important;">${t.name}</span>${cur===t.id?`<span style="color:${t.isDark?'#fde047':'#047857'}!important;-webkit-text-fill-color:${t.isDark?'#fde047':'#047857'}!important;">✓</span>`:''}</button>`;
                     }).join('');
                 const r = anchorEl ? anchorEl.getBoundingClientRect() : { bottom: 60, left: 20 };
                 pop.style.top = Math.max(10, Math.min(window.innerHeight - 450, r.bottom + 8)) + 'px';
@@ -10835,21 +10842,29 @@ document.addEventListener('DOMContentLoaded', () => {
          9 Tones + 3px Sculpted Borders + Crisp White Inputs + Dual Currency Toggle
          ══════════════════════════════════════════════════════════════════════════ -->
     <style id="purchase-hub-constitution-2027-style">
-        /* 1. Royal Dark (dark_midnight) on #purchase-hub-view */
-        html:not(.light-theme) #purchase-hub-view {
-            background: #010308 !important;
+        /* 1. All 4 Dark & Metallic Tones (dark_midnight, pure_oled, mocha_brown, slate_twilight) on #purchase-hub-view & #purchase-editor-view */
+        :root:not(.light-theme), :root:not(.light-theme)[data-light-tone="dark_midnight"] { --dk-canvas:#010308; --dk-card-1:#1b3159; --dk-card-2:#132341; --dk-sub-1:#0b1120; --dk-th:#0d182c; --dk-border:#38bdf8; }
+        :root:not(.light-theme)[data-light-tone="pure_oled"], :root[data-theme="pure_oled"] { --dk-canvas:#000000; --dk-card-1:#050811; --dk-card-2:#020409; --dk-sub-1:#000000; --dk-th:#030712; --dk-border:#0284c7; }
+        :root:not(.light-theme)[data-light-tone="mocha_brown"], :root[data-theme="mocha_brown"] { --dk-canvas:#120906; --dk-card-1:#3b2318; --dk-card-2:#24140e; --dk-sub-1:#140b07; --dk-th:#1f120d; --dk-border:#f59e0b; }
+        :root:not(.light-theme)[data-light-tone="slate_twilight"], :root[data-theme="slate_twilight"] { --dk-canvas:#0f172a; --dk-card-1:#334155; --dk-card-2:#1e293b; --dk-sub-1:#0f172a; --dk-th:#1e293b; --dk-border:#94a3b8; }
+        html:not(.light-theme) body, html:not(.light-theme) #purchase-hub-view, html:not(.light-theme) #purchase-editor-view {
+            background: var(--dk-canvas, #010308) !important;
             color: #ffffff !important;
         }
         html:not(.light-theme) #purchase-hub-view .neo-card,
-        html:not(.light-theme) #purchase-hub-view .smart-filter-bar {
-            background: linear-gradient(145deg, #1b3159 0%, #132341 100%) !important;
-            border: 2.5px solid rgba(56, 189, 248, 0.78) !important;
+        html:not(.light-theme) #purchase-hub-view .smart-filter-bar,
+        html:not(.light-theme) #purchase-editor-view #form-fields-card,
+        html:not(.light-theme) #purchase-editor-view .panel-header-row,
+        html:not(.light-theme) #purchase-editor-view .table-container,
+        html:not(.light-theme) #purchase-editor-view #payment-panel {
+            background: linear-gradient(145deg, var(--dk-card-1, #1b3159) 0%, var(--dk-card-2, #132341) 100%) !important;
+            border: 2.5px solid var(--dk-border, rgba(56, 189, 248, 0.78)) !important;
             box-shadow: 0 12px 32px rgba(0, 0, 0, 0.85), inset 0 1.5px 0 rgba(255, 255, 255, 0.22) !important;
             border-radius: 16px !important;
         }
         html:not(.light-theme) #purchase-hub-view .hub-action-card {
-            background: linear-gradient(145deg, #1d345e 0%, #132240 100%) !important;
-            border: 2px solid rgba(56, 189, 248, 0.65) !important;
+            background: linear-gradient(145deg, var(--dk-card-1, #1d345e) 0%, var(--dk-card-2, #132240) 100%) !important;
+            border: 2px solid var(--dk-border, rgba(56, 189, 248, 0.65)) !important;
             box-shadow: 0 8px 22px rgba(0, 0, 0, 0.65) !important;
         }
         html:not(.light-theme) #purchase-hub-view .hub-action-card .title {
@@ -10859,17 +10874,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         html:not(.light-theme) #purchase-hub-view #hub-filter-type,
         html:not(.light-theme) #purchase-hub-view #hub-filter-value {
-            background: #0b1120 !important;
+            background: var(--dk-sub-1, #0b1120) !important;
             color: #ffffff !important;
-            border: 2px solid #38bdf8 !important;
+            border: 2px solid var(--dk-border, #38bdf8) !important;
             font-weight: 900 !important;
         }
         html:not(.light-theme) #purchase-hub-view #hub-pos-grid thead th {
-            background: #0d182c !important;
+            background: var(--dk-th, #0d182c) !important;
             color: #ffffff !important;
             font-weight: 900 !important;
             font-size: 0.98rem !important;
-            border-bottom: 2.5px solid #38bdf8 !important;
+            border-bottom: 2.5px solid var(--dk-border, #38bdf8) !important;
         }
         html:not(.light-theme) #purchase-hub-view #hub-transactions-body tr td {
             color: #ffffff !important;
@@ -10957,6 +10972,31 @@ document.addEventListener('DOMContentLoaded', () => {
             color: #ffffff !important;
             -webkit-text-fill-color: #ffffff !important;
         }
+        /* 3. الحارس الصارم للوضع النهاري (Strict Daylight Font-Color Contrast Guardian — Zero Pale Text on Light Surfaces) */
+        html.light-theme #purchase-hub-view .smart-filter-bar span,
+        html.light-theme #purchase-hub-view .neo-card-title span:not([style*="background"]),
+        html.light-theme #purchase-hub-view .empty-state h3,
+        html.light-theme #purchase-hub-view #hub-pagination-bar *,
+        html.light-theme #share-popup-menu button,
+        html.light-theme #share-popup-menu button span,
+        html.light-theme .modal-overlay [style*="color:#fff"]:not(button):not(.m7-solid-badge-guard),
+        html.light-theme .modal-overlay [style*="color: #fff"]:not(button):not(.m7-solid-badge-guard),
+        html.light-theme .modal-overlay [style*="color:#cbd5e1"],
+        html.light-theme .modal-overlay [style*="color:#94a3b8"],
+        html.light-theme .modal-overlay [style*="color:#e2e8f0"] {
+            color: var(--lt-ink, #000000) !important;
+            -webkit-text-fill-color: var(--lt-ink, #000000) !important;
+            font-weight: 900 !important;
+            text-shadow: none !important;
+        }
+        /* Fast <0ms Tactile Button Acceleration Across All Purchase Buttons */
+        #purchase-hub-view button, #purchase-editor-view button {
+            transition: transform 0.08s cubic-bezier(0.2, 0.9, 0.2, 1), box-shadow 0.12s ease !important;
+            will-change: transform;
+        }
+        #purchase-hub-view button:active, #purchase-editor-view button:active {
+            transform: scale(0.97) !important;
+        }
     </style>
 
     <script id="purchase-hub-constitution-2027-script">
@@ -10973,6 +11013,60 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof filterHubTransactions === 'function') filterHubTransactions();
             else if (typeof loadHubTransactions === 'function') loadHubTransactions();
         };
+        // 1. Inline Math Calculator (12*24 -> 288) in all numeric inputs (0ms)
+        document.addEventListener('keydown', function(e) {
+            if (e.key !== 'Enter' && e.key !== 'Tab') return;
+            const el = e.target;
+            if (!el || el.tagName !== 'INPUT' || el.type === 'date') return;
+            const raw = String(el.value || '').trim();
+            if (/^[0-9.,+\-*/()\s]+$/.test(raw) && /[+\-*/]/.test(raw.slice(1))) {
+                try {
+                    const expr = raw.replace(/,/g, '');
+                    const val = Function('"use strict";return (' + expr + ')')();
+                    if (typeof val === 'number' && isFinite(val)) {
+                        el.value = Math.round(val * 100) / 100;
+                        el.dispatchEvent(new Event('input', { bubbles: true }));
+                        el.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                } catch (_) {}
+            }
+        }, true);
+        // 2. Privacy Eye (****), Split-Screen (50/50), AI Executive CFO Summary & Direct Appearance Button
+        window.togglePurchasePrivacyMask = function() {
+            document.body.classList.toggle('pur-privacy-masked');
+            if (!document.getElementById('pur-privacy-mask-css')) {
+                const st = document.createElement('style');
+                st.id = 'pur-privacy-mask-css';
+                st.textContent = 'body.pur-privacy-masked .fin-val, body.pur-privacy-masked .total-val, body.pur-privacy-masked #t-grand-dynamic-loc, body.pur-privacy-masked #t-grand-dynamic-fc, body.pur-privacy-masked #hub-summary-bar strong { filter: blur(7px); transition: filter 0.2s; } body.pur-privacy-masked .fin-val:hover, body.pur-privacy-masked .total-val:hover { filter: none; }';
+                document.head.appendChild(st);
+            }
+        };
+        window.togglePurchaseSplitScreen = function() {
+            let sp = document.getElementById('pur-split-screen-pane');
+            if (sp) { sp.remove(); document.body.style.width = ''; return; }
+            sp = document.createElement('div');
+            sp.id = 'pur-split-screen-pane';
+            sp.style.cssText = 'position:fixed;top:0;left:0;width:48vw;height:100dvh;z-index:999990;background:#0f172a;border-right:3px solid #38bdf8;box-shadow:12px 0 35px rgba(0,0,0,0.75);display:flex;flex-direction:column;direction:rtl;';
+            sp.innerHTML = `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#1e293b;border-bottom:2px solid #38bdf8;gap:6px;"><span style="color:#fde047;font-weight:900;font-size:0.86rem;">◫ الشاشة المزدوجة الحية</span><select onchange="document.getElementById('pur-split-iframe').src=this.value" style="background:#0b1120;color:#fff;border:1.5px solid #38bdf8;border-radius:6px;padding:3px 8px;font-weight:900;font-size:0.8rem;"><option value="account-statement.php">📊 كشف الحساب</option><option value="purchase-receipt.php">🚛 استلام البضاعة (GRN)</option><option value="sales.php">🛒 شاشة المبيعات</option><option value="master-data.php">🗂️ البيانات الأساسية</option><option value="inbound-Single-Receipt.php">🏦 إشعارات بنكك</option></select><button type="button" onclick="window.togglePurchaseSplitScreen()" style="background:#dc2626;color:#fff;border:none;border-radius:6px;padding:3px 9px;font-weight:900;cursor:pointer;">✕ إغلاق</button></div><iframe id="pur-split-iframe" src="account-statement.php" style="flex:1;width:100%;border:none;background:#fff;"></iframe>`;
+            document.body.appendChild(sp);
+        };
+        window.runPurchaseAiExecutiveSummary = function() {
+            const rows = document.querySelectorAll('#hub-transactions-body tr');
+            const sumTxt = (document.getElementById('hub-summary-bar') || {}).innerText || '';
+            const msg = `📊 تحليل المدير المالي الذكي (AI CFO): إجمالي الحركات الظاهرة في السجل (${rows.length}) حركة. ${sumTxt}. التوصية الذكية: راقب لمبة رادار الأسعار الحمراء في الفاتورة لتجنب ارتفاع التكلفة، واستخدم زر الذكاء الاصطناعي للأسعار لضبط هامش البيع تلقائياً.`;
+            if (typeof window.showToast === 'function') window.showToast(msg, 'info', 6500);
+            if (typeof window.speakMdExplanationPanelText === 'function') window.speakMdExplanationPanelText(msg);
+        };
+        document.addEventListener('DOMContentLoaded', function() {
+            const hubTitleRow = document.querySelector('#purchase-hub-view .neo-card-title > div:first-child');
+            if (hubTitleRow && !document.getElementById('pur-hub-sovereign-tools')) {
+                const wrap = document.createElement('span');
+                wrap.id = 'pur-hub-sovereign-tools';
+                wrap.style.cssText = 'display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;';
+                wrap.innerHTML = `<button type="button" onclick="window.openPurchaseLightTonePopover(this)" style="height:34px;padding:0 12px;border-radius:9px;background:linear-gradient(135deg,#d97706,#b45309);border:2px solid #fde047;color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;font-size:0.84rem;font-weight:900;cursor:pointer;">🎨 المظهر (13 لوناً)</button><button type="button" onclick="window.runPurchaseAiExecutiveSummary()" style="height:34px;padding:0 11px;border-radius:9px;background:linear-gradient(135deg,#059669,#047857);border:2px solid #6ee7b7;color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;font-size:0.82rem;font-weight:900;cursor:pointer;">🧠 تحليل النتيجة بالذكاء</button><button type="button" onclick="window.togglePurchaseSplitScreen()" style="height:34px;padding:0 10px;border-radius:9px;background:linear-gradient(135deg,#0284c7,#0369a1);border:2px solid #7dd3fc;color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;font-size:0.82rem;font-weight:900;cursor:pointer;" title="فتح شاشة ثانية بجانب المشتريات">◫ شاشة مزدوجة</button><button type="button" onclick="window.togglePurchasePrivacyMask()" style="height:34px;padding:0 10px;border-radius:9px;background:linear-gradient(135deg,#334155,#0f172a);border:2px solid #94a3b8;color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;font-size:0.82rem;font-weight:900;cursor:pointer;" title="عين الخصوصية لإخفاء الأرقام (****)">👁️ ****</button><button type="button" onclick="if(window.magaiesGoBackStepLIFO)window.magaiesGoBackStepLIFO();" style="height:34px;padding:0 10px;border-radius:9px;background:linear-gradient(135deg,#b45309,#78350f);border:2px solid #fde047;color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;font-size:0.82rem;font-weight:900;cursor:pointer;" title="رجوع خطوة واحدة للخلف مع حفظ الحالة">↩️ رجوع</button><button type="button" onclick="if(window.magaiesExitToMainDashboard)window.magaiesExitToMainDashboard();" style="height:34px;padding:0 10px;border-radius:9px;background:linear-gradient(135deg,#dc2626,#991b1b);border:2px solid #fca5a5;color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;font-size:0.82rem;font-weight:900;cursor:pointer;" title="خروج مباشر للشاشة الرئيسية">🚪 خروج</button>`;
+                hubTitleRow.appendChild(wrap);
+            }
+        });
     })();
     </script>
 </body>

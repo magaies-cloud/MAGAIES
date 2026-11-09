@@ -1686,14 +1686,28 @@ html.inventory-hub-page .badge-category, html.hub-report-page .badge-category {
     color: #6d28d9 !important;
 }
 
-:root.light-theme .text-amber-400,
-:root.light-theme span[style*="color: #fbbf24"],
-:root.light-theme span[style*="color:#fbbf24"],
-:root.light-theme span[style*="color: #fef08a"],
-:root.light-theme span[style*="color:#fef08a"],
-:root.light-theme span[style*="color: #fde047"],
-:root.light-theme span[style*="color:#fde047"] {
-    color: #b45309 !important;
+:root.light-theme #header-date-mini,
+:root.light-theme .clock-date {
+    color: #120500 !important;
+    -webkit-text-fill-color: #120500 !important;
+    font-weight: 900 !important;
+}
+:root.light-theme .text-amber-200:not(.exec-jewel-val),
+:root.light-theme .text-amber-300:not(.exec-jewel-val),
+:root.light-theme .text-amber-400:not(.exec-jewel-val),
+:root.light-theme [style*="color: #fbbf24"]:not(button):not(.exec-jewel-val),
+:root.light-theme [style*="color:#fbbf24"]:not(button):not(.exec-jewel-val),
+:root.light-theme [style*="color: #fcd34d"]:not(button):not(.exec-jewel-val),
+:root.light-theme [style*="color:#fcd34d"]:not(button):not(.exec-jewel-val),
+:root.light-theme [style*="color: #fde68a"]:not(button):not(.exec-jewel-val),
+:root.light-theme [style*="color:#fde68a"]:not(button):not(.exec-jewel-val),
+:root.light-theme [style*="color: #fef08a"]:not(button):not(.exec-jewel-val):not(.quran-seamless-segment),
+:root.light-theme [style*="color:#fef08a"]:not(button):not(.exec-jewel-val):not(.quran-seamless-segment),
+:root.light-theme [style*="color: #fde047"]:not(button):not(#hdr-usd):not(.exec-jewel-val):not(.brk-pill-hdr-off):not(.brk-off-txt-1),
+:root.light-theme [style*="color:#fde047"]:not(button):not(#hdr-usd):not(.exec-jewel-val):not(.brk-pill-hdr-off):not(.brk-off-txt-1) {
+    color: #78350f !important;
+    -webkit-text-fill-color: #78350f !important;
+    font-weight: 900 !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════════

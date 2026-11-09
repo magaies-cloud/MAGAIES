@@ -366,7 +366,7 @@ function getRealUnixSeconds(forceRefresh = false) {
         try {
             if (fs.existsSync(SKEW_CACHE_FILE)) {
                 const data = JSON.parse(fs.readFileSync(SKEW_CACHE_FILE, 'utf8'));
-                if (typeof data.skew === 'number' && Math.abs(Date.now() - data.savedAt) < 86400000) {
+                if (typeof data.skew === 'number' && Math.abs(Date.now() - data.savedAt) < 2592000000) {
                     return Promise.resolve(Math.floor(Date.now() / 1000) + data.skew);
                 }
             }
@@ -423,7 +423,7 @@ function attemptWsSynthesize(text, outFile, voice, rate, pitch, unixSec) {
             done = true;
             try { ws.close(); } catch (e) {}
             reject(new Error('Edge WebSocket Timeout'));
-        }, 20000);
+        }, 6500);
 
         ws.on('open', () => {
             const ts = new Date().toString();
@@ -438,7 +438,7 @@ function attemptWsSynthesize(text, outFile, voice, rate, pitch, unixSec) {
                 .replace(/\s*[،؛]\s*/g, '، ')
                 .replace(/\s*\.\s*/g, '. ');
 
-            const ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='${String(voice).slice(0, 5)}'><voice name='${voice}'><prosody pitch='${pitch}' rate='${rate}' volume='+20%'>${cleanText}</prosody></voice></speak>`;
+            const ssml = `<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='${String(voice).slice(0, 5)}'><voice name='${voice}'><prosody pitch='${pitch}' rate='${rate}'>${cleanText}</prosody></voice></speak>`;
             const ssmlMsg = `X-RequestId:${ crypto.randomUUID().replace(/-/g, '') }\r\nContent-Type:application/ssml+xml\r\nX-Timestamp:${ts}Z\r\nPath:ssml\r\n\r\n${ssml}`;
             ws.send(ssmlMsg);
         });
@@ -500,23 +500,23 @@ function attemptWsSynthesize(text, outFile, voice, rate, pitch, unixSec) {
     });
 }
 
-async function synthesizeEdgeMale(text, outFile, voice = 'ar-OM-AbdullahNeural', rate = '+0%', pitch = '-2Hz') {
-    // Strictly Unified Prestigious Male Voice Only — locked 100% to ar-OM-AbdullahNeural so voice never changes
-    const lockedMaleVoice = voice || 'ar-SA-HamedNeural';
-    const fallbackMaleOrder = [lockedMaleVoice, lockedMaleVoice, 'ar-OM-AbdullahNeural', lockedMaleVoice];
+async function synthesizeEdgeMale(text, outFile, voice = 'ar-SA-ZariyahNeural', rate = '+0%', pitch = '+0Hz') {
+    const primaryVoice = voice || 'ar-SA-ZariyahNeural';
+    const isFemale = /Zariyah|Salma|Fatima|Hoda|Amany|Noura/i.test(primaryVoice);
+    const fallbackOrder = [primaryVoice, primaryVoice, isFemale ? 'ar-SA-ZariyahNeural' : 'ar-SA-HamedNeural'];
 
     let lastErr = null;
-    for (let attempt = 0; attempt < fallbackMaleOrder.length; attempt++) {
+    for (let attempt = 0; attempt < fallbackOrder.length; attempt++) {
         try {
             const realSec = await getRealUnixSeconds(attempt > 0);
-            const activeMaleVoice = fallbackMaleOrder[attempt];
-            return await attemptWsSynthesize(text, outFile, activeMaleVoice, rate, pitch, realSec);
+            const activeVoice = fallbackOrder[attempt];
+            return await attemptWsSynthesize(text, outFile, activeVoice, rate, pitch, realSec);
         } catch (err) {
             lastErr = err;
             await new Promise(r => setTimeout(r, 180 * (attempt + 1)));
         }
     }
-    throw lastErr || new Error('Male neural synthesis failed after retries');
+    throw lastErr || new Error('Neural voice synthesis failed after retries');
 }
 
 if (require.main === module) {

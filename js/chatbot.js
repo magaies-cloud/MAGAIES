@@ -44,56 +44,52 @@
             70% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
-        @media (max-width: 480px) { #chatbot-window { width: calc(100vw - 40px); bottom: 85px; height: 450px; } }
+        #chatbot-window { width: 410px; height: 560px; max-height: 84vh; }
+        .chat-hdr-tools { display: flex; align-items: center; gap: 5px; }
+        .chat-hdr-btn { background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.3); color: #fff; border-radius: 8px; padding: 3px 8px; font-size: 0.75rem; font-weight: 800; cursor: pointer; transition: 0.2s; }
+        .chat-hdr-btn:hover { background: rgba(255,255,255,0.3); transform: translateY(-1px); }
+        @media (max-width: 480px) { #chatbot-window { width: calc(100vw - 32px); bottom: 85px; height: 480px; } }
     `;
     document.head.appendChild(style);
 
     const isToolsPage = window.location.pathname.includes('engineering_tools.php');
-    const welcomeHtml = isToolsPage ? `
-        أهلاً بك في نظام السجانة الذكي! 🌟<br>
-        أنا مرتبط ببيانات النظام الحية، وموسوعة فتاوى البيوع والمعاملات (4,500 فتوى)، وجميع الأدوات المساعدة. جرب أن تسألني:
+    const welcomeHtml = `
+        أهلاً بك في <b>المساعد الذكي والحارس الأمين (Professor AI 360°)</b>! 🤖👑<br>
+        أنا مرتبط لحظياً <b>ببيانات النظام الحية، وكل شاشة وزر وخانة في البرنامج، والمرشد الذكي 🎓، والدبل كليك يمين 🖱️، والتسجيل السينمائي 4K 🎬</b>. اسألني بالكتابة أو المايك 🎤 عن أي شيء:
         <div class="chat-options">
-            <span class="chat-pill" onclick="sendPill('حكم البيع بالتقسيط؟')">حكم بيع التقسيط 💳</span>
-            <span class="chat-pill" onclick="sendPill('ما حكم غرامات التأخير؟')">غرامات التأخير ⚠️</span>
-            <span class="chat-pill" onclick="sendPill('حاسبة زكاة المال')">حاسبة الزكاة 💰</span>
-            <span class="chat-pill" onclick="sendPill('سويفت كود بنك الخرطوم')">سويفت بنك الخرطوم 🏦</span>
-            <span class="chat-pill" onclick="sendPill('كم السيولة النقدية؟')">كم السيولة؟ 💵</span>
-            <span class="chat-pill" onclick="sendPill('آية الدين والمداينة')">آية الدين 📖</span>
-            <span class="chat-pill" onclick="sendPill('أحاديث البيوع الصحيحة')">أحاديث البيوع 📜</span>
-            <span class="chat-pill" onclick="sendPill('حساب وزن سيخ 12 مم')">أوزان الحديد 🏗️</span>
-        </div>
-    ` : `
-        أهلاً بك في <b>المستشار المالي الذكي (Virtual CFO)</b>! 💼🌟<br>
-        أنا مساعدك التنفيذي، أحلل التدفقات النقدية والمخزون والتسعير لحظياً من واقع بياناتك. جرب الاستفسار عن:
-        <div class="chat-options">
-            <span class="chat-pill" onclick="sendPill('تحليل التدفق النقدي والسيولة')" style="border-color:#10b981; color:#34d399; font-weight:bold;">📊 تحليل السيولة والتدفق النقدي</span>
-            <span class="chat-pill" onclick="sendPill('التنبؤ بنفاد المخزون')" style="border-color:#f59e0b; color:#fbbf24; font-weight:bold;">⚠️ التنبؤ بنفاد المخزون</span>
-            <span class="chat-pill" onclick="sendPill('اقتراحات تسعير الأصناف')" style="border-color:#38bdf8; color:#38bdf8; font-weight:bold;">🏷️ اقتراحات التسعير والربح</span>
-            <span class="chat-pill" onclick="sendPill('تقرير المدير المالي الشامل')" style="border-color:#a855f7; color:#c084fc; font-weight:bold;">💼 تقرير CFO التنفيذي</span>
-            <span class="chat-pill" onclick="sendPill('كم السيولة؟')">كم السيولة؟ 💰</span>
-            <span class="chat-pill" onclick="sendPill('من هم أكبر المدينين؟')">أكبر المديونيات ⚠️</span>
+            <span class="chat-pill" onclick="sendPill('اشرح لي هذه الشاشة بالكامل')" style="border-color:#f59e0b;color:#fde047;font-weight:bold;">🎓 اشرح هذه الشاشة</span>
+            <span class="chat-pill" onclick="sendPill('اعرض أزرار وخانات هذه الشاشة')" style="border-color:#38bdf8;color:#7dd3fc;font-weight:bold;">🔘 أزرار وخانات الشاشة</span>
+            <span class="chat-pill" onclick="sendPill('كيف يعمل الدبل كليك يمين والمرشد الذكي؟')" style="border-color:#a855f7;color:#d8b4fe;font-weight:bold;">🖱️ الدبل كليك والمرشد</span>
+            <span class="chat-pill" onclick="sendPill('كيف أسجل فيديو سينمائي 4K للشاشة؟')" style="border-color:#ec4899;color:#f9a8d4;font-weight:bold;">🎬 التسجيل والفيديوهات</span>
+            <span class="chat-pill" onclick="sendPill('تحليل التدفق النقدي والسيولة')" style="border-color:#10b981;color:#34d399;font-weight:bold;">📊 السيولة والتدفق النقدي</span>
+            <span class="chat-pill" onclick="sendPill('تقرير المدير المالي الشامل')" style="border-color:#6366f1;color:#a5b4fc;font-weight:bold;">💼 تقرير CFO التنفيذي</span>
+            <span class="chat-pill" onclick="sendPill('ما هي جميع شاشات البرنامج؟')">🗂️ دليل شاشات البرنامج</span>
+            <span class="chat-pill" onclick="sendPill('من هم أكبر المدينين؟')">⚠️ أكبر المديونيات</span>
         </div>
     `;
 
-    const placeholderText = isToolsPage ? 
-        'اسأل عن أي فتوى، آية، حديث، سويفت، أو بيانات النظام...' : 
-        'اسأل عن أي مديونية أو فاتورة أو فتوى بيوع...';
+    const placeholderText = 'اسأل عن أي زر، خانة، شاشة، المرشد، الفيديو، أو البيانات الحية...';
 
     const container = document.createElement('div');
     container.id = 'magaees-chatbot-container';
     
     container.innerHTML = `
-        <button id="chatbot-fab" title="المساعدة والدعم">🤖</button>
+        <button id="chatbot-fab" title="المساعد الذكي الشامل (Professor AI 360°)">🤖</button>
         <div id="chatbot-window">
             <div id="chatbot-header">
                 <div class="title-area">
                     <span style="font-size: 24px;">🤖</span>
                     <div>
-                        <h3>المساعد الذكي للبيانات</h3>
-                        <p>يقرأ بيانات النظام الحية للإجابة!</p>
+                        <h3>المساعد الذكي للبيانات 360°</h3>
+                        <p>مرتبط بكل الشاشات والأزرار والمرشد والبيانات الحية</p>
                     </div>
                 </div>
-                <button id="chatbot-close">✕</button>
+                <div class="chat-hdr-tools">
+                    <button type="button" id="chatbot-tts-toggle" class="chat-hdr-btn" title="تفعيل/إيقاف النطق الصوتي الآلي">🔊</button>
+                    <button type="button" class="chat-hdr-btn" onclick="if(window.openSmartGuide)window.openSmartGuide();else sendPill('اشرح لي هذه الشاشة بالكامل');" title="فتح المرشد الذكي 🎓">🎓</button>
+                    <button type="button" class="chat-hdr-btn" onclick="if(window.startAutomaticCinema4KMediaRecorder)window.startAutomaticCinema4KMediaRecorder();else sendPill('كيف أسجل فيديو سينمائي 4K للشاشة؟');" title="تسجيل فيديو 4K 🎬">🎬</button>
+                    <button id="chatbot-close">✕</button>
+                </div>
             </div>
             <div id="chatbot-body">
                 <div class="chat-msg bot">
@@ -102,7 +98,7 @@
             </div>
             <div id="chatbot-input-area">
                 <input type="text" id="chatbot-input" placeholder="${placeholderText}" autocomplete="off">
-                <button id="chatbot-mic" title="تحدث بالصوت">🎤</button>
+                <button id="chatbot-mic" title="تحدث بالصوت (مايك مباشر)">🎤</button>
                 <button id="chatbot-send">➤</button>
             </div>
         </div>
@@ -1387,6 +1383,22 @@
         callback(false);
     }
 
+    // Load Professor 360° Universal DOM & Guide Engine automatically
+    if (!document.getElementById('magaies-chatbot-prof360-script')) {
+        const s360 = document.createElement('script');
+        s360.id = 'magaies-chatbot-prof360-script';
+        s360.src = 'js/chatbot-professor-360.js?v=' + Date.now();
+        document.head.appendChild(s360);
+    }
+    const ttsToggleBtn = document.getElementById('chatbot-tts-toggle');
+    if (ttsToggleBtn) {
+        ttsToggleBtn.onclick = () => {
+            window.__chatbotAutoSpeak = !window.__chatbotAutoSpeak;
+            localStorage.setItem('magaies_chatbot_autospeak', window.__chatbotAutoSpeak ? '1' : '0');
+            ttsToggleBtn.innerHTML = window.__chatbotAutoSpeak ? '🔊' : '🔇';
+        };
+    }
+
     function processUserMessage(text) {
         const query = text.trim();
         if(!query) return;
@@ -1396,6 +1408,16 @@
 
         setTimeout(() => {
             let matched = false;
+
+            // 0. Try Professor 360° Live Screen, Buttons, Fields, Guide, Video & Double-Right-Click Engine
+            if (typeof window.tryHandleProfessor360Query === 'function') {
+                const profHit = window.tryHandleProfessor360Query(query);
+                if (profHit && profHit.html) {
+                    appendMessage(profHit.html, 'bot', profHit.btnHtml || '');
+                    if (window.speakChatbotReply) window.speakChatbotReply(profHit.html);
+                    return;
+                }
+            }
             
             // 1. Try Dynamic Queries (NLP Regex) for Live ERP Data
             for(let rule of dynamicKb) {
@@ -1471,10 +1493,11 @@
                     contextStr = stats.join(" | ");
                 } catch(e) { console.error("Context Error:", e); }
 
+                const screenCtx = (typeof window.buildLiveScreenAiContext === 'function') ? window.buildLiveScreenAiContext() : '';
                 fetch('api/ai-assistant.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: query, context: contextStr })
+                    body: JSON.stringify({ message: query, context: contextStr, screen_context: screenCtx })
                 })
                 .then(res => res.json())
                 .then(data => {
@@ -1533,6 +1556,7 @@
                         }
                         
                         msgEl.innerHTML = formattedReply + actionBtnHtml;
+                        if (window.speakChatbotReply) window.speakChatbotReply(formattedReply);
                     } else {
                         msgEl.innerHTML = 'عذراً، حدث خطأ في الاتصال بالمساعد الذكي.';
                     }

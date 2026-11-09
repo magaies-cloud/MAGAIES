@@ -32,16 +32,23 @@ if ($text === '') {
     exit;
 }
 
-// Unified Single Prestigious Studio-Mastered Male Voice (ar-OM-AbdullahNeural) across all modes so voice identity never changes
+// Unified Studio-Pure HD Neural Voice Library (Natural Broadcast +6% Articulation — Crystal-Clear Word Separation)
 $voiceMap = [
-    'fusha'    => ['voice' => 'ar-SA-HamedNeural', 'rate' => '-8%', 'pitch' => '+0Hz'],
-    'egyptian' => ['voice' => 'ar-SA-HamedNeural', 'rate' => '-8%', 'pitch' => '+0Hz'],
-    'sudanese' => ['voice' => 'ar-SA-HamedNeural', 'rate' => '-8%', 'pitch' => '+0Hz'],
-    'gulf'     => ['voice' => 'ar-SA-HamedNeural', 'rate' => '-8%', 'pitch' => '+0Hz'],
+    'female_zariyah' => ['voice' => 'ar-SA-ZariyahNeural',  'rate' => '+6%', 'pitch' => '+0Hz'],
+    'female_salma'   => ['voice' => 'ar-EG-SalmaNeural',    'rate' => '+6%', 'pitch' => '+0Hz'],
+    'female_fatima'  => ['voice' => 'ar-AE-FatimaNeural',   'rate' => '+6%', 'pitch' => '+0Hz'],
+    'male_hamed'     => ['voice' => 'ar-SA-HamedNeural',    'rate' => '+6%', 'pitch' => '+0Hz'],
+    'male_abdullah'  => ['voice' => 'ar-OM-AbdullahNeural', 'rate' => '+8%', 'pitch' => '+0Hz'],
+    'male_shakir'    => ['voice' => 'ar-EG-ShakirNeural',   'rate' => '+6%', 'pitch' => '+0Hz'],
+    'male_muawiya'   => ['voice' => 'ar-SD-MuawiyaNeural',  'rate' => '+6%', 'pitch' => '+0Hz'],
+    'fusha'          => ['voice' => 'ar-SA-HamedNeural',    'rate' => '+6%', 'pitch' => '+0Hz'],
+    'egyptian'       => ['voice' => 'ar-EG-ShakirNeural',   'rate' => '+6%', 'pitch' => '+0Hz'],
+    'sudanese'       => ['voice' => 'ar-SD-MuawiyaNeural',  'rate' => '+6%', 'pitch' => '+0Hz'],
+    'gulf'           => ['voice' => 'ar-SA-HamedNeural',    'rate' => '+6%', 'pitch' => '+0Hz'],
 ];
 
 if (!isset($voiceMap[$dialect])) {
-    $dialect = 'fusha';
+    $dialect = 'male_hamed';
 }
 $cfg = $voiceMap[$dialect];
 
@@ -50,8 +57,8 @@ if (!is_dir($cacheDir)) {
     @mkdir($cacheDir, 0777, true);
 }
 
-$hash = md5('edge_neural_male_v12_hamed_natural|' . $cfg['voice'] . '|' . $cfg['rate'] . '|' . $cfg['pitch'] . '|' . $text);
-$cacheFile = $cacheDir . '/neural_male_v9_' . $hash . '.mp3';
+$hash = md5('edge_neural_hd_v21|' . $cfg['voice'] . '|' . $cfg['rate'] . '|' . $cfg['pitch'] . '|' . $text);
+$cacheFile = $cacheDir . '/neural_v21_' . $hash . '.mp3';
 
 // 0. Exact word timings (for perfect image/voice sync)
 if (!empty($_GET['meta'])) {
@@ -102,7 +109,9 @@ if (file_exists($cacheFile) && filesize($cacheFile) > 500) {
     exit;
 }
 
-// 3. Generate Genuine Microsoft Edge Neural Male MP3 via edge_male_tts.cjs into an atomic temp file
+// 3A. Fast Direct Microsoft Edge Neural Voice via edge_male_tts.cjs (zero blocking cURL overhead)
+clearstatcache(true, $cacheFile);
+if (!file_exists($cacheFile) || filesize($cacheFile) <= 500) {
 $scriptPath = __DIR__ . '/edge_male_tts.cjs';
 $nodeCandidates = [
     'C:\\Program Files\\nodejs\\node.exe',
@@ -152,6 +161,7 @@ if (file_exists($tmpFile) && filesize($tmpFile) > 500) {
 } else {
     @unlink($tmpFile);
     @unlink($tmpFile . '.marks.json');
+}
 }
 
 if ($lockFp) {

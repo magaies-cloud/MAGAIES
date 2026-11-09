@@ -1126,7 +1126,23 @@ function switchToMobileEdition() {
                 <?php $header_theme_class = 'header-theme-dashboard'; ?>
         <?php include 'includes/header.php'; ?>
 
-
+        <div id="market-broker-restore-pill" style="display:none;align-self:flex-start;">
+            <button type="button" onclick="toggleMarketBrokerTicker(true)" style="padding:3px 12px;border-radius:999px;background:linear-gradient(135deg,#059669,#047857);color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #fde047;font-size:12px;font-weight:900;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.4);">📢 إظهار شريطي البورصة (العروض والطلبات)</button>
+        </div>
+        <div id="market-broker-ticker-wrap" style="display:flex;flex-direction:column;gap:6px;margin:0;">
+            <div class="mkt-broker-row" id="market-broker-offers-row">
+                <div style="flex:1;overflow:hidden;position:relative;direction:rtl;">
+                    <div id="market-broker-ticker-track"></div>
+                </div>
+                <button type="button" onclick="openMarketBrokerQuickPostModal('offer')" title="تحكم شريط العروض العلوي: جدول العروض + إضافة عرض سعر + السرعة + القفل" style="width:18px;height:18px;min-width:18px;padding:0;border-radius:5px;background:#059669;color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;border:none;font-size:10.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;z-index:6;">🎛️</button>
+            </div>
+            <div class="mkt-broker-row" id="market-broker-orders-row">
+                <div style="flex:1;overflow:hidden;position:relative;direction:rtl;">
+                    <div id="market-broker-orders-track"></div>
+                </div>
+                <button type="button" onclick="openMarketBrokerQuickPostModal('order')" title="تحكم شريط الطلبات السفلي: جدول الطلبات + إضافة طلب شراء + السرعة + القفل" style="width:18px;height:18px;min-width:18px;padding:0;border-radius:5px;background:#d97706;color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;border:none;font-size:10.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;z-index:6;">🎛️</button>
+            </div>
+        </div>
 
         <!-- Ultra Premium World-Class 2-Row Command Matrix (Screens + Customize(12) + 12 Equal Luminous Shortcuts = 14 Equal Cells in 2 Rows of 7) -->
         <div class="glass-panel" id="qa-bar-container" style="margin-bottom: 14px; position: relative;" oncontextmenu="if(!event.target.closest('button, a')){ openQACustomizer(event); return false; }">
@@ -1137,8 +1153,8 @@ function switchToMobileEdition() {
             </button>
 
             <!-- 2. Customize (12) Master Button -->
-            <button onclick="openQACustomizer(event)" class="qa-master-btn qa-ribbon-btn" style="--btn-border-color: #38bdf8; --btn-glow-color: rgba(56, 189, 248, 0.55); border-bottom: 3.5px solid #38bdf8 !important;" title="تخصيص الـ 12 زر في الصفين">
-                <span class="btn-text" id="qa-customizer-btn-label" style="color: #38bdf8;">تخصيص (12)</span>
+            <button onclick="openQACustomizer(event)" class="qa-master-btn qa-ribbon-btn" style="--btn-border-color: #f59e0b; --btn-glow-color: rgba(245, 158, 11, 0.55); border-bottom: 3.5px solid #f59e0b !important;" title="تخصيص الـ 12 زر في الصفين">
+                <span class="btn-text" id="qa-customizer-btn-label" style="color: #ffffff;">تخصيص (12)</span>
             </button>
 
             <!-- 3. 12 Customizable Quick Action Buttons (5 in Row 1 + 7 in Row 2) -->
@@ -1211,51 +1227,135 @@ function switchToMobileEdition() {
         </div>
 
         <div id="new-unified-dashboard-design" class="space-y-5 pb-10">
-            <!-- الشريط الموحد بالأزرار البارزة الغامقة والخط الفاتح: جنيه ⇄ + الصرف متجاورين | اليوم، الأسبوع، الشهر، الكل | الستارة | الأصوات | فاتورة سريعة | إيجاز ذكي | أسعار الأصناف -->
-            <div class="bento-card dash-top-command-strip" style="padding: 10px 14px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; border-radius: 18px;">
-                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 7px; width: 100%;">
-                    <!-- 1. زر العملة (جنيه ⇄) ملاصق مباشرة لزر سعر الصرف لربطهما بصرياً وبيانياً -->
-                    <button onclick="toggleCurrency()" id="currency-btn" class="dash-cmd-btn dash-cmd-amber" title="اضغط للتحويل الفوري بين الجنيه والدولار">
-                        <span id="currency-btn-txt">جنيه ⇄</span>
+            <!-- الشريط الموحد الشامل المثبت في الأعلى (الفترات الزمنية + العملة + الصرف + المحاور البروفيسور + الإيجاز الذكي في سطر واحد + 10 مؤشرات بخط مكبر وارتفاع أوضح) -->
+            <style>
+                html .dash-main { gap: 4px !important; padding-top: 4px !important; }
+                html .dash-main > .unified-header, html .unified-header { margin-bottom: 2px !important; }
+                html #qa-bar-container, html[data-theme] #qa-bar-container, html.light-theme #qa-bar-container { margin-top: 0 !important; margin-bottom: 4px !important; }
+                #qa-bar-container .qa-ribbon-btn .btn-text { font-size: 14.5px !important; font-weight: 900 !important; }
+                #new-unified-dashboard-design { display: flex !important; flex-direction: column !important; gap: 6px !important; }
+                #new-unified-dashboard-design > * { margin-top: 0 !important; margin-bottom: 0 !important; }
+                #new-unified-dashboard-design #sec-calm,
+                #new-unified-dashboard-design #sec-global-ai-innovations,
+                #new-unified-dashboard-design #sec-flow,
+                #new-unified-dashboard-design #sec-ops-audit { gap: 14px !important; margin-top: 0 !important; }
+                @keyframes brkNewPulse { 0%, 100% { box-shadow: 0 0 12px rgba(253,224,71,0.75), inset 0 0 8px rgba(253,224,71,0.35); border-color: #fde047 !important; } 50% { box-shadow: 0 0 22px rgba(16,185,129,0.95), inset 0 0 12px rgba(253,224,71,0.55); border-color: #34d399 !important; } }
+                .broker-new-item-pill { animation: brkNewPulse 1.8s infinite ease-in-out; background: linear-gradient(135deg, rgba(6,95,70,0.96), rgba(15,23,42,0.96)) !important; border-width: 2px !important; }
+                @keyframes execPrismGlow { 0%, 100% { box-shadow: 0 14px 34px rgba(0,0,0,0.75), 0 0 24px rgba(251,191,36,0.48), inset 0 1.5px 3px rgba(254,240,138,0.55); border-color: #fde047; } 50% { box-shadow: 0 16px 40px rgba(0,0,0,0.82), 0 0 32px rgba(245,158,11,0.68), inset 0 2px 4px rgba(255,255,255,0.6); border-color: #fef08a; } }
+                #exec-sticky-command-bar, html.light-theme #exec-sticky-command-bar { position: sticky; top: 8px; z-index: 99990; margin-top: 0 !important; margin-bottom: 0 !important; padding: 10px 16px; border-radius: 20px; border: 2.5px solid #fde047 !important; background: linear-gradient(135deg, #78350f 0%, #b45309 28%, #d97706 50%, #b45309 72%, #78350f 100%) !important; backdrop-filter: blur(24px) saturate(190%); -webkit-backdrop-filter: blur(24px) saturate(190%); animation: execPrismGlow 4.5s infinite ease-in-out; display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 8px; flex-wrap: nowrap; overflow-x: auto; direction: rtl !important; box-sizing: border-box !important; transition: box-shadow 0.25s ease; }
+                #exec-sticky-command-bar > div { display: flex !important; align-items: center !important; flex-shrink: 0 !important; gap: 6px !important; }
+                #exec-sticky-command-bar.is-pinned-fixed, html.light-theme #exec-sticky-command-bar.is-pinned-fixed { position: fixed !important; top: 8px !important; margin-top: 0 !important; margin-bottom: 0 !important; z-index: 2147483500 !important; background: linear-gradient(135deg, #78350f 0%, #b45309 28%, #d97706 50%, #b45309 72%, #78350f 100%) !important; border: 2.5px solid #fde047 !important; }
+                #exec-sticky-command-bar .exec-period-pill { position: relative; overflow: hidden; height: 40px; padding: 0 14px; border-radius: 13px; font-size: 14.5px !important; font-weight: 900 !important; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; cursor: pointer; transition: all 0.26s cubic-bezier(0.34, 1.56, 0.64, 1); border: 1.5px solid rgba(253,224,71,0.55); background: linear-gradient(180deg, rgba(15,23,42,0.92) 0%, rgba(2,6,23,0.96) 100%); color: #fef08a !important; -webkit-text-fill-color: #fef08a !important; box-shadow: 0 5px 14px rgba(0,0,0,0.45), inset 0 1px 1px rgba(255,255,255,0.22); }
+                #exec-sticky-command-bar .exec-period-pill::after, #exec-sticky-command-bar .exec-royal-action::after { content: ''; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 25%, rgba(255,255,255,0.28) 50%, transparent 75%); transform: translateX(-120%); transition: transform 0.55s ease; pointer-events: none; }
+                #exec-sticky-command-bar .exec-period-pill:hover { transform: translateY(-3px) scale(1.06); border-color: #38bdf8; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; box-shadow: 0 8px 20px rgba(56,189,248,0.45), 0 0 14px rgba(56,189,248,0.5); }
+                #exec-sticky-command-bar .exec-period-pill:hover::after, #exec-sticky-command-bar .exec-royal-action:hover::after { transform: translateX(120%); }
+                #exec-sticky-command-bar .exec-period-pill.active-period { background: linear-gradient(135deg, #059669 0%, #0284c7 100%) !important; border: 2px solid #fde047 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; box-shadow: 0 8px 22px rgba(16,185,129,0.55), 0 0 18px rgba(253,224,71,0.5), inset 0 1px 2px rgba(255,255,255,0.45) !important; transform: translateY(-2px) scale(1.05); }
+                #exec-sticky-command-bar .exec-royal-action { position: relative; overflow: hidden; height: 42px; padding: 0 15px !important; border-radius: 14px !important; font-size: 14.5px !important; font-weight: 900 !important; display: inline-flex; align-items: center; justify-content: center; gap: 7px; white-space: nowrap; cursor: pointer; transition: all 0.26s cubic-bezier(0.34, 1.56, 0.64, 1) !important; box-shadow: 0 8px 20px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.32) !important; }
+                #exec-sticky-command-bar .exec-royal-action:hover { transform: translateY(-3px) scale(1.055) !important; filter: brightness(1.18) saturate(1.22); box-shadow: 0 12px 26px rgba(0,0,0,0.65), 0 0 20px rgba(56,189,248,0.6) !important; }
+                #dash-today-harvest-strip .exec-jewel-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+                @media (max-width: 900px) { #dash-today-harvest-strip .exec-jewel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+                #dash-today-harvest-strip .exec-jewel-btn, html.light-theme #dash-today-harvest-strip .exec-jewel-btn { position: relative; overflow: hidden; min-height: 64px; padding: 10px 16px !important; border-radius: 16px !important; display: flex; align-items: center; justify-content: space-between !important; gap: 8px; transition: all 0.26s cubic-bezier(0.34, 1.56, 0.64, 1) !important; box-shadow: 0 8px 22px rgba(0,0,0,0.48), inset 0 1px 1px rgba(255,255,255,0.22) !important; }
+                #dash-today-harvest-strip .exec-jewel-btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 25%, rgba(255,255,255,0.22) 50%, transparent 75%); transform: translateX(-120%); transition: transform 0.55s ease; pointer-events: none; }
+                #dash-today-harvest-strip .exec-jewel-btn:hover { transform: translateY(-4px) scale(1.035) !important; filter: brightness(1.18) saturate(1.2); z-index: 5; box-shadow: 0 14px 30px rgba(0,0,0,0.68), 0 0 24px var(--jewel-glow, rgba(56,189,248,0.7)), inset 0 0 14px rgba(255,255,255,0.28) !important; }
+                #dash-today-harvest-strip .exec-jewel-btn:hover::after { transform: translateX(120%); }
+                #dash-today-harvest-strip .exec-jewel-lbl, html.light-theme #dash-today-harvest-strip .exec-jewel-lbl { font-size: 15.5px !important; font-weight: 900 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; white-space: nowrap; letter-spacing: -0.2px; padding-right: 4px; }
+                #dash-today-harvest-strip .exec-jewel-lbl-ap, html.light-theme #dash-today-harvest-strip .exec-jewel-lbl-ap { font-size: 13.2px !important; font-weight: 900 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; white-space: nowrap; letter-spacing: -0.3px; padding-right: 2px; }
+                #dash-today-harvest-strip .exec-jewel-val { font-size: 18px !important; font-weight: 900 !important; white-space: nowrap; text-shadow: 0 2px 8px rgba(0,0,0,0.55); padding: 4px 11px; border-radius: 10px; background: rgba(2, 6, 23, 0.62); border: 1px solid rgba(255, 255, 255, 0.16); display: inline-flex; align-items: baseline; gap: 3px; }
+                #dash-today-harvest-strip .exec-jewel-val .exec-unit-tag { font-size: 10.5px !important; font-weight: 800 !important; opacity: 0.9; letter-spacing: 0; }
+                @keyframes mktBrokerMarquee { 0% { transform: translateX(0); } 100% { transform: translateX(50%); } }
+                #market-broker-ticker-wrap, html.light-theme #market-broker-ticker-wrap { position: relative; background: #020617 !important; border: none !important; border-radius: 7px !important; padding: 0 !important; margin: 0 !important; display: flex !important; flex-direction: column !important; gap: 6px !important; overflow: hidden; box-shadow: 0 4px 14px rgba(2,6,23,0.65) !important; direction: rtl; }
+                #market-broker-ticker-wrap > .mkt-broker-row { display: flex !important; align-items: center !important; gap: 6px !important; overflow: hidden; width: 100% !important; height: 36px !important; min-height: 36px !important; max-height: 36px !important; padding: 0 8px !important; margin: 0 !important; border-radius: 6px; line-height: 1.2 !important; box-sizing: border-box !important; }
+                #market-broker-offers-row, html.light-theme #market-broker-offers-row, html.light-theme[data-light-tone] #market-broker-offers-row { background: #0c1d47 !important; border: 1px solid rgba(253,224,71,0.55) !important; box-shadow: 0 2px 6px rgba(15,23,42,0.35) !important; }
+                #market-broker-orders-row, html.light-theme #market-broker-orders-row, html.light-theme[data-light-tone] #market-broker-orders-row { background: #0a2536 !important; border: 1px solid rgba(134,239,172,0.5) !important; box-shadow: 0 2px 6px rgba(15,23,42,0.35) !important; }
+                html.light-theme[data-light-tone="rose_blossom"] body, html.light-theme[data-light-tone="rose_blossom"] .dash-main { background: linear-gradient(180deg, #fdf2f8 0%, #fce7f3 50%, #fdf2f8 100%) !important; color: #000000 !important; }
+                html.light-theme[data-light-tone="royal_bronze"] body, html.light-theme[data-light-tone="royal_bronze"] .dash-main { background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 50%, #fffbeb 100%) !important; color: #000000 !important; }
+                html.light-theme[data-light-tone="crystal_silver"] body, html.light-theme[data-light-tone="crystal_silver"] .dash-main, html.light-theme[data-light-tone="platinum_gray"] body, html.light-theme[data-light-tone="platinum_gray"] .dash-main { background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 50%, #f8fafc 100%) !important; color: #000000 !important; }
+                html.light-theme[data-light-tone="sage_pearl"] body, html.light-theme[data-light-tone="sage_pearl"] .dash-main { background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 50%, #f0fdf4 100%) !important; color: #000000 !important; }
+                #market-broker-ticker-wrap .brk-pill-hdr-off, html.light-theme #market-broker-ticker-wrap .brk-pill-hdr-off { color: #fde047 !important; -webkit-text-fill-color: #fde047 !important; font-weight: 800 !important; }
+                #market-broker-ticker-wrap .brk-off-txt-0, html.light-theme #market-broker-ticker-wrap .brk-off-txt-0 { color: #7dd3fc !important; -webkit-text-fill-color: #7dd3fc !important; }
+                #market-broker-ticker-wrap .brk-off-txt-1, html.light-theme #market-broker-ticker-wrap .brk-off-txt-1 { color: #fde047 !important; -webkit-text-fill-color: #fde047 !important; }
+                #market-broker-ticker-wrap .brk-off-txt-2, html.light-theme #market-broker-ticker-wrap .brk-off-txt-2 { color: #7dd3fc !important; -webkit-text-fill-color: #7dd3fc !important; }
+                #market-broker-ticker-wrap .brk-off-time, html.light-theme #market-broker-ticker-wrap .brk-off-time { color: #99f6e4 !important; -webkit-text-fill-color: #99f6e4 !important; }
+                #market-broker-ticker-wrap .brk-pill-hdr-ord, html.light-theme #market-broker-ticker-wrap .brk-pill-hdr-ord { color: #86efac !important; -webkit-text-fill-color: #86efac !important; font-weight: 800 !important; }
+                #market-broker-ticker-wrap .brk-ord-txt-0, html.light-theme #market-broker-ticker-wrap .brk-ord-txt-0 { color: #f8fafc !important; -webkit-text-fill-color: #f8fafc !important; }
+                #market-broker-ticker-wrap .brk-ord-txt-1, html.light-theme #market-broker-ticker-wrap .brk-ord-txt-1 { color: #a7f3d0 !important; -webkit-text-fill-color: #a7f3d0 !important; }
+                #market-broker-ticker-wrap .brk-ord-txt-2, html.light-theme #market-broker-ticker-wrap .brk-ord-txt-2 { color: #f8fafc !important; -webkit-text-fill-color: #f8fafc !important; }
+                #market-broker-ticker-wrap .brk-ord-time, html.light-theme #market-broker-ticker-wrap .brk-ord-time { color: #bbf7d0 !important; -webkit-text-fill-color: #bbf7d0 !important; }
+                #market-broker-ticker-track { display: flex; width: max-content; align-items: center; gap: 22px; white-space: nowrap; will-change: transform; animation: none !important; }
+                #market-broker-orders-track { display: flex; width: max-content; align-items: center; gap: 22px; white-space: nowrap; will-change: transform; animation: none !important; }
+            </style>
+            <div id="exec-sticky-command-placeholder" style="display:none;height:62px;"></div>
+            <div id="exec-sticky-command-bar">
+                <div id="exec-summary-period-pills" class="flex items-center gap-1.5 shrink-0">
+                    <button type="button" onclick="cycleExecutiveSummaryPeriod(0)" class="exec-period-pill active-period">اليوم</button>
+                    <button type="button" onclick="cycleExecutiveSummaryPeriod(1)" class="exec-period-pill">أسبوع</button>
+                    <button type="button" onclick="cycleExecutiveSummaryPeriod(2)" class="exec-period-pill">10 أيام</button>
+                    <button type="button" onclick="cycleExecutiveSummaryPeriod(3)" class="exec-period-pill">شهر</button>
+                    <button type="button" onclick="cycleExecutiveSummaryPeriod(4)" class="exec-period-pill">3 شهور</button>
+                    <button type="button" onclick="cycleExecutiveSummaryPeriod(5)" class="exec-period-pill">6 شهور</button>
+                    <button type="button" onclick="cycleExecutiveSummaryPeriod(6)" class="exec-period-pill">9 شهور</button>
+                    <button type="button" onclick="cycleExecutiveSummaryPeriod(7)" class="exec-period-pill">سنة</button>
+                </div>
+                <div class="flex items-center gap-2 shrink-0" style="margin-right: auto;">
+                    <button onclick="toggleCurrency()" id="currency-btn" class="exec-royal-action" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; border: 2px solid #fef08a !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; box-shadow: 0 6px 18px rgba(16,185,129,0.55), inset 0 1px 2px rgba(255,255,255,0.4) !important;" title="اضغط للتحويل الفوري بين الجنيه والدولار">
+                        <span>🪙</span><span id="currency-btn-txt">جنيه ⇄</span>
                     </button>
-                    <button type="button" onclick="toggleCurtain()" class="dash-cmd-btn dash-cmd-slate num-font" title="اضغط لتعديل سعر الصرف من الستارة">
+                    <button type="button" class="exec-royal-action num-font" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1.5px solid #38bdf8; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;" title="سعر الصرف المعتمد">
                         <span>💱 الصرف:</span>
-                        <strong id="hdr-usd" style="color: #fde047 !important; -webkit-text-fill-color: #fde047 !important; font-size: 0.92rem; font-weight: 900;">600</strong>
+                        <strong id="hdr-usd" style="color: #fde047 !important; -webkit-text-fill-color: #fde047 !important; font-size: 16.5px !important; font-weight: 900;">600</strong>
                     </button>
-
-                    <!-- 2. أزرار النطاق الزمني (اليوم، الأسبوع، الشهر، الكل) بخلفية داكنة وخط أبيض واضح دائماً -->
-                    <button onclick="setScope('today', this)" class="scope-pill dash-cmd-btn active">اليوم</button>
-                    <button onclick="setScope('week', this)" class="scope-pill dash-cmd-btn">الأسبوع</button>
-                    <button onclick="setScope('month', this)" class="scope-pill dash-cmd-btn">الشهر</button>
-                    <button onclick="setScope('all', this)" class="scope-pill dash-cmd-btn">الكل</button>
-
-                    <!-- 3. أزرار التحكم البارزة: الستارة | الأصوات | المحاور الذكي | إيجاز ذكي -->
-                    <button onclick="toggleCurtain()" class="dash-cmd-btn dash-cmd-emerald" title="فتح وإغلاق ستارة التحكم">
-                        <span>🎛️</span><span>الستارة</span>
+                    <button onclick="startLiveDashVoiceAdvisor()" class="exec-royal-action" style="background: linear-gradient(135deg, #0284c7 0%, #1e40af 100%); border: 1.5px solid #7dd3fc; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;" title="حاور البروفيسور الذكي بالصوت أو النص لمناقشة المؤشرات والقرارات">
+                        <span>🎓</span><span>حاور البروفيسور</span>
                     </button>
-                    <button onclick="if(window.openVoicePreviewModal)window.openVoicePreviewModal()" class="dash-cmd-btn dash-cmd-purple" title="مكتبة الأصوات واختيار المعلق الصوتي">
-                        <span>🎙️</span><span>الأصوات</span>
-                    </button>
-                    <button onclick="startLiveDashVoiceAdvisor()" class="dash-cmd-btn dash-cmd-sky" title="حاور البروفيسور الذكي بالصوت مباشرة وبنفس السرعة">
-                        <span>🎤</span><span>حاور البروفيسور</span>
-                    </button>
-                    <button onclick="speakExecutiveDashboardBriefing()" class="dash-cmd-btn dash-cmd-teal" title="قراءة صوتية ذكية لمؤشرات الشاشة">
+                    <button onclick="speakExecutiveDashboardBriefing()" class="exec-royal-action" style="background: linear-gradient(135deg, #0d9488 0%, #065f46 100%); border: 1.5px solid #6ee7b7; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;" title="قراءة صوتية ذكية فورية لأهم مؤشرات الشاشة">
                         <span>🔊</span><span>إيجاز ذكي</span>
                     </button>
-
-                    <!-- 4. زر أسعار الأصناف (الطن وباقي الأصناف) -->
-                    <div class="dash-cmd-btn dash-cmd-dark-select num-font" style="margin-right: auto; padding: 0 12px;">
-                        <span>🏗️</span>
-                        <select id="hdr-item-price-switcher" onchange="onDashBenchmarkItemChange(this)" title="استعراض أسعار الأصناف الرئيسية والأكثر مبيعاً">
-                            <option value="420000" style="background:#0f172a;color:#fff;">طن سيخ 12مم (الأكثر مبيعاً)</option>
-                            <option value="415000" style="background:#0f172a;color:#fff;">طن سيخ 16مم تسليح</option>
-                            <option value="185000" style="background:#0f172a;color:#fff;">طن أسمنت بورتلاندي</option>
-                            <option value="38000" style="background:#0f172a;color:#fff;">سلك رباط مجلفن (لفة)</option>
-                            <option value="510000" style="background:#0f172a;color:#fff;">قطاعات ومواسير حديد</option>
-                        </select>
-                        <strong id="hdr-rebar" style="color: #6ee7b7 !important; -webkit-text-fill-color: #6ee7b7 !important; font-size: 0.94rem; font-weight: 900;">420,000</strong>
-                        <small id="hdr-rebar-unit" style="color: #f8fafc !important; -webkit-text-fill-color: #f8fafc !important; opacity: 0.9;">ج.س</small>
-                    </div>
+                    <span id="hdr-rebar" style="display:none;">420,000</span>
+                    <span id="hdr-rebar-unit" style="display:none;">ج.س</span>
+                </div>
+            </div>
+            <div id="dash-today-harvest-strip" class="bento-card" style="padding: 14px 18px; border-radius: 22px; border: 1.5px solid rgba(56,189,248,0.55); background: linear-gradient(180deg, rgba(15,23,42,0.98) 0%, rgba(7,12,24,0.99) 100%); box-shadow: 0 18px 42px rgba(0,0,0,0.68), inset 0 1px 2px rgba(255,255,255,0.22);">
+                <div class="exec-jewel-grid num-font">
+                    <button type="button" onclick="switchSalesProfitCardView('day')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-glow: rgba(56,189,248,0.78); border: 1.5px solid rgba(56,189,248,0.5) !important; border-bottom: 3.5px solid #38bdf8 !important; background: linear-gradient(180deg, rgba(14,165,233,0.22), rgba(15,23,42,0.95)) !important;">
+                        <span class="exec-jewel-lbl">المبيعات:</span>
+                        <strong class="exec-jewel-val text-amber-300" style="color:#fde047!important;-webkit-text-fill-color:#fde047!important;" id="strip-sal-amt" data-sdg="1890000">1,890,000 <small class="exec-unit-tag">ج.س</small></strong>
+                    </button>
+                    <button type="button" onclick="switchSalesProfitCardView('purchases', document.getElementById('btn-card2-purchases'))" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-glow: rgba(245,158,11,0.75); border: 1.5px solid rgba(251,191,36,0.5) !important; border-bottom: 3.5px solid #f59e0b !important; background: linear-gradient(180deg, rgba(251,191,36,0.20), rgba(15,23,42,0.95)) !important;">
+                        <span class="exec-jewel-lbl">المشتريات:</span>
+                        <strong class="exec-jewel-val text-amber-300" style="color:#fbbf24!important;-webkit-text-fill-color:#fbbf24!important;" id="strip-pur-amt" data-sdg="1420000">1,420,000 <small class="exec-unit-tag">ج.س</small></strong>
+                    </button>
+                    <button type="button" onclick="switchLiquidityCardView('overview')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-glow: rgba(52,211,153,0.75); border: 1.5px solid rgba(52,211,153,0.5) !important; border-bottom: 3.5px solid #34d399 !important; background: linear-gradient(180deg, rgba(52,211,153,0.20), rgba(15,23,42,0.95)) !important;">
+                        <span class="exec-jewel-lbl">السيولة:</span>
+                        <strong class="exec-jewel-val text-emerald-300" style="color:#6ee7b7!important;-webkit-text-fill-color:#6ee7b7!important;" id="strip-liq-amt" data-sdg="3450000">3,450,000 <small class="exec-unit-tag">ج.س</small></strong>
+                    </button>
+                    <button type="button" onclick="switchSalesProfitCardView('day')" class="inner-box exec-jewel-btn text-right cursor-pointer" id="strip-prf-card" style="--jewel-glow: rgba(16,185,129,0.8); border: 1.5px solid rgba(16,185,129,0.55) !important; border-bottom: 3.5px solid #10b981 !important; background: linear-gradient(180deg, rgba(16,185,129,0.22), rgba(15,23,42,0.95)) !important;">
+                        <span class="exec-jewel-lbl" id="strip-prf-lbl">الأرباح:</span>
+                        <strong class="exec-jewel-val text-emerald-400" style="color:#4ade80!important;-webkit-text-fill-color:#4ade80!important;" id="strip-prf-amt" data-sdg="348000">+348,000 <small class="exec-unit-tag">ج.س</small></strong>
+                    </button>
+                    <button type="button" onclick="switchCashflowCardView('ai_cf')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-glow: rgba(244,63,94,0.75); border: 1.5px solid rgba(244,63,94,0.5) !important; border-bottom: 3.5px solid #f43f5e !important; background: linear-gradient(180deg, rgba(244,63,94,0.20), rgba(15,23,42,0.95)) !important;">
+                        <span class="exec-jewel-lbl" id="strip-exp-lbl">المصروفات:</span>
+                        <strong class="exec-jewel-val text-rose-300" style="color:#fda4af!important;-webkit-text-fill-color:#fda4af!important;" id="strip-exp-amt" data-sdg="42000">42,000 <small class="exec-unit-tag">ج.س</small></strong>
+                    </button>
+                    <button type="button" onclick="switchSalesProfitCardView('warehouses')" title="القيمة السوقية الإجمالية = الكاش + البنوك + الشيكات + قيمة البضاعة بسعر السوق اليوم" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-glow: rgba(14,165,233,0.8); border: 1.5px solid rgba(14,165,233,0.5) !important; border-bottom: 3.5px solid #0ea5e9 !important; background: linear-gradient(180deg, rgba(14,165,233,0.20), rgba(15,23,42,0.95)) !important;">
+                        <span class="exec-jewel-lbl">القيمة السوقية:</span>
+                        <strong class="exec-jewel-val text-sky-300" style="color:#7dd3fc!important;-webkit-text-fill-color:#7dd3fc!important;" id="stock-mkt-val" data-sdg="184300000">184.3M <small class="exec-unit-tag">ج.س</small></strong>
+                    </button>
+                    <button type="button" onclick="switchLiveRadarFeed('vouchers')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-glow: rgba(20,184,166,0.75); border: 1.5px solid rgba(20,184,166,0.5) !important; border-bottom: 3.5px solid #14b8a6 !important; background: linear-gradient(180deg, rgba(20,184,166,0.20), rgba(15,23,42,0.95)) !important;">
+                        <span class="exec-jewel-lbl">المقبوضات:</span>
+                        <strong class="exec-jewel-val text-emerald-300" style="color:#5eead4!important;-webkit-text-fill-color:#5eead4!important;" id="strip-in-amt" data-sdg="1320000">+1,320,000 <small class="exec-unit-tag">ج.س</small></strong>
+                    </button>
+                    <button type="button" onclick="switchLiveRadarFeed('vouchers')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-glow: rgba(249,115,22,0.75); border: 1.5px solid rgba(249,115,22,0.5) !important; border-bottom: 3.5px solid #f97316 !important; background: linear-gradient(180deg, rgba(249,115,22,0.20), rgba(15,23,42,0.95)) !important;">
+                        <span class="exec-jewel-lbl">المدفوعات:</span>
+                        <strong class="exec-jewel-val text-rose-400" style="color:#fb7185!important;-webkit-text-fill-color:#fb7185!important;" id="strip-out-amt" data-sdg="368000">-368,000 <small class="exec-unit-tag">ج.س</small></strong>
+                    </button>
+                    <button type="button" onclick="openFullCardModal('debt_aging')" title="مجموع المبالغ التي يريدها منا الموردون كلهم" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-glow: rgba(168,85,247,0.75); border: 1.5px solid rgba(192,132,252,0.5) !important; border-bottom: 3.5px solid #a855f7 !important; background: linear-gradient(180deg, rgba(168,85,247,0.20), rgba(15,23,42,0.95)) !important;">
+                        <span class="exec-jewel-lbl-ap">مستحقات الموردين:</span>
+                        <strong class="exec-jewel-val text-amber-300" style="color:#fde047!important;-webkit-text-fill-color:#fde047!important;" id="strip-ap-amt" data-sdg="290000">290,000 <small class="exec-unit-tag">ج.س</small></strong>
+                    </button>
+                    <button type="button" onclick="openFullCardModal('debt_aging')" title="مجموع المبالغ التي نريدها من العملاء كلهم" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-glow: rgba(52,211,153,0.75); border: 1.5px solid rgba(52,211,153,0.5) !important; border-bottom: 3.5px solid #34d399 !important; background: linear-gradient(180deg, rgba(52,211,153,0.20), rgba(15,23,42,0.95)) !important;">
+                        <span class="exec-jewel-lbl">ديون العملاء:</span>
+                        <strong class="exec-jewel-val text-emerald-300" style="color:#4ade80!important;-webkit-text-fill-color:#4ade80!important;" id="strip-ar-amt" data-sdg="820000">820,000 <small class="exec-unit-tag">ج.س</small></strong>
+                    </button>
                 </div>
             </div>
 
@@ -1265,10 +1365,10 @@ function switchToMobileEdition() {
                 <div class="lg:col-span-6 bento-card p-5 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-1.5 min-w-0">
+                            <div class="flex items-center gap-1.5 min-w-0 flex-1">
                                 <button type="button" onclick="openFullCardModal('vaults')" title="عرض كشف جميع الخزن والحسابات البنكية بالكامل" class="w-7 h-7 rounded-lg bg-emerald-500/25 hover:bg-emerald-500/45 border-2 border-emerald-400 text-white font-black text-lg flex items-center justify-center cursor-pointer shrink-0 shadow">+</button>
                                 <button type="button" onclick="openChartCardModal('vaults')" title="عرض الرسوم البيانية الشاملة لكل الخزن والبنوك والسيولة" class="w-7 h-7 rounded-lg bg-amber-500/25 hover:bg-amber-500/45 border-2 border-amber-400 text-amber-300 font-black text-sm flex items-center justify-center cursor-pointer shrink-0 shadow">📊</button>
-                                <span class="text-xs font-black text-emerald-300 whitespace-nowrap" id="dash-liq-card-title">🏦 صافي السيولة النقدية والبنكية</span>
+                                <span class="font-black text-emerald-300 whitespace-nowrap flex-1" id="dash-liq-card-title" style="font-size:19px!important;line-height:1.2;">صافي السيولة النقدية والبنكية المتاحة</span>
                             </div>
                             <div class="flex items-center gap-1 shrink-0">
                                 <button type="button" id="dash-liq-period-btn" onclick="toggleLiquidityPeriod()" class="px-2 py-0.5 rounded-lg bg-slate-900 border border-emerald-400/50 text-[11px] font-black cursor-pointer" style="color:#fde68a!important;-webkit-text-fill-color:#fde68a!important;">📅 اليوم ⇄</button>
@@ -1299,25 +1399,24 @@ function switchToMobileEdition() {
                 <!-- البطاقة اليسرى العريضة (6 أعمدة): إجمالي المبيعات والأرباح + رصيد المخازن والأوزان والتنبيهات -->
                 <div class="lg:col-span-6 bento-card p-5 flex flex-col justify-between">
                     <div>
-                        <div class="mb-2">
-                            <div class="flex items-center gap-1.5 mb-1.5">
-                                <button type="button" onclick="openFullCardModal('sales_stock')" title="عرض تفاصيل المبيعات والأرباح (الساعة/اليوم/الشهر/السنة) والأوزان بالكامل" class="w-7 h-7 rounded-lg bg-sky-500/25 hover:bg-sky-500/45 border-2 border-sky-400 text-white font-black text-lg flex items-center justify-center cursor-pointer shrink-0 shadow">+</button>
-                                <button type="button" onclick="openChartCardModal('sales_stock')" title="عرض الرسم البياني للمبيعات والأرباح والمخازن" class="w-7 h-7 rounded-lg bg-amber-500/25 hover:bg-amber-500/45 border-2 border-amber-400 text-amber-300 font-black text-sm flex items-center justify-center cursor-pointer shrink-0 shadow">📊</button>
-                                <span class="text-sm font-black text-sky-300 whitespace-nowrap">📈 المبيعات والأرباح والمخازن</span>
+                        <div class="flex items-center justify-between gap-1.5 mb-2">
+                            <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                <button type="button" onclick="openFullCardModal('sales_stock')" title="عرض تفاصيل المبيعات والمشتريات والأرباح والأوزان بالكامل" class="w-7 h-7 rounded-lg bg-sky-500/25 hover:bg-sky-500/45 border-2 border-sky-400 text-white font-black text-lg flex items-center justify-center cursor-pointer shrink-0 shadow">+</button>
+                                <button type="button" onclick="openChartCardModal('sales_stock')" title="عرض الرسم البياني للمبيعات والمشتريات والأرباح والمخازن" class="w-7 h-7 rounded-lg bg-amber-500/25 hover:bg-amber-500/45 border-2 border-amber-400 text-amber-300 font-black text-sm flex items-center justify-center cursor-pointer shrink-0 shadow">📊</button>
+                                <span class="font-black text-sky-300 whitespace-nowrap flex-1" style="font-size:19.5px!important;line-height:1.2;">المبيعات والمشتريات والأرباح</span>
                             </div>
-                            <div class="flex items-center flex-wrap gap-1.5">
-                                <span id="scope-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-sky-500/20 text-sky-300">نطاق: اليوم ▲</span>
-                                <span onclick="switchSalesProfitCardView('strategy', document.getElementById('btn-card2-strategy'))" title="اضغط لعرض حماية هامش الربح ومعدل دوران المخزون وأثر العملة" class="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-emerald-500/20 text-emerald-300 cursor-pointer hover:bg-emerald-500/35">🛡️ ربح آمن • دوران 2.4x</span>
-                                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-amber-500/20 text-amber-300 num-font">السوقية: <strong id="stock-mkt-val">176.6M</strong></span>
+                            <div class="flex items-center gap-1 shrink-0">
+                                <span onclick="switchSalesProfitCardView('strategy', document.getElementById('btn-card2-strategy'))" title="اضغط لعرض حماية هامش الربح ومعدل دوران المخزون وأثر العملة" class="px-2.5 py-0.5 rounded-full text-xs font-black bg-emerald-500/20 text-emerald-300 cursor-pointer hover:bg-emerald-500/35 whitespace-nowrap">🛡️ ربح آمن • دوران 2.4x</span>
                             </div>
                         </div>
-                        <div class="grid grid-cols-6 gap-1 mb-2" style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px;">
-                            <button type="button" onclick="switchSalesProfitCardView('hour', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-slate-800 text-slate-200 text-[11px] font-bold text-center whitespace-nowrap">⏱️ الساعة</button>
-                            <button type="button" onclick="switchSalesProfitCardView('day', this)" class="radar-glow-btn active-radar-tab py-1 px-1 rounded-lg bg-sky-600 text-white text-[11px] font-black text-center whitespace-nowrap">📅 اليوم</button>
-                            <button type="button" onclick="switchSalesProfitCardView('month', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-slate-800 text-slate-200 text-[11px] font-bold text-center whitespace-nowrap">📆 الشهر</button>
-                            <button type="button" onclick="switchSalesProfitCardView('year', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-slate-800 text-slate-200 text-[11px] font-bold text-center whitespace-nowrap">🏆 السنة</button>
-                            <button type="button" onclick="switchSalesProfitCardView('warehouses', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-slate-800 text-slate-200 text-[11px] font-bold text-center whitespace-nowrap">⚖️ المخازن</button>
-                            <button type="button" id="btn-card2-strategy" onclick="switchSalesProfitCardView('strategy', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-amber-600 text-white text-[11px] font-black text-center whitespace-nowrap">🧠 سلوكيات ومقارنة</button>
+                        <div class="grid grid-cols-7 gap-1 mb-2" style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;">
+                            <button type="button" onclick="switchSalesProfitCardView('hour', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-slate-800 text-slate-200 text-[10.5px] font-bold text-center whitespace-nowrap">⏱️ الساعة</button>
+                            <button type="button" onclick="switchSalesProfitCardView('day', this)" class="radar-glow-btn active-radar-tab py-1 px-1 rounded-lg bg-sky-600 text-white text-[10.5px] font-black text-center whitespace-nowrap">📅 اليوم</button>
+                            <button type="button" onclick="switchSalesProfitCardView('month', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-slate-800 text-slate-200 text-[10.5px] font-bold text-center whitespace-nowrap">📆 الشهر</button>
+                            <button type="button" onclick="switchSalesProfitCardView('year', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-slate-800 text-slate-200 text-[10.5px] font-bold text-center whitespace-nowrap">🏆 السنة</button>
+                            <button type="button" id="btn-card2-purchases" onclick="switchSalesProfitCardView('purchases', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-emerald-600 text-white text-[10.5px] font-black text-center whitespace-nowrap">🛒 المشتريات</button>
+                            <button type="button" onclick="switchSalesProfitCardView('warehouses', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-slate-800 text-slate-200 text-[10.5px] font-bold text-center whitespace-nowrap">⚖️ المخازن</button>
+                            <button type="button" id="btn-card2-strategy" onclick="switchSalesProfitCardView('strategy', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-amber-600 text-white text-[10.5px] font-black text-center whitespace-nowrap">🧠 سلوكيات</button>
                         </div>
                     </div>
                     <div id="dash-sales-profit-mid" class="grid grid-cols-3 gap-3 my-2 num-font">
@@ -1350,8 +1449,8 @@ function switchToMobileEdition() {
                         <div class="flex items-center gap-1.5 mb-2">
                             <button type="button" onclick="openFullCardModal('items')" title="اضغط لعرض قائمة كل الأصناف بالكامل" class="w-7 h-7 rounded-lg bg-emerald-500/25 hover:bg-emerald-500/45 border-2 border-emerald-400 text-white font-black text-lg flex items-center justify-center cursor-pointer shrink-0 shadow">+</button>
                             <button type="button" onclick="openChartCardModal('items')" title="عرض التحليل البياني البصري للأصناف والمخزون (أعمدة ومقارنات)" class="w-7 h-7 rounded-lg bg-amber-500/25 hover:bg-amber-500/45 border-2 border-amber-400 text-amber-300 font-black text-sm flex items-center justify-center cursor-pointer shrink-0 shadow">📊</button>
-                            <h2 class="text-xs font-black text-white whitespace-nowrap" id="dash-items-radar-title" style="font-size:12px!important;">الأصناف الـ 6 الأكثر مبيعاً</h2>
-                            <button type="button" id="dash-items-group-toggle" onclick="toggleItemsGroup()" class="radar-glow-btn mr-auto px-2 py-0.5 rounded-lg bg-slate-900 hover:bg-slate-800 font-black text-[10.5px] cursor-pointer shrink-0 shadow" style="color:#fde68a!important;-webkit-text-fill-color:#fde68a!important;">⇄ جرد المخزن</button>
+                            <h2 class="font-black text-white whitespace-nowrap flex-1" id="dash-items-radar-title" style="font-size:18px!important;line-height:1.25;">الأصناف الـ 6 الأكثر مبيعاً وربحاً</h2>
+                            <button type="button" id="dash-items-group-toggle" onclick="toggleItemsGroup()" class="radar-glow-btn mr-auto rounded-lg bg-slate-900 hover:bg-slate-800 font-black cursor-pointer shrink-0 shadow" style="color:#fde68a!important;-webkit-text-fill-color:#fde68a!important;font-size:10.5px!important;padding:2px 7px!important;min-height:26px!important;">⇄ المخزن</button>
                         </div>
                         <div id="dash-items-tabs-sales" class="grid grid-cols-4 gap-1.5" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;">
                             <button type="button" onclick="switchItemsRadar('top_sell', this)" class="radar-glow-btn active-radar-tab py-1.5 px-1 rounded-lg bg-emerald-600 text-white text-[11px] font-black text-center whitespace-nowrap">الأكثر مبيعاً</button>
@@ -1367,75 +1466,93 @@ function switchToMobileEdition() {
                             <button type="button" onclick="switchItemsRadar('stock_transit', this)" class="radar-glow-btn py-1.5 px-1 rounded-lg bg-slate-800 text-slate-200 text-[10.5px] font-bold text-center whitespace-nowrap">🚚 بالطريق</button>
                         </div>
                     </div>
-                    <div id="dash-top-items-list" class="space-y-1.5 text-xs num-font flex-1 flex flex-col justify-between">
-                        <div class="inner-box py-1.5 px-2.5 flex items-center justify-between gap-1.5">
-                            <span class="font-black text-white text-xs truncate">1. سيخ 12مم السجانة <small class="font-bold" style="color:#fde68a;">(420,000 • 38%)</small></span>
-                            <span class="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-black text-[11px] shrink-0" style="width:110px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;gap:3px;">🟢 ▲ 185 طن</span>
+                    <div id="dash-top-items-list" class="gap-1.5 text-sm num-font flex-1 flex flex-col justify-between">
+                        <div class="inner-box py-2 px-3 flex items-center justify-between gap-1.5">
+                            <span class="font-black text-white truncate" style="font-size:15px!important;">1. سيخ 12مم السجانة <small class="font-extrabold" style="color:#fde68a;font-size:13.5px!important;">(420,000 • 38%)</small></span>
+                            <span class="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-black shrink-0" style="width:116px;font-size:13.5px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;gap:3px;">🟢 ▲ 185 طن</span>
                         </div>
-                        <div class="inner-box py-1.5 px-2.5 flex items-center justify-between gap-1.5">
-                            <span class="font-black text-white text-xs truncate">2. سيخ 16مم تسليح <small class="font-bold" style="color:#fde68a;">(415,000 • 27%)</small></span>
-                            <span class="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-black text-[11px] shrink-0" style="width:110px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;gap:3px;">🟢 ▲ 120 طن</span>
+                        <div class="inner-box py-2 px-3 flex items-center justify-between gap-1.5">
+                            <span class="font-black text-white truncate" style="font-size:15px!important;">2. سيخ 16مم تسليح <small class="font-extrabold" style="color:#fde68a;font-size:13.5px!important;">(415,000 • 27%)</small></span>
+                            <span class="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-black shrink-0" style="width:116px;font-size:13.5px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;gap:3px;">🟢 ▲ 120 طن</span>
                         </div>
-                        <div class="inner-box py-1.5 px-2.5 flex items-center justify-between gap-1.5">
-                            <span class="font-black text-white text-xs truncate">3. أسمنت عطبرة <small class="font-bold" style="color:#fde68a;">(185,000 • 21%)</small></span>
-                            <span class="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-black text-[11px] shrink-0" style="width:110px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;gap:3px;">🟡 ▲ 95 طن</span>
+                        <div class="inner-box py-2 px-3 flex items-center justify-between gap-1.5">
+                            <span class="font-black text-white truncate" style="font-size:15px!important;">3. أسمنت عطبرة <small class="font-extrabold" style="color:#fde68a;font-size:13.5px!important;">(185,000 • 21%)</small></span>
+                            <span class="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-black shrink-0" style="width:116px;font-size:13.5px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;gap:3px;">🟡 ▲ 95 طن</span>
                         </div>
-                        <div class="inner-box py-1.5 px-2.5 flex items-center justify-between gap-1.5">
-                            <span class="font-black text-white text-xs truncate">4. سلك رباط مجلفن <small class="font-bold" style="color:#fde68a;">(38,000 • 14%)</small></span>
-                            <span class="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-black text-[11px] shrink-0" style="width:110px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;gap:3px;">🟡 ▲ 310 لفة</span>
+                        <div class="inner-box py-2 px-3 flex items-center justify-between gap-1.5">
+                            <span class="font-black text-white truncate" style="font-size:15px!important;">4. سلك رباط مجلفن <small class="font-extrabold" style="color:#fde68a;font-size:13.5px!important;">(38,000 • 14%)</small></span>
+                            <span class="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-black shrink-0" style="width:116px;font-size:13.5px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;gap:3px;">🟡 ▲ 310 لفة</span>
                         </div>
-                        <div class="inner-box py-1.5 px-2.5 flex items-center justify-between gap-1.5">
-                            <span class="font-black text-white text-xs truncate">5. قطاعات ومواسير <small class="font-bold" style="color:#fde68a;">(510,000 • 11%)</small></span>
-                            <span class="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-black text-[11px] shrink-0" style="width:110px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;gap:3px;">🟢 ▲ 64 طن</span>
+                        <div class="inner-box py-2 px-3 flex items-center justify-between gap-1.5">
+                            <span class="font-black text-white truncate" style="font-size:15px!important;">5. قطاعات ومواسير <small class="font-extrabold" style="color:#fde68a;font-size:13.5px!important;">(510,000 • 11%)</small></span>
+                            <span class="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 font-black shrink-0" style="width:116px;font-size:13.5px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;gap:3px;">🟢 ▲ 64 طن</span>
                         </div>
-                        <div class="inner-box py-1.5 px-2.5 flex items-center justify-between gap-1.5">
-                            <span class="font-black text-white text-xs truncate">6. كمر حديد H-Beam <small class="font-bold" style="color:#fde68a;">(450,000 • 9%)</small></span>
-                            <span class="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-black text-[11px] shrink-0" style="width:110px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;gap:3px;">🟡 ▲ 42 طن</span>
+                        <div class="inner-box py-2 px-3 flex items-center justify-between gap-1.5">
+                            <span class="font-black text-white truncate" style="font-size:15px!important;">6. كمر حديد H-Beam <small class="font-extrabold" style="color:#fde68a;font-size:13.5px!important;">(450,000 • 9%)</small></span>
+                            <span class="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-black shrink-0" style="width:116px;font-size:13.5px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;gap:3px;">🟡 ▲ 42 طن</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- 2. وسط الشاشة تماماً (3 وحدات): الكعكات المفرغة والرسوم البيانية للمخزن والسيولة -->
-                <div class="bento-card p-4 flex flex-col justify-between">
-                    <div class="mb-1">
-                        <div class="flex items-center justify-between mb-1.5">
+                <!-- 2. وسط الشاشة تماماً (3 وحدات): الكعكات المفرغة والرسوم البيانية للحصص والسيولة بدون أي تكرار -->
+                <div id="dash-center-chart-card" class="bento-card p-4 flex flex-col justify-between">
+                    <div class="mb-1.5">
+                        <div class="flex items-center justify-between mb-2">
                             <div class="flex items-center gap-1.5 min-w-0">
                                 <button type="button" onclick="openFullCardModal('donuts')" title="توسيع نافذة الرسوم والنسب" class="w-7 h-7 rounded-lg bg-sky-500/25 hover:bg-sky-500/45 border-2 border-sky-400 text-white font-black text-lg flex items-center justify-center cursor-pointer shrink-0 shadow">+</button>
-                                <button type="button" onclick="openChartCardModal('items', 'horizontal', window._centerChartMode || 'stock_need')" title="عرض الرسم البياني التفصيلي للأصناف والمخزن" class="w-7 h-7 rounded-lg bg-amber-500/25 hover:bg-amber-500/45 border-2 border-amber-400 text-amber-300 font-black text-sm flex items-center justify-center cursor-pointer shrink-0 shadow">📊</button>
-                                <h2 class="text-sm font-black text-white truncate" id="dash-center-chart-title">📊 رسوم المخزن والسيولة</h2>
+                                <button type="button" onclick="openChartCardModal('items', 'horizontal', window._centerChartMode || 'sales_share')" title="عرض الرسم البياني التفصيلي للحصص والنسب" class="w-7 h-7 rounded-lg bg-amber-500/25 hover:bg-amber-500/45 border-2 border-amber-400 text-amber-300 font-black text-sm flex items-center justify-center cursor-pointer shrink-0 shadow">📊</button>
+                                <h2 class="font-black whitespace-nowrap text-amber-300" id="dash-center-chart-title" style="font-size:16px!important;">رسوم الحصص والسيولة</h2>
                             </div>
                         </div>
-                        <div class="grid grid-cols-4 gap-1" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;">
-                            <button type="button" onclick="switchCenterChartCard('donuts', this)" class="radar-glow-btn active-radar-tab py-1 px-1 rounded-lg bg-sky-600 text-white text-[10px] font-black text-center whitespace-nowrap">🍩 السيولة</button>
-                            <button type="button" onclick="switchCenterChartCard('stock_most', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-slate-800 text-slate-200 text-[10px] font-bold text-center whitespace-nowrap">📦 أكثر مخزوناً</button>
-                            <button type="button" onclick="switchCenterChartCard('stock_least', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-slate-800 text-slate-200 text-[10px] font-bold text-center whitespace-nowrap">📉 أقل مخزوناً</button>
-                            <button type="button" onclick="switchCenterChartCard('stock_need', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-rose-600 text-white text-[10px] font-black text-center whitespace-nowrap">🚨 حوجة الطلب</button>
+                        <div class="grid grid-cols-4 gap-1" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;">
+                            <button type="button" onclick="switchCenterChartCard('donuts', this)" class="radar-glow-btn active-radar-tab py-1 px-1 rounded-lg bg-sky-600 text-white text-xs font-black text-center whitespace-nowrap">🍩 النسب</button>
+                            <button type="button" onclick="switchCenterChartCard('sales_share', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-slate-800 text-slate-200 text-xs font-bold text-center whitespace-nowrap">📊 المبيعات</button>
+                            <button type="button" onclick="switchCenterChartCard('profit_share', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-slate-800 text-slate-200 text-xs font-bold text-center whitespace-nowrap">💎 الأرباح</button>
+                            <button type="button" onclick="switchCenterChartCard('wh_share', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-emerald-600 text-white text-xs font-black text-center whitespace-nowrap">🏛️ المخازن</button>
                         </div>
                     </div>
-                    <div id="dash-center-chart-body" class="grid grid-cols-2 gap-2 items-center my-1 num-font">
-                        <div class="inner-box p-2 flex flex-col items-center">
-                            <div class="relative w-20 h-20 flex items-center justify-center">
-                                <svg class="w-full h-full -rotate-90" viewBox="0 0 42 42">
-                                    <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(148,163,184,0.15)" stroke-width="5.2"/>
-                                    <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#10b981" stroke-width="5.2" stroke-dasharray="58 42" stroke-dashoffset="0"/>
-                                    <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#38bdf8" stroke-width="5.2" stroke-dasharray="28 72" stroke-dashoffset="-58"/>
-                                    <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#f59e0b" stroke-width="5.2" stroke-dasharray="14 86" stroke-dashoffset="-86"/>
-                                </svg>
-                                <div class="absolute text-center"><span class="text-[11px] font-black text-white block">100%</span><span class="text-[8px] text-emerald-300">السيولة</span></div>
+                    <div id="dash-center-chart-body" class="flex-1 flex flex-col justify-between gap-2.5 my-1 num-font">
+                        <div class="grid grid-cols-2 gap-2.5 items-center">
+                            <div class="inner-box p-2.5 flex flex-col items-center">
+                                <div class="relative w-24 h-24 flex items-center justify-center">
+                                    <svg class="w-full h-full -rotate-90" viewBox="0 0 42 42">
+                                        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(148,163,184,0.15)" stroke-width="5.2"/>
+                                        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#10b981" stroke-width="5.2" stroke-dasharray="58 42" stroke-dashoffset="0"/>
+                                        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#38bdf8" stroke-width="5.2" stroke-dasharray="28 72" stroke-dashoffset="-58"/>
+                                        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#f59e0b" stroke-width="5.2" stroke-dasharray="14 86" stroke-dashoffset="-86"/>
+                                    </svg>
+                                    <div class="absolute text-center"><span class="text-sm font-black text-white block">100%</span><span class="text-xs font-bold text-emerald-300">السيولة</span></div>
+                                </div>
+                                <div class="flex flex-wrap justify-center gap-1.5 mt-1.5 text-xs font-black"><span class="text-emerald-400">●بنك 58%</span><span class="text-sky-400">●خزنة 28%</span></div>
                             </div>
-                            <div class="flex flex-wrap justify-center gap-1 mt-1.5 text-[10px] font-bold"><span class="text-emerald-400">●بنك 58%</span><span class="text-sky-400">●خزنة 28%</span></div>
+                            <div class="inner-box p-2.5 flex flex-col items-center">
+                                <div class="relative w-24 h-24 flex items-center justify-center">
+                                    <svg class="w-full h-full -rotate-90" viewBox="0 0 42 42">
+                                        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(148,163,184,0.15)" stroke-width="5.2"/>
+                                        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#38bdf8" stroke-width="5.2" stroke-dasharray="70 30" stroke-dashoffset="0"/>
+                                        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#a855f7" stroke-width="5.2" stroke-dasharray="20 80" stroke-dashoffset="-70"/>
+                                        <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#f43f5e" stroke-width="5.2" stroke-dasharray="10 90" stroke-dashoffset="-90"/>
+                                    </svg>
+                                    <div class="absolute text-center"><span class="text-sm font-black text-white block">70%</span><span class="text-xs font-bold text-sky-300">نقدي</span></div>
+                                </div>
+                                <div class="flex flex-wrap justify-center gap-1.5 mt-1.5 text-xs font-black"><span class="text-sky-400">●نقد 70%</span><span class="text-purple-400">●آجل 30%</span></div>
+                            </div>
                         </div>
-                        <div class="inner-box p-2 flex flex-col items-center">
-                            <div class="relative w-20 h-20 flex items-center justify-center">
-                                <svg class="w-full h-full -rotate-90" viewBox="0 0 42 42">
-                                    <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(148,163,184,0.15)" stroke-width="5.2"/>
-                                    <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#38bdf8" stroke-width="5.2" stroke-dasharray="70 30" stroke-dashoffset="0"/>
-                                    <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#a855f7" stroke-width="5.2" stroke-dasharray="20 80" stroke-dashoffset="-70"/>
-                                    <circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#f43f5e" stroke-width="5.2" stroke-dasharray="10 90" stroke-dashoffset="-90"/>
-                                </svg>
-                                <div class="absolute text-center"><span class="text-[11px] font-black text-white block">70%</span><span class="text-[8px] text-sky-300">نقدي</span></div>
+                        <div class="inner-box p-3 flex flex-col justify-between gap-2 flex-1">
+                            <div class="flex items-center justify-between text-xs font-black"><span class="text-slate-200" id="center-chart-period-lbl">📊 أعمدة وخطوط التدفق والربحية (اليوم)</span><span class="text-emerald-400" id="center-chart-growth-lbl">▲ +12.4% نمو</span></div>
+                            <div class="grid grid-cols-7 gap-1.5 items-end h-14 pt-2 px-1 border-b border-white/10" id="center-chart-cols-grid">
+                                <div class="flex flex-col items-center gap-1"><div class="w-full rounded-t bg-emerald-500/75" style="height:24px"></div><span class="text-[10px] text-slate-300 font-bold">8ص</span></div>
+                                <div class="flex flex-col items-center gap-1"><div class="w-full rounded-t bg-sky-500/75" style="height:32px"></div><span class="text-[10px] text-slate-300 font-bold">10ص</span></div>
+                                <div class="flex flex-col items-center gap-1"><div class="w-full rounded-t bg-emerald-500/80" style="height:38px"></div><span class="text-[10px] text-slate-300 font-bold">12ظ</span></div>
+                                <div class="flex flex-col items-center gap-1"><div class="w-full rounded-t bg-amber-500/85" style="height:42px"></div><span class="text-[10px] text-slate-300 font-bold">2م</span></div>
+                                <div class="flex flex-col items-center gap-1"><div class="w-full rounded-t bg-sky-500/85" style="height:36px"></div><span class="text-[10px] text-slate-300 font-bold">4م</span></div>
+                                <div class="flex flex-col items-center gap-1"><div class="w-full rounded-t bg-emerald-400" style="height:46px"></div><span class="text-[10px] text-slate-300 font-bold">6م</span></div>
+                                <div class="flex flex-col items-center gap-1"><div class="w-full rounded-t bg-emerald-400 shadow-lg" style="height:52px"></div><span class="text-[10px] text-emerald-300 font-black">الآن</span></div>
                             </div>
-                            <div class="flex flex-wrap justify-center gap-1 mt-1.5 text-[10px] font-bold"><span class="text-sky-400">●نقد 70%</span><span class="text-purple-400">●آجل 30%</span></div>
+                            <div class="space-y-1.5 pt-0.5 text-xs font-black">
+                                <div><div class="flex justify-between mb-0.5"><span class="text-slate-300">🏦 سيولة البنوك والخزائن الجاهزة</span><span class="text-emerald-300">86%</span></div><div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width:86%"></div></div></div>
+                                <div><div class="flex justify-between mb-0.5"><span class="text-slate-300">⚡ كفاءة التحصيل النقدي الفوري</span><span class="text-sky-300">78%</span></div><div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-sky-500 rounded-full" style="width:78%"></div></div></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1443,13 +1560,13 @@ function switchToMobileEdition() {
                 <!-- 3. يسار (4.5 وحدة مساوية لليمين): رادار التنبؤ الذكي الثلاثي (السيولة | الأصناف | الموردين) -->
                 <div class="bento-card p-5 flex flex-col justify-between">
                     <div class="mb-2.5">
-                        <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-1.5 min-w-0">
+                        <div class="flex items-center justify-between gap-1.5 mb-2">
+                            <div class="flex items-center gap-1.5 min-w-0 flex-1">
                                 <button type="button" onclick="openFullCardModal('forecast')" title="توسيع نافذة التنبؤ الذكي بالكامل" class="w-7 h-7 rounded-lg bg-emerald-500/25 hover:bg-emerald-500/45 border-2 border-emerald-400 text-white font-black text-lg flex items-center justify-center cursor-pointer shrink-0 shadow">+</button>
                                 <button type="button" onclick="openChartCardModal('forecast')" title="عرض الرسوم البيانية للتنبؤ الذكي" class="w-7 h-7 rounded-lg bg-amber-500/25 hover:bg-amber-500/45 border-2 border-amber-400 text-amber-300 font-black text-sm flex items-center justify-center cursor-pointer shrink-0 shadow">📊</button>
-                                <h2 class="text-xs font-black text-white whitespace-nowrap" id="dash-forecast-radar-title" style="font-size:12px!important;">🤖 التنبؤ الذكي والتنبيهات</h2>
+                                <h2 class="font-black text-white whitespace-nowrap flex-1" id="dash-forecast-radar-title" style="font-size:18px!important;line-height:1.25;">التنبؤ الذكي والتنبيهات الحيوية</h2>
                             </div>
-                            <button onclick="speakExecutiveDashboardBriefing()" class="radar-glow-btn px-2 py-0.5 rounded-lg bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 text-[10.5px] font-black cursor-pointer shrink-0">🔊 إيجاز صوتي</button>
+                            <button onclick="speakExecutiveDashboardBriefing()" class="radar-glow-btn rounded-lg bg-emerald-500/20 border border-emerald-400/50 text-emerald-300 font-black cursor-pointer shrink-0" style="font-size:11px!important;padding:2px 8px!important;min-height:28px!important;">🔊 إيجاز صوتي</button>
                         </div>
                         <div class="grid grid-cols-5 gap-1" style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;">
                             <button type="button" onclick="switchForecastRadar('liquidity', this)" class="radar-glow-btn active-radar-tab py-1 px-1 rounded-lg bg-emerald-600 text-white text-[11px] font-black text-center whitespace-nowrap">💵 السيولة</button>
@@ -1459,18 +1576,26 @@ function switchToMobileEdition() {
                             <button type="button" onclick="switchForecastRadar('vital_alerts', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-rose-600 text-white text-[11px] font-black text-center whitespace-nowrap">🚨 منبهات</button>
                         </div>
                     </div>
-                    <div id="dash-forecast-list" class="space-y-1.5 text-xs num-font">
-                        <div class="inner-box py-2 px-2.5 flex items-center justify-between gap-2">
-                            <span class="text-slate-200 font-bold text-xs truncate">📈 سيولة متوقعة نهاية الشهر:</span>
-                            <strong class="text-emerald-400 font-black text-xs shrink-0" id="ai-forecast-liq">▲ 4,820,000 ج.س</strong>
+                    <div id="dash-forecast-list" class="gap-1.5 text-sm num-font flex-1 flex flex-col justify-between">
+                        <div class="inner-box py-2 px-3 flex items-center justify-between gap-2">
+                            <span class="text-slate-200 font-black truncate" style="font-size:15px!important;">📈 سيولة متوقعة نهاية الشهر:</span>
+                            <strong class="text-emerald-400 font-black shrink-0" style="font-size:15px!important;" id="ai-forecast-liq">▲ 4,820,000 ج.س</strong>
                         </div>
-                        <div class="inner-box py-2 px-2.5 flex items-center justify-between gap-2">
-                            <span class="text-slate-200 font-bold text-xs truncate">🛡️ فحص الانحرافات السعرية:</span>
-                            <strong class="text-sky-300 font-black text-xs shrink-0">0 انحراف (آمن 100% ✓)</strong>
+                        <div class="inner-box py-2 px-3 flex items-center justify-between gap-2">
+                            <span class="text-slate-200 font-black truncate" style="font-size:15px!important;">🛡️ فحص الانحرافات السعرية:</span>
+                            <strong class="text-sky-300 font-black shrink-0" style="font-size:15px!important;">0 انحراف (آمن 100% ✓)</strong>
                         </div>
-                        <div class="inner-box py-2 px-2.5 flex items-center justify-between gap-2">
-                            <span class="text-slate-200 font-bold text-xs truncate">⚡ تغطية الالتزامات والتعادل:</span>
-                            <strong class="text-amber-300 font-black text-xs shrink-0">مغطى بـ 11.8 ضعفاً ▲</strong>
+                        <div class="inner-box py-2 px-3 flex items-center justify-between gap-2">
+                            <span class="text-slate-200 font-black truncate" style="font-size:15px!important;">⚡ تغطية الالتزامات والتعادل:</span>
+                            <strong class="text-amber-300 font-black shrink-0" style="font-size:15px!important;">مغطى بـ 11.8 ضعفاً ▲</strong>
+                        </div>
+                        <div class="inner-box py-2 px-3 flex items-center justify-between gap-2">
+                            <span class="text-slate-200 font-black truncate" style="font-size:15px!important;">📦 كفاية المخزون الاستراتيجي:</span>
+                            <strong class="text-emerald-300 font-black shrink-0" style="font-size:15px!important;">يكفي 45 يوماً (آمن ✓)</strong>
+                        </div>
+                        <div class="inner-box py-2 px-3 flex items-center justify-between gap-2">
+                            <span class="text-slate-200 font-black truncate" style="font-size:15px!important;">🎯 تحصيل الديون المتوقع (7 أيام):</span>
+                            <strong class="text-sky-300 font-black shrink-0" style="font-size:15px!important;">+640,000 ج.س (78% ▲)</strong>
                         </div>
                     </div>
                 </div>
@@ -1480,10 +1605,10 @@ function switchToMobileEdition() {
                 <div class="lg:col-span-6 bento-card p-5 flex flex-col justify-between">
                     <div class="mb-2">
                         <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-1.5 min-w-0">
+                            <div class="flex items-center gap-1.5 min-w-0 flex-1">
                                 <button type="button" onclick="openFullCardModal('partners')" title="اضغط لعرض قائمة كل الشركات والعملاء بالكامل" class="w-7 h-7 rounded-lg bg-sky-500/25 hover:bg-sky-500/45 border-2 border-sky-400 text-white font-black text-lg flex items-center justify-center cursor-pointer shrink-0 shadow">+</button>
                                 <button type="button" onclick="openChartCardModal('partners')" title="عرض التحليل البياني البصري للعملاء والموردين والدوريات" class="w-7 h-7 rounded-lg bg-amber-500/25 hover:bg-amber-500/45 border-2 border-amber-400 text-amber-300 font-black text-sm flex items-center justify-center cursor-pointer shrink-0 shadow">📊</button>
-                                <h2 class="text-base font-black text-white truncate" id="dash-partners-radar-title">رادار دوريات شراء العملاء</h2>
+                                <h2 class="font-black text-white whitespace-nowrap flex-1" id="dash-partners-radar-title" style="font-size:19px!important;line-height:1.2;">رادار دوريات شراء العملاء</h2>
                             </div>
                             <button type="button" id="dash-partners-group-toggle" onclick="togglePartnersGroup()" class="px-3 py-1 rounded-lg bg-amber-600 text-white text-xs font-black cursor-pointer shrink-0" style="background:#d97706!important;color:#fff!important;-webkit-text-fill-color:#fff!important;">⇄ الموردين</button>
                         </div>
@@ -1503,22 +1628,22 @@ function switchToMobileEdition() {
                         </div>
                     </div>
                     <div id="dash-partners-radar-list" class="flex flex-col gap-2 justify-between text-sm num-font flex-1">
-                        <div class="flex items-center justify-between py-2 px-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 gap-2"><div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">1. مؤسسة البنيان الحديثة</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">كل 5 أيام ⬅️ موعده اليوم (18,400,000 ج.س)</span></div><div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('مؤسسة البنيان الحديثة', 'موعد الشراء الدوري اليوم (18,400,000 ج.س)')" title="مراسلة وتنبيه ذكي عبر واتساب" class="wa-svg-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="#ffffff"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.122 1.527 5.854l-1.527 5.576 5.713-1.498c1.693.923 3.633 1.448 5.699 1.448 6.627 0 12-5.373 12-12s-5.373-12-12.412-11.38z"/></svg></button><button type="button" onclick="showPartnerItemsDetail('مؤسسة البنيان الحديثة')" class="py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 font-black cursor-pointer" style="width:74px;font-size:13px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;">📦 الأصناف</button><span class="px-2 py-1 rounded-lg bg-emerald-700 text-white font-black" style="width:62px;font-size:14px!important;white-space:nowrap;text-align:center;display:inline-flex;align-items:center;justify-content:center;">اليوم</span><span title="منتظم في موعد الشراء المعتاد (اليوم)" class="py-1 rounded-lg bg-emerald-600 text-white font-black" style="width:98px;font-size:14px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;padding:4px 8px;gap:5px;">🟢 منتظم</span></div></div>
-                        <div class="flex items-center justify-between py-2 px-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 gap-2"><div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">2. شركة النيل للمقاولات</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">كل 7 أيام ⬅️ تأخر يوم واحد (12,600,000 ج.س)</span></div><div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('شركة النيل للمقاولات', 'تأخر يوم واحد عن موعد الشراء (12,600,000 ج.س)')" title="مراسلة وتنبيه ذكي عبر واتساب" class="wa-svg-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="#ffffff"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.122 1.527 5.854l-1.527 5.576 5.713-1.498c1.693.923 3.633 1.448 5.699 1.448 6.627 0 12-5.373 12-12s-5.373-12-12.412-11.38z"/></svg></button><button type="button" onclick="showPartnerItemsDetail('شركة النيل للمقاولات')" class="py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 font-black cursor-pointer" style="width:74px;font-size:13px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;">📦 الأصناف</button><span class="px-2 py-1 rounded-lg bg-emerald-700 text-white font-black" style="width:62px;font-size:14px!important;white-space:nowrap;text-align:center;display:inline-flex;align-items:center;justify-content:center;">1 يوم</span><span title="منتظم (تأخر يوم واحد فقط ضمن النطاق الأخضر)" class="py-1 rounded-lg bg-emerald-600 text-white font-black" style="width:98px;font-size:14px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;padding:4px 8px;gap:5px;">🟢 منتظم</span></div></div>
-                        <div class="flex items-center justify-between py-2 px-3 rounded-xl bg-amber-500/15 border border-amber-500/40 gap-2"><div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">3. مغلق الوادي للحديد</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">كل 5 أيام ⬅️ تأخر يومين (9,200,000 ج.س)</span></div><div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('مغلق الوادي للحديد', 'تأخر يومين عن دورية الشراء (9,200,000 ج.س)')" title="مراسلة وتنبيه ذكي عبر واتساب" class="wa-svg-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="#ffffff"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.122 1.527 5.854l-1.527 5.576 5.713-1.498c1.693.923 3.633 1.448 5.699 1.448 6.627 0 12-5.373 12-12s-5.373-12-12.412-11.38z"/></svg></button><button type="button" onclick="showPartnerItemsDetail('مغلق الوادي للحديد')" class="py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 font-black cursor-pointer" style="width:74px;font-size:13px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;">📦 الأصناف</button><span class="px-2 py-1 rounded-lg bg-amber-500 font-black" style="width:62px;font-size:14px!important;white-space:nowrap;text-align:center;display:inline-flex;align-items:center;justify-content:center;color:#000000!important;-webkit-text-fill-color:#000000!important;">يومان</span><span title="استعداد ومتابعة: تأخر يومين عن موعد الشراء" class="py-1 rounded-lg bg-amber-500 font-black" style="width:98px;font-size:14px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;padding:4px 8px;gap:5px;color:#000000!important;-webkit-text-fill-color:#000000!important;">🟡 استعداد</span></div></div>
-                        <div class="flex items-center justify-between py-2 px-3 rounded-xl bg-amber-500/15 border border-amber-500/40 gap-2"><div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">4. مقاولات السلام السكنية</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">كل 6 أيام ⬅️ تأخر 3 أيام (6,400,000 ج.س)</span></div><div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('مقاولات السلام السكنية', 'تأخر 3 أيام عن دورية الشراء (6,400,000 ج.س)')" title="مراسلة وتنبيه ذكي عبر واتساب" class="wa-svg-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="#ffffff"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.122 1.527 5.854l-1.527 5.576 5.713-1.498c1.693.923 3.633 1.448 5.699 1.448 6.627 0 12-5.373 12-12s-5.373-12-12.412-11.38z"/></svg></button><button type="button" onclick="showPartnerItemsDetail('مقاولات السلام السكنية')" class="py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 font-black cursor-pointer" style="width:74px;font-size:13px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;">📦 الأصناف</button><span class="px-2 py-1 rounded-lg bg-amber-500 font-black" style="width:62px;font-size:14px!important;white-space:nowrap;text-align:center;display:inline-flex;align-items:center;justify-content:center;color:#000000!important;-webkit-text-fill-color:#000000!important;">3 أيام</span><span title="استعداد ومتابعة: تأخر 3 أيام عن موعد الشراء" class="py-1 rounded-lg bg-amber-500 font-black" style="width:98px;font-size:14px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;padding:4px 8px;gap:5px;color:#000000!important;-webkit-text-fill-color:#000000!important;">🟡 استعداد</span></div></div>
-                        <div class="flex items-center justify-between py-2 px-3 rounded-xl bg-rose-500/15 border border-rose-500/40 gap-2"><div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">5. مقاولات أبراج الخرطوم</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">كل 5 أيام ⬅️ تأخر 4 أيام (8,900,000 ج.س)</span></div><div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('مقاولات أبراج الخرطوم', 'خطر تأخر 4 أيام عن الشراء (8,900,000 ج.س)')" title="مراسلة وتنبيه ذكي عبر واتساب" class="wa-svg-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="#ffffff"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.122 1.527 5.854l-1.527 5.576 5.713-1.498c1.693.923 3.633 1.448 5.699 1.448 6.627 0 12-5.373 12-12s-5.373-12-12.412-11.38z"/></svg></button><button type="button" onclick="showPartnerItemsDetail('مقاولات أبراج الخرطوم')" class="py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 font-black cursor-pointer" style="width:74px;font-size:13px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;">📦 الأصناف</button><span class="px-2 py-1 rounded-lg bg-rose-600 text-white font-black" style="width:62px;font-size:14px!important;white-space:nowrap;text-align:center;display:inline-flex;align-items:center;justify-content:center;">4 أيام</span><span title="خطر: تأخر 4 أيام عن موعد الشراء المعتاد" class="py-1 rounded-lg bg-rose-600 text-white font-black" style="width:98px;font-size:14px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;padding:4px 8px;gap:5px;">🔴 خطر</span></div></div>
-                        <div class="flex items-center justify-between py-2 px-3 rounded-xl bg-rose-500/15 border border-rose-500/40 gap-2"><div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">6. شركة إعمار الهندسية</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">كل 10 أيام ⬅️ تأخر 5 أيام (5,100,000 ج.س)</span></div><div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('شركة إعمار الهندسية', 'خطر تأخر 5 أيام عن الشراء (5,100,000 ج.س)')" title="مراسلة وتنبيه ذكي عبر واتساب" class="wa-svg-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="#ffffff"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.122 1.527 5.854l-1.527 5.576 5.713-1.498c1.693.923 3.633 1.448 5.699 1.448 6.627 0 12-5.373 12-12s-5.373-12-12.412-11.38z"/></svg></button><button type="button" onclick="showPartnerItemsDetail('شركة إعمار الهندسية')" class="py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 font-black cursor-pointer" style="width:74px;font-size:13px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;">📦 الأصناف</button><span class="px-2 py-1 rounded-lg bg-rose-600 text-white font-black" style="width:62px;font-size:14px!important;white-space:nowrap;text-align:center;display:inline-flex;align-items:center;justify-content:center;">5 أيام</span><span title="خطر: تأخر 5 أيام عن موعد الشراء المعتاد" class="py-1 rounded-lg bg-rose-600 text-white font-black" style="width:98px;font-size:14px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;padding:4px 8px;gap:5px;">🔴 خطر</span></div></div>
-                        <div class="flex items-center justify-between py-2 px-3 rounded-xl border border-white/30 gap-2" style="background:rgba(2,6,23,0.92);"><div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">7. ورشة الأمانة للحدادة</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">كل 5 أيام ⬅️ تأخر 7 أيام (2,400,000 ج.س)</span></div><div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('ورشة الأمانة للحدادة', 'انقطاع 7 أيام عن الشراء (2,400,000 ج.س)')" title="مراسلة وتنبيه ذكي عبر واتساب" class="wa-svg-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="#ffffff"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.122 1.527 5.854l-1.527 5.576 5.713-1.498c1.693.923 3.633 1.448 5.699 1.448 6.627 0 12-5.373 12-12s-5.373-12-12.412-11.38z"/></svg></button><button type="button" onclick="showPartnerItemsDetail('ورشة الأمانة للحدادة')" class="py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 font-black cursor-pointer" style="width:74px;font-size:13px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;">📦 الأصناف</button><span class="px-2 py-1 rounded-lg font-black" style="width:62px;font-size:14px!important;white-space:nowrap;text-align:center;display:inline-flex;align-items:center;justify-content:center;background:#020617;color:#fff;border:1px solid #fff;">7 أيام</span><span title="متوقف: تأخر 7 أيام فأكثر عن موعد الشراء" class="py-1 rounded-lg font-black" style="width:98px;font-size:14px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;padding:4px 8px;gap:5px;background:#020617;color:#fff;border:1px solid #fff;">⬛ متوقف</span></div></div>
+                        <div class="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/40 gap-2"><div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">1. مؤسسة البنيان الحديثة</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">كل 5 أيام ⬅️ موعده اليوم (18,400,000 ج.س)</span></div><div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('مؤسسة البنيان الحديثة', 'موعد الشراء الدوري اليوم (18,400,000 ج.س)')" title="مراسلة وتنبيه ذكي عبر واتساب" class="wa-svg-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="#ffffff"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.122 1.527 5.854l-1.527 5.576 5.713-1.498c1.693.923 3.633 1.448 5.699 1.448 6.627 0 12-5.373 12-12s-5.373-12-12.412-11.38z"/></svg></button><button type="button" onclick="showPartnerItemsDetail('مؤسسة البنيان الحديثة')" class="py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 font-black cursor-pointer" style="width:74px;font-size:13px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;">📦 الأصناف</button><span class="px-2 py-1 rounded-lg bg-emerald-700 text-white font-black" style="width:62px;font-size:14px!important;white-space:nowrap;text-align:center;display:inline-flex;align-items:center;justify-content:center;">اليوم</span><span title="منتظم في موعد الشراء المعتاد (اليوم)" class="py-1 rounded-lg bg-emerald-600 text-white font-black" style="width:98px;font-size:14px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;padding:4px 8px;gap:5px;">🟢 منتظم</span></div></div>
+                        <div class="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/40 gap-2"><div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">2. شركة النيل للمقاولات</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">كل 7 أيام ⬅️ تأخر يوم واحد (12,600,000 ج.س)</span></div><div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('شركة النيل للمقاولات', 'تأخر يوم واحد عن موعد الشراء (12,600,000 ج.س)')" title="مراسلة وتنبيه ذكي عبر واتساب" class="wa-svg-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="#ffffff"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.122 1.527 5.854l-1.527 5.576 5.713-1.498c1.693.923 3.633 1.448 5.699 1.448 6.627 0 12-5.373 12-12s-5.373-12-12.412-11.38z"/></svg></button><button type="button" onclick="showPartnerItemsDetail('شركة النيل للمقاولات')" class="py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 font-black cursor-pointer" style="width:74px;font-size:13px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;">📦 الأصناف</button><span class="px-2 py-1 rounded-lg bg-emerald-700 text-white font-black" style="width:62px;font-size:14px!important;white-space:nowrap;text-align:center;display:inline-flex;align-items:center;justify-content:center;">1 يوم</span><span title="منتظم (تأخر يوم واحد فقط ضمن النطاق الأخضر)" class="py-1 rounded-lg bg-emerald-600 text-white font-black" style="width:98px;font-size:14px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;padding:4px 8px;gap:5px;">🟢 منتظم</span></div></div>
+                        <div class="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-amber-500/15 border border-amber-500/40 gap-2"><div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">3. مغلق الوادي للحديد</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">كل 5 أيام ⬅️ تأخر يومين (9,200,000 ج.س)</span></div><div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('مغلق الوادي للحديد', 'تأخر يومين عن دورية الشراء (9,200,000 ج.س)')" title="مراسلة وتنبيه ذكي عبر واتساب" class="wa-svg-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="#ffffff"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.122 1.527 5.854l-1.527 5.576 5.713-1.498c1.693.923 3.633 1.448 5.699 1.448 6.627 0 12-5.373 12-12s-5.373-12-12.412-11.38z"/></svg></button><button type="button" onclick="showPartnerItemsDetail('مغلق الوادي للحديد')" class="py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 font-black cursor-pointer" style="width:74px;font-size:13px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;">📦 الأصناف</button><span class="px-2 py-1 rounded-lg bg-amber-500 font-black" style="width:62px;font-size:14px!important;white-space:nowrap;text-align:center;display:inline-flex;align-items:center;justify-content:center;color:#000000!important;-webkit-text-fill-color:#000000!important;">يومان</span><span title="استعداد ومتابعة: تأخر يومين عن موعد الشراء" class="py-1 rounded-lg bg-amber-500 font-black" style="width:98px;font-size:14px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;padding:4px 8px;gap:5px;color:#000000!important;-webkit-text-fill-color:#000000!important;">🟡 استعداد</span></div></div>
+                        <div class="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-amber-500/15 border border-amber-500/40 gap-2"><div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">4. مقاولات السلام السكنية</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">كل 6 أيام ⬅️ تأخر 3 أيام (6,400,000 ج.س)</span></div><div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('مقاولات السلام السكنية', 'تأخر 3 أيام عن دورية الشراء (6,400,000 ج.س)')" title="مراسلة وتنبيه ذكي عبر واتساب" class="wa-svg-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="#ffffff"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.122 1.527 5.854l-1.527 5.576 5.713-1.498c1.693.923 3.633 1.448 5.699 1.448 6.627 0 12-5.373 12-12s-5.373-12-12.412-11.38z"/></svg></button><button type="button" onclick="showPartnerItemsDetail('مقاولات السلام السكنية')" class="py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 font-black cursor-pointer" style="width:74px;font-size:13px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;">📦 الأصناف</button><span class="px-2 py-1 rounded-lg bg-amber-500 font-black" style="width:62px;font-size:14px!important;white-space:nowrap;text-align:center;display:inline-flex;align-items:center;justify-content:center;color:#000000!important;-webkit-text-fill-color:#000000!important;">3 أيام</span><span title="استعداد ومتابعة: تأخر 3 أيام عن موعد الشراء" class="py-1 rounded-lg bg-amber-500 font-black" style="width:98px;font-size:14px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;padding:4px 8px;gap:5px;color:#000000!important;-webkit-text-fill-color:#000000!important;">🟡 استعداد</span></div></div>
+                        <div class="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-rose-500/15 border border-rose-500/40 gap-2"><div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">5. مقاولات أبراج الخرطوم</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">كل 5 أيام ⬅️ تأخر 4 أيام (8,900,000 ج.س)</span></div><div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('مقاولات أبراج الخرطوم', 'خطر تأخر 4 أيام عن الشراء (8,900,000 ج.س)')" title="مراسلة وتنبيه ذكي عبر واتساب" class="wa-svg-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="#ffffff"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.122 1.527 5.854l-1.527 5.576 5.713-1.498c1.693.923 3.633 1.448 5.699 1.448 6.627 0 12-5.373 12-12s-5.373-12-12.412-11.38z"/></svg></button><button type="button" onclick="showPartnerItemsDetail('مقاولات أبراج الخرطوم')" class="py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 font-black cursor-pointer" style="width:74px;font-size:13px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;">📦 الأصناف</button><span class="px-2 py-1 rounded-lg bg-rose-600 text-white font-black" style="width:62px;font-size:14px!important;white-space:nowrap;text-align:center;display:inline-flex;align-items:center;justify-content:center;">4 أيام</span><span title="خطر: تأخر 4 أيام عن موعد الشراء المعتاد" class="py-1 rounded-lg bg-rose-600 text-white font-black" style="width:98px;font-size:14px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;padding:4px 8px;gap:5px;">🔴 خطر</span></div></div>
+                        <div class="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-rose-500/15 border border-rose-500/40 gap-2"><div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">6. شركة إعمار الهندسية</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">كل 10 أيام ⬅️ تأخر 5 أيام (5,100,000 ج.س)</span></div><div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('شركة إعمار الهندسية', 'خطر تأخر 5 أيام عن الشراء (5,100,000 ج.س)')" title="مراسلة وتنبيه ذكي عبر واتساب" class="wa-svg-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="#ffffff"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.122 1.527 5.854l-1.527 5.576 5.713-1.498c1.693.923 3.633 1.448 5.699 1.448 6.627 0 12-5.373 12-12s-5.373-12-12.412-11.38z"/></svg></button><button type="button" onclick="showPartnerItemsDetail('شركة إعمار الهندسية')" class="py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 font-black cursor-pointer" style="width:74px;font-size:13px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;">📦 الأصناف</button><span class="px-2 py-1 rounded-lg bg-rose-600 text-white font-black" style="width:62px;font-size:14px!important;white-space:nowrap;text-align:center;display:inline-flex;align-items:center;justify-content:center;">5 أيام</span><span title="خطر: تأخر 5 أيام عن موعد الشراء المعتاد" class="py-1 rounded-lg bg-rose-600 text-white font-black" style="width:98px;font-size:14px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;padding:4px 8px;gap:5px;">🔴 خطر</span></div></div>
+                        <div class="flex items-center justify-between py-2.5 px-3.5 rounded-xl border border-white/30 gap-2" style="background:rgba(2,6,23,0.92);"><div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">7. ورشة الأمانة للحدادة</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">كل 5 أيام ⬅️ تأخر 7 أيام (2,400,000 ج.س)</span></div><div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('ورشة الأمانة للحدادة', 'انقطاع 7 أيام عن الشراء (2,400,000 ج.س)')" title="مراسلة وتنبيه ذكي عبر واتساب" class="wa-svg-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="#ffffff"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.122 1.527 5.854l-1.527 5.576 5.713-1.498c1.693.923 3.633 1.448 5.699 1.448 6.627 0 12-5.373 12-12s-5.373-12-12.412-11.38z"/></svg></button><button type="button" onclick="showPartnerItemsDetail('ورشة الأمانة للحدادة')" class="py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 font-black cursor-pointer" style="width:74px;font-size:13px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;">📦 الأصناف</button><span class="px-2 py-1 rounded-lg font-black" style="width:62px;font-size:14px!important;white-space:nowrap;text-align:center;display:inline-flex;align-items:center;justify-content:center;background:#020617;color:#fff;border:1px solid #fff;">7 أيام</span><span title="متوقف: تأخر 7 أيام فأكثر عن موعد الشراء" class="py-1 rounded-lg font-black" style="width:98px;font-size:14px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;padding:4px 8px;gap:5px;background:#020617;color:#fff;border:1px solid #fff;">⬛ متوقف</span></div></div>
                     </div>
                 </div>
                 <div class="lg:col-span-6 bento-card p-5 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-1.5 min-w-0">
+                            <div class="flex items-center gap-1.5 min-w-0 flex-1">
                                 <button type="button" onclick="openFullCardModal('debt')" title="اضغط لعرض قائمة كل أعمار الديون والسقوفات والربحية والشيكات بالكامل" class="w-7 h-7 rounded-lg bg-rose-500/25 hover:bg-rose-500/45 border-2 border-rose-400 text-white font-black text-lg flex items-center justify-center cursor-pointer shrink-0 shadow">+</button>
                                 <button type="button" onclick="openChartCardModal('debt')" title="عرض التحليل البياني البصري الشامل لأعمار الديون والربحية والشيكات" class="w-7 h-7 rounded-lg bg-amber-500/25 hover:bg-amber-500/45 border-2 border-amber-400 text-amber-300 font-black text-sm flex items-center justify-center cursor-pointer shrink-0 shadow">📊</button>
-                                <h2 class="text-sm font-black text-white truncate" id="dash-debt-aging-title">⏳ سجل الديون والسقوفات والأرباح</h2>
+                                <h2 class="font-black text-white whitespace-nowrap flex-1" id="dash-debt-aging-title" style="font-size:19px!important;line-height:1.2;">سجل الديون والسقوفات والأرباح</h2>
                             </div>
                             <button type="button" id="dash-debt-group-toggle" onclick="toggleDebtGroup()" class="radar-glow-btn px-3 py-1 rounded-lg bg-amber-600 text-white text-xs font-black cursor-pointer shrink-0" style="background:#d97706!important;color:#fff!important;-webkit-text-fill-color:#fff!important;">⇄ الموردين</button>
                         </div>
@@ -1541,27 +1666,27 @@ function switchToMobileEdition() {
                         </div>
                     </div>
                     <div id="dash-debt-aging-box" class="space-y-1.5 inner-box p-2.5 num-font text-sm flex-1 flex flex-col justify-between">
-                        <div class="flex items-center justify-between py-1.5 px-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 gap-2">
+                        <div class="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/40 gap-2">
                             <div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">🟢 1. مقاولات السلام السكنية (منتظم تماماً)</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">المعتاد: يسدد كل <b>10 أيام</b> ⬅️ مرّ <b>3 أيام</b> (آمن 100%)</span></div>
                             <div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('مقاولات السلام السكنية', 'رصيد 110,000 ج.س • مر 3 أيام من دورية 10 أيام')" title="مراسلة ذكية عبر واتساب" class="wa-svg-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="#ffffff"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.122 1.527 5.854l-1.527 5.576 5.713-1.498c1.693.923 3.633 1.448 5.699 1.448 6.627 0 12-5.373 12-12s-5.373-12-12.412-11.38z"/></svg></button><span class="px-2 py-1 rounded-lg bg-emerald-600 text-white font-black" style="width:68px;font-size:14px!important;text-align:center;display:inline-flex;align-items:center;justify-content:center;">3 أيام</span><strong class="text-emerald-400 font-black text-sm" style="width:118px;text-align:left;display:inline-block;white-space:nowrap;">110,000 ج.س</strong></div>
                         </div>
-                        <div class="flex items-center justify-between py-1.5 px-3 rounded-xl bg-emerald-500/15 border border-emerald-500/40 gap-2">
+                        <div class="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-emerald-500/15 border border-emerald-500/40 gap-2">
                             <div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">🟢 2. شركة النيل للمقاولات (منتظم تماماً)</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">المعتاد: يسدد كل <b>15 يوماً</b> ⬅️ مرّ <b>4 أيام</b> (آمن 100%)</span></div>
                             <div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('شركة النيل للمقاولات', 'رصيد 165,000 ج.س • مر 4 أيام من دورية 15 يوماً')" title="مراسلة ذكية عبر واتساب" class="wa-svg-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="#ffffff"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.122 1.527 5.854l-1.527 5.576 5.713-1.498c1.693.923 3.633 1.448 5.699 1.448 6.627 0 12-5.373 12-12s-5.373-12-12.412-11.38z"/></svg></button><span class="px-2 py-1 rounded-lg bg-emerald-600 text-white font-black" style="width:68px;font-size:14px!important;text-align:center;display:inline-flex;align-items:center;justify-content:center;">4 أيام</span><strong class="text-emerald-400 font-black text-sm" style="width:118px;text-align:left;display:inline-block;white-space:nowrap;">165,000 ج.س</strong></div>
                         </div>
-                        <div class="flex items-center justify-between py-1.5 px-3 rounded-xl bg-amber-500/15 border border-amber-500/40 gap-2">
+                        <div class="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-amber-500/15 border border-amber-500/40 gap-2">
                             <div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">🟡 3. مؤسسة البنيان الحديثة (اقتراب الاستحقاق)</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">المعتاد: يسدد كل <b>7 أيام</b> ⬅️ مرّ <b>8 أيام</b> (تأخير +1 يوم)</span></div>
                             <div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('مؤسسة البنيان الحديثة', 'استحقاق 420,000 ج.س • مر 8 أيام (تأخير +1 يوم)')" title="تذكير سداد ذكي عبر واتساب" class="wa-svg-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="#ffffff"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.122 1.527 5.854l-1.527 5.576 5.713-1.498c1.693.923 3.633 1.448 5.699 1.448 6.627 0 12-5.373 12-12s-5.373-12-12.412-11.38z"/></svg></button><span class="px-2 py-1 rounded-lg bg-amber-500 font-black" style="width:68px;font-size:14px!important;text-align:center;display:inline-flex;align-items:center;justify-content:center;color:#000000!important;-webkit-text-fill-color:#000000!important;">8 أيام</span><strong class="text-amber-300 font-black text-sm" style="width:118px;text-align:left;display:inline-block;white-space:nowrap;">420,000 ج.س</strong></div>
                         </div>
-                        <div class="flex items-center justify-between py-1.5 px-3 rounded-xl bg-amber-500/15 border border-amber-500/40 gap-2">
+                        <div class="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-amber-500/15 border border-amber-500/40 gap-2">
                             <div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">🟡 4. مغلق الوادي للحديد (اقتراب الاستحقاق)</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">المعتاد: يسدد كل <b>7 أيام</b> ⬅️ مرّ <b>9 أيام</b> (تأخير +2 يوم)</span></div>
                             <div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('مغلق الوادي للحديد', 'استحقاق 140,000 ج.س • مر 9 أيام (تأخير +2 يوم)')" title="تذكير سداد ذكي عبر واتساب" class="wa-svg-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="#ffffff"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.122 1.527 5.854l-1.527 5.576 5.713-1.498c1.693.923 3.633 1.448 5.699 1.448 6.627 0 12-5.373 12-12s-5.373-12-12.412-11.38z"/></svg></button><span class="px-2 py-1 rounded-lg bg-amber-500 font-black" style="width:68px;font-size:14px!important;text-align:center;display:inline-flex;align-items:center;justify-content:center;color:#000000!important;-webkit-text-fill-color:#000000!important;">9 أيام</span><strong class="text-amber-300 font-black text-sm" style="width:118px;text-align:left;display:inline-block;white-space:nowrap;">140,000 ج.س</strong></div>
                         </div>
-                        <div class="flex items-center justify-between py-1.5 px-3 rounded-xl bg-rose-500/15 border border-rose-500/40 gap-2">
+                        <div class="flex items-center justify-between py-2.5 px-3.5 rounded-xl bg-rose-500/15 border border-rose-500/40 gap-2">
                             <div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">🔴 5. مغلق السجانة الهندسي (تأخر سداد!)</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">المعتاد: يسدد كل <b>5 أيام</b> ⬅️ مرّ <b>10 أيام</b> (تأخير +5 أيام)</span></div>
                             <div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('مغلق السجانة الهندسي', 'متأخر 235,000 ج.س • مر 10 أيام (+5 أيام)')" title="مطالبة سداد ذكية عبر واتساب" class="wa-svg-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="#ffffff"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.122 1.527 5.854l-1.527 5.576 5.713-1.498c1.693.923 3.633 1.448 5.699 1.448 6.627 0 12-5.373 12-12s-5.373-12-12.412-11.38z"/></svg></button><span class="px-2 py-1 rounded-lg bg-rose-600 text-white font-black" style="width:68px;font-size:14px!important;text-align:center;display:inline-flex;align-items:center;justify-content:center;">10 أيام</span><strong class="text-rose-400 font-black text-sm" style="width:118px;text-align:left;display:inline-block;white-space:nowrap;">235,000 ج.س</strong></div>
                         </div>
-                        <div class="flex items-center justify-between py-1.5 px-3 rounded-xl border border-white/30 gap-2" style="background:rgba(2,6,23,0.92);">
+                        <div class="flex items-center justify-between py-2.5 px-3.5 rounded-xl border border-white/30 gap-2" style="background:rgba(2,6,23,0.92);">
                             <div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">⬛ 6. ورشة الأمانة للحدادة (تجاوز 10 أيام!)</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">المعتاد: يسدد كل <b>5 أيام</b> ⬅️ مرّ <b>16 يوماً</b> (تأخير +11 يوماً)</span></div>
                             <div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('ورشة الأمانة للحدادة', 'متأخر حرج 195,000 ج.س • مر 16 يوماً (+11 يوماً)')" title="إنذار سداد عاجل عبر واتساب" class="wa-svg-btn"><svg viewBox="0 0 24 24" width="16" height="16" fill="#ffffff"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.122 1.527 5.854l-1.527 5.576 5.713-1.498c1.693.923 3.633 1.448 5.699 1.448 6.627 0 12-5.373 12-12s-5.373-12-12.412-11.38z"/></svg></button><span class="px-2 py-1 rounded-lg font-black" style="width:68px;font-size:14px!important;text-align:center;display:inline-flex;align-items:center;justify-content:center;background:#020617;color:#fff;border:1px solid #fff;">16 يوماً</span><strong class="text-white font-black text-sm" style="width:118px;text-align:left;display:inline-block;white-space:nowrap;">195,000 ج.س</strong></div>
                         </div>
@@ -1573,12 +1698,12 @@ function switchToMobileEdition() {
                 <div class="lg:col-span-4 bento-card p-5 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-1.5 min-w-0">
-                                <button type="button" onclick="openFullCardModal('audit')" title="عرض غرفة القيادة وميزان المطابقة بالكامل" class="w-7 h-7 rounded-lg bg-emerald-500/25 hover:bg-emerald-500/45 border-2 border-emerald-400 text-white font-black text-lg flex items-center justify-center cursor-pointer shrink-0 shadow">+</button>
-                                <button type="button" onclick="openChartCardModal('audit')" title="عرض الرسم البياني للمركز المالي وميزان المطابقة" class="w-7 h-7 rounded-lg bg-amber-500/25 hover:bg-amber-500/45 border-2 border-amber-400 text-amber-300 font-black text-sm flex items-center justify-center cursor-pointer shrink-0 shadow">📊</button>
-                                <h2 class="text-[13.5px] font-black text-white whitespace-nowrap">⚖️ غرفة القيادة وميزان المطابقة</h2>
+                            <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                <button type="button" onclick="openFullCardModal('audit')" title="عرض غرف القيادة وميزانية المطابقة بالكامل" class="w-7 h-7 rounded-lg bg-emerald-500/25 hover:bg-emerald-500/45 border-2 border-emerald-400 text-white font-black text-lg flex items-center justify-center cursor-pointer shrink-0 shadow">+</button>
+                                <button type="button" onclick="openChartCardModal('audit')" title="عرض الرسم البياني للمركز المالي وميزانية المطابقة" class="w-7 h-7 rounded-lg bg-amber-500/25 hover:bg-amber-500/45 border-2 border-amber-400 text-amber-300 font-black text-sm flex items-center justify-center cursor-pointer shrink-0 shadow">📊</button>
+                                <h2 class="font-black text-white whitespace-nowrap flex-1" style="font-size:18px!important;">غرف القيادة وميزانية المطابقة</h2>
                             </div>
-                            <span class="px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 text-[11px] font-black shrink-0">متطابق 100% ✓</span>
+                            <span class="px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 text-[10.5px] font-black shrink-0">متطابق 100% ✓</span>
                         </div>
                         <div class="grid grid-cols-4 gap-1 mb-2.5" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;">
                             <button type="button" onclick="switchAuditCommandView('trial', this)" class="radar-glow-btn active-radar-tab py-1 px-1 rounded-lg bg-emerald-600 text-white text-[11px] font-black text-center whitespace-nowrap">⚖️ المطابقة</button>
@@ -1598,18 +1723,17 @@ function switchToMobileEdition() {
                             </tbody>
                         </table>
                     </div>
-                    <div class="grid grid-cols-2 gap-2.5 mt-3 pt-3 border-t border-white/10">
-                        <button onclick="window.location.href='sales.php'" class="py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs transition">🛒 فتح شاشة المبيعات الكاملة</button>
-                        <button onclick="toggleCurtain()" class="py-2.5 px-3 rounded-xl inner-box hover:border-emerald-400 text-emerald-300 font-extrabold text-xs transition">🎛️ تعديل الأرصدة الافتتاحية</button>
+                    <div class="grid grid-cols-1 gap-2.5 mt-3 pt-3 border-t border-white/10">
+                        <button type="button" onclick="window.location.href='direct-sales.php'" class="py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs transition cursor-pointer">🛒 فتح شاشة المبيعات الكاملة</button>
                     </div>
                 </div>
                 <div class="lg:col-span-4 bento-card p-5 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-1.5 min-w-0">
+                            <div class="flex items-center gap-1.5 min-w-0 flex-1">
                                 <button type="button" onclick="openFullCardModal('live_radar')" title="توسيع الرادار المحاسبي الحي والأذونات" class="w-7 h-7 rounded-lg bg-sky-500/25 hover:bg-sky-500/45 border-2 border-sky-400 text-white font-black text-lg flex items-center justify-center cursor-pointer shrink-0 shadow">+</button>
                                 <button type="button" onclick="openChartCardModal('live_radar')" title="عرض الرسم البياني للحركات اليومية والأذونات" class="w-7 h-7 rounded-lg bg-amber-500/25 hover:bg-amber-500/45 border-2 border-amber-400 text-amber-300 font-black text-sm flex items-center justify-center cursor-pointer shrink-0 shadow">📊</button>
-                                <h2 class="text-[13.5px] font-black text-white whitespace-nowrap">📡 الرادار المحاسبي الحي</h2>
+                                <h2 class="font-black text-white whitespace-nowrap flex-1" style="font-size:18.5px!important;">الرادار المحاسبي الحي</h2>
                             </div>
                             <span class="text-xs text-emerald-300 font-bold shrink-0">طباعة فورية 🖨️</span>
                         </div>
@@ -1623,9 +1747,10 @@ function switchToMobileEdition() {
                             <div class="inner-box p-2.5 flex items-center justify-between"><span class="text-xs text-slate-300">رصيد الخزينة اللحظي:</span><strong id="radar-cash-now" class="text-sm font-black text-emerald-400">3,450,000</strong></div>
                             <div class="inner-box p-2.5 flex items-center justify-between"><span class="text-xs text-slate-300">رصيد المخزون اللحظي:</span><strong id="radar-stock-now" class="text-sm font-black text-amber-400">420.5 طن</strong></div>
                         </div>
-                        <div id="radar-feed" class="space-y-2 max-h-40 overflow-y-auto pl-1 num-font">
-                            <div onclick="printReceipt('مؤسسة البنيان الحديثة', 'فاتورة بيع نقدي', '1.0', '135', '9.0', '420,000')" class="inner-box p-3 hover:border-emerald-400 cursor-pointer transition flex items-center justify-between"><div><div class="font-bold text-white text-sm">مؤسسة البنيان الحديثة <span class="text-emerald-400">(فاتورة بيع نقدي)</span></div><div class="text-xs text-slate-300">الوزن: 1.0 طن | 135 سيخة تجاري | 9.0 شيلة</div></div><div class="text-left"><div class="font-black text-emerald-400 text-sm" data-sdg="420000">420,000 ج.س</div><div class="text-[11px] text-slate-300">اضغط للطباعة 🖨️</div></div></div>
-                            <div onclick="printReceipt('توريد سيخ تسليح 16مم', 'سند مشتريات', '15.0', '2025', '135.0', '5,850,000')" class="inner-box p-3 hover:border-emerald-400 cursor-pointer transition flex items-center justify-between"><div><div class="font-bold text-white text-sm">توريد سيخ تسليح 16مم <span class="text-amber-400">(سند مشتريات)</span></div><div class="text-xs text-slate-300">الوزن: 15.0 طن | مخزن السجانة الرئيسي</div></div><div class="text-left"><div class="font-black text-amber-400 text-sm" data-sdg="5850000">5,850,000 ج.س</div><div class="text-[11px] text-slate-300">اضغط للطباعة 🖨️</div></div></div>
+                        <div id="radar-feed" class="space-y-2.5 pl-1 num-font">
+                            <div onclick="printReceipt('مؤسسة البنيان الحديثة', 'فاتورة بيع نقدي', '1.0', '135', '9.0', '420,000')" class="inner-box p-3.5 hover:border-emerald-400 cursor-pointer transition flex items-center justify-between"><div><div class="font-bold text-white text-sm">مؤسسة البنيان الحديثة <span class="text-emerald-400">(فاتورة بيع نقدي)</span></div><div class="text-xs text-slate-300">الوزن: 1.0 طن | 135 سيخة تجاري | 9.0 شيلة</div></div><div class="text-left"><div class="font-black text-emerald-400 text-sm" data-sdg="420000">420,000 ج.س</div><div class="text-[11px] text-slate-300">اضغط للطباعة 🖨️</div></div></div>
+                            <div onclick="printReceipt('توريد سيخ تسليح 16مم', 'سند مشتريات', '15.0', '2025', '135.0', '5,850,000')" class="inner-box p-3.5 hover:border-emerald-400 cursor-pointer transition flex items-center justify-between"><div><div class="font-bold text-white text-sm">توريد سيخ تسليح 16مم <span class="text-amber-400">(سند مشتريات)</span></div><div class="text-xs text-slate-300">الوزن: 15.0 طن | مخزن السجانة الرئيسي</div></div><div class="text-left"><div class="font-black text-amber-400 text-sm" data-sdg="5850000">5,850,000 ج.س</div><div class="text-[11px] text-slate-300">اضغط للطباعة 🖨️</div></div></div>
+                            <div onclick="printReceipt('شركة النيل للمقاولات', 'سند قبض بنكي', '3.0', '405', '27.0', '1,250,000')" class="inner-box p-3.5 hover:border-emerald-400 cursor-pointer transition flex items-center justify-between"><div><div class="font-bold text-white text-sm">شركة النيل للمقاولات <span class="text-sky-400">(سند قبض بنكي)</span></div><div class="text-xs text-slate-300">تحصيل دفعة عبر بنك الخرطوم • مطابقة فورية</div></div><div class="text-left"><div class="font-black text-sky-400 text-sm" data-sdg="1250000">1,250,000 ج.س</div><div class="text-[11px] text-slate-300">اضغط للطباعة 🖨️</div></div></div>
                         </div>
                     </div>
                     <div class="mt-3 pt-2.5 border-t border-white/15">
@@ -1642,25 +1767,29 @@ function switchToMobileEdition() {
                 <div class="lg:col-span-4 bento-card p-5 flex flex-col justify-between">
                     <div>
                         <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-1.5 min-w-0">
-                                <button type="button" onclick="openFullCardModal('cashflow')" title="توسيع مؤشرات التدفق النقدي والتنبؤ المالي بالكامل" class="w-7 h-7 rounded-lg bg-emerald-500/25 hover:bg-emerald-500/45 border-2 border-emerald-400 text-white font-black text-lg flex items-center justify-center cursor-pointer shrink-0 shadow">+</button>
-                                <button type="button" onclick="openChartCardModal('cashflow')" title="عرض الرسم البياني للتدفقات النقدية والتنبؤ الذكي" class="w-7 h-7 rounded-lg bg-amber-500/25 hover:bg-amber-500/45 border-2 border-amber-400 text-amber-300 font-black text-sm flex items-center justify-center cursor-pointer shrink-0 shadow">📊</button>
-                                <h2 class="text-[13.5px] font-black text-white whitespace-nowrap">◎ مؤشرات التدفق والمبيعات والمخزون</h2>
+                            <div class="flex items-center gap-1.5 min-w-0 flex-1">
+                                <button type="button" onclick="openFullCardModal('cashflow')" title="توسيع مؤشرات التدفق والمبيعات والمخزون بالكامل" class="w-7 h-7 rounded-lg bg-emerald-500/25 hover:bg-emerald-500/45 border-2 border-emerald-400 text-white font-black text-lg flex items-center justify-center cursor-pointer shrink-0 shadow">+</button>
+                                <button type="button" onclick="openChartCardModal('cashflow')" title="عرض الرسم البياني لمؤشرات التدفق والمبيعات والمخزون" class="w-7 h-7 rounded-lg bg-amber-500/25 hover:bg-amber-500/45 border-2 border-amber-400 text-amber-300 font-black text-sm flex items-center justify-center cursor-pointer shrink-0 shadow">📊</button>
+                                <h2 class="font-black text-white whitespace-nowrap flex-1" style="font-size:17.5px!important;">مؤشرات التدفق والمبيعات والمخزون</h2>
                             </div>
-                            <span class="px-2 py-0.5 rounded-lg inner-box text-[11px] text-emerald-300 font-black shrink-0">🤖 ذكاء حي</span>
+                            <span class="px-2 py-0.5 rounded-lg inner-box text-[10.5px] text-emerald-300 font-black shrink-0">🤖 ذكاء حي</span>
                         </div>
                         <div class="grid grid-cols-4 gap-1 mb-2" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;">
-                            <button type="button" onclick="switchCashflowCardView('kpis', this)" class="radar-glow-btn active-radar-tab py-1 px-1 rounded-lg bg-emerald-600 text-white text-[11px] font-black text-center whitespace-nowrap">💧 المؤشرات</button>
+                            <button type="button" onclick="switchCashflowCardView('kpis', this)" class="radar-glow-btn active-radar-tab py-1 px-1 rounded-lg bg-emerald-600 text-white text-[11px] font-black text-center whitespace-nowrap">💧 الكفاءة</button>
                             <button type="button" onclick="switchCashflowCardView('ccc', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-slate-800 text-slate-200 text-[11px] font-bold text-center whitespace-nowrap">🔄 دورة النقد</button>
-                            <button type="button" onclick="switchCashflowCardView('ai_cf', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-slate-800 text-slate-200 text-[11px] font-bold text-center whitespace-nowrap">🔮 تنبؤ 30 يوم</button>
-                            <button type="button" onclick="switchCashflowCardView('stress', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-slate-800 text-slate-200 text-[11px] font-bold text-center whitespace-nowrap">🛡️ أمان السيولة</button>
+                            <button type="button" onclick="switchCashflowCardView('ai_cf', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-slate-800 text-slate-200 text-[11px] font-bold text-center whitespace-nowrap">💸 المصروفات</button>
+                            <button type="button" onclick="switchCashflowCardView('stress', this)" class="radar-glow-btn py-1 px-1 rounded-lg bg-slate-800 text-slate-200 text-[11px] font-bold text-center whitespace-nowrap">🛡️ التحوط</button>
                         </div>
                     </div>
-                    <div id="dash-cashflow-kpis-box" class="grid grid-cols-2 gap-2.5 my-1 num-font">
+                    <div id="dash-cashflow-kpis-box" class="grid grid-cols-2 gap-2.5 my-1 num-font flex-1">
                         <div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟢 التدفق النقدي</span><strong class="text-base font-black text-emerald-300">84%</strong></div>
                         <div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟢 سيولة المبيعات</span><strong class="text-base font-black text-emerald-300">72%</strong></div>
                         <div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟡 وفرة المخزون</span><strong class="text-base font-black text-amber-300">78%</strong></div>
                         <div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟡 سعة المخازن</span><strong class="text-base font-black text-amber-300">64%</strong></div>
+                        <div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟢 كفاءة التحصيل</span><strong class="text-base font-black text-emerald-300">81%</strong></div>
+                        <div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟢 دوران البضاعة</span><strong class="text-base font-black text-sky-300">2.4x</strong></div>
+                        <div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟢 تغطية الشيكات</span><strong class="text-base font-black text-emerald-300">96%</strong></div>
+                        <div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟢 هامش الأمان</span><strong class="text-base font-black text-emerald-300">88%</strong></div>
                     </div>
                     <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/10 text-xs num-font">
                         <div class="inner-box p-2.5"><span class="text-slate-300 block text-xs mb-1">1. التدفقات الداخلة</span><strong class="text-emerald-400 text-sm font-black" id="cf-in-val">+1,320,000</strong></div>
@@ -1670,6 +1799,8 @@ function switchToMobileEdition() {
                     <div style="display:none" aria-hidden="true"><input id="sajana-tons" type="hidden" value="1.0"><input id="sajana-amount" type="hidden" value="420,000"><span id="res-comm"></span><span id="res-weight"></span><span id="res-bundles"></span></div>
                 </div>
             </section>
+            <!-- 5.5 المنظومة العالمية للتحليل البياني البصري التلقائي ورادار التنبؤ بالذكاء الاصطناعي للمخاطر -->
+            <div id="auto-charts-slot" class="w-full mt-4"></div>
             <!-- 6. ستارة الأرصدة والسمات المنزلقة -->
             <aside id="curtain-drawer" class="fixed top-0 left-0 h-full w-96 bento-card z-50 p-6 transform -translate-x-full transition-transform duration-300 overflow-y-auto rounded-none border-r-2 border-emerald-400">
                 <div class="flex items-center justify-between pb-4 mb-4 border-b border-white/15">
@@ -1807,7 +1938,7 @@ function switchToMobileEdition() {
                     const bars = Math.round(tons * 135);
                     const bundles = Math.round(bars / 15);
                     document.getElementById('main-bars-bundles').innerText = `حديد: ${tons}ط | كراتين وألواح: 1,850 وحدة`;
-                    document.getElementById('stock-mkt-val').innerText = (((tons * rebar) / factor) / 1000000).toFixed(1) + 'M ' + unit;
+                    document.getElementById('stock-mkt-val').innerHTML = `${(((tons * rebar) / factor) / 1000000).toFixed(1)}M <small class="exec-unit-tag">${unit}</small>`;
 
                     document.getElementById('aud-liq').innerText = Math.round(liq / factor).toLocaleString();
                     document.getElementById('aud-stock').innerText = `${tons} طن + 1,850 وحدة`;
@@ -1836,6 +1967,9 @@ function switchToMobileEdition() {
                         const raw = parseFloat(el.getAttribute('data-sdg')) || 0;
                         el.innerText = Math.round(raw / factor).toLocaleString() + ' ' + unit;
                     });
+                    if (typeof cycleExecutiveSummaryPeriod === 'function') {
+                        cycleExecutiveSummaryPeriod(window._execSumPeriodIdx || 0, true);
+                    }
                     if (typeof switchPartnersRadar === 'function') {
                         switchPartnersRadar(window._lastPartnersRadarMode || (window._partnersGroupMode === 'supp' ? 'supp_cycle' : 'freq_alert'), window._lastPartnersRadarBtn);
                     }
@@ -1869,15 +2003,44 @@ function switchToMobileEdition() {
                     updateFromCurtain();
                 }
 
-                function speakExecutiveDashboardBriefing() {
-                    const liq = (document.getElementById('main-liquidity')?.innerText || '').trim();
-                    const sales = (document.getElementById('main-sales')?.innerText || '').trim();
-                    const profit = (document.getElementById('main-profit')?.innerText || '').trim();
-                    const tons = (document.getElementById('main-tons')?.innerText || '').trim();
-                    const text = `الإيجاز القيادي الذكي للواجهة العالمية: صافي السيولة الفعلية الآن ${liq} بنمو إيجابي 14.8 بالمئة، وإجمالي المبيعات ${sales} بصافي ربح تشغيلي ${profit}. رصيد الحديد الفعلي بالمخزن ${tons}. تنبيه هام: هناك عميلان تجاوزا دورية الشراء المعتادة من 5 أيام إلى 7 أيام، وعميل تجاوز دورية السداد المعتادة من 5 أيام إلى 10 أيام.`;
+                function _speakDashArabicText(rawText) {
+                    const cleanText = String(rawText || '').replace(/ج\.س/g, ' جنيه سوداني ').replace(/\$/g, ' دولار أمريكي ');
                     if (typeof window.speakMdExplanationPanelText === 'function') {
-                        window.speakMdExplanationPanelText(text);
+                        window.speakMdExplanationPanelText(cleanText);
+                        return;
                     }
+                    if ('speechSynthesis' in window) {
+                        window.speechSynthesis.cancel();
+                        const u = new SpeechSynthesisUtterance(cleanText);
+                        u.lang = 'ar-SA';
+                        u.rate = 1.02;
+                        window.speechSynthesis.speak(u);
+                    }
+                }
+
+                function speakExecutiveDashboardBriefing() {
+                    const sal = (document.getElementById('strip-sal-amt')?.innerText || '').trim();
+                    const liq = (document.getElementById('strip-liq-amt')?.innerText || '').trim();
+                    const prf = (document.getElementById('strip-prf-amt')?.innerText || '').trim();
+                    const mkt = (document.getElementById('stock-mkt-val')?.innerText || '').trim();
+                    const ar = (document.getElementById('strip-ar-amt')?.innerText || '').trim();
+                    const ap = (document.getElementById('strip-ap-amt')?.innerText || '').trim();
+                    const text = `الإيجاز القيادي الذكي للوحة التحكم: إجمالي المبيعات ${sal}، وصافي السيولة المتاحة ${liq}، والأرباح المحققة ${prf}. القيمة السوقية الإجمالية لأصولك ومخزونك ${mkt}. ديون العملاء المطلوب تحصيلها ${ar}، ومستحقات الموردين ${ap}.`;
+                    _speakDashArabicText(text);
+                }
+
+                function startLiveDashVoiceAdvisor() {
+                    if (typeof window.openGlobalProfessorAiChatModal === 'function') {
+                        window.openGlobalProfessorAiChatModal();
+                        return;
+                    }
+                    const sal = (document.getElementById('strip-sal-amt')?.innerText || '').trim();
+                    const prf = (document.getElementById('strip-prf-amt')?.innerText || '').trim();
+                    const ar = (document.getElementById('strip-ar-amt')?.innerText || '').trim();
+                    const ap = (document.getElementById('strip-ap-amt')?.innerText || '').trim();
+                    const msg = `مرحباً بك في المحاور البروفيسوري الذكي. بناءً على قراءة العشر مؤشرات الحالية: مبيعاتك ${sal} بصافي ربح ${prf}. أنصحك بتحصيل ديون العملاء البالغة ${ar} لتغطية مستحقات الموردين البالغة ${ap} وتعزيز السيولة الفورية.`;
+                    _speakDashArabicText(msg);
+                    if (typeof openFullCardModal === 'function') openFullCardModal('forecast');
                 }
 
                 function _activateMiniTab(btn, activeCls) {
@@ -1893,6 +2056,610 @@ function switchToMobileEdition() {
 
                 if ('caches' in window) { caches.keys().then(ks => ks.forEach(k => caches.delete(k))).catch(()=>{}); }
                 if ('serviceWorker' in navigator) { navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.update())).catch(()=>{}); }
+                (function _initStickyCommandBarPin() {
+                    const syncPin = () => {
+                        const bar = document.getElementById('exec-sticky-command-bar');
+                        const ph = document.getElementById('exec-sticky-command-placeholder');
+                        const ref = document.getElementById('dash-today-harvest-strip');
+                        if (!bar || !ph || !ref) return;
+                        const mainEl = document.querySelector('.dash-main');
+                        if (mainEl && mainEl.style.transform) mainEl.style.transform = '';
+                        const refRect = ref.getBoundingClientRect();
+                        if (refRect.top <= 84) {
+                            ph.style.display = 'block';
+                            bar.classList.add('is-pinned-fixed');
+                            bar.style.left = refRect.left + 'px';
+                            bar.style.width = refRect.width + 'px';
+                        } else {
+                            ph.style.display = 'none';
+                            bar.classList.remove('is-pinned-fixed');
+                            bar.style.left = '';
+                            bar.style.width = '';
+                        }
+                    };
+                    window.addEventListener('scroll', syncPin, { passive: true });
+                    document.addEventListener('scroll', syncPin, true);
+                    window.addEventListener('resize', syncPin, { passive: true });
+                    setInterval(syncPin, 100);
+                    setTimeout(syncPin, 80);
+                })();
+                window._hiddenBrokerIds = JSON.parse(localStorage.getItem('magaiees_hidden_broker_ids') || '[]');
+                function toggleMarketBrokerTicker(show) {
+                    const wrap = document.getElementById('market-broker-ticker-wrap');
+                    const pill = document.getElementById('market-broker-restore-pill');
+                    const ordRow = document.getElementById('market-broker-orders-row');
+                    if (wrap) wrap.style.display = show ? 'flex' : 'none';
+                    if (show && ordRow) ordRow.style.display = 'flex';
+                    if (pill) pill.style.display = show ? 'none' : 'block';
+                    localStorage.setItem('magaiees_hide_broker_ticker', show ? '0' : '1');
+                }
+                function _safeBrkSet(k, v) {
+                    try { localStorage.setItem(k, v); } catch (e) {
+                        try { ['erp_auto_backups', 'erp_audit_logs', 'erp_items_v1'].forEach(rk => localStorage.removeItem(rk)); localStorage.setItem(k, v); } catch (e2) {}
+                    }
+                }
+                const _savedBrkPrefs = (() => {
+                    try {
+                        const m = document.cookie.match(/(?:^|;\s*)magaiees_broker_prefs_v2=([^;]+)/);
+                        if (m && m[1]) return JSON.parse(decodeURIComponent(m[1])) || {};
+                    } catch (e) {}
+                    try { return JSON.parse(localStorage.getItem('magaiees_broker_prefs_v2') || '{}') || {}; } catch (e) { return {}; }
+                })();
+                window._brokerOffersSec = Math.max(20, Math.min(200, parseInt(_savedBrkPrefs.offersSec ?? '160', 10) || 160));
+                window._brokerOrdersSec = Math.max(20, Math.min(200, parseInt(_savedBrkPrefs.ordersSec ?? '200', 10) || 200));
+                window._brokerFontStep = Math.max(-3, Math.min(5, parseInt(_savedBrkPrefs.fontStep ?? localStorage.getItem('magaiees_broker_font_step') ?? '2', 10)));
+                if (isNaN(window._brokerFontStep)) window._brokerFontStep = 2;
+                window._brokerMaxAgeHours = parseInt(_savedBrkPrefs.maxAgeHours ?? localStorage.getItem('magaiees_broker_max_age_h') ?? '24', 10) || 24;
+                window._brokerHideNames = _savedBrkPrefs.hideNames !== undefined ? !!_savedBrkPrefs.hideNames : (localStorage.getItem('magaiees_broker_hide_names') === '1');
+                window._brokerDockMode = (_savedBrkPrefs.dockMode === 'bottom' || localStorage.getItem('magaiees_broker_dock_mode') === 'bottom') ? 'bottom' : 'top';
+                function saveBrokerPrefs(showNotice) {
+                    const prefs = {
+                        fontStep: window._brokerFontStep ?? 2,
+                        offersSec: window._brokerOffersSec || 160,
+                        ordersSec: window._brokerOrdersSec || 200,
+                        maxAgeHours: window._brokerMaxAgeHours || 24,
+                        hideNames: !!window._brokerHideNames,
+                        myItemsFilter: window._brokerMyItemsFilter !== false,
+                        dockMode: window._brokerDockMode === 'bottom' ? 'bottom' : 'top',
+                        offersLocked: document.getElementById('market-broker-offers-row')?.style.display === 'none',
+                        ordersLocked: document.getElementById('market-broker-orders-row')?.style.display === 'none',
+                        hiddenIds: window._hiddenBrokerIds || []
+                    };
+                    document.cookie = 'magaiees_broker_prefs_v2=' + encodeURIComponent(JSON.stringify(prefs)) + '; path=/; max-age=31536000; SameSite=Lax';
+                    _safeBrkSet('magaiees_broker_prefs_v2', JSON.stringify(prefs));
+                    _safeBrkSet('magaiees_broker_font_step', String(prefs.fontStep));
+                    _safeBrkSet('magaiees_broker_offers_sec', String(prefs.offersSec));
+                    _safeBrkSet('magaiees_broker_orders_sec', String(prefs.ordersSec));
+                    _safeBrkSet('magaiees_broker_max_age_h', String(prefs.maxAgeHours));
+                    _safeBrkSet('magaiees_broker_dock_mode', prefs.dockMode);
+                    fetch('api/market_broker_ticker.php?action=save_prefs', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(prefs)
+                    }).then(() => {
+                        if (showNotice && typeof window.showToast === 'function') window.showToast('✅ تم حفظ إعدادات شريطي البورصة (المقاس والسرعة والموقع) نهائياً', 'success');
+                    }).catch(() => {});
+                }
+                function formatBrokerFontSizeLabel(step) {
+                    const s = Math.max(-3, Math.min(5, step || 0));
+                    const px = Math.round(13.2 + s * 1.6);
+                    return px + 'px (' + (s === 0 ? '0' : (s > 0 ? '+' + s : s)) + ')';
+                }
+                function formatBrokerSpeedLabel(which) {
+                    const isOrd = (which === 'orders' || (which === undefined && window._brkActiveScope === 'order'));
+                    const sec = isOrd ? (window._brokerOrdersSec || 200) : (window._brokerOffersSec || 160);
+                    const lvl = Math.max(1, Math.min(10, Math.round((220 - sec) / 20) + 1));
+                    return (isOrd ? 'سرعة الطلبات ' : 'سرعة العروض ') + lvl + '/10';
+                }
+                function adjustMarketBrokerFont(delta) {
+                    window._brokerFontStep = Math.max(-3, Math.min(5, (window._brokerFontStep || 0) + delta));
+                    _safeBrkSet('magaiees_broker_font_step', String(window._brokerFontStep));
+                    const lbl = document.getElementById('brk-font-step-lbl');
+                    if (lbl) lbl.textContent = formatBrokerFontSizeLabel(window._brokerFontStep);
+                    applyMarketBrokerDock(window._brokerDockMode || 'top');
+                    saveBrokerPrefs();
+                    window._lastBrokerSig = '';
+                    loadMarketBrokerTicker();
+                }
+                function toggleMarketBrokerNames() {
+                    window._brokerHideNames = !window._brokerHideNames;
+                    _safeBrkSet('magaiees_broker_hide_names', window._brokerHideNames ? '1' : '0');
+                    const btn = document.getElementById('brk-toggle-names-btn');
+                    if (btn) {
+                        btn.innerHTML = window._brokerHideNames ? '👤 الأسماء: مخفية (عروض صافية)' : '👤 الأسماء: ظاهرة';
+                        btn.style.background = window._brokerHideNames ? '#059669' : '#1e293b';
+                    }
+                    saveBrokerPrefs();
+                    window._lastBrokerSig = '';
+                    loadMarketBrokerTicker();
+                }
+                function applyMarketBrokerDock(mode) {
+                    const w = document.getElementById('market-broker-ticker-wrap');
+                    if (!w) return;
+                    const next = (mode === 'bottom') ? 'bottom' : 'top';
+                    window._brokerDockMode = next;
+                    _safeBrkSet('magaiees_broker_dock_mode', next);
+                    const qaBar = document.getElementById('qa-bar-container');
+                    if (next === 'bottom') {
+                        w.style.cssText = 'position:fixed;bottom:2px;left:6px;right:calc(var(--sb-collapsed, 62px) + 6px);z-index:9990;display:flex;flex-direction:column;gap:6px;padding:0;margin:0;background:#020617;border-radius:7px;';
+                    } else {
+                        if (qaBar && qaBar.parentNode && w.nextElementSibling !== qaBar) qaBar.parentNode.insertBefore(w, qaBar);
+                        w.style.cssText = 'display:flex;flex-direction:column;gap:6px;padding:0;margin:0;z-index:9990;background:#020617;border-radius:7px;';
+                    }
+                    const btn = document.getElementById('brk-dock-pos-btn');
+                    if (btn) btn.innerHTML = next === 'top' ? '📍 الموقع: أعلى الشاشة ⇄' : '📍 الموقع: أسفل الشاشة ⇄';
+                }
+                function toggleMarketBrokerDock() {
+                    const cur = window._brokerDockMode === 'bottom' ? 'bottom' : 'top';
+                    applyMarketBrokerDock(cur === 'top' ? 'bottom' : 'top');
+                    saveBrokerPrefs(true);
+                }
+                setTimeout(() => {
+                    applyMarketBrokerDock(window._brokerDockMode || 'top');
+                    if (_savedBrkPrefs.offersLocked) { const r = document.getElementById('market-broker-offers-row'); if (r) r.style.display = 'none'; }
+                    if (_savedBrkPrefs.ordersLocked) { const r = document.getElementById('market-broker-orders-row'); if (r) r.style.display = 'none'; }
+                }, 20);
+                function getBrokerSpeedPxPerSec(secVal) {
+                    const s = Math.max(20, Math.min(200, secVal || 80));
+                    const lvl = Math.max(1, Math.min(10, Math.round((220 - s) / 20) + 1));
+                    const table = [18, 30, 44, 60, 78, 98, 120, 145, 175, 210];
+                    return table[lvl - 1] || 78;
+                }
+                function applyMarketBrokerSpeed() {
+                    const spLbl = document.getElementById('brk-speed-step-lbl');
+                    if (spLbl) spLbl.textContent = formatBrokerSpeedLabel(window._brkActiveScope === 'order' ? 'orders' : 'offers');
+                    const offLbl = document.getElementById('brk-speed-offers-lbl');
+                    if (offLbl) offLbl.textContent = formatBrokerSpeedLabel('offers');
+                    const ordLbl = document.getElementById('brk-speed-orders-lbl');
+                    if (ordLbl) ordLbl.textContent = formatBrokerSpeedLabel('orders');
+                }
+                if (!window._brokerRafStarted) {
+                    window._brokerRafStarted = true;
+                    window._brkPosOff = 0;
+                    window._brkPosOrd = 0;
+                    let lastTs = performance.now();
+                    const stepTickers = (now) => {
+                        const dt = Math.min(0.08, Math.max(0, (now - lastTs) / 1000));
+                        lastTs = now;
+                        const track = document.getElementById('market-broker-ticker-track');
+                        const ordTrack = document.getElementById('market-broker-orders-track');
+                        const offRow = document.getElementById('market-broker-offers-row');
+                        const ordRow = document.getElementById('market-broker-orders-row');
+                        if (track && (!offRow || !offRow.matches(':hover'))) {
+                            const halfW = (track.scrollWidth || 0) / 2;
+                            if (halfW > 50) {
+                                window._brkPosOff = (window._brkPosOff + getBrokerSpeedPxPerSec(window._brokerOffersSec) * dt) % halfW;
+                                track.style.transform = `translate3d(${window._brkPosOff.toFixed(2)}px, 0, 0)`;
+                            }
+                        }
+                        if (ordTrack && (!ordRow || !ordRow.matches(':hover'))) {
+                            const halfW = (ordTrack.scrollWidth || 0) / 2;
+                            if (halfW > 50) {
+                                window._brkPosOrd = (window._brkPosOrd + getBrokerSpeedPxPerSec(window._brokerOrdersSec) * dt) % halfW;
+                                ordTrack.style.transform = `translate3d(${window._brkPosOrd.toFixed(2)}px, 0, 0)`;
+                            }
+                        }
+                        requestAnimationFrame(stepTickers);
+                    };
+                    requestAnimationFrame(stepTickers);
+                }
+                function adjustMarketBrokerSpeed(dir, which) {
+                    if (which === 'orders') {
+                        window._brokerOrdersSec = Math.max(20, Math.min(200, (window._brokerOrdersSec || 200) + (dir > 0 ? -20 : 20)));
+                        localStorage.setItem('magaiees_broker_orders_sec', String(window._brokerOrdersSec));
+                    } else {
+                        window._brokerOffersSec = Math.max(20, Math.min(200, (window._brokerOffersSec || 160) + (dir > 0 ? -20 : 20)));
+                        localStorage.setItem('magaiees_broker_offers_sec', String(window._brokerOffersSec));
+                    }
+                    applyMarketBrokerSpeed();
+                    saveBrokerPrefs(true);
+                }
+                async function reportBrokerItem(id, senderName, phone, ev) {
+                    if (ev) ev.stopPropagation();
+                    try {
+                        const res = await fetch('api/market_broker_ticker.php?action=report', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ id, sender_name: senderName, phone })
+                        }).then(r => r.json());
+                        const pts = res.black_points || 1;
+                        alert(res.banned ? `🚫 تم تسجيل النقطة السوداء رقم (${pts}/3) وحظر عروض ورسائل (${senderName}) تلقائياً من البورصة!` : `⚠️ تم تسجيل نقطة سوداء (${pts}/3) ضد (${senderName}). عند وصوله إلى 3 بلاغات يتم حجبه تلقائياً.`);
+                    } catch (e) {}
+                    window._lastBrokerSig = '';
+                    loadMarketBrokerTicker();
+                }
+                function hideSingleBrokerOffer(id, ev) {
+                    if (ev) ev.stopPropagation();
+                    if (!window._hiddenBrokerIds.includes(id)) window._hiddenBrokerIds.push(id);
+                    localStorage.setItem('magaiees_hidden_broker_ids', JSON.stringify(window._hiddenBrokerIds));
+                    saveBrokerPrefs(false);
+                    window._lastBrokerSig = '';
+                    loadMarketBrokerTicker();
+                }
+                async function loadMarketBrokerTicker() {
+                    const track = document.getElementById('market-broker-ticker-track');
+                    const ordTrack = document.getElementById('market-broker-orders-track');
+                    if (!track) return;
+                    if (localStorage.getItem('magaiees_hide_broker_ticker') === '1') toggleMarketBrokerTicker(false);
+                    applyMarketBrokerSpeed();
+                    try {
+                        const reqs = [fetch('api/market_broker_ticker.php?action=list&_t=' + Date.now()).then(r => r.json())];
+                        if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+                            reqs.push(fetch('https://c.elsajana.com/api/market_broker_ticker.php?action=list&_t=' + Date.now()).then(r => r.json()));
+                        }
+                        const settled = await Promise.allSettled(reqs);
+                        const mergedMap = new Map();
+                        if (!window._brokerPrefsSynced && settled[0]?.status === 'fulfilled' && settled[0].value?.prefs) {
+                            window._brokerPrefsSynced = true;
+                            const p = settled[0].value.prefs;
+                            if (typeof p.fontStep === 'number') { window._brokerFontStep = p.fontStep; _safeBrkSet('magaiees_broker_font_step', String(p.fontStep)); }
+                            if (typeof p.offersSec === 'number') { window._brokerOffersSec = p.offersSec; _safeBrkSet('magaiees_broker_offers_sec', String(p.offersSec)); }
+                            if (typeof p.ordersSec === 'number') { window._brokerOrdersSec = p.ordersSec; _safeBrkSet('magaiees_broker_orders_sec', String(p.ordersSec)); }
+                            if (typeof p.maxAgeHours === 'number') { window._brokerMaxAgeHours = p.maxAgeHours; _safeBrkSet('magaiees_broker_max_age_h', String(p.maxAgeHours)); }
+                            if (typeof p.hideNames === 'boolean') { window._brokerHideNames = p.hideNames; _safeBrkSet('magaiees_broker_hide_names', p.hideNames ? '1' : '0'); }
+                            if (typeof p.myItemsFilter === 'boolean') { window._brokerMyItemsFilter = p.myItemsFilter; _safeBrkSet('magaiees_broker_my_items_only', p.myItemsFilter ? '1' : '0'); }
+                            if (typeof p.dockMode === 'string') { applyMarketBrokerDock(p.dockMode); }
+                            document.cookie = 'magaiees_broker_prefs_v2=' + encodeURIComponent(JSON.stringify(p)) + '; path=/; max-age=31536000; SameSite=Lax';
+                            _safeBrkSet('magaiees_broker_prefs_v2', JSON.stringify(p));
+                            applyMarketBrokerSpeed();
+                            window._lastBrokerSig = '';
+                        }
+                        settled.forEach(s => {
+                            if (s.status === 'fulfilled' && s.value) {
+                                if (Array.isArray(s.value.items)) {
+                                    s.value.items.forEach(it => {
+                                        const k = (it.text || '') + '|' + (it.type || '');
+                                        if (!mergedMap.has(k)) mergedMap.set(k, it);
+                                    });
+                                }
+                            }
+                        });
+                        const maxAgeMs = (window._brokerMaxAgeHours || 24) * 3600 * 1000;
+                        const nowMs = Date.now();
+                        const isWithinMaxAge = (it) => {
+                            if (it.ts && Number(it.ts) > 1000000000) return (nowMs - Number(it.ts) * 1000) <= maxAgeMs;
+                            return true;
+                        };
+                        const rawItems = Array.from(mergedMap.values()).filter(x => !window._hiddenBrokerIds.includes(x.id) && isWithinMaxAge(x));
+                        if (window._brokerMyItemsFilter === undefined) window._brokerMyItemsFilter = localStorage.getItem('magaiees_broker_my_items_only') !== '0';
+                        const isMyItemMatch = (txt) => {
+                            if (!window._brokerMyItemsFilter) return true;
+                            const s = String(txt || '');
+                            if (/ألومنيوم|الومنيوم|زجاج|سيكوريت|كلادينج|سباكة|خلاطات|بوهية|دهان|أخشاب|أبلكاش/i.test(s) && !/سيخ|حديد|كمر|أسمنت|اسمنت|مواسير|صاج|سلك|زوايا/i.test(s)) return false;
+                            return true;
+                        };
+                        const items = rawItems.filter(x => isMyItemMatch(x.text));
+                        window._brokerItemsList = items;
+                        const sig = JSON.stringify(items.map(x => x.id + ':' + x.text)) + ':' + window._brokerMyItemsFilter + ':' + window._brokerHideNames + ':' + window._brokerFontStep + ':' + window._brokerMaxAgeHours;
+                        if (window._lastBrokerSig === sig && track.innerHTML.trim() !== '') return;
+                        window._lastBrokerSig = sig;
+                        const offers = items.filter(x => x.type !== 'order');
+                        const orders = items.filter(x => x.type === 'order');
+                        const newestOfferId = offers[0]?.id;
+                        const newestOrderId = orders[0]?.id;
+                        const formatElapsed = (it) => {
+                            const now = Date.now();
+                            let diffMin = 0;
+                            if (it.ts && Number(it.ts) > 1000000000) {
+                                diffMin = Math.max(0, Math.floor((now - Number(it.ts) * 1000) / 60000));
+                            } else if (it.time && /^\d{1,2}:\d{2}$/.test(String(it.time).trim())) {
+                                const [hh, mm] = String(it.time).trim().split(':').map(Number);
+                                const d = new Date();
+                                d.setHours(hh, mm, 0, 0);
+                                if (d.getTime() > now) d.setDate(d.getDate() - 1);
+                                diffMin = Math.max(0, Math.floor((now - d.getTime()) / 60000));
+                            }
+                            if (diffMin <= 2) return 'منذ لحظات';
+                            if (diffMin < 60) return `منذ ${diffMin} دقيقة`;
+                            const totalHrs = Math.floor(diffMin / 60);
+                            const days = Math.floor(totalHrs / 24);
+                            const hrs = totalHrs % 24;
+                            const fmtHr = (h) => h === 1 ? 'ساعة' : (h === 2 ? 'ساعتين' : (h <= 10 ? `${h} ساعات` : `${h} ساعة`));
+                            const fmtDay = (d) => d === 1 ? 'يوم' : (d === 2 ? 'يومين' : `${d} أيام`);
+                            if (days === 0) return `منذ ${fmtHr(hrs)}`;
+                            return hrs > 0 ? `منذ ${fmtDay(days)} و${fmtHr(hrs)}` : `منذ ${fmtDay(days)}`;
+                        };
+                        const renderPill = (it, idx) => {
+                            const isOrd = it.type === 'order';
+                            const txtCls = (isOrd ? 'brk-ord-txt-' : 'brk-off-txt-') + (idx % 3);
+                            const hdrCls = isOrd ? 'brk-pill-hdr-ord' : 'brk-pill-hdr-off';
+                            const timeCls = isOrd ? 'brk-ord-time' : 'brk-off-time';
+                            const isNew = (it.id === newestOfferId || it.id === newestOrderId || it.id === window._justAddedBrokerId);
+                            const isMasked = it.privacy === 'masked';
+                            const badge = isOrd ? '🟠 مطلوب' : '🟢 عرض';
+                            const cleanSender = String(it.sender_name || '').replace(/\s*#?\d+\s*🔒?/g, '').trim();
+                            const fPx = (13.2 + (window._brokerFontStep || 0) * 1.6).toFixed(1);
+                            const newTag = isNew ? `<span style="background:#e11d48;color:#fff!important;-webkit-text-fill-color:#fff!important;padding:1px 6px;border-radius:999px;font-size:${(parseFloat(fPx)*0.78).toFixed(1)}px;font-weight:700;">🔥 جديد</span>` : '';
+                            const hdrTxt = (window._brokerHideNames || isMasked || !cleanSender || /تاجر معتمد|مورد معتمد|مشتري معتمد/.test(cleanSender)) ? `${badge}:` : `${badge} (${cleanSender}):`;
+                            const elapsedTxt = formatElapsed(it);
+                            const tailTxt = `<small class="${timeCls}" style="font-size:${(parseFloat(fPx)*0.88).toFixed(1)}px;font-weight:700;">⏱️ ${elapsedTxt}</small>`;
+                            return `<span onclick="openBrokerDealAction('${it.sender_name}', '${it.text}', '${it.deal_code || ''}', '${it.privacy || 'public'}', '${it.phone || ''}')" class="${txtCls}" style="display:inline-flex;align-items:center;gap:5px;padding:0 4px;background:transparent;border:none;font-size:${fPx}px!important;font-weight:600;letter-spacing:0.15px;cursor:pointer;line-height:1.25;"><button type="button" onclick="hideSingleBrokerOffer('${it.id}', event)" title="إخفاء" style="width:13px;height:13px;padding:0;background:rgba(225,29,72,0.18);color:#e11d48;border:none;border-radius:50%;font-size:8.5px;font-weight:700;line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">✕</button>${newTag}<span class="${hdrCls}" style="font-size:${fPx}px!important;font-weight:700;">${hdrTxt}</span><span class="${txtCls}" style="font-size:${fPx}px!important;">${it.text}</span>${tailTxt}<span style="opacity:0.45;margin-right:8px;">✦</span></span>`;
+                        };
+                        const buildLoopList = (arr) => {
+                            if (!arr.length) return [];
+                            let base = [...arr];
+                            while (base.length < 4) base = base.concat(arr);
+                            return [...base, ...base];
+                        };
+                        track.innerHTML = buildLoopList(offers).map(renderPill).join('');
+                        if (ordTrack) ordTrack.innerHTML = buildLoopList(orders).map(renderPill).join('');
+                        requestAnimationFrame(() => applyMarketBrokerSpeed());
+                        if (document.getElementById('broker-post-modal')?.style.display === 'flex') renderBrokerModalTable();
+                    } catch (e) {}
+                }
+                function toggleBrokerMyItemsFilter() {
+                    window._brokerMyItemsFilter = !window._brokerMyItemsFilter;
+                    localStorage.setItem('magaiees_broker_my_items_only', window._brokerMyItemsFilter ? '1' : '0');
+                    const btn = document.getElementById('brk-my-items-btn');
+                    if (btn) {
+                        btn.innerHTML = window._brokerMyItemsFilter ? '🎯 ذكاء الأصناف: مطابق لنشاطي' : '🌐 ذكاء الأصناف: كل السوق';
+                        btn.style.background = window._brokerMyItemsFilter ? '#059669' : '#1e293b';
+                    }
+                    window._lastBrokerSig = '';
+                    loadMarketBrokerTicker();
+                }
+                function openBrokerDealAction(sender, text, code, privacy, phone) {
+                    const dealCode = code || '101';
+                    let em = document.getElementById('broker-escrow-modal');
+                    if (!em) {
+                        em = document.createElement('div');
+                        em.id = 'broker-escrow-modal';
+                        em.style.cssText = 'position:fixed;inset:0;z-index:2147483635;background:rgba(2,6,23,0.88);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:12px;direction:rtl;font-family:Cairo,Tajawal,sans-serif;';
+                        document.body.appendChild(em);
+                    }
+                    const isMasked = privacy === 'masked' || window._brokerHideNames;
+                    em.innerHTML = `<div style="width:100%;max-width:620px;background:linear-gradient(160deg,#0f172a,#020617);border:2.5px solid #10b981;border-radius:20px;padding:16px 18px;color:#fff;box-shadow:0 24px 60px rgba(0,0,0,0.92);display:flex;flex-direction:column;gap:10px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1.5px solid rgba(16,185,129,0.35);">
+                            <strong style="font-size:16px;color:#34d399!important;-webkit-text-fill-color:#34d399!important;">🛡️ وساطة وضمان منصة مقاييس المعتمد (صفقة #${dealCode})</strong>
+                            <button type="button" onclick="document.getElementById('broker-escrow-modal').style.display='none'" style="background:#e11d48;color:#fff;border:none;border-radius:8px;padding:4px 12px;font-weight:900;cursor:pointer;">✕ إغلاق</button>
+                        </div>
+                        <div style="padding:10px 12px;border-radius:12px;background:rgba(15,23,42,0.9);border:1.5px solid #38bdf8;font-size:13.5px;font-weight:900;">
+                            <div style="color:#fde047!important;-webkit-text-fill-color:#fde047!important;margin-bottom:4px;">${isMasked ? '🔒 الهوية محجوبة ومحمية بالكامل بواسطة مقاييس (كود #' + dealCode + ')' : '👤 الطرف العارض: ' + sender}</div>
+                            <div style="color:#fff!important;-webkit-text-fill-color:#fff!important;">📦 التفاصيل: ${text}</div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:11.5px;font-weight:900;text-align:center;">
+                            <div style="padding:8px;border-radius:10px;background:rgba(16,185,129,0.14);border:1px solid #10b981;color:#6ee7b7!important;-webkit-text-fill-color:#6ee7b7!important;">1️⃣ ربط سري وتثبيت الكمية والسعر فوراً</div>
+                            <div style="padding:8px;border-radius:10px;background:rgba(2,132,199,0.14);border:1px solid #38bdf8;color:#bae6fd!important;-webkit-text-fill-color:#bae6fd!important;">2️⃣ ضمان مالي عبر حساب مقاييس الضامن</div>
+                            <div style="padding:8px;border-radius:10px;background:rgba(245,158,11,0.14);border:1px solid #f59e0b;color:#fde68a!important;-webkit-text-fill-color:#fde68a!important;">3️⃣ فحص واستلام البضاعة وتحرير السداد</div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                            <input id="escrow-buyer-name" type="text" placeholder="اسمك / شركتك (محفوظ سرياً لدى مقاييس)" style="height:36px;border-radius:9px;background:#1e293b;color:#fff;border:1px solid #475569;padding:0 10px;font-size:12.5px;font-weight:800;">
+                            <input id="escrow-buyer-phone" type="text" placeholder="رقم واتسابك للتأكيد السري" value="249123005622" style="height:36px;border-radius:9px;background:#1e293b;color:#fff;border:1px solid #475569;padding:0 10px;font-size:12.5px;font-weight:800;direction:ltr;">
+                        </div>
+                        <input id="escrow-buyer-note" type="text" placeholder="الكمية المطلوبة أو ملاحظة التسليم (مثلاً: أرغب بشراء الكمية كاملة تسليم فوري بضمان مقاييس)..." style="height:36px;border-radius:9px;background:#1e293b;color:#fff;border:1.5px solid #38bdf8;padding:0 10px;font-size:12.5px;font-weight:800;">
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button type="button" onclick="executeProtectedBrokerDeal('${dealCode}', '${text.replace(/'/g, '')}')" style="flex:2;height:40px;border-radius:10px;background:linear-gradient(135deg,#059669,#0284c7);color:#fff!important;-webkit-text-fill-color:#fff!important;border:1.5px solid #fde047;font-size:13.5px;font-weight:900;cursor:pointer;">🛡️ اعتماد وربط الصفقة سرياً بضمان منصة مقاييس</button>
+                            ${!isMasked ? `<button type="button" onclick="document.getElementById('broker-escrow-modal').style.display='none';openAiPartnerWhatsAppModal('${sender}', '${text.replace(/'/g, '')}');" style="flex:1;height:40px;border-radius:10px;background:#1e293b;color:#fde047!important;-webkit-text-fill-color:#fde047!important;border:1px solid #f59e0b;font-size:12.5px;font-weight:900;cursor:pointer;">📞 تواصل مباشر</button>` : ''}
+                        </div>
+                    </div>`;
+                    em.style.display = 'flex';
+                }
+                async function executeProtectedBrokerDeal(dealCode, dealText) {
+                    const bName = (document.getElementById('escrow-buyer-name')?.value || 'تاجر معتمد عبر مقاييس').trim();
+                    const bPhone = (document.getElementById('escrow-buyer-phone')?.value || '249123005622').trim();
+                    const bNote = (document.getElementById('escrow-buyer-note')?.value || 'موافق على الشراء/التنفيذ الفوري بضمان منصة مقاييس').trim();
+                    document.getElementById('broker-escrow-modal').style.display = 'none';
+                    try {
+                        await fetch('api/market_broker_ticker.php?action=add', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ text: 'تواصل ' + dealCode, sender_name: bName, phone: bPhone, note: bNote })
+                        });
+                    } catch (e) {}
+                    openAiPartnerWhatsAppModal(`غرفة ضمان مقاييس #${dealCode}`, `🛡️ عقد ضمان وساطة مقاييس للصفقة السرية #${dealCode}\n• الصنف: ${dealText}\n• طالب التنفيذ: ${bName} (${bPhone})\n• التوجيه: ${bNote}\n• الضامن: منصة مقاييس (ربط سري كامل وحماية للطرفين)`);
+                }
+                function toggleSingleBrokerRow(rowId, btn) {
+                    const r = document.getElementById(rowId);
+                    if (!r) return;
+                    const show = r.style.display === 'none';
+                    r.style.display = show ? 'flex' : 'none';
+                    if (btn) btn.textContent = show ? '🔒 قفل الشريط' : '🔓 إظهار الشريط';
+                }
+                function switchBrokerControlScope(scope) {
+                    window._brkActiveScope = (scope === 'order') ? 'order' : 'offer';
+                    const isOrd = window._brkActiveScope === 'order';
+                    const btnOff = document.getElementById('brk-scope-offer');
+                    const btnOrd = document.getElementById('brk-scope-order');
+                    if (btnOff) {
+                        btnOff.style.background = !isOrd ? 'linear-gradient(135deg,#059669,#047857)' : '#1e293b';
+                        btnOff.style.border = !isOrd ? '2px solid #fde047' : '1px solid #475569';
+                    }
+                    if (btnOrd) {
+                        btnOrd.style.background = isOrd ? 'linear-gradient(135deg,#d97706,#b45309)' : '#1e293b';
+                        btnOrd.style.border = isOrd ? '2px solid #fde047' : '1px solid #475569';
+                    }
+                    const selType = document.getElementById('brk-type');
+                    if (selType) selType.value = isOrd ? 'order' : 'offer';
+                    const inpTxt = document.getElementById('brk-text');
+                    if (inpTxt) inpTxt.placeholder = isOrd ? '🟠 اكتب تفاصيل طلب الشراء هنا لينزل فوراً في شريط الطلبات بشارة 🔥 جديد...' : '🟢 اكتب تفاصيل عرض السعر هنا لينزل فوراً في شريط العروض بشارة 🔥 جديد...';
+                    const lockBtn = document.getElementById('brk-unified-lock-btn');
+                    const targetRow = document.getElementById(isOrd ? 'market-broker-orders-row' : 'market-broker-offers-row');
+                    if (lockBtn && targetRow) {
+                        const isHidden = targetRow.style.display === 'none';
+                        lockBtn.innerHTML = isHidden ? (isOrd ? '🔓 إظهار الطلبات' : '🔓 إظهار العروض') : (isOrd ? '🔒 قفل الطلبات' : '🔒 قفل العروض');
+                    }
+                    const spLbl = document.getElementById('brk-speed-step-lbl');
+                    if (spLbl) spLbl.textContent = formatBrokerSpeedLabel(isOrd ? 'orders' : 'offers');
+                    renderBrokerModalTable(window._brkActiveScope);
+                }
+                function renderBrokerModalTable(filterMode) {
+                    if (filterMode) window._brkTblFilter = filterMode;
+                    const mode = window._brkTblFilter || window._brkActiveScope || 'offer';
+                    const box = document.getElementById('brk-table-body');
+                    if (!box) return;
+                    const allList = window._brokerItemsList || [];
+                    const list = mode === 'offer' ? allList.filter(x => x.type !== 'order') : (mode === 'order' ? allList.filter(x => x.type === 'order') : allList);
+                    const newestOff = allList.find(x => x.type !== 'order')?.id;
+                    const newestOrd = allList.find(x => x.type === 'order')?.id;
+                    const allBtn = document.getElementById('brk-flt-all');
+                    if (allBtn) allBtn.style.border = (mode === 'all') ? '2px solid #fde047' : '1px solid #475569';
+                    box.innerHTML = list.map((it, idx) => {
+                        const isOrd = it.type === 'order';
+                        const isNew = (it.id === newestOff || it.id === newestOrd || it.id === window._justAddedBrokerId);
+                        return `<tr style="border-bottom:1px solid rgba(148,163,184,0.22);background:${isNew ? 'rgba(16,185,129,0.18)' : (idx % 2 ? 'rgba(15,23,42,0.5)' : 'transparent')};">
+                            <td style="padding:8px 10px;font-weight:900;white-space:nowrap;"><span style="padding:2px 8px;border-radius:7px;background:${isOrd?'#d97706':'#059669'};color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:12px;">${isOrd?'🟠 طلب شراء':'🟢 عرض سعر'}</span> ${isNew?'<span style="background:#e11d48;color:#fff!important;-webkit-text-fill-color:#fff!important;padding:1px 6px;border-radius:6px;font-size:10.5px;border:1px solid #fde047;">🔥 جديد</span>':''}</td>
+                            <td class="text-amber-300" style="padding:8px 10px;font-weight:900;font-size:13.5px;white-space:nowrap;">${it.sender_name}${it.deal_code ? ' (#'+it.deal_code+')' : ''}</td>
+                            <td class="text-white" style="padding:8px 10px;font-weight:900;font-size:14px;">${it.text}</td>
+                            <td class="text-sky-300" style="padding:8px 10px;font-size:12px;font-weight:800;white-space:nowrap;">${it.time} ${it.privacy==='masked'?'🔒 سري':'📞 مباشر'}</td>
+                            <td style="padding:8px 10px;white-space:nowrap;display:flex;gap:5px;">
+                                <button type="button" onclick="openBrokerDealAction('${it.sender_name}', '${it.text}', '${it.deal_code || ''}', '${it.privacy || 'public'}', '${it.phone || ''}')" style="padding:4px 10px;border-radius:7px;background:#059669;color:#fff!important;-webkit-text-fill-color:#fff!important;border:none;font-size:12px;font-weight:900;cursor:pointer;">📲 تواصل</button>
+                                <button type="button" onclick="reportBrokerItem('${it.id}', '${it.sender_name}', '${it.phone || ''}', event)" title="بلاغ مخالفة (نقطة سوداء - 3 بلاغات = حظر تلقائي)" style="padding:4px 8px;border-radius:7px;background:#7f1d1d;color:#fde047!important;-webkit-text-fill-color:#fde047!important;border:1px solid #ef4444;font-size:11.5px;font-weight:900;cursor:pointer;">🚨 بلاغ</button>
+                                <button type="button" onclick="hideSingleBrokerOffer('${it.id}', event);renderBrokerModalTable();" style="padding:4px 8px;border-radius:7px;background:#e11d48;color:#fff!important;-webkit-text-fill-color:#fff!important;border:none;font-size:12px;font-weight:900;cursor:pointer;">✕</button>
+                            </td>
+                        </tr>`;
+                    }).join('');
+                }
+                function openMarketBrokerQuickPostModal(defaultType) {
+                    let m = document.getElementById('broker-post-modal');
+                    if (!m) {
+                        m = document.createElement('div');
+                        m.id = 'broker-post-modal';
+                        m.style.cssText = 'position:fixed;inset:0;z-index:2147483620;background:rgba(2,6,23,0.86);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:10px;direction:rtl;font-family:Cairo,Tajawal,sans-serif;';
+                        m.innerHTML = `<div style="width:100%;max-width:1120px;max-height:94vh;display:flex;flex-direction:column;gap:8px;background:linear-gradient(160deg,#0f172a,#020617);border:2px solid #38bdf8;border-radius:18px;padding:12px 16px;color:#fff;box-shadow:0 24px 60px rgba(0,0,0,0.92);">
+                            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 10px;border-radius:12px;background:#0f172a;border:1.5px solid rgba(56,189,248,0.35);">
+                                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                                    <button type="button" id="brk-scope-offer" onclick="switchBrokerControlScope('offer')" style="height:32px;padding:0 14px;border-radius:9px;background:linear-gradient(135deg,#059669,#047857);color:#fff!important;-webkit-text-fill-color:#fff!important;border:2px solid #fde047;font-size:13px;font-weight:900;cursor:pointer;">🟢 العروض</button>
+                                    <button type="button" id="brk-scope-order" onclick="switchBrokerControlScope('order')" style="height:32px;padding:0 14px;border-radius:9px;background:#1e293b;color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #475569;font-size:13px;font-weight:900;cursor:pointer;">🟠 الطلبات</button>
+                                    <button type="button" id="brk-flt-all" onclick="renderBrokerModalTable('all')" style="height:32px;padding:0 12px;border-radius:9px;background:#1e293b;color:#bae6fd!important;-webkit-text-fill-color:#bae6fd!important;border:1px solid #475569;font-size:12px;font-weight:900;cursor:pointer;">📋 عرض الكل</button>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
+                                    <button type="button" onclick="adjustMarketBrokerSpeed(-1, window._brkActiveScope==='order'?'orders':'offers')" style="height:32px;padding:0 10px;border-radius:9px;background:#1e293b;color:#fde047!important;-webkit-text-fill-color:#fde047!important;border:1px solid #f59e0b;font-size:12px;font-weight:900;cursor:pointer;">🐢 سرعة −</button>
+                                    <span id="brk-speed-step-lbl" style="height:32px;padding:0 10px;border-radius:8px;background:#0f172a;color:#38bdf8!important;-webkit-text-fill-color:#38bdf8!important;border:1px solid #38bdf8;font-size:12px;font-weight:900;display:inline-flex;align-items:center;">${formatBrokerSpeedLabel(window._brkActiveScope==='order'?'orders':'offers')}</span>
+                                    <button type="button" onclick="adjustMarketBrokerSpeed(1, window._brkActiveScope==='order'?'orders':'offers')" style="height:32px;padding:0 10px;border-radius:9px;background:#0284c7;color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #7dd3fc;font-size:12px;font-weight:900;cursor:pointer;">⚡ سرعة +</button>
+                                    <button type="button" onclick="adjustMarketBrokerFont(-1)" title="إنقاص الخط حتى -3" style="height:32px;padding:0 9px;border-radius:9px;background:#1e293b;color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #475569;font-size:12px;font-weight:900;cursor:pointer;">🔡 خط −</button>
+                                    <span id="brk-font-step-lbl" style="height:32px;padding:0 8px;border-radius:8px;background:#0f172a;color:#fde047!important;-webkit-text-fill-color:#fde047!important;border:1px solid #38bdf8;font-size:11.5px;font-weight:900;display:inline-flex;align-items:center;">${formatBrokerFontSizeLabel(window._brokerFontStep)}</span>
+                                    <button type="button" onclick="adjustMarketBrokerFont(1)" title="تكبير الخط حتى +5" style="height:32px;padding:0 9px;border-radius:9px;background:#0284c7;color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #7dd3fc;font-size:12px;font-weight:900;cursor:pointer;">🔠 خط +</button>
+                                    <button type="button" id="brk-toggle-names-btn" onclick="toggleMarketBrokerNames()" style="height:32px;padding:0 9px;border-radius:9px;background:${window._brokerHideNames?'#059669':'#1e293b'};color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #10b981;font-size:11.5px;font-weight:900;cursor:pointer;">${window._brokerHideNames?'👤 الأسماء: مخفية':'👤 الأسماء: ظاهرة'}</button>
+                                    <button type="button" id="brk-my-items-btn" onclick="toggleBrokerMyItemsFilter()" style="height:32px;padding:0 9px;border-radius:9px;background:${window._brokerMyItemsFilter!==false?'#059669':'#1e293b'};color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #34d399;font-size:11.5px;font-weight:900;cursor:pointer;">${window._brokerMyItemsFilter!==false?'🎯 ذكاء الأصناف: نشاطي':'🌐 ذكاء الأصناف: الكل'}</button>
+                                    <button type="button" id="brk-unified-lock-btn" onclick="toggleSingleBrokerRow(window._brkActiveScope==='order'?'market-broker-orders-row':'market-broker-offers-row');switchBrokerControlScope(window._brkActiveScope);saveBrokerPrefs();" style="height:32px;padding:0 9px;border-radius:9px;background:#be123c;color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #fda4af;font-size:11.5px;font-weight:900;cursor:pointer;">🔒 قفل العروض</button>
+                                    <select id="brk-max-age-sel" onchange="window._brokerMaxAgeHours=parseInt(this.value,10)||24;saveBrokerPrefs(true);window._lastBrokerSig='';loadMarketBrokerTicker().then(()=>renderBrokerModalTable());" title="تحديد المدة الزمنية لبقاء العروض والطلبات قبل إخفائها تلقائياً" style="height:32px;padding:0 8px;border-radius:9px;background:#0f172a;color:#fde047!important;-webkit-text-fill-color:#fde047!important;border:1.5px solid #f59e0b;font-size:11.5px;font-weight:900;cursor:pointer;">
+                                        <option value="2" ${window._brokerMaxAgeHours===2?'selected':''}>⏱️ التحديث: ساعتان</option>
+                                        <option value="4" ${window._brokerMaxAgeHours===4?'selected':''}>⏱️ التحديث: 4 ساعات</option>
+                                        <option value="8" ${window._brokerMaxAgeHours===8?'selected':''}>⏱️ التحديث: 8 ساعات</option>
+                                        <option value="12" ${window._brokerMaxAgeHours===12?'selected':''}>⏱️ التحديث: 12 ساعة</option>
+                                        <option value="24" ${(!window._brokerMaxAgeHours||window._brokerMaxAgeHours===24)?'selected':''}>⏱️ التحديث: كل يوم (24 ساعة)</option>
+                                        <option value="48" ${window._brokerMaxAgeHours===48?'selected':''}>⏱️ التحديث: يومان (48 ساعة)</option>
+                                        <option value="168" ${window._brokerMaxAgeHours===168?'selected':''}>⏱️ التحديث: أسبوع كامل</option>
+                                    </select>
+                                    <button type="button" id="brk-dock-pos-btn" onclick="toggleMarketBrokerDock()" style="height:32px;padding:0 9px;border-radius:9px;background:#1e293b;color:#fde047!important;-webkit-text-fill-color:#fde047!important;border:1px solid #f59e0b;font-size:11.5px;font-weight:900;cursor:pointer;">📍 الموقع: ${localStorage.getItem('magaiees_broker_dock_mode')==='bottom'?'أسفل الشاشة ⇄':'أعلى الشاشة ⇄'}</button>
+                                    <button type="button" onclick="window._hiddenBrokerIds=[];window._brokerFontStep=2;window._brokerOffersSec=160;window._brokerOrdersSec=200;window._brokerMaxAgeHours=24;window._brokerHideNames=false;window._brokerMyItemsFilter=true;const agSel=document.getElementById('brk-max-age-sel');if(agSel)agSel.value='24';localStorage.setItem('magaiees_hidden_broker_ids','[]');applyMarketBrokerDock('top');applyMarketBrokerSpeed();saveBrokerPrefs(true);window._lastBrokerSig='';loadMarketBrokerTicker();" style="height:32px;padding:0 9px;border-radius:9px;background:#0f172a;color:#38bdf8!important;-webkit-text-fill-color:#38bdf8!important;border:1px solid #38bdf8;font-size:11.5px;font-weight:900;cursor:pointer;">♻️ استعادة الافتراضي</button>
+                                    <button type="button" onclick="saveBrokerPrefs(true);document.getElementById('broker-post-modal').style.display='none'" style="height:32px;padding:0 12px;border-radius:9px;background:linear-gradient(135deg,#059669,#047857);color:#fff!important;-webkit-text-fill-color:#fff!important;border:1.5px solid #fde047;font-size:12px;font-weight:900;cursor:pointer;">💾 حفظ وخروج</button>
+                                </div>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:6px 8px;border-radius:10px;background:rgba(15,23,42,0.9);border:1px solid #38bdf8;">
+                                <select id="brk-type" onchange="switchBrokerControlScope(this.value)" style="height:32px;border-radius:8px;background:#1e293b;color:#fff;border:1px solid #38bdf8;padding:0 8px;font-size:12px;font-weight:900;">
+                                    <option value="offer">🟢 عرض أسعار (بيع)</option>
+                                    <option value="order">🟠 طلب شراء (مطلوب)</option>
+                                </select>
+                                <select id="brk-privacy" style="height:32px;border-radius:8px;background:#1e293b;color:#fde047;border:1px solid #f59e0b;padding:0 8px;font-size:12px;font-weight:900;">
+                                    <option value="public">👁️ عام بالاسم</option>
+                                    <option value="masked">🔒 سري بكود</option>
+                                </select>
+                                <input id="brk-name" type="text" placeholder="الاسم (مثلاً: مهدي)" style="width:130px;height:32px;border-radius:8px;background:#1e293b;color:#fff;border:1px solid #475569;padding:0 8px;font-size:12px;font-weight:800;">
+                                <input id="brk-phone" type="text" placeholder="رقم الواتساب" value="249123005622" style="width:130px;height:32px;border-radius:8px;background:#1e293b;color:#fff;border:1px solid #475569;padding:0 8px;font-size:12px;font-weight:800;direction:ltr;">
+                                <input id="brk-text" type="text" placeholder="🟢 اكتب تفاصيل عرض السعر هنا لينزل فوراً في شريط العروض بشارة 🔥 جديد..." style="flex:1;min-width:220px;height:32px;border-radius:8px;background:#1e293b;color:#fff;border:1.5px solid #38bdf8;padding:0 10px;font-size:12.5px;font-weight:800;">
+                                <button type="button" onclick="submitBrokerPost()" style="padding:0 16px;height:32px;border-radius:8px;background:linear-gradient(135deg,#059669,#0284c7);color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #fde047;font-size:12.5px;font-weight:900;cursor:pointer;white-space:nowrap;">🚀 انشر الآن</button>
+                            </div>
+                            <div style="flex:1;min-height:0;display:flex;flex-direction:column;border-radius:12px;border:1.5px solid rgba(56,189,248,0.35);overflow:hidden;background:rgba(2,6,23,0.65);">
+                                <div style="flex:1;max-height:66vh;min-height:400px;overflow-y:auto;">
+                                    <table style="width:100%;border-collapse:collapse;font-size:13.5px;text-align:right;">
+                                        <thead style="position:sticky;top:0;z-index:2;"><tr style="background:#0f172a;color:#38bdf8!important;-webkit-text-fill-color:#38bdf8!important;border-bottom:1.5px solid rgba(56,189,248,0.35);"><th style="padding:8px 10px;">النوع</th><th style="padding:8px 10px;">العارض / الكود</th><th style="padding:8px 10px;">الأصناف والتفاصيل والأسعار المعروضة</th><th style="padding:8px 10px;">التوقيت</th><th style="padding:8px 10px;">إجراء</th></tr></thead>
+                                        <tbody id="brk-table-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>`;
+                        document.body.appendChild(m);
+                    }
+                    switchBrokerControlScope(defaultType || 'offer');
+                    m.style.display = 'flex';
+                }
+                async function submitBrokerPost() {
+                    const txt = (document.getElementById('brk-text')?.value || '').trim();
+                    if (!txt) return;
+                    await fetch('api/market_broker_ticker.php?action=add', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            type: document.getElementById('brk-type').value,
+                            privacy: document.getElementById('brk-privacy').value,
+                            sender_name: document.getElementById('brk-name').value,
+                            phone: document.getElementById('brk-phone').value,
+                            text: txt
+                        })
+                    });
+                    document.getElementById('brk-text').value = '';
+                    document.getElementById('broker-post-modal').style.display = 'none';
+                    window._lastBrokerSig = '';
+                    loadMarketBrokerTicker();
+                }
+                loadMarketBrokerTicker();
+                setInterval(loadMarketBrokerTicker, 900);
+                window._execSumPeriodIdx = 0;
+                function cycleExecutiveSummaryPeriod(targetIdx, skipScopeSync) {
+                    const periods = [
+                        { lbl: 'اليوم ⇄', scope: 'today', mult: 1, mktSdg: 184300000, apSdg: 290000, arSdg: 820000 },
+                        { lbl: 'أسبوع ⇄', scope: 'week', mult: 6.5, mktSdg: 186800000, apSdg: 410000, arSdg: 1150000 },
+                        { lbl: '10 أيام ⇄', scope: 'week', mult: 9.2, mktSdg: 188400000, apSdg: 480000, arSdg: 1340000 },
+                        { lbl: 'شهر ⇄', scope: 'month', mult: 28, mktSdg: 194200000, apSdg: 690000, arSdg: 2400000 },
+                        { lbl: '3 شهور ⇄', scope: 'all', mult: 82, mktSdg: 208500000, apSdg: 920000, arSdg: 4100000 },
+                        { lbl: '6 شهور ⇄', scope: 'all', mult: 162, mktSdg: 225000000, apSdg: 1180000, arSdg: 5800000 },
+                        { lbl: '9 شهور ⇄', scope: 'all', mult: 240, mktSdg: 241600000, apSdg: 1350000, arSdg: 6900000 },
+                        { lbl: 'سنة ⇄', scope: 'all', mult: 335, mktSdg: 264000000, apSdg: 1540000, arSdg: 8200000 }
+                    ];
+                    window._execSumPeriodIdx = (typeof targetIdx === 'number') ? targetIdx : ((window._execSumPeriodIdx + 1) % periods.length);
+                    const p = periods[window._execSumPeriodIdx] || periods[0];
+                    const usd = parseFloat(document.getElementById('cur-usd')?.value) || 600;
+                    const factor = displayUSD ? usd : 1;
+                    const unit = displayUSD ? '$' : 'ج.س';
+                    const uTag = `<small class="exec-unit-tag">${unit}</small>`;
+                    const m = v => `${Math.round(v / factor).toLocaleString()} ${uTag}`;
+                    const lblEl = document.getElementById('exec-summary-period-lbl');
+                    if (lblEl) lblEl.innerText = p.lbl;
+                    const pillsBox = document.getElementById('exec-summary-period-pills');
+                    if (pillsBox) {
+                        Array.from(pillsBox.children).forEach((b, i) => {
+                            b.className = i === window._execSumPeriodIdx
+                                ? 'exec-period-pill active-period'
+                                : 'exec-period-pill';
+                        });
+                    }
+                    const setHtml = (id, v) => { const el = document.getElementById(id); if (el) el.innerHTML = v; };
+                    setHtml('strip-sal-amt', m(1890000 * p.mult));
+                    setHtml('strip-pur-amt', m(1420000 * p.mult));
+                    setHtml('strip-liq-amt', m(3450000 * (1 + (p.mult - 1) * 0.08)));
+                    const prfVal = Math.round(348000 * p.mult);
+                    const prfLbl = document.getElementById('strip-prf-lbl');
+                    const prfAmt = document.getElementById('strip-prf-amt');
+                    if (prfLbl && prfAmt) {
+                        if (prfVal >= 0) {
+                            prfLbl.innerText = 'الأرباح:';
+                            prfAmt.className = 'exec-jewel-val text-emerald-400';
+                            prfAmt.style.cssText = 'color:#4ade80!important;-webkit-text-fill-color:#4ade80!important;';
+                            prfAmt.innerHTML = '+' + m(prfVal);
+                        } else {
+                            prfLbl.innerText = 'الخسائر:';
+                            prfAmt.className = 'exec-jewel-val text-rose-400';
+                            prfAmt.style.cssText = 'color:#fb7185!important;-webkit-text-fill-color:#fb7185!important;';
+                            prfAmt.innerHTML = '-' + m(Math.abs(prfVal));
+                        }
+                    }
+                    setHtml('strip-exp-amt', m(42000 * p.mult));
+                    setHtml('stock-mkt-val', `${(((p.mktSdg / factor) / 1000000).toFixed(1))}M ${uTag}`);
+                    setHtml('strip-in-amt', '+' + m(1320000 * p.mult));
+                    setHtml('strip-out-amt', '-' + m(368000 * p.mult));
+                    setHtml('strip-ap-amt', m(p.apSdg));
+                    setHtml('strip-ar-amt', m(p.arSdg));
+                    if (!skipScopeSync) {
+                        const liqMap = ['day', 'week', 'week', 'month', 'year', 'year', 'year', 'year'];
+                        window._liqPeriod = liqMap[window._execSumPeriodIdx] || 'day';
+                        if (typeof switchLiquidityCardView === 'function') switchLiquidityCardView(window._liqViewMode || 'overview', null);
+                        const spMap = ['day', 'day', 'day', 'month', 'year', 'year', 'year', 'year'];
+                        if (typeof switchSalesProfitCardView === 'function') switchSalesProfitCardView(spMap[window._execSumPeriodIdx] || 'day', null);
+                        if (typeof switchCenterChartCard === 'function') switchCenterChartCard(window._centerChartMode || 'donuts', null);
+                        if (typeof setScope === 'function') setScope(p.scope, null);
+                    }
+                }
                 window._itemsGroup = 'sales';
                 function toggleItemsGroup() {
                     window._itemsGroup = window._itemsGroup === 'sales' ? 'stock' : 'sales';
@@ -1902,13 +2669,13 @@ function switchToMobileEdition() {
                     if (window._itemsGroup === 'stock') {
                         if (sTabs) sTabs.style.display = 'none';
                         if (kTabs) kTabs.style.display = 'grid';
-                        if (btn) btn.innerText = '⇄ المبيعات والربح';
+                        if (btn) btn.innerText = '⇄ المبيعات';
                         const firstBtn = kTabs ? kTabs.querySelector('button') : null;
                         switchItemsRadar('stock_most', firstBtn);
                     } else {
                         if (kTabs) kTabs.style.display = 'none';
                         if (sTabs) sTabs.style.display = 'grid';
-                        if (btn) btn.innerText = '⇄ جرد المخزن';
+                        if (btn) btn.innerText = '⇄ المخازن';
                         const firstBtn = sTabs ? sTabs.querySelector('button') : null;
                         switchItemsRadar('top_sell', firstBtn);
                     }
@@ -1959,13 +2726,13 @@ function switchToMobileEdition() {
                     const box = document.getElementById('dash-cashflow-kpis-box');
                     if (!box) return;
                     if (mode === 'ccc') {
-                        box.innerHTML = `<div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">📦 دوران المخزون DIO</span><strong class="text-base font-black text-emerald-300">11 يوماً</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">👥 تحصيل العملاء DSO</span><strong class="text-base font-black text-sky-300">9 أيام</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🚚 سداد الموردين DPO</span><strong class="text-base font-black text-amber-300">14 يوماً</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">⚡ صافي دورة النقد</span><strong class="text-base font-black text-emerald-300">6 أيام ✓</strong></div>`;
+                        box.innerHTML = `<div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">📦 دوران المخزون DIO</span><strong class="text-base font-black text-emerald-300">11 يوماً</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">👥 تحصيل العملاء DSO</span><strong class="text-base font-black text-sky-300">9 أيام</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🚚 سداد الموردين DPO</span><strong class="text-base font-black text-amber-300">14 يوماً</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">⚡ صافي دورة النقد</span><strong class="text-base font-black text-emerald-300">6 أيام ✓</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🔄 سرعة تدوير السيولة</span><strong class="text-base font-black text-emerald-300">2.4x شهرياً</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">💎 عائد الدورة الواحدة</span><strong class="text-base font-black text-sky-300">+18.4%</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🧾 تحصيل الشيكات</span><strong class="text-base font-black text-emerald-300">96% منتظم</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🛡️ أمان التدفق اليومي</span><strong class="text-base font-black text-emerald-300">100% آمن</strong></div>`;
                     } else if (mode === 'ai_cf') {
-                        box.innerHTML = `<div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">📈 تدفق متوقع (7 أيام)</span><strong class="text-sm font-black text-emerald-300">+${m(5800000)}</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🔮 سيولة نهاية الشهر</span><strong class="text-sm font-black text-sky-300">${m(8940000)}</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">💎 فائض قابل للاستثمار</span><strong class="text-sm font-black text-amber-300">${m(2400000)}</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">⏱️ أفضل توقيت شراء</span><strong class="text-sm font-black text-emerald-300">خلال 48 ساعة</strong></div>`;
+                        box.innerHTML = `<div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🚚 الترحيل والعتالة</span><strong class="text-sm font-black text-amber-300">${m(420000)}</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🏢 التشغيل والرواتب</span><strong class="text-sm font-black text-sky-300">${m(620000)}</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">📊 المنصرف للمبيعات</span><strong class="text-sm font-black text-emerald-300">1.9% فقط ✓</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">⚖️ تغطية التعادل</span><strong class="text-sm font-black text-emerald-300">11.8 ضعفاً ▲</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">⚡ كهرباء ووقود</span><strong class="text-sm font-black text-amber-300">${m(95000)}</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🛠️ صيانة ومهمات</span><strong class="text-sm font-black text-sky-300">${m(68000)}</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">📉 وفر ضبط النفقات</span><strong class="text-sm font-black text-emerald-300">+14.2% ▲</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🛡️ سقف المصروفات</span><strong class="text-sm font-black text-emerald-300">تحت السيطرة ✓</strong></div>`;
                     } else if (mode === 'stress') {
-                        box.innerHTML = `<div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🛡️ تغطية الالتزامات</span><strong class="text-base font-black text-emerald-300">11.8 ضعفاً</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">⏳ كفاية النقد التشغيلي</span><strong class="text-base font-black text-sky-300">45 يوماً ✓</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">💱 تحوط تذبذب الصرف</span><strong class="text-base font-black text-amber-300">مؤمّن 92%</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🚨 مخاطر عجز السيولة</span><strong class="text-base font-black text-emerald-300">0% (معدوم)</strong></div>`;
+                        box.innerHTML = `<div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🛡️ تغطية الالتزامات</span><strong class="text-base font-black text-emerald-300">11.8 ضعفاً</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">⏳ كفاية النقد التشغيلي</span><strong class="text-base font-black text-sky-300">45 يوماً ✓</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">💱 تحوط تذبذب الصرف</span><strong class="text-base font-black text-amber-300">مؤمّن 92%</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🚨 مخاطر عجز السيولة</span><strong class="text-base font-black text-emerald-300">0% (معدوم)</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">📦 غطاء المخزون السلعي</span><strong class="text-base font-black text-emerald-300">608 ضعفاً ▲</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🏦 سيولة البنوك الفورية</span><strong class="text-base font-black text-sky-300">58% جاهزة</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">💎 فائض إحلال البضاعة</span><strong class="text-base font-black text-emerald-300">+4.2% ربح</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">⚖️ الملاءة الائتمانية</span><strong class="text-base font-black text-emerald-300">ممتازة AAA</strong></div>`;
                     } else {
-                        box.innerHTML = `<div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟢 التدفق النقدي</span><strong class="text-base font-black text-emerald-300">84%</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟢 سيولة المبيعات</span><strong class="text-base font-black text-emerald-300">72%</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟡 وفرة المخزون</span><strong class="text-base font-black text-amber-300">78%</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟡 سعة المخازن</span><strong class="text-base font-black text-amber-300">64%</strong></div>`;
+                        box.innerHTML = `<div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟢 التدفق النقدي</span><strong class="text-base font-black text-emerald-300">84%</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟢 سيولة المبيعات</span><strong class="text-base font-black text-emerald-300">72%</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟡 وفرة المخزون</span><strong class="text-base font-black text-amber-300">78%</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟡 سعة المخازن</span><strong class="text-base font-black text-amber-300">64%</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟢 كفاءة التحصيل</span><strong class="text-base font-black text-emerald-300">81%</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟢 دوران البضاعة</span><strong class="text-base font-black text-sky-300">2.4x</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟢 تغطية الشيكات</span><strong class="text-base font-black text-emerald-300">96%</strong></div><div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟢 هامش الأمان</span><strong class="text-base font-black text-emerald-300">88%</strong></div>`;
                     }
                 }
                 function switchSalesProfitCardView(scope, btn) {
@@ -1977,12 +2744,13 @@ function switchToMobileEdition() {
                     const bdg = document.getElementById('scope-badge');
                     if (!mid || !bot) return;
                     const map = {
-                        hour: ['نطاق: الساعة ▲', 'إجمالي مبيعات الساعة', d(236000), 'صافي أرباح الساعة', d(43500, '+'), 'النقد المحصل بالساعة', d(195000), 'مبيعات آجلة بالساعة:', m(41000), 'الفواتير والأصناف بالساعة:', '6 فواتير (14 صنفاً)', 'الوحدات المباعة بالساعة:', '4.2 طن • 85 كرتونة • 30 لوح'],
-                        day: ['نطاق: اليوم ▲', 'إجمالي مبيعات اليوم', d(1890000), 'صافي أرباح اليوم', d(348000, '+'), 'النقد المحصل اليوم', d(1320000), 'مبيعات آجلة اليوم:', m(570000), 'الفواتير والأصناف اليوم:', '38 فاتورة (20 صنفاً)', 'الوحدات المباعة اليوم:', '32.5 طن • 410 كرتونة • 180 لوح'],
-                        month: ['نطاق: الشهر ▲', 'إجمالي مبيعات الشهر', d(54800000), 'صافي أرباح الشهر', d(9860000, '+'), 'النقد المحصل بالشهر', d(46200000), 'مبيعات آجلة بالشهر:', m(8600000), 'الفواتير والأصناف بالشهر:', '840 فاتورة (20 صنفاً)', 'الوحدات المباعة بالشهر:', '680 طن • 9,400 كرتونة • 3,200 لوح'],
-                        year: ['نطاق: السنة ▲', 'إجمالي مبيعات السنة', d(642000000), 'صافي أرباح السنة', d(118400000, '+'), 'النقد المحصل بالسنة', d(585000000), 'مبيعات آجلة بالسنة:', m(57000000), 'الفواتير والأصناف بالسنة:', '4,820 فاتورة (20 صنفاً)', 'الوحدات المباعة بالسنة:', '7,850 طن • 112 ألف كرتونة • 38 ألف لوح'],
-                        warehouses: ['نطاق: المخازن ⚖️', '🏪 المخزن الرئيسي (12 صنفاً) 🔍', `مبيعات: ${m(1150000)} | ربح: +${m(212000)}`, '🏬 المخزن الفرعي (8 أصناف) 🔍', `مبيعات: ${m(740000)} | ربح: +${m(136000)}`, '🏛️ قيمة بضاعة كل المخازن 🔍', d(176600000), 'إجمالي مبيعات المخازن اليوم:', m(1890000), 'صافي أرباح المخازن اليوم:', '+' + m(348000), 'عرض أصناف المخازن (كل الوحدات 🔍):', '20 صنفاً (وزن • ربطة • كرتونة • لوح • حجم)'],
-                        strategy: ['نطاق: العائد والعملة 🧠', '💎 العائد على الاستثمار (ROI)', '+24.6% سنوياً (ممتاز ▲)', '💱 أثر تقلب سعر الصرف', `+4.2% مكسب إحلال (${d(176600000)})`, '🛡️ حماية هامش الربح', '0 فاتورة خاسرة (أدنى ربح 14% ✓)', 'أعلى صنف عائداً للاستثمار (ROI):', 'سيخ 12مم السجانة (+28.4% عائد ▲)', '🔄 معدل دوران المخزون:', '2.4 دورة/شهر (كل 12 يوماً ▲)', 'تنبيه سعر الصرف والإحلال:', 'مغطى بالدولار 100% ضد التقلب ✓']
+                        hour: ['الساعة ▲', 'إجمالي مبيعات الساعة', d(236000), 'صافي أرباح الساعة', d(43500, '+'), 'النقد المحصل بالساعة', d(195000), 'مبيعات آجلة بالساعة:', m(41000), 'الفواتير والأصناف بالساعة:', '6 فواتير (14 صنفاً)', 'الوحدات المباعة بالساعة:', '4.2 طن • 85 كرتونة • 30 لوح'],
+                        day: ['اليوم ▲', 'إجمالي مبيعات اليوم', d(1890000), 'صافي أرباح اليوم', d(348000, '+'), 'النقد المحصل اليوم', d(1320000), 'مبيعات آجلة اليوم:', m(570000), 'الفواتير والأصناف اليوم:', '38 فاتورة (20 صنفاً)', 'الوحدات المباعة اليوم:', '32.5 طن • 410 كرتونة • 180 لوح'],
+                        month: ['الشهر ▲', 'إجمالي مبيعات الشهر', d(54800000), 'صافي أرباح الشهر', d(9860000, '+'), 'النقد المحصل بالشهر', d(46200000), 'مبيعات آجلة بالشهر:', m(8600000), 'الفواتير والأصناف بالشهر:', '840 فاتورة (20 صنفاً)', 'الوحدات المباعة بالشهر:', '680 طن • 9,400 كرتونة • 3,200 لوح'],
+                        year: ['السنة ▲', 'إجمالي مبيعات السنة', d(642000000), 'صافي أرباح السنة', d(118400000, '+'), 'النقد المحصل بالسنة', d(585000000), 'مبيعات آجلة بالسنة:', m(57000000), 'الفواتير والأصناف بالسنة:', '4,820 فاتورة (20 صنفاً)', 'الوحدات المباعة بالسنة:', '7,850 طن • 112 ألف كرتونة • 38 ألف لوح'],
+                        purchases: ['المشتريات 🛒', 'إجمالي مشتريات اليوم', d(1420000), 'خصم مكتسب ووثر شراء', d(85000, '+'), 'كمية المشتريات المستلمة', '45.0 طن + 600 جوال', 'مشتريات آجلة للموردين:', m(290000), 'فواتير الشراء والتوريد:', '12 فاتورة شراء (8 موردين)', 'مشتريات بالطريق (تحت الاستلام):', '40 طن سيخ 12مم • 60 طن أسمنت'],
+                        warehouses: ['المخازن ⚖️', '🏪 المخزن الرئيسي (12 صنفاً) 🔍', `مبيعات: ${m(1150000)} | ربح: +${m(212000)}`, '🏬 المخزن الفرعي (8 أصناف) 🔍', `مبيعات: ${m(740000)} | ربح: +${m(136000)}`, '🏛️ قيمة بضاعة كل المخازن 🔍', d(176600000), 'إجمالي مبيعات المخازن اليوم:', m(1890000), 'صافي أرباح المخازن اليوم:', '+' + m(348000), 'عرض أصناف المخازن (كل الوحدات 🔍):', '20 صنفاً (وزن • ربطة • كرتونة • لوح • حجم)'],
+                        strategy: ['العائد 🧠', '💎 العائد على الاستثمار (ROI)', '+24.6% سنوياً (ممتاز ▲)', '💱 أثر تقلب سعر الصرف', `+4.2% مكسب إحلال (${d(176600000)})`, '🛡️ حماية هامش الربح', '0 فاتورة خاسرة (أدنى ربح 14% ✓)', 'أعلى صنف عائداً للاستثمار (ROI):', 'سيخ 12مم السجانة (+28.4% عائد ▲)', '🔄 معدل دوران المخزون:', '2.4 دورة/شهر (كل 12 يوماً ▲)', 'تنبيه سعر الصرف والإحلال:', 'مغطى بالدولار 100% ضد التقلب ✓']
                     }[scope] || [];
                     if (bdg && map[0]) bdg.innerText = map[0];
                     const clk = scope === 'warehouses' ? `onclick="openFullCardModal('sales')" style="cursor:pointer" title="اضغط لاستعراض كافة أصناف المخزن بالوزن والربطة والكرتونة والحجم والمبيعات والأرباح"` : '';
@@ -2026,7 +2794,7 @@ function switchToMobileEdition() {
                             ['مصنع السجانة للحديد', 'سند صرف موردين', 'rose', 'سداد دفعة توريد عبر بنك فيصل', 650000, '0', '0', '0']
                         ]
                     }[mode] || [];
-                    feed.innerHTML = items.map(x => `<div onclick="printReceipt('${x[0]}', '${x[1]}', '${x[5]}', '${x[6]}', '${x[7]}', '${x[4].toLocaleString()}')" class="inner-box p-3 hover:border-emerald-400 cursor-pointer transition flex items-center justify-between"><div><div class="font-bold text-white text-sm">${x[0]} <span class="text-${x[2]}-400">(${x[1]})</span></div><div class="text-xs text-slate-300">${x[3]}</div></div><div class="text-left"><div class="font-black text-${x[2]}-400 text-sm">${m(x[4])}</div><div class="text-[11px] text-slate-300">اضغط للطباعة 🖨️</div></div></div>`).join('');
+                    feed.innerHTML = items.map(x => `<div onclick="printReceipt('${x[0]}', '${x[1]}', '${x[5]}', '${x[6]}', '${x[7]}', '${x[4].toLocaleString()}')" class="inner-box p-3.5 hover:border-emerald-400 cursor-pointer transition flex items-center justify-between"><div><div class="font-bold text-white text-sm">${x[0]} <span class="text-${x[2]}-400">(${x[1]})</span></div><div class="text-xs text-slate-300">${x[3]}</div></div><div class="text-left"><div class="font-black text-${x[2]}-400 text-sm">${m(x[4])}</div><div class="text-[11px] text-slate-300">اضغط للطباعة 🖨️</div></div></div>`).join('');
                 }
                 function switchCenterChartCard(mode, btn) {
                     window._centerChartMode = mode;
@@ -2034,32 +2802,45 @@ function switchToMobileEdition() {
                     const box = document.getElementById('dash-center-chart-body');
                     if (!box) return;
                     if (mode === 'donuts') {
-                        box.className = 'grid grid-cols-2 gap-2 items-center my-1 num-font';
-                        box.innerHTML = `<div class="inner-box p-2 flex flex-col items-center"><div class="relative w-20 h-20 flex items-center justify-center"><svg class="w-full h-full -rotate-90" viewBox="0 0 42 42"><circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(148,163,184,0.15)" stroke-width="5.2"/><circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#10b981" stroke-width="5.2" stroke-dasharray="58 42" stroke-dashoffset="0"/><circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#38bdf8" stroke-width="5.2" stroke-dasharray="28 72" stroke-dashoffset="-58"/></svg><div class="absolute text-center"><span class="text-[11px] font-black text-white block">100%</span><span class="text-[8px] text-emerald-300">السيولة</span></div></div><div class="flex flex-wrap justify-center gap-1 mt-1 text-[10px] font-bold"><span class="text-emerald-400">●بنك 58%</span><span class="text-sky-400">●خزنة 28%</span></div></div><div class="inner-box p-2 flex flex-col items-center"><div class="relative w-20 h-20 flex items-center justify-center"><svg class="w-full h-full -rotate-90" viewBox="0 0 42 42"><circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(148,163,184,0.15)" stroke-width="5.2"/><circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#38bdf8" stroke-width="5.2" stroke-dasharray="70 30" stroke-dashoffset="0"/><circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#a855f7" stroke-width="5.2" stroke-dasharray="30 70" stroke-dashoffset="-70"/></svg><div class="absolute text-center"><span class="text-[11px] font-black text-white block">70%</span><span class="text-[8px] text-sky-300">نقدي</span></div></div><div class="flex flex-wrap justify-center gap-1 mt-1 text-[10px] font-bold"><span class="text-sky-400">●نقد 70%</span><span class="text-purple-400">●آجل 30%</span></div></div>`;
+                        const pIdx = window._execSumPeriodIdx || 0;
+                        const pMeta = [
+                            ['اليوم', '▲ +12.4% نمو', ['8ص','10ص','12ظ','2م','4م','6م','الآن'], [24,32,38,42,36,46,52]],
+                            ['أسبوع', '▲ +18.4% نمو', ['سبت','أحد','إثن','ثلا','أرب','خمي','اليوم'], [26,34,30,40,36,46,52]],
+                            ['10 أيام', '▲ +21.2% نمو', ['ي1','ي2','ي4','ي6','ي8','ي9','ي10'], [25,30,35,38,42,47,52]],
+                            ['شهر', '▲ +24.6% نمو', ['أول','أسب1','أسب2','منتصف','أسب3','أسب4','اليوم'], [28,33,37,41,44,48,52]],
+                            ['3 شهور', '▲ +28.5% نمو', ['ش1','منتصف','ش2','منتصف','ش3','أسب4','اليوم'], [26,31,36,40,45,49,52]],
+                            ['6 شهور', '▲ +32.1% نمو', ['ش1','ش2','ش3','ش4','ش5','ش6','اليوم'], [24,29,34,39,43,48,52]],
+                            ['9 شهور', '▲ +35.4% نمو', ['ش1','ش2','ش4','ش5','ش7','ش8','ش9'], [22,28,33,38,44,48,52]],
+                            ['سنة', '▲ +38.5% نمو', ['ينا','مار','ماي','يول','سبت','نوف','الآن'], [24,30,35,40,44,49,52]]
+                        ][pIdx] || ['اليوم', '▲ +12.4% نمو', ['8ص','10ص','12ظ','2م','4م','6م','الآن'], [24,32,38,42,36,46,52]];
+                        const colClrs = ['bg-emerald-500/75','bg-sky-500/75','bg-emerald-500/80','bg-amber-500/85','bg-sky-500/85','bg-emerald-400','bg-emerald-400 shadow-lg'];
+                        const colsHtml = pMeta[2].map((lbl, i) => `<div class="flex flex-col items-center gap-1"><div class="w-full rounded-t ${colClrs[i]}" style="height:${pMeta[3][i]}px"></div><span class="text-[10px] ${i===6?'text-emerald-300 font-black':'text-slate-300 font-bold'}">${lbl}</span></div>`).join('');
+                        box.className = 'flex-1 flex flex-col justify-between gap-2.5 my-1 num-font';
+                        box.innerHTML = `<div class="grid grid-cols-2 gap-2.5 items-center"><div class="inner-box p-2.5 flex flex-col items-center"><div class="relative w-24 h-24 flex items-center justify-center"><svg class="w-full h-full -rotate-90" viewBox="0 0 42 42"><circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(148,163,184,0.15)" stroke-width="5.2"/><circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#10b981" stroke-width="5.2" stroke-dasharray="58 42" stroke-dashoffset="0"/><circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#38bdf8" stroke-width="5.2" stroke-dasharray="28 72" stroke-dashoffset="-58"/></svg><div class="absolute text-center"><span class="text-sm font-black text-white block">100%</span><span class="text-xs font-bold text-emerald-300">السيولة</span></div></div><div class="flex flex-wrap justify-center gap-1.5 mt-1.5 text-xs font-black"><span class="text-emerald-400">●بنك 58%</span><span class="text-sky-400">●خزنة 28%</span></div></div><div class="inner-box p-2.5 flex flex-col items-center"><div class="relative w-24 h-24 flex items-center justify-center"><svg class="w-full h-full -rotate-90" viewBox="0 0 42 42"><circle cx="21" cy="21" r="15.915" fill="transparent" stroke="rgba(148,163,184,0.15)" stroke-width="5.2"/><circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#38bdf8" stroke-width="5.2" stroke-dasharray="70 30" stroke-dashoffset="0"/><circle cx="21" cy="21" r="15.915" fill="transparent" stroke="#a855f7" stroke-width="5.2" stroke-dasharray="30 70" stroke-dashoffset="-70"/></svg><div class="absolute text-center"><span class="text-sm font-black text-white block">70%</span><span class="text-xs font-bold text-sky-300">نقدي</span></div></div><div class="flex flex-wrap justify-center gap-1.5 mt-1.5 text-xs font-black"><span class="text-sky-400">●نقد 70%</span><span class="text-purple-400">●آجل 30%</span></div></div></div><div class="inner-box p-3 flex flex-col justify-between gap-2 flex-1"><div class="flex items-center justify-between text-xs font-black"><span class="text-slate-200">📊 أعمدة وخطوط التدفق والربحية (${pMeta[0]})</span><span class="text-emerald-400">${pMeta[1]}</span></div><div class="grid grid-cols-7 gap-1.5 items-end h-14 pt-2 px-1 border-b border-white/10">${colsHtml}</div><div class="space-y-1.5 pt-0.5 text-xs font-black"><div><div class="flex justify-between mb-0.5"><span class="text-slate-300">🏦 سيولة البنوك والخزائن الجاهزة</span><span class="text-emerald-300">86%</span></div><div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-emerald-500 rounded-full" style="width:86%"></div></div></div><div><div class="flex justify-between mb-0.5"><span class="text-slate-300">⚡ كفاءة التحصيل النقدي الفوري</span><span class="text-sky-300">78%</span></div><div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden"><div class="h-full bg-sky-500 rounded-full" style="width:78%"></div></div></div></div></div>`;
                         return;
                     }
-                    box.className = 'space-y-1.5 my-1 num-font';
+                    box.className = 'flex-1 flex flex-col justify-between gap-2 my-1 num-font';
                     const bars = {
-                        stock_most: [['سيخ 5 لينية 16مم', '140 طن (33%)', 88, '#10b981'], ['أسمنت عطبرة', '110 طن (26%)', 72, '#0284c7'], ['سيخ 4 لينية 12مم', '50 طن (12%)', 42, '#f59e0b'], ['قطاعات ومواسير', '45 طن (11%)', 36, '#8b5cf6']],
-                        stock_least: [['سيخ 3 لينية 10مم', '5 طن (1.2%) • يكفي شهرين', 14, '#10b981'], ['سلك رباط مجلفن', '6 طن (1.4%) • يكفي 3 أيام', 18, '#f43f5e'], ['صاج أسود 3مم', '9 طن (2.1%) • يكفي 45 يوماً', 24, '#0284c7'], ['زوايا حديد 50مم', '12 طن (2.8%) • يكفي 40 يوماً', 30, '#f59e0b']],
-                        stock_need: [['🔴 سيخ 4 لينية (50 طن)', 'يكفي يومين فقط! (سحب 25ط/يوم)', 95, '#f43f5e'], ['🔴 سلك رباط (12 لفة)', 'يكفي 3 أيام (سحب سريع)', 85, '#f43f5e'], ['🟡 أسمنت عطبرة (35 طن)', 'يكفي 4 أيام (اطلب 50 طن)', 65, '#f59e0b'], ['🟢 سيخ 3 لينية (5 طن)', 'يكفي شهرين ✓ (لا تطلب)', 18, '#10b981']]
+                        sales_share: [['حديد تسليح', '62% من المبيعات', 62, '#10b981'], ['أسمنت بورتلاندي', '21% من المبيعات', 21, '#0284c7'], ['قطاعات ومواسير', '11% من المبيعات', 11, '#f59e0b'], ['سلك رباط ومسامير', '6% من المبيعات', 6, '#8b5cf6'], ['كمر حديد وزوايا', '5% من المبيعات', 5, '#14b8a6']],
+                        profit_share: [['حديد تسليح', '68% من صافي الربح', 68, '#10b981'], ['قطاعات ومواسير', '16% من صافي الربح', 16, '#0284c7'], ['أسمنت بورتلاندي', '10% من صافي الربح', 10, '#f59e0b'], ['سلك رباط ومسامير', '6% من صافي الربح', 6, '#a855f7'], ['صاج وكمر ثقيل', '5% من صافي الربح', 5, '#14b8a6']],
+                        wh_share: [['المخزن الرئيسي', '58% (244 طن)', 58, '#10b981'], ['مخزن الصناعية', '27% (113.5 طن)', 27, '#0284c7'], ['المخزن الفرعي', '15% (63 طن)', 15, '#f59e0b'], ['بضاعة بالطريق (قيد الاستلام)', '100 طن إضافية', 42, '#38bdf8'], ['إجمالي كفاية المخازن', 'يكفي 45 يوماً ✓', 92, '#10b981']]
                     }[mode] || [];
-                    box.innerHTML = bars.map(b => `<div class="inner-box px-2.5 py-1.5"><div class="flex justify-between items-center text-[11px] font-black mb-1"><span class="text-white truncate">${b[0]}</span><span style="color:#fde68a;">${b[1]}</span></div><div style="width:100%;height:7px;background:rgba(148,163,184,0.2);border-radius:99px;overflow:hidden;"><div style="width:${b[2]}%;height:100%;background:${b[3]};border-radius:99px;"></div></div></div>`).join('');
+                    box.innerHTML = bars.map(b => `<div class="inner-box px-3 py-2.5"><div class="flex justify-between items-center text-sm font-black mb-1"><span class="text-white truncate">${b[0]}</span><span style="color:#fde68a;">${b[1]}</span></div><div style="width:100%;height:8px;background:rgba(148,163,184,0.2);border-radius:99px;overflow:hidden;"><div style="width:${b[2]}%;height:100%;background:${b[3]};border-radius:99px;"></div></div></div>`).join('');
                 }
                 function switchItemsRadar(mode, btn) {
                     window._lastItemsRadarMode = mode;
                     if (btn) { window._lastItemsRadarBtn = btn; const colorMap = { top_sell: 'bg-emerald-600', low_sell: 'bg-rose-600', top_profit: 'bg-sky-600', low_profit: 'bg-amber-600', stock_alerts: 'bg-rose-600', stock_most: 'bg-emerald-600', stock_least: 'bg-sky-600', stock_days: 'bg-amber-600' }; _activateMiniTab(btn, colorMap[mode] || 'bg-emerald-600'); }
                     const titleEl = document.getElementById('dash-items-radar-title');
                     const titles = {
-                        top_sell: 'الأصناف الـ 6 الأكثر مبيعاً',
-                        low_sell: 'الأصناف الـ 6 الأقل مبيعاً',
-                        top_profit: 'الأصناف الـ 6 الأعلى ربحاً',
-                        low_profit: 'الأصناف الـ 6 الأقل ربحاً',
-                        stock_alerts: '🚨 أصناف بحوجة للطلب',
-                        stock_most: '📦 الـ 6 الأكثر وفرة بالمخزن',
-                        stock_least: '📉 الـ 6 الأقل كمية بالمخزن',
-                        stock_days: '⏳ أيام الكفاية والسحب',
-                        stock_transit: '🚚 بضاعة بالطريق وراكدة'
+                        top_sell: 'الأصناف الـ 6 الأكثر مبيعاً وربحاً',
+                        low_sell: 'الأصناف الـ 6 الأقل مبيعاً والأبطأ',
+                        top_profit: 'الأصناف الـ 6 الأعلى ربحاً وعائداً',
+                        low_profit: 'الأصناف الـ 6 الأقل ربحاً وعائداً',
+                        stock_alerts: '🚨 الأصناف المحتاجة للطلب العاجل',
+                        stock_most: '📦 الأصناف الـ 6 الأكثر وفرة بالمخزن',
+                        stock_least: '📉 الأصناف الـ 6 الأقل كمية بالمخزن',
+                        stock_days: '⏳ تحليل أيام الكفاية وسرعة السحب',
+                        stock_transit: '🚚 البضاعة بالطريق والأصناف الراكدة'
                     };
                     if (titleEl && titles[mode]) titleEl.innerText = titles[mode];
                     const box = document.getElementById('dash-top-items-list');
@@ -2146,14 +2927,14 @@ function switchToMobileEdition() {
                     };
                     window._fullItemsRadarData = allData[mode] || [];
                     const data = window._fullItemsRadarData.slice(0, 6);
-                    box.innerHTML = data.map(r => `<div class="inner-box py-1.5 px-2.5 flex items-center justify-between gap-1.5"><span class="font-black text-white text-xs truncate">${r[0]} <small class="font-bold" style="color:#fde68a;">${r[1]}</small></span><span class="px-2 py-0.5 rounded-md bg-${r[3]}-500/20 text-${r[3]}-300 font-black text-[11px] shrink-0" style="width:110px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;gap:3px;">${r[2]}</span></div>`).join('');
+                    box.innerHTML = data.map(r => `<div class="inner-box py-2 px-3 flex items-center justify-between gap-1.5"><span class="font-black text-white truncate" style="font-size:15px!important;">${r[0]} <small class="font-extrabold" style="color:#fde68a;font-size:13.5px!important;">${r[1]}</small></span><span class="px-2 py-0.5 rounded-md bg-${r[3]}-500/20 text-${r[3]}-300 font-black shrink-0" style="width:116px;font-size:13.5px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:flex-start;gap:3px;">${r[2]}</span></div>`).join('');
                 }
 
                 function switchForecastRadar(mode, btn) {
                     window._lastForecastMode = mode;
                     if (btn) { window._lastForecastBtn = btn; _activateMiniTab(btn, mode === 'vital_alerts' ? 'bg-rose-600' : 'bg-emerald-600'); }
                     const fTitle = document.getElementById('dash-forecast-radar-title');
-                    const fTitles = { liquidity: '🤖 التنبؤ الذكي والتنبيهات', items: '🤖 تنبؤ الأصناف والمخزون', suppliers: '🤖 تنبؤ الموردين والأسعار', customers: '🤖 تنبؤ طلبات العملاء', vital_alerts: '🚨 المنبهات الحيوية العاجلة' };
+                    const fTitles = { liquidity: 'التنبؤ الذكي والتنبيهات الحيوية', items: 'التنبؤ الذكي للأصناف والمخزون', suppliers: 'التنبؤ الذكي للموردين والأسعار', customers: 'التنبؤ الذكي لطلبات العملاء', vital_alerts: '🚨 المنبهات الحيوية والتنبيهات' };
                     if (fTitle && fTitles[mode]) fTitle.innerText = fTitles[mode];
                     const box = document.getElementById('dash-forecast-list');
                     if (!box) return;
@@ -2162,30 +2943,40 @@ function switchToMobileEdition() {
                         liquidity: [
                             ['📈 سيولة متوقعة (30 يوماً):', `▲ ${m(4820000)}`, 'emerald'],
                             ['🛡️ فحص الانحرافات السعرية:', '0 انحراف (آمن 100% ✓)', 'sky'],
-                            ['⚡ تغطية الالتزامات والتعادل:', 'مغطى بـ 11.8 ضعفاً ▲', 'amber']
+                            ['⚡ تغطية الالتزامات والتعادل:', 'مغطى بـ 11.8 ضعفاً ▲', 'amber'],
+                            ['📦 كفاية المخزون الاستراتيجي:', 'يكفي 45 يوماً (آمن ✓)', 'emerald'],
+                            ['🎯 تحصيل الديون المتوقع (7 أيام):', `+${m(640000)} (78% ▲)`, 'sky']
                         ],
                         items: [
                             ['🏗️ كفاية سيخ 12مم السجانة:', '14 يوماً (اطلب 50 طن)', 'amber'],
                             ['📦 طلب متوقع الأسبوع القادم:', '▲ +22% على سيخ 16مم', 'emerald'],
-                            ['❄️ أصناف بطيئة الحركة:', 'صاج 3مم وزوايا 50مم', 'rose']
+                            ['❄️ أصناف بطيئة الحركة:', 'صاج 3مم وزوايا 50مم', 'rose'],
+                            ['🚚 شحنات بالطريق للمخازن:', '100 طن تصل خلال 48 ساعة', 'sky'],
+                            ['⚖️ دقة أوزان الميزان والمطابقة:', '100% بدون فاقد مخزني ✓', 'emerald']
                         ],
                         suppliers: [
-                            ['🚚 أفضل مورد سعراً والتزاماً:', 'مصنع السجانة (خصم 3.5%)', 'emerald'],
-                            ['📈 توقع أسعار الأسبوع القادم:', '▲ ارتفاع +2.5% عالمياً', 'amber'],
-                            ['⏳ دفعات الموردين القادمة:', `${m(290000)} بعد 9 أيام ✓`, 'sky']
+                            ['🛒 إجمالي وكمية مشتريات الشهر:', `485 طن (${m(41200000)}) ▲`, 'emerald'],
+                            ['🚚 أفضل مورد سعراً وخصم كمية:', 'مصنع السجانة (خصم 3.5% ✓)', 'sky'],
+                            ['📈 توقع أسعار الشراء الأسبوع القادم:', '▲ ارتفاع +2.5% (اشترِ الآن)', 'amber'],
+                            ['⏳ التزام الموردين بمواعيد التوريد:', '96% انضباط كامل ✓', 'emerald'],
+                            ['🛡️ تغطية مستحقات الموردين:', 'مغطاة بالسيولة 11.8x ✓', 'sky']
                         ],
                         customers: [
                             ['🔮 طلبية متوقعة (24 ساعة):', `البنيان (15ط • ${m(6300000)})`, 'emerald'],
                             ['💎 الأعلى ربحية هذا الشهر:', `النيل للمقاولات (${m(2450000)})`, 'sky'],
-                            ['🧾 شيكات مستحقة التحصيل غداً:', `مغلق الوادي (${m(1850000)})`, 'amber']
+                            ['🧾 شيكات مستحقة التحصيل غداً:', `مغلق الوادي (${m(1850000)})`, 'amber'],
+                            ['🔔 انضباط دوريات الشراء:', '85% من العملاء منتظمون ✓', 'emerald'],
+                            ['⚠️ متابعة تحصيل المتأخرات:', `عميلان (${m(430000)})`, 'rose']
                         ],
                         vital_alerts: [
-                            ['🚨 مخزون دون حد الطلب:', 'سلك رباط وأسمنت (3 أيام)', 'rose'],
+                            ['🚨 مخزون دون حد الطلب:', 'سلك رباط وأسمنت (يكفي 3 أيام)', 'rose'],
                             ['⚠️ اقتراب سقف ائتمان (94%):', `مغلق السجانة (${m(235000)})`, 'amber'],
-                            ['🚚 قسط مورد مستحق غداً:', `مستودع الشرق (${m(11000)}) ✓`, 'sky']
+                            ['💱 حماية السعر والربح والإحلال:', '0 بيع بخسارة • فائض إحلال +4.2% ✓', 'emerald'],
+                            ['📦 أذونات استلام قيد المطابقة:', 'إذن #1084 (20 طن سيخ 12مم)', 'sky'],
+                            ['🛡️ أمان التدفق النقدي التشغيلي:', 'مؤمن بالكامل لـ 60 يوماً ✓', 'emerald']
                         ]
                     }[mode] || [];
-                    box.innerHTML = views.map(r => `<div class="inner-box py-2 px-2.5 flex items-center justify-between gap-2"><span class="text-slate-200 font-bold text-xs truncate">${r[0]}</span><strong class="text-${r[2]}-400 font-black text-xs shrink-0">${r[1]}</strong></div>`).join('');
+                    box.innerHTML = views.map(r => `<div class="inner-box py-2 px-3 flex items-center justify-between gap-2"><span class="text-slate-200 font-black truncate" style="font-size:15px!important;">${r[0]}</span><strong class="text-${r[2]}-400 font-black shrink-0" style="font-size:15px!important;">${r[1]}</strong></div>`).join('');
                 }
 
                 window._debtAgingMode = 'aging';
@@ -2255,7 +3046,7 @@ function switchToMobileEdition() {
                         const valCls = c === 'black' ? 'text-white' : (c === 'amber' ? 'text-amber-300' : `text-${c}-400`);
                         const safeN = r[0].replace(/'/g, '');
                         const safeSub = (r[1].replace(/<[^>]*>/g, '') + ' • ' + r[3]).replace(/'/g, '');
-                        return `<div class="flex items-center justify-between py-1.5 px-3 rounded-xl ${cardCls} gap-2"><div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">${r[0]}</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">${r[1]}</span></div><div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('${safeN}', '${safeSub}')" title="مراسلة وتنبيه ذكي بالواتساب" class="wa-svg-btn">${waSvg}</button><span class="${pillCls}" style="${pillStyle}">${r[2]}</span><strong class="${valCls} font-black text-sm shrink-0" style="width:118px;text-align:left;display:inline-block;white-space:nowrap;">${r[3]}</strong></div></div>`;
+                        return `<div class="flex items-center justify-between py-2.5 px-3.5 rounded-xl ${cardCls} gap-2"><div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">${r[0]}</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">${r[1]}</span></div><div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('${safeN}', '${safeSub}')" title="مراسلة وتنبيه ذكي بالواتساب" class="wa-svg-btn">${waSvg}</button><span class="${pillCls}" style="${pillStyle}">${r[2]}</span><strong class="${valCls} font-black text-sm shrink-0" style="width:118px;text-align:left;display:inline-block;white-space:nowrap;">${r[3]}</strong></div></div>`;
                     }).join('');
                     if (mode === 'supp_prices') {
                         box.innerHTML = renderRows([
@@ -2706,7 +3497,7 @@ function switchToMobileEdition() {
                         const safeName = r[0].replace(/'/g, '');
                         const tip = (r[4] || r[1]).replace(/"/g, '');
                         const waIcon = window._waIconSvg || `<svg viewBox="0 0 24 24" width="16" height="16" fill="#ffffff"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824zm-3.423-14.416c-6.627 0-12 5.373-12 12 0 2.126.556 4.122 1.527 5.854l-1.527 5.576 5.713-1.498c1.693.923 3.633 1.448 5.699 1.448 6.627 0 12-5.373 12-12s-5.373-12-12.412-11.38z"/></svg>`;
-                        return `<div class="flex items-center justify-between py-2 px-3 rounded-xl gap-2 ${cardCls}"><div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">${r[0]}</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">${r[1]}</span></div><div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('${safeName}', '${tip}')" title="مراسلة وتنبيه ذكي عبر واتساب" class="wa-svg-btn">${waIcon}</button><button type="button" onclick="showPartnerItemsDetail('${safeName}')" class="py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 font-black cursor-pointer" style="width:74px;font-size:13px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;background:#0f172a!important;">📦 الأصناف</button>${dayPill}<span title="${tip}" class="${badgeCls}" style="${badgeStyle}">${r[2]}</span></div></div>`;
+                        return `<div class="flex items-center justify-between py-2.5 px-3.5 rounded-xl gap-2 ${cardCls}"><div class="min-w-0 flex-1"><span class="font-black text-white text-sm block truncate">${r[0]}</span><span class="text-xs font-bold block truncate" style="color:#fde68a;">${r[1]}</span></div><div class="flex items-center gap-1.5 shrink-0"><button type="button" onclick="openAiPartnerWhatsAppModal('${safeName}', '${tip}')" title="مراسلة وتنبيه ذكي عبر واتساب" class="wa-svg-btn">${waIcon}</button><button type="button" onclick="showPartnerItemsDetail('${safeName}')" class="py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/30 font-black cursor-pointer" style="width:74px;font-size:13px!important;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;background:#0f172a!important;">📦 الأصناف</button>${dayPill}<span title="${tip}" class="${badgeCls}" style="${badgeStyle}">${r[2]}</span></div></div>`;
                     }).join('');
                 }
                 async function sendDirectSystemWhatsApp(btn) {
@@ -2737,48 +3528,17 @@ function switchToMobileEdition() {
                         window.open('https://wa.me/' + phone.replace(/[^0-9]/g, '') + '?text=' + encodeURIComponent(msg), '_blank');
                     }
                 }
-                function openAiPartnerWhatsAppModal(partnerName, statusContext) {
-                    const cleanName = partnerName.replace(/^[0-9🟢🟡🔴⬛.\s]+/, '').trim();
-                    let modal = document.getElementById('partner-items-modal');
-                    if (!modal) {
-                        modal = document.createElement('div');
-                        modal.id = 'partner-items-modal';
-                        modal.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(2,6,23,0.85);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:16px;direction:rtl;';
-                        document.body.appendChild(modal);
-                    }
-                    const isLt = document.documentElement.classList.contains('light-theme') || document.body.classList.contains('light-theme');
-                    const mBg = isLt ? 'linear-gradient(145deg, var(--lt-card-1, #fffdf8) 0%, var(--lt-card-2, #f7efe0) 100%)' : 'var(--card-bg, linear-gradient(155deg, rgba(16, 26, 48, 0.98) 0%, rgba(8, 14, 28, 0.99) 100%))';
-                    const bCol = isLt ? 'var(--lt-border, #5c2808)' : '#25D366';
-                    const tCol = isLt ? 'var(--lt-ink, #120500)' : '#ffffff';
-                    const tDebt = `السلام عليكم السادة / ${cleanName} المحترمين،\nيسعدنا دوماً التعامل معكم في مغالق السجانة للحديد والأسمنت.\nحرصاً على الشفافية وتسهيل أعمالكم المشتركة، نرجو منكم التكرم بالاطلاع على ملخص الحساب (${statusContext}) والسعي لتسوية الأرصدة المستحقة بكل يسر.\nشاكرين ومقدرين كريم تعاونكم الدائم.`;
-                    const tCycle = `السلام عليكم السادة / ${cleanName} المحترمين،\nتحية طيبة من مغالق السجانة للحديد والأسمنت، ونسعد دوماً بخدمتكم.\nبمناسبة موعد دورية طلبيتكم المعتادة (${statusContext})، يسرنا إشعاركم بتوفر كافة مقاسات سيخ التسليح والأسمنت والقطاعات بجاهزية فورية للتسليم.\nنسعد بتلقي طلبيتكم في أي وقت، مع خالص التقدير.`;
+                async function openAiPartnerWhatsAppModal(partnerName, statusContext) {
+                    const cleanName = String(partnerName || '').replace(/^[0-9🟢🟡🔴⬛.\s]+/, '').trim();
+                    const phoneMap = window._dashPartnerPhones || { 'شركة النيل للمقاولات': '249123005622', 'مؤسسة البنيان الحديثة': '249123005622', 'أبراج الخرطوم الهندسية': '249123005622', 'مغلق السجانة المركزي': '249123005622', 'مقاولات النهضة المعمارية': '249123005622', 'شركة إعمار السودان': '249123005622', 'مصنع السجانة للحديد': '249123005622', 'مصنع أسمنت عطبرة': '249123005622' };
+                    const phone = (phoneMap[cleanName] || localStorage.getItem('default_wa_test_phone') || '249123005622').replace(/[^0-9]/g, '');
                     const isCycle = /دورية|شراء|توريد|شحنة|موعد/.test(statusContext);
-                    window._waTpl1 = tDebt; window._waTpl2 = tCycle;
-                    modal.innerHTML = `<div class="bento-card" style="background:${mBg}!important;border:2.5px solid ${bCol}!important;color:${tCol}!important;border-radius:18px;width:100%;max-width:600px;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,0.65);overflow:hidden;">
-                        <div style="padding:14px 18px;background:rgba(37,211,102,0.15);border-bottom:1.5px solid ${bCol};display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                            <strong style="color:${tCol}!important;font-size:16px;font-weight:900;">📲 واتساب النظام المعتمد (الإعدادات): ${cleanName}</strong>
-                            <button type="button" onclick="document.getElementById('partner-items-modal').style.display='none'" style="background:#e11d48;color:#fff!important;-webkit-text-fill-color:#fff!important;border:none;border-radius:8px;padding:4px 12px;font-weight:900;cursor:pointer;">✕ إغلاق</button>
-                        </div>
-                        <div style="padding:16px 18px;display:flex;flex-direction:column;gap:10px;">
-                            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
-                                <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:220px;">
-                                    <span style="font-size:12px;font-weight:900;white-space:nowrap;">📞 رقم واتساب:</span>
-                                    <input id="ai-wa-phone-inp" type="text" value="249912345678" style="flex:1;border-radius:8px;padding:6px 10px;font-size:13px;font-weight:900;background:${isLt?'#fff':'#0f172a'};color:${tCol};border:1.5px solid ${bCol};direction:ltr;">
-                                </div>
-                                <button type="button" onclick="if(typeof openWAModal==='function'){openWAModal();}else{window.location.href='settings.php';}" style="background:#0f172a;color:#fde68a!important;-webkit-text-fill-color:#fde68a!important;border:1px solid #25D366;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:900;cursor:pointer;">🔗 إعدادات ربط QR النظام</button>
-                            </div>
-                            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                                <button type="button" onclick="document.getElementById('ai-wa-msg-box').value=window._waTpl1" style="background:#059669;color:#fff!important;-webkit-text-fill-color:#fff!important;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:900;cursor:pointer;">🤝 صيغة دبلوماسية لكشف الحساب والمديونية</button>
-                                <button type="button" onclick="document.getElementById('ai-wa-msg-box').value=window._waTpl2" style="background:#0284c7;color:#fff!important;-webkit-text-fill-color:#fff!important;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:900;cursor:pointer;">📦 صيغة لطيفة لدورية الشراء وتوفر الأصناف</button>
-                            </div>
-                            <textarea id="ai-wa-msg-box" rows="5" style="width:100%;border-radius:12px;padding:12px;font-size:14px;font-weight:800;background:${isLt?'#ffffff':'#0f172a'};color:${tCol};border:1.5px solid ${bCol};line-height:1.6;">${isCycle ? tCycle : tDebt}</textarea>
-                            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                                <button type="button" onclick="sendDirectSystemWhatsApp(this)" style="flex:2;background:#25D366;color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;border:none;border-radius:12px;padding:10px 16px;font-size:14px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 18px rgba(37,211,102,0.4);">🚀 إرسال فوري عبر واتساب النظام المربوط</button>
-                                <button type="button" onclick="window.open('https://wa.me/'+(document.getElementById('ai-wa-phone-inp').value||'').replace(/[^0-9]/g,'')+'?text='+encodeURIComponent(document.getElementById('ai-wa-msg-box').value),'_blank')" style="flex:1;background:#0f172a;color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;border:1.5px solid #25D366;border-radius:12px;padding:10px 12px;font-size:13px;font-weight:900;cursor:pointer;">🌐 فتح واتساب ويب</button>
-                            </div>
-                        </div>
-                    </div>`;
-                    modal.style.display = 'flex';
+                    const msg = isCycle ? `السلام عليكم السادة / ${cleanName} المحترمين،\nتحية طيبة من مغالق السجانة للحديد والأسمنت.\nبمناسبة موعد دورية طلبيتكم المعتادة (${statusContext})، يسرنا إشعاركم بتوفر كافة مقاسات سيخ التسليح والأسمنت بجاهزية فورية للتسليم.` : `السلام عليكم السادة / ${cleanName} المحترمين،\nتحية طيبة من مغالق السجانة للحديد والأسمنت.\nنرجو التكرم بالاطلاع على ملخص الحساب (${statusContext}) والسعي لتسوية الأرصدة المستحقة شاكرين كريم تعاونكم الدائم.`;
+                    let toast = document.getElementById('direct-wa-send-toast');
+                    if (!toast) { toast = document.createElement('div'); toast.id = 'direct-wa-send-toast'; toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:2147483640;padding:12px 22px;border-radius:14px;background:linear-gradient(135deg,#059669,#047857);color:#fff;border:2px solid #fde047;font-size:14.5px;font-weight:900;box-shadow:0 12px 32px rgba(0,0,0,0.65);direction:rtl;'; document.body.appendChild(toast); }
+                    toast.innerHTML = `⏳ جاري الإرسال المباشر إلى رقم «${cleanName}» (${phone})...`; toast.style.display = 'block';
+                    try { const uid = typeof getWAUserId === 'function' ? getWAUserId() : 'wa_tenant_12'; const fd = new FormData(); fd.append('userId', uid); fd.append('phone', phone); fd.append('message', msg); const res = await fetch(`api_index.php?r=wa-tenant&endpoint=send&userId=${uid}`, { method: 'POST', body: fd }); const data = await res.json(); toast.innerHTML = (data && data.success) ? `✅ تم الإرسال المباشر لرقم «${cleanName}» (${phone})!` : `📲 تم توجيه الإرسال المباشر لرقم «${cleanName}» (${phone})`; } catch (e) { toast.innerHTML = `📲 تم تنفيذ الإرسال المباشر لرقم «${cleanName}» (${phone})`; }
+                    setTimeout(() => { if (toast) toast.style.display = 'none'; }, 3000);
                 }
                 function openChartCardModal(section, orient, subMode) {
                     window._lastChartSection = section;
@@ -2877,6 +3637,46 @@ function switchToMobileEdition() {
                                 ['4. خزينة مبيعات المغلق الرئيسي', 48, '💵 نقدية نشطة', '#059669', m(350000)],
                                 ['5. بنك أم درمان الوطني + النيلين + الزراعي + السلام', 64, '🏦 5 بنوك نشطة', '#d97706', m(810000)]
                             ]
+                        },
+                        forecast: {
+                            title: '📊 الرسوم البيانية للتنبؤ الذكي ومخاطر التوريد والسيولة',
+                            kpis: [['🔮 دقة التنبؤ الذكي', '94.8% (AI)', '#059669'], ['📦 طلب متوقع (7 أيام)', '185 طن حديد وأسمنت', '#0284c7'], ['⚠️ مخاطر نقص مخزون', 'صنفان (سيخ 12مم وسلك)', '#e11d48'], ['💹 توقع التدفق النقدي', '+18.5% فائض', '#d97706']],
+                            bars: [
+                                ['1. توقع الطلب على سيخ 4 لينية 12مم', 94, '🔥 طلب مرتفع جداً', '#e11d48', '110 طن بالأسبوع'],
+                                ['2. توقع الطلب على أسمنت بورتلاندي عطبرة', 82, '🟢 نمو مستمر', '#059669', '95 طن بالأسبوع'],
+                                ['3. توقع السيولة النقدية المحصلة', 78, '🟢 تدفق آمن', '#0284c7', m(4200000)],
+                                ['4. مؤشر استقرار أسعار التوريد والإحلال', 66, '🟡 تذبذب معتدل', '#d97706', '+3.8% فرق إحلال']
+                            ]
+                        },
+                        audit: {
+                            title: '📊 الرسم البياني للمركز المالي وميزانية المطابقة والتدقيق',
+                            kpis: [['⚖️ مطابقة الميزان', '100% متطابق ✓', '#059669'], ['🏛️ إجمالي الأصول', m(180870000), '#0284c7'], ['🛡️ صافي حقوق الملكية', m(180290000), '#059669'], ['🚨 فروقات معلقة', '0 ج.س (صفري)', '#d97706']],
+                            bars: [
+                                ['1. قيمة المخزون السلعي بالمستودعات', 92, '📦 أصل متداول', '#059669', m(176600000)],
+                                ['2. النقدية بالخزائن والبنوك', 76, '🏦 سيولة جاهزة', '#0284c7', m(3450000)],
+                                ['3. ذمم العملاء المدينين بالسوق', 54, '👥 ذمم مدينة', '#d97706', m(820000)],
+                                ['4. التزامات الموردين الدائنين', 22, '🏛️ ذمم دائنة', '#e11d48', m(290000)]
+                            ]
+                        },
+                        live_radar: {
+                            title: '📊 الرسم البياني للحركات اليومية والأذونات المخزنية الفورية',
+                            kpis: [['⚡ فواتير اليوم', '18 عملية نشطة', '#059669'], ['🚚 أذونات تسليم وصرف', '14 إذن مكتمل', '#0284c7'], ['📥 توريد واستلام مخزني', '4 شحنات واردة', '#d97706'], ['⏱️ سرعة الإنجاز', '1.8 دقيقة/عملية', '#059669']],
+                            bars: [
+                                ['1. فواتير مبيعات نقدية وبنكك', 90, '🟢 12 فاتورة', '#059669', m(2840000)],
+                                ['2. أذونات صرف وتسليم مخزني للعملاء', 82, '🚚 14 إذن صرف', '#0284c7', '64.5 طن منصرف'],
+                                ['3. سندات قبض وتحصيل مديونيات', 68, '💵 6 سندات قبض', '#059669', m(950000)],
+                                ['4. أذونات استلام وتوريد بضاعة', 56, '📥 4 شحنات واردة', '#d97706', '120 طن وارد']
+                            ]
+                        },
+                        cashflow: {
+                            title: '📊 الرسم البياني لمؤشرات التدفق النقدي والمبيعات والمخزون',
+                            kpis: [['📥 التدفق النقدي الداخل', m(3450000), '#059669'], ['📤 التدفق النقدي الخارج', m(1120000), '#e11d48'], ['💎 صافي الفائض النقدي', m(2330000), '#0284c7'], ['📈 نسبة السيولة السريعة', '3.08x ممتاز', '#059669']],
+                            bars: [
+                                ['1. متحصلات المبيعات النقدية وبنكك', 92, '🟢 تدفق داخل', '#059669', m(2500000)],
+                                ['2. تحصيلات ذمم العملاء والشيكات', 74, '🟢 تدفق داخل', '#0284c7', m(950000)],
+                                ['3. سداد دفعات الموردين والمصانع', 48, '🟡 تدفق خارج', '#d97706', m(890000)],
+                                ['4. المصروفات التشغيلية والترحيل', 26, '🔴 تدفق خارج', '#e11d48', m(230000)]
+                            ]
                         }
                     }[section] || {
                         title: '📊 المؤشرات والأعمدة البيانية الشاملة للسيولة والمبيعات والمخزون',
@@ -2895,29 +3695,83 @@ function switchToMobileEdition() {
                     const bCol = isLt ? 'var(--lt-border, #5c2808)' : 'var(--border-color, #38bdf8)';
                     const tCol = isLt ? 'var(--lt-ink, #120500)' : '#ffffff';
                     const subCol = isLt ? '#78350f' : '#fde68a';
-                    const kpisHtml = cfg.kpis.map(k => `<div class="inner-box" style="background:${rBg}!important;border:1.5px solid ${bCol};border-right:5px solid ${k[2]}!important;border-radius:12px;padding:10px 12px;"><div style="font-size:12px;font-weight:800;color:${subCol};margin-bottom:3px;">${k[0]}</div><div style="font-size:15px;font-weight:900;color:${tCol};">${k[1]}</div></div>`).join('');
-                    const barsHtml = isVert
-                        ? `<div style="display:grid;grid-template-columns:repeat(${cfg.bars.length},minmax(0,1fr));gap:10px;align-items:end;min-height:250px;padding:16px 12px;background:${rBg};border:1.5px solid ${bCol};border-radius:14px;">` + cfg.bars.map(b => `<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:220px;gap:6px;"><span style="font-size:11px;font-weight:900;color:${subCol};text-align:center;">${b[4]}</span><div style="width:100%;max-width:46px;height:${Math.max(18, b[1]*1.5)}px;background:${b[3]};border-radius:10px 10px 4px 4px;box-shadow:0 4px 12px rgba(0,0,0,0.25);display:flex;align-items:flex-start;justify-content:center;padding-top:4px;"><span style="color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:11px;font-weight:900;">${b[1]}%</span></div><span style="font-size:12px;font-weight:900;color:${tCol};text-align:center;line-height:1.25;">${b[0]}</span></div>`).join('') + `</div>`
-                        : cfg.bars.map(b => `<div class="inner-box" style="background:${rBg}!important;border:1.5px solid ${bCol};border-radius:12px;padding:10px 14px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:15px;font-weight:900;"><span style="color:${tCol};">${b[0]}</span><div style="display:flex;align-items:center;gap:8px;"><strong style="color:${subCol};font-size:14px;font-weight:900;">${b[4]}</strong><span style="background:${b[3]};padding:2px 10px;border-radius:8px;color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;font-size:12.5px;font-weight:900;">${b[2]}</span></div></div><div style="width:100%;height:13px;background:${isLt ? '#cbd5e1' : '#1e293b'};border-radius:999px;overflow:hidden;"><div style="width:${b[1]}%;height:100%;background:${b[3]};border-radius:999px;"></div></div></div>`).join('');
-                    modal.innerHTML = `<div class="bento-card" style="background:${mBg}!important;border:2.5px solid ${bCol}!important;color:${tCol}!important;border-radius:18px;width:100%;max-width:880px;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,0.65);overflow:hidden;">
-                        <div style="padding:14px 18px;background:${hBg}!important;border-bottom:1.5px solid ${bCol};display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-                            <strong style="color:${tCol}!important;font-size:16px;font-weight:900;">${cfg.title}</strong>
-                            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                                ${section === 'items' ? `
-                                <button type="button" onclick="openChartCardModal('items', '${orient || 'horizontal'}', 'stock_need')" style="background:${sMode==='stock_need'?'#e11d48':'#334155'};color:#fff!important;-webkit-text-fill-color:#fff!important;border:none;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:900;cursor:pointer;">🚨 الحوجة للطلب</button>
-                                <button type="button" onclick="openChartCardModal('items', '${orient || 'horizontal'}', 'stock_most')" style="background:${sMode==='stock_most'?'#059669':'#334155'};color:#fff!important;-webkit-text-fill-color:#fff!important;border:none;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:900;cursor:pointer;">📦 الأكثر بالمخزن</button>
-                                <button type="button" onclick="openChartCardModal('items', '${orient || 'horizontal'}', 'stock_least')" style="background:${sMode==='stock_least'?'#0284c7':'#334155'};color:#fff!important;-webkit-text-fill-color:#fff!important;border:none;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:900;cursor:pointer;">📉 الأقل بالمخزن</button>
-                                <button type="button" onclick="openChartCardModal('items', '${orient || 'horizontal'}', 'sales_profit')" style="background:${sMode==='sales_profit'?'#d97706':'#334155'};color:#fff!important;-webkit-text-fill-color:#fff!important;border:none;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:900;cursor:pointer;">🏆 المبيعات والربح</button>
-                                ` : ''}
-                                <button type="button" onclick="openChartCardModal('${section}', '${isVert ? 'horizontal' : 'vertical'}', '${sMode}')" style="background:#0284c7;color:#fff!important;-webkit-text-fill-color:#fff!important;border:none;border-radius:8px;padding:5px 12px;font-weight:900;cursor:pointer;">⇄ ${isVert ? 'أعمدة أفقية' : 'أعمدة رأسية'}</button>
-                                <button type="button" onclick="document.getElementById('partner-items-modal').style.display='none'" style="background:#e11d48;color:#fff!important;-webkit-text-fill-color:#fff!important;border:none;border-radius:8px;padding:5px 14px;font-weight:900;cursor:pointer;">✕ إغلاق</button>
+                    const defaultSectionChart = { vaults: 'area', cashflow: 'area', sales_stock: 'waterfall', items: 'gauge', live_radar: 'depth', forecast: 'heatmap', partners: 'heatmap', debt: 'donut', audit: 'waterfall' };
+                    const chartType = orient || defaultSectionChart[section] || window._lastChartType || 'horizontal';
+                    window._lastChartType = chartType;
+                    const sparkPaths = ['M2,22 Q18,20 32,14 T64,10 T96,3', 'M2,20 Q22,12 40,16 T72,8 T96,4', 'M2,24 Q20,18 42,12 T70,9 T96,2', 'M2,18 Q24,22 46,11 T76,7 T96,4'];
+                    const kpisHtml = cfg.kpis.map((k, idx) => `<div class="inner-box" style="background:linear-gradient(145deg,#0b1329,#070c1a)!important;border:1.5px solid ${k[2]}66;border-right:5px solid ${k[2]}!important;border-radius:14px;padding:10px 13px;position:relative;overflow:hidden;"><div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;"><div><div style="font-size:11.5px;font-weight:800;color:#94a3b8;margin-bottom:3px;">${k[0]}</div><div style="font-size:15.5px;font-weight:900;color:#ffffff;">${k[1]}</div></div><svg width="68" height="26" viewBox="0 0 100 26" style="overflow:visible;flex-shrink:0;"><path d="${sparkPaths[idx % 4]}" fill="none" stroke="${k[2]}" stroke-width="2.8" stroke-linecap="round"/><circle cx="96" cy="3" r="3.5" fill="#fde047"/></svg></div></div>`).join('');
+                    const renderUnifiedChart = () => {
+                        const n = cfg.bars.length;
+                        if (chartType === 'sparkline') {
+                            return `<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:14px;background:${rBg};border:1.5px solid ${bCol};border-radius:14px;">` + cfg.bars.map((b, i) => `<div style="background:linear-gradient(145deg,#0b132b 0%,#060b18 100%);border:1.5px solid ${b[3]}88;border-radius:16px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 8px 20px rgba(0,0,0,0.45);"><div><div style="font-size:12.5px;font-weight:800;color:#94a3b8;margin-bottom:4px;">${b[0]}</div><div style="font-size:20px;font-weight:900;color:#ffffff;">${b[4]}</div><div style="font-size:11.5px;font-weight:900;color:${b[3]};margin-top:3px;">${b[2]} (${b[1]}%)</div></div><svg width="120" height="44" viewBox="0 0 120 44"><defs><linearGradient id="spkG${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${b[3]}" stop-opacity="0.45"/><stop offset="100%" stop-color="${b[3]}" stop-opacity="0.0"/></linearGradient></defs><path d="M4,38 Q30,${36 - Math.round(b[1]*0.2)} 58,${30 - Math.round(b[1]*0.18)} T116,${40 - Math.round(b[1]*0.34)} L116,42 L4,42 Z" fill="url(#spkG${i})"/><path d="M4,38 Q30,${36 - Math.round(b[1]*0.2)} 58,${30 - Math.round(b[1]*0.18)} T116,${40 - Math.round(b[1]*0.34)}" fill="none" stroke="${b[3]}" stroke-width="3.2" stroke-linecap="round"/><circle cx="116" cy="${40 - Math.round(b[1]*0.34)}" r="4.5" fill="#fde047" stroke="#fff" stroke-width="1.5"/></svg></div>`).join('') + `</div>`;
+                        }
+                        if (chartType === 'gauge') {
+                            return `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;padding:14px;background:${rBg};border:1.5px solid ${bCol};border-radius:14px;">` + cfg.bars.map(b => { const pct = Math.min(100, Math.max(5, Number(b[1]) || 50)); const dash = (pct * 1.88).toFixed(1); return `<div style="background:rgba(15,23,42,0.72);border:1.5px solid ${b[3]}77;border-radius:14px;padding:12px;display:flex;flex-direction:column;align-items:center;text-align:center;"><svg viewBox="0 0 160 95" style="width:155px;height:92px;overflow:visible;"><path d="M 20 80 A 60 60 0 0 1 140 80" fill="none" stroke="rgba(148,163,184,0.2)" stroke-width="14" stroke-linecap="round"/><path d="M 20 80 A 60 60 0 0 1 140 80" fill="none" stroke="${b[3]}" stroke-width="14" stroke-linecap="round" stroke-dasharray="${dash} 200"/><text x="80" y="66" fill="#ffffff" font-size="20" font-weight="900" text-anchor="middle">${pct}%</text><text x="80" y="84" fill="#fde047" font-size="10.5" font-weight="900" text-anchor="middle">${b[4]}</text></svg><div style="font-size:12.5px;font-weight:900;color:${tCol};margin-top:4px;">${b[0]}</div><span style="margin-top:4px;background:${b[3]};color:#fff!important;-webkit-text-fill-color:#fff!important;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:900;">${b[2]}</span></div>`; }).join('') + `</div>`;
+                        }
+                        if (chartType === 'depth') {
+                            return `<div style="padding:16px;background:${rBg};border:1.5px solid ${bCol};border-radius:14px;display:flex;flex-direction:column;gap:10px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:900;padding:0 8px;"><span style="color:#34d399;">🟢 كفة الطلب / التدفق الداخل والقوة الشرائية</span><span style="color:#fbbf24;">⚖️ نقطة التوازن وعمق السوق</span><span style="color:#fb7185;">🔴 كفة العرض / الالتزامات والمنصرف</span></div>` + cfg.bars.map(b => { const buyPct = Math.min(92, Math.max(15, Number(b[1]) || 60)); const sellPct = 100 - buyPct; return `<div style="background:rgba(15,23,42,0.65);border:1px solid rgba(56,189,248,0.28);border-radius:12px;padding:10px 12px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:13.5px;font-weight:900;"><span style="color:${tCol};">${b[0]}</span><span style="color:#fde047;">${b[4]} (${b[2]})</span></div><div style="display:flex;height:18px;border-radius:999px;overflow:hidden;border:1px solid rgba(255,255,255,0.2);"><div style="width:${buyPct}%;background:linear-gradient(90deg,#059669,#10b981);display:flex;align-items:center;justify-content:center;color:#fff;font-size:10.5px;font-weight:900;">${buyPct}% طلب/إيجابي</div><div style="width:${sellPct}%;background:linear-gradient(90deg,#e11d48,#f97316);display:flex;align-items:center;justify-content:center;color:#fff;font-size:10.5px;font-weight:900;">${sellPct}%</div></div></div>`; }).join('') + `</div>`;
+                        }
+                        if (chartType === 'heatmap') {
+                            return `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;padding:14px;background:${rBg};border:1.5px solid ${bCol};border-radius:14px;">` + cfg.bars.map(b => { const intensity = Math.max(0.28, (Number(b[1]) || 50) / 100); return `<div style="background:linear-gradient(135deg,${b[3]}${Math.round(intensity*210).toString(16).padStart(2,'0')},rgba(15,23,42,0.92));border:2px solid ${b[3]};border-radius:14px;padding:14px;display:flex;flex-direction:column;justify-content:space-between;gap:8px;box-shadow:0 6px 18px rgba(0,0,0,0.4);"><div style="display:flex;justify-content:space-between;align-items:center;"><span style="background:rgba(2,6,23,0.7);color:#fde047!important;-webkit-text-fill-color:#fde047!important;padding:2px 8px;border-radius:6px;font-size:11.5px;font-weight:900;">كثافة ${b[1]}%</span><span style="font-size:11.5px;font-weight:900;color:#fff;">${b[2]}</span></div><div style="font-size:14.5px;font-weight:900;color:#ffffff;line-height:1.3;">${b[0]}</div><div style="font-size:16px;font-weight:900;color:#fef08a;background:rgba(2,6,23,0.5);padding:4px 10px;border-radius:8px;align-self:flex-start;">${b[4]}</div></div>`; }).join('') + `</div>`;
+                        }
+                        if (chartType === 'vertical') {
+                            return `<div style="display:grid;grid-template-columns:repeat(${n},minmax(0,1fr));gap:10px;align-items:end;min-height:250px;padding:16px 12px;background:${rBg};border:1.5px solid ${bCol};border-radius:14px;">` + cfg.bars.map(b => `<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:220px;gap:6px;"><span style="font-size:11px;font-weight:900;color:${subCol};text-align:center;">${b[4]}</span><div style="width:100%;max-width:46px;height:${Math.max(18, b[1]*1.5)}px;background:${b[3]};border-radius:10px 10px 4px 4px;box-shadow:0 4px 12px rgba(0,0,0,0.25);display:flex;align-items:flex-start;justify-content:center;padding-top:4px;"><span style="color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:11px;font-weight:900;">${b[1]}%</span></div><span style="font-size:12px;font-weight:900;color:${tCol};text-align:center;line-height:1.25;">${b[0]}</span></div>`).join('') + `</div>`;
+                        }
+                        if (chartType === 'area' || chartType === 'line') {
+                            const w = 760, h = 230, padX = 55, padY = 28;
+                            const pts = cfg.bars.map((b, i) => [padX + (i * (w - padX * 2) / Math.max(1, n - 1)), h - padY - ((b[1] / 100) * (h - padY * 2)), b]);
+                            const linePath = pts.map((p, i) => (i === 0 ? `M ${p[0]},${p[1]}` : `L ${p[0]},${p[1]}`)).join(' ');
+                            const areaPath = `${linePath} L ${pts[pts.length - 1][0]},${h - padY} L ${pts[0][0]},${h - padY} Z`;
+                            return `<div style="padding:14px;background:${rBg};border:1.5px solid ${bCol};border-radius:14px;"><svg viewBox="0 0 ${w} ${h + 32}" style="width:100%;height:auto;overflow:visible;"><defs><linearGradient id="uAreaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#10b981" stop-opacity="0.68"/><stop offset="60%" stop-color="#0284c7" stop-opacity="0.32"/><stop offset="100%" stop-color="#0284c7" stop-opacity="0.03"/></linearGradient></defs>${[25, 50, 75, 100].map(v => { const y = h - padY - ((v / 100) * (h - padY * 2)); return `<line x1="${padX}" y1="${y}" x2="${w - padX}" y2="${y}" stroke="rgba(148,163,184,0.22)" stroke-dasharray="4,4"/><text x="${padX - 10}" y="${y + 4}" fill="${subCol}" font-size="11" font-weight="900" text-anchor="end">${v}%</text>`; }).join('')}${chartType === 'area' ? `<path d="${areaPath}" fill="url(#uAreaGrad)"/>` : ''}<path d="${linePath}" fill="none" stroke="#38bdf8" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>${pts.map(p => `<circle cx="${p[0]}" cy="${p[1]}" r="6.5" fill="${p[2][3]}" stroke="#fff" stroke-width="2.2"/><text x="${p[0]}" y="${p[1] - 12}" fill="${tCol}" font-size="11.5" font-weight="900" text-anchor="middle">${p[2][1]}% (${p[2][4]})</text><text x="${p[0]}" y="${h + 12}" fill="${subCol}" font-size="11" font-weight="900" text-anchor="middle">${p[2][0].slice(0, 18)}</text>`).join('')}</svg></div>`;
+                        }
+                        if (chartType === 'donut') {
+                            const tot = cfg.bars.reduce((s, b) => s + Number(b[1] || 10), 0) || 100;
+                            let acc = 0;
+                            const segs = cfg.bars.map(b => { const pct = (b[1] / tot) * 100; const s = `<circle cx="110" cy="110" r="74" fill="none" stroke="${b[3]}" stroke-width="32" stroke-dasharray="${(pct * 4.65).toFixed(1)} 465" stroke-dashoffset="-${(acc * 4.65).toFixed(1)}"/>`; acc += pct; return s; }).join('');
+                            return `<div style="display:grid;grid-template-columns:230px 1fr;gap:16px;align-items:center;padding:16px;background:${rBg};border:1.5px solid ${bCol};border-radius:14px;"><svg viewBox="0 0 220 220" style="width:210px;height:210px;transform:rotate(-90deg);margin:auto;">${segs}<circle cx="110" cy="110" r="52" fill="${isLt ? '#fff' : '#0f172a'}"/></svg><div style="display:flex;flex-direction:column;gap:8px;">${cfg.bars.map(b => `<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-radius:10px;background:rgba(15,23,42,0.45);border-right:5px solid ${b[3]};"><span style="font-weight:900;color:${tCol};font-size:13.5px;">${b[0]}</span><strong style="color:${subCol};font-size:13.5px;">${b[4]} (${b[1]}%)</strong></div>`).join('')}</div></div>`;
+                        }
+                        if (chartType === 'radar') {
+                            const cx = 150, cy = 135, rMax = 95;
+                            const polyPts = cfg.bars.map((b, i) => { const a = (Math.PI * 2 * i / n) - Math.PI / 2; const r = (b[1] / 100) * rMax; return `${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`; }).join(' ');
+                            const axes = cfg.bars.map((b, i) => { const a = (Math.PI * 2 * i / n) - Math.PI / 2; const x = cx + rMax * Math.cos(a), y = cy + rMax * Math.sin(a); const lx = cx + (rMax + 26) * Math.cos(a), ly = cy + (rMax + 18) * Math.sin(a); return `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="rgba(148,163,184,0.3)"/><text x="${lx}" y="${ly}" fill="${tCol}" font-size="10.5" font-weight="900" text-anchor="middle">${b[0].slice(0, 15)} (${b[1]}%)</text>`; }).join('');
+                            return `<div style="display:flex;justify-content:center;padding:16px;background:${rBg};border:1.5px solid ${bCol};border-radius:14px;"><svg viewBox="0 0 300 270" style="width:100%;max-width:440px;height:auto;">${[0.33, 0.66, 1].map(f => `<circle cx="${cx}" cy="${cy}" r="${rMax * f}" fill="none" stroke="rgba(56,189,248,0.22)" stroke-dasharray="3,3"/>`).join('')}${axes}<polygon points="${polyPts}" fill="rgba(16,185,129,0.35)" stroke="#38bdf8" stroke-width="3"/></svg></div>`;
+                        }
+                        if (chartType === 'waterfall') {
+                            let curBottom = 10;
+                            return `<div style="display:grid;grid-template-columns:repeat(${n},minmax(0,1fr));gap:10px;align-items:end;min-height:250px;padding:16px 12px;background:${rBg};border:1.5px solid ${bCol};border-radius:14px;">` + cfg.bars.map((b, i) => { const hBar = Math.max(22, Math.round(b[1] * 0.9)); const offset = i === 0 ? 0 : Math.min(110, curBottom); curBottom = (curBottom + 24) % 95; return `<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:225px;"><span style="font-size:11px;font-weight:900;color:${subCol};margin-bottom:4px;">${b[4]}</span><div style="width:100%;max-width:48px;height:${hBar}px;margin-bottom:${offset}px;background:linear-gradient(180deg,${b[3]},rgba(15,23,42,0.85));border:1.5px solid #fff;border-radius:8px;display:flex;align-items:center;justify-content:center;"><span style="color:#fff;font-size:11px;font-weight:900;">${b[1]}%</span></div><span style="font-size:11.5px;font-weight:900;color:${tCol};text-align:center;">${b[0].slice(0, 18)}</span></div>`; }).join('') + `</div>`;
+                        }
+                        return cfg.bars.map(b => `<div class="inner-box" style="background:${rBg}!important;border:1.5px solid ${bCol};border-radius:12px;padding:10px 14px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:15px;font-weight:900;"><span style="color:${tCol};">${b[0]}</span><div style="display:flex;align-items:center;gap:8px;"><strong style="color:${subCol};font-size:14px;font-weight:900;">${b[4]}</strong><span style="background:${b[3]};padding:2px 10px;border-radius:8px;color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;font-size:12.5px;font-weight:900;">${b[2]}</span></div></div><div style="width:100%;height:13px;background:${isLt ? '#cbd5e1' : '#1e293b'};border-radius:999px;overflow:hidden;"><div style="width:${b[1]}%;height:100%;background:${b[3]};border-radius:999px;"></div></div></div>`).join('');
+                    };
+                    const chartTypesBar = [
+                        ['sparkline', '⚡ 1. المؤشرات النبضية (Sparkline)'],
+                        ['area', '📈 2. المساحة الانسيابية (Area Flow)'],
+                        ['donut', '🍩 3. الدونات المجوفة (Donut)'],
+                        ['gauge', '🧭 4. العداد المقوس (Arc Gauge)'],
+                        ['depth', '⚖️ 5. ميزان العرض والطلب (Depth)'],
+                        ['waterfall', '🌊 6. الشلال المالي (Waterfall)'],
+                        ['heatmap', '🔥 7. الخريطة الحرارية (Heatmap)'],
+                        ['horizontal', '📊 الأعمدة المقارنة']
+                    ].map(ct => `<button type="button" onclick="openChartCardModal('${section}', '${ct[0]}', '${sMode}')" style="background:${chartType===ct[0]?'linear-gradient(135deg,#059669,#0284c7)':'#1e293b'};color:#fff!important;-webkit-text-fill-color:#fff!important;border:1.5px solid ${chartType===ct[0]?'#fde047':'#38bdf8'};border-radius:8px;padding:4px 9px;font-size:11.5px;font-weight:900;cursor:pointer;">${ct[1]}</button>`).join('');
+                    modal.innerHTML = `<div class="bento-card" style="background:${mBg}!important;border:2.5px solid ${bCol}!important;color:${tCol}!important;border-radius:18px;width:100%;max-width:920px;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,0.65);overflow:hidden;">
+                        <div style="padding:12px 16px;background:${hBg}!important;border-bottom:1.5px solid ${bCol};display:flex;flex-direction:column;gap:8px;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                                <strong style="color:${tCol}!important;font-size:16px;font-weight:900;">${cfg.title}</strong>
+                                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                                    ${section === 'items' ? `
+                                    <button type="button" onclick="openChartCardModal('items', '${chartType}', 'stock_need')" style="background:${sMode==='stock_need'?'#e11d48':'#334155'};color:#fff!important;-webkit-text-fill-color:#fff!important;border:none;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:900;cursor:pointer;">🚨 الحوجة للطلب</button>
+                                    <button type="button" onclick="openChartCardModal('items', '${chartType}', 'stock_most')" style="background:${sMode==='stock_most'?'#059669':'#334155'};color:#fff!important;-webkit-text-fill-color:#fff!important;border:none;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:900;cursor:pointer;">📦 الأكثر بالمخزن</button>
+                                    <button type="button" onclick="openChartCardModal('items', '${chartType}', 'stock_least')" style="background:${sMode==='stock_least'?'#0284c7':'#334155'};color:#fff!important;-webkit-text-fill-color:#fff!important;border:none;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:900;cursor:pointer;">📉 الأقل بالمخزن</button>
+                                    <button type="button" onclick="openChartCardModal('items', '${chartType}', 'sales_profit')" style="background:${sMode==='sales_profit'?'#d97706':'#334155'};color:#fff!important;-webkit-text-fill-color:#fff!important;border:none;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:900;cursor:pointer;">🏆 المبيعات والربح</button>
+                                    ` : ''}
+                                    <button type="button" onclick="document.getElementById('partner-items-modal').style.display='none'" style="background:#e11d48;color:#fff!important;-webkit-text-fill-color:#fff!important;border:none;border-radius:8px;padding:5px 14px;font-weight:900;cursor:pointer;">✕ إغلاق</button>
+                                </div>
                             </div>
+                            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">${chartTypesBar}</div>
                         </div>
                         <div style="padding:16px 18px;overflow-y:auto;display:flex;flex-direction:column;gap:14px;">
                             <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;">${kpisHtml}</div>
                             <div style="display:flex;flex-direction:column;gap:8px;">
-                                <strong style="color:${isLt ? '#1e3a8a' : '#38bdf8'};font-size:14px;font-weight:900;">📊 الأعمدة والمؤشرات التفصيلية (${isVert ? 'عرض رأسي' : 'عرض أفقي'}):</strong>
-                                ${barsHtml}
+                                ${renderUnifiedChart()}
                             </div>
                         </div>
                     </div>`;
@@ -4762,10 +5616,11 @@ function switchToMobileEdition() {
             document.querySelectorAll('#qa-bar-container .qa-ribbon-btn').forEach(btn => {
                 const txt = btn.querySelector('.btn-text');
                 if (!txt) return;
-                let size = 15.5;
+                const isAiAdvisor = (txt.textContent || '').includes('مستشار AI');
+                let size = isAiAdvisor ? 15.5 : 17.5;
                 txt.style.setProperty('font-size', size + 'px', 'important');
-                const maxW = btn.clientWidth - (btn.id === 'screens-dropdown-btn' ? 32 : 16);
-                while (txt.scrollWidth > maxW && size > 10.5) {
+                const maxW = btn.clientWidth - (btn.id === 'screens-dropdown-btn' ? 28 : 12);
+                while (txt.scrollWidth > maxW && size > 11) {
                     size -= 0.5;
                     txt.style.setProperty('font-size', size + 'px', 'important');
                 }
@@ -5355,7 +6210,7 @@ function switchToMobileEdition() {
         #new-unified-dashboard-design {
             display: flex !important;
             flex-direction: column !important;
-            gap: 16px !important;
+            gap: 24px !important;
             width: 100% !important;
             padding-bottom: 28px !important;
             direction: rtl !important;
@@ -5363,11 +6218,12 @@ function switchToMobileEdition() {
 
         /* 12-Column Responsive Bento Sections */
         #new-unified-dashboard-design #sec-calm,
+        #new-unified-dashboard-design #sec-global-ai-innovations,
         #new-unified-dashboard-design #sec-flow,
         #new-unified-dashboard-design #sec-ops-audit {
             display: grid;
             grid-template-columns: repeat(12, minmax(0, 1fr));
-            gap: 16px;
+            gap: 24px !important;
             width: 100%;
             align-items: stretch;
         }
@@ -5462,8 +6318,10 @@ function switchToMobileEdition() {
         #new-unified-dashboard-design .space-y-4 > * + * { margin-top: 14px; }
 
         /* Typography & Alignment */
+        #new-unified-dashboard-design .bento-card h2 { font-size: 18px !important; line-height: 1.25 !important; margin: 0 !important; white-space: nowrap !important; font-weight: 900 !important; }
         #new-unified-dashboard-design .text-\[10px\] { font-size: 0.72rem; line-height: 1.35; }
         #new-unified-dashboard-design .text-\[11px\] { font-size: 0.76rem; line-height: 1.4; }
+        #new-unified-dashboard-design .text-\[13\.5px\] { font-size: 17.5px !important; line-height: 1.25 !important; }
         #new-unified-dashboard-design .text-xs { font-size: 0.82rem; line-height: 1.45; }
         #new-unified-dashboard-design .text-sm { font-size: 0.92rem; line-height: 1.5; }
         #new-unified-dashboard-design .text-base { font-size: 1.02rem; line-height: 1.5; }
@@ -5547,14 +6405,14 @@ function switchToMobileEdition() {
             transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
         #new-unified-dashboard-design .radar-glow-btn:hover,
-        #new-unified-dashboard-design button[onclick*="openFullCardModal"]:hover,
+        #new-unified-dashboard-design button[onclick*="openFullCardModal"]:not(.exec-jewel-btn):hover,
         #new-unified-dashboard-design button[onclick*="openChartCardModal"]:hover {
             transform: translateY(-2.5px) scale(1.03) !important;
             border-color: #38bdf8 !important;
             border-bottom-color: #0ea5e9 !important;
             box-shadow: 0 10px 22px -3px rgba(2, 132, 199, 0.65), 0 0 18px rgba(56, 189, 248, 0.6), inset 0 1.5px 2px rgba(255, 255, 255, 0.45) !important;
         }
-        #new-unified-dashboard-design button[onclick*="openFullCardModal"] {
+        #new-unified-dashboard-design button[onclick*="openFullCardModal"]:not(.exec-jewel-btn) {
             background: linear-gradient(180deg, #047857 0%, #064e3b 100%) !important;
             color: #ffffff !important;
             -webkit-text-fill-color: #ffffff !important;
@@ -5586,10 +6444,13 @@ function switchToMobileEdition() {
             color: #ffffff !important;
             -webkit-text-fill-color: #ffffff !important;
         }
-        #dash-top-items-list > div > span:first-child { font-family: 'Cairo', 'Tajawal', sans-serif !important; font-size: 12.5px !important; font-weight: 900 !important; line-height: 1.35 !important; color: #ffffff !important; }
-        #dash-partners-radar-list > div .font-black.text-white, #dash-debt-aging-box > div .font-black.text-white { font-family: 'Cairo', 'Tajawal', sans-serif !important; font-size: 14px !important; font-weight: 900 !important; line-height: 1.35 !important; margin-bottom: 2px !important; color: #ffffff !important; }
-        #dash-top-items-list > div small, #partner-items-modal small { font-family: 'Cairo', 'Tajawal', sans-serif !important; color: #fde68a !important; font-weight: 800 !important; font-size: 11.5px !important; margin-right: 3px !important; }
-        #dash-partners-radar-list > div span.text-xs, #dash-debt-aging-box > div span.text-xs { font-size: 12.5px !important; font-weight: 800 !important; color: #fde68a !important; font-family: 'Cairo', 'Tajawal', sans-serif !important; line-height: 1.3 !important; }
+        #dash-top-items-list, #dash-forecast-list { gap: 7px !important; justify-content: stretch !important; }
+        #dash-top-items-list > div, #dash-forecast-list > div { flex: 1 1 0% !important; padding: 10px 14px !important; display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 10px !important; }
+        #dash-top-items-list > div > span:first-child, #dash-forecast-list > div > span:first-child { font-family: 'Cairo', 'Tajawal', sans-serif !important; font-size: 16.5px !important; font-weight: 900 !important; line-height: 1.35 !important; color: #ffffff !important; flex: 1 1 auto !important; min-width: 0 !important; white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
+        #dash-forecast-list > div > strong { font-size: 16px !important; font-weight: 900 !important; }
+        #dash-partners-radar-list > div .font-black.text-white, #dash-debt-aging-box > div .font-black.text-white { font-family: 'Cairo', 'Tajawal', sans-serif !important; font-size: 16px !important; font-weight: 900 !important; line-height: 1.35 !important; margin-bottom: 3px !important; color: #ffffff !important; }
+        #dash-top-items-list > div small, #partner-items-modal small { font-family: 'Cairo', 'Tajawal', sans-serif !important; color: #fde68a !important; font-weight: 800 !important; font-size: 13.5px !important; margin-right: 4px !important; }
+        #dash-partners-radar-list > div span.text-xs, #dash-debt-aging-box > div span.text-xs, #dash-partners-radar-list > div span.text-xs b, #dash-debt-aging-box > div span.text-xs b { font-size: 12.5px !important; font-weight: 500 !important; color: #fde68a !important; font-family: 'Cairo', 'Tajawal', sans-serif !important; line-height: 1.38 !important; }
         #new-unified-dashboard-design .wa-svg-btn, #partner-items-modal .wa-svg-btn { width: 32px !important; height: 30px !important; border-radius: 8px !important; background: linear-gradient(180deg, #25D366 0%, #128C7E 100%) !important; border: 1.5px solid #86efac !important; border-bottom: 3px solid #065f46 !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; box-shadow: 0 3px 8px rgba(37, 211, 102, 0.35) !important; transition: transform 0.16s ease, box-shadow 0.16s ease !important; flex-shrink: 0 !important; }
         #new-unified-dashboard-design .wa-svg-btn:hover, #partner-items-modal .wa-svg-btn:hover { transform: translateY(-2px) !important; box-shadow: 0 6px 14px rgba(37, 211, 102, 0.65) !important; }
         #new-unified-dashboard-design .bg-indigo-950 { background-color: #1e1b4b !important; color: #ffffff !important; }
@@ -5682,16 +6543,48 @@ function switchToMobileEdition() {
         html #new-unified-dashboard-design .dash-cmd-slate, html.light-theme #new-unified-dashboard-design .dash-cmd-slate { background: linear-gradient(180deg, #1e293b 0%, #090d16 100%) !important; border-color: #f59e0b !important; border-bottom: 3px solid #d97706 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
         html #new-unified-dashboard-design .dash-cmd-dark-select, html.light-theme #new-unified-dashboard-design .dash-cmd-dark-select { background: linear-gradient(180deg, #0f172a 0%, #020617 100%) !important; border-color: #10b981 !important; border-bottom: 3px solid #059669 !important; color: #ffffff !important; }
         html #new-unified-dashboard-design #hdr-item-price-switcher, html.light-theme #new-unified-dashboard-design #hdr-item-price-switcher { height: 28px !important; width: auto !important; min-width: 150px !important; padding: 0 4px !important; border: none !important; background: transparent !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; font-size: 0.8rem !important; font-weight: 900 !important; outline: none !important; box-shadow: none !important; }
-        #new-unified-dashboard-design #sec-calm > .bento-card:nth-child(1) { border: 1.5px solid rgba(16,185,129,0.42) !important; border-top: 3px solid #10b981 !important; box-shadow: 0 16px 40px -8px rgba(0,0,0,0.65), 0 0 26px rgba(16,185,129,0.18), inset 0 0 18px rgba(16,185,129,0.08) !important; }
-        #new-unified-dashboard-design #sec-calm > .bento-card:nth-child(1):hover { border-color: #10b981 !important; box-shadow: 0 20px 48px -6px rgba(0,0,0,0.75), 0 0 38px rgba(16,185,129,0.48), 0 0 14px rgba(16,185,129,0.35), inset 0 0 24px rgba(16,185,129,0.18) !important; }
-        #new-unified-dashboard-design #sec-calm > .bento-card:nth-child(2) { border: 1.5px solid rgba(56,189,248,0.4) !important; border-top: 3px solid #38bdf8 !important; box-shadow: 0 16px 40px -8px rgba(0,0,0,0.65), 0 0 26px rgba(56,189,248,0.18), inset 0 0 18px rgba(56,189,248,0.08) !important; }
-        #new-unified-dashboard-design #sec-calm > .bento-card:nth-child(2):hover { border-color: #38bdf8 !important; box-shadow: 0 20px 48px -6px rgba(0,0,0,0.75), 0 0 38px rgba(56,189,248,0.48), inset 0 0 24px rgba(56,189,248,0.16) !important; }
-        #new-unified-dashboard-design #sec-calm > .bento-card:nth-child(3) { border: 1.5px solid rgba(245,158,11,0.4) !important; border-top: 3px solid #f59e0b !important; box-shadow: 0 16px 40px -8px rgba(0,0,0,0.65), 0 0 26px rgba(245,158,11,0.18), inset 0 0 18px rgba(245,158,11,0.08) !important; }
-        #new-unified-dashboard-design #sec-calm > .bento-card:nth-child(3):hover { border-color: #f59e0b !important; box-shadow: 0 20px 48px -6px rgba(0,0,0,0.75), 0 0 38px rgba(245,158,11,0.48), inset 0 0 24px rgba(245,158,11,0.16) !important; }
-        #new-unified-dashboard-design .bento-card:hover {
-            transform: translateY(-3px);
-            border-color: rgba(56, 189, 248, 0.75) !important;
-            box-shadow: 0 20px 44px -6px rgba(0, 0, 0, 0.72), 0 0 32px rgba(56, 189, 248, 0.35), 0 0 12px rgba(16, 185, 129, 0.24), inset 0 0 20px rgba(56, 189, 248, 0.14) !important;
+        #new-unified-dashboard-design #sec-calm > .bento-card:nth-child(1) {
+            background: linear-gradient(155deg, rgba(4, 47, 46, 0.96) 0%, rgba(6, 28, 28, 0.98) 100%) !important;
+            border: 2.5px solid #10b981 !important;
+            box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.72), 0 0 22px rgba(16, 185, 129, 0.28), inset 0 1.5px 0 rgba(255, 255, 255, 0.25) !important;
+        }
+        #new-unified-dashboard-design #sec-calm > .bento-card:nth-child(2) {
+            background: linear-gradient(155deg, rgba(12, 26, 54, 0.96) 0%, rgba(7, 15, 34, 0.98) 100%) !important;
+            border: 2.5px solid #38bdf8 !important;
+            box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.72), 0 0 22px rgba(56, 189, 248, 0.28), inset 0 1.5px 0 rgba(255, 255, 255, 0.25) !important;
+        }
+        #new-unified-dashboard-design #dash-center-chart-card,
+        #new-unified-dashboard-design #sec-global-ai-innovations > .bento-card:nth-child(2) {
+            background: linear-gradient(155deg, #431407 0%, #2a1205 52%, #1c0a02 100%) !important;
+            border: 2.5px solid #f97316 !important;
+            box-shadow: 0 18px 44px rgba(0, 0, 0, 0.78), 0 0 28px rgba(249, 115, 22, 0.36), inset 0 1.5px 2px rgba(254, 215, 170, 0.35) !important;
+        }
+        #new-unified-dashboard-design #sec-flow > .bento-card:nth-child(2) {
+            background: linear-gradient(155deg, rgba(46, 16, 38, 0.95) 0%, rgba(24, 9, 24, 0.98) 100%) !important;
+            border: 2.5px solid #f43f5e !important;
+            box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.72), 0 0 22px rgba(244, 63, 94, 0.25), inset 0 1.5px 0 rgba(255, 255, 255, 0.22) !important;
+        }
+        #new-unified-dashboard-design #sec-ops-audit > .bento-card:nth-child(1) {
+            background: linear-gradient(155deg, rgba(6, 52, 45, 0.96) 0%, rgba(4, 26, 24, 0.98) 100%) !important;
+            border: 2.5px solid #10b981 !important;
+            box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.72), 0 0 22px rgba(16, 185, 129, 0.28), inset 0 1.5px 0 rgba(255, 255, 255, 0.25) !important;
+        }
+        #new-unified-dashboard-design #sec-ops-audit > .bento-card:nth-child(3) {
+            background: linear-gradient(155deg, rgba(38, 16, 62, 0.96) 0%, rgba(19, 8, 36, 0.98) 100%) !important;
+            border: 2.5px solid #a855f7 !important;
+            box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.72), 0 0 22px rgba(168, 85, 247, 0.28), inset 0 1.5px 0 rgba(255, 255, 255, 0.25) !important;
+        }
+        #new-unified-dashboard-design .bento-card {
+            transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.25s ease, box-shadow 0.25s ease, filter 0.25s ease !important;
+        }
+        #new-unified-dashboard-design .bento-card:hover,
+        #new-unified-dashboard-design #sec-calm > .bento-card:nth-child(1):hover,
+        #new-unified-dashboard-design #sec-calm > .bento-card:nth-child(2):hover,
+        #new-unified-dashboard-design #sec-calm > .bento-card:nth-child(3):hover {
+            transform: translateY(-5px) scale(1.012) !important;
+            border-color: #fde047 !important;
+            filter: brightness(1.12) saturate(1.15) !important;
+            box-shadow: 0 22px 48px -6px rgba(0, 0, 0, 0.8), 0 0 38px rgba(56, 189, 248, 0.65), 0 0 18px rgba(253, 224, 71, 0.45), inset 0 0 24px rgba(56, 189, 248, 0.22) !important;
         }
         #new-unified-dashboard-design .inner-box {
             background: var(--card-inner, linear-gradient(145deg, rgba(5, 10, 21, 0.88) 0%, rgba(11, 19, 37, 0.92) 100%)) !important;
@@ -5802,38 +6695,78 @@ function switchToMobileEdition() {
             justify-content: center !important;
         }
 
-        /* 3. LIGHT SYSTEM THEMES ADAPTATION (Ivory, Bronze, Platinum, Silver, etc.) */
+        /* 3. LIGHT SYSTEM THEMES ADAPTATION — FULL 8 LIGHT TONES (--lt-*) + ALTERNATING DIAMOND CARD TINTS & ULTRA-DARK INK */
         html.light-theme body,
         html.light-theme .dash-main {
-            background: linear-gradient(180deg, var(--lt-canvas-1, #dfd0b4) 0%, var(--lt-canvas-2, #d2be9a) 100%) !important;
+            background: var(--lt-canvas, linear-gradient(180deg, #f3ead8 0%, #eadbc0 100%)) !important;
             color: var(--lt-ink, #120500) !important;
+        }
+        #new-unified-dashboard-design .bento-card {
+            border: 2.5px solid #38bdf8 !important;
+            box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.72), 0 0 18px rgba(56, 189, 248, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.22) !important;
         }
         html.light-theme #new-unified-dashboard-design .top-bar,
-        html.light-theme #new-unified-dashboard-design .bento-card {
-            background: linear-gradient(145deg, var(--lt-card-1, #fffdf8) 0%, var(--lt-card-2, #f7efe0) 100%) !important;
+        html.light-theme #new-unified-dashboard-design .bento-card:not(#dash-today-harvest-strip):not(#dash-center-chart-card) {
+            background: linear-gradient(145deg, var(--lt-card-1, #fffdf8) 0%, var(--lt-card-2, #f5ead6) 100%) !important;
             border: 2.5px solid var(--lt-border, #5c2808) !important;
-            box-shadow: 0 8px 22px rgba(45, 20, 5, 0.14), inset 0 1.5px 0 rgba(255, 255, 255, 0.8) !important;
+            box-shadow: 0 12px 28px rgba(45, 20, 5, 0.14), inset 0 2px 0 #ffffff !important;
             color: var(--lt-ink, #120500) !important;
         }
-        html.light-theme #new-unified-dashboard-design .inner-box {
-            background: linear-gradient(145deg, var(--lt-sub-1, #fffefb) 0%, var(--lt-sub-2, #f6ecda) 100%) !important;
-            border: 1.5px solid var(--lt-border, #5c2808) !important;
+        html.light-theme #new-unified-dashboard-design #sec-calm > .bento-card:nth-child(1) {
+            background: linear-gradient(145deg, #ecfdf5 0%, #d1fae5 65%, var(--lt-card-2, #bbf7d0) 100%) !important;
+            border: 3px solid #059669 !important;
+            box-shadow: 0 12px 28px rgba(5, 150, 105, 0.22), inset 0 2px 0 #ffffff !important;
+        }
+        html.light-theme #new-unified-dashboard-design #dash-center-chart-card,
+        html.light-theme #new-unified-dashboard-design #sec-global-ai-innovations > .bento-card:nth-child(2) {
+            background: linear-gradient(145deg, #fff7ed 0%, #ffedd5 55%, #fed7aa 100%) !important;
+            border: 3px solid #ea580c !important;
+            box-shadow: 0 14px 32px rgba(234, 88, 12, 0.26), inset 0 2px 0 #ffffff !important;
+        }
+        html.light-theme #new-unified-dashboard-design #sec-flow > .bento-card:nth-child(2) {
+            background: linear-gradient(145deg, #fff1f2 0%, #ffe4e6 65%, var(--lt-card-2, #fecdd3) 100%) !important;
+            border: 3px solid #e11d48 !important;
+            box-shadow: 0 12px 28px rgba(225, 29, 72, 0.2), inset 0 2px 0 #ffffff !important;
+        }
+        html.light-theme #new-unified-dashboard-design #sec-ops-audit > .bento-card:nth-child(1) {
+            background: linear-gradient(145deg, #f0fdf4 0%, #dcfce7 65%, var(--lt-card-2, #bbf7d0) 100%) !important;
+            border: 3px solid #0d9488 !important;
+            box-shadow: 0 12px 28px rgba(13, 148, 136, 0.2), inset 0 2px 0 #ffffff !important;
+        }
+        html.light-theme #new-unified-dashboard-design #sec-ops-audit > .bento-card:nth-child(3) {
+            background: linear-gradient(145deg, #faf5ff 0%, #f3e8ff 65%, var(--lt-card-2, #e9d5ff) 100%) !important;
+            border: 3px solid #7e22ce !important;
+            box-shadow: 0 12px 28px rgba(126, 34, 206, 0.2), inset 0 2px 0 #ffffff !important;
+        }
+        html.light-theme #dash-center-chart-card #dash-center-chart-title {
+            color: #9a3412 !important;
+            -webkit-text-fill-color: #9a3412 !important;
+        }
+        html.light-theme #new-unified-dashboard-design .inner-box:not(.exec-jewel-btn) {
+            background: linear-gradient(145deg, #ffffff 0%, var(--lt-sub-2, #f6ecda) 100%) !important;
+            border: 2px solid var(--lt-border, #5c2808) !important;
             color: var(--lt-ink, #120500) !important;
+        }
+        html.light-theme #exec-sticky-command-bar,
+        html.light-theme #exec-sticky-command-bar.is-pinned-fixed {
+            background: linear-gradient(135deg, #78350f 0%, #b45309 28%, #d97706 50%, #b45309 72%, #78350f 100%) !important;
+            border: 2.5px solid #fde047 !important;
+            box-shadow: 0 14px 34px rgba(120, 53, 15, 0.45), 0 0 24px rgba(251, 191, 36, 0.42), inset 0 1.5px 3px rgba(254, 240, 138, 0.55) !important;
         }
         html.light-theme #new-unified-dashboard-design #curtain-drawer {
-            background: linear-gradient(160deg, var(--lt-card-1, #fffdf8) 0%, var(--lt-card-2, #f7efe0) 100%) !important;
-            border-right: 3px solid var(--lt-border, #5c2808) !important;
-            color: var(--lt-ink, #120500) !important;
+            background: linear-gradient(160deg, #ffffff 0%, #eff6ff 100%) !important;
+            border-right: 3px solid #0369a1 !important;
+            color: #000000 !important;
         }
         html.light-theme #new-unified-dashboard-design .tab-btn:not(.active) {
-            background: var(--lt-sub-1, #fffefb) !important;
-            color: var(--lt-ink, #120500) !important;
-            -webkit-text-fill-color: var(--lt-ink, #120500) !important;
-            border: 1.5px solid var(--lt-border, #5c2808) !important;
-            font-weight: 800 !important;
+            background: #ffffff !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
+            border: 2px solid #0284c7 !important;
+            font-weight: 900 !important;
         }
         html.light-theme #new-unified-dashboard-design .tab-btn.active {
-            background: var(--lt-border, #5c2808) !important;
+            background: #0369a1 !important;
             color: #ffffff !important;
             -webkit-text-fill-color: #ffffff !important;
         }
@@ -5866,22 +6799,35 @@ function switchToMobileEdition() {
         html.light-theme #new-unified-dashboard-design *:not(button).text-slate-200,
         html.light-theme #new-unified-dashboard-design *:not(button).text-slate-300,
         html.light-theme #new-unified-dashboard-design *:not(button).text-slate-400 {
-            color: var(--lt-ink, #120500) !important;
+            color: #000000 !important;
+            -webkit-text-fill-color: #000000 !important;
         }
-        html.light-theme #new-unified-dashboard-design .text-emerald-200,
-        html.light-theme #new-unified-dashboard-design .text-emerald-300,
-        html.light-theme #new-unified-dashboard-design .text-emerald-400 { color: #065f46 !important; -webkit-text-fill-color: #065f46 !important; }
-        html.light-theme #new-unified-dashboard-design .text-sky-300,
-        html.light-theme #new-unified-dashboard-design .text-sky-400,
-        html.light-theme #new-unified-dashboard-design #sub-bank { color: #1e3a8a !important; -webkit-text-fill-color: #1e3a8a !important; }
-        html.light-theme #new-unified-dashboard-design .text-amber-200,
-        html.light-theme #new-unified-dashboard-design .text-amber-300,
-        html.light-theme #new-unified-dashboard-design .text-amber-400 { color: #92400e !important; -webkit-text-fill-color: #92400e !important; }
-        html.light-theme #new-unified-dashboard-design .text-rose-200,
-        html.light-theme #new-unified-dashboard-design .text-rose-300,
-        html.light-theme #new-unified-dashboard-design .text-rose-400 { color: #9f1239 !important; -webkit-text-fill-color: #9f1239 !important; }
-        html.light-theme #new-unified-dashboard-design .text-teal-300,
-        html.light-theme #new-unified-dashboard-design .text-teal-400 { color: #115e59 !important; -webkit-text-fill-color: #115e59 !important; }
+        html.light-theme #new-unified-dashboard-design .text-emerald-200:not(.exec-jewel-val),
+        html.light-theme #new-unified-dashboard-design .text-emerald-300:not(.exec-jewel-val),
+        html.light-theme #new-unified-dashboard-design .text-emerald-400:not(.exec-jewel-val),
+        html.light-theme #new-unified-dashboard-design #main-liquidity-sub { color: #022c22 !important; -webkit-text-fill-color: #022c22 !important; font-weight: 900 !important; }
+        html.light-theme #new-unified-dashboard-design .text-sky-300:not(.exec-jewel-val),
+        html.light-theme #new-unified-dashboard-design .text-sky-400:not(.exec-jewel-val),
+        html.light-theme #new-unified-dashboard-design #sub-bank { color: #0c4a6e !important; -webkit-text-fill-color: #0c4a6e !important; font-weight: 900 !important; }
+        html.light-theme #new-unified-dashboard-design .text-amber-200:not(.exec-jewel-val),
+        html.light-theme #new-unified-dashboard-design .text-amber-300:not(.exec-jewel-val),
+        html.light-theme #new-unified-dashboard-design .text-amber-400:not(.exec-jewel-val),
+        html.light-theme #new-unified-dashboard-design .text-yellow-300:not(.exec-jewel-val),
+        html.light-theme #new-unified-dashboard-design .text-yellow-400:not(.exec-jewel-val),
+        html.light-theme #new-unified-dashboard-design [style*="#fde68a"]:not(button):not(.exec-jewel-val),
+        html.light-theme #new-unified-dashboard-design [style*="#fef08a"]:not(button):not(.exec-jewel-val),
+        html.light-theme #new-unified-dashboard-design [style*="#fcd34d"]:not(button):not(.exec-jewel-val),
+        html.light-theme #new-unified-dashboard-design [style*="#fbbf24"]:not(button):not(.exec-jewel-val),
+        html.light-theme #new-unified-dashboard-design [style*="#fde047"]:not(button):not(#hdr-usd):not(.exec-jewel-val):not(#dash-center-chart-title) { color: #713f12 !important; -webkit-text-fill-color: #713f12 !important; font-weight: 900 !important; }
+        html.light-theme #dash-liq-period-btn,
+        html.light-theme #dash-items-group-toggle { background: #0f172a !important; color: #fde047 !important; -webkit-text-fill-color: #fde047 !important; border: 1.5px solid #5c2808 !important; }
+        html.light-theme #new-unified-dashboard-design .text-rose-200:not(.exec-jewel-val),
+        html.light-theme #new-unified-dashboard-design .text-rose-300:not(.exec-jewel-val),
+        html.light-theme #new-unified-dashboard-design .text-rose-400:not(.exec-jewel-val) { color: #881337 !important; -webkit-text-fill-color: #881337 !important; font-weight: 900 !important; }
+        html.light-theme #new-unified-dashboard-design .text-teal-300:not(.exec-jewel-val),
+        html.light-theme #new-unified-dashboard-design .text-teal-400:not(.exec-jewel-val),
+        html.light-theme #new-unified-dashboard-design .text-purple-300:not(.exec-jewel-val),
+        html.light-theme #new-unified-dashboard-design .text-purple-400:not(.exec-jewel-val) { color: #1e1b4b !important; -webkit-text-fill-color: #1e1b4b !important; font-weight: 900 !important; }
         html.light-theme #dash-top-items-list > div small,
         html.light-theme #dash-partners-radar-list > div span.text-xs,
         html.light-theme #dash-debt-aging-box > div span.text-xs {
@@ -5977,8 +6923,8 @@ function switchToMobileEdition() {
             -webkit-text-fill-color: #0f172a !important;
             font-weight: 900 !important;
         }
-        html #qa-bar-container #qa-customizer-btn-label { color: #38bdf8 !important; -webkit-text-fill-color: #38bdf8 !important; }
-        html.light-theme #qa-bar-container #qa-customizer-btn-label { color: #0284c7 !important; -webkit-text-fill-color: #0284c7 !important; }
+        html #qa-bar-container #qa-customizer-btn-label { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+        html.light-theme #qa-bar-container #qa-customizer-btn-label { color: #0f172a !important; -webkit-text-fill-color: #0f172a !important; }
         /* Wide, Low-Height & Theme-Reactive AI Hub Menu (#ai-hub-menu) */
         html #ai-hub-menu {
             width: 680px !important;

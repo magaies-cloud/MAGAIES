@@ -647,12 +647,12 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
             </div>
 
             <!-- كبسولة التاريخ والوقت -->
-            <div class="clock-container enterprise-time-pill" style="height:29px !important; padding:0 8px !important; border-radius:8px !important; gap:4px !important; width:auto !important; background:linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.99)) !important; border:1.5px solid rgba(251, 191, 36, 0.65) !important; box-shadow:inset 0 1px 2px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4) !important;">
+            <div class="clock-container enterprise-time-pill" style="height:29px !important; padding:0 8px !important; border-radius:8px !important; gap:4px !important; width:auto !important; background:linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.99)); border:1.5px solid rgba(251, 191, 36, 0.65); box-shadow:inset 0 1px 2px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4);">
                 <span style="font-size:11px;">📅</span>
-                <span id="header-date-mini" style="font-size:11px !important; font-weight:900 !important; color:#fef08a !important; letter-spacing:0.3px !important;"><script>(function(){var _d=new Date();var _dd=String(_d.getDate()).padStart(2,'0');var _mm=String(_d.getMonth()+1).padStart(2,'0');var _yy=_d.getFullYear();document.write(_dd+'/'+_mm+'/'+_yy);})()</script></span>
+                <span id="header-date-mini" style="font-size:11px !important; font-weight:900 !important; color:#fef08a; letter-spacing:0.3px !important;"><script>(function(){var _d=new Date();var _dd=String(_d.getDate()).padStart(2,'0');var _mm=String(_d.getMonth()+1).padStart(2,'0');var _yy=_d.getFullYear();document.write(_dd+'/'+_mm+'/'+_yy);})()</script></span>
                 <span class="time-pill-divider" style="font-size:10.5px; color:rgba(251, 191, 36, 0.5);">|</span>
                 <span style="font-size:11px;">🕒</span>
-                <span id="header-clock" style="font-size:11.5px !important; font-weight:900 !important; color:#34d399 !important; letter-spacing:0.6px !important;"><script>var _n=new Date();document.write(_n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}))</script></span>
+                <span id="header-clock" style="font-size:11.5px !important; font-weight:900 !important; color:#34d399; letter-spacing:0.6px !important;"><script>var _n=new Date();document.write(_n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}))</script></span>
             </div>
         </div>
     </div>
@@ -822,38 +822,38 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
                 </button>
             </div>
 
-            <!-- العمود الأيسر (يسارها): السمات وتحتها الرجوع -->
+            <!-- العمود الأيسر (يسارها): السمات (13 لوناً) وتحتها الرجوع بالتسلسل -->
             <div class="quad-matrix-col quad-col-left">
-                <button id="magaiees-master-themes-btn" type="button" class="magaiees-stack-btn stack-btn-themes magaiees-theme-btn-top" onclick="openMaster7ThemesModal()" title="السمات السبعة المعتمدة والموحدة (7 سمات رئيسية)">
+                <button id="magaiees-master-themes-btn" type="button" class="magaiees-stack-btn stack-btn-themes magaiees-theme-btn-top" onclick="if(typeof window.openUniversalErpTonePopover==='function'){window.openUniversalErpTonePopover(this);}else{openMaster7ThemesModal();}" title="🎨 السمات ونغمات النظام المعتمدة والموحدة (13 لوناً + 4 نغمات)">
                     <span class="theme-icon-art" style="font-size: 0.9rem;">🎨</span>
                     <span class="theme-btn-text">السمات</span>
-                    <span class="theme-count-badge">7</span>
+                    <span class="theme-count-badge">13</span>
                 </button>
 
-                <button id="magaiees-master-back-btn" class="magaiees-stack-btn stack-btn-back magaiees-back-btn" onclick="magaieesGoBack()" title="الرجوع للخلف (الشاشة السابقة)">
+                <button id="magaiees-master-back-btn" class="magaiees-stack-btn stack-btn-back magaiees-back-btn" onclick="if(typeof window.magaiesGoBackStepLIFO==='function'){window.magaiesGoBackStepLIFO();}else{magaieesGoBack();}" title="الرجوع للخلف خطوة واحدة مع حفظ الحالة (LIFO)">
                     <svg class="back-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px;">
                         <line x1="19" y1="12" x2="5" y2="12"></line>
                         <polyline points="12 19 19 12 12 5"></polyline>
                     </svg>
-                    <span class="back-btn-text">الرجوع للخلف</span>
+                    <span class="back-btn-text">رجوع</span>
                 </button>
             </div>
         </div>
         <?php else: ?>
         <div id="magaiees-dashboard-header-stack" class="header-quad-matrix header-duo-matrix">
             <div class="quad-matrix-col quad-col-left">
-                <button id="magaiees-master-themes-btn" type="button" class="magaiees-stack-btn stack-btn-themes magaiees-theme-btn-top" onclick="openMaster7ThemesModal()" title="السمات السبعة المعتمدة والموحدة (7 سمات رئيسية)">
+                <button id="magaiees-master-themes-btn" type="button" class="magaiees-stack-btn stack-btn-themes magaiees-theme-btn-top" onclick="if(typeof window.openUniversalErpTonePopover==='function'){window.openUniversalErpTonePopover(this);}else{openMaster7ThemesModal();}" title="🎨 السمات ونغمات النظام المعتمدة والموحدة (13 لوناً + 4 نغمات)">
                     <span class="theme-icon-art" style="font-size: 0.9rem;">🎨</span>
                     <span class="theme-btn-text">السمات</span>
-                    <span class="theme-count-badge">7</span>
+                    <span class="theme-count-badge">13</span>
                 </button>
 
-                <button id="magaiees-master-back-btn" class="magaiees-stack-btn stack-btn-back magaiees-back-btn" onclick="magaieesGoBack()" title="الرجوع للخلف (الشاشة السابقة)">
+                <button id="magaiees-master-back-btn" class="magaiees-stack-btn stack-btn-back magaiees-back-btn" onclick="if(typeof window.magaiesGoBackStepLIFO==='function'){window.magaiesGoBackStepLIFO();}else{magaieesGoBack();}" title="الرجوع للخلف خطوة واحدة مع حفظ الحالة (LIFO)">
                     <svg class="back-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px;">
                         <line x1="19" y1="12" x2="5" y2="12"></line>
                         <polyline points="12 19 19 12 12 5"></polyline>
                     </svg>
-                    <span class="back-btn-text">الرجوع للخلف</span>
+                    <span class="back-btn-text">رجوع</span>
                 </button>
             </div>
         </div>
@@ -891,8 +891,8 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
     </div>
 </header>
 
-<!-- 🌟 الشريط السفلي الموحد لمعلومات النظام والأدمن والمتصلين وبروتوكول الواتساب (مخفف وراقي في أسفل أسفل الشاشة) -->
-<footer id="magaiees-bottom-protocol-bar" class="no-print" style="position:fixed; bottom:0; left:0; right:0; height:24px; background:linear-gradient(90deg, rgba(2, 6, 23, 0.95) 0%, rgba(15, 23, 42, 0.97) 50%, rgba(2, 6, 23, 0.95) 100%); border-top:1px solid rgba(255,255,255,0.08); z-index:99999; display:flex; align-items:center; justify-content:space-between; padding:0 14px; font-family:'Tajawal', sans-serif; font-size:11px; color:#94a3b8; direction:rtl; user-select:none; backdrop-filter:blur(8px); box-sizing:border-box;">
+<!-- 🌟 الشريط السفلي الموحد لمعلومات النظام والأدمن والمتصلين وبروتوكول الواتساب (ثابت داخل الشاشة وليس عائماً فوق الأشرطة) -->
+<footer id="magaiees-bottom-protocol-bar" class="no-print" style="position:relative; width:100%; height:26px; margin-top:12px; border-radius:8px; background:linear-gradient(90deg, rgba(2, 6, 23, 0.92) 0%, rgba(15, 23, 42, 0.95) 50%, rgba(2, 6, 23, 0.92) 100%); border:1px solid rgba(255,255,255,0.08); z-index:1; display:flex; align-items:center; justify-content:space-between; padding:0 14px; font-family:'Tajawal', sans-serif; font-size:11px; color:#94a3b8; direction:rtl; user-select:none; box-sizing:border-box;">
     <!-- اليمين: معلومات الأدمن والمستخدم -->
     <div style="display:flex; align-items:center; gap:8px;">
         <span onclick="var p=document.getElementById('profile-modal'); if(p) p.style.display='flex';" style="cursor:pointer; display:inline-flex; align-items:center; gap:5px; color:#e2e8f0; font-weight:800;" title="الملف الشخصي وصلاحيات الحساب">
@@ -918,9 +918,13 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
         <span style="color:#38bdf8; font-weight:800;">💬 بروتوكول واتساب المالي الذكي (WhatsApp Suite v2026)</span>
     </div>
 </footer>
-<style>
-body { padding-bottom: 26px !important; }
-</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var f = document.getElementById('magaiees-bottom-protocol-bar');
+    var m = document.querySelector('.dash-main') || document.querySelector('main') || document.body;
+    if (f && m) m.appendChild(f);
+});
+</script>
 
 <!-- 🌟 زر عائم ذكي لإظهار الترويسة العلوية في أي وقت لجميع الشاشات -->
 <div id="auto-scroll-header-pill" class="auto-scroll-return-pill" onclick="if(window.AutoHeaderScroll) window.AutoHeaderScroll.scrollToHeader()" title="الرجوع إلى أعلى الصفحة وإظهار الترويسة">
@@ -2038,21 +2042,34 @@ html[data-theme] .magical-glass-header .header-screen-title {
     -webkit-text-fill-color: var(--text-primary) !important;
     text-shadow: none !important;
 }
-html[data-theme] .header-flagship-identity-suite #header-company-name-top {
+html:not(.light-theme)[data-theme] .header-flagship-identity-suite #header-company-name-top {
     color: #ffffff !important;
     -webkit-text-fill-color: #ffffff !important;
 }
-html[data-theme] .header-flagship-identity-suite #header-clock {
+html:not(.light-theme)[data-theme] .header-flagship-identity-suite #header-clock {
     color: #34d399 !important;
     -webkit-text-fill-color: #34d399 !important;
 }
-html[data-theme] .header-flagship-identity-suite #header-date-mini {
+html:not(.light-theme)[data-theme] .header-flagship-identity-suite #header-date-mini {
     color: #fef08a !important;
     -webkit-text-fill-color: #fef08a !important;
 }
-html[data-theme] .header-flagship-identity-suite #header-user-name {
+html:not(.light-theme)[data-theme] .header-flagship-identity-suite #header-user-name {
     color: #ffffff !important;
     -webkit-text-fill-color: #ffffff !important;
+}
+html.light-theme .header-flagship-identity-suite #header-date-mini,
+html.light-theme #header-date-mini,
+html.light-theme .clock-date {
+    color: #120500 !important;
+    -webkit-text-fill-color: #120500 !important;
+    font-weight: 900 !important;
+}
+html.light-theme .header-flagship-identity-suite #header-clock,
+html.light-theme #header-clock {
+    color: #065f46 !important;
+    -webkit-text-fill-color: #065f46 !important;
+    font-weight: 900 !important;
 }
 html.light-theme .magical-glass-header .magical-icon-btn {
     background: var(--bg-secondary) !important;
@@ -2395,6 +2412,37 @@ html.light-theme #hdr-customer-search {
 html.light-theme .m7-solid-badge-guard {
     color: #ffffff !important;
     -webkit-text-fill-color: #ffffff !important;
+}
+html.light-theme .text-amber-100:not(.exec-jewel-val),
+html.light-theme .text-amber-200:not(.exec-jewel-val),
+html.light-theme .text-amber-300:not(.exec-jewel-val),
+html.light-theme .text-amber-400:not(.exec-jewel-val),
+html.light-theme .text-yellow-200:not(.exec-jewel-val),
+html.light-theme .text-yellow-300:not(.exec-jewel-val),
+html.light-theme .text-yellow-400:not(.exec-jewel-val),
+html.light-theme [style*="color:#fbbf24"]:not(button):not(.exec-jewel-val),
+html.light-theme [style*="color: #fbbf24"]:not(button):not(.exec-jewel-val),
+html.light-theme [style*="color:#fcd34d"]:not(button):not(.exec-jewel-val),
+html.light-theme [style*="color: #fcd34d"]:not(button):not(.exec-jewel-val),
+html.light-theme [style*="color:#fde68a"]:not(button):not(.exec-jewel-val),
+html.light-theme [style*="color: #fde68a"]:not(button):not(.exec-jewel-val),
+html.light-theme [style*="color:#fef08a"]:not(button):not(.exec-jewel-val):not(.quran-seamless-segment),
+html.light-theme [style*="color: #fef08a"]:not(button):not(.exec-jewel-val):not(.quran-seamless-segment),
+html.light-theme [style*="color:#fde047"]:not(button):not(#hdr-usd):not(.exec-jewel-val):not(.brk-pill-hdr-off):not(.brk-off-txt-1) {
+    color: #78350f !important;
+    -webkit-text-fill-color: #78350f !important;
+    font-weight: 900 !important;
+}
+html.light-theme input[type="date"],
+html.light-theme input[type="date"]::-webkit-datetime-edit,
+html.light-theme input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+html.light-theme input[type="date"]::-webkit-datetime-edit-text,
+html.light-theme input[type="date"]::-webkit-datetime-edit-month-field,
+html.light-theme input[type="date"]::-webkit-datetime-edit-day-field,
+html.light-theme input[type="date"]::-webkit-datetime-edit-year-field {
+    color: var(--lt-ink, #120500) !important;
+    -webkit-text-fill-color: var(--lt-ink, #120500) !important;
+    font-weight: 900 !important;
 }
 </style>
 
@@ -2744,9 +2792,11 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
                         'body { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin-inline: auto !important; padding-inline: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: flex-start !important; }\n' +
                         'html.has-sidebar body:not(.no-sidebar), body.has-sidebar:not(.no-sidebar) { margin-right: var(--sb-collapsed, 62px) !important; margin-left: 0 !important; width: calc(100% - var(--sb-collapsed, 62px)) !important; max-width: calc(100% - var(--sb-collapsed, 62px)) !important; }\n' +
                         'html.has-sidebar body.sidebar-open:not(.no-sidebar), body.has-sidebar.sidebar-open:not(.no-sidebar) { margin-right: var(--sb-expanded, 240px) !important; margin-left: 0 !important; width: calc(100% - var(--sb-expanded, 240px)) !important; max-width: calc(100% - var(--sb-expanded, 240px)) !important; }\n' +
-                        '#sales-proportional-root, #grn-proportional-root, #md-proportional-root, .dash-main, main.md-content-area, #purchase-editor-view, #sl-main-wrapper, .main-container, .page-container { box-sizing: border-box !important; width: calc(100% - 24px) !important; max-width: calc(100% - 24px) !important; min-width: 0 !important; margin-inline: auto !important; margin-left: auto !important; margin-right: auto !important; transform-origin: top center !important; }\n' +
+                        '#pur-proportional-root, #sales-proportional-root, #grn-proportional-root, #md-proportional-root, .dash-main, main.md-content-area, #purchase-editor-view, #purchase-hub-view, #sl-main-wrapper, .main-container, .page-container { box-sizing: border-box !important; width: calc(100% - 24px) !important; max-width: calc(100% - 24px) !important; min-width: 0 !important; margin-inline: auto !important; margin-left: auto !important; margin-right: auto !important; transform-origin: top center !important; }\n' +
+                        '#purchase-editor-view, #purchase-hub-view { width: 100% !important; max-width: 100% !important; }\n' +
                         'body:not([data-zoomed-high="1"]) { overflow-x: hidden !important; }\n' +
-                        'body[data-zoomed-high="1"] { overflow-x: auto !important; overflow-y: auto !important; }\n';
+                        'body[data-zoomed-high="1"] { overflow-x: auto !important; overflow-y: auto !important; }\n' +
+                        '@media screen and (max-height: 500px) and (orientation: landscape) { body.landscape-clean-100dvh header.premium-header { display: none !important; height: 0 !important; } body.landscape-clean-100dvh .dash-main { min-height: 100dvh !important; padding-top: 2px !important; } }\n';
                     document.head.appendChild(sovStyle);
                 }
 
@@ -2791,7 +2841,7 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
                         return;
                     }
 
-                    var mainEl = document.querySelector('#sales-proportional-root') || document.querySelector('#grn-proportional-root') || document.querySelector('#md-proportional-root') || document.querySelector('.dash-main') || document.querySelector('#purchase-editor-view') || document.querySelector('#sl-main-wrapper') || document.querySelector('main');
+                    var mainEl = document.querySelector('#pur-proportional-root') || document.querySelector('#sales-proportional-root') || document.querySelector('#grn-proportional-root') || document.querySelector('#md-proportional-root') || document.querySelector('.dash-main') || document.querySelector('#purchase-editor-view') || document.querySelector('#sl-main-wrapper') || document.querySelector('main');
                     if (mainEl) {
                         mainEl.style.boxSizing = 'border-box';
                         mainEl.style.transformOrigin = 'top center';
@@ -2809,6 +2859,20 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
                             mainEl.style.maxWidth = 'calc(100% - 24px)';
                             mainEl.style.margin = '0 auto';
                         }
+                    }
+                    if (!skipSave && document.body) {
+                        var zb = document.getElementById('magaies-telescopic-zoom-hud');
+                        if (!zb) {
+                            zb = document.createElement('button');
+                            zb.id = 'magaies-telescopic-zoom-hud';
+                            zb.type = 'button';
+                            zb.title = 'انقر لإعادة مقاس الشاشة الطبيعي (100% = 1x)';
+                            zb.style.cssText = 'position:fixed;bottom:18px;right:82px;z-index:2147483000;padding:6px 14px;border-radius:999px;background:linear-gradient(135deg,#0f172a,#1e293b);color:#fde047;border:2px solid #38bdf8;font-family:Tajawal,Cairo,sans-serif;font-size:0.86rem;font-weight:900;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,0.65);transition:opacity 0.25s;';
+                            zb.onclick = function() { window.applyGlobalSovereignMasterScale(1.0, false); zb.style.display = 'none'; };
+                            document.body.appendChild(zb);
+                        }
+                        zb.textContent = '🔍 التكبير التلسكوبي: ' + Math.round(val * 100) + '% (' + val.toFixed(2) + 'x) ↺';
+                        zb.style.display = Math.abs(val - 1) < 0.01 ? 'none' : 'inline-flex';
                     }
                 };
 
@@ -2856,4 +2920,6 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
     });
 })();
 </script>
+<script src="js/global-professor-ai-chat.js?v=2027.105" defer></script>
+
 

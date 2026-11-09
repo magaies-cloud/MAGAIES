@@ -493,21 +493,81 @@ class WhatsAppClient {
                                 this.messageCache.delete(oldestKey);
                             }
 
+                            // Auto-ingest customer receipt image if incoming from client (or sent by owner in self-chat)
+                            const unwrapped = unwrapWAMessage(msg);
+                            const jid = msg.key.remoteJid || '';
+                            const isGroupOrBroadcast = jid.endsWith('@g.us') || jid === 'status@broadcast';
+
+                            // ── Instant Market Broker Ticker Handler (Runs on ALL sessions including 0123005622 / default-saas-admin) ──
+                            if (unwrapped && jid && !isGroupOrBroadcast) {
+                                const rawBrokerTxt = (
+                                    unwrapped.conversation ||
+                                    unwrapped.extendedTextMessage?.text ||
+                                    unwrapped.imageMessage?.caption ||
+                                    ''
+                                ).trim();
+                                const isBotReplyTxt = (
+                                    rawBrokerTxt.includes('━━━━') ||
+                                    rawBrokerTxt.includes('منظومة مقاييس') ||
+                                    rawBrokerTxt.includes('تم نشر عرض الأسعار') ||
+                                    rawBrokerTxt.includes('تم نشر طلب الشراء') ||
+                                    rawBrokerTxt.includes('بورصة عروض الأسعار') ||
+                                    /^[✅🏦📥⚠️🔔📊💰🔐🛡️🔒⏳⛔📋📄🏛️🛒🤝]/.test(rawBrokerTxt)
+                                );
+                                if (rawBrokerTxt && rawBrokerTxt.length <= 500 && !isBotReplyTxt) {
+                                    const normBrokerTxt = rawBrokerTxt.replace(/[٠-٩۰-۹]/g, d => {
+                                        const code = d.charCodeAt(0);
+                                        if (code >= 0x0660 && code <= 0x0669) return String(code - 0x0660);
+                                        if (code >= 0x06F0 && code <= 0x06F9) return String(code - 0x06F0);
+                                        return d;
+                                    }).trim();
+                                    const isBrokerMatch = (
+                                        /^(?:ع|اسعار|أسعار|عروض|الاسعار|الأسعار|ط|طلبات|طلبيات|الطلبات|(?:عرض|عروض|طلب|مطلوب|دلالة|سمسار|بورصة|للبيع)[\s:：\-]*\S.*|(?:تواصل|شراء|توريد|صفقة|صفقه|كود)\s*#?\d{2,5})$/is.test(normBrokerTxt) ||
+                                        (/(?:عرض|عروض|مطلوب|طلب\s*شراء|دلالة|سمسار|بورصة|للبيع)/i.test(normBrokerTxt) && normBrokerTxt.length >= 4)
+                                    );
+                                    if (isBrokerMatch) {
+                                        const bMsgId = msg.key?.id || '';
+                                        if (!bMsgId || !this.processedWaMsgIds.has(bMsgId)) {
+                                            if (bMsgId) this.processedWaMsgIds.add(bMsgId);
+                                            const senderNum = (jid.includes('@lid') ? (this.lidToPhoneMap.get(jid) || this.lidToPhoneMap.get(jid.split('@')[0]) || '') : jid.split('@')[0]).replace(/:.*$/, '') || '249123005622';
+                                            const brokerPayload = JSON.stringify({ text: normBrokerTxt, pushName: msg.pushName || 'تاجر بالسوق', phone: senderNum });
+                                            const hasLocalBroker = fs.existsSync('C:/xampp/htdocs/ELSAJANA2/magaies/api/market_broker_ticker.php');
+                                            const primaryBrokerUrl = hasLocalBroker
+                                                ? 'http://127.0.0.1/ELSAJANA2/magaies/api/market_broker_ticker.php?action=add'
+                                                : 'https://c.elsajana.com/api/market_broker_ticker.php?action=add';
+                                            if (hasLocalBroker) {
+                                                fetch('https://c.elsajana.com/api/market_broker_ticker.php?action=add', {
+                                                    method: 'POST',
+                                                    headers: { 'Content-Type': 'application/json' },
+                                                    body: brokerPayload
+                                                }).catch(() => {});
+                                            }
+                                            fetch(primaryBrokerUrl, {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: brokerPayload
+                                            }).then(r => r.json()).then(d => {
+                                                if (d && d.reply) sock.sendMessage(jid, { text: d.reply }, { quoted: msg }).catch(() => {});
+                                                if (d && d.owner_phone && d.owner_notify) {
+                                                    const ownerJid = d.owner_phone.replace(/[^0-9]/g, '') + '@s.whatsapp.net';
+                                                    sock.sendMessage(ownerJid, { text: d.owner_notify }).catch(() => {});
+                                                }
+                                            }).catch(() => {});
+                                            continue;
+                                        }
+                                    }
+                                }
+                            }
+
                             // SaaS Admin WhatsApp (default-saas-admin) is strictly for outbound OTPs & SaaS broadcasts — never run company receipt/statement bots on it
                             if (!this.isTenantSession || !this.tenantId) {
                                 continue;
                             }
-
-                            // Auto-ingest customer receipt image if incoming from client (or sent by owner in self-chat)
-                            const unwrapped = unwrapWAMessage(msg);
                             const isImg = unwrapped && (
                                 unwrapped.imageMessage || 
                                 (unwrapped.documentMessage?.mimetype && unwrapped.documentMessage.mimetype.startsWith('image/')) ||
                                 (unwrapped.documentMessage?.fileName && /\.(jpg|jpeg|png|webp)$/i.test(unwrapped.documentMessage.fileName))
                             );
-
-                            const jid = msg.key.remoteJid || '';
-                            const isGroupOrBroadcast = jid.endsWith('@g.us') || jid === 'status@broadcast';
                             const imgCaption = unwrapped?.imageMessage?.caption || unwrapped?.documentMessage?.caption || '';
                             const isBotOwnVoucherImg = Boolean(
                                 (msg.key?.id && this.processedWaMsgIds.has(msg.key.id)) ||
@@ -568,11 +628,15 @@ class WhatsAppClient {
                                 );
                                 const hasPinInquiryKw = /^[\s#:\-_.,/()؟?]*(?:الرقم\s*السري|رقم\s*سري|الرمز\s*السري|رمز\s*سري|السري|سري|الباسورد|باسورد|الباسوورد|باسوورد|الباص|باص|الرقم|رقم|الرمز|رمز|رمزي|نسيت\s*الباسورد|نسيت\s*الرقم\s*السري|كم\s*الباسورد|كم\s*الرقم\s*السري|طلب\s*الباسورد|طلب\s*الرقم\s*السري|ما\s*هو\s*الرقم\s*السري|ما\s*هو\s*الباسورد|عايز\s*الباسورد|اريد\s*الباسورد|password|pin|pass)[\s#:\-_.,/()؟?]*$/i.test(normalizedText);
                                 const isPinOrCodeFormat = /^(?:#|كود|الكود|باسورد|الباسورد|باسوورد|الرمز\s*السري|الرمز|رمز|حساب|الرقم\s*السري|رقم\s*سري|سري|السري|الرقم|رقم|باص|رمزي|pin|code|pass|\s)*\d[\d\s\-]{0,9}(?:#|كود|الكود|باسورد|الباسورد|سري|السري|الرقم\s*السري|الرقم|رقم|pin|code|pass|\s)*$/i.test(normalizedText);
-                                const allowFromMeQuery = msg.key.fromMe && !isBotOwnReply && textMsg.length <= 60 && (
-                                    hasStmtOrBalanceKw || hasPinInquiryKw || isPinOrCodeFormat
+                                const isMarketBrokerFast = (
+                                    /^(?:ع|اسعار|أسعار|عروض|الاسعار|الأسعار|ط|طلبات|طلبيات|الطلبات|(?:عرض|عروض|طلب|مطلوب|دلالة|سمسار|بورصة|للبيع)[\s:：\-]*\S.*|(?:تواصل|شراء|توريد|صفقة|صفقه|كود)\s*#?\d{2,5})$/is.test(normalizedText) ||
+                                    (/(?:عرض|عروض|مطلوب|طلب\s*شراء|دلالة|سمسار|بورصة|للبيع|سيخ|اسمنت|أسمنت|لينية|لينيه|طن|سعر|أسعار|اسعار|كيلو|كرتونة|جوال|طن)/i.test(normalizedText) && /\d+/.test(normalizedText))
+                                );
+                                const allowFromMeQuery = msg.key.fromMe && !isBotOwnReply && textMsg.length <= 400 && (
+                                    hasStmtOrBalanceKw || hasPinInquiryKw || isPinOrCodeFormat || isMarketBrokerFast
                                 );
 
-                                if (textMsg && textMsg.length <= 120 && (!msg.key.fromMe || allowFromMeQuery)) {
+                                if (textMsg && textMsg.length <= 400 && (!msg.key.fromMe || allowFromMeQuery)) {
                                     const msgId = msg.key?.id || '';
                                     if (msgId && this.processedWaMsgIds.has(msgId)) {
                                         continue;
@@ -583,6 +647,34 @@ class WhatsAppClient {
                                             const first = this.processedWaMsgIds.values().next().value;
                                             this.processedWaMsgIds.delete(first);
                                         }
+                                    }
+
+                                    const isMarketBrokerCmd = isMarketBrokerFast;
+                                    if (isMarketBrokerCmd && !hasStmtOrBalanceKw && !hasPinInquiryKw) {
+                                        const brokerPayload = JSON.stringify({ text: normalizedText, pushName: msg.pushName || 'تاجر بالسوق', phone: jid.split('@')[0] });
+                                        const hasLocalBroker = fs.existsSync('C:/xampp/htdocs/ELSAJANA2/magaies/api/market_broker_ticker.php');
+                                        const primaryBrokerUrl = hasLocalBroker
+                                            ? 'http://127.0.0.1/ELSAJANA2/magaies/api/market_broker_ticker.php?action=add'
+                                            : 'https://c.elsajana.com/api/market_broker_ticker.php?action=add';
+                                        if (hasLocalBroker) {
+                                            fetch('https://c.elsajana.com/api/market_broker_ticker.php?action=add', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: brokerPayload
+                                            }).catch(() => {});
+                                        }
+                                        fetch(primaryBrokerUrl, {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: brokerPayload
+                                        }).then(r => r.json()).then(d => {
+                                            if (d && d.reply) sock.sendMessage(jid, { text: d.reply }, { quoted: msg }).catch(() => {});
+                                            if (d && d.owner_phone && d.owner_notify) {
+                                                const ownerJid = d.owner_phone.replace(/[^0-9]/g, '') + '@s.whatsapp.net';
+                                                sock.sendMessage(ownerJid, { text: d.owner_notify }).catch(() => {});
+                                            }
+                                        }).catch(() => {});
+                                        continue;
                                     }
 
                                     // Extract pure digits or prefixed routing password (e.g. "532", "#532", "باسورد 532", "كود 532", "حساب 532")

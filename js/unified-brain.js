@@ -39,6 +39,39 @@ const UnifiedBrain = {
                 <button class="ai-hub-close-btn" onclick="UnifiedBrain.closeMenu()">&times;</button>
             </div>
             
+            <!-- Option 0: Smart Professor Guide & 14-Pillar Inspector (مرتبط بالكامل بالمرشد الذكي) -->
+            <div class="ai-hub-item ai-hub-item-guide" onclick="UnifiedBrain.closeMenu(); if(typeof window.openSmartGuide === 'function') window.openSmartGuide();">
+                <div class="ai-hub-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #ffffff; box-shadow: 0 6px 20px rgba(245, 158, 11, 0.6);">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                        <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                    </svg>
+                </div>
+                <div class="ai-hub-text">
+                    <h4>
+                        المرشد البروفيسوري الذكي (14 ركناً)
+                        <span class="ai-hub-badge-mini" style="background: rgba(245, 158, 11, 0.25); color: #fde047; border: 1px solid rgba(245, 158, 11, 0.5);">🎓 شرح الشاشة</span>
+                    </h4>
+                    <p>شرح الشاشة والأزرار والأرقام والمخاطر والمحاسن والأثر المحاسبي والتسجيل 4K</p>
+                </div>
+            </div>
+
+            <!-- Option 0B: Pick Any Element / Number Inspector -->
+            <div class="ai-hub-item ai-hub-item-pick" onclick="UnifiedBrain.closeMenu(); if(typeof window.startSmartPickElementMode === 'function') window.startSmartPickElementMode();">
+                <div class="ai-hub-icon" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%); color: #ffffff; box-shadow: 0 6px 20px rgba(236, 72, 153, 0.6);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="1" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="23"/>
+                    </svg>
+                </div>
+                <div class="ai-hub-text">
+                    <h4>
+                        اشرح أي زر أو خانة أو رقم أضغط عليه
+                        <span class="ai-hub-badge-mini" style="background: rgba(236, 72, 153, 0.25); color: #fbcfe8; border: 1px solid rgba(236, 72, 153, 0.5);">👆 فحص فوري</span>
+                    </h4>
+                    <p>اضغط على أي عنصر أو رقم في الشاشة ليحلله البروفيسور صوتياً ومرئياً</p>
+                </div>
+            </div>
+
             <!-- Option 1: Unified Smart Brain -->
             <div class="ai-hub-item ai-hub-item-brain" onclick="UnifiedBrain.openBrainFromMenu()">
                 <div class="ai-hub-icon" style="background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%); color: #ffffff; box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);">

@@ -960,7 +960,7 @@ body.has-sidebar > *:not(.global-sidebar) {
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border-left: 1px solid var(--sb-border);
-    z-index: 9999;
+    z-index: 100050 !important;
     display: flex;
     flex-direction: column;
     box-shadow: -4px 0 30px rgba(0,0,0,0.7);

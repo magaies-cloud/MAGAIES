@@ -1,8 +1,8 @@
 <?php $f = file_get_contents('js/mainbalances-report.js'); $new = <<<'EOF'
-        const isDefaultGroup = idx < 4 || (p.name && p.name.includes('ÇÝÊÑÇÖí'));
+        const isDefaultGroup = idx < 4 || (p.name && p.name.includes('ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½'));
         if (isDefaultGroup) {
             btn.innerHTML = p.name + (p.isLocked ? ' ??' : ' ??');
-            btn.title = 'ÇÖÛØ áÚÑÖ ÇáÊÞÑíÑ. ÇÖÛØ ãØæáÇð áÝß ÇáÞÝá Ãæ ááÍÝÙ.';
+            btn.title = 'ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½. ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½.';
 
             let pressTimer;
             let isLongPress = false;
@@ -13,15 +13,15 @@
                 pressTimer = setTimeout(() => {
                     isLongPress = true;
                     if (p.isLocked) {
-                        const unlockConfirm = confirm(åá ÊÑíÏ Ýß ÇáÞÝá Úä  áÊÚÏíá ÇáÌÏÇæá¿);
+                        const unlockConfirm = confirm(ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½);
                         if (unlockConfirm) {
                             p.isLocked = false;
                             localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
                             window.renderBalancesPresets();
-                            if (typeof showToast === 'function') showToast('Êã Ýß ÇáÞÝá! íãßäß ÇáÂä ÇáÊÚÏíá.', 'info');
+                            if (typeof showToast === 'function') showToast('ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½! ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.', 'info');
                         }
                     } else {
-                        const finalConfirm = confirm(åá ÃäÊ ãÊÃßÏ Ãäß ÊÑíÏ ÍÝÙ ÇáÊÕãíã ÇáÍÇáí ßÇÝÊÑÇÖí æÅÚÇÏÉ ÞÝáå¿);
+                        const finalConfirm = confirm(ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½);
                         if (finalConfirm) {
                             p.isLocked = true;
                             p.updatedAt = new Date().toISOString();
@@ -34,7 +34,7 @@
                                 headers: headers,
                                 body: JSON.stringify({ reportKey: PRESETS_STORAGE_KEY, layout: presets })
                             }).catch(e => {});
-                            if (typeof showToast === 'function') showToast(Êã ÍÝÙ  ÈäÌÇÍ!, 'success');
+                            if (typeof showToast === 'function') showToast(ï¿½ï¿½ ï¿½ï¿½ï¿½  ï¿½ï¿½ï¿½ï¿½ï¿½!, 'success');
                             window.renderBalancesPresets();
                         }
                     }
