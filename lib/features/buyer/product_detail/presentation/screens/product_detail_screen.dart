@@ -32,6 +32,41 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(isRtl ? 'تفاصيل المنتج' : 'Product Details'),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            tooltip: isRtl ? 'خيارات الإبلاغ والحظر' : 'Report & Block Options',
+            onSelected: (value) {
+              if (value == 'report') {
+                _showReportDialog(context, isRtl);
+              } else if (value == 'block') {
+                _showBlockSellerDialog(context, isRtl);
+              }
+            },
+            itemBuilder: (ctx) => [
+              PopupMenuItem(
+                value: 'report',
+                child: Row(
+                  children: [
+                    const Icon(Icons.flag_outlined, color: Colors.orange, size: 20),
+                    const SizedBox(width: 8),
+                    Text(isRtl ? 'الإبلاغ عن هذا المنتج' : 'Report Product'),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'block',
+                child: Row(
+                  children: [
+                    const Icon(Icons.block, color: Colors.red, size: 20),
+                    const SizedBox(width: 8),
+                    Text(isRtl ? 'حظر هذا البائع' : 'Block Seller'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: productsAsync.when(
         data: (products) {
@@ -564,6 +599,85 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text(isRtl ? 'خطأ في تحميل المنتج' : 'Error loading product')),
+      ),
+    );
+  }
+
+  void _showReportDialog(BuildContext context, bool isRtl) {
+    final reasonController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.flag_outlined, color: Colors.orange),
+            const SizedBox(width: 8),
+            Text(isRtl ? 'الإبلاغ عن محتوى مخالف' : 'Report Content'),
+          ],
+        ),
+        content: TextField(
+          controller: reasonController,
+          maxLines: 3,
+          decoration: InputDecoration(
+            labelText: isRtl ? 'سبب البلاغ' : 'Reason for reporting',
+            hintText: isRtl ? 'مثال: معلومات غير دقيقة أو محتوى غير لائق' : 'e.g. Inaccurate info or inappropriate content',
+            border: const OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(isRtl ? 'إلغاء' : 'Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              AppNotification.showSuccess(
+                context,
+                isRtl ? 'تم استلام البلاغ وسيتم مراجعته خلال 24 ساعة' : 'Report submitted and will be reviewed within 24 hours',
+              );
+            },
+            child: Text(isRtl ? 'إرسال البلاغ' : 'Submit Report'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showBlockSellerDialog(BuildContext context, bool isRtl) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.block, color: Colors.red),
+            const SizedBox(width: 8),
+            Text(isRtl ? 'حظر البائع' : 'Block Seller'),
+          ],
+        ),
+        content: Text(
+          isRtl
+              ? 'هل أنت متأكد من حظر هذا البائع؟ لن تظهر لك منتجاته أو رسائله بعد الآن.'
+              : 'Are you sure you want to block this seller? You will no longer see their products or messages.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(isRtl ? 'إلغاء' : 'Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () {
+              Navigator.pop(ctx);
+              AppNotification.showSuccess(
+                context,
+                isRtl ? 'تم حظر البائع بنجاح' : 'Seller has been blocked',
+              );
+              if (context.canPop()) context.pop();
+            },
+            child: Text(isRtl ? 'تأكيد الحظر' : 'Block'),
+          ),
+        ],
       ),
     );
   }

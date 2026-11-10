@@ -45,10 +45,10 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
   // ── 1. System & Identity ──────────────────────────────────────────
   final _nameArCtrl = TextEditingController(text: 'منصة مقاييس لمواد البناء والتوريدات');
   final _nameEnCtrl = TextEditingController(text: 'Magaiees Building Materials Marketplace');
-  final _sloganArCtrl = TextEditingController(text: 'سوقك الهندسي المتكامل في كل أنحاء السودان');
+  final _sloganArCtrl = TextEditingController(text: 'سوقك الهندسي المتكامل لتوريد مواد البناء');
   final _sloganEnCtrl = TextEditingController(text: 'Your Integrated Engineering Marketplace');
-  final _phoneCtrl = TextEditingController(text: '+249 912 300 105');
-  final _whatsappCtrl = TextEditingController(text: '+249 912 300 105');
+  final _phoneCtrl = TextEditingController(text: '+968 9905 1925');
+  final _whatsappCtrl = TextEditingController(text: '+968 9905 1925');
   final _emailCtrl = TextEditingController(text: 'support@magaiees.com');
   final _websiteCtrl = TextEditingController(text: 'https://magaiees.com');
   final _aboutCtrl = TextEditingController(
@@ -965,9 +965,9 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
         children: [
           Row(
             children: [
-              Expanded(child: _buildField(controller: _phoneCtrl, label: 'رقم هاتف الدعم الفني', icon: Icons.phone_rounded, hintText: '+249 912 300 105', iconColor: _kEmerald)),
+              Expanded(child: _buildField(controller: _phoneCtrl, label: 'رقم هاتف الدعم الفني', icon: Icons.phone_rounded, hintText: '+968 9905 1925', iconColor: _kEmerald)),
               const SizedBox(width: 14),
-              Expanded(child: _buildField(controller: _whatsappCtrl, label: 'رقم واتساب خدمة العملاء', icon: Icons.chat_rounded, hintText: '+249 912 300 105', iconColor: _kEmerald)),
+              Expanded(child: _buildField(controller: _whatsappCtrl, label: 'رقم واتساب خدمة العملاء', icon: Icons.chat_rounded, hintText: '+968 9905 1925', iconColor: _kEmerald)),
             ],
           ),
           const SizedBox(height: 14),

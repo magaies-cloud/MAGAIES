@@ -789,7 +789,7 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
                                         keyboardType: TextInputType.phone,
                                         decoration: InputDecoration(
                                           labelText: isRtl ? 'رقم الهاتف المباشر (واتساب/اتصال) *' : 'Direct Phone *',
-                                          hintText: '09xxxxxxxxx',
+                                          hintText: '+968 9900 0000',
                                           prefixIcon: const Icon(Icons.phone_rounded, size: 18),
                                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                                           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -803,7 +803,7 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
                                         controller: locationArCtrl,
                                         decoration: InputDecoration(
                                           labelText: isRtl ? 'المدينة ونطاق التغطية *' : 'Coverage City / Area *',
-                                          hintText: isRtl ? 'مثال: السجانة والخرطوم وبحري' : 'e.g. Khartoum & Bahri',
+                                          hintText: isRtl ? 'مثال: مسقط والسيب وبوشر' : 'e.g. Muscat & Seeb',
                                           prefixIcon: const Icon(Icons.location_on_outlined, size: 18),
                                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                                           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),

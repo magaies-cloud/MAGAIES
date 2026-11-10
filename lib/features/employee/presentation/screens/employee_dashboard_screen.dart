@@ -93,7 +93,7 @@ class EmployeeDashboardScreen extends ConsumerWidget {
                     _dialogInfoRow(
                       Icons.location_on_outlined,
                       'العنوان:',
-                      order.address.isNotEmpty ? order.address : 'سوق السجانة، الخرطوم',
+                      order.address.isNotEmpty ? order.address : 'مسقط، الخوير',
                       Colors.white70,
                     ),
                   ],

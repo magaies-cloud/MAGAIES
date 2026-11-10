@@ -80,7 +80,7 @@ class OrderModel {
       paidAmount: (json['paid_amount'] as num?)?.toDouble() ?? 0.0,
       status: json['status']?.toString() ?? 'pending',
       paymentStatus: json['payment_status']?.toString() ?? 'unpaid',
-      address: json['shipping_address']?.toString() ?? 'سوق السجانة، الخرطوم',
+      address: json['shipping_address']?.toString() ?? 'مسقط، الخوير',
       paymentMethod: json['payment_method']?.toString() ?? 'bankak',
       createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'].toString()) ?? DateTime.now() : DateTime.now(),
       notes: json['notes']?.toString() ?? '',

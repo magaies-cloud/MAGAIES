@@ -353,7 +353,7 @@ class _MerchantTeamScreenState extends ConsumerState<MerchantTeamScreen> {
                       keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
                         labelText: isRtl ? 'رقم الهاتف *' : 'Phone Number *',
-                        hintText: '0912345678',
+                        hintText: '+968 9900 0000',
                         prefixIcon: const Icon(Icons.phone_outlined),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         filled: true,

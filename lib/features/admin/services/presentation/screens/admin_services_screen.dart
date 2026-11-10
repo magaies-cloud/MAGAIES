@@ -1914,7 +1914,7 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
                                               child: _buildTextField(
                                                 controller: locationArController,
                                                 label: 'نطاق التغطية والموقع',
-                                                hintText: 'مثال: السجانة والخرطوم وبحري',
+                                                hintText: 'مثال: مسقط والسيب وبوشر',
                                               ),
                                             ),
                                           ],
