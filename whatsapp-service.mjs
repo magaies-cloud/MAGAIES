@@ -498,14 +498,21 @@ class WhatsAppClient {
                             const jid = msg.key.remoteJid || '';
                             const isGroupOrBroadcast = jid.endsWith('@g.us') || jid === 'status@broadcast';
 
-                            // ── Instant Market Broker Ticker Handler (Runs on ALL sessions including 0123005622 / default-saas-admin) ──
+                            // ── Instant Market Broker Ticker Handler (Supports Text, Consecutive Follow-up Messages & Single/Album Images) ──
                             if (unwrapped && jid && !isGroupOrBroadcast) {
+                                if (!this.pendingBrokerModeByJid) this.pendingBrokerModeByJid = new Map();
+                                if (!this.pendingBrokerAlbumByJid) this.pendingBrokerAlbumByJid = new Map();
                                 const rawBrokerTxt = (
                                     unwrapped.conversation ||
                                     unwrapped.extendedTextMessage?.text ||
                                     unwrapped.imageMessage?.caption ||
+                                    unwrapped.documentMessage?.caption ||
                                     ''
                                 ).trim();
+                                const isBrokerImg = Boolean(
+                                    unwrapped.imageMessage ||
+                                    (unwrapped.documentMessage?.mimetype && unwrapped.documentMessage.mimetype.startsWith('image/'))
+                                );
                                 const isBotReplyTxt = (
                                     rawBrokerTxt.includes('━━━━') ||
                                     rawBrokerTxt.includes('منظومة مقاييس') ||
@@ -514,27 +521,95 @@ class WhatsAppClient {
                                     rawBrokerTxt.includes('بورصة عروض الأسعار') ||
                                     /^[✅🏦📥⚠️🔔📊💰🔐🛡️🔒⏳⛔📋📄🏛️🛒🤝]/.test(rawBrokerTxt)
                                 );
-                                if (rawBrokerTxt && rawBrokerTxt.length <= 500 && !isBotReplyTxt) {
-                                    const normBrokerTxt = rawBrokerTxt.replace(/[٠-٩۰-۹]/g, d => {
-                                        const code = d.charCodeAt(0);
-                                        if (code >= 0x0660 && code <= 0x0669) return String(code - 0x0660);
-                                        if (code >= 0x06F0 && code <= 0x06F9) return String(code - 0x06F0);
-                                        return d;
-                                    }).trim();
-                                    const isBrokerMatch = (
-                                        /^(?:ع|اسعار|أسعار|عروض|الاسعار|الأسعار|ط|طلبات|طلبيات|الطلبات|(?:عرض|عروض|طلب|مطلوب|دلالة|سمسار|بورصة|للبيع)[\s:：\-]*\S.*|(?:تواصل|شراء|توريد|صفقة|صفقه|كود)\s*#?\d{2,5})$/is.test(normBrokerTxt) ||
-                                        (/(?:عرض|عروض|مطلوب|طلب\s*شراء|دلالة|سمسار|بورصة|للبيع)/i.test(normBrokerTxt) && normBrokerTxt.length >= 4)
+                                const normBrokerTxt = rawBrokerTxt.replace(/[٠-٩۰-۹]/g, d => {
+                                    const code = d.charCodeAt(0);
+                                    if (code >= 0x0660 && code <= 0x0669) return String(code - 0x0660);
+                                    if (code >= 0x06F0 && code <= 0x06F9) return String(code - 0x06F0);
+                                    return d;
+                                }).trim();
+
+                                // Check if user sent standalone "عرض" / "طلب" header to open a 3-minute follow-up window for consecutive messages/images
+                                if (!isBotReplyTxt && /^(?:عرض|عروض\s*اسعار|عرض\s*اسعار|عرض\s*أسعار|طلب|طلب\s*شراء|مطلوب|بورصة|للبيع)\s*[:：\-]?$/i.test(normBrokerTxt)) {
+                                    const bType = /^(?:طلب|مطلوب)/i.test(normBrokerTxt) ? 'order' : 'offer';
+                                    this.pendingBrokerModeByJid.set(jid, { type: bType, ts: Date.now() });
+                                    const bMsgId0 = msg.key?.id || '';
+                                    if (bMsgId0) this.processedWaMsgIds.add(bMsgId0);
+                                    sock.sendMessage(jid, { text: '🟢 *بوابة البورصة جاهزة:* أرسل الآن تفاصيل العرض أو الأسعار أو الصور (صورة مفردة أو مجموعة صور) وسيتم تفنيدها ونشرها فوراً في الشريط.' }, { quoted: msg }).catch(() => {});
+                                    continue;
+                                }
+
+                                const activeBrokerSession = this.pendingBrokerModeByJid.get(jid);
+                                const isFollowUpBroker = Boolean(activeBrokerSession && (Date.now() - activeBrokerSession.ts <= 900000));
+                                const senderNum = (jid.includes('@lid') ? (this.lidToPhoneMap.get(jid) || this.lidToPhoneMap.get(jid.split('@')[0]) || '') : jid.split('@')[0]).replace(/:.*$/, '') || '249123005622';
+                                const hasLocalBroker = fs.existsSync('C:/xampp/htdocs/ELSAJANA2/magaies/api/market_broker_ticker.php');
+                                const primaryBrokerUrl = hasLocalBroker
+                                    ? 'http://127.0.0.1/ELSAJANA2/magaies/api/market_broker_ticker.php?action=add'
+                                    : 'https://c.elsajana.com/api/market_broker_ticker.php?action=add';
+
+                                // Handle single image or album/group of images sent to Broker
+                                const isPinCaptionOnly = /^\d{1,8}$/.test(normBrokerTxt);
+                                if (isBrokerImg && !isBotReplyTxt && !isPinCaptionOnly && (!this.isTenantSession || isFollowUpBroker || !normBrokerTxt || /(?:عرض|عروض|طلب|مطلوب|بورصة|للبيع|سعر|أسعار|اسعار|بن|عبوات|جرام|كيلو|طن|سيخ|اسمنت)/i.test(normBrokerTxt))) {
+                                    const bMsgId = msg.key?.id || '';
+                                    if (!bMsgId || !this.processedWaMsgIds.has(bMsgId)) {
+                                        if (bMsgId) this.processedWaMsgIds.add(bMsgId);
+                                        this.pendingBrokerModeByJid.set(jid, { type: activeBrokerSession?.type || 'offer', ts: Date.now() });
+                                        (async () => {
+                                            try {
+                                                const buf = await downloadMediaMessage({ key: msg.key, message: unwrapped }, 'buffer', {}, { logger: pino({ level: 'silent' }), reuploadRequest: sock.updateMediaMessage });
+                                                if (!buf || !buf.length) return;
+                                                const b64 = buf.toString('base64');
+                                                let alb = this.pendingBrokerAlbumByJid.get(jid);
+                                                if (!alb) {
+                                                    alb = { images: [], captions: [], timer: null, lastMsg: msg, type: activeBrokerSession?.type || '' };
+                                                    this.pendingBrokerAlbumByJid.set(jid, alb);
+                                                }
+                                                alb.images.push(b64);
+                                                if (normBrokerTxt) alb.captions.push(normBrokerTxt);
+                                                alb.lastMsg = msg;
+                                                if (alb.timer) clearTimeout(alb.timer);
+                                                alb.timer = setTimeout(() => {
+                                                    this.pendingBrokerAlbumByJid.delete(jid);
+                                                    const payload = JSON.stringify({
+                                                        images_base64: alb.images,
+                                                        text: alb.captions.join(' | '),
+                                                        type: alb.type,
+                                                        pushName: msg.pushName || 'تاجر بالسوق',
+                                                        phone: senderNum
+                                                    });
+                                                    if (hasLocalBroker) {
+                                                        fetch('https://c.elsajana.com/api/market_broker_ticker.php?action=add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload }).catch(() => {});
+                                                    }
+                                                    fetch(primaryBrokerUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload })
+                                                        .then(r => r.json())
+                                                        .then(d => { if (d && d.reply) sock.sendMessage(jid, { text: d.reply }, { quoted: alb.lastMsg }).catch(() => {}); })
+                                                        .catch(() => {});
+                                                }, 2200);
+                                            } catch (_) {}
+                                        })();
+                                        continue;
+                                    }
+                                }
+
+                                if (rawBrokerTxt && rawBrokerTxt.length <= 4000 && !isBotReplyTxt) {
+                                    const hasTradeItemOrUnit = /(?:عرض|عروض|مطلوب|طلب|دلالة|سمسار|بورصة|للبيع|متوفر|محتاج|تسعيرة|التسعيرة|تسعيره|سعر|أسعار|اسعار|سيخ|اسمنت|أسمنت|عطبرة|عطبره|الأسعد|الاسعد|لينية|لينيه|طن|قنطار|كيلو|جرام|عبوات|عبوة|باكت|كرتونة|كرتونه|جوال|شوال|بن|قهوة|سكر|دقيق|زيت|حديد|كمر|مواسير|ماسورة|سلك|رباط|صاج|زنك|لمبة|لمبه|كشاف|كيبل|متر|قطعة|قطعه|يساوي|=|ألف|الف|مليون|ج\.س|جنيه)/i.test(normBrokerTxt);
+                                    const isPurePinOrStmt = /^(?:\d{1,10}|ك|ر|كشف|رصيد|رصيدي|كشف\s*حساب|الرقم\s*السري|باسورد|نسيت\s*الباسورد)$/i.test(normBrokerTxt);
+                                    const isBrokerMatch = !isPurePinOrStmt && (
+                                        isFollowUpBroker ||
+                                        !this.isTenantSession ||
+                                        /^(?:ع|اسعار|أسعار|عروض|الاسعار|الأسعار|تسعيرة|التسعيرة|تسعيره|ط|طلبات|طلبيات|الطلبات|(?:تواصل|شراء|توريد|صفقة|صفقه|كود|بلاغ|ابلاغ|إبلاغ)\s*#?\d{2,5})$/is.test(normBrokerTxt) ||
+                                        (hasTradeItemOrUnit && normBrokerTxt.length >= 3)
                                     );
                                     if (isBrokerMatch) {
                                         const bMsgId = msg.key?.id || '';
                                         if (!bMsgId || !this.processedWaMsgIds.has(bMsgId)) {
                                             if (bMsgId) this.processedWaMsgIds.add(bMsgId);
-                                            const senderNum = (jid.includes('@lid') ? (this.lidToPhoneMap.get(jid) || this.lidToPhoneMap.get(jid.split('@')[0]) || '') : jid.split('@')[0]).replace(/:.*$/, '') || '249123005622';
-                                            const brokerPayload = JSON.stringify({ text: normBrokerTxt, pushName: msg.pushName || 'تاجر بالسوق', phone: senderNum });
-                                            const hasLocalBroker = fs.existsSync('C:/xampp/htdocs/ELSAJANA2/magaies/api/market_broker_ticker.php');
-                                            const primaryBrokerUrl = hasLocalBroker
-                                                ? 'http://127.0.0.1/ELSAJANA2/magaies/api/market_broker_ticker.php?action=add'
-                                                : 'https://c.elsajana.com/api/market_broker_ticker.php?action=add';
+                                            this.pendingBrokerModeByJid.set(jid, { type: activeBrokerSession?.type || '', ts: Date.now() });
+                                            const brokerPayload = JSON.stringify({
+                                                text: normBrokerTxt,
+                                                type: activeBrokerSession?.type || '',
+                                                pushName: msg.pushName || 'تاجر بالسوق',
+                                                phone: senderNum
+                                            });
                                             if (hasLocalBroker) {
                                                 fetch('https://c.elsajana.com/api/market_broker_ticker.php?action=add', {
                                                     method: 'POST',

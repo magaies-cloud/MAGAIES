@@ -795,7 +795,11 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
             </script>
 
             <!-- 📺 SACRED TV & QURAN MINI CONTROLLER -->
-            <div id="header-media-control-wrap" style="position:relative; display:flex; align-items:center;">
+            <div id="header-media-control-wrap" style="position:relative; display:flex; align-items:center; gap:5px;">
+                <button id="header-live-mic-btn" type="button" onclick="if(typeof window.toggleDirectLiveVoiceMic==='function'){window.toggleDirectLiveVoiceMic();}" class="header-tv-mini-btn" style="border-color:#fde047;" title="مايك الحوار الصوتي المفتوح مع البروفيسور (اضغط ليضيء المايك وتحدث مباشرة)">
+                    <span class="header-tv-icon">🎙️</span>
+                    <span class="header-tv-label">الحوار</span>
+                </button>
                 <button id="header-media-btn" type="button" onclick="toggleHeaderMediaPopover(event)" class="header-tv-mini-btn" title="قنوات التلفاز والقرآن الكريم (بث حي في الخلفية)">
                     <span id="header-media-icon" class="header-tv-icon">📺</span>
                     <span id="header-media-label" class="header-tv-label">التلفاز</span>
@@ -2920,6 +2924,6 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
     });
 })();
 </script>
-<script src="js/global-professor-ai-chat.js?v=2027.105" defer></script>
+<script src="js/global-professor-ai-chat.js?v=<?= @filemtime(__DIR__ . '/../js/global-professor-ai-chat.js') ?: '2027.300' ?>"></script>
 
 

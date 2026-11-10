@@ -32,11 +32,13 @@ if ($text === '') {
     exit;
 }
 
-// Unified Studio-Pure HD Neural Voice Library (Natural Broadcast +6% Articulation — Crystal-Clear Word Separation)
+// Unified Studio-Pure HD Neural Voice Library (Warm & Crystal-Clear Articulation)
 $voiceMap = [
-    'female_zariyah' => ['voice' => 'ar-SA-ZariyahNeural',  'rate' => '+6%', 'pitch' => '+0Hz'],
-    'female_salma'   => ['voice' => 'ar-EG-SalmaNeural',    'rate' => '+6%', 'pitch' => '+0Hz'],
-    'female_fatima'  => ['voice' => 'ar-AE-FatimaNeural',   'rate' => '+6%', 'pitch' => '+0Hz'],
+    'warm_professor' => ['voice' => 'ar-SA-HamedNeural',    'rate' => '-2%', 'pitch' => '-3Hz'],
+    'warm_male'      => ['voice' => 'ar-OM-AbdullahNeural', 'rate' => '-2%', 'pitch' => '-2Hz'],
+    'female_zariyah' => ['voice' => 'ar-SA-ZariyahNeural',  'rate' => '-3%', 'pitch' => '-2Hz'],
+    'female_salma'   => ['voice' => 'ar-EG-SalmaNeural',    'rate' => '-3%', 'pitch' => '-2Hz'],
+    'female_fatima'  => ['voice' => 'ar-AE-FatimaNeural',   'rate' => '-3%', 'pitch' => '-2Hz'],
     'male_hamed'     => ['voice' => 'ar-SA-HamedNeural',    'rate' => '+6%', 'pitch' => '+0Hz'],
     'male_abdullah'  => ['voice' => 'ar-OM-AbdullahNeural', 'rate' => '+8%', 'pitch' => '+0Hz'],
     'male_shakir'    => ['voice' => 'ar-EG-ShakirNeural',   'rate' => '+6%', 'pitch' => '+0Hz'],

@@ -6,21 +6,77 @@
     let voiceMuted = false;
     let recognition = null;
     let isListening = false;
+    let liveOpenConversation = false;
+    let isSpeakingReply = false;
 
-    function speakArabic(text) {
-        if (voiceMuted || !text) return;
-        const clean = String(text).replace(/[*#_`~]/g, '').replace(/ج\.س/g, ' جنيه سوداني ').replace(/\$/g, ' دولار ');
-        if (typeof window.speakMdExplanationPanelText === 'function') {
-            window.speakMdExplanationPanelText(clean);
+    function updateMicUiState(state) {
+        const micBtn = document.getElementById('prof-ai-mic-btn');
+        const barBtn = document.getElementById('exec-live-mic-btn');
+        const hdrBtn = document.getElementById('header-live-mic-btn');
+        const fabBtn = document.getElementById('global-prof-ai-fab');
+        const badge = document.getElementById('prof-ai-live-status');
+        if (!liveOpenConversation) {
+            if (micBtn) { micBtn.className = ''; micBtn.innerHTML = '🎤 مايك الحوار المفتوح'; micBtn.style.background = 'linear-gradient(135deg,#059669,#047857)'; }
+            if (barBtn) { barBtn.classList.remove('prof-mic-illuminated-active', 'prof-mic-illuminated-speaking'); barBtn.innerHTML = '<span>🎙️</span><span>مايك البروفيسور</span>'; }
+            if (hdrBtn) { hdrBtn.classList.remove('prof-mic-illuminated-active', 'prof-mic-illuminated-speaking'); hdrBtn.innerHTML = '<span style="font-size:15px;line-height:1;">🎙️</span><span style="font-size:11.5px;font-weight:900;color:#ffffff;">الحوار</span>'; }
+            if (fabBtn) { fabBtn.classList.remove('prof-mic-illuminated-active', 'prof-mic-illuminated-speaking'); fabBtn.innerHTML = '🎙️'; }
+            if (badge) badge.style.display = 'none';
             return;
         }
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.cancel();
-            const u = new SpeechSynthesisUtterance(clean);
-            u.lang = 'ar-SA';
-            u.rate = 1.03;
-            window.speechSynthesis.speak(u);
+        if (badge) badge.style.display = 'inline-flex';
+        if (state === 'speaking') {
+            if (micBtn) { micBtn.className = 'prof-mic-illuminated-speaking'; micBtn.innerHTML = '🔊 يتحدث الآن... (اضغط للإيقاف)'; }
+            if (barBtn) { barBtn.classList.remove('prof-mic-illuminated-active'); barBtn.classList.add('prof-mic-illuminated-speaking'); barBtn.innerHTML = '<span>🔊</span><span>يتحدث معك...</span>'; }
+            if (hdrBtn) { hdrBtn.classList.remove('prof-mic-illuminated-active'); hdrBtn.classList.add('prof-mic-illuminated-speaking'); hdrBtn.innerHTML = '<span style="font-size:15px;line-height:1;">🔊</span><span style="font-size:11.5px;font-weight:900;color:#ffffff;">يتحدث...</span>'; }
+            if (fabBtn) { fabBtn.classList.remove('prof-mic-illuminated-active'); fabBtn.classList.add('prof-mic-illuminated-speaking'); fabBtn.innerHTML = '🔊'; }
+            if (badge) badge.innerHTML = '🟡 البروفيسور يجيب الآن... سيعود الاستماع تلقائياً';
+        } else {
+            if (micBtn) { micBtn.className = 'prof-mic-illuminated-active'; micBtn.innerHTML = '🎙️ المايك مضاء (دردشة مفتوحة مستمرة)'; }
+            if (barBtn) { barBtn.classList.remove('prof-mic-illuminated-speaking'); barBtn.classList.add('prof-mic-illuminated-active'); barBtn.innerHTML = '<span>🎙️</span><span>المايك مضاء (تحدث)</span>'; }
+            if (hdrBtn) { hdrBtn.classList.remove('prof-mic-illuminated-speaking'); hdrBtn.classList.add('prof-mic-illuminated-active'); hdrBtn.innerHTML = '<span style="font-size:15px;line-height:1;">🎙️</span><span style="font-size:11.5px;font-weight:900;color:#ffffff;">مضاء</span>'; }
+            if (fabBtn) { fabBtn.classList.remove('prof-mic-illuminated-speaking'); fabBtn.classList.add('prof-mic-illuminated-active'); fabBtn.innerHTML = '🎙️'; }
+            if (badge) badge.innerHTML = '🟢 المايك مضاء ومفتوح — تحدث بحرية في أي وقت';
         }
+    }
+
+    let currentProfAudio = null;
+    function speakArabic(text, onDone) {
+        const finish = () => {
+            isSpeakingReply = false;
+            if (typeof onDone === 'function') onDone();
+            if (liveOpenConversation) {
+                updateMicUiState('listening');
+                setTimeout(() => startContinuousRecognition(), 180);
+            }
+        };
+        if (voiceMuted || !text) { finish(); return; }
+        isSpeakingReply = true;
+        if (recognition && isListening) {
+            try { recognition.abort(); } catch (e) {}
+            isListening = false;
+        }
+        if (currentProfAudio) { try { currentProfAudio.pause(); } catch (e) {} currentProfAudio = null; }
+        updateMicUiState('speaking');
+        const clean = String(text).replace(/[*#_`~]/g, '').replace(/ج\.س/g, ' جنيه سوداني ').replace(/\$/g, ' دولار ').slice(0, 480);
+        const url = 'api/tts_male.php?dialect=warm_professor&text=' + encodeURIComponent(clean);
+        const aud = new Audio(url);
+        currentProfAudio = aud;
+        aud.onended = finish;
+        aud.onerror = () => {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(clean);
+                u.lang = 'ar-SA';
+                u.rate = 0.94;
+                u.pitch = 0.92;
+                u.onend = finish;
+                u.onerror = finish;
+                window.speechSynthesis.speak(u);
+            } else {
+                finish();
+            }
+        };
+        aud.play().catch(() => aud.onerror());
     }
 
     function readLiveContext() {
@@ -32,34 +88,53 @@
         const ar = (document.getElementById('strip-ar-amt')?.innerText || '').trim();
         const ap = (document.getElementById('strip-ap-amt')?.innerText || '').trim();
         const mkt = (document.getElementById('stock-mkt-val')?.innerText || '').trim();
-        return { title, sal, pur, liq, prf, ar, ap, mkt };
+        const liveElements = [];
+        document.querySelectorAll('button, a, [data-explain], [title], h1, h2, h3, th, label').forEach(el => {
+            if (liveElements.length >= 65 || !el.offsetParent) return;
+            const txt = (el.innerText || el.getAttribute('aria-label') || '').replace(/\s+/g, ' ').trim();
+            const hint = (el.getAttribute('data-explain') || el.getAttribute('title') || '').replace(/\s+/g, ' ').trim();
+            if (txt && txt.length >= 2 && txt.length <= 60) {
+                liveElements.push(hint ? `${txt} (${hint})` : txt);
+            }
+        });
+        return { title, page: location.pathname.split('/').pop() || 'index.php', sal, pur, liq, prf, ar, ap, mkt, live_dom_elements: Array.from(new Set(liveElements)).slice(0, 50) };
     }
 
     function generateSmartAnswer(qRaw) {
         const q = String(qRaw || '').trim();
         const ctx = readLiveContext();
+        if (/الشريط الذهبي|شريط الاوامر|شريط الأوامر/i.test(q)) {
+            return 'الشريط الذهبي هو شريط القيادة المثبت أعلى الشاشة؛ يضم على اليمين أزرار الفترات الزمنية (اليوم، أسبوع، شهر، سنة، وزر + فترات)، وعلى اليسار 7 أدوات متناسقة هي: السيولة المطمئنة، وضع التركيز، تحويل الجنيه والدولار، سعر الصرف، مايك البروفيسور، الإيجاز الذكي، وزر التراجع.';
+        }
+        if (/بورص|شريط البورص|جديد|بلاغ|نقطة سوداء/i.test(q)) {
+            return 'شريط البورصة يعرض عروض البيع باللون الأخضر وطلبات الشراء باللون البرتقالي مع التزامن الفوري عبر الواتساب والذكاء البصري لقراءة الصور؛ وتضيء فيه شارة جديد بالأحمر لأول ساعة ونصف ثم بالبرتقالي حتى 3 ساعات ثم بالأخضر حتى 4 ساعات، مع نظام بلاغات يحظر المعلن تلقائياً عند 3 نقاط سوداء.';
+        }
+        if (/سيولة مطمئنة|مطمئنة/i.test(q)) {
+            return 'مؤشر السيولة المطمئنة في الشريط الذهبي يقيس نسبة السيولة النقدية والبنكية الجاهزة مقابل مستحقات الموردين، فيضيء بالأخضر عندما تكون السيولة مريحة وآمنة.';
+        }
+        if (/تركيز/i.test(q)) {
+            return 'زر التركيز في الشريط الذهبي يطوي البطاقات التفصيلية السفلية بضغطة واحدة لتركيز النظر على المؤشرات العليا، وبضغطة ثانية يعيد إظهارها فوراً.';
+        }
+        if (/تراجع/i.test(q)) {
+            return 'زر التراجع في الشريط الذهبي يتيح لك التبديل الفوري بين تصميم البروفيسور المطور 2027 والوضع السابق بضغطة واحدة.';
+        }
         if (/مطابق|غرف القياد|ميزاني/i.test(q)) {
-            return 'بطاقة «غرف القيادة وميزانية المطابقة» تقارن لحظياً بين الرصيد الدفتري المسجل في النظام والرصيد الفعلي في الخزائن والبنوك والميزان، وتضم 4 تبويبات: (1) المطابقة لكشف أي فرق أو عجز فوري، (2) الدخل والربح لمعرفة صافي الربح بعد المصروفات، (3) الميزانية لعرض الأصول والالتزامات وحقوق الملكية، (4) تدقيق ذكي لفحص القيود آلياً.';
+            return 'بطاقة غرف القيادة وميزانية المطابقة تقارن لحظياً بين الرصيد الدفتري المسجل في النظام والرصيد الفعلي في الخزائن والبنوك، وتضم تبويبات المطابقة والدخل والميزانية والتدقيق الذكي.';
         }
         if (/ربح آمن|معدل الدوران|دوران/i.test(q)) {
-            return 'مؤشر «ربح آمن» يعني أن جميع الفواتير محمية فوق سعر التكلفة وسعر الإحلال بدون أي فاتورة خاسرة. أما «معدل الدوران 2.4x» فيعني أن المخزون ورأس المال يدوران ويتجددان بالكامل 2.4 مرة شهرياً (دورة بيع وتجديد كل 12 يوماً تقريباً).';
+            return 'مؤشر ربح آمن يؤكد أن جميع الفواتير محمية فوق سعر التكلفة والإحلال، ومعدل الدوران يوضح عدد مرات تجدد المخزون ورأس المال شهرياً.';
         }
         if (/واتس|اشعار|إشعار|رصيد|249123005622/i.test(q)) {
-            return 'منظومة الواتساب الذكية مربوطة على رقم الشركة (0123005622 / 249123005622): عند إرسال العميل لصورة إشعار بنكي يرد النظام فوراً بـ «تم استلام إشعار التحويل البنكي بنجاح وجاري تدقيقه الفوري»، وعند إرسال كلمة «رصيد» أو حرف «ر» أو «ك» يرسل كشف الرصيد التلقائي. تأكد من أن حالة الربط في نافذة الواتساب «متصل CONNECTED».';
+            return 'منظومة الواتساب مربوطة على الرقم 0123005622، وتستقبل إشعارات بنكك وكشوفات الرصيد وعروض وطلبات وصور البورصة آلياً.';
         }
-        if (/مبيع|ارباح|أرباح|سيول|ديون|مشتري|ملخص|حالة/i.test(q)) {
-            if (ctx.sal) {
-                return `ملخص المؤشرات الحية الآن: المبيعات ${ctx.sal}، المشتريات ${ctx.pur}، السيولة الجاهزة ${ctx.liq}، صافي الأرباح ${ctx.prf}، القيمة السوقية للمخزون ${ctx.mkt || 'محدثة'}، ديون العملاء ${ctx.ar}، ومستحقات الموردين ${ctx.ap}.`;
-            }
-            return `أنت الآن في شاشة «${ctx.title}». يمكنك سؤال البروفيسور عن أي زر أو حقل أو الانتقال للوحة القيادة لعرض المؤشرات العشرة الحية.`;
+        const matchedDom = (ctx.live_dom_elements || []).find(item => {
+            const label = item.split('(')[0].trim();
+            return label.length >= 3 && q.includes(label);
+        });
+        if (matchedDom) {
+            return `بخصوص «${matchedDom}»: هو أحد عناصر التحكم المباشرة في هذه الشاشة، ويمكنك الضغط عليه لتنفيذ وظيفته فوراً أو سؤالي عن أي تفصيل يخصه.`;
         }
-        if (/ذكا|مركز|حارس|رادار/i.test(q)) {
-            return 'مركز الذكاء الاصطناعي يعمل كمحرك رقابي وتحليلي فوري على الكمبيوتر والموبايل: يراقب الأسعار وهوامش الربح، يتنبأ بنفاد الأصناف قبل 7 أيام، يدقق الإشعارات البنكية عبر الواتساب، ويجيب على استفساراتك صوتياً وكتابياً في جميع شاشات البرنامج.';
-        }
-        if (ctx.sal) {
-            return `بناءً على بيانات «${ctx.title}» الحالية: المبيعات ${ctx.sal}، صافي الربح ${ctx.prf}، السيولة ${ctx.liq}، وديون العملاء ${ctx.ar}. يمكنك سؤالي عن (غرف القيادة والمطابقة، الأصناف الأكثر مبيعاً، التنبؤ الذكي، أو ربط إشعارات الواتساب).`;
-        }
-        return `مرحباً بك في دردشة البروفيسور الذكي لشاشة «${ctx.title}» (يعمل على الكمبيوتر والموبايل بالصوت والكتابة). اسألني عن أي بطاقة أو مؤشر مالي أو طريقة عمل أي ميزة في النظام وسأشرحها لك فوراً.`;
+        return 'أنا معك في الحوار المباشر، حدد لي اسم الزر أو الشاشة أو الميزة التي تريد أن نتحدث عنها وسأجيبك في صلب سؤالك مباشرة.';
     }
 
     function appendMsg(role, text) {
@@ -73,50 +148,98 @@
         box.scrollTop = box.scrollHeight;
     }
 
-    function sendUserQuery(customText) {
+    let activeQueryCtrl = null;
+    async function sendUserQuery(customText) {
         const inp = document.getElementById('prof-ai-chat-input');
         const q = (customText !== undefined ? customText : (inp ? inp.value : '')).trim();
         if (!q) return;
         if (inp && customText === undefined) inp.value = '';
         appendMsg('user', q);
-        setTimeout(() => {
-            const ans = generateSmartAnswer(q);
-            appendMsg('ai', ans);
-            speakArabic(ans);
-        }, 180);
+        let ans = '';
+        try {
+            const ctx = readLiveContext();
+            if (activeQueryCtrl) { try { activeQueryCtrl.abort(); } catch (e) {} }
+            activeQueryCtrl = new AbortController();
+            const tid = setTimeout(() => activeQueryCtrl.abort(), 4500);
+            const res = await fetch('api/ai-assistant.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: q, context: JSON.stringify(ctx), screen_context: ctx.title }),
+                signal: activeQueryCtrl.signal
+            }).then(r => r.json());
+            clearTimeout(tid);
+            if (res && res.reply) ans = String(res.reply).replace(/\*\*/g, '');
+        } catch (e) {}
+        if (!liveOpenConversation && customText !== undefined) return;
+        if (!ans) ans = generateSmartAnswer(q);
+        appendMsg('ai', ans);
+        speakArabic(ans);
+    }
+
+    function startContinuousRecognition() {
+        if (!liveOpenConversation || isSpeakingReply) return;
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SR) return;
+        if (isListening && recognition) return;
+        recognition = new SR();
+        recognition.lang = 'ar-SA';
+        recognition.interimResults = false;
+        recognition.continuous = false;
+        recognition.onstart = () => {
+            isListening = true;
+            updateMicUiState('listening');
+        };
+        recognition.onresult = (e) => {
+            const transcript = (e.results?.[0]?.[0]?.transcript || '').trim();
+            if (transcript && liveOpenConversation) sendUserQuery(transcript);
+        };
+        recognition.onend = () => {
+            isListening = false;
+            if (liveOpenConversation && !isSpeakingReply) {
+                setTimeout(() => startContinuousRecognition(), 180);
+            } else if (!liveOpenConversation) {
+                updateMicUiState('off');
+            }
+        };
+        recognition.onerror = () => {
+            isListening = false;
+            if (liveOpenConversation && !isSpeakingReply) {
+                setTimeout(() => startContinuousRecognition(), 450);
+            }
+        };
+        try { recognition.start(); } catch (e) {}
+    }
+
+    function stopAllVoiceImmediately() {
+        liveOpenConversation = false;
+        isSpeakingReply = false;
+        isListening = false;
+        if (activeQueryCtrl) { try { activeQueryCtrl.abort(); } catch (e) {} activeQueryCtrl = null; }
+        if (recognition) { try { recognition.onend = null; recognition.abort(); } catch (e) {} recognition = null; }
+        if (currentProfAudio) { try { currentProfAudio.onended = null; currentProfAudio.onerror = null; currentProfAudio.pause(); currentProfAudio.currentTime = 0; } catch (e) {} currentProfAudio = null; }
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        if (typeof window.stopMdExplanationPanelAudio === 'function') window.stopMdExplanationPanelAudio();
+        updateMicUiState('off');
     }
 
     function toggleVoiceInput() {
-        const micBtn = document.getElementById('prof-ai-mic-btn');
+        if (liveOpenConversation || isSpeakingReply || isListening) {
+            stopAllVoiceImmediately();
+            return;
+        }
         const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SR) {
             alert('المتصفح الحالي لا يدعم الإملاء الصوتي المباشر، يمكنك الكتابة في مربع الدردشة.');
             return;
         }
-        if (isListening && recognition) {
-            recognition.stop();
-            return;
+        liveOpenConversation = true;
+        updateMicUiState('listening');
+        if (!window._profGreetedOnce) {
+            window._profGreetedOnce = true;
+            speakArabic('اللهم صل وسلم على نبينا محمد. تفضل، أنا معك في الحوار المباشر.');
+        } else {
+            startContinuousRecognition();
         }
-        recognition = new SR();
-        recognition.lang = 'ar-SA';
-        recognition.interimResults = false;
-        recognition.onstart = () => {
-            isListening = true;
-            if (micBtn) { micBtn.innerHTML = '🔴 جاري الاستماع...'; micBtn.style.background = '#e11d48'; }
-        };
-        recognition.onresult = (e) => {
-            const transcript = e.results?.[0]?.[0]?.transcript || '';
-            if (transcript) sendUserQuery(transcript);
-        };
-        recognition.onend = () => {
-            isListening = false;
-            if (micBtn) { micBtn.innerHTML = '🎤 تحدث بالصوت'; micBtn.style.background = 'linear-gradient(135deg,#059669,#047857)'; }
-        };
-        recognition.onerror = () => {
-            isListening = false;
-            if (micBtn) { micBtn.innerHTML = '🎤 تحدث بالصوت'; micBtn.style.background = 'linear-gradient(135deg,#059669,#047857)'; }
-        };
-        recognition.start();
     }
 
     window.openGlobalProfessorAiChatModal = function (initialQuestion) {
@@ -126,37 +249,45 @@
             modal.id = 'global-prof-ai-chat-modal';
             modal.style.cssText = 'position:fixed;inset:0;z-index:2147483600;background:rgba(2,6,23,0.78);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:12px;direction:rtl;font-family:Cairo,Tajawal,sans-serif;';
             modal.innerHTML = `
+                <style>
+                    @keyframes profMicGlow { 0%, 100% { box-shadow: 0 0 18px #10b981, 0 0 34px rgba(253,224,71,0.7), inset 0 0 10px rgba(255,255,255,0.4); border-color: #fde047 !important; } 50% { box-shadow: 0 0 28px #34d399, 0 0 46px rgba(16,185,129,0.95), inset 0 0 14px rgba(253,224,71,0.6); border-color: #ffffff !important; } }
+                    .prof-mic-illuminated-active { background: linear-gradient(135deg, #059669, #10b981, #047857) !important; border: 2px solid #fde047 !important; animation: profMicGlow 1.5s infinite ease-in-out !important; color: #ffffff !important; }
+                    .prof-mic-illuminated-speaking { background: linear-gradient(135deg, #d97706, #b45309) !important; border: 2px solid #fef08a !important; box-shadow: 0 0 22px rgba(245,158,11,0.85) !important; color: #ffffff !important; }
+                </style>
                 <div style="width:100%;max-width:620px;max-height:90vh;background:linear-gradient(165deg,#0f172a 0%,#020617 100%);border:2px solid #38bdf8;border-radius:22px;box-shadow:0 24px 60px rgba(0,0,0,0.85),0 0 30px rgba(56,189,248,0.3);display:flex;flex-direction:column;overflow:hidden;">
                     <div style="padding:14px 18px;background:linear-gradient(90deg,#0284c7,#059669);display:flex;align-items:center;justify-content:space-between;gap:8px;">
                         <div style="display:flex;align-items:center;gap:10px;">
                             <span style="font-size:24px;">🎓</span>
                             <div>
                                 <div style="font-size:16.5px;font-weight:900;color:#fff;">مركز دردشة البروفيسور والذكاء الاصطناعي</div>
-                                <div style="font-size:11.5px;font-weight:700;color:#e0f2fe;">حوار تفاعلي بالصوت والكتابة • متوافق مع الموبايل والكمبيوتر</div>
+                                <div style="font-size:11.5px;font-weight:700;color:#e0f2fe;">حوار صوتي مفتوح ومستمر بنبرة دافئة وواضحة • كمبيوتر وموبايل</div>
                             </div>
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;">
-                            <button id="prof-ai-mute-btn" type="button" style="padding:6px 11px;border-radius:10px;background:rgba(15,23,42,0.55);color:#fff;border:1px solid rgba(255,255,255,0.35);font-size:12px;font-weight:900;cursor:pointer;">🔊 الصوت مفعل</button>
+                            <span id="prof-ai-live-status" style="display:none;padding:5px 10px;border-radius:99px;background:rgba(2,6,23,0.75);color:#fde047;border:1px solid #fde047;font-size:11px;font-weight:900;">🟢 المايك مضاء ومفتوح</span>
+                            <button id="prof-ai-mute-btn" type="button" style="padding:6px 11px;border-radius:10px;background:rgba(15,23,42,0.55);color:#fff;border:1px solid rgba(255,255,255,0.35);font-size:12px;font-weight:900;cursor:pointer;">🔊 الصوت الدافئ مفعل</button>
                             <button id="prof-ai-close-btn" type="button" style="width:34px;height:34px;border-radius:10px;background:rgba(225,29,72,0.85);color:#fff;border:none;font-size:16px;font-weight:900;cursor:pointer;">✕</button>
                         </div>
                     </div>
-                    <div style="padding:8px 12px;background:rgba(15,23,42,0.9);border-bottom:1px solid rgba(148,163,184,0.2);display:flex;flex-wrap:wrap;gap:6px;">
-                        <button type="button" class="prof-quick-q" data-q="اشرح لي غرف القيادة وميزانية المطابقة" style="padding:5px 10px;border-radius:99px;background:#1e293b;color:#38bdf8;border:1px solid #38bdf8;font-size:12px;font-weight:800;cursor:pointer;">⚖️ شرح غرف القيادة والمطابقة</button>
-                        <button type="button" class="prof-quick-q" data-q="ملخص حالة المبيعات والأرباح والسيولة الآن" style="padding:5px 10px;border-radius:99px;background:#1e293b;color:#34d399;border:1px solid #34d399;font-size:12px;font-weight:800;cursor:pointer;">📊 ملخص المبيعات والسيولة</button>
-                        <button type="button" class="prof-quick-q" data-q="اشرح مركز الذكاء الاصطناعي" style="padding:5px 10px;border-radius:99px;background:#1e293b;color:#fde047;border:1px solid #fde047;font-size:12px;font-weight:800;cursor:pointer;">🤖 شرح مركز الذكاء الاصطناعي</button>
-                        <button type="button" class="prof-quick-q" data-q="حالة ربط الواتساب والرد الآلي للإشعارات وكلمة رصيد" style="padding:5px 10px;border-radius:99px;background:#1e293b;color:#c084fc;border:1px solid #c084fc;font-size:12px;font-weight:800;cursor:pointer;">💬 الواتساب وإشعارات الرصيد</button>
+                    <div style="padding:14px;background:rgba(15,23,42,0.95);border-bottom:1px solid rgba(56,189,248,0.25);display:flex;align-items:center;justify-content:center;gap:14px;">
+                        <button id="prof-ai-mic-btn" type="button" class="prof-mic-illuminated-active" style="height:52px;padding:0 24px;border-radius:999px;background:linear-gradient(135deg,#059669,#10b981,#047857);color:#fff;border:2px solid #fde047;font-size:15px;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;gap:10px;transition:all 0.25s ease;">🎙️ المايك مضاء (دردشة مفتوحة مستمرة)</button>
                     </div>
-                    <div id="prof-ai-chat-messages" style="flex:1;min-height:250px;max-height:52vh;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;"></div>
+                    <div id="prof-ai-chat-messages" style="flex:1;min-height:220px;max-height:48vh;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;"></div>
                     <div style="padding:12px;background:#090f1d;border-top:1px solid rgba(148,163,184,0.25);display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
-                        <input id="prof-ai-chat-input" type="text" placeholder="اكتب سؤالك هنا أو اضغط 🎤 للتحدث بالصوت..." style="flex:1;min-width:180px;height:42px;padding:0 14px;border-radius:12px;background:#0f172a;color:#fff;border:1.5px solid #38bdf8;font-size:14px;font-weight:800;outline:none;" />
+                        <input id="prof-ai-chat-input" type="text" placeholder="تحدث مباشرة في المايك المضيء أعلاه أو اكتب سؤالك هنا..." style="flex:1;min-width:180px;height:42px;padding:0 14px;border-radius:12px;background:#0f172a;color:#fff;border:1.5px solid #38bdf8;font-size:14px;font-weight:800;outline:none;" />
                         <button id="prof-ai-send-btn" type="button" style="height:42px;padding:0 16px;border-radius:12px;background:linear-gradient(135deg,#0284c7,#0369a1);color:#fff;border:none;font-size:14px;font-weight:900;cursor:pointer;">إرسال 🚀</button>
-                        <button id="prof-ai-mic-btn" type="button" style="height:42px;padding:0 14px;border-radius:12px;background:linear-gradient(135deg,#059669,#047857);color:#fff;border:none;font-size:13.5px;font-weight:900;cursor:pointer;">🎤 تحدث بالصوت</button>
                     </div>
                 </div>
             `;
             document.body.appendChild(modal);
             document.getElementById('prof-ai-close-btn').onclick = () => {
+                liveOpenConversation = false;
+                isSpeakingReply = false;
+                if (recognition) { try { recognition.abort(); } catch (e) {} }
+                if (currentProfAudio) { try { currentProfAudio.pause(); } catch (e) {} currentProfAudio = null; }
                 if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+                if (typeof window.stopMdExplanationPanelAudio === 'function') window.stopMdExplanationPanelAudio();
+                updateMicUiState('off');
                 modal.style.display = 'none';
             };
             document.getElementById('prof-ai-mute-btn').onclick = function () {
@@ -169,24 +300,33 @@
             document.getElementById('prof-ai-chat-input').addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') sendUserQuery();
             });
-            modal.querySelectorAll('.prof-quick-q').forEach(btn => {
-                btn.onclick = () => sendUserQuery(btn.getAttribute('data-q'));
-            });
-            appendMsg('ai', 'مرحباً بك! أنا البروفيسور الذكي لنظام السجانة (متاح على الكمبيوتر والموبايل). يمكنك التحدث معي بالصوت 🎤 أو الكتابة لشرح أي بطاقة أو شاشة أو مؤشر مالي.');
+            appendMsg('ai', 'اللهم صلِّ وسلِّم على نبينا محمد ﷺ. المايك مضاء ومفتوح الآن — تحدث معي مباشرة بحرية.');
         }
         modal.style.display = 'flex';
-        if (initialQuestion) sendUserQuery(initialQuestion);
+        if (initialQuestion) {
+            sendUserQuery(initialQuestion);
+        } else if (!liveOpenConversation) {
+            toggleVoiceInput();
+        }
     };
 
+    window.toggleDirectLiveVoiceMic = toggleVoiceInput;
+
     document.addEventListener('DOMContentLoaded', () => {
+        if (!document.getElementById('prof-mic-global-style')) {
+            const st = document.createElement('style');
+            st.id = 'prof-mic-global-style';
+            st.textContent = `@keyframes profMicGlow { 0%, 100% { box-shadow: 0 0 18px #10b981, 0 0 34px rgba(253,224,71,0.7), inset 0 0 10px rgba(255,255,255,0.4) !important; border-color: #fde047 !important; } 50% { box-shadow: 0 0 28px #34d399, 0 0 46px rgba(16,185,129,0.95), inset 0 0 14px rgba(253,224,71,0.6) !important; border-color: #ffffff !important; } } .prof-mic-illuminated-active { background: linear-gradient(135deg, #059669, #10b981, #047857) !important; border: 2px solid #fde047 !important; animation: profMicGlow 1.5s infinite ease-in-out !important; color: #ffffff !important; } .prof-mic-illuminated-speaking { background: linear-gradient(135deg, #d97706, #b45309) !important; border: 2px solid #fef08a !important; box-shadow: 0 0 22px rgba(245,158,11,0.85) !important; color: #ffffff !important; }`;
+            document.head.appendChild(st);
+        }
         if (!document.getElementById('global-prof-ai-fab')) {
             const fab = document.createElement('button');
             fab.id = 'global-prof-ai-fab';
             fab.type = 'button';
-            fab.title = 'دردشة البروفيسور والذكاء الاصطناعي (صوت وكتابة)';
-            fab.innerHTML = '🤖';
-            fab.style.cssText = 'position:fixed;bottom:82px;left:14px;z-index:99995;width:44px;height:44px;padding:0;border-radius:50%;background:linear-gradient(135deg,#059669,#0284c7);color:#ffffff;border:2px solid #fde047;font-size:22px;line-height:1;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,0.65);display:inline-flex;align-items:center;justify-content:center;';
-            fab.onclick = () => window.openGlobalProfessorAiChatModal();
+            fab.title = 'مايك الحوار المباشر مع البروفيسور (اضغط ليضيء المايك وتحدث مباشرة)';
+            fab.innerHTML = '🎙️';
+            fab.style.cssText = 'position:fixed;bottom:82px;left:14px;z-index:99995;width:46px;height:46px;padding:0;border-radius:50%;background:linear-gradient(135deg,#059669,#0284c7);color:#ffffff;border:2px solid #fde047;font-size:22px;line-height:1;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,0.65);display:inline-flex;align-items:center;justify-content:center;transition:all 0.25s ease;';
+            fab.onclick = () => toggleVoiceInput();
             document.body.appendChild(fab);
         }
     });

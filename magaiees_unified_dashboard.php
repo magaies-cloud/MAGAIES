@@ -1241,17 +1241,17 @@ function switchToMobileEdition() {
                 #new-unified-dashboard-design #sec-ops-audit { gap: 14px !important; margin-top: 0 !important; }
                 @keyframes brkNewPulse { 0%, 100% { box-shadow: 0 0 12px rgba(253,224,71,0.75), inset 0 0 8px rgba(253,224,71,0.35); border-color: #fde047 !important; } 50% { box-shadow: 0 0 22px rgba(16,185,129,0.95), inset 0 0 12px rgba(253,224,71,0.55); border-color: #34d399 !important; } }
                 .broker-new-item-pill { animation: brkNewPulse 1.8s infinite ease-in-out; background: linear-gradient(135deg, rgba(6,95,70,0.96), rgba(15,23,42,0.96)) !important; border-width: 2px !important; }
-                @keyframes execPrismGlow { 0%, 100% { box-shadow: 0 14px 34px rgba(0,0,0,0.75), 0 0 24px rgba(251,191,36,0.48), inset 0 1.5px 3px rgba(254,240,138,0.55); border-color: #fde047; } 50% { box-shadow: 0 16px 40px rgba(0,0,0,0.82), 0 0 32px rgba(245,158,11,0.68), inset 0 2px 4px rgba(255,255,255,0.6); border-color: #fef08a; } }
-                #exec-sticky-command-bar, html.light-theme #exec-sticky-command-bar { position: sticky; top: 8px; z-index: 99990; margin-top: 0 !important; margin-bottom: 0 !important; padding: 10px 16px; border-radius: 20px; border: 2.5px solid #fde047 !important; background: linear-gradient(135deg, #78350f 0%, #b45309 28%, #d97706 50%, #b45309 72%, #78350f 100%) !important; backdrop-filter: blur(24px) saturate(190%); -webkit-backdrop-filter: blur(24px) saturate(190%); animation: execPrismGlow 4.5s infinite ease-in-out; display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 8px; flex-wrap: nowrap; overflow-x: auto; direction: rtl !important; box-sizing: border-box !important; transition: box-shadow 0.25s ease; }
-                #exec-sticky-command-bar > div { display: flex !important; align-items: center !important; flex-shrink: 0 !important; gap: 6px !important; }
-                #exec-sticky-command-bar.is-pinned-fixed, html.light-theme #exec-sticky-command-bar.is-pinned-fixed { position: fixed !important; top: 8px !important; margin-top: 0 !important; margin-bottom: 0 !important; z-index: 2147483500 !important; background: linear-gradient(135deg, #78350f 0%, #b45309 28%, #d97706 50%, #b45309 72%, #78350f 100%) !important; border: 2.5px solid #fde047 !important; }
-                #exec-sticky-command-bar .exec-period-pill { position: relative; overflow: hidden; height: 40px; padding: 0 14px; border-radius: 13px; font-size: 14.5px !important; font-weight: 900 !important; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; cursor: pointer; transition: all 0.26s cubic-bezier(0.34, 1.56, 0.64, 1); border: 1.5px solid rgba(253,224,71,0.55); background: linear-gradient(180deg, rgba(15,23,42,0.92) 0%, rgba(2,6,23,0.96) 100%); color: #fef08a !important; -webkit-text-fill-color: #fef08a !important; box-shadow: 0 5px 14px rgba(0,0,0,0.45), inset 0 1px 1px rgba(255,255,255,0.22); }
+                @keyframes execPrismGlow { 0%, 100% { box-shadow: 0 10px 26px rgba(245,158,11,0.38), 0 4px 14px rgba(253,224,71,0.32), 0 0 20px rgba(251,191,36,0.52), inset 0 1.5px 3px rgba(255,255,255,0.62); border-color: #fde047; } 50% { box-shadow: 0 12px 32px rgba(245,158,11,0.52), 0 6px 18px rgba(253,224,71,0.45), 0 0 28px rgba(254,240,138,0.72), inset 0 2px 4px rgba(255,255,255,0.75); border-color: #fef08a; } }
+                #exec-sticky-command-bar, html.light-theme #exec-sticky-command-bar { position: sticky; top: 8px; z-index: 99990; margin-top: 0 !important; margin-bottom: 0 !important; padding: 7px 12px; border-radius: 18px; border: 2.5px solid #fef08a !important; background: linear-gradient(135deg, #78350f 0%, #b45309 28%, #d97706 50%, #b45309 72%, #78350f 100%) !important; box-shadow: 0 10px 26px rgba(245,158,11,0.38), 0 4px 14px rgba(253,224,71,0.32), 0 0 22px rgba(251,191,36,0.52), inset 0 1.5px 3px rgba(255,255,255,0.62) !important; display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 6px; flex-wrap: nowrap !important; overflow: hidden !important; direction: rtl !important; box-sizing: border-box !important; }
+                #exec-sticky-command-bar > div { display: flex !important; align-items: center !important; flex-shrink: 0 !important; gap: 5px !important; }
+                #exec-sticky-command-bar.is-pinned-fixed, html.light-theme #exec-sticky-command-bar.is-pinned-fixed { position: fixed !important; top: 8px !important; margin-top: 0 !important; margin-bottom: 0 !important; z-index: 2147483500 !important; background: linear-gradient(135deg, #78350f 0%, #b45309 28%, #d97706 50%, #b45309 72%, #78350f 100%) !important; border: 2.5px solid #fef08a !important; }
+                #exec-sticky-command-bar .exec-period-pill { position: relative; overflow: hidden; height: 36px; padding: 0 11px; border-radius: 11px; font-size: 13.5px !important; font-weight: 900 !important; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; cursor: pointer; transition: border-color 0.2s ease, box-shadow 0.2s ease; border: 1.5px solid rgba(253,224,71,0.6); background: linear-gradient(180deg, rgba(15,23,42,0.94) 0%, rgba(2,6,23,0.98) 100%); color: #fef08a !important; -webkit-text-fill-color: #fef08a !important; box-shadow: 0 4px 10px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.22); }
                 #exec-sticky-command-bar .exec-period-pill::after, #exec-sticky-command-bar .exec-royal-action::after { content: ''; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 25%, rgba(255,255,255,0.28) 50%, transparent 75%); transform: translateX(-120%); transition: transform 0.55s ease; pointer-events: none; }
-                #exec-sticky-command-bar .exec-period-pill:hover { transform: translateY(-3px) scale(1.06); border-color: #38bdf8; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; box-shadow: 0 8px 20px rgba(56,189,248,0.45), 0 0 14px rgba(56,189,248,0.5); }
+                #exec-sticky-command-bar .exec-period-pill:hover { transform: translateY(-1px); border-color: #38bdf8; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; box-shadow: 0 6px 16px rgba(56,189,248,0.45), 0 0 12px rgba(56,189,248,0.5); }
                 #exec-sticky-command-bar .exec-period-pill:hover::after, #exec-sticky-command-bar .exec-royal-action:hover::after { transform: translateX(120%); }
-                #exec-sticky-command-bar .exec-period-pill.active-period { background: linear-gradient(135deg, #059669 0%, #0284c7 100%) !important; border: 2px solid #fde047 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; box-shadow: 0 8px 22px rgba(16,185,129,0.55), 0 0 18px rgba(253,224,71,0.5), inset 0 1px 2px rgba(255,255,255,0.45) !important; transform: translateY(-2px) scale(1.05); }
-                #exec-sticky-command-bar .exec-royal-action { position: relative; overflow: hidden; height: 42px; padding: 0 15px !important; border-radius: 14px !important; font-size: 14.5px !important; font-weight: 900 !important; display: inline-flex; align-items: center; justify-content: center; gap: 7px; white-space: nowrap; cursor: pointer; transition: all 0.26s cubic-bezier(0.34, 1.56, 0.64, 1) !important; box-shadow: 0 8px 20px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.32) !important; }
-                #exec-sticky-command-bar .exec-royal-action:hover { transform: translateY(-3px) scale(1.055) !important; filter: brightness(1.18) saturate(1.22); box-shadow: 0 12px 26px rgba(0,0,0,0.65), 0 0 20px rgba(56,189,248,0.6) !important; }
+                #exec-sticky-command-bar .exec-period-pill.active-period { background: linear-gradient(135deg, #059669 0%, #0284c7 100%) !important; border: 2px solid #fde047 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; box-shadow: 0 6px 16px rgba(16,185,129,0.5), 0 0 14px rgba(253,224,71,0.45), inset 0 1px 2px rgba(255,255,255,0.45) !important; }
+                #exec-sticky-command-bar .exec-royal-action { position: relative; overflow: hidden; height: 36px !important; padding: 0 10px !important; border-radius: 11px !important; font-size: 12.8px !important; font-weight: 900 !important; display: inline-flex; align-items: center; justify-content: center; gap: 5px !important; white-space: nowrap; cursor: pointer; transition: filter 0.2s ease, box-shadow 0.2s ease !important; box-shadow: 0 5px 14px rgba(0,0,0,0.45), inset 0 1px 2px rgba(255,255,255,0.32) !important; }
+                #exec-sticky-command-bar .exec-royal-action:hover { transform: translateY(-1px) !important; filter: brightness(1.15); box-shadow: 0 8px 18px rgba(0,0,0,0.55), 0 0 14px rgba(253,224,71,0.55) !important; }
                 #dash-today-harvest-strip .exec-jewel-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
                 @media (max-width: 900px) { #dash-today-harvest-strip .exec-jewel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
                 #dash-today-harvest-strip .exec-jewel-btn, html.light-theme #dash-today-harvest-strip .exec-jewel-btn { position: relative; overflow: hidden; min-height: 64px; padding: 10px 16px !important; border-radius: 16px !important; display: flex; align-items: center; justify-content: space-between !important; gap: 8px; transition: all 0.26s cubic-bezier(0.34, 1.56, 0.64, 1) !important; box-shadow: 0 8px 22px rgba(0,0,0,0.48), inset 0 1px 1px rgba(255,255,255,0.22) !important; }
@@ -1263,8 +1263,14 @@ function switchToMobileEdition() {
                 #dash-today-harvest-strip .exec-jewel-val { font-size: 18px !important; font-weight: 900 !important; white-space: nowrap; text-shadow: 0 2px 8px rgba(0,0,0,0.55); padding: 4px 11px; border-radius: 10px; background: rgba(2, 6, 23, 0.62); border: 1px solid rgba(255, 255, 255, 0.16); display: inline-flex; align-items: baseline; gap: 3px; }
                 #dash-today-harvest-strip .exec-jewel-val .exec-unit-tag { font-size: 10.5px !important; font-weight: 800 !important; opacity: 0.9; letter-spacing: 0; }
                 @keyframes mktBrokerMarquee { 0% { transform: translateX(0); } 100% { transform: translateX(50%); } }
+                @keyframes brkNewElectroGlow {
+                    0%, 100% { background: linear-gradient(135deg, #e11d48, #be123c) !important; box-shadow: 0 0 12px #e11d48, 0 0 22px rgba(225,29,72,0.85) !important; border-color: #fde047 !important; transform: scale(1.04); }
+                    35% { background: linear-gradient(135deg, #f97316, #ea580c) !important; box-shadow: 0 0 14px #f97316, 0 0 26px rgba(249,115,22,0.92) !important; border-color: #ffffff !important; transform: scale(1.09); }
+                    70% { background: linear-gradient(135deg, #9333ea, #7c3aed) !important; box-shadow: 0 0 14px #a855f7, 0 0 26px rgba(147,51,234,0.92) !important; border-color: #fde047 !important; transform: scale(1.06); }
+                }
+                .brk-new-electro-badge { display: inline-flex; align-items: center; gap: 3px; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; padding: 1px 8px; border-radius: 999px; border: 1.5px solid #fde047; font-weight: 900 !important; animation: brkNewElectroGlow 1.35s infinite ease-in-out !important; }
                 #market-broker-ticker-wrap, html.light-theme #market-broker-ticker-wrap { position: relative; background: #020617 !important; border: none !important; border-radius: 7px !important; padding: 0 !important; margin: 0 !important; display: flex !important; flex-direction: column !important; gap: 6px !important; overflow: hidden; box-shadow: 0 4px 14px rgba(2,6,23,0.65) !important; direction: rtl; }
-                #market-broker-ticker-wrap > .mkt-broker-row { display: flex !important; align-items: center !important; gap: 6px !important; overflow: hidden; width: 100% !important; height: 36px !important; min-height: 36px !important; max-height: 36px !important; padding: 0 8px !important; margin: 0 !important; border-radius: 6px; line-height: 1.2 !important; box-sizing: border-box !important; }
+                #market-broker-ticker-wrap > .mkt-broker-row { display: flex !important; align-items: center !important; gap: 6px !important; overflow: hidden; width: 100% !important; min-height: 36px !important; height: auto !important; max-height: none !important; padding: 4px 8px !important; margin: 0 !important; border-radius: 6px; line-height: 1.25 !important; box-sizing: border-box !important; }
                 #market-broker-offers-row, html.light-theme #market-broker-offers-row, html.light-theme[data-light-tone] #market-broker-offers-row { background: #0c1d47 !important; border: 1px solid rgba(253,224,71,0.55) !important; box-shadow: 0 2px 6px rgba(15,23,42,0.35) !important; }
                 #market-broker-orders-row, html.light-theme #market-broker-orders-row, html.light-theme[data-light-tone] #market-broker-orders-row { background: #0a2536 !important; border: 1px solid rgba(134,239,172,0.5) !important; box-shadow: 0 2px 6px rgba(15,23,42,0.35) !important; }
                 html.light-theme[data-light-tone="rose_blossom"] body, html.light-theme[data-light-tone="rose_blossom"] .dash-main { background: linear-gradient(180deg, #fdf2f8 0%, #fce7f3 50%, #fdf2f8 100%) !important; color: #000000 !important; }
@@ -1283,37 +1289,87 @@ function switchToMobileEdition() {
                 #market-broker-ticker-wrap .brk-ord-time, html.light-theme #market-broker-ticker-wrap .brk-ord-time { color: #bbf7d0 !important; -webkit-text-fill-color: #bbf7d0 !important; }
                 #market-broker-ticker-track { display: flex; width: max-content; align-items: center; gap: 22px; white-space: nowrap; will-change: transform; animation: none !important; }
                 #market-broker-orders-track { display: flex; width: max-content; align-items: center; gap: 22px; white-space: nowrap; will-change: transform; animation: none !important; }
+                html.prof-ux-2027 #exec-sticky-command-bar .exec-period-pill:hover,
+                html.prof-ux-2027 #exec-sticky-command-bar .exec-royal-action:hover,
+                html.prof-ux-2027 #dash-today-harvest-strip .exec-jewel-btn:hover { transform: translateY(-1px) scale(1) !important; }
+                html.prof-ux-2027 #exec-sticky-command-bar .exec-period-pill.active-period { transform: none !important; }
+                html.prof-ux-2027.light-theme #dash-today-harvest-strip .exec-jewel-val { background: #ffffff !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; border: 2px solid #0f172a !important; text-shadow: none !important; box-shadow: inset 0 1px 2px rgba(0,0,0,0.08) !important; }
+                html.prof-ux-2027 #exec-sticky-command-bar .exec-period-extra { display: none !important; }
+                html.prof-ux-2027.show-all-periods #exec-sticky-command-bar .exec-period-extra { display: inline-flex !important; }
+                html.prof-zen-mode #sec-calm, html.prof-zen-mode #sec-global-ai-innovations, html.prof-zen-mode #sec-flow, html.prof-zen-mode #sec-ops-audit { display: none !important; }
             </style>
             <div id="exec-sticky-command-placeholder" style="display:none;height:62px;"></div>
             <div id="exec-sticky-command-bar">
                 <div id="exec-summary-period-pills" class="flex items-center gap-1.5 shrink-0">
                     <button type="button" onclick="cycleExecutiveSummaryPeriod(0)" class="exec-period-pill active-period">اليوم</button>
                     <button type="button" onclick="cycleExecutiveSummaryPeriod(1)" class="exec-period-pill">أسبوع</button>
-                    <button type="button" onclick="cycleExecutiveSummaryPeriod(2)" class="exec-period-pill">10 أيام</button>
+                    <button type="button" onclick="cycleExecutiveSummaryPeriod(2)" class="exec-period-pill exec-period-extra">10 أيام</button>
                     <button type="button" onclick="cycleExecutiveSummaryPeriod(3)" class="exec-period-pill">شهر</button>
-                    <button type="button" onclick="cycleExecutiveSummaryPeriod(4)" class="exec-period-pill">3 شهور</button>
-                    <button type="button" onclick="cycleExecutiveSummaryPeriod(5)" class="exec-period-pill">6 شهور</button>
-                    <button type="button" onclick="cycleExecutiveSummaryPeriod(6)" class="exec-period-pill">9 شهور</button>
+                    <button type="button" onclick="cycleExecutiveSummaryPeriod(4)" class="exec-period-pill exec-period-extra">3 شهور</button>
+                    <button type="button" onclick="cycleExecutiveSummaryPeriod(5)" class="exec-period-pill exec-period-extra">6 شهور</button>
+                    <button type="button" onclick="cycleExecutiveSummaryPeriod(6)" class="exec-period-pill exec-period-extra">9 شهور</button>
                     <button type="button" onclick="cycleExecutiveSummaryPeriod(7)" class="exec-period-pill">سنة</button>
+                    <button type="button" id="exec-more-periods-btn" onclick="document.documentElement.classList.toggle('show-all-periods');this.textContent=document.documentElement.classList.contains('show-all-periods')?'− طي':'+ فترات';" class="exec-period-pill" title="إظهار أو طي الفترات الإضافية" style="padding:0 10px;border-color:#38bdf8;">+ فترات</button>
                 </div>
-                <div class="flex items-center gap-2 shrink-0" style="margin-right: auto;">
-                    <button onclick="toggleCurrency()" id="currency-btn" class="exec-royal-action" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important; border: 2px solid #fef08a !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; box-shadow: 0 6px 18px rgba(16,185,129,0.55), inset 0 1px 2px rgba(255,255,255,0.4) !important;" title="اضغط للتحويل الفوري بين الجنيه والدولار">
+                <div class="flex items-center gap-1.5 shrink-0" style="margin-right: auto;">
+                    <span id="exec-calm-pulse-badge" class="exec-royal-action" style="background:linear-gradient(135deg,#065f46,#047857);border:1.5px solid #6ee7b7;color:#fff!important;-webkit-text-fill-color:#fff!important;" title="مؤشر النبض المالي النفسي: مقارنة السيولة الفورية بمستحقات الموردين">🟢 سيولة مطمئنة</span>
+                    <button type="button" id="prof-zen-btn" onclick="toggleProfZenMode()" class="exec-royal-action" style="background:linear-gradient(135deg,#4f46e5,#312e81);border:1.5px solid #c7d2fe;color:#fff!important;-webkit-text-fill-color:#fff!important;" title="وضع التركيز الهادئ: طي الأقسام السفلية لراحة العين">🧘 تركيز</button>
+                    <button onclick="toggleCurrency()" id="currency-btn" class="exec-royal-action" style="background:linear-gradient(135deg,#10b981,#059669)!important;border:1.5px solid #fef08a!important;color:#fff!important;-webkit-text-fill-color:#fff!important;" title="اضغط للتحويل الفوري بين الجنيه والدولار">
                         <span>🪙</span><span id="currency-btn-txt">جنيه ⇄</span>
                     </button>
-                    <button type="button" class="exec-royal-action num-font" style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1.5px solid #38bdf8; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;" title="سعر الصرف المعتمد">
+                    <button type="button" class="exec-royal-action num-font" style="background:linear-gradient(135deg,#1e293b,#0f172a);border:1.5px solid #38bdf8;color:#fff!important;-webkit-text-fill-color:#fff!important;" title="سعر الصرف المعتمد">
                         <span>💱 الصرف:</span>
-                        <strong id="hdr-usd" style="color: #fde047 !important; -webkit-text-fill-color: #fde047 !important; font-size: 16.5px !important; font-weight: 900;">600</strong>
+                        <strong id="hdr-usd" style="color:#fde047!important;-webkit-text-fill-color:#fde047!important;font-size:14.5px!important;font-weight:900;">600</strong>
                     </button>
-                    <button onclick="startLiveDashVoiceAdvisor()" class="exec-royal-action" style="background: linear-gradient(135deg, #0284c7 0%, #1e40af 100%); border: 1.5px solid #7dd3fc; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;" title="حاور البروفيسور الذكي بالصوت أو النص لمناقشة المؤشرات والقرارات">
-                        <span>🎓</span><span>حاور البروفيسور</span>
+                    <button type="button" id="exec-live-mic-btn" onclick="startLiveDashVoiceAdvisor()" class="exec-royal-action" style="background:linear-gradient(135deg,#0284c7,#1e40af);border:1.5px solid #fde047;color:#fff!important;-webkit-text-fill-color:#fff!important;" title="اضغط ليضيء المايك مباشرة وتتحاور بالصوت الدافئ المفتوح بدون نوافذ">
+                        <span>🎙️</span><span>مايك البروفيسور</span>
                     </button>
-                    <button onclick="speakExecutiveDashboardBriefing()" class="exec-royal-action" style="background: linear-gradient(135deg, #0d9488 0%, #065f46 100%); border: 1.5px solid #6ee7b7; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;" title="قراءة صوتية ذكية فورية لأهم مؤشرات الشاشة">
+                    <button onclick="speakExecutiveDashboardBriefing()" class="exec-royal-action" style="background:linear-gradient(135deg,#0d9488,#065f46);border:1.5px solid #6ee7b7;color:#fff!important;-webkit-text-fill-color:#fff!important;" title="قراءة صوتية ذكية فورية لأهم مؤشرات الشاشة">
                         <span>🔊</span><span>إيجاز ذكي</span>
                     </button>
+                    <button type="button" id="prof-ux-revert-btn" onclick="toggleProfUx2027()" class="exec-royal-action" style="background:linear-gradient(135deg,#334155,#0f172a);border:1.5px solid #fde047;color:#fde047!important;-webkit-text-fill-color:#fde047!important;" title="تفعيل أو التراجع الفوري عن تحسينات البروفيسور الخمسة">↩️ تراجع</button>
                     <span id="hdr-rebar" style="display:none;">420,000</span>
                     <span id="hdr-rebar-unit" style="display:none;">ج.س</span>
                 </div>
             </div>
+            <script>
+                (function(){
+                    const applyUx = (on) => {
+                        document.documentElement.classList.toggle('prof-ux-2027', on);
+                        const b = document.getElementById('prof-ux-revert-btn');
+                        const mb = document.getElementById('exec-more-periods-btn');
+                        const cb = document.getElementById('exec-calm-pulse-badge');
+                        const zb = document.getElementById('prof-zen-btn');
+                        if (b) b.innerHTML = on ? '↩️ تراجع' : '✨ تفعيل التحسينات';
+                        if (mb) mb.style.display = on ? 'inline-flex' : 'none';
+                        if (cb) cb.style.display = on ? 'inline-flex' : 'none';
+                        if (zb) zb.style.display = on ? 'inline-flex' : 'none';
+                        if (!on) document.documentElement.classList.remove('prof-zen-mode');
+                    };
+                    window.toggleProfUx2027 = function() {
+                        const next = !document.documentElement.classList.contains('prof-ux-2027');
+                        localStorage.setItem('magaiees_prof_ux_2027', next ? '1' : '0');
+                        applyUx(next);
+                    };
+                    window.toggleProfZenMode = function() {
+                        const z = document.documentElement.classList.toggle('prof-zen-mode');
+                        const zb = document.getElementById('prof-zen-btn');
+                        if (zb) zb.innerHTML = z ? '📂 إظهار الأقسام' : '🧘 تركيز';
+                    };
+                    window.updateCalmPulseBadge = function() {
+                        const cb = document.getElementById('exec-calm-pulse-badge');
+                        if (!cb) return;
+                        const liq = parseFloat(document.getElementById('strip-liq-amt')?.getAttribute('data-sdg') || '3450000') || 0;
+                        const ap = parseFloat(document.getElementById('strip-ap-amt')?.getAttribute('data-sdg') || '290000') || 1;
+                        const ratio = liq / Math.max(1, ap);
+                        if (ratio >= 1.5) { cb.innerHTML = '🟢 سيولة مطمئنة'; cb.style.background = 'linear-gradient(135deg,#065f46,#047857)'; }
+                        else if (ratio >= 0.8) { cb.innerHTML = '🟡 سيولة متوازنة'; cb.style.background = 'linear-gradient(135deg,#b45309,#92400e)'; }
+                        else { cb.innerHTML = '🔴 تنبيه التزامات'; cb.style.background = 'linear-gradient(135deg,#be123c,#881337)'; }
+                    };
+                    applyUx(localStorage.getItem('magaiees_prof_ux_2027') !== '0');
+                    setTimeout(window.updateCalmPulseBadge, 200);
+                })();
+            </script>
             <div id="dash-today-harvest-strip" class="bento-card" style="padding: 14px 18px; border-radius: 22px; border: 1.5px solid rgba(56,189,248,0.55); background: linear-gradient(180deg, rgba(15,23,42,0.98) 0%, rgba(7,12,24,0.99) 100%); box-shadow: 0 18px 42px rgba(0,0,0,0.68), inset 0 1px 2px rgba(255,255,255,0.22);">
                 <div class="exec-jewel-grid num-font">
                     <button type="button" onclick="switchSalesProfitCardView('day')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-glow: rgba(56,189,248,0.78); border: 1.5px solid rgba(56,189,248,0.5) !important; border-bottom: 3.5px solid #38bdf8 !important; background: linear-gradient(180deg, rgba(14,165,233,0.22), rgba(15,23,42,0.95)) !important;">
@@ -2030,17 +2086,14 @@ function switchToMobileEdition() {
                 }
 
                 function startLiveDashVoiceAdvisor() {
-                    if (typeof window.openGlobalProfessorAiChatModal === 'function') {
-                        window.openGlobalProfessorAiChatModal();
+                    if (typeof window.toggleDirectLiveVoiceMic === 'function') {
+                        window.toggleDirectLiveVoiceMic();
                         return;
                     }
-                    const sal = (document.getElementById('strip-sal-amt')?.innerText || '').trim();
-                    const prf = (document.getElementById('strip-prf-amt')?.innerText || '').trim();
-                    const ar = (document.getElementById('strip-ar-amt')?.innerText || '').trim();
-                    const ap = (document.getElementById('strip-ap-amt')?.innerText || '').trim();
-                    const msg = `مرحباً بك في المحاور البروفيسوري الذكي. بناءً على قراءة العشر مؤشرات الحالية: مبيعاتك ${sal} بصافي ربح ${prf}. أنصحك بتحصيل ديون العملاء البالغة ${ar} لتغطية مستحقات الموردين البالغة ${ap} وتعزيز السيولة الفورية.`;
-                    _speakDashArabicText(msg);
-                    if (typeof openFullCardModal === 'function') openFullCardModal('forecast');
+                    const s = document.createElement('script');
+                    s.src = 'js/global-professor-ai-chat.js?v=' + Date.now();
+                    s.onload = () => { if (typeof window.toggleDirectLiveVoiceMic === 'function') window.toggleDirectLiveVoiceMic(); };
+                    document.head.appendChild(s);
                 }
 
                 function _activateMiniTab(btn, activeCls) {
@@ -2077,10 +2130,15 @@ function switchToMobileEdition() {
                             bar.style.width = '';
                         }
                     };
-                    window.addEventListener('scroll', syncPin, { passive: true });
-                    document.addEventListener('scroll', syncPin, true);
-                    window.addEventListener('resize', syncPin, { passive: true });
-                    setInterval(syncPin, 100);
+                    let pinTick = false;
+                    const onScrollPin = () => {
+                        if (!pinTick) {
+                            pinTick = true;
+                            requestAnimationFrame(() => { syncPin(); pinTick = false; });
+                        }
+                    };
+                    window.addEventListener('scroll', onScrollPin, { passive: true });
+                    window.addEventListener('resize', onScrollPin, { passive: true });
                     setTimeout(syncPin, 80);
                 })();
                 window._hiddenBrokerIds = JSON.parse(localStorage.getItem('magaiees_hidden_broker_ids') || '[]');
@@ -2107,14 +2165,16 @@ function switchToMobileEdition() {
                 })();
                 window._brokerOffersSec = Math.max(20, Math.min(200, parseInt(_savedBrkPrefs.offersSec ?? '160', 10) || 160));
                 window._brokerOrdersSec = Math.max(20, Math.min(200, parseInt(_savedBrkPrefs.ordersSec ?? '200', 10) || 200));
-                window._brokerFontStep = Math.max(-3, Math.min(5, parseInt(_savedBrkPrefs.fontStep ?? localStorage.getItem('magaiees_broker_font_step') ?? '2', 10)));
+                window._brokerFontStep = Math.max(-3, Math.min(10, parseInt(_savedBrkPrefs.fontStep ?? localStorage.getItem('magaiees_broker_font_step') ?? '2', 10)));
                 if (isNaN(window._brokerFontStep)) window._brokerFontStep = 2;
+                window._brokerFontFamily = _savedBrkPrefs.fontFamily || localStorage.getItem('magaiees_broker_font_family') || 'Cairo, Tajawal, sans-serif';
                 window._brokerMaxAgeHours = parseInt(_savedBrkPrefs.maxAgeHours ?? localStorage.getItem('magaiees_broker_max_age_h') ?? '24', 10) || 24;
                 window._brokerHideNames = _savedBrkPrefs.hideNames !== undefined ? !!_savedBrkPrefs.hideNames : (localStorage.getItem('magaiees_broker_hide_names') === '1');
                 window._brokerDockMode = (_savedBrkPrefs.dockMode === 'bottom' || localStorage.getItem('magaiees_broker_dock_mode') === 'bottom') ? 'bottom' : 'top';
                 function saveBrokerPrefs(showNotice) {
                     const prefs = {
                         fontStep: window._brokerFontStep ?? 2,
+                        fontFamily: window._brokerFontFamily || 'Cairo, Tajawal, sans-serif',
                         offersSec: window._brokerOffersSec || 160,
                         ordersSec: window._brokerOrdersSec || 200,
                         maxAgeHours: window._brokerMaxAgeHours || 24,
@@ -2141,7 +2201,7 @@ function switchToMobileEdition() {
                     }).catch(() => {});
                 }
                 function formatBrokerFontSizeLabel(step) {
-                    const s = Math.max(-3, Math.min(5, step || 0));
+                    const s = Math.max(-3, Math.min(10, step || 0));
                     const px = Math.round(13.2 + s * 1.6);
                     return px + 'px (' + (s === 0 ? '0' : (s > 0 ? '+' + s : s)) + ')';
                 }
@@ -2152,7 +2212,7 @@ function switchToMobileEdition() {
                     return (isOrd ? 'سرعة الطلبات ' : 'سرعة العروض ') + lvl + '/10';
                 }
                 function adjustMarketBrokerFont(delta) {
-                    window._brokerFontStep = Math.max(-3, Math.min(5, (window._brokerFontStep || 0) + delta));
+                    window._brokerFontStep = Math.max(-3, Math.min(10, (window._brokerFontStep || 0) + delta));
                     _safeBrkSet('magaiees_broker_font_step', String(window._brokerFontStep));
                     const lbl = document.getElementById('brk-font-step-lbl');
                     if (lbl) lbl.textContent = formatBrokerFontSizeLabel(window._brokerFontStep);
@@ -2279,8 +2339,11 @@ function switchToMobileEdition() {
                 async function loadMarketBrokerTicker() {
                     const track = document.getElementById('market-broker-ticker-track');
                     const ordTrack = document.getElementById('market-broker-orders-track');
+                    const wrap = document.getElementById('market-broker-ticker-wrap');
+                    if (wrap && wrap.style.display === 'none' && !window._userManuallyClosedBroker) {
+                        wrap.style.display = 'flex';
+                    }
                     if (!track) return;
-                    if (localStorage.getItem('magaiees_hide_broker_ticker') === '1') toggleMarketBrokerTicker(false);
                     applyMarketBrokerSpeed();
                     try {
                         const reqs = [fetch('api/market_broker_ticker.php?action=list&_t=' + Date.now()).then(r => r.json())];
@@ -2364,16 +2427,29 @@ function switchToMobileEdition() {
                             const txtCls = (isOrd ? 'brk-ord-txt-' : 'brk-off-txt-') + (idx % 3);
                             const hdrCls = isOrd ? 'brk-pill-hdr-ord' : 'brk-pill-hdr-off';
                             const timeCls = isOrd ? 'brk-ord-time' : 'brk-off-time';
-                            const isNew = (it.id === newestOfferId || it.id === newestOrderId || it.id === window._justAddedBrokerId);
+                            const getAgeMin = (item) => {
+                                if (item.ts && Number(item.ts) > 1000000000) return Math.max(0, (Date.now() - Number(item.ts) * 1000) / 60000);
+                                return 999;
+                            };
+                            const ageMin = (it.id === window._justAddedBrokerId) ? 0 : getAgeMin(it);
                             const isMasked = it.privacy === 'masked';
                             const badge = isOrd ? '🟠 مطلوب' : '🟢 عرض';
                             const cleanSender = String(it.sender_name || '').replace(/\s*#?\d+\s*🔒?/g, '').trim();
                             const fPx = (13.2 + (window._brokerFontStep || 0) * 1.6).toFixed(1);
-                            const newTag = isNew ? `<span style="background:#e11d48;color:#fff!important;-webkit-text-fill-color:#fff!important;padding:1px 6px;border-radius:999px;font-size:${(parseFloat(fPx)*0.78).toFixed(1)}px;font-weight:700;">🔥 جديد</span>` : '';
+                            const fFam = window._brokerFontFamily || 'Cairo, Tajawal, sans-serif';
+                            let newTag = '';
+                            if (ageMin <= 240) {
+                                const stageBg = ageMin <= 90
+                                    ? 'background:linear-gradient(135deg,#e11d48,#be123c)!important;box-shadow:0 0 12px rgba(225,29,72,0.9)!important;border:1.5px solid #fde047!important;'
+                                    : (ageMin <= 180
+                                        ? 'background:linear-gradient(135deg,#f97316,#d97706)!important;box-shadow:0 0 10px rgba(249,115,22,0.85)!important;border:1.5px solid #fef08a!important;'
+                                        : 'background:linear-gradient(135deg,#059669,#10b981)!important;box-shadow:0 0 10px rgba(16,185,129,0.85)!important;border:1.5px solid #a7f3d0!important;');
+                                newTag = `<span style="display:inline-flex;align-items:center;gap:3px;color:#fff!important;-webkit-text-fill-color:#fff!important;padding:1px 8px;border-radius:999px;font-size:${(parseFloat(fPx)*0.78).toFixed(1)}px;font-weight:900;${stageBg}">🔥 جديد</span>`;
+                            }
                             const hdrTxt = (window._brokerHideNames || isMasked || !cleanSender || /تاجر معتمد|مورد معتمد|مشتري معتمد/.test(cleanSender)) ? `${badge}:` : `${badge} (${cleanSender}):`;
                             const elapsedTxt = formatElapsed(it);
                             const tailTxt = `<small class="${timeCls}" style="font-size:${(parseFloat(fPx)*0.88).toFixed(1)}px;font-weight:700;">⏱️ ${elapsedTxt}</small>`;
-                            return `<span onclick="openBrokerDealAction('${it.sender_name}', '${it.text}', '${it.deal_code || ''}', '${it.privacy || 'public'}', '${it.phone || ''}')" class="${txtCls}" style="display:inline-flex;align-items:center;gap:5px;padding:0 4px;background:transparent;border:none;font-size:${fPx}px!important;font-weight:600;letter-spacing:0.15px;cursor:pointer;line-height:1.25;"><button type="button" onclick="hideSingleBrokerOffer('${it.id}', event)" title="إخفاء" style="width:13px;height:13px;padding:0;background:rgba(225,29,72,0.18);color:#e11d48;border:none;border-radius:50%;font-size:8.5px;font-weight:700;line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">✕</button>${newTag}<span class="${hdrCls}" style="font-size:${fPx}px!important;font-weight:700;">${hdrTxt}</span><span class="${txtCls}" style="font-size:${fPx}px!important;">${it.text}</span>${tailTxt}<span style="opacity:0.45;margin-right:8px;">✦</span></span>`;
+                            return `<span onclick="openBrokerDealAction('${it.sender_name}', '${it.text}', '${it.deal_code || ''}', '${it.privacy || 'public'}', '${it.phone || ''}')" class="${txtCls}" style="display:inline-flex;align-items:center;gap:5px;padding:0 4px;background:transparent;border:none;font-family:${fFam}!important;font-size:${fPx}px!important;font-weight:600;letter-spacing:0.15px;cursor:pointer;line-height:1.25;"><button type="button" onclick="hideSingleBrokerOffer('${it.id}', event)" title="إخفاء" style="width:13px;height:13px;padding:0;background:rgba(225,29,72,0.18);color:#e11d48;border:none;border-radius:50%;font-size:8.5px;font-weight:700;line-height:1;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">✕</button>${newTag}<span class="${hdrCls}" style="font-family:${fFam}!important;font-size:${fPx}px!important;font-weight:700;">${hdrTxt}</span><span class="${txtCls}" style="font-family:${fFam}!important;font-size:${fPx}px!important;">${it.text}</span>${tailTxt}<span style="opacity:0.45;margin-right:8px;">✦</span></span>`;
                         };
                         const buildLoopList = (arr) => {
                             if (!arr.length) return [];
@@ -2495,10 +2571,13 @@ function switchToMobileEdition() {
                     if (allBtn) allBtn.style.border = (mode === 'all') ? '2px solid #fde047' : '1px solid #475569';
                     box.innerHTML = list.map((it, idx) => {
                         const isOrd = it.type === 'order';
-                        const isNew = (it.id === newestOff || it.id === newestOrd || it.id === window._justAddedBrokerId);
+                        const ageM = (it.id === window._justAddedBrokerId) ? 0 : ((it.ts && Number(it.ts) > 1000000000) ? Math.max(0, (Date.now() - Number(it.ts) * 1000) / 60000) : 999);
+                        const isNew = ageM <= 240;
+                        const newBg = ageM <= 90 ? '#e11d48' : (ageM <= 180 ? '#f97316' : '#059669');
+                        const blkBadge = Number(it.black_points || 0) > 0 ? ` <span style="background:#000;color:#fde047!important;-webkit-text-fill-color:#fde047!important;padding:1px 6px;border-radius:6px;font-size:10.5px;border:1px solid #ef4444;">⚫ ${it.black_points}/3</span>` : '';
                         return `<tr style="border-bottom:1px solid rgba(148,163,184,0.22);background:${isNew ? 'rgba(16,185,129,0.18)' : (idx % 2 ? 'rgba(15,23,42,0.5)' : 'transparent')};">
-                            <td style="padding:8px 10px;font-weight:900;white-space:nowrap;"><span style="padding:2px 8px;border-radius:7px;background:${isOrd?'#d97706':'#059669'};color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:12px;">${isOrd?'🟠 طلب شراء':'🟢 عرض سعر'}</span> ${isNew?'<span style="background:#e11d48;color:#fff!important;-webkit-text-fill-color:#fff!important;padding:1px 6px;border-radius:6px;font-size:10.5px;border:1px solid #fde047;">🔥 جديد</span>':''}</td>
-                            <td class="text-amber-300" style="padding:8px 10px;font-weight:900;font-size:13.5px;white-space:nowrap;">${it.sender_name}${it.deal_code ? ' (#'+it.deal_code+')' : ''}</td>
+                            <td style="padding:8px 10px;font-weight:900;white-space:nowrap;"><span style="padding:2px 8px;border-radius:7px;background:${isOrd?'#d97706':'#059669'};color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:12px;">${isOrd?'🟠 طلب شراء':'🟢 عرض سعر'}</span> ${isNew?`<span style="background:${newBg};color:#fff!important;-webkit-text-fill-color:#fff!important;padding:1px 7px;border-radius:999px;font-size:10.5px;border:1px solid #fde047;">🔥 جديد</span>`:''}</td>
+                            <td class="text-amber-300" style="padding:8px 10px;font-weight:900;font-size:13.5px;white-space:nowrap;">${it.sender_name}${it.deal_code ? ' (#'+it.deal_code+')' : ''}${blkBadge}</td>
                             <td class="text-white" style="padding:8px 10px;font-weight:900;font-size:14px;">${it.text}</td>
                             <td class="text-sky-300" style="padding:8px 10px;font-size:12px;font-weight:800;white-space:nowrap;">${it.time} ${it.privacy==='masked'?'🔒 سري':'📞 مباشر'}</td>
                             <td style="padding:8px 10px;white-space:nowrap;display:flex;gap:5px;">
@@ -2528,7 +2607,14 @@ function switchToMobileEdition() {
                                     <button type="button" onclick="adjustMarketBrokerSpeed(1, window._brkActiveScope==='order'?'orders':'offers')" style="height:32px;padding:0 10px;border-radius:9px;background:#0284c7;color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #7dd3fc;font-size:12px;font-weight:900;cursor:pointer;">⚡ سرعة +</button>
                                     <button type="button" onclick="adjustMarketBrokerFont(-1)" title="إنقاص الخط حتى -3" style="height:32px;padding:0 9px;border-radius:9px;background:#1e293b;color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #475569;font-size:12px;font-weight:900;cursor:pointer;">🔡 خط −</button>
                                     <span id="brk-font-step-lbl" style="height:32px;padding:0 8px;border-radius:8px;background:#0f172a;color:#fde047!important;-webkit-text-fill-color:#fde047!important;border:1px solid #38bdf8;font-size:11.5px;font-weight:900;display:inline-flex;align-items:center;">${formatBrokerFontSizeLabel(window._brokerFontStep)}</span>
-                                    <button type="button" onclick="adjustMarketBrokerFont(1)" title="تكبير الخط حتى +5" style="height:32px;padding:0 9px;border-radius:9px;background:#0284c7;color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #7dd3fc;font-size:12px;font-weight:900;cursor:pointer;">🔠 خط +</button>
+                                    <button type="button" onclick="adjustMarketBrokerFont(1)" title="تكبير الخط حتى +10" style="height:32px;padding:0 9px;border-radius:9px;background:#0284c7;color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #7dd3fc;font-size:12px;font-weight:900;cursor:pointer;">🔠 خط +</button>
+                                    <select id="brk-font-family-sel" onchange="window._brokerFontFamily=this.value;_safeBrkSet('magaiees_broker_font_family',this.value);saveBrokerPrefs(true);window._lastBrokerSig='';loadMarketBrokerTicker();" title="خيارات نوع خط البورصة" style="height:32px;padding:0 8px;border-radius:9px;background:#0f172a;color:#7dd3fc!important;-webkit-text-fill-color:#7dd3fc!important;border:1px solid #38bdf8;font-size:11.5px;font-weight:900;cursor:pointer;">
+                                        <option value="Cairo, Tajawal, sans-serif" ${(!window._brokerFontFamily||window._brokerFontFamily.includes('Cairo'))?'selected':''}>✒️ خط القاهرة (Cairo)</option>
+                                        <option value="Tajawal, Cairo, sans-serif" ${(window._brokerFontFamily&&window._brokerFontFamily.startsWith('Tajawal'))?'selected':''}>✒️ خط تجوال (Tajawal)</option>
+                                        <option value="Almarai, Cairo, sans-serif" ${(window._brokerFontFamily&&window._brokerFontFamily.startsWith('Almarai'))?'selected':''}>✒️ خط المراعي (Almarai)</option>
+                                        <option value="'Readex Pro', Cairo, sans-serif" ${(window._brokerFontFamily&&window._brokerFontFamily.includes('Readex'))?'selected':''}>✒️ خط ريدكس (Readex)</option>
+                                        <option value="Changa, Cairo, sans-serif" ${(window._brokerFontFamily&&window._brokerFontFamily.startsWith('Changa'))?'selected':''}>✒️ خط تشانغا (Changa)</option>
+                                    </select>
                                     <button type="button" id="brk-toggle-names-btn" onclick="toggleMarketBrokerNames()" style="height:32px;padding:0 9px;border-radius:9px;background:${window._brokerHideNames?'#059669':'#1e293b'};color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #10b981;font-size:11.5px;font-weight:900;cursor:pointer;">${window._brokerHideNames?'👤 الأسماء: مخفية':'👤 الأسماء: ظاهرة'}</button>
                                     <button type="button" id="brk-my-items-btn" onclick="toggleBrokerMyItemsFilter()" style="height:32px;padding:0 9px;border-radius:9px;background:${window._brokerMyItemsFilter!==false?'#059669':'#1e293b'};color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #34d399;font-size:11.5px;font-weight:900;cursor:pointer;">${window._brokerMyItemsFilter!==false?'🎯 ذكاء الأصناف: نشاطي':'🌐 ذكاء الأصناف: الكل'}</button>
                                     <button type="button" id="brk-unified-lock-btn" onclick="toggleSingleBrokerRow(window._brkActiveScope==='order'?'market-broker-orders-row':'market-broker-offers-row');switchBrokerControlScope(window._brkActiveScope);saveBrokerPrefs();" style="height:32px;padding:0 9px;border-radius:9px;background:#be123c;color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #fda4af;font-size:11.5px;font-weight:900;cursor:pointer;">🔒 قفل العروض</button>
@@ -2557,7 +2643,9 @@ function switchToMobileEdition() {
                                 </select>
                                 <input id="brk-name" type="text" placeholder="الاسم (مثلاً: مهدي)" style="width:130px;height:32px;border-radius:8px;background:#1e293b;color:#fff;border:1px solid #475569;padding:0 8px;font-size:12px;font-weight:800;">
                                 <input id="brk-phone" type="text" placeholder="رقم الواتساب" value="249123005622" style="width:130px;height:32px;border-radius:8px;background:#1e293b;color:#fff;border:1px solid #475569;padding:0 8px;font-size:12px;font-weight:800;direction:ltr;">
-                                <input id="brk-text" type="text" placeholder="🟢 اكتب تفاصيل عرض السعر هنا لينزل فوراً في شريط العروض بشارة 🔥 جديد..." style="flex:1;min-width:220px;height:32px;border-radius:8px;background:#1e293b;color:#fff;border:1.5px solid #38bdf8;padding:0 10px;font-size:12.5px;font-weight:800;">
+                                <input id="brk-text" type="text" placeholder="🟢 اكتب تفاصيل عرض السعر أو ارفع صورة/مجموعة صور بالزر المجاور..." style="flex:1;min-width:200px;height:32px;border-radius:8px;background:#1e293b;color:#fff;border:1.5px solid #38bdf8;padding:0 10px;font-size:12.5px;font-weight:800;">
+                                <input id="brk-ai-vision-file" type="file" accept="image/*" multiple style="display:none;" onchange="analyzeBrokerImageOffer(this)">
+                                <button type="button" id="brk-ai-vision-btn" onclick="document.getElementById('brk-ai-vision-file').click()" title="الذكاء البصري للبورصة: ارفع صورة أو مجموعة صور (أصناف وأسعار أو ورق مكتوب بخط اليد) ليقرأها وينشرها فوراً" style="padding:0 12px;height:32px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#0284c7);color:#fde047!important;-webkit-text-fill-color:#fde047!important;border:1.5px solid #fde047;font-size:12px;font-weight:900;cursor:pointer;white-space:nowrap;">📷 قراءة صورة / مجموعة صور</button>
                                 <button type="button" onclick="submitBrokerPost()" style="padding:0 16px;height:32px;border-radius:8px;background:linear-gradient(135deg,#059669,#0284c7);color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #fde047;font-size:12.5px;font-weight:900;cursor:pointer;white-space:nowrap;">🚀 انشر الآن</button>
                             </div>
                             <div style="flex:1;min-height:0;display:flex;flex-direction:column;border-radius:12px;border:1.5px solid rgba(56,189,248,0.35);overflow:hidden;background:rgba(2,6,23,0.65);">
@@ -2573,6 +2661,31 @@ function switchToMobileEdition() {
                     }
                     switchBrokerControlScope(defaultType || 'offer');
                     m.style.display = 'flex';
+                }
+                async function analyzeBrokerImageOffer(inputEl) {
+                    const file = inputEl?.files?.[0];
+                    if (!file) return;
+                    const btn = document.getElementById('brk-ai-vision-btn');
+                    const txtInp = document.getElementById('brk-text');
+                    if (btn) btn.innerHTML = '⏳ جاري قراءة الصورة بالذكاء البصري...';
+                    const reader = new FileReader();
+                    reader.onload = async () => {
+                        try {
+                            const res = await fetch('api/ai-assistant.php', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    image: reader.result,
+                                    message: 'اقرأ هذه الصورة بدقة فائقة (سواء كانت ورقة مكتوبة بخط اليد، أو ورقة مطبوعة، أو صورة منتج/صنف مثل لمبة أو معدة وتحتها سعرها)، واستخرج منها سطراً واحداً مختصراً ومرتباً يصلح للنشر في شريط البورصة يتضمن اسم الصنف المستنتج من الصورة أو النص مع السعر والكمية إن وجدت، بدون أي مقدمات.'
+                                })
+                            }).then(r => r.json());
+                            const extracted = String(res?.reply || '').replace(/[\r\n*#]+/g, ' | ').trim();
+                            if (txtInp && extracted) txtInp.value = extracted;
+                        } catch (e) {}
+                        if (btn) btn.innerHTML = '📷 قراءة صورة / صنف وخط يد';
+                        inputEl.value = '';
+                    };
+                    reader.readAsDataURL(file);
                 }
                 async function submitBrokerPost() {
                     const txt = (document.getElementById('brk-text')?.value || '').trim();
@@ -2619,11 +2732,12 @@ function switchToMobileEdition() {
                     const pillsBox = document.getElementById('exec-summary-period-pills');
                     if (pillsBox) {
                         Array.from(pillsBox.children).forEach((b, i) => {
-                            b.className = i === window._execSumPeriodIdx
-                                ? 'exec-period-pill active-period'
-                                : 'exec-period-pill';
+                            if (b.id === 'exec-more-periods-btn') return;
+                            const isExtra = [2, 4, 5, 6].includes(i) ? ' exec-period-extra' : '';
+                            b.className = (i === window._execSumPeriodIdx ? 'exec-period-pill active-period' : 'exec-period-pill') + isExtra;
                         });
                     }
+                    if (typeof window.updateCalmPulseBadge === 'function') setTimeout(window.updateCalmPulseBadge, 50);
                     const setHtml = (id, v) => { const el = document.getElementById(id); if (el) el.innerHTML = v; };
                     setHtml('strip-sal-amt', m(1890000 * p.mult));
                     setHtml('strip-pur-amt', m(1420000 * p.mult));
@@ -6444,12 +6558,12 @@ function switchToMobileEdition() {
             color: #ffffff !important;
             -webkit-text-fill-color: #ffffff !important;
         }
-        #dash-top-items-list, #dash-forecast-list { gap: 7px !important; justify-content: stretch !important; }
-        #dash-top-items-list > div, #dash-forecast-list > div { flex: 1 1 0% !important; padding: 10px 14px !important; display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 10px !important; }
-        #dash-top-items-list > div > span:first-child, #dash-forecast-list > div > span:first-child { font-family: 'Cairo', 'Tajawal', sans-serif !important; font-size: 16.5px !important; font-weight: 900 !important; line-height: 1.35 !important; color: #ffffff !important; flex: 1 1 auto !important; min-width: 0 !important; white-space: normal !important; overflow: visible !important; text-overflow: clip !important; }
-        #dash-forecast-list > div > strong { font-size: 16px !important; font-weight: 900 !important; }
-        #dash-partners-radar-list > div .font-black.text-white, #dash-debt-aging-box > div .font-black.text-white { font-family: 'Cairo', 'Tajawal', sans-serif !important; font-size: 16px !important; font-weight: 900 !important; line-height: 1.35 !important; margin-bottom: 3px !important; color: #ffffff !important; }
-        #dash-top-items-list > div small, #partner-items-modal small { font-family: 'Cairo', 'Tajawal', sans-serif !important; color: #fde68a !important; font-weight: 800 !important; font-size: 13.5px !important; margin-right: 4px !important; }
+        #dash-top-items-list, #dash-forecast-list { gap: 5px !important; justify-content: stretch !important; }
+        #dash-top-items-list > div, #dash-forecast-list > div { flex: 1 1 0% !important; padding: 6px 10px !important; display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 8px !important; }
+        #dash-top-items-list > div > span:first-child, #dash-forecast-list > div > span:first-child { font-family: 'Cairo', 'Tajawal', sans-serif !important; font-size: 14px !important; font-weight: 900 !important; line-height: 1.25 !important; color: #ffffff !important; flex: 1 1 auto !important; min-width: 0 !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+        #dash-forecast-list > div > strong { font-size: 14.5px !important; font-weight: 900 !important; }
+        #dash-partners-radar-list > div .font-black.text-white, #dash-debt-aging-box > div .font-black.text-white { font-family: 'Cairo', 'Tajawal', sans-serif !important; font-size: 15px !important; font-weight: 900 !important; line-height: 1.3 !important; margin-bottom: 2px !important; color: #ffffff !important; }
+        #dash-top-items-list > div small, #partner-items-modal small { font-family: 'Cairo', 'Tajawal', sans-serif !important; color: #fde68a !important; font-weight: 800 !important; font-size: 12.5px !important; margin-right: 4px !important; }
         #dash-partners-radar-list > div span.text-xs, #dash-debt-aging-box > div span.text-xs, #dash-partners-radar-list > div span.text-xs b, #dash-debt-aging-box > div span.text-xs b { font-size: 12.5px !important; font-weight: 500 !important; color: #fde68a !important; font-family: 'Cairo', 'Tajawal', sans-serif !important; line-height: 1.38 !important; }
         #new-unified-dashboard-design .wa-svg-btn, #partner-items-modal .wa-svg-btn { width: 32px !important; height: 30px !important; border-radius: 8px !important; background: linear-gradient(180deg, #25D366 0%, #128C7E 100%) !important; border: 1.5px solid #86efac !important; border-bottom: 3px solid #065f46 !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; box-shadow: 0 3px 8px rgba(37, 211, 102, 0.35) !important; transition: transform 0.16s ease, box-shadow 0.16s ease !important; flex-shrink: 0 !important; }
         #new-unified-dashboard-design .wa-svg-btn:hover, #partner-items-modal .wa-svg-btn:hover { transform: translateY(-2px) !important; box-shadow: 0 6px 14px rgba(37, 211, 102, 0.65) !important; }
@@ -6474,22 +6588,19 @@ function switchToMobileEdition() {
         #new-unified-dashboard-design .bento-card {
             position: relative;
             overflow: hidden;
-            background: var(--card-bg, linear-gradient(155deg, rgba(16, 26, 48, 0.94) 0%, rgba(8, 14, 28, 0.97) 100%)) !important;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            background: var(--card-bg, linear-gradient(155deg, rgba(16, 26, 48, 0.96) 0%, rgba(8, 14, 28, 0.98) 100%)) !important;
             border: 1.5px solid var(--border-color, rgba(56, 189, 248, 0.28)) !important;
             border-top: 2px solid rgba(255, 255, 255, 0.22) !important;
             border-radius: 20px !important;
-            box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
-            transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease, box-shadow 0.22s ease !important;
+            box-shadow: 0 12px 30px -6px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
         }
-        @media (min-width: 1024px) {
-            #new-unified-dashboard-design #sec-global-ai-innovations {
-                grid-template-columns: 4.5fr 3fr 4.5fr !important;
-            }
+        @media (min-width: 900px) {
+            #new-unified-dashboard-design #sec-global-ai-innovations,
             #new-unified-dashboard-design #sec-ops-audit {
                 grid-template-columns: 1fr 1fr 1fr !important;
             }
+            #new-unified-dashboard-design #sec-global-ai-innovations > .bento-card,
             #new-unified-dashboard-design #sec-ops-audit > .lg\:col-span-4 {
                 grid-column: span 1 / span 1 !important;
             }
