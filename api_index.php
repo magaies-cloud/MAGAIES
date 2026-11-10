@@ -288,17 +288,8 @@ function proxyWhatsAppRequestToCloud($endpoint, $queryParams, $method, $rawInput
         purgeLocalBaileysSessions($targetUid);
     }
 
-    $activeCloudStamp = sys_get_temp_dir() . '/magaies_wa_cloud_active_uid.stamp';
     $cloudQuery = $queryParams;
-    $cloudQuery['r'] = 'wa-tenant';
-    if (file_exists($activeCloudStamp) && (time() - @filemtime($activeCloudStamp)) < 120 && trim((string)@file_get_contents($activeCloudStamp)) === 'default-saas-admin') {
-        $cloudQuery['r'] = 'wa';
-        $cloudQuery['userId'] = 'default-saas-admin';
-        if (is_array($input) && isset($input['userId'])) {
-            $input['userId'] = 'default-saas-admin';
-            $rawInput = json_encode($input, JSON_UNESCAPED_UNICODE);
-        }
-    }
+    $cloudQuery['r'] = ($cloudQuery['userId'] ?? '') === 'default-saas-admin' ? 'wa' : 'wa-tenant';
     $cloudQuery['endpoint'] = $endpoint;
     $cloudQuery['local_only'] = '1'; // Instruct cloud server to execute on its own local 127.0.0.1:3001
     $cloudUrl = 'https://c.elsajana.com/api_index.php?' . http_build_query($cloudQuery);
@@ -341,63 +332,10 @@ function proxyWhatsAppRequestToCloud($endpoint, $queryParams, $method, $rawInput
     $err = curl_error($ch);
     curl_close($ch);
 
-    // Fast fallback to active default-saas-admin session on cloud if tenant session is unlinked
+    // If cloud server is QR_READY / unlinked, check if local laptop has an already-linked Baileys session for the SAME userId and migrate it automatically
     $targetUid = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($queryParams['userId'] ?? 'default-saas-admin')) ?: 'default-saas-admin';
     $manualLogoutStamp = sys_get_temp_dir() . '/magaies_wa_manual_logout_' . $targetUid . '.stamp';
     $recentlyLoggedOut = file_exists($manualLogoutStamp) && (time() - (int)@file_get_contents($manualLogoutStamp)) < 3600;
-    if (!$recentlyLoggedOut && !$err && $targetUid !== 'default-saas-admin') {
-        $dec = @json_decode($response, true);
-        if (($endpoint === 'status' || $endpoint === 'qr') && (!is_array($dec) || (($dec['status'] ?? '') !== 'CONNECTED' && empty($dec['phoneNumber'])))) {
-            $chFb = curl_init('https://c.elsajana.com/api_index.php?r=wa&endpoint=status&local_only=1&userId=default-saas-admin');
-            curl_setopt($chFb, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($chFb, CURLOPT_CONNECTTIMEOUT, 3);
-            curl_setopt($chFb, CURLOPT_TIMEOUT, 5);
-            curl_setopt($chFb, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($chFb, CURLOPT_SSL_VERIFYHOST, false);
-            $fbResp = curl_exec($chFb);
-            $fbCode = (int)curl_getinfo($chFb, CURLINFO_HTTP_CODE);
-            curl_close($chFb);
-            if ($fbCode === 200 && !empty($fbResp)) {
-                $fbDec = @json_decode($fbResp, true);
-                if (is_array($fbDec) && (($fbDec['status'] ?? '') === 'CONNECTED' || !empty($fbDec['phoneNumber']))) {
-                    @file_put_contents($activeCloudStamp, 'default-saas-admin');
-                    $response = $fbResp;
-                    $httpCode = 200;
-                }
-            }
-        } elseif (($endpoint === 'send' || $endpoint === 'send-message') && ($httpCode !== 200 || empty($dec['success']))) {
-            $fbUrl = 'https://c.elsajana.com/api_index.php?r=wa&endpoint=' . urlencode($endpoint) . '&local_only=1&userId=default-saas-admin';
-            $chFb = curl_init($fbUrl);
-            curl_setopt($chFb, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($chFb, CURLOPT_CONNECTTIMEOUT, 3);
-            curl_setopt($chFb, CURLOPT_TIMEOUT, 8);
-            curl_setopt($chFb, CURLOPT_SSL_VERIFYPEER, false);
-            curl_setopt($chFb, CURLOPT_SSL_VERIFYHOST, false);
-            curl_setopt($chFb, CURLOPT_POST, true);
-            if (!empty($_FILES)) {
-                $postFields = $_POST;
-                $postFields['userId'] = 'default-saas-admin';
-                foreach ($_FILES as $key => $file) {
-                    if (!empty($file['tmp_name']) && is_uploaded_file($file['tmp_name'])) {
-                        $postFields[$key] = new CURLFile($file['tmp_name'], $file['type'], $file['name']);
-                    }
-                }
-                curl_setopt($chFb, CURLOPT_POSTFIELDS, $postFields);
-            } else {
-                $fbInput = is_array($input) && !empty($input) ? $input : (!empty($_POST) ? $_POST : []);
-                $fbInput['userId'] = 'default-saas-admin';
-                curl_setopt($chFb, CURLOPT_POSTFIELDS, json_encode($fbInput, JSON_UNESCAPED_UNICODE));
-                curl_setopt($chFb, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-            }
-            $fbResp = curl_exec($chFb);
-            $fbCode = (int)curl_getinfo($chFb, CURLINFO_HTTP_CODE);
-            curl_close($chFb);
-            if ($fbCode === 200 && !empty($fbResp)) {
-                $response = $fbResp;
-                $httpCode = 200;
-            }
-        }
-    }
     if (!$recentlyLoggedOut && !$err && $httpCode === 200 && ($endpoint === 'status' || $endpoint === 'qr') && !empty($response)) {
         $dec = @json_decode($response, true);
         if (is_array($dec) && empty($dec['phoneNumber']) && !in_array($dec['status'] ?? '', ['CONNECTED', 'INITIALIZING', 'CONNECTING', 'RECONNECTING'], true)) {
@@ -557,27 +495,6 @@ if ($resource === 'wa-tenant' || $resource === 'wa' || $action === 'wa-proxy') {
     
     if ($err) {
         jsonResponse(['success' => false, 'error' => 'فشل الاتصال بخادم الواتساب المحلي: ' . $err], 500);
-    }
-
-    // Local 127.0.0.1:3001 fallback to default-saas-admin if tenant session is unlinked
-    if (($queryParams['userId'] ?? '') !== 'default-saas-admin') {
-        $locDec = @json_decode($response, true);
-        if ($endpoint === 'status' && (!is_array($locDec) || (($locDec['status'] ?? '') !== 'CONNECTED' && empty($locDec['phoneNumber'])))) {
-            $chFbLoc = curl_init('http://127.0.0.1:3001/wa/status?userId=default-saas-admin');
-            curl_setopt($chFbLoc, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($chFbLoc, CURLOPT_CONNECTTIMEOUT, 2);
-            curl_setopt($chFbLoc, CURLOPT_TIMEOUT, 4);
-            $fbLocResp = curl_exec($chFbLoc);
-            $fbLocCode = (int)curl_getinfo($chFbLoc, CURLINFO_HTTP_CODE);
-            curl_close($chFbLoc);
-            if ($fbLocCode === 200 && !empty($fbLocResp)) {
-                $fbLocDec = @json_decode($fbLocResp, true);
-                if (is_array($fbLocDec) && (($fbLocDec['status'] ?? '') === 'CONNECTED' || !empty($fbLocDec['phoneNumber']))) {
-                    $response = $fbLocResp;
-                    $httpCode = 200;
-                }
-            }
-        }
     }
 
     // If local session just connected after QR scan on laptop, clear post-logout stamp and migrate session to 24/7 cloud hub
@@ -1619,27 +1536,6 @@ if ($action === 'wa-proxy') {
     
     if ($err) {
         jsonResponse(['success' => false, 'error' => 'فشل الاتصال بخادم الواتساب المحلي: ' . $err], 500);
-    }
-
-    // Local 127.0.0.1:3001 fallback to default-saas-admin if tenant session is unlinked
-    if (($queryParams['userId'] ?? '') !== 'default-saas-admin') {
-        $locDec = @json_decode($response, true);
-        if ($endpoint === 'status' && (!is_array($locDec) || (($locDec['status'] ?? '') !== 'CONNECTED' && empty($locDec['phoneNumber'])))) {
-            $chFbLoc = curl_init('http://127.0.0.1:3001/wa/status?userId=default-saas-admin');
-            curl_setopt($chFbLoc, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($chFbLoc, CURLOPT_CONNECTTIMEOUT, 2);
-            curl_setopt($chFbLoc, CURLOPT_TIMEOUT, 4);
-            $fbLocResp = curl_exec($chFbLoc);
-            $fbLocCode = (int)curl_getinfo($chFbLoc, CURLINFO_HTTP_CODE);
-            curl_close($chFbLoc);
-            if ($fbLocCode === 200 && !empty($fbLocResp)) {
-                $fbLocDec = @json_decode($fbLocResp, true);
-                if (is_array($fbLocDec) && (($fbLocDec['status'] ?? '') === 'CONNECTED' || !empty($fbLocDec['phoneNumber']))) {
-                    $response = $fbLocResp;
-                    $httpCode = 200;
-                }
-            }
-        }
     }
     
     header('Content-Type: application/json');

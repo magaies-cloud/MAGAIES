@@ -171,10 +171,12 @@ class WhatsAppClient {
 
     get isTenantSession() {
         const uid = String(this.userId || '').trim();
-        if (/^wa_tenant_\d+$/i.test(uid)) return true;
-        if (typeof manager !== 'undefined' && manager && manager.clients) {
-            for (const [k, c] of manager.clients) {
-                if (/^wa_tenant_\d+$/i.test(k) && c && c.isConnected) return false;
+        if (!/^wa_tenant_\d+$/i.test(uid)) return false;
+        // Strict isolation: if this phone number is registered as the SaaS OTP number (default-saas-admin), never run company bots on it
+        if (this.phoneNumber && typeof manager !== 'undefined' && manager && manager.clients) {
+            const saasClient = manager.clients.get('default-saas-admin');
+            if (saasClient && saasClient !== this && saasClient.phoneNumber && saasClient.phoneNumber === this.phoneNumber) {
+                return false;
             }
         }
         return true;
@@ -182,7 +184,7 @@ class WhatsAppClient {
 
     get tenantId() {
         const m = String(this.userId || '').trim().match(/^wa_tenant_(\d+)$/i);
-        return m ? m[1] : '12';
+        return m ? m[1] : null;
     }
 
     // ─── Safe state setter with logging ────────────────────────
@@ -493,12 +495,17 @@ class WhatsAppClient {
                                 this.messageCache.delete(oldestKey);
                             }
 
+                            // SaaS Admin WhatsApp (default-saas-admin) is strictly for outbound OTPs & SaaS broadcasts — never process incoming messages, receipts, statements, or broker commands on it
+                            if (!this.isTenantSession || !this.tenantId || this.userId === 'default-saas-admin' || this.userId === 'default') {
+                                continue;
+                            }
+
                             // Auto-ingest customer receipt image if incoming from client (or sent by owner in self-chat)
                             const unwrapped = unwrapWAMessage(msg);
                             const jid = msg.key.remoteJid || '';
                             const isGroupOrBroadcast = jid.endsWith('@g.us') || jid === 'status@broadcast';
 
-                            // ── Instant Market Broker Ticker Handler (Runs on ALL sessions including 0123005622 / default-saas-admin) ──
+                            // ── Instant Market Broker Ticker Handler (Strictly on Tenant Sessions only) ──
                             if (unwrapped && jid && !isGroupOrBroadcast) {
                                 const rawBrokerTxt = (
                                     unwrapped.conversation ||
@@ -3022,13 +3029,7 @@ class ClientManager {
     findActiveClient(preferredId) {
         const targetId = String(preferredId || '').trim() || 'default-saas-admin';
         const normalizedId = targetId === 'default' ? 'default-saas-admin' : targetId;
-        const preferred = this.get(normalizedId);
-        if (preferred && (preferred.isConnected || preferred.status === 'AUTHENTICATED')) {
-            return preferred;
-        }
-        const connected = this.getConnectedClient();
-        if (connected) return connected;
-        return preferred;
+        return this.get(normalizedId);
     }
 
     async initClient(userId) {
@@ -3452,10 +3453,7 @@ app.post(['/wa/send', '/wa/send-message', '/send'], upload.any(), async (req, re
                 await new Promise(r => setTimeout(r, 250));
             }
         }
-        if (!client.isConnected) {
-            const fallbackConn = manager.getConnectedClient();
-            if (fallbackConn) client = fallbackConn;
-        }
+        // Strict isolation: never fall back across sessions (SaaS OTP vs Company WhatsApp)
     }
 
     if (!client || !client.isConnected) {
