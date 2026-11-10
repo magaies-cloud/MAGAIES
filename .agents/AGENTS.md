@@ -1,8 +1,13 @@
 # Magaiees ERP (ELSAJANA2) — Core Speed & Stability Rules
 
-## 1. Fast Execution & Instant Deployment Rules (قواعد السرعة والتنفيذ المباشر)
+## 1. Fast Execution & Instant Deployment Rules (قواعد السرعة القصوى والتنفيذ المباشر)
+- **Zero-Delay Code Writing & Minimum Tool Calls (أقصى سرعة في كتابة الكود وأقل عدد خطوات)**:
+  - **Direct Edits**: Go straight to `read_file` (only the needed line range) and `edit_file`. Do NOT waste turns on broad searches, multiple greps, or reading entire large files when the target section is known.
+  - **Batch Operations**: Execute independent tool calls (`read_file`, `edit_file`, `run_command`) in parallel within the **same turn** whenever possible instead of sequential turns.
+  - **Concise Responses**: Keep explanations ultra-short and direct. Do not write long summaries before or after applying code changes.
+  - **No Subagents for Coding/Commands**: **NEVER** use `invoke_subagent` for reading, editing code, or running commands—execute everything directly and immediately.
 - **Active Repository Path**: Always work directly inside `C:\xampp\htdocs\ELSAJANA2\magaies`.
-- **Use `run_command` Directly**: Shell execution via `run_command` works natively in <1 second. **NEVER** create temporary PHP scripts (`_sync_deploy_tmp*.php`, `_diag_tmp.php`) or use `read_url_content` over `localhost` to execute Git or terminal commands.
+- **Use `run_command` Directly**: Shell execution via `run_command` works natively in <1 second. Combine multiple shell commands into a single one-liner (`;` in PowerShell) to avoid multiple round-trips. **NEVER** create temporary PHP scripts (`_sync_deploy_tmp*.php`, `_diag_tmp.php`) or use `read_url_content` over `localhost` to execute Git or terminal commands.
 - **Local-Only Changes by Default (`التعديل في المحل فقط — ممنوع الرفع التلقائي`)**:
   - **CRITICAL**: All code edits, fixes, and new features MUST be applied **locally (`في المحل فقط`)** for instant speed.
   - **NEVER** push to GitHub (`git push`) or deploy to the live server (`trigger_webhook.php` / `c.elsajana.com`) automatically after editing files.
@@ -15,7 +20,7 @@
   Do NOT spend steps researching deployment mechanisms or spawning subagents for a push request.
 - **Fast Targeted Search**:
   - **NEVER** run `Get-ChildItem -Recurse` or scan `uploads/`, `baileys_auth_*`, `node_modules/`, `pwa_dist/`, or `scratch/`.
-  - Use `git grep -n "<pattern>"` inside `C:\xampp\htdocs\ELSAJANA2\magaies` or read the known file directly with `view_file`.
+  - Use `git grep -n "<pattern>"` inside `C:\xampp\htdocs\ELSAJANA2\magaies` or read the known file directly with `read_file`.
   - Avoid spawning subagents (`invoke_subagent`) for straightforward edits, bug fixes, or deployments.
 
 ## 2. Project Rules
