@@ -19,12 +19,15 @@
         { id: 'sage_pearl',      label: 'لؤلؤي زمردي هادئ',      swatch: '#10b981', fg: '#6ee7b7', brd: '#047857', isDark: false, themeKey: 'warm_cream' },
         { id: 'sky_alabaster',   label: 'سماوي لازوردي فاتح',    swatch: '#0284c7', fg: '#38bdf8', brd: '#0369a1', isDark: false, themeKey: 'ultra_white' },
         { id: 'warm_mocha_dark', label: 'موكا صحراوي غامق',      swatch: '#6b4226', fg: '#9c6b43', brd: '#451a03', isDark: false, themeKey: 'warm_cream' },
-        { id: 'deep_slate_dark', label: 'رصاصي فحمي غامق',       swatch: '#334155', fg: '#475569', brd: '#0f172a', isDark: false, themeKey: 'exec_gray' }
+        { id: 'deep_slate_dark', label: 'رصاصي فحمي غامق',       swatch: '#334155', fg: '#475569', brd: '#0f172a', isDark: false, themeKey: 'exec_gray' },
+        { id: 'rose_blossom',    label: 'وردي ياقوتي نهاري',      swatch: '#e11d48', fg: '#fecdd3', brd: '#9f1239', isDark: false, themeKey: 'warm_cream' },
+        { id: 'amber_sand',      label: 'كهرماني ذهبي مشرق',     swatch: '#d97706', fg: '#fde68a', brd: '#92400e', isDark: false, themeKey: 'warm_cream' },
+        { id: 'lavender_mist',   label: 'بنفسجي ملكي هادئ',      swatch: '#7c3aed', fg: '#ddd6fe', brd: '#5b21b6', isDark: false, themeKey: 'ultra_white' }
     ];
     const SYSTEM_AUDIO_TONES = [
         { id: 'crystal',    name: '🔔 كريستال' },
+        { id: 'soft',       name: '🎵 زمردي دافئ' },
         { id: 'mechanical', name: '⌨️ ميكانيكية' },
-        { id: 'soft',       name: '🎵 هادئة' },
         { id: 'mute',       name: '🔇 صامت' }
     ];
 
@@ -59,6 +62,15 @@
             }
             html.light-theme[data-light-tone="deep_slate_dark"], body.light-theme[data-light-tone="deep_slate_dark"] {
                 --lt-bg-main: #b0bec5; --lt-bg-card: #cfd8dc; --lt-bg-strip: #90a4ae; --lt-bg-input: #ffffff; --lt-border: #37474f; --lt-text: #000000;
+            }
+            html.light-theme[data-light-tone="rose_blossom"], body.light-theme[data-light-tone="rose_blossom"] {
+                --lt-bg-main: #f5d0da; --lt-bg-card: #fce7ed; --lt-bg-strip: #eebbc9; --lt-bg-input: #ffffff; --lt-border: #881337; --lt-text: #1f030b;
+            }
+            html.light-theme[data-light-tone="amber_sand"], body.light-theme[data-light-tone="amber_sand"] {
+                --lt-bg-main: #eedba5; --lt-bg-card: #f8edcc; --lt-bg-strip: #e2c983; --lt-bg-input: #ffffff; --lt-border: #78350f; --lt-text: #1c0a00;
+            }
+            html.light-theme[data-light-tone="lavender_mist"], body.light-theme[data-light-tone="lavender_mist"] {
+                --lt-bg-main: #ddd6fe; --lt-bg-card: #ede9fe; --lt-bg-strip: #c4b5fd; --lt-bg-input: #ffffff; --lt-border: #4c1d95; --lt-text: #11052C;
             }
 
             /* 4 DARK TONES (dark_midnight, pure_oled, mocha_brown, slate_twilight) */
@@ -424,11 +436,35 @@
         }
     };
 
+    window.runStrictDaylightContrastGuard = function () {
+        const isLight = document.documentElement.classList.contains('light-theme');
+        if (!isLight) return;
+        const PALE_HEX_RE = /#(fff|ffffff|f8fafc|f1f5f9|e2e8f0|cbd5e1|94a3b8|fde047|fef08a|fbbf24|7dd3fc|38bdf8|a7f3d0|6ee7b7|34d399|e9d5ff|d8b4fe|c084fc|fca5a5|f9a8d4)\b/i;
+        document.querySelectorAll('.md-card [style*="color"], .md-c1-modal-card [style*="color"], .md-child-modal-card [style*="color"], #md-constitution1-quick-strip [style*="color"]').forEach(el => {
+            if (el.getAttribute('data-tone-dark') === '1' || el.classList.contains('md-ostaz-fixed-btn') || el.classList.contains('btn-c3-save') || el.classList.contains('btn-c3-cancel') || el.classList.contains('btn-add')) return;
+            const st = el.getAttribute('style') || '';
+            if (PALE_HEX_RE.test(st)) {
+                const bg = window.getComputedStyle(el).backgroundColor || '';
+                const m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+                let isDarkSurface = false;
+                if (m) {
+                    const r = +m[1], g = +m[2], b = +m[3], a = m[4] !== undefined ? +m[4] : 1;
+                    if (a > 0.55 && ((0.299 * r + 0.587 * g + 0.114 * b) / 255) < 0.38) isDarkSurface = true;
+                }
+                if (!isDarkSurface) {
+                    el.style.setProperty('color', '#0F172A', 'important');
+                    el.style.setProperty('-webkit-text-fill-color', '#0F172A', 'important');
+                }
+            }
+        });
+    };
+
     window.applyAiSmartContrastLock = function () {
         const isLight = document.documentElement.classList.contains('light-theme');
         if (!isLight) return;
-        document.querySelectorAll('.md-card button, .md-tabs-sidebar .md-tab-btn, #pur-light-tone-popover button, .md-col-ctrl-btn, .preset-pill-btn, .ribbon-btn').forEach(el => {
-            if (el.getAttribute('data-tone-dark') === '1' || el.classList.contains('md-ostaz-fixed-btn') || el.classList.contains('btn-c3-save')) return;
+        window.runStrictDaylightContrastGuard();
+        document.querySelectorAll('.md-card button, .md-tabs-sidebar .md-tab-btn, #pur-light-tone-popover button, .md-col-ctrl-btn, .preset-pill-btn, .ribbon-btn, #md-constitution1-quick-strip button').forEach(el => {
+            if (el.getAttribute('data-tone-dark') === '1' || el.classList.contains('md-ostaz-fixed-btn') || el.classList.contains('btn-c3-save') || el.classList.contains('btn-c3-cancel')) return;
             const cs = window.getComputedStyle(el);
             const bg = (cs.backgroundColor || '') + ' ' + (cs.backgroundImage || '');
             const m = bg.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
@@ -456,19 +492,29 @@
         }
         if (pop.style.display === 'block') { pop.style.display = 'none'; return; }
         const isDarkNow = !document.documentElement.classList.contains('light-theme');
-        pop.style.cssText = 'position:fixed;z-index:9999999;background:' + (isDarkNow ? 'linear-gradient(145deg,#0f172a,#1e293b)' : 'linear-gradient(145deg,#fffbf2,#f3ead8)') + ';border:2px solid #fbbf24;border-radius:14px;padding:10px;box-shadow:0 18px 42px rgba(0,0,0,0.65),0 0 22px rgba(245,158,11,0.35);min-width:255px;direction:rtl;font-family:Tajawal,Cairo,sans-serif;display:none;';
+        pop.style.cssText = 'position:fixed;z-index:9999999;background:' + (isDarkNow ? 'linear-gradient(145deg,#0f172a,#1e293b)' : 'linear-gradient(145deg,#fffbf2,#f3ead8)') + ';border:2px solid #fbbf24;border-radius:14px;padding:10px;box-shadow:0 18px 42px rgba(0,0,0,0.65),0 0 22px rgba(245,158,11,0.35);min-width:275px;max-height:86vh;overflow-y:auto;direction:rtl;font-family:Tajawal,Cairo,sans-serif;display:none;';
         const cur = isDarkNow ? 'dark_midnight' : (document.documentElement.getAttribute('data-light-tone') || localStorage.getItem('magaies_light_tone') || 'ivory_default');
+        const curSound = localStorage.getItem(SOUND_TONE_KEY) || 'crystal';
         const hdrCol = isDarkNow ? '#fde047' : '#000000';
-        pop.innerHTML = `<div style="color:${hdrCol}!important;-webkit-text-fill-color:${hdrCol}!important;font-weight:900;font-size:0.92rem;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(148,163,184,0.35);display:flex;justify-content:space-between;align-items:center;"><span>🎨 السمات ونغمات النظام (9)</span><span style="font-size:0.75rem;color:${isDarkNow?'#94a3b8':'#000000'}!important;-webkit-text-fill-color:${isDarkNow?'#94a3b8':'#000000'}!important;">موحد 100%</span></div>` +
+        const audioHtml = `<div style="margin-top:8px;padding-top:7px;border-top:1.5px dashed rgba(148,163,184,0.45);">` +
+            `<div style="font-size:0.8rem;font-weight:900;color:${hdrCol}!important;-webkit-text-fill-color:${hdrCol}!important;margin-bottom:5px;">🔊 نغمات النظام التفاعلية (4 نغمات):</div>` +
+            `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:5px;">` +
+            SYSTEM_AUDIO_TONES.map(s => {
+                const act = curSound === s.id;
+                const sBg = act ? 'linear-gradient(135deg,#10b981,#059669)' : (isDarkNow ? 'rgba(30,41,59,0.9)' : '#ffffff');
+                const sCol = act ? '#ffffff' : (isDarkNow ? '#e2e8f0' : '#0f172a');
+                return `<button type="button" data-tone-dark="${act || isDarkNow ? '1' : '0'}" onclick="window.setMdSystemAudioTone('${s.id}');window.openPurchaseLightTonePopover();window.openPurchaseLightTonePopover();" style="padding:6px 8px;border-radius:8px;cursor:pointer;font-size:0.78rem;font-weight:900;border:${act ? '2px solid #fde047' : '1.5px solid #64748b'}!important;background:${sBg}!important;color:${sCol}!important;-webkit-text-fill-color:${sCol}!important;">${s.name}${act ? ' ✓' : ''}</button>`;
+            }).join('') + `</div></div>`;
+        pop.innerHTML = `<div style="color:${hdrCol}!important;-webkit-text-fill-color:${hdrCol}!important;font-weight:900;font-size:0.92rem;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(148,163,184,0.35);display:flex;justify-content:space-between;align-items:center;"><span>🎨 المظهر ونغمات النظام (${TONES.length})</span><span style="font-size:0.75rem;color:${isDarkNow?'#94a3b8':'#000000'}!important;-webkit-text-fill-color:${isDarkNow?'#94a3b8':'#000000'}!important;">حارس نهاري 100%</span></div>` +
             TONES.map(t => {
                 const btnBg = t.isDark ? `linear-gradient(135deg,${t.fg} 0%,${t.swatch} 100%)` : `linear-gradient(135deg,#ffffff 0%,${t.fg} 100%)`;
                 const txtCol = t.isDark ? '#ffffff' : '#000000';
                 const chkCol = t.isDark ? '#fde047' : '#047857';
-                return `<button type="button" data-tone-dark="${t.isDark ? '1' : '0'}" onclick="window.applyPurchaseLightTone('${t.id}',true);document.getElementById('pur-light-tone-popover').style.display='none';" style="width:100%;display:flex;align-items:center;gap:10px;padding:7px 10px;margin-bottom:5px;border-radius:9px;cursor:pointer;background:${btnBg}!important;border:${cur===t.id?'2.5px solid #d97706':'1.5px solid '+t.brd}!important;color:${txtCol}!important;-webkit-text-fill-color:${txtCol}!important;font-weight:900;font-size:0.88rem;text-align:right;"><span style="width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,${t.fg} 0%,${t.swatch} 100%);border:2px solid ${t.brd};flex-shrink:0;"></span><span style="flex:1;color:${txtCol}!important;-webkit-text-fill-color:${txtCol}!important;font-weight:900;">${t.label}</span>${cur===t.id?`<span style="color:${chkCol}!important;-webkit-text-fill-color:${chkCol}!important;font-weight:900;">✓</span>`:''}</button>`;
-            }).join('');
+                return `<button type="button" data-tone-dark="${t.isDark ? '1' : '0'}" onclick="window.applyPurchaseLightTone('${t.id}',true);document.getElementById('pur-light-tone-popover').style.display='none';" style="width:100%;display:flex;align-items:center;gap:10px;padding:6px 10px;margin-bottom:4px;border-radius:9px;cursor:pointer;background:${btnBg}!important;border:${cur===t.id?'2.5px solid #d97706':'1.5px solid '+t.brd}!important;color:${txtCol}!important;-webkit-text-fill-color:${txtCol}!important;font-weight:900;font-size:0.85rem;text-align:right;"><span style="width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,${t.fg} 0%,${t.swatch} 100%);border:2px solid ${t.brd};flex-shrink:0;"></span><span style="flex:1;color:${txtCol}!important;-webkit-text-fill-color:${txtCol}!important;font-weight:900;">${t.label}</span>${cur===t.id?`<span style="color:${chkCol}!important;-webkit-text-fill-color:${chkCol}!important;font-weight:900;">✓</span>`:''}</button>`;
+            }).join('') + audioHtml;
         const r = anchorEl && anchorEl.getBoundingClientRect ? anchorEl.getBoundingClientRect() : { bottom: 60, left: 20 };
-        pop.style.top = Math.max(10, Math.min(window.innerHeight - 450, r.bottom + 8)) + 'px';
-        pop.style.left = Math.max(12, Math.min(window.innerWidth - 280, r.left)) + 'px';
+        pop.style.top = Math.max(10, Math.min(window.innerHeight - 520, r.bottom + 8)) + 'px';
+        pop.style.left = Math.max(12, Math.min(window.innerWidth - 295, r.left)) + 'px';
         pop.style.display = 'block';
     };
     window.openUniversalErpTonePopover = window.openPurchaseLightTonePopover;

@@ -3664,6 +3664,8 @@
                 matchedKey = 'single-cash-payment';
             } else if (window.location.pathname.includes('multi-cash-payment') && window.MagaiesSmartGuides['multi-cash-payment']) {
                 matchedKey = 'multi-cash-payment';
+            } else if ((window.location.pathname.includes('magaiees_unified_dashboard') || document.getElementById('new-unified-dashboard-design')) && window.MagaiesSmartGuides['magaiees-unified-dashboard']) {
+                matchedKey = 'magaiees-unified-dashboard';
             }
         }
         if (matchedKey) {
@@ -4180,9 +4182,23 @@
         window.openUniversalErpTonePopover(btn);
     };
 
+    function isLandingStartupScreen() {
+        const p = (window.location.pathname || '').toLowerCase();
+        if (document.querySelector('.header-theme-dashboard')) {
+            return false;
+        }
+        if (p.endsWith('/index.php') || p.endsWith('/index.html') || p.endsWith('/magaees/') || p.endsWith('/magaees') || p.endsWith('/magaies/') || p.endsWith('/magaies') || p === '/' || p === '') {
+            if (!p.includes('api_index.php')) return true;
+        }
+        if (document.querySelector('section.hero') && document.querySelector('nav.navbar')) {
+            return true;
+        }
+        return false;
+    }
+
     function isMainDashboardScreen() {
         const p = (window.location.pathname || '').toLowerCase();
-        if (p.includes('magaiees_unified_dashboard.php') || p.includes('dashboard-pro.php') || p.endsWith('/magaies/') || p.endsWith('/magaies') || p.endsWith('/index.php')) {
+        if (p.includes('magaiees_unified_dashboard.php') || p.includes('dashboard-pro.php')) {
             return true;
         }
         if (document.querySelector('.header-theme-dashboard')) {
@@ -4193,6 +4209,12 @@
 
     function ensureFixedSquareLauncher() {
         let pod = document.getElementById('msg-universal-fixed-launcher');
+        if (isLandingStartupScreen()) {
+            if (pod) {
+                try { pod.remove(); } catch (e) {}
+            }
+            return;
+        }
 
         // Remove any duplicate standalone TV button wrapper so #header-media-btn resolves to our Royal Quartet
         document.querySelectorAll('#header-media-control-wrap, .subscreen-floating-tv-wrap').forEach(el => {

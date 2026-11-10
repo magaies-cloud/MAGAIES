@@ -2716,25 +2716,6 @@ function sendInboundWhatsAppNotification($tenantId, $phone, $message) {
                         return;
                     }
                 }
-                $fbPayload = json_encode(['userId' => 'default-saas-admin', 'phone' => $phone, 'message' => $message], JSON_UNESCAPED_UNICODE);
-                $chFb = curl_init('https://c.elsajana.com/api_index.php?r=wa&endpoint=send&userId=default-saas-admin&local_only=1');
-                curl_setopt($chFb, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($chFb, CURLOPT_POST, true);
-                curl_setopt($chFb, CURLOPT_POSTFIELDS, $fbPayload);
-                curl_setopt($chFb, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'Content-Length: ' . strlen($fbPayload)]);
-                curl_setopt($chFb, CURLOPT_CONNECTTIMEOUT, 2);
-                curl_setopt($chFb, CURLOPT_TIMEOUT, 5);
-                curl_setopt($chFb, CURLOPT_SSL_VERIFYPEER, false);
-                curl_setopt($chFb, CURLOPT_SSL_VERIFYHOST, false);
-                $fbResp = curl_exec($chFb);
-                $fbCode = (int)curl_getinfo($chFb, CURLINFO_HTTP_CODE);
-                curl_close($chFb);
-                if ($fbCode === 200 && !empty($fbResp)) {
-                    $fbDec = json_decode($fbResp, true);
-                    if (!empty($fbDec['success'])) {
-                        return;
-                    }
-                }
             }
 
             $ch = curl_init('http://127.0.0.1:3001/wa/send');

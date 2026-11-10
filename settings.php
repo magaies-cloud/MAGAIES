@@ -108,22 +108,38 @@ if (isset($_GET['action'])) {
             // Sync full settings payload into global_settings and settings table
             $jsonStr = json_encode($input, JSON_UNESCAPED_UNICODE);
             try {
+                @$pdo->exec("ALTER TABLE global_settings MODIFY COLUMN setting_value LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL");
+            } catch (Throwable $e) {}
+            try {
                 $stmtG = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
                 $stmtG->execute(['tenant_' . (int)$GLOBAL_TENANT_ID . '_erp_settings_v1', $jsonStr, $jsonStr]);
-                if (isset($input['smtpServer'])) {
-                    $stmtG->execute(['smtp_server', trim((string)$input['smtpServer']), trim((string)$input['smtpServer'])]);
+                if (!empty($input['smtpServer']) || !empty($input['smtpUser'])) {
+                    $smtpJson = json_encode([
+                        'smtp_server'  => trim((string)($input['smtpServer'] ?? '')),
+                        'smtp_port'    => trim((string)($input['smtpPort'] ?? '587')) ?: '587',
+                        'smtp_user'    => trim((string)($input['smtpUser'] ?? '')),
+                        'smtp_pass'    => (!empty($input['smtpPass']) && $input['smtpPass'] !== '********') ? trim((string)$input['smtpPass']) : '',
+                        'backup_email' => trim((string)($input['backupEmail'] ?? ''))
+                    ], JSON_UNESCAPED_UNICODE);
+                    $stmtG->execute(['smtp_config_json', $smtpJson, $smtpJson]);
                 }
-                if (isset($input['smtpPort'])) {
-                    $stmtG->execute(['smtp_port', trim((string)$input['smtpPort']), trim((string)$input['smtpPort'])]);
-                }
-                if (isset($input['smtpUser'])) {
-                    $stmtG->execute(['smtp_user', trim((string)$input['smtpUser']), trim((string)$input['smtpUser'])]);
-                }
-                if (!empty($input['smtpPass']) && $input['smtpPass'] !== '********') {
-                    $stmtG->execute(['smtp_pass', trim((string)$input['smtpPass']), trim((string)$input['smtpPass'])]);
-                }
-                if (isset($input['backupEmail'])) {
-                    $stmtG->execute(['backup_email', trim((string)$input['backupEmail']), trim((string)$input['backupEmail'])]);
+                foreach ([
+                    'smtp_server'  => $input['smtpServer'] ?? null,
+                    'smtp_port'    => $input['smtpPort'] ?? null,
+                    'smtp_user'    => $input['smtpUser'] ?? null,
+                    'smtp_pass'    => (!empty($input['smtpPass']) && $input['smtpPass'] !== '********') ? $input['smtpPass'] : null,
+                    'backup_email' => $input['backupEmail'] ?? null
+                ] as $k => $v) {
+                    if ($v === null) continue;
+                    $sv = trim((string)$v);
+                    try {
+                        $stmtG->execute([$k, $sv, $sv]);
+                    } catch (Throwable $e) {
+                        try {
+                            $jv = json_encode($sv, JSON_UNESCAPED_UNICODE);
+                            $stmtG->execute([$k, $jv, $jv]);
+                        } catch (Throwable $e2) {}
+                    }
                 }
             } catch (Exception $e) {}
 
