@@ -1945,7 +1945,11 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             </div>
 
             <div class="form-group" style="margin-top: 15px;"><input type="checkbox" id="msg-show-once" checked> <label style="display:inline; margin-right: 5px;">عرض مرة واحدة</label></div>
-            <div class="modal-actions"><button class="btn-primary" style="flex:1;" onclick="saveMessage()">حفظ</button></div>
+            <div class="form-group" style="margin-top: 8px; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); padding: 10px 12px; border-radius: 8px;">
+                <input type="checkbox" id="msg-send-whatsapp" checked>
+                <label for="msg-send-whatsapp" style="display:inline; margin-right: 6px; color: #10b981; font-weight: 700; cursor: pointer;">📲 إرسال هذا التعميم أيضاً عبر واتساب المنصة للمشتركين المستهدفين</label>
+            </div>
+            <div class="modal-actions"><button class="btn-primary" style="flex:1;" onclick="saveMessage()">حفظ وإرسال</button></div>
         </div>
     </div>
 
@@ -2039,9 +2043,13 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 <textarea id="ad-notes" rows="2" placeholder="اكتب أي ملاحظات إدارية هنا مثل: رقم هاتف المعلن، قيمة الدفعة، شروط خاصة..." style="width: 100%; padding: 8px 12px; border-radius: 8px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid var(--glass-border); outline: none; resize: vertical;"></textarea>
             </div>
 
-            <div class="form-group" style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 20px; background: rgba(255,255,255,0.03); padding: 10px 14px; border-radius: 8px;">
+            <div class="form-group" style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 10px; background: rgba(255,255,255,0.03); padding: 10px 14px; border-radius: 8px;">
                 <input type="checkbox" id="ad-active" checked style="width: 18px; height: 18px; cursor: pointer;"> 
                 <label for="ad-active" style="margin: 0; cursor: pointer; color: #e2e8f0; font-weight: 600;">تفعيل الإعلان وعرضه للمشتركين</label>
+            </div>
+            <div class="form-group" style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 20px; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); padding: 10px 14px; border-radius: 8px;">
+                <input type="checkbox" id="ad-send-whatsapp" style="width: 18px; height: 18px; cursor: pointer;">
+                <label for="ad-send-whatsapp" style="margin: 0; cursor: pointer; color: #10b981; font-weight: 700;">📲 إرسال إشعار بهذا الإعلان عبر واتساب المنصة للمشتركين</label>
             </div>
 
             <div class="modal-actions" style="display: flex; gap: 10px;">
@@ -2588,6 +2596,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     
                     let successCount = 0;
                     let failCount = 0;
+                    let lastErrMsg = '';
                     
                     for (let t of allTenants) {
                         if (!t.owner_phone) continue;
@@ -2604,14 +2613,25 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                                     message: message.replace(/{owner}/g, t.owner_name || 'عميلنا الكريم').replace(/{company}/g, t.company_name || '')
                                 })
                             });
-                            if (res.ok) successCount++;
-                            else failCount++;
+                            const d = await res.json().catch(() => ({}));
+                            if (res.ok && d && d.success) {
+                                successCount++;
+                            } else {
+                                failCount++;
+                                if (d && d.error) lastErrMsg = d.error;
+                            }
                         } catch(e) {
                             failCount++;
                         }
                     }
-                    alert(`تمت عملية الإرسال الجماعي بنجاح!\nالمرسل لهم بنجاح: ${successCount}\nالفشل: ${failCount}`);
-                    document.getElementById('wa-message-body').value = '';
+                    let summaryMsg = `تمت عملية الإرسال الجماعي!\nالمرسل لهم بنجاح: ${successCount}\nالفشل: ${failCount}`;
+                    if (failCount > 0 && lastErrMsg) {
+                        summaryMsg += `\nسبب الفشل: ${lastErrMsg}`;
+                    }
+                    alert(summaryMsg);
+                    if (successCount > 0) {
+                        document.getElementById('wa-message-body').value = '';
+                    }
                 } else {
                     // Send to single tenant
                     const select = document.getElementById('wa-target-tenant');
@@ -4898,6 +4918,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                         });
                     }
                     
+                    if (document.getElementById('msg-send-whatsapp')) document.getElementById('msg-send-whatsapp').checked = false;
                     if (titleEl) titleEl.innerText = 'تعديل رسالة النظام';
                 }
             } else {
@@ -4906,6 +4927,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 document.getElementById('msg-body').value = '';
                 document.getElementById('msg-theme').value = 'info';
                 document.getElementById('msg-show-once').checked = true;
+                if (document.getElementById('msg-send-whatsapp')) document.getElementById('msg-send-whatsapp').checked = true;
                 document.getElementById('msg-target-type').value = 'all';
                 document.getElementById('msg-target-tenants-group').style.display = 'none';
                 
@@ -4922,6 +4944,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             const body = document.getElementById('msg-body').value.trim();
             const theme = document.getElementById('msg-theme').value;
             const showOnce = document.getElementById('msg-show-once').checked ? 1 : 0;
+            const sendViaWhatsApp = document.getElementById('msg-send-whatsapp') ? document.getElementById('msg-send-whatsapp').checked : false;
             
             let targets = ['all'];
             if (document.getElementById('msg-target-type').value === 'custom') {
@@ -4948,6 +4971,45 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 if (data.success) {
                     closeModal('message-modal');
                     loadMessages();
+
+                    if (sendViaWhatsApp && Array.isArray(allTenants) && allTenants.length > 0) {
+                        const targetList = targets.includes('all')
+                            ? allTenants
+                            : allTenants.filter(t => targets.includes(Number(t.id)));
+                        let waSent = 0, waFailed = 0, lastWaErr = '';
+                        for (const t of targetList) {
+                            if (!t.owner_phone) continue;
+                            try {
+                                const waText = `📢 *تعميم من إدارة المنصة: ${title}*\n\n${body}`
+                                    .replace(/{owner}/g, t.owner_name || 'عميلنا الكريم')
+                                    .replace(/{company}/g, t.company_name || '');
+                                const waRes = await fetch(apiUrl('saas', 'wa-proxy', 'send'), {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
+                                    body: JSON.stringify({
+                                        userId: 'default-saas-admin',
+                                        phone: t.owner_phone,
+                                        message: waText
+                                    })
+                                });
+                                const waData = await waRes.json().catch(() => ({}));
+                                if (waRes.ok && waData && waData.success) waSent++;
+                                else {
+                                    waFailed++;
+                                    if (waData && waData.error) lastWaErr = waData.error;
+                                }
+                            } catch (waErr) {
+                                waFailed++;
+                            }
+                        }
+                        if (typeof showToast === 'function') {
+                            if (waSent > 0) {
+                                showToast(`تم حفظ التعميم وإرساله عبر واتساب المنصة لـ (${waSent}) مشترك بنجاح`, 'success');
+                            } else if (waFailed > 0) {
+                                showToast(`تم حفظ التعميم في النظام (تعذر إرسال الواتساب: ${lastWaErr || 'تأكد من ربط رقم المنصة'})`, 'warning');
+                            }
+                        }
+                    }
                 } else {
                     alert(data.error || 'فشل حفظ الرسالة');
                 }
@@ -5387,7 +5449,32 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
 
                 closeModal('ad-modal');
                 renderAds();
-                if (typeof showToast === 'function') showToast('تم حفظ الإعلان بنجاح', 'success');
+                const sendAdWa = document.getElementById('ad-send-whatsapp') ? document.getElementById('ad-send-whatsapp').checked : false;
+                if (sendAdWa && Array.isArray(allTenants) && allTenants.length > 0) {
+                    let adSent = 0;
+                    const adWaText = `📢 *إعلان جديد عبر منظومة مقاييس*\n🏢 *الجهة المعلنة:* ${companyName}` + (link ? `\n🔗 *الرابط:* ${link}` : '');
+                    for (const t of allTenants) {
+                        if (!t.owner_phone) continue;
+                        try {
+                            const waRes = await fetch(apiUrl('saas', 'wa-proxy', 'send'), {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
+                                body: JSON.stringify({
+                                    userId: 'default-saas-admin',
+                                    phone: t.owner_phone,
+                                    message: adWaText
+                                })
+                            });
+                            const waData = await waRes.json().catch(() => ({}));
+                            if (waRes.ok && waData && waData.success) adSent++;
+                        } catch (_) {}
+                    }
+                    if (typeof showToast === 'function') {
+                        showToast(`تم حفظ الإعلان وإرسال إشعار واتساب لـ (${adSent}) مشترك`, 'success');
+                    }
+                } else {
+                    if (typeof showToast === 'function') showToast('تم حفظ الإعلان بنجاح', 'success');
+                }
             } catch (e) {
                 alert('خطأ: ' + e.message);
             } finally {
