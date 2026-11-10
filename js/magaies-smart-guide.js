@@ -3664,6 +3664,8 @@
                 matchedKey = 'single-cash-payment';
             } else if (window.location.pathname.includes('multi-cash-payment') && window.MagaiesSmartGuides['multi-cash-payment']) {
                 matchedKey = 'multi-cash-payment';
+            } else if ((window.location.pathname.includes('magaiees_unified_dashboard') || document.getElementById('new-unified-dashboard-design')) && window.MagaiesSmartGuides['magaiees-unified-dashboard']) {
+                matchedKey = 'magaiees-unified-dashboard';
             }
         }
         if (matchedKey) {
