@@ -65,8 +65,8 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
         {
           'qAr': 'ما هي طرق الدفع المعتمدة في المنصة؟',
           'qEn': 'What are the accepted payment methods?',
-          'aAr': '• تطبيق بنكك (Bankak - بنك الخرطوم).\n• البطاقات المصرفية وبطاقات مدى / فيزا وماستركارد.\n• التحويل البنكي المباشر لحسابات المنصة مع إرفاق الإشعار.\n• الدفع الآجل وتسهيلات الشركات (B2B Credit) للمقاولين المعتمدين.',
-          'aEn': '• Bankak App (Bank of Khartoum).\n• Bank Debit/Credit Cards.\n• Direct Wire Transfer with receipt upload.\n• B2B Corporate Credit Facilities for certified contractors.',
+          'aAr': '• التطبيقات المصرفية المعتمدة والتحويل الفوري.\n• البطاقات المصرفية وبطاقات مدى / فيزا وماستركارد.\n• التحويل البنكي المباشر لحسابات المنصة مع إرفاق الإشعار.\n• الدفع الآجل وتسهيلات الشركات (B2B Credit) للمقاولين المعتمدين.',
+          'aEn': '• Approved Mobile Banking Apps & Instant Transfers.\n• Bank Debit/Credit Cards.\n• Direct Wire Transfer with receipt upload.\n• B2B Corporate Credit Facilities for certified contractors.',
         },
         {
           'qAr': 'كيف تتم متابعة الأرصدة والحركات والفواتير الضريبية؟',

@@ -221,8 +221,8 @@ class AdminDigitalBrokerNotifier extends AsyncNotifier<AdminDigitalBrokerInsight
         id: s['id'].toString(),
         name: title,
         type: 'store',
-        phone: ownerUser?['phone']?.toString() ?? '+249 91 234 0000',
-        location: 'الخرطوم - السجانة',
+        phone: ownerUser?['phone']?.toString() ?? '+968 9905 1925',
+        location: 'مسقط - الخوير',
         rating: 4.9,
       ));
     }
@@ -237,8 +237,8 @@ class AdminDigitalBrokerNotifier extends AsyncNotifier<AdminDigitalBrokerInsight
         id: p['id'].toString(),
         name: title,
         type: cat == 'logistics' ? 'fleet' : 'engineering',
-        phone: p['phone']?.toString() ?? '+249 91 234 5678',
-        location: p['location_ar']?.toString() ?? 'الخرطوم',
+        phone: p['phone']?.toString() ?? '+968 9905 1925',
+        location: p['location_ar']?.toString() ?? 'مسقط',
         rating: (p['rating'] as num?)?.toDouble() ?? 4.8,
       ));
     }
@@ -251,8 +251,8 @@ class AdminDigitalBrokerNotifier extends AsyncNotifier<AdminDigitalBrokerInsight
           id: a['id'].toString(),
           name: comp,
           type: 'ad',
-          phone: '+249 91 000 0000',
-          location: 'السودان',
+          phone: '+968 9905 1925',
+          location: 'سلطنة عُمان',
           rating: 4.7,
         ));
       }

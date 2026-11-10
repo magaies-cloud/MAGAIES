@@ -68,7 +68,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           _canCheckBiometrics = canCheck || isSupported;
           _hasFaceId = hasFace;
           if (hasSaved && _emailController.text.isEmpty) {
-            _emailController.text = savedEmail;
+            // Keep email input empty on screen open; only fill when biometric button is tapped.
           }
         });
       }

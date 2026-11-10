@@ -55,7 +55,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         name: nameEn,
         nameAr: nameAr,
         email: email,
-        phone: '+249$phone',
+        phone: phone,
         password: password,
       );
       
@@ -136,7 +136,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   keyboardType: TextInputType.phone,
                   decoration: InputDecoration(
                     labelText: isRtl ? 'رقم الهاتف' : 'Phone Number',
-                    prefixText: '+249 ',
+                    hintText: isRtl ? 'مثال: +968 9900 0000' : 'e.g. +968 9900 0000',
                     prefixIcon: const Icon(Icons.phone_outlined),
                   ),
                   validator: (value) => DataValidator.validatePhone(value, isRtl: isRtl),

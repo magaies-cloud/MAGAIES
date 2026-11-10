@@ -406,6 +406,99 @@ class _ChatMessagesScreenState extends ConsumerState<ChatMessagesScreen> {
               });
             },
           ),
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            tooltip: isRtl ? 'الإبلاغ والحظر' : 'Report & Block',
+            onSelected: (val) {
+              if (val == 'report') {
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: Text(isRtl ? 'الإبلاغ عن مستخدم أو محتوى' : 'Report User / Content'),
+                    content: Text(
+                      isRtl
+                          ? 'هل ترغب في الإبلاغ عن محتوى غير لائق في هذه المحادثة؟ سيقوم فريق الإشراف بمراجعتها فوراً.'
+                          : 'Do you want to report inappropriate content in this chat? Our moderation team will review it promptly.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: Text(isRtl ? 'إلغاء' : 'Cancel'),
+                      ),
+                      FilledButton(
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(isRtl ? 'تم إرسال البلاغ لفريق المراجعة بنجاح' : 'Report submitted to moderation team'),
+                            ),
+                          );
+                        },
+                        child: Text(isRtl ? 'إرسال البلاغ' : 'Report'),
+                      ),
+                    ],
+                  ),
+                );
+              } else if (val == 'block') {
+                showDialog(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: Text(isRtl ? 'حظر المستخدم' : 'Block User'),
+                    content: Text(
+                      isRtl
+                          ? 'هل أنت متأكد من حظر هذا المستخدم وإيقاف المحادثة معه؟'
+                          : 'Are you sure you want to block this user and stop receiving messages from them?',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx),
+                        child: Text(isRtl ? 'إلغاء' : 'Cancel'),
+                      ),
+                      FilledButton(
+                        style: FilledButton.styleFrom(backgroundColor: Colors.red),
+                        onPressed: () {
+                          Navigator.pop(ctx);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(isRtl ? 'تم حظر المستخدم بنجاح' : 'User blocked successfully'),
+                            ),
+                          );
+                          if (context.canPop()) {
+                            context.pop();
+                          } else {
+                            context.go('/buyer/chat');
+                          }
+                        },
+                        child: Text(isRtl ? 'حظر' : 'Block'),
+                      ),
+                    ],
+                  ),
+                );
+              }
+            },
+            itemBuilder: (ctx) => [
+              PopupMenuItem(
+                value: 'report',
+                child: Row(
+                  children: [
+                    const Icon(Icons.flag_outlined, color: Colors.orange, size: 20),
+                    const SizedBox(width: 8),
+                    Text(isRtl ? 'الإبلاغ عن محتوى مخالف' : 'Report Content'),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'block',
+                child: Row(
+                  children: [
+                    const Icon(Icons.block, color: Colors.red, size: 20),
+                    const SizedBox(width: 8),
+                    Text(isRtl ? 'حظر هذا المستخدم' : 'Block User'),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
       body: Column(

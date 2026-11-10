@@ -1797,7 +1797,7 @@ class _QuoteRequestsManagementScreenState
                       controller: deliveryDateCtrl,
                       decoration: InputDecoration(
                         labelText: 'موعد التسليم المتوقع وموقع المشروع',
-                        hintText: '2026-09-30 - الخرطوم - السجانة',
+                        hintText: '2026-09-30 - مسقط - الخوير',
                         filled: true,
                         fillColor: const Color(0xFFF8FAFC),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),

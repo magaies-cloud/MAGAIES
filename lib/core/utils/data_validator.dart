@@ -172,11 +172,11 @@ class DataValidator {
     // Extract only digits
     final digits = value.replaceAll(RegExp(r'\D'), '');
 
-    // Allow Sudanese numbers (without +249: 9 or 10 digits; with 249: 12 digits) or international (9-15 digits)
-    if (digits.length < 9 || digits.length > 15) {
+    // Allow regional and international phone numbers (8-15 digits)
+    if (digits.length < 8 || digits.length > 15) {
       return isRtl
-          ? 'رقم الهاتف غير مكتمل (9 أرقام على الأقل)'
-          : 'Phone number must be at least 9 digits';
+          ? 'رقم الهاتف غير مكتمل (8 أرقام على الأقل)'
+          : 'Phone number must be at least 8 digits';
     }
 
     // Check repeated digits like 000000000, 111111111, 888888888
