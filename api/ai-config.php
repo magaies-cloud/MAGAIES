@@ -7,7 +7,7 @@
 if (!function_exists('isValidGeminiApiKeyFormat')) {
     function isValidGeminiApiKeyFormat($key) {
         $k = trim((string)$key);
-        return (strpos($k, 'AIza') === 0 && strlen($k) >= 30);
+        return ((strpos($k, 'AIza') === 0 || strpos($k, 'AQ.') === 0) && strlen($k) >= 30);
     }
 }
 
@@ -18,6 +18,21 @@ if (!function_exists('getGeminiApiKey')) {
         }
 
         $envKey = $_ENV['GEMINI_API_KEY'] ?? getenv('GEMINI_API_KEY');
+        if (empty($envKey)) {
+            $envFile = __DIR__ . '/../.env';
+            if (file_exists($envFile)) {
+                $lines = @file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [];
+                foreach ($lines as $line) {
+                    $line = trim($line);
+                    if (strpos($line, 'GEMINI_API_KEY=') === 0) {
+                        $envKey = trim(substr($line, strlen('GEMINI_API_KEY=')));
+                        $_ENV['GEMINI_API_KEY'] = $envKey;
+                        @putenv('GEMINI_API_KEY=' . $envKey);
+                        break;
+                    }
+                }
+            }
+        }
         if (!empty($envKey) && isValidGeminiApiKeyFormat($envKey)) {
             return trim($envKey);
         }
@@ -29,8 +44,7 @@ if (!function_exists('getGeminiApiKey')) {
             return trim($envKey);
         }
 
-        // System active Gemini key
-        return 'AQ.Ab8RN6IMdWH31t8-IbFYJZgytQxgFYW1GnTMee5UwEZ2Tlpqzw';
+        return '';
     }
 }
 

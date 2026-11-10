@@ -2050,17 +2050,60 @@ html.light-theme body .pro-field-card, html.light-theme body .input-group { back
     border: 2px solid #000000 !important;
 }
 
-:root.light-theme body .pro-field-card,
-:root.light-theme body .input-group,
-html[data-theme="warm_cream"] body .pro-field-card,
-html[data-theme="warm_cream"] body .input-group,
-html[data-theme="ultra_white"] body .pro-field-card,
-html[data-theme="ultra_white"] body .input-group,
-html[data-theme="exec_gray"] body .pro-field-card,
-html[data-theme="exec_gray"] body .input-group {
+:root.light-theme body:not(.magaiees-login-body) .pro-field-card,
+:root.light-theme body:not(.magaiees-login-body) .input-group,
+html[data-theme="warm_cream"] body:not(.magaiees-login-body) .pro-field-card,
+html[data-theme="warm_cream"] body:not(.magaiees-login-body) .input-group,
+html[data-theme="ultra_white"] body:not(.magaiees-login-body) .pro-field-card,
+html[data-theme="ultra_white"] body:not(.magaiees-login-body) .input-group,
+html[data-theme="exec_gray"] body:not(.magaiees-login-body) .pro-field-card,
+html[data-theme="exec_gray"] body:not(.magaiees-login-body) .input-group {
     background-color: #f2e8d5 !important;
     border: 2px solid #473d31 !important;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* 🔒 LOGIN & REGISTER SCREEN ISOLATION: Prevent Light/Beige Theme Overrides on Login Inputs */
+html body.magaiees-login-body,
+:root.light-theme body.magaiees-login-body,
+html[data-theme] body.magaiees-login-body {
+    background: #0c101b url('../assets/user_bg_fast.jpg') no-repeat center center fixed !important;
+    background-size: cover !important;
+    color: #ffffff !important;
+}
+html body.magaiees-login-body .login-card .input-group,
+:root.light-theme body.magaiees-login-body .login-card .input-group,
+html[data-theme] body.magaiees-login-body .login-card .input-group,
+html body .register-card .input-group,
+:root.light-theme body .register-card .input-group {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+html body.magaiees-login-body .login-card .input-group label,
+:root.light-theme body.magaiees-login-body .login-card .input-group label,
+html[data-theme] body.magaiees-login-body .login-card .input-group label {
+    color: rgba(255, 255, 255, 0.95) !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.95) !important;
+}
+html body.magaiees-login-body .login-card input.input-field,
+:root.light-theme body.magaiees-login-body .login-card input.input-field,
+html[data-theme] body.magaiees-login-body .login-card input.input-field {
+    background: rgba(15, 23, 42, 0.62) !important;
+    background-color: rgba(15, 23, 42, 0.62) !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+}
+html body.magaiees-login-body .login-card input.input-field:focus,
+:root.light-theme body.magaiees-login-body .login-card input.input-field:focus,
+html[data-theme] body.magaiees-login-body .login-card input.input-field:focus {
+    background: rgba(15, 23, 42, 0.82) !important;
+    background-color: rgba(15, 23, 42, 0.82) !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    border-color: rgba(56, 189, 248, 0.65) !important;
 }
 
 

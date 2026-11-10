@@ -3980,7 +3980,7 @@
                 :root.light-theme[data-light-tone="warm_mocha_dark"] { --lt-canvas-1:#b89878; --lt-canvas-2:#a3805e; --lt-hdr-1:#ccb094; --lt-hdr-2:#ba9878; --lt-hdr-3:#a8825e; --lt-card-1:#faf3ea; --lt-card-2:#eee0cf; --lt-sub-1:#fdf8f2; --lt-sub-2:#e8d6c1; --lt-th-1:#e5d1ba; --lt-th-2:#d6bc9f; --lt-row-odd:#fdfaf6; --lt-row-even:#f5ebe0; --lt-border:#3e1b04; --lt-border-hover:#7c2d12; --lt-ink:#0f0400; --bg-color:#b89878 !important; --bg-main:#b89878 !important; --bg-secondary:#ccb094 !important; --surface:#faf3ea !important; }
                 :root.light-theme[data-light-tone="deep_slate_dark"] { --lt-canvas-1:#a3b4ca; --lt-canvas-2:#8da1bb; --lt-hdr-1:#b8c7dc; --lt-hdr-2:#a2b5cf; --lt-hdr-3:#8ca3c1; --lt-card-1:#f2f6fc; --lt-card-2:#e2eaf5; --lt-sub-1:#f7faff; --lt-sub-2:#dbe5f2; --lt-th-1:#d6e1f0; --lt-th-2:#c3d2e6; --lt-row-odd:#fbfdff; --lt-row-even:#edf3fa; --lt-border:#0f172a; --lt-border-hover:#1d4ed8; --lt-ink:#020617; --bg-color:#a3b4ca !important; --bg-main:#a3b4ca !important; --bg-secondary:#b8c7dc !important; --surface:#f2f6fc !important; }
                 /* UNIVERSAL-9-TONE-INHERITANCE */
-                :root.light-theme body, :root.light-theme .dash-main, :root.light-theme .main-container, :root.light-theme .page-container, :root.light-theme .sgl-master-container { background: linear-gradient(180deg, var(--lt-canvas-1, #dfd0b4) 0%, var(--lt-canvas-2, #d2be9a) 100%) !important; color: var(--lt-ink, #120500) !important; }
+                :root.light-theme body:not(.magaiees-login-body), :root.light-theme .dash-main, :root.light-theme .main-container, :root.light-theme .page-container, :root.light-theme .sgl-master-container { background: linear-gradient(180deg, var(--lt-canvas-1, #dfd0b4) 0%, var(--lt-canvas-2, #d2be9a) 100%) !important; color: var(--lt-ink, #120500) !important; }
                 :root.light-theme header.premium-header, :root.light-theme .sales-glass-card, :root.light-theme .purchase-glass-card, :root.light-theme .neo-card, :root.light-theme .glass-panel, :root.light-theme .panel-header-row, :root.light-theme .table-container, :root.light-theme .items-toolbar, :root.light-theme .modal-overlay .modal-card, :root.light-theme .modal-card, :root.light-theme .modal-content, :root.light-theme .md-child-modal-card, :root.light-theme .md-c1-modal-card, :root.light-theme #md-rightclick-def-menu, :root.light-theme #msg-smart-hover-tooltip, :root.light-theme #md-col-context-popover, :root.light-theme #pur-light-tone-popover { background: linear-gradient(145deg, var(--lt-card-1, #fffdf8) 0%, var(--lt-card-2, #f7efe0) 100%) !important; border: 2px solid var(--lt-border, #5c2808) !important; color: var(--lt-ink, #120500) !important; }
                 :root:not(.light-theme) .modal-overlay .modal-card, :root:not(.light-theme) .modal-card, :root:not(.light-theme) .modal-content, :root:not(.light-theme) .md-child-modal-card, :root:not(.light-theme) .md-c1-modal-card, :root:not(.light-theme) #md-rightclick-def-menu, :root:not(.light-theme) #msg-smart-hover-tooltip, :root:not(.light-theme) #md-col-context-popover, :root:not(.light-theme) #pur-light-tone-popover { background: linear-gradient(145deg, var(--dk-card-1, #0f172a) 0%, var(--dk-card-2, #152342) 100%) !important; border: 2px solid var(--dk-border, #38bdf8) !important; color: #ffffff !important; }
                 :root.light-theme .modal-overlay div[style*="background:#0f172a"], :root.light-theme .modal-overlay div[style*="background: #0f172a"], :root.light-theme .modal-overlay div[style*="background:rgba(15,23,42"], :root.light-theme .modal-overlay div[style*="background: rgba(15, 23, 42"], :root.light-theme .modal-overlay div[style*="background:rgba(2,6,23"], :root.light-theme .modal-overlay div[style*="background: rgba(2, 6, 23"], :root.light-theme .modal-overlay div[style*="background:rgba(30,41,59"], :root.light-theme .modal-overlay div[style*="background: rgba(30, 41, 59"], :root.light-theme .md-child-modal div[style*="background:#0f172a"], :root.light-theme .md-child-modal div[style*="background:rgba(15,23,42"], :root.light-theme .md-child-modal div[style*="background:rgba(2,6,23"], :root.light-theme .md-child-modal div[style*="background:rgba(30,41,59"], :root.light-theme #pur-light-tone-popover button:not([data-tone-dark="1"]) { background: linear-gradient(145deg, var(--lt-sub-1, #fef9f3) 0%, var(--lt-sub-2, #efd8be) 100%) !important; border-color: var(--lt-border, #4a2106) !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; }
@@ -4019,6 +4019,18 @@
                 document.body.appendChild(retBtn);
             }
         } catch (_e) {}
+        const curP = (window.location.pathname || '').toLowerCase();
+        if (curP.endsWith('/login.php') || curP.endsWith('/register.php') || (document.body && document.body.classList.contains('magaiees-login-body'))) {
+            document.documentElement.classList.remove('light-theme');
+            document.documentElement.classList.add('dark-theme');
+            document.documentElement.setAttribute('data-theme', 'midnight_obsidian');
+            if (document.body) {
+                document.body.classList.remove('light-theme');
+                document.body.classList.add('dark-theme');
+                document.body.setAttribute('data-theme', 'midnight_obsidian');
+            }
+            return;
+        }
         const savedTone = getErpCookie('magaies_light_tone') || localStorage.getItem('magaies_light_tone') || localStorage.getItem('pur_light_tone_palette') || 'ivory_default';
         const isDark = DARK_TONE_ALIASES.includes(savedTone);
         const matchedToneObj = GLOBAL_ERP_TONES.find(x => x.id === savedTone);
@@ -4190,10 +4202,13 @@
         if (document.querySelector('.header-theme-dashboard')) {
             return false;
         }
-        if (p.endsWith('/index.php') || p.endsWith('/index.html') || p.endsWith('/magaees/') || p.endsWith('/magaees') || p.endsWith('/magaies/') || p.endsWith('/magaies') || p === '/' || p === '') {
+        if (p.endsWith('/index.php') || p.endsWith('/index.html') || p.endsWith('/login.php') || p.endsWith('/register.php') || p.endsWith('/magaees/') || p.endsWith('/magaees') || p.endsWith('/magaies/') || p.endsWith('/magaies') || p === '/' || p === '') {
             if (!p.includes('api_index.php')) return true;
         }
         if (document.querySelector('section.hero') && document.querySelector('nav.navbar')) {
+            return true;
+        }
+        if (document.body && document.body.classList.contains('magaiees-login-body')) {
             return true;
         }
         return false;

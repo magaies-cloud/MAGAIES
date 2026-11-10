@@ -13,8 +13,8 @@ if (empty($apiKey)) {
     exit;
 }
 
-// Strict alphanumeric and dash/underscore validation to prevent .env injection attacks
-if (!preg_match('/^[a-zA-Z0-9_\-]{20,120}$/', $apiKey)) {
+// Strict alphanumeric, dot, and dash/underscore validation to prevent .env injection attacks
+if (!preg_match('/^[a-zA-Z0-9_\-\.]{20,120}$/', $apiKey)) {
     echo json_encode(['success' => false, 'error' => 'تنسيق مفتاح API غير صالح (يجب أن يتكون من 20-120 حرفاً ورقماً بدون مسافات أو أسطر جديدة)']);
     exit;
 }

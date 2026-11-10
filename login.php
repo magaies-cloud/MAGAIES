@@ -109,7 +109,7 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
     <link rel="shortcut icon" href="assets/favicon.ico?v=2026_m_v5">
     <meta name="theme-color" content="#0F172A">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/design-system.css?v=20260723_v14"><link rel="stylesheet" href="css/theme.css?v=20260723_v14">
+    <link rel="stylesheet" href="css/design-system.css?v=20260723_v14"><link rel="stylesheet" href="css/theme.css?v=20261110_login_fix">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="css/magaiees-royal-buttons.css?v=2026_royal_v2">
     <script src="js/magaiees-royal-buttons.js?v=2026_royal_v2" defer></script>
@@ -189,25 +189,43 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
             font-size: 1.5rem;
             color: var(--primary-accent);
         }
-        .input-group {
+        .input-group,
+        html body.magaiees-login-body .login-card .input-group,
+        :root.light-theme body.magaiees-login-body .login-card .input-group,
+        html[data-theme] body.magaiees-login-body .login-card .input-group {
             text-align: right;
             margin-bottom: 15px;
+            background: transparent !important;
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
         }
-        .input-group label {
+        .input-group label,
+        html body.magaiees-login-body .login-card .input-group label,
+        :root.light-theme body.magaiees-login-body .login-card .input-group label {
             display: block;
             margin-bottom: 8px;
             color: rgba(255, 255, 255, 0.95) !important;
+            -webkit-text-fill-color: rgba(255, 255, 255, 0.95) !important;
             font-size: 0.95rem;
             font-weight: 700;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.4) !important;
+            background: transparent !important;
         }
-        .input-field {
+        .input-field,
+        html body.magaiees-login-body .login-card input.input-field,
+        :root.light-theme body.magaiees-login-body .login-card input.input-field,
+        html[data-theme] body.magaiees-login-body .login-card input.input-field {
             width: 100%;
             padding: 15px 18px;
             border-radius: 14px;
             border: 1px solid rgba(255, 255, 255, 0.18) !important;
-            background: rgba(255, 255, 255, 0.08) !important;
+            background: rgba(15, 23, 42, 0.62) !important;
+            background-color: rgba(15, 23, 42, 0.62) !important;
             color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+            caret-color: #ffffff !important;
             font-size: 1.05rem;
             font-weight: 500;
             outline: none;
@@ -215,18 +233,39 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
             box-sizing: border-box;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15), 
-                        0 4px 6px rgba(0, 0, 0, 0.05);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25), 
+                        0 4px 6px rgba(0, 0, 0, 0.08) !important;
         }
-        .input-field::placeholder {
-            color: rgba(255, 255, 255, 0.5) !important;
+        .input-field::placeholder,
+        html body.magaiees-login-body .login-card input.input-field::placeholder,
+        :root.light-theme body.magaiees-login-body .login-card input.input-field::placeholder {
+            color: rgba(255, 255, 255, 0.55) !important;
+            -webkit-text-fill-color: rgba(255, 255, 255, 0.55) !important;
             font-weight: 400;
         }
-        .input-field:focus {
+        .input-field:focus,
+        html body.magaiees-login-body .login-card input.input-field:focus,
+        :root.light-theme body.magaiees-login-body .login-card input.input-field:focus,
+        html[data-theme] body.magaiees-login-body .login-card input.input-field:focus {
             box-shadow: 0 0 15px rgba(56, 189, 248, 0.25), 
-                        inset 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+                        inset 0 2px 4px rgba(0, 0, 0, 0.15) !important;
             border-color: rgba(56, 189, 248, 0.65) !important;
-            background: rgba(255, 255, 255, 0.13) !important;
+            background: rgba(15, 23, 42, 0.82) !important;
+            background-color: rgba(15, 23, 42, 0.82) !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+        }
+        input.input-field:-webkit-autofill,
+        input.input-field:-webkit-autofill:hover,
+        input.input-field:-webkit-autofill:focus,
+        input.input-field:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 1000px #111a2e inset !important;
+            box-shadow: 0 0 0 1000px #111a2e inset !important;
+            -webkit-text-fill-color: #ffffff !important;
+            color: #ffffff !important;
+            caret-color: #ffffff !important;
+            border: 1px solid rgba(56, 189, 248, 0.45) !important;
+            transition: background-color 9999s ease-in-out 0s;
         }
         .toggle-pwd-btn {
             position: absolute;
@@ -426,45 +465,46 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
 <body class="magaiees-login-body">
     <div class="login-card">
         <!-- 🌟 شعار مقاييس والكتابة الواضحة الرسمية -->
-        <div class="logo-container" style="margin-bottom: 2px;">
-            <img src="assets/logo.png" alt="MAGAIEES Logo" loading="eager" style="width: 78px; max-width: 24vw; height: auto; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.45));">
+        <div class="logo-container" style="margin-bottom: 6px;">
+            <img src="assets/logo.png" alt="MAGAIEES Logo" loading="eager" style="width: 82px; max-width: 24vw; height: auto; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.5));">
         </div>
-        <div class="title" style="background: linear-gradient(135deg, #ffffff 25%, #38bdf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 2px; font-weight: 900; font-size: 1.35rem; letter-spacing: 0.5px;">
+        <div class="title" style="background: linear-gradient(135deg, #ffffff 25%, #38bdf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; font-weight: 900; font-size: 1.42rem; letter-spacing: 0.5px;">
             مقاييس MAGAIEES ERP
         </div>
-        <p id="login-company-subtitle" style="color: rgba(255, 255, 255, 0.88); font-size: 0.86rem; margin: 0 0 <?php echo $detectedSubdomain !== '' ? '4px' : '10px'; ?> 0; font-weight: 700;">
+        <p id="login-company-subtitle" style="color: rgba(255, 255, 255, 0.88); font-size: 0.9rem; margin: 0 0 <?php echo $detectedSubdomain !== '' ? '8px' : '22px'; ?> 0; font-weight: 700;">
             <?php echo htmlspecialchars($detectedCompanyName, ENT_QUOTES, 'UTF-8'); ?>
         </p>
         <?php if ($detectedSubdomain !== ''): ?>
-        <div style="margin: 0 auto 10px auto; display: inline-flex; align-items: center; gap: 6px; padding: 3px 12px; border-radius: 999px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; font-size: 0.75rem; font-weight: 700; direction: ltr;">
+        <div style="margin: 0 auto 20px auto; display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; border-radius: 999px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; font-size: 0.78rem; font-weight: 700; direction: ltr;">
             <span>🌐</span>
             <span><?php echo htmlspecialchars($detectedSubdomain . '.elsajana.com', ENT_QUOTES, 'UTF-8'); ?></span>
         </div>
         <?php endif; ?>
 
-        <!-- 👤 اسم المستخدم (تم رفعه لأعلى وإنقاص المسافة لبعده بنسبة 10%) -->
-        <div class="input-group" style="text-align: right; margin-bottom: 13.5px;">
-            <label style="display: block; margin-bottom: 4px; color: rgba(255, 255, 255, 0.95); font-size: 0.88rem; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.4);">
-                اسم المستخدم
+        <!-- 👤 اسم المستخدم -->
+        <div class="input-group" style="text-align: right; margin-bottom: 18px;">
+            <label for="username" style="display: flex; align-items: center; gap: 7px; margin-bottom: 7px; color: rgba(255, 255, 255, 0.95); font-size: 0.92rem; font-weight: 800;">
+                <i class="fa-solid fa-user" style="color: #38bdf8; font-size: 0.85rem;"></i>
+                <span>اسم المستخدم</span>
             </label>
-            <input type="text" class="input-field" id="username" placeholder="أدخل اسم المستخدم" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" style="padding: 11px 15px; font-size: 0.98rem; border-radius: 12px;">
+            <input type="text" class="input-field" id="username" placeholder="أدخل اسم المستخدم" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" style="padding: 13px 16px; font-size: 1rem; border-radius: 14px;">
         </div>
         
-        <!-- 🔑 كلمة المرور (تم إنقاص المسافة إلى زر الدخول بنسبة 30%) -->
-        <div class="input-group" style="position: relative; text-align: right; margin-bottom: 4px;">
-            <label style="display: block; margin-bottom: 4px; color: rgba(255, 255, 255, 0.95); font-size: 0.88rem; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.4);">
-                كلمة المرور
+        <!-- 🔑 كلمة المرور -->
+        <div class="input-group" style="position: relative; text-align: right; margin-bottom: 10px;">
+            <label for="password" style="display: flex; align-items: center; gap: 7px; margin-bottom: 7px; color: rgba(255, 255, 255, 0.95); font-size: 0.92rem; font-weight: 800;">
+                <i class="fa-solid fa-lock" style="color: #38bdf8; font-size: 0.85rem;"></i>
+                <span>كلمة المرور</span>
             </label>
-            <input type="password" class="input-field" id="password" placeholder="أدخل كلمة المرور" autocomplete="current-password" autocapitalize="none" autocorrect="off" style="padding: 11px 45px 11px 15px; font-size: 0.98rem; border-radius: 12px;">
-            <button type="button" class="toggle-pwd-btn" onclick="togglePassword()" title="إظهار/إخفاء كلمة المرور" id="toggle-pwd-icon" style="top: 29px; left: 10px;">👁️</button>
+            <input type="password" class="input-field" id="password" placeholder="أدخل كلمة المرور" autocomplete="current-password" autocapitalize="none" autocorrect="off" style="padding: 13px 46px 13px 16px; font-size: 1rem; border-radius: 14px;">
+            <button type="button" class="toggle-pwd-btn" onclick="togglePassword()" title="إظهار/إخفاء كلمة المرور" id="toggle-pwd-icon" style="top: 36px; left: 12px; font-size: 1.05rem;">
+                <i class="fa-regular fa-eye"></i>
+            </button>
         </div>
 
-        <!-- سطر نسيت كلمة المرور ومعايرة الشاشة الذكية مدمجة في مسافة 10px فقط -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 4px;">
-            <span id="screen-adaptive-badge" style="font-size: 0.72rem; color: #38bdf8; font-weight: 700; opacity: 0.9;">
-                <!-- يتم تعبئته آلياً بنوع الشاشة -->
-            </span>
-            <a href="javascript:void(0)" onclick="openResetModal('identity')" style="color: #94a3b8; text-decoration: none; font-size: 0.82rem; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.color='#38bdf8';" onmouseout="this.style.color='#94a3b8';">نسيت كلمة المرور؟</a>
+        <!-- سطر نسيت كلمة المرور -->
+        <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 20px; padding: 0 4px;">
+            <a href="javascript:void(0)" onclick="openResetModal('identity')" style="color: #94a3b8; text-decoration: none; font-size: 0.84rem; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.color='#38bdf8';" onmouseout="this.style.color='#94a3b8';">نسيت كلمة المرور؟</a>
         </div>
         
         <script>
@@ -473,224 +513,19 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
                 const toggleIcon = document.getElementById('toggle-pwd-icon');
                 if (pwdInput.type === 'password') {
                     pwdInput.type = 'text';
-                    toggleIcon.innerHTML = '🙈';
+                    toggleIcon.innerHTML = '<i class="fa-regular fa-eye-slash"></i>';
                 } else {
                     pwdInput.type = 'password';
-                    toggleIcon.innerHTML = '👁️';
+                    toggleIcon.innerHTML = '<i class="fa-regular fa-eye"></i>';
                 }
             }
         </script>
-        
-        <!-- ⚡ الدستور الأول للجوال (1 من 10): البوابة المزدوجة من الخارج في شاشة الباسورد (3 مفاتيح ذكية بوزن مجهري 0ms) -->
-        <div id="mg-external-dual-gateway" dir="rtl" style="margin: 6px 0 11px 0; padding: 9px 10px; border-radius: 14px; background: rgba(15, 23, 42, 0.72); border: 1px solid rgba(56, 189, 248, 0.28); box-shadow: inset 0 1px 0 rgba(255,255,255,0.08); text-align: right;">
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-                <span style="font-size:0.74rem; font-weight:800; color:#38bdf8; display:inline-flex; align-items:center; gap:5px;">
-                    <span>⚡ بوابة التشكيل المزدوجة (0ms)</span>
-                </span>
-                <span id="mg-ext-jail-badge" style="display:none; font-size:0.68rem; font-weight:800; color:#fbbf24; background:rgba(245,158,11,0.16); border:1px solid rgba(245,158,11,0.4); padding:1px 7px; border-radius:999px;">🔒 مقفل باختصار الموظف</span>
-            </div>
 
-            <!-- 1. مفتاح طراز الواجهة -->
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px; margin-bottom:6px; background:rgba(2,6,23,0.65); padding:3px; border-radius:10px; border:1px solid rgba(148,163,184,0.16);">
-                <button type="button" id="mgExtUiModernBtn" onclick="window.setMgExternalGatewayUI('modern')" style="padding:5px 6px; border-radius:8px; font-size:0.73rem; font-weight:800; border:none; cursor:pointer; transition:none; background:linear-gradient(135deg,#0284c7,#2563eb); color:#fff;">✨ الواجهة العصرية العالمية</button>
-                <button type="button" id="mgExtUiClassicBtn" onclick="window.setMgExternalGatewayUI('classic')" style="padding:5px 6px; border-radius:8px; font-size:0.73rem; font-weight:800; border:none; cursor:pointer; transition:none; background:transparent; color:#94a3b8;">🏛️ الواجهة الكلاسيكية المعتادة</button>
-            </div>
-
-            <!-- 2. مفتاح الدخول السريع عبر أزرار الاختصارات + 3. مفتاح السمة اللونية -->
-            <div style="display:grid; grid-template-columns: 1.35fr 1fr; gap:6px;">
-                <div>
-                    <label style="display:block; font-size:0.67rem; color:#cbd5e1; font-weight:700; margin-bottom:2px;">🚀 وجهة الدخول السريع (عزل RAM):</label>
-                    <select id="mgExtShortcutSelect" onchange="window.setMgExternalGatewayShortcut(this.value)" style="width:100%; padding:5px 7px; border-radius:9px; background:rgba(15,23,42,0.95); color:#f8fafc; border:1px solid rgba(56,189,248,0.35); font-size:0.74rem; font-weight:800; font-family:inherit; outline:none; cursor:pointer;">
-                        <option value="full">⊞ البرنامج الكامل</option>
-                        <option value="sc1">⚡ اختصار (1)</option>
-                        <option value="sc2">⚡ اختصار (2)</option>
-                        <option value="sc3">⚡ اختصار (3)</option>
-                        <option value="sc4">⚡ اختصار (4)</option>
-                    </select>
-                </div>
-                <div>
-                    <label style="display:block; font-size:0.67rem; color:#cbd5e1; font-weight:700; margin-bottom:2px;">🎨 السمة اللونية الفورية:</label>
-                    <select id="mgExtThemeSelect" onchange="window.setMgExternalGatewayTheme(this.value)" style="width:100%; padding:5px 7px; border-radius:9px; background:rgba(15,23,42,0.95); color:#fbbf24; border:1px solid rgba(245,158,11,0.35); font-size:0.74rem; font-weight:800; font-family:inherit; outline:none; cursor:pointer;">
-                        <option value="midnight-executive">🌌 كحلي ملكي (غامق)</option>
-                        <option value="warm-alabaster">📜 بيج كريمي (فاتح)</option>
-                        <option value="pure-platinum">☀️ أبيض ناصع (فاتح)</option>
-                        <option value="pearl-platinum">🏛️ بلاتيني (فاتح)</option>
-                        <option value="sepia-brown">☕ بني موكا (غامق)</option>
-                        <option value="obsidian-charcoal">🌑 أسود OLED (غامق)</option>
-                        <option value="twilight-indigo">🛡️ رمادي داكن (غامق)</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-        <script>
-            (function() {
-                const THEME_BG_MAP = {
-                    'midnight-executive': { bg: '#04091A', card: 'rgba(15, 23, 42, 0.86)', text: '#F8FAFC', border: 'rgba(56, 189, 248, 0.3)' },
-                    'warm-alabaster':     { bg: '#FBF8F1', card: 'rgba(24, 19, 10, 0.88)', text: '#F8FAFC', border: 'rgba(217, 119, 6, 0.45)' },
-                    'pure-platinum':      { bg: '#F1F5F9', card: 'rgba(15, 23, 42, 0.90)', text: '#FFFFFF', border: 'rgba(14, 165, 233, 0.45)' },
-                    'pearl-platinum':     { bg: '#E2E8F0', card: 'rgba(15, 23, 42, 0.88)', text: '#F8FAFC', border: 'rgba(99, 102, 241, 0.4)' },
-                    'sepia-brown':        { bg: '#1A110B', card: 'rgba(28, 19, 13, 0.90)', text: '#FDF8F5', border: 'rgba(245, 158, 11, 0.4)' },
-                    'obsidian-charcoal':  { bg: '#000000', card: 'rgba(12, 12, 14, 0.92)', text: '#FFFFFF', border: 'rgba(161, 161, 170, 0.35)' },
-                    'twilight-indigo':    { bg: '#1E293B', card: 'rgba(15, 23, 42, 0.88)', text: '#F8FAFC', border: 'rgba(148, 163, 184, 0.35)' }
-                };
-
-                function syncExternalGatewayState() {
-                    try {
-                        const uiMode = localStorage.getItem('mg_mobile_ui_mode') || 'modern';
-                        const activeSc = localStorage.getItem('mg_mobile_active_shortcut') || 'full';
-                        const activeTheme = localStorage.getItem('magaies_active_theme') || 'midnight-executive';
-                        const jailLocked = localStorage.getItem('mg_mobile_jail_locked') === '1';
-                        const jailedSc = localStorage.getItem('mg_mobile_jail_shortcut') || 'sc1';
-
-                        // Update custom shortcut names in dropdown if customized by Owner
-                        const rawMatrix = localStorage.getItem('mg_mobile_shortcuts_matrix_v1');
-                        const scSel = document.getElementById('mgExtShortcutSelect');
-                        if (rawMatrix && scSel) {
-                            const matrix = JSON.parse(rawMatrix);
-                            ['sc1','sc2','sc3','sc4'].forEach((k, idx) => {
-                                if (matrix[k] && matrix[k].name) {
-                                    const opt = scSel.querySelector('option[value="' + k + '"]');
-                                    if (opt) opt.textContent = '⚡ اختصار (' + (idx + 1) + '): ' + matrix[k].name;
-                                }
-                            });
-                        }
-
-                        const bMod = document.getElementById('mgExtUiModernBtn');
-                        const bCls = document.getElementById('mgExtUiClassicBtn');
-                        if (bMod && bCls) {
-                            if (uiMode === 'classic') {
-                                bCls.style.background = 'linear-gradient(135deg,#d97706,#b45309)';
-                                bCls.style.color = '#fff';
-                                bMod.style.background = 'transparent';
-                                bMod.style.color = '#94a3b8';
-                            } else {
-                                bMod.style.background = 'linear-gradient(135deg,#0284c7,#2563eb)';
-                                bMod.style.color = '#fff';
-                                bCls.style.background = 'transparent';
-                                bCls.style.color = '#94a3b8';
-                            }
-                        }
-
-                        if (scSel) {
-                            scSel.value = jailLocked ? jailedSc : activeSc;
-                        }
-                        const jailBadge = document.getElementById('mg-ext-jail-badge');
-                        if (jailBadge) jailBadge.style.display = jailLocked ? 'inline-block' : 'none';
-
-                        const thSel = document.getElementById('mgExtThemeSelect');
-                        if (thSel && THEME_BG_MAP[activeTheme]) thSel.value = activeTheme;
-
-                        const tCfg = THEME_BG_MAP[activeTheme] || THEME_BG_MAP['midnight-executive'];
-                        document.body.style.backgroundColor = tCfg.bg;
-                        const loginContainer = document.querySelector('.login-container');
-                        if (loginContainer) {
-                            loginContainer.style.background = tCfg.card;
-                            loginContainer.style.borderColor = tCfg.border;
-                        }
-                    } catch (e) {}
-                }
-
-                window.setMgExternalGatewayUI = function(mode) {
-                    localStorage.setItem('mg_mobile_ui_mode', mode);
-                    syncExternalGatewayState();
-                };
-
-                window.setMgExternalGatewayShortcut = function(scKey) {
-                    const jailLocked = localStorage.getItem('mg_mobile_jail_locked') === '1';
-                    const jailedSc = localStorage.getItem('mg_mobile_jail_shortcut') || 'sc1';
-                    if (jailLocked && scKey !== jailedSc) {
-                        const pin = prompt('🔒 هذا الجهاز مقفل أمنياً على اختصار محدد للموظف.\nأدخل الرقم السري للمالك/المدير لفك الحبس وتغيير الوجهة:');
-                        const savedPin = localStorage.getItem('mg_mobile_jail_pin') || '0000';
-                        if (pin !== savedPin) {
-                            alert('⛔ الرقم السري للمالك غير صحيح. سيبقى الدخول محصوراً في الاختصار المحدد.');
-                            syncExternalGatewayState();
-                            return;
-                        }
-                        localStorage.setItem('mg_mobile_jail_locked', '0');
-                    }
-                    localStorage.setItem('mg_mobile_active_shortcut', scKey);
-                    syncExternalGatewayState();
-                };
-
-                window.setMgExternalGatewayTheme = function(themeKey) {
-                    localStorage.setItem('magaies_active_theme', themeKey);
-                    localStorage.setItem('magaiees_mobile_theme', themeKey);
-                    document.documentElement.setAttribute('data-theme', themeKey);
-                    document.body.setAttribute('data-theme', themeKey);
-                    syncExternalGatewayState();
-                };
-
-                window.handleBiometricQuickLogin = async function() {
-                    try {
-                        if (window.PublicKeyCredential && navigator.credentials) {
-                            const challenge = new Uint8Array(32);
-                            window.crypto.getRandomValues(challenge);
-                            const userId = new Uint8Array(16);
-                            window.crypto.getRandomValues(userId);
-                            await navigator.credentials.create({
-                                publicKey: {
-                                    challenge: challenge,
-                                    rp: { name: 'Magaies ERP Biometric Gateway' },
-                                    user: { id: userId, name: 'owner@magaies', displayName: 'المالك المعتمد' },
-                                    pubKeyCredParams: [{ type: 'public-key', alg: -7 }],
-                                    authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required' },
-                                    timeout: 15000
-                                }
-                            });
-                        }
-                    } catch (e) {}
-                    if (typeof fillCreds === 'function') fillCreds('c', '0000');
-                    if (typeof handleLogin === 'function') handleLogin();
-                };
-
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', syncExternalGatewayState);
-                } else {
-                    syncExternalGatewayState();
-                }
-            })();
-        </script>
-        <!-- 🫆 زر الدخول ببصمة الإصبع والوجه (Biometric Fingerprint & FaceID 0.25s) -->
-        <button type="button" id="mgExtBiometricLoginBtn" onclick="window.handleBiometricQuickLogin && window.handleBiometricQuickLogin()" style="width: 100%; margin-bottom: 8px; padding: 10px 12px; border-radius: 12px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.42)); border: 1.5px solid #10b981; color: #a7f3d0; font-size: 0.85rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);" title="فتح البرنامج ببصمة الإصبع أو الوجه (FaceID / TouchID) دون كتابة الباسوورد أمام الناس">
-            <span style="font-size: 1.05rem;">🫆</span>
-            <span>فتح فوري ببصمة الإصبع أو الوجه (Biometric 0.25s)</span>
-        </button>
-
-        <!-- 🛡️ زر دخول آمن (بارز وظاهر في كامل الشاشة بدون حاجة لرفع الشاشة) -->
-        <button class="btn-login" onclick="handleLogin()" style="width: 100%; padding: 13px; border-radius: 14px; background: linear-gradient(135deg, #0284c7, #2563eb 50%, #4f46e5); box-shadow: 0 6px 20px rgba(2, 132, 199, 0.45); color: white; font-size: 1.05rem; font-weight: 800; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; transition: all 0.25s; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <!-- 🛡️ زر دخول آمن -->
+        <button class="btn-login" onclick="handleLogin()" style="width: 100%; padding: 14px; border-radius: 14px; background: linear-gradient(135deg, #0284c7, #2563eb 50%, #4f46e5); box-shadow: 0 8px 24px rgba(2, 132, 199, 0.45); color: white; font-size: 1.08rem; font-weight: 800; border: 1px solid rgba(255,255,255,0.22); cursor: pointer; transition: all 0.25s; display: flex; align-items: center; justify-content: center; gap: 9px;">
             <i class="fa-solid fa-shield-halved" style="font-size: 1.05rem; color: #7dd3fc;"></i>
-            <span>دخول آمن</span>
+            <span>تسجيل الدخول الآمن</span>
         </button>
-
-        <!-- بطاقة التكيف الذكي مع نوع ومقاس الشاشة (هونر، هواوي، سامسونج، آيفون، أندرويد، لابتوب) -->
-        <div class="device-adaptive-card" id="adaptive-device-card" style="margin-top: 10px; padding: 6px 10px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.74rem; color: #cbd5e1; display: flex; align-items: center; justify-content: center; gap: 6px;">
-            <span id="device-icon">📱</span>
-            <span id="device-adaptive-desc">جاري المعايرة والتكيف الذكي مع مقاس الشاشة...</span>
-        </div>
-
-        <!-- Fast Local Login Helper (مساعد التطوير المحلي) -->
-        <div id="local-login-hints" style="margin-top: 10px; padding: 8px; background: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.3); border-radius: 10px; text-align: center; display: none;">
-            <div style="font-size: 0.76rem; color: #38bdf8; font-weight: 700; margin-bottom: 6px;">🚀 تسجيل دخول سريع ومباشر:</div>
-            <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
-                <button type="button" onclick="fillCreds('c', '0000')" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #6ee7b7; border-radius: 6px; padding: 5px 10px; font-size: 0.78rem; cursor: pointer; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.background='rgba(16,185,129,0.35)'" onmouseout="this.style.background='rgba(16,185,129,0.2)'">🏢 الرئيسي (c / 0000)</button>
-                <button type="button" onclick="fillCreds('admin', '123456')" style="background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #93c5fd; border-radius: 6px; padding: 5px 10px; font-size: 0.78rem; cursor: pointer; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.background='rgba(59,130,246,0.35)'" onmouseout="this.style.background='rgba(59,130,246,0.2)'">⚙️ المدير (admin / 123456)</button>
-            </div>
-        </div>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('trycloudflare.com') || window.location.hostname.includes('loca.lt')) {
-                    const hintBox = document.getElementById('local-login-hints');
-                    if (hintBox) hintBox.style.display = 'block';
-                }
-            });
-            function fillCreds(u, p) {
-                const uInput = document.getElementById('username');
-                const pInput = document.getElementById('password');
-                if (uInput) uInput.value = u;
-                if (pInput) pInput.value = p;
-                if (typeof handleLogin === 'function') handleLogin();
-            }
-        </script>
         
         <div class="device-info" id="device-id-display" style="display:none;"></div>
     </div>
