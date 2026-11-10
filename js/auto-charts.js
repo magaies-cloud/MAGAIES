@@ -626,22 +626,7 @@
             `;
         }).join('');
 
-        const filterButtons = [
-            ['all', '🌌 المنظومة الشاملة'],
-            ['ai_risk', '🚨 قسم التنبؤ لمخاطر السيولة AI'],
-            ['sparkline', '⚡ 1. المؤشرات وFCF'],
-            ['area', '📈 2. المساحة الانسيابية'],
-            ['donut', '🍩 3. الكعكات المجوفة'],
-            ['gauge', '🧭 4. العداد المقوس'],
-            ['depth', '⚖️ 5. العرض والطلب'],
-            ['waterfall', '🌊 6. الشلال المالي'],
-            ['heatmap', '🔥 7. الخريطة الحرارية'],
-            ['funnel', '🔻 8. المخروطي والفقاعات']
-        ].map(f => {
-            const active = window._autoChartActiveFilter === f[0];
-            const isAi = f[0] === 'ai_risk';
-            return `<button type="button" data-g7-btn="${f[0]}" onclick="window._setAutoChartFilter('${f[0]}')" style="padding: 6px 12px; border-radius: 10px; font-family: 'Cairo', 'Tajawal', sans-serif; font-size: 12px; font-weight: 900; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; background: ${active ? (isAi ? 'linear-gradient(135deg, #e11d48 0%, #f97316 100%)' : 'linear-gradient(135deg, #059669 0%, #0284c7 100%)') : (isAi ? '#9f1239' : '#1e293b')}; border: 1.5px solid ${active ? '#fde047' : (isAi ? '#fb7185' : '#38bdf8')}; cursor: pointer; transition: all 0.2s ease; white-space: nowrap;">${f[1]}</button>`;
-        }).join('');
+        window._autoChartActiveFilter = 'all';
 
         const dashboard = document.createElement('div');
         dashboard.className = 'auto-chart-dashboard no-print';
@@ -661,21 +646,12 @@
         `;
 
         dashboard.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid ${isLt ? 'var(--lt-border, #5c2808)' : 'rgba(56, 189, 248, 0.28)'}; padding-bottom: 14px; margin-bottom: 14px; flex-wrap: wrap; gap: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid ${isLt ? 'var(--lt-border, #5c2808)' : 'rgba(56, 189, 248, 0.28)'}; padding-bottom: 10px; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #059669, #0284c7); color: #ffffff; display: inline-flex; align-items: center; justify-content: center; font-size: 19px; box-shadow: 0 4px 14px rgba(5, 150, 105, 0.35);">📊</span>
-                    <div>
-                        <h3 style="margin: 0; font-size: 19px; font-weight: 900; color: ${inkMain} !important; letter-spacing: -0.2px;">
-                            التحليل البياني البصري التلقائي ورادار المخاطر — ${tableData.domainTitle}
-                        </h3>
-                        <div style="font-size: 12px; font-weight: 900; color: ${inkAccent} !important;">
-                            ✨ دستور العشارية العالمية + محرك التنبؤ بالسيولة وحمايتها من العجز (متفاعل بالكامل مع السمات الفاتحة والداكنة)
-                        </div>
-                    </div>
+                    <span style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #059669, #0284c7); color: #ffffff; display: inline-flex; align-items: center; justify-content: center; font-size: 18px;">📊</span>
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 900; color: ${inkMain} !important;">التحليل البياني البصري ورادار المخاطر</h3>
                 </div>
-                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                    ${filterButtons}
-                </div>
+                <span style="padding: 4px 12px; border-radius: 999px; background: rgba(5,150,105,0.18); border: 1.5px solid #059669; color: ${inkEmerald}; font-size: 12px; font-weight: 900;">🌌 المنظومة الشاملة</span>
             </div>
 
             <!-- شريط التنبؤ الاستباقي بالسيولة وحمايتها من العجز قبل وقوعه (AI Liquidity Protection Strip) -->

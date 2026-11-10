@@ -1444,7 +1444,15 @@
             return defaults;
         }
 
-        function getNextUniqueStatementPin(excludeId = '', extraUsedSet = null) {
+        // Agreed rule: the stored secret stays 3 digits; the full password = last 2 WhatsApp digits + the 3 secret digits
+        function applyWaPinPrefix(pin, waPhone) {
+            const p = normalizeDigitsToAscii(String(pin || '')).replace(/[^0-9]/g, '');
+            const wa = normalizeDigitsToAscii(String(waPhone || '')).replace(/[^0-9]/g, '');
+            if (!p || wa.length < 2) return p;
+            return wa.slice(-2) + p;
+        }
+
+        function getNextUniqueStatementPin(excludeId = '', extraUsedSet = null, waPhone = '') {
             let customers = [];
             let suppliers = [];
             try {
@@ -1492,12 +1500,35 @@
 
         function updateCombinedPinPreview(prefix) {
             const pinEl = document.getElementById(`${prefix}-statement-pin`);
-            const prevEl = document.getElementById(`${prefix}-pin-combined-preview`);
             const rawPin = normalizeDigitsToAscii(pinEl ? pinEl.value : '').replace(/[^0-9]/g, '');
             if (pinEl && pinEl.value !== rawPin) pinEl.value = rawPin;
-            if (prevEl) {
-                prevEl.innerHTML = '';
-                prevEl.style.display = 'none';
+            if (!pinEl) return;
+            // Show the full 5-digit password in its natural place: [last 2 WhatsApp digits][3-digit secret] inside the same field
+            let badge = document.getElementById(`${prefix}-pin-combined-preview`);
+            if (!badge) {
+                const wrap = document.createElement('div');
+                wrap.style.cssText = 'display:flex;direction:ltr;align-items:stretch;gap:4px;width:100%;';
+                pinEl.parentNode.insertBefore(wrap, pinEl);
+                badge = document.createElement('span');
+                badge.id = `${prefix}-pin-combined-preview`;
+                badge.title = 'آخر رقمين من رقم الواتساب (يُضافان تلقائياً قبل الرقم السري)';
+                badge.style.cssText = 'display:none;align-items:center;justify-content:center;padding:0 10px;border-radius:8px;background:linear-gradient(135deg,#4c1d95,#6d28d9);border:1.5px solid #fde047;color:#fde047;font-weight:900;font-size:1.2rem;letter-spacing:2px;flex-shrink:0;user-select:none;';
+                wrap.appendChild(badge);
+                pinEl.style.flex = '1';
+                pinEl.style.minWidth = '0';
+                pinEl.style.direction = 'ltr';
+                wrap.appendChild(pinEl);
+                const waEl = document.getElementById(`${prefix}-whatsapp`);
+                if (waEl && !waEl._mdPinPrevBound) { waEl._mdPinPrevBound = true; waEl.addEventListener('input', () => updateCombinedPinPreview(prefix)); }
+            }
+            const wa = document.getElementById(`${prefix}-whatsapp`)?.value || document.getElementById(`${prefix}-phone`)?.value || '';
+            const waDigits = normalizeDigitsToAscii(String(wa)).replace(/[^0-9]/g, '');
+            if (waDigits.length >= 2) {
+                badge.textContent = waDigits.slice(-2);
+                badge.style.display = 'inline-flex';
+            } else {
+                badge.textContent = '';
+                badge.style.display = 'none';
             }
         }
 
@@ -1505,7 +1536,8 @@
             const pinEl = document.getElementById(`${prefix}-statement-pin`);
             if (!pinEl) return;
             const currentId = document.getElementById(`${prefix}-id`)?.value || '';
-            pinEl.value = getNextUniqueStatementPin(currentId);
+            const waVal = document.getElementById(`${prefix}-whatsapp`)?.value || document.getElementById(`${prefix}-phone`)?.value || '';
+            pinEl.value = getNextUniqueStatementPin(currentId, null, waVal);
             updateCombinedPinPreview(prefix);
         }
 
@@ -1537,7 +1569,7 @@
             list.forEach(item => {
                 if (!item || item.deleted) return;
                 const p = normalizeDigitsToAscii(item.statementPin || '').replace(/[^0-9]/g, '');
-                if (p && !usedPins.has(p)) {
+                if (p && p.length >= 3 && !/^0+$/.test(p) && !usedPins.has(p)) {
                     usedPins.add(p);
                     item.statementPin = p;
                 } else {
@@ -2596,7 +2628,7 @@
             const receiptCodeWord = '';
             let statementPin = normalizeDigitsToAscii(document.getElementById('cust-statement-pin')?.value || '').replace(/[^0-9]/g, '');
             if (!statementPin) {
-                statementPin = getNextUniqueStatementPin(id);
+                statementPin = getNextUniqueStatementPin(id, null, document.getElementById('cust-whatsapp')?.value || document.getElementById('cust-phone')?.value || '');
             } else {
                 const dupPinCust = allCusts.find(c => !c.deleted && c.id !== id && normalizeDigitsToAscii(c.statementPin || '').replace(/[^0-9]/g, '') === statementPin);
                 const dupPinSup = allSups.find(s => !s.deleted && s.id !== id && normalizeDigitsToAscii(s.statementPin || '').replace(/[^0-9]/g, '') === statementPin);
@@ -3019,7 +3051,7 @@
             const receiptCodeWord = '';
             let statementPin = normalizeDigitsToAscii(document.getElementById('sup-statement-pin')?.value || '').replace(/[^0-9]/g, '');
             if (!statementPin) {
-                statementPin = getNextUniqueStatementPin(id);
+                statementPin = getNextUniqueStatementPin(id, null, document.getElementById('sup-whatsapp')?.value || document.getElementById('sup-phone')?.value || '');
             } else {
                 const dupPinCust = allCusts.find(c => !c.deleted && c.id !== id && normalizeDigitsToAscii(c.statementPin || '').replace(/[^0-9]/g, '') === statementPin);
                 const dupPinSup = allSups.find(s => !s.deleted && s.id !== id && normalizeDigitsToAscii(s.statementPin || '').replace(/[^0-9]/g, '') === statementPin);

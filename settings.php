@@ -177,7 +177,7 @@ if (isset($_GET['action'])) {
 $serverTenant = null;
 $serverSettings = null;
 try {
-    if (!empty($GLOBAL_TENANT_ID)) {
+    if ($pdo && !empty($GLOBAL_TENANT_ID)) {
         $stmtT = $pdo->prepare("SELECT id, company_name, subdomain, owner_name, owner_phone, phone2, owner_email, status, valid_until, max_users, max_storage, plan_id, base_currency, foreign_currency, created_at FROM tenants WHERE id = ?");
         $stmtT->execute([$GLOBAL_TENANT_ID]);
         $serverTenant = $stmtT->fetch(PDO::FETCH_ASSOC);
@@ -236,7 +236,7 @@ try {
     <script>
         window.SERVER_TENANT = <?php echo json_encode($serverTenant, JSON_UNESCAPED_UNICODE); ?>;
         window.SERVER_SETTINGS = <?php echo json_encode($serverSettings, JSON_UNESCAPED_UNICODE); ?>;
-        window.SERVER_WA_POLICY = <?php $serverWaPolicy = null; try { $tPolKey = 'tenant_' . (int)($tenantId ?? ($GLOBAL_TENANT_ID ?? 1)) . '_erp_whatsapp_statement_policy_v1'; $stmtWaPol = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_whatsapp_statement_policy_v1') ORDER BY (setting_key = ?) DESC LIMIT 1"); $stmtWaPol->execute([$tPolKey, $tPolKey]); $rawWaPol = $stmtWaPol->fetchColumn(); if ($rawWaPol) $serverWaPolicy = json_decode($rawWaPol, true); } catch (Exception $e) {} echo json_encode($serverWaPolicy, JSON_UNESCAPED_UNICODE); ?>;
+        window.SERVER_WA_POLICY = <?php $serverWaPolicy = null; try { if ($pdo) { $tPolKey = 'tenant_' . (int)($tenantId ?? ($GLOBAL_TENANT_ID ?? 1)) . '_erp_whatsapp_statement_policy_v1'; $stmtWaPol = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_whatsapp_statement_policy_v1') ORDER BY (setting_key = ?) DESC LIMIT 1"); $stmtWaPol->execute([$tPolKey, $tPolKey]); $rawWaPol = $stmtWaPol->fetchColumn(); if ($rawWaPol) $serverWaPolicy = json_decode($rawWaPol, true); } } catch (Throwable $e) {} echo json_encode($serverWaPolicy, JSON_UNESCAPED_UNICODE); ?>;
     </script>
     <style>
         :root {

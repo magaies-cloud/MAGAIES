@@ -654,6 +654,43 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
                 <span style="font-size:11px;">🕒</span>
                 <span id="header-clock" style="font-size:11.5px !important; font-weight:900 !important; color:#34d399; letter-spacing:0.6px !important;"><script>var _n=new Date();document.write(_n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}))</script></span>
             </div>
+
+            <!-- شارة بورصة مقاييس المدمجة تحت لوحة التحكم مباشرة بدون مربع جانبي وبنفس نسق لوحة التحكم -->
+            <span id="header-magaiees-bourse-btn" role="button" tabindex="0" class="m7-solid-badge-guard" onclick="window.toggleMagaieesBourseGlobal();" title="إظهار أو إخفاء شريط بورصة مقاييس فوراً" style="margin-right:auto; height:22px; font-size:11px; font-weight:900; background:linear-gradient(135deg, #059669, #065f46); border:1.5px solid #fde047; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; padding:0 8px; border-radius:6px; display:inline-flex !important; align-items:center; justify-content:center; line-height:1; flex-shrink:0; cursor:pointer; user-select:none; box-shadow:0 0 8px rgba(16, 185, 129, 0.4);">بورصة مقاييس</span>
+            <script>
+            window.toggleMagaieesBourseGlobal = function() {
+                var dashWrap = document.getElementById('market-broker-ticker-wrap');
+                var btn = document.getElementById('header-magaiees-bourse-btn');
+                if (dashWrap) {
+                    var isHidden = dashWrap.classList.contains('is-broker-hidden') || dashWrap.style.display === 'none' || window.getComputedStyle(dashWrap).display === 'none';
+                    var nextShow = isHidden;
+                    window._userManuallyClosedBroker = !nextShow;
+                    localStorage.setItem('magaiees_hide_broker_ticker', nextShow ? '0' : '1');
+                    dashWrap.classList.toggle('is-broker-hidden', !nextShow);
+                    dashWrap.style.setProperty('display', nextShow ? 'flex' : 'none', 'important');
+                    if (nextShow) {
+                        var r1 = document.getElementById('market-broker-offers-row');
+                        var r2 = document.getElementById('market-broker-orders-row');
+                        if (r1) { r1.classList.remove('is-row-hidden'); r1.style.setProperty('display', 'flex', 'important'); }
+                        if (r2) { r2.classList.remove('is-row-hidden'); r2.style.setProperty('display', 'flex', 'important'); }
+                    }
+                    if (btn) {
+                        btn.style.background = nextShow ? 'linear-gradient(135deg, #059669, #065f46)' : 'linear-gradient(135deg, #be123c, #881337)';
+                    }
+                    return;
+                }
+                var gBar = document.getElementById('global-screens-broker-ticker');
+                if (gBar) {
+                    localStorage.setItem('magaiees_hide_broker_ticker', '1');
+                    gBar.remove();
+                    if (btn) btn.style.background = 'linear-gradient(135deg, #be123c, #881337)';
+                } else {
+                    localStorage.setItem('magaiees_hide_broker_ticker', '0');
+                    if (btn) btn.style.background = 'linear-gradient(135deg, #059669, #065f46)';
+                    if (typeof window.renderGlobalScreensBrokerBar === 'function') window.renderGlobalScreensBrokerBar();
+                }
+            };
+            </script>
         </div>
     </div>
 
@@ -773,18 +810,11 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
                     <span>الأدوات</span>
                 </button>
                 <div id="header-quick-tools-popover" onclick="event.stopPropagation()" style="display:none; position:absolute; top:calc(100% + 8px); left:0; background:rgba(15,23,42,0.98); border:1.5px solid rgba(56,189,248,0.45); border-radius:12px; padding:8px; gap:8px; align-items:center; box-shadow:0 15px 35px rgba(0,0,0,0.85); z-index:999999; backdrop-filter:blur(12px);">
-                    <button id="desktop-sync-shield-btn" type="button" class="royal-crystal-btn dock-icon-btn dock-icon-shield" onclick="window.openDesktopSyncAuditModal()" title="🛡️ درع الحماية وسجل المزامنة التلقائية (اضغط مطولاً للفحص والمزامنة الفورية)">
-                        🛡️
-                        <span id="desktop-sync-shield-badge" style="display:none; position:absolute; top:-4px; right:-4px; background:#ef4444; color:#fff; font-size:9.5px; font-weight:900; min-width:16px; height:16px; border-radius:999px; align-items:center; justify-content:center; padding:0 3px; border:1.5px solid #0f172a;">0</span>
-                    </button>
-
                     <button class="audit-tracker-btn dock-icon-btn dock-icon-search" onclick="window.openAuditTrackerModal()" title="متعقب المستندات وسجل تتبع المستخدمين (من فعل ماذا) - اضغط Alt+T">🔍</button>
 
                     <button class="fullscreen-toggle-btn dock-icon-btn dock-icon-fullscreen" onclick="toggleFullScreen()" data-i18n-title="header.fullscreen" title="توسيع الشاشة">⛶</button>
 
                     <button class="theme-toggle-btn dock-icon-btn dock-icon-theme" onclick="toggleTheme()" data-i18n-title="header.toggleTheme" title="تبديل المظهر السريع (فاتح / داكن)">🌓</button>
-
-                    <a href="mobile-dashboard.php?force_mobile=1" target="_blank" id="header-mobile-quick-btn" class="dock-icon-btn dock-icon-mobile" onclick="try{localStorage.setItem('magaiees_view_preference','mobile');document.cookie='magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax';}catch(e){}" style="<?php echo $is_dashboard_page ? 'display:none !important;' : ''; ?>" title="📱 فتح نسخة الجوال الذكية (Mobile Edition) في نافذة مستقلة">📱</a>
                 </div>
             </div>
             <script>
@@ -813,13 +843,8 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
              Left Column (يسارها): السمات (top) + الرجوع (bottom / ثم الرجوع) -->
         <?php if ($is_dashboard_page): ?>
         <div id="magaiees-dashboard-header-stack" class="header-quad-matrix">
-            <!-- العمود الأيمن: نسخة الموبايل وتحتها تثبيت التطبيق -->
+            <!-- العمود الأيمن: تثبيت التطبيق -->
             <div class="quad-matrix-col quad-col-right">
-                <button id="magaiees-top-mobile-btn" type="button" onclick="if(typeof switchToMobileEdition==='function'){switchToMobileEdition();}else{try{localStorage.setItem('magaiees_view_preference','mobile');document.cookie='magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax';}catch(e){}window.location.href='mobile-dashboard.php?force_mobile=1';}" class="magaiees-stack-btn stack-btn-mobile" title="التبديل إلى نسخة الموبايل والتابلت السريعة">
-                    <span class="stack-btn-icon"><i class="fa-solid fa-mobile-screen-button"></i></span>
-                    <span class="stack-btn-text">نسخة الموبايل 📱</span>
-                </button>
-
                 <button id="magaiees-top-install-btn" type="button" onclick="if(window.PWAManager && PWAManager.triggerInstall){PWAManager.triggerInstall();}else{alert('لتثبيت تطبيق مقاييس: اضغط على أيقونة التثبيت ⊕ في شريط عنوان المتصفح بالأعلى');}" class="magaiees-stack-btn stack-btn-install" title="تثبيت تطبيق مقاييس على جهازك كبرنامج مستقل">
                     <span class="stack-btn-icon"><i class="fa-solid fa-download"></i></span>
                     <span class="stack-btn-text">تثبيت التطبيق 📲</span>
@@ -1039,7 +1064,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="js/auto-charts.js?v=<?php echo time(); ?>"></script>
 <script src="js/quran_reciters_data.js?v=<?php echo file_exists(__DIR__ . '/../js/quran_reciters_data.js') ? filemtime(__DIR__ . '/../js/quran_reciters_data.js') : time(); ?>"></script>
 <script src="js/global_background_media.js?v=<?php echo file_exists(__DIR__ . '/../js/global_background_media.js') ? filemtime(__DIR__ . '/../js/global_background_media.js') : time(); ?>" defer></script>
-<script src="js/magaiees_back.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees_back.js') ? filemtime(__DIR__ . '/../js/magaiees_back.js') : time(); ?>" defer></script><script src="js/magaies-smart-guide.js?v=<?php echo file_exists(__DIR__ . '/../js/magaies-smart-guide.js') ? filemtime(__DIR__ . '/../js/magaies-smart-guide.js') : time(); ?>" defer></script>
+<script src="js/magaiees_back.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees_back.js') ? filemtime(__DIR__ . '/../js/magaiees_back.js') : time(); ?>" defer></script><script src="js/magaies-smart-guide.js?v=<?php echo file_exists(__DIR__ . '/../js/magaies-smart-guide.js') ? filemtime(__DIR__ . '/../js/magaies-smart-guide.js') : time(); ?>" defer></script><script src="js/md-delayed-tooltips.js?v=<?php echo file_exists(__DIR__ . '/../js/md-delayed-tooltips.js') ? filemtime(__DIR__ . '/../js/md-delayed-tooltips.js') : time(); ?>" defer></script>
 <script src="js/magaiees-royal-buttons.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees-royal-buttons.js') ? filemtime(__DIR__ . '/../js/magaiees-royal-buttons.js') : time(); ?>" defer></script>
 <script src="js/auto-header-scroll.js?v=<?php echo file_exists(__DIR__ . '/../js/auto-header-scroll.js') ? filemtime(__DIR__ . '/../js/auto-header-scroll.js') : time(); ?>" defer></script>
 
@@ -1351,7 +1376,8 @@ document.addEventListener('DOMContentLoaded', function() {
     border-radius: 7px !important;
     background: rgba(15, 23, 42, 0.65) !important;
     border: 1px solid rgba(255, 255, 255, 0.07) !important;
-    width: 100% !important;
+    width: auto !important;
+    flex: 0 1 auto !important;
     min-width: 0 !important;
     box-sizing: border-box !important;
 }
@@ -2703,6 +2729,7 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
 <script id="erp-live-whatsapp-receipts-sync">
 (function() {
     var srvTenantId  = <?= (int)$_hdrTid ?>;
+    var srvSyncSig   = <?= json_encode($_hdrSyncSig) ?>;
     var srvCustomers = <?= json_encode(array_values($_hdrSyncCustomers), JSON_UNESCAPED_UNICODE) ?>;
     var srvBanks     = <?= json_encode(array_values($_hdrSyncBanks), JSON_UNESCAPED_UNICODE) ?>;
     var srvReceipts  = <?= json_encode(array_values($_hdrSyncReceipts), JSON_UNESCAPED_UNICODE) ?>;
@@ -2790,18 +2817,20 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
                 if (!document.getElementById('magaies-sovereign-edge-to-edge-css')) {
                     var sovStyle = document.createElement('style');
                     sovStyle.id = 'magaies-sovereign-edge-to-edge-css';
+                    var rootSel = '#pur-proportional-root, #sales-proportional-root, #grn-proportional-root, #md-proportional-root, .dash-main, main.md-content-area, #purchase-editor-view, #purchase-hub-view, #sl-main-wrapper, .main-container, .page-container, .dashboard-container, .alarm-master-wrapper, .vouchers-container, .hub-container, .analytics-container, .eng-container, .settings-container, body.has-sidebar > main, body.has-sidebar > .container';
                     sovStyle.textContent =
                         ':root { --global-master-scale: 1; --global-master-font-px: 15px; --sb-collapsed: 62px; --sb-expanded: 240px; }\n' +
-                        'html { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin: 0 !important; padding: 0 !important; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }\n' +
-                        'body { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin-inline: auto !important; padding-inline: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: flex-start !important; }\n' +
-                        'html.has-sidebar body:not(.no-sidebar), body.has-sidebar:not(.no-sidebar) { margin-right: var(--sb-collapsed, 62px) !important; margin-left: 0 !important; width: calc(100% - var(--sb-collapsed, 62px)) !important; max-width: calc(100% - var(--sb-collapsed, 62px)) !important; }\n' +
-                        'html.has-sidebar body.sidebar-open:not(.no-sidebar), body.has-sidebar.sidebar-open:not(.no-sidebar) { margin-right: var(--sb-expanded, 240px) !important; margin-left: 0 !important; width: calc(100% - var(--sb-expanded, 240px)) !important; max-width: calc(100% - var(--sb-expanded, 240px)) !important; }\n' +
-                        '#pur-proportional-root, #sales-proportional-root, #grn-proportional-root, #md-proportional-root, .dash-main, main.md-content-area, #purchase-editor-view, #purchase-hub-view, #sl-main-wrapper, .main-container, .page-container { box-sizing: border-box !important; width: calc(100% - 24px) !important; max-width: calc(100% - 24px) !important; min-width: 0 !important; margin-inline: auto !important; margin-left: auto !important; margin-right: auto !important; transform-origin: top center !important; }\n' +
-                        '#purchase-editor-view, #purchase-hub-view { width: 100% !important; max-width: 100% !important; }\n' +
+                        '#dash-fc1-smart-ai-command-bar, #curtain-drawer, #desktop-sync-shield-btn, #header-mobile-quick-btn, #magaiees-top-mobile-btn, .msg-quartet-shield, .msg-quartet-mobile { display: none !important; }\n' +
+                        'html { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin: 0 !important; padding: 0 !important; }\n' +
+                        'body { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin: 0 !important; padding: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: flex-start !important; }\n' +
+                        'html.has-sidebar body:not(.no-sidebar), body.has-sidebar:not(.no-sidebar) { margin-right: var(--sb-collapsed, 62px) !important; margin-left: 0 !important; margin-inline-start: var(--sb-collapsed, 62px) !important; margin-inline-end: 0 !important; padding-inline: 0 !important; width: calc(100vw - var(--sb-collapsed, 62px)) !important; max-width: calc(100vw - var(--sb-collapsed, 62px)) !important; }\n' +
+                        'html.has-sidebar body.sidebar-open:not(.no-sidebar), body.has-sidebar.sidebar-open:not(.no-sidebar) { margin-right: var(--sb-expanded, 240px) !important; margin-left: 0 !important; margin-inline-start: var(--sb-expanded, 240px) !important; margin-inline-end: 0 !important; width: calc(100vw - var(--sb-expanded, 240px)) !important; max-width: calc(100vw - var(--sb-expanded, 240px)) !important; }\n' +
+                        rootSel + ' { box-sizing: border-box !important; width: calc(100% - 28px) !important; max-width: calc(100% - 28px) !important; min-width: 0 !important; margin-inline: auto !important; margin-left: auto !important; margin-right: auto !important; padding-left: 0 !important; padding-right: 0 !important; padding-inline: 0 !important; left: 0 !important; right: 0 !important; transform-origin: top center !important; }\n' +
+                        '#purchase-editor-view, #purchase-hub-view, #new-unified-dashboard-design { width: 100% !important; max-width: 100% !important; margin-inline: auto !important; }\n' +
                         'body:not([data-zoomed-high="1"]) { overflow-x: hidden !important; }\n' +
                         'body[data-zoomed-high="1"] { overflow-x: auto !important; overflow-y: auto !important; }\n' +
                         '@media screen and (max-height: 500px) and (orientation: landscape) { body.landscape-clean-100dvh header.premium-header { display: none !important; height: 0 !important; } body.landscape-clean-100dvh .dash-main { min-height: 100dvh !important; padding-top: 2px !important; } }\n';
-                    document.head.appendChild(sovStyle);
+                    (document.body || document.head).appendChild(sovStyle);
                 }
 
                 var MASTER_SCALE_KEY = 'magaies_global_master_scale_v1';
@@ -2845,23 +2874,23 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
                         return;
                     }
 
-                    var mainEl = document.querySelector('#pur-proportional-root') || document.querySelector('#sales-proportional-root') || document.querySelector('#grn-proportional-root') || document.querySelector('#md-proportional-root') || document.querySelector('.dash-main') || document.querySelector('#purchase-editor-view') || document.querySelector('#sl-main-wrapper') || document.querySelector('main');
+                    var mainEl = document.querySelector('#pur-proportional-root, #sales-proportional-root, #grn-proportional-root, #md-proportional-root, .dash-main, #purchase-editor-view, #sl-main-wrapper, .dashboard-container, .alarm-master-wrapper, .vouchers-container, .hub-container, .analytics-container, .eng-container, .settings-container, .main-container, .page-container, main');
                     if (mainEl) {
                         mainEl.style.boxSizing = 'border-box';
                         mainEl.style.transformOrigin = 'top center';
                         mainEl.style.marginInline = 'auto';
+                        mainEl.style.marginLeft = 'auto';
+                        mainEl.style.marginRight = 'auto';
                         if (Math.abs(val - 1) < 0.01) {
                             mainEl.style.zoom = '';
                             mainEl.style.transform = '';
-                            mainEl.style.width = 'calc(100% - 24px)';
-                            mainEl.style.maxWidth = 'calc(100% - 24px)';
-                            mainEl.style.margin = '0 auto';
+                            mainEl.style.width = 'calc(100% - 28px)';
+                            mainEl.style.maxWidth = 'calc(100% - 28px)';
                         } else {
                             mainEl.style.transformOrigin = 'top center';
                             mainEl.style.transform = 'scale(' + val + ')';
-                            mainEl.style.width = 'calc(100% - 24px)';
-                            mainEl.style.maxWidth = 'calc(100% - 24px)';
-                            mainEl.style.margin = '0 auto';
+                            mainEl.style.width = 'calc(100% - 28px)';
+                            mainEl.style.maxWidth = 'calc(100% - 28px)';
                         }
                     }
                     if (!skipSave && document.body) {
@@ -2920,6 +2949,50 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
             } else {
                 setTimeout(runRebuild, 80);
             }
+        }
+        // Global Magaiees Bourse Ticker across all screens (when enabled)
+        window.renderGlobalScreensBrokerBar = function() {
+            var existing = document.getElementById('global-screens-broker-ticker');
+            if (existing) existing.remove();
+            if (document.getElementById('market-broker-ticker-wrap')) return;
+            if (localStorage.getItem('magaiees_hide_broker_ticker') === '1') return;
+            fetch('api/market_broker_ticker.php?action=list').then(function(r){ return r.json(); }).then(function(res){
+                if (!res || !Array.isArray(res.items) || !res.items.length) return;
+                var dock = localStorage.getItem('magaiees_broker_dock_mode') === 'bottom' ? 'bottom' : 'top';
+                var bar = document.createElement('div');
+                bar.id = 'global-screens-broker-ticker';
+                bar.style.cssText = dock === 'bottom'
+                    ? 'position:fixed;bottom:2px;left:6px;right:calc(var(--sb-collapsed, 62px) + 6px);z-index:9990;background:#0c1d47;border:1px solid rgba(253,224,71,0.55);border-radius:7px;padding:4px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;direction:rtl;color:#fde047;font-size:12.5px;font-weight:900;box-shadow:0 4px 14px rgba(0,0,0,0.65);'
+                    : 'margin:4px auto;width:calc(100% - 28px);background:#0c1d47;border:1px solid rgba(253,224,71,0.55);border-radius:7px;padding:4px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;direction:rtl;color:#fde047;font-size:12.5px;font-weight:900;box-shadow:0 4px 14px rgba(0,0,0,0.55);';
+                var txt = res.items.slice(0, 8).map(function(it){ return (it.type === 'order' ? '🟠 طلب: ' : '🟢 عرض: ') + (it.text || ''); }).join('  •  ');
+                bar.innerHTML = '<div style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1;">📢 بورصة مقاييس: ' + txt + '</div>'
+                    + '<div style="display:flex;gap:4px;flex-shrink:0;">'
+                    + '<button type="button" onclick="var d=localStorage.getItem(\'magaiees_broker_dock_mode\')===\'bottom\'?\'top\':\'bottom\';localStorage.setItem(\'magaiees_broker_dock_mode\',d);window.renderGlobalScreensBrokerBar();" style="padding:1px 6px;border-radius:5px;background:#1e293b;color:#fde047;border:1px solid #f59e0b;font-size:10.5px;font-weight:900;cursor:pointer;" title="تبديل الموقع أعلى/أسفل">📍 أعلى/أسفل</button>'
+                    + '<button type="button" onclick="window.toggleMagaieesBourseGlobal();" style="padding:1px 6px;border-radius:5px;background:#881337;color:#fecdd3;border:1px solid #f43f5e;font-size:10.5px;font-weight:900;cursor:pointer;" title="إخفاء البورصة">🙈 إخفاء</button>'
+                    + '</div>';
+                var hdr = document.querySelector('.unified-header');
+                if (dock === 'top' && hdr && hdr.parentNode) hdr.parentNode.insertBefore(bar, hdr.nextSibling);
+                else document.body.appendChild(bar);
+            }).catch(function(){});
+        };
+        window.toggleMagaieesBourseGlobal = function() {
+            var dashWrap = document.getElementById('market-broker-ticker-wrap');
+            if (dashWrap && typeof window.toggleMarketBrokerTicker === 'function') {
+                var isHidden = dashWrap.classList.contains('is-broker-hidden') || dashWrap.style.display === 'none' || window.getComputedStyle(dashWrap).display === 'none';
+                window.toggleMarketBrokerTicker(isHidden);
+                return;
+            }
+            var gBar = document.getElementById('global-screens-broker-ticker');
+            if (gBar) {
+                localStorage.setItem('magaiees_hide_broker_ticker', '1');
+                gBar.remove();
+            } else {
+                localStorage.setItem('magaiees_hide_broker_ticker', '0');
+                window.renderGlobalScreensBrokerBar();
+            }
+        };
+        if (!document.getElementById('market-broker-ticker-wrap') && localStorage.getItem('magaiees_broker_all_screens') !== '0' && localStorage.getItem('magaiees_hide_broker_ticker') !== '1') {
+            window.renderGlobalScreensBrokerBar();
         }
     });
 })();

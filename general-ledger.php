@@ -4634,6 +4634,10 @@ html.light-theme #glC5LiveDropdownPreview {
         },
 
         resolveElementFullExplanation(el) {
+            if (typeof window.explainGeneralLedgerDomElement === 'function') {
+                const u = window.explainGeneralLedgerDomElement(el);
+                if (u && u.desc) return { title: u.title, desc: u.desc, goldenRule: '' };
+            }
             const id = el.id || '';
             const map = {
                 'account-search-input': {
@@ -14157,7 +14161,15 @@ body {
 })();
 </script>
 <!-- ═══ SOVEREIGN_MASTER_APPEARANCE_AND_10X_LASER_ENGINE_END ═══ -->
-
+<style id="gl-clean-background-only-ui">
+#gl-c1-quickbar, #gl-c1-audit-strip, #gl-c6-sync-telemetry-bar, #gl-c7-ophthalmic-bar,
+#gl-c8-cognitive-bar, #gl-c8-parked-sessions-strip, #gl-c8-tafqeet-qa-opening,
+#gl-c9-warehouse-depth-bar, #gl-c10-commercial-depth-bar, #gl-c11-banking-cheques-bar,
+#gl-c12-security-fortress-bar, #gl-c13-cybersecurity-bar, #gl-c14-master-report-bar,
+#gl-c15-unified-deck, #gl-fc1-supreme-ai-bar, #gl-fc1-nano-guide-capsule,
+#gl-fc1-floating-restore-btn, #gl-fc2-executive-ai-deck, #gl-fc2-forensic-screen-watermark,
+#gl-sovereign-appearance-zoom-pill, #gl-keyboard-nav-badge { display: none !important; }
+</style>
 </body>
 </html>
 

@@ -40,43 +40,52 @@
     }
 
     let currentProfAudio = null;
+    function interruptSpeakingOnly() {
+        isSpeakingReply = false;
+        if (currentProfAudio) {
+            try { currentProfAudio.onended = null; currentProfAudio.onerror = null; currentProfAudio.pause(); currentProfAudio.currentTime = 0; } catch (e) {}
+            currentProfAudio = null;
+        }
+        if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+        if (liveOpenConversation) updateMicUiState('listening');
+    }
+
     function speakArabic(text, onDone) {
         const finish = () => {
             isSpeakingReply = false;
             if (typeof onDone === 'function') onDone();
             if (liveOpenConversation) {
                 updateMicUiState('listening');
-                setTimeout(() => startContinuousRecognition(), 180);
+                setTimeout(() => startContinuousRecognition(), 70);
             }
         };
         if (voiceMuted || !text) { finish(); return; }
-        isSpeakingReply = true;
-        if (recognition && isListening) {
-            try { recognition.abort(); } catch (e) {}
+        interruptSpeakingOnly();
+        if (recognition) {
+            try { recognition.onend = null; recognition.abort(); } catch (e) {}
+            recognition = null;
             isListening = false;
         }
-        if (currentProfAudio) { try { currentProfAudio.pause(); } catch (e) {} currentProfAudio = null; }
+        isSpeakingReply = true;
         updateMicUiState('speaking');
-        const clean = String(text).replace(/[*#_`~]/g, '').replace(/ج\.س/g, ' جنيه سوداني ').replace(/\$/g, ' دولار ').slice(0, 480);
-        const url = 'api/tts_male.php?dialect=warm_professor&text=' + encodeURIComponent(clean);
-        const aud = new Audio(url);
-        currentProfAudio = aud;
-        aud.onended = finish;
-        aud.onerror = () => {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const u = new SpeechSynthesisUtterance(clean);
-                u.lang = 'ar-SA';
-                u.rate = 0.94;
-                u.pitch = 0.92;
-                u.onend = finish;
-                u.onerror = finish;
-                window.speechSynthesis.speak(u);
-            } else {
-                finish();
-            }
+        const clean = String(text).replace(/[*#_`~]/g, '').replace(/ج\.س/g, ' جنيه ').replace(/\$/g, ' دولار ').slice(0, 600).trim();
+        const chunks = clean.split(/(?<=[.؟!؛])\s+/).map(s => s.trim()).filter(Boolean);
+        if (!chunks.length) { finish(); return; }
+        const urls = chunks.map(c => 'api/tts_male.php?dialect=warm_professor&text=' + encodeURIComponent(c));
+        // Pre-warm all subsequent sentence chunks in parallel for zero-latency human breathing flow
+        urls.slice(1).forEach(u => { fetch(u).catch(() => {}); });
+        let idx = 0;
+        const playNext = () => {
+            if (!isSpeakingReply || idx >= urls.length) { finish(); return; }
+            const aud = new Audio(urls[idx]);
+            aud.volume = 1.0;
+            currentProfAudio = aud;
+            idx++;
+            aud.onended = () => { if (isSpeakingReply) playNext(); };
+            aud.onerror = () => { if (isSpeakingReply) playNext(); else finish(); };
+            aud.play().catch(() => finish());
         };
-        aud.play().catch(() => aud.onerror());
+        playNext();
     }
 
     function readLiveContext() {
@@ -100,41 +109,17 @@
         return { title, page: location.pathname.split('/').pop() || 'index.php', sal, pur, liq, prf, ar, ap, mkt, live_dom_elements: Array.from(new Set(liveElements)).slice(0, 50) };
     }
 
+    const chatHistory = [];
     function generateSmartAnswer(qRaw) {
         const q = String(qRaw || '').trim();
         const ctx = readLiveContext();
-        if (/الشريط الذهبي|شريط الاوامر|شريط الأوامر/i.test(q)) {
-            return 'الشريط الذهبي هو شريط القيادة المثبت أعلى الشاشة؛ يضم على اليمين أزرار الفترات الزمنية (اليوم، أسبوع، شهر، سنة، وزر + فترات)، وعلى اليسار 7 أدوات متناسقة هي: السيولة المطمئنة، وضع التركيز، تحويل الجنيه والدولار، سعر الصرف، مايك البروفيسور، الإيجاز الذكي، وزر التراجع.';
-        }
-        if (/بورص|شريط البورص|جديد|بلاغ|نقطة سوداء/i.test(q)) {
-            return 'شريط البورصة يعرض عروض البيع باللون الأخضر وطلبات الشراء باللون البرتقالي مع التزامن الفوري عبر الواتساب والذكاء البصري لقراءة الصور؛ وتضيء فيه شارة جديد بالأحمر لأول ساعة ونصف ثم بالبرتقالي حتى 3 ساعات ثم بالأخضر حتى 4 ساعات، مع نظام بلاغات يحظر المعلن تلقائياً عند 3 نقاط سوداء.';
-        }
-        if (/سيولة مطمئنة|مطمئنة/i.test(q)) {
-            return 'مؤشر السيولة المطمئنة في الشريط الذهبي يقيس نسبة السيولة النقدية والبنكية الجاهزة مقابل مستحقات الموردين، فيضيء بالأخضر عندما تكون السيولة مريحة وآمنة.';
-        }
-        if (/تركيز/i.test(q)) {
-            return 'زر التركيز في الشريط الذهبي يطوي البطاقات التفصيلية السفلية بضغطة واحدة لتركيز النظر على المؤشرات العليا، وبضغطة ثانية يعيد إظهارها فوراً.';
-        }
-        if (/تراجع/i.test(q)) {
-            return 'زر التراجع في الشريط الذهبي يتيح لك التبديل الفوري بين تصميم البروفيسور المطور 2027 والوضع السابق بضغطة واحدة.';
-        }
-        if (/مطابق|غرف القياد|ميزاني/i.test(q)) {
-            return 'بطاقة غرف القيادة وميزانية المطابقة تقارن لحظياً بين الرصيد الدفتري المسجل في النظام والرصيد الفعلي في الخزائن والبنوك، وتضم تبويبات المطابقة والدخل والميزانية والتدقيق الذكي.';
-        }
-        if (/ربح آمن|معدل الدوران|دوران/i.test(q)) {
-            return 'مؤشر ربح آمن يؤكد أن جميع الفواتير محمية فوق سعر التكلفة والإحلال، ومعدل الدوران يوضح عدد مرات تجدد المخزون ورأس المال شهرياً.';
-        }
-        if (/واتس|اشعار|إشعار|رصيد|249123005622/i.test(q)) {
-            return 'منظومة الواتساب مربوطة على الرقم 0123005622، وتستقبل إشعارات بنكك وكشوفات الرصيد وعروض وطلبات وصور البورصة آلياً.';
-        }
-        const matchedDom = (ctx.live_dom_elements || []).find(item => {
-            const label = item.split('(')[0].trim();
-            return label.length >= 3 && q.includes(label);
-        });
-        if (matchedDom) {
-            return `بخصوص «${matchedDom}»: هو أحد عناصر التحكم المباشرة في هذه الشاشة، ويمكنك الضغط عليه لتنفيذ وظيفته فوراً أو سؤالي عن أي تفصيل يخصه.`;
-        }
-        return 'أنا معك في الحوار المباشر، حدد لي اسم الزر أو الشاشة أو الميزة التي تريد أن نتحدث عنها وسأجيبك في صلب سؤالك مباشرة.';
+        if (/مبيعات|بيع/i.test(q)) return `إجمالي المبيعات الحالي ${ctx.sal || 'محدث أمامك'} وصافي الأرباح ${ctx.prf || 'محدث'}؛ هل تود مراجعة تفاصيل الفواتير أم تحصيل ديون العملاء البالغة ${ctx.ar || 'تحت التحديث'}؟`;
+        if (/مشتريات|شراء|مورد/i.test(q)) return `إجمالي المشتريات الحالي ${ctx.pur || 'محدث أمامك'} ومستحقات الموردين ${ctx.ap || 'محدثة'}؛ هل نراجع فواتير التوريد أم جدولة سداد الموردين؟`;
+        if (/شريط الذهب|الشريط الذهبي|شريط الاوامر|شريط الأوامر/i.test(q)) return `الشريط الذهبي هو مركز القيادة العلوي المثبت؛ يتيح لك فلترة الفترات الزمنية بلمسة واحدة، ومتابعة نبض السيولة المطمئنة، وتبديل العملة بين الجنيه والدولار فوراً.`;
+        if (/بورص|عروض|طلبات/i.test(q)) return `شريط البورصة يعرض عروض البيع بالأخضر وطلبات الشراء بالبرتقالي لحظياً من الواتساب والذكاء البصري للصور، مما يمنحك أفضلية فورية في اقتناص أسعار السوق.`;
+        if (/سيول|خزين|بنك|رصيد/i.test(q)) return `صافي السيولة المتاحة حالياً ${ctx.liq || 'محدث أمامك'} مقابل مستحقات موردين قدرها ${ctx.ap || 'محدثة'}، مما يعطيك رؤية واضحة لتدفقاتك النقدية.`;
+        if (/رأي|راي|نصيح|تحليل/i.test(q)) return `من واقع المؤشرات الحية، أنصح بالتركيز على تحصيل ديون العملاء (${ctx.ar || 'الحالية'}) لتعزيز السيولة (${ctx.liq || 'المتاحة'}) واقتناص أفضل عروض البورصة.`;
+        return `تحليلي السريع بخصوص «${q}»: مؤشرات النظام تعمل بتوازن ممتاز، والسيولة الحالية ${ctx.liq || 'جاهزة'} والمبيعات ${ctx.sal || 'نشطة'}؛ أي جانب منها تود أن نفصله أكثر؟`;
     }
 
     function appendMsg(role, text) {
@@ -153,14 +138,18 @@
         const inp = document.getElementById('prof-ai-chat-input');
         const q = (customText !== undefined ? customText : (inp ? inp.value : '')).trim();
         if (!q) return;
+        interruptSpeakingOnly();
         if (inp && customText === undefined) inp.value = '';
         appendMsg('user', q);
+        chatHistory.push({ role: 'user', text: q });
+        if (chatHistory.length > 8) chatHistory.shift();
         let ans = '';
         try {
             const ctx = readLiveContext();
+            ctx.recent_dialogue = chatHistory.slice(-6);
             if (activeQueryCtrl) { try { activeQueryCtrl.abort(); } catch (e) {} }
             activeQueryCtrl = new AbortController();
-            const tid = setTimeout(() => activeQueryCtrl.abort(), 4500);
+            const tid = setTimeout(() => activeQueryCtrl.abort(), 14000);
             const res = await fetch('api/ai-assistant.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -172,39 +161,68 @@
         } catch (e) {}
         if (!liveOpenConversation && customText !== undefined) return;
         if (!ans) ans = generateSmartAnswer(q);
+        chatHistory.push({ role: 'ai', text: ans });
         appendMsg('ai', ans);
         speakArabic(ans);
     }
 
+    let interimTimer = null;
+    let lastInterimText = '';
     function startContinuousRecognition() {
-        if (!liveOpenConversation || isSpeakingReply) return;
+        if (!liveOpenConversation) return;
         const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
         if (!SR) return;
         if (isListening && recognition) return;
         recognition = new SR();
         recognition.lang = 'ar-SA';
-        recognition.interimResults = false;
+        recognition.interimResults = true;
         recognition.continuous = false;
+        recognition.maxAlternatives = 5;
         recognition.onstart = () => {
             isListening = true;
-            updateMicUiState('listening');
+            lastInterimText = '';
+            if (!isSpeakingReply) updateMicUiState('listening');
         };
         recognition.onresult = (e) => {
-            const transcript = (e.results?.[0]?.[0]?.transcript || '').trim();
-            if (transcript && liveOpenConversation) sendUserQuery(transcript);
+            if (!liveOpenConversation) return;
+            if (interimTimer) { clearTimeout(interimTimer); interimTimer = null; }
+            let finalTranscript = '';
+            let interimTranscript = '';
+            for (let i = e.resultIndex; i < e.results.length; i++) {
+                const seg = (e.results[i]?.[0]?.transcript || '').trim();
+                if (seg.length >= 1 && isSpeakingReply) interruptSpeakingOnly();
+                if (e.results[i].isFinal) finalTranscript += ' ' + seg;
+                else interimTranscript += ' ' + seg;
+            }
+            finalTranscript = finalTranscript.trim();
+            interimTranscript = interimTranscript.trim();
+            if (finalTranscript) {
+                lastInterimText = '';
+                sendUserQuery(finalTranscript);
+            } else if (interimTranscript.length >= 1) {
+                lastInterimText = interimTranscript;
+                interimTimer = setTimeout(() => {
+                    if (lastInterimText && liveOpenConversation) {
+                        const toSend = lastInterimText;
+                        lastInterimText = '';
+                        try { recognition.stop(); } catch (err) {}
+                        sendUserQuery(toSend);
+                    }
+                }, 1100);
+            }
         };
         recognition.onend = () => {
             isListening = false;
-            if (liveOpenConversation && !isSpeakingReply) {
-                setTimeout(() => startContinuousRecognition(), 180);
-            } else if (!liveOpenConversation) {
+            if (liveOpenConversation) {
+                setTimeout(() => startContinuousRecognition(), 60);
+            } else {
                 updateMicUiState('off');
             }
         };
         recognition.onerror = () => {
             isListening = false;
-            if (liveOpenConversation && !isSpeakingReply) {
-                setTimeout(() => startContinuousRecognition(), 450);
+            if (liveOpenConversation) {
+                setTimeout(() => startContinuousRecognition(), 180);
             }
         };
         try { recognition.start(); } catch (e) {}
@@ -223,7 +241,12 @@
     }
 
     function toggleVoiceInput() {
-        if (liveOpenConversation || isSpeakingReply || isListening) {
+        if (isSpeakingReply) {
+            interruptSpeakingOnly();
+            startContinuousRecognition();
+            return;
+        }
+        if (liveOpenConversation || isListening) {
             stopAllVoiceImmediately();
             return;
         }
@@ -234,12 +257,7 @@
         }
         liveOpenConversation = true;
         updateMicUiState('listening');
-        if (!window._profGreetedOnce) {
-            window._profGreetedOnce = true;
-            speakArabic('اللهم صل وسلم على نبينا محمد. تفضل، أنا معك في الحوار المباشر.');
-        } else {
-            startContinuousRecognition();
-        }
+        speakArabic('اللهم صلِّ على سيدنا محمد، تفضل يا باشمهندس أنا معك.', () => startContinuousRecognition());
     }
 
     window.openGlobalProfessorAiChatModal = function (initialQuestion) {

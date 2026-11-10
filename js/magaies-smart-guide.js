@@ -10,6 +10,13 @@
 (function () {
     'use strict';
 
+    if (!window._mdDelayedTipsLoaded && !document.querySelector('script[src*="md-delayed-tooltips.js"]')) {
+        const mdTipScript = document.createElement('script');
+        mdTipScript.src = 'js/md-delayed-tooltips.js?v=' + Date.now();
+        mdTipScript.defer = true;
+        (document.head || document.documentElement).appendChild(mdTipScript);
+    }
+
     const SHORT_SAHIHAYN_SALAWAT = 'اللهم صل وسلم على نبينا محمد.';
 
     // ── INJECT STYLES FOR SMART GUIDE, GHOST CURSOR & LIVE TELEPROMPTER ──────
@@ -622,22 +629,18 @@
             animation: none !important;
         }
         .msg-fixed-command-pod.pod-smart-guide {
+            width: 328px !important;
+            min-width: 328px !important;
+            max-width: 328px !important;
+            grid-template-columns: 1fr 1fr 1fr !important;
+            grid-template-rows: 1fr 1fr !important;
             grid-template-areas:
-                "guide tv"
-                "mic   back";
+                "fullscr guide tv"
+                "search  qtheme back" !important;
         }
-        .msg-fixed-command-pod.pod-system-tools {
-            grid-template-areas:
-                "mobile   fullinst"
-                "appinst  themes";
-        }
+        .msg-fixed-command-pod.pod-system-tools,
         .msg-fixed-command-pod.pod-utility-quad {
-            width: 223px !important;
-            min-width: 223px !important;
-            max-width: 223px !important;
-            grid-template-areas:
-                "shield fullscr"
-                "search qtheme";
+            display: none !important;
         }
 
         /* Unified Button Styling Across All Pods (Zero glare/reflection) */
@@ -4230,64 +4233,18 @@
             pod.id = 'msg-universal-fixed-launcher';
             pod.className = 'msg-twin-quartets-wrapper';
             pod.innerHTML = `
-                ${showDashboardSystemPod ? `
-                <!-- ═══ المستطيل الأول (يظهر في لوحة التحكم فقط): الموبايل (تنزيل موبايل) • لابتوب (تثبيت لابتوب) • تثبيت عام • السمات ═══ -->
-                <div class="msg-fixed-command-pod pod-system-tools">
-                    <!-- 1. أعلى اليمين: الموبايل (هاتف ذكي بداخله سهم تنزيل واضح جداً) -->
-                    <button type="button" class="msg-quartet-btn msg-quartet-mobile" onclick="window.triggerQuartetMobileEdition()" title="نسخة وتنزيل الموبايل السريعة">
+                <!-- ═══ لوحة الأزرار السداسية الموحدة (من اليسار لليمين، ومن الأعلى للأسفل): (التلفاز/الرجوع) • (المرشد/السمات) • (الشاشة/البحث) ═══ -->
+                <div class="msg-fixed-command-pod pod-smart-guide">
+                    <!-- العمود الثالث (يمين): أعلى = الشاشة، أسفل = البحث -->
+                    <button type="button" class="msg-quartet-btn msg-quartet-fullscreen" onclick="window.triggerQuartetFullscreen()" title="⛶ توسيع وملء الشاشة">
                         <span class="msg-quartet-icon-box">
                             <svg viewBox="0 0 24 24" fill="none">
-                                <rect x="5.5" y="1.5" width="13" height="21" rx="2.8" fill="rgba(15,23,42,0.7)" stroke="#ffffff" stroke-width="2.2"/>
-                                <line x1="10" y1="4" x2="14" y2="4" stroke="#93c5fd" stroke-width="1.8" stroke-linecap="round"/>
-                                <path d="M12 6.8V14.2M12 14.2L9.2 11.4M12 14.2L14.8 11.4" stroke="#fde047" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                <line x1="9" y1="16.8" x2="15" y2="16.8" stroke="#fde047" stroke-width="2.2" stroke-linecap="round"/>
-                                <circle cx="12" cy="19.6" r="1.1" fill="#ffffff"/>
+                                <path d="M4 9V4H9M20 9V4H15M4 15V20H9M20 15V20H15" stroke="#fde047" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                                <rect x="8" y="8" width="8" height="8" rx="1.5" stroke="#ffffff" stroke-width="1.8"/>
                             </svg>
                         </span>
-                        <span class="msg-quartet-label">الموبايل</span>
+                        <span class="msg-quartet-label">الشاشة</span>
                     </button>
-
-                    <!-- 2. أسفل اليمين (تحت الموبايل مباشرة): لابتوب (شاشة لابتوب بداخلها سهم تثبيت واضح جداً) -->
-                    <button type="button" class="msg-quartet-btn msg-quartet-install-app" onclick="window.triggerQuartetAppInstall()" title="تثبيت تطبيق مقاييس على اللابتوب والكمبيوتر أو الجوال">
-                        <span class="msg-quartet-icon-box">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <rect x="3.5" y="3.5" width="17" height="11.5" rx="2" fill="rgba(15,23,42,0.7)" stroke="#ffffff" stroke-width="2.1"/>
-                                <path d="M1.5 18H22.5L20.5 15H3.5L1.5 18Z" fill="#5eead4" stroke="#ffffff" stroke-width="1.8" stroke-linejoin="round"/>
-                                <path d="M12 5.8V12.2M12 12.2L9.4 9.6M12 12.2L14.6 9.6" stroke="#fde047" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </span>
-                        <span class="msg-quartet-label">لابتوب</span>
-                    </button>
-
-                    <!-- 3. أعلى اليسار: تثبيت عام (تثبيت البرنامج كامل للعمل أوفلاين) -->
-                    <button type="button" class="msg-quartet-btn msg-quartet-install-full" onclick="window.triggerQuartetFullOfflineSetup()" title="التثبيت العام للبرنامج بالكامل للعمل أوفلاين بدون إنترنت">
-                        <span class="msg-quartet-icon-box">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <path d="M4 6C4 4.34 7.58 3 12 3C16.42 3 20 4.34 20 6V18C20 19.66 16.42 21 12 21C7.58 21 4 19.66 4 18V6Z" fill="rgba(250,204,21,0.22)" stroke="#ffffff" stroke-width="2.1"/>
-                                <path d="M4 12C4 13.66 7.58 15 12 15C16.42 15 20 13.66 20 12" stroke="#fde047" stroke-width="2.1"/>
-                                <path d="M12 7.2V12.6M9.6 10.2L12 12.6L14.4 10.2" stroke="#fde047" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </span>
-                        <span class="msg-quartet-label">تثبيت عام</span>
-                    </button>
-                </div>
-                ` : ''}
-
-                <!-- ═══ المستطيل الثاني (في كل الشاشات): الدرع • البحث • توسيع الشاشة • تبديل المظهر ═══ -->
-                <div class="msg-fixed-command-pod pod-utility-quad">
-                    <!-- 1. أعلى اليمين: الدرع (درع الحماية والمزامنة) -->
-                    <button type="button" id="desktop-sync-shield-btn" class="msg-quartet-btn msg-quartet-shield" onclick="window.triggerQuartetShield()" title="🛡️ درع الحماية وسجل المزامنة التلقائية">
-                        <span class="msg-quartet-icon-box">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <path d="M12 2.5L4.5 5.8V11.5C4.5 16.5 7.7 20.9 12 22.2C16.3 20.9 19.5 16.5 19.5 11.5V5.8L12 2.5Z" fill="rgba(16,185,129,0.3)" stroke="#ffffff" stroke-width="2.1" stroke-linejoin="round"/>
-                                <path d="M9 12.2L11.1 14.3L15.4 10" stroke="#fde047" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </span>
-                        <span class="msg-quartet-label">الدرع</span>
-                        <span id="desktop-sync-shield-badge" style="display:none; position:absolute; top:2px; left:4px; background:#ef4444; color:#fff; font-size:9px; font-weight:900; min-width:14px; height:14px; border-radius:999px; align-items:center; justify-content:center; padding:0 3px; border:1px solid #fff; z-index:5;">0</span>
-                    </button>
-
-                    <!-- 2. أسفل اليمين (تحت الدرع): البحث (متعقب المستندات ومن فعل ماذا) -->
                     <button type="button" class="msg-quartet-btn msg-quartet-search" onclick="window.triggerQuartetAuditSearch()" title="🔍 البحث ومتعقب المستندات وسجل المستخدمين (Alt+T)">
                         <span class="msg-quartet-icon-box">
                             <svg viewBox="0 0 24 24" fill="none">
@@ -4298,18 +4255,17 @@
                         <span class="msg-quartet-label">البحث</span>
                     </button>
 
-                    <!-- 3. أعلى اليسار: توسيع الشاشة -->
-                    <button type="button" class="msg-quartet-btn msg-quartet-fullscreen" onclick="window.triggerQuartetFullscreen()" title="⛶ توسيع وملء الشاشة">
+                    <!-- العمود الثاني (وسط): أعلى = المرشد، أسفل = السمات -->
+                    <button type="button" class="msg-quartet-btn msg-quartet-guide" onclick="window.openSmartGuide()" title="المرشد الذكي — شرح الشاشة التفاعلي وبداخله التصوير والتسجيل السينمائي 4K">
                         <span class="msg-quartet-icon-box">
                             <svg viewBox="0 0 24 24" fill="none">
-                                <path d="M4 9V4H9M20 9V4H15M4 15V20H9M20 15V20H15" stroke="#fde047" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-                                <rect x="8" y="8" width="8" height="8" rx="1.5" stroke="#ffffff" stroke-width="1.8"/>
+                                <path d="M12 3L2 8.5L12 14L22 8.5L12 3Z" fill="rgba(254,240,138,0.28)" stroke="#fde047" stroke-width="2.2" stroke-linejoin="round"/>
+                                <path d="M6 11.5V16.5C6 18.2 8.7 19.8 12 19.8C15.3 19.8 18 18.2 18 16.5V11.5" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round"/>
+                                <path d="M21 9.5V15.5" stroke="#fde047" stroke-width="2.2" stroke-linecap="round"/>
                             </svg>
                         </span>
-                        <span class="msg-quartet-label">الشاشة</span>
+                        <span class="msg-quartet-label">المرشد</span>
                     </button>
-
-                    <!-- 4. أسفل اليسار: السمات ونغمات النظام المعتمدة والموحدة -->
                     <button type="button" class="msg-quartet-btn msg-quartet-qtheme" onclick="window.triggerQuartetQuickTheme(this)" title="🎨 السمات ونغمات النظام المعتمدة والموحدة (13 لوناً + 4 نغمات)">
                         <span class="msg-quartet-icon-box">
                             <svg viewBox="0 0 24 24" fill="none">
@@ -4321,23 +4277,8 @@
                         </span>
                         <span class="msg-quartet-label">السمات</span>
                     </button>
-                </div>
 
-                <!-- ═══ المستطيل الثالث (في كل الشاشات): المرشد الموحد (ومن داخله التسجيل السينمائي) • التلفاز • الرجوع ═══ -->
-                <div class="msg-fixed-command-pod pod-smart-guide">
-                    <!-- 1. المرشد الذكي الشامل (وبداخله زر التسجيل السينمائي 4K) -->
-                    <button type="button" class="msg-quartet-btn msg-quartet-guide" style="grid-row: span 2; height: 100%;" onclick="window.openSmartGuide()" title="المرشد الذكي — شرح الشاشة التفاعلي وبداخله التصوير والتسجيل السينمائي 4K">
-                        <span class="msg-quartet-icon-box">
-                            <svg viewBox="0 0 24 24" fill="none">
-                                <path d="M12 3L2 8.5L12 14L22 8.5L12 3Z" fill="rgba(254,240,138,0.28)" stroke="#fde047" stroke-width="2.2" stroke-linejoin="round"/>
-                                <path d="M6 11.5V16.5C6 18.2 8.7 19.8 12 19.8C15.3 19.8 18 18.2 18 16.5V11.5" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round"/>
-                                <path d="M21 9.5V15.5" stroke="#fde047" stroke-width="2.2" stroke-linecap="round"/>
-                            </svg>
-                        </span>
-                        <span class="msg-quartet-label">المرشد</span>
-                    </button>
-
-                    <!-- 3. أعلى اليسار: التلفاز والقرآن الكريم -->
+                    <!-- العمود الأول (أقصى اليسار): أعلى = التلفاز، أسفل = الرجوع -->
                     <div id="header-media-control-wrap" class="msg-quartet-tv-cell">
                         <button type="button" id="header-media-btn" class="msg-quartet-btn msg-quartet-tv" onclick="if(typeof window.toggleHeaderMediaPopover==='function'){window.toggleHeaderMediaPopover(event);}" title="قنوات التلفاز والقرآن الكريم والحديث الشريف (بث حي في الخلفية)">
                             <span class="msg-quartet-icon-box" id="header-media-icon">
@@ -4351,8 +4292,6 @@
                             <span id="header-media-dot" class="header-tv-status-dot" style="display:none; position:absolute; top:4px; left:4px;"></span>
                         </button>
                     </div>
-
-                    <!-- 4. الركن أسفل اليسار: الرجوع للخلف -->
                     <button type="button" class="msg-quartet-btn msg-quartet-back" onclick="if(typeof window.magaieesGoBack==='function'){window.magaieesGoBack();}else{window.history.back();}" title="الرجوع للخلف (العودة للشاشة السابقة)">
                         <span class="msg-quartet-icon-box">
                             <svg viewBox="0 0 24 24" fill="none">
@@ -4407,6 +4346,22 @@
 
         // Keep the 4 buttons permanently docked inside the top header so they scroll naturally with the header title
         pod.classList.remove('is-scroll-floating');
+
+        // Render Laptop & Offline Install buttons inside settings.php as requested
+        if (/settings\.php/i.test(window.location.pathname) && !document.getElementById('settings-pwa-install-suite')) {
+            const stTarget = document.querySelector('.settings-container, .main-content, main, body');
+            if (stTarget) {
+                const bar = document.createElement('div');
+                bar.id = 'settings-pwa-install-suite';
+                bar.style.cssText = 'display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:8px auto 14px auto;padding:10px 16px;border-radius:12px;background:linear-gradient(135deg,#0f172a,#1e293b);border:1.5px solid #fbbf24;direction:rtl;box-shadow:0 6px 18px rgba(0,0,0,0.45);';
+                bar.innerHTML = '<div style="color:#fef08a;font-weight:900;font-size:14px;display:flex;align-items:center;gap:8px;"><span>📲</span><span>تثبيت نظام مقاييس على اللابتوب والعمل بدون إنترنت (أوفلاين):</span></div>'
+                    + '<div style="display:flex;align-items:center;gap:8px;">'
+                    + '<button type="button" onclick="window.triggerQuartetAppInstall&&window.triggerQuartetAppInstall()" style="height:34px;padding:0 14px;border-radius:8px;background:linear-gradient(135deg,#0284c7,#1e40af);border:1.5px solid #7dd3fc;color:#fff;font-weight:900;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">💻 لابتوب (تثبيت سطح المكتب)</button>'
+                    + '<button type="button" onclick="window.triggerQuartetFullOfflineSetup&&window.triggerQuartetFullOfflineSetup()" style="height:34px;padding:0 14px;border-radius:8px;background:linear-gradient(135deg,#059669,#065f46);border:1.5px solid #6ee7b7;color:#fff;font-weight:900;font-size:13px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">⚡ تثبيت عام (أوفلاين شامل)</button>'
+                    + '</div>';
+                stTarget.insertBefore(bar, stTarget.firstChild);
+            }
+        }
 
         if (typeof window.syncHeaderPopoverUI === 'function') {
             try { window.syncHeaderPopoverUI(); } catch (e) {}
@@ -6772,6 +6727,7 @@
         }
     };
     function showGlobalSmartExplanationAt(e, forcedTarget) {
+        if (typeof window.__mdHandleUnifiedHumanExplain === 'function' && window.__mdHandleUnifiedHumanExplain(e, forcedTarget)) return;
         const tipEl = document.getElementById('msg-smart-hover-tooltip');
         if (tipEl && tipEl.contains(e.target)) return;
         let target = forcedTarget || (e.target && e.target.closest ? e.target.closest('button, a, input, select, textarea, .pro-field-card, .input-group, .h-form-group, .form-group, .spotlight-card, .kpi-card, .stat-card, .hub-action-card, .fin-metric-pill, .qa-master-btn, .cat-hub-btn, .msg-quartet-btn, .md-tab-btn, .sl-btn, .uiverse-switch, canvas, th, td, [role="button"], [role="tab"], [onclick], [data-md-tip], [data-guide-desc]') : null);

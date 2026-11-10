@@ -125,12 +125,14 @@ function switchToMobileEdition() {
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Cairo:wght@500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
     <title>Magaiees ERP - التحكم المتكاملة | الشاشة العالمية الموحدة</title>
     <link rel="stylesheet" href="css/tailwind.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preload" href="css/design-system.css?v=20260723_v14" as="style">
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=<?php echo file_exists('css/theme.css') ? filemtime('css/theme.css') : '12'; ?>">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="css/unified-brain.css?v=20260722">
     <script src="js/pwa-manager.js" defer></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         html {
             font-size: 16px;
@@ -178,6 +180,31 @@ function switchToMobileEdition() {
         ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.4); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.8); }
 
+        /* Ambient Animated Background Orbs */
+        .ambient-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            overflow: hidden; z-index: -1; pointer-events: none;
+            background: radial-gradient(circle at 50% 50%, #0c0812 0%, #000000 100%);
+        }
+
+        .orb {
+            position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.12;
+            animation: floatOrb 20s infinite alternate ease-in-out;
+            will-change: transform;
+            contain: layout style paint;
+        }
+
+        .orb-1 { width: 500px; height: 500px; background: var(--primary-accent); top: -5%; right: -5%; }
+        .orb-2 { width: 450px; height: 450px; background: var(--theme-pink); bottom: -10%; left: -5%; animation-delay: -7s; }
+        .orb-3 { width: 600px; height: 600px; background: var(--theme-blue); top: 30%; left: 30%; animation-duration: 25s; opacity: 0.1; }
+
+        @keyframes floatOrb {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-30px, 30px) scale(0.9); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
         /* Compact Layout Container */
         .dash-main {
             width: 100%;
@@ -196,6 +223,68 @@ function switchToMobileEdition() {
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Athkar Ticker */
+        .islamic-ticker-container { overflow: hidden; white-space: nowrap; max-width: 400px; margin: 10px auto 0; position: relative; display: flex; align-items: center; border-radius: 8px; background: rgba(0,0,0,0.2); padding: 5px 10px; border: 1px solid rgba(255,255,255,0.05); }
+        .islamic-ticker {
+            display: inline-block; font-weight: 700; font-size: 0.95rem; color: transparent;
+            background: linear-gradient(90deg, #f59e0b, #10b981, #3b82f6, #a855f7, #f59e0b);
+            background-size: 200% auto; -webkit-background-clip: text; background-clip: text;
+            animation: gradientMove 3s linear infinite, scrollTicker 20s linear infinite;
+            text-shadow: 0 0 10px rgba(245, 158, 11, 0.2); white-space: nowrap; padding-left: 100%;
+        }
+        @keyframes scrollTicker { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+
+        .header-brand { display: flex; align-items: center; gap: 12px; }
+        .brand-icon {
+            width: 40px; height: 40px; border-radius: 12px;
+            background: linear-gradient(135deg, #38bdf8, #818cf8);
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+            box-shadow: 0 6px 15px rgba(56, 189, 248, 0.4), inset 0 2px 5px rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.2);
+        }
+        .brand-text h1 { margin: 0; font-size: 1.1rem; font-weight: 900; color: #fff; letter-spacing: 0.5px; text-shadow: 0 2px 5px rgba(255,255,255,0.1); }
+        .brand-text p { margin: 0; font-size: 0.75rem; color: #94a3b8; font-weight: 500; }
+
+        .header-center { text-align: center; }
+        .header-center h2 { margin: 0; font-size: 1.2rem; font-weight: 900; background: linear-gradient(to right, #fff, #cbd5e1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px; }
+
+        .header-controls { display: flex; align-items: center; gap: 12px; }
+        
+        .clock-container {
+            display: flex; flex-direction: column; align-items: center; 
+            background: rgba(15,23,42,0.6); padding: 6px 12px; border-radius: 12px; 
+            border: 1px solid rgba(255,255,255,0.08); min-width: 100px;
+        }
+        .clock-time { color: #38bdf8; font-size: 1rem; font-weight: 900; font-variant-numeric: tabular-nums; letter-spacing: 1px; text-shadow: 0 0 8px rgba(56,189,248,0.5); font-family: 'Outfit', sans-serif;}
+        .clock-date { color: var(--text-secondary); font-size: 0.65rem; margin-top: 1px; }
+
+        @keyframes tactileBuzz {
+            0% { transform: translateY(-3px) scale(1.02) rotate(0deg); }
+            25% { transform: translateY(-3px) scale(1.02) rotate(-0.5deg); }
+            50% { transform: translateY(-3px) scale(1.02) rotate(0.5deg); }
+            75% { transform: translateY(-3px) scale(1.02) rotate(-0.5deg); }
+            100% { transform: translateY(-3px) scale(1.02) rotate(0deg); }
+        }
+
+        .icon-btn {
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border); width: 36px; height: 36px;
+            border-radius: 10px; color: #fff; font-size: 1rem; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); position: relative;
+        }
+        .icon-btn:hover { 
+            animation: tactileBuzz 0.1s linear infinite;
+            background: rgba(56, 189, 248, 0.1); 
+            border-color: #38bdf8; 
+            box-shadow: 0 0 15px rgba(56,189,248,0.5), 0 0 30px rgba(56,189,248,0.3), inset 0 0 10px rgba(56,189,248,0.2); 
+            z-index: 10;
+        }
+        .icon-btn > * { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: inline-block; }
+        .icon-btn:hover > * { transform: scale(1.2); }
+
+        .user-info {
+            display: flex; align-items: center; gap: 8px; background: rgba(15,23,42,0.6); padding: 6px 12px; 
+            border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);
+        }
+
         /* Compact Glass Panels */
         .glass-panel {
             background: var(--surface); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
@@ -204,8 +293,261 @@ function switchToMobileEdition() {
             transition: all 0.4s ease;
         }
         .glass-panel:hover { border-color: var(--border-highlight); box-shadow: 0 15px 35px rgba(0,0,0,0.4); transform: translateY(-3px); }
+
         .glass-panel h3 { margin: 0 0 15px 0; font-size: 1.05rem; font-weight: 800; display:flex; align-items:center; gap:8px; }
 
+        /* Neon Borders */
+        .neon-border-primary { border-top: 3px solid var(--theme-blue); }
+        .neon-border-success { border-top: 3px solid var(--theme-green); }
+        .neon-border-warning { border-top: 3px solid var(--theme-orange); }
+        .neon-border-danger { border-top: 3px solid var(--theme-red); }
+        .neon-border-purple { border-top: 3px solid var(--theme-purple); }
+
+        /* Compact KPI Cards - Slim Executive 6-Card Grid (50% Reduced Height) */
+        .kpi-cards {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(165px, 1fr)); gap: 8px;
+        }
+        .kpi-cards .glass-panel {
+            padding: 5px 10px !important;
+            border-radius: 10px !important;
+            min-height: 44px !important;
+        }
+        .kpi-title { color: #ffffff !important; font-size: 0.74rem !important; font-weight: 800 !important; letter-spacing: 0.2px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .kpi-icon-bg { padding: 2px 5px !important; border-radius: 6px !important; }
+        .kpi-icon-bg span { font-size: 0.75rem !important; }
+        .kpi-val { margin:0 !important; font-size:0.80rem !important; font-weight:800; font-family: 'Outfit', 'Tajawal', sans-serif; line-height: 1.1 !important; }
+        .kpi-desc { font-size:0.6rem !important; margin-top:0 !important; font-weight: 700; }
+
+        /* Dynamic Spotlight Glass Effect for KPI Cards */
+        .spotlight-card {
+            position: relative;
+            overflow: hidden;
+            transform: translateZ(0);
+        }
+        .spotlight-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(
+                450px circle at var(--mouse-x, 0) var(--mouse-y, 0),
+                rgba(255, 255, 255, 0.12),
+                transparent 45%
+            );
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .spotlight-card:hover::before {
+            opacity: 1;
+        }
+        .spotlight-card > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Compact Charts Grid */
+        .charts-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 15px;
+        }
+        .chart-container { position: relative; height: 240px; width: 100%; }
+        
+        .bottom-section {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 15px;
+        }
+
+        /* Compact Quick Action Buttons */
+        .qa-card-wrapper {
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%);
+            padding: 15px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); 
+            box-shadow: inset 0 0 15px rgba(255,255,255,0.02), 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease; height: 100%; box-sizing: border-box;
+        }
+        .qa-card-wrapper:hover {
+            transform: translateY(-3px); box-shadow: inset 0 0 20px rgba(255,255,255,0.04), 0 8px 25px rgba(0,0,0,0.3);
+        }
+        .qa-card-wrapper h4 { margin: 0 0 12px 0; font-size: 0.95rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+
+        .quick-action-btn {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px; border-radius: 12px; text-decoration: none; font-weight: 800; font-size: 0.9rem;
+            color: #fff; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); position: relative; overflow: hidden;
+            font-family: 'Tajawal', sans-serif;
+        }
+        .quick-action-btn:hover { 
+            animation: tactileBuzz 0.1s linear infinite;
+            border-color: rgba(255,255,255,0.3);
+            z-index: 10;
+        }
+
+        .qa-primary { border-bottom: 2px solid rgba(56,189,248,0.5); }
+        .qa-primary:hover { background: rgba(56,189,248,0.1); color: #38bdf8; border-color: #38bdf8; box-shadow: 0 0 15px rgba(56,189,248,0.6), 0 0 30px rgba(56,189,248,0.3), inset 0 0 15px rgba(56,189,248,0.2) !important; }
+        
+        .qa-warning { border-bottom: 2px solid rgba(251,191,36,0.5); }
+        .qa-warning:hover { background: rgba(251,191,36,0.1); color: #fbbf24; border-color: #fbbf24; box-shadow: 0 0 15px rgba(251,191,36,0.6), 0 0 30px rgba(251,191,36,0.3), inset 0 0 15px rgba(251,191,36,0.2) !important; }
+        
+        .qa-success { border-bottom: 2px solid rgba(52,211,153,0.5); }
+        .qa-success:hover { background: rgba(52,211,153,0.1); color: #34d399; border-color: #34d399; box-shadow: 0 0 15px rgba(52,211,153,0.6), 0 0 30px rgba(52,211,153,0.3), inset 0 0 15px rgba(52,211,153,0.2) !important; }
+        
+        .qa-danger { border-bottom: 2px solid rgba(248,113,113,0.5); }
+        .qa-danger:hover { background: rgba(248,113,113,0.1); color: #f87171; border-color: #f87171; box-shadow: 0 0 15px rgba(248,113,113,0.6), 0 0 30px rgba(248,113,113,0.3), inset 0 0 15px rgba(248,113,113,0.2) !important; }
+        
+        .qa-purple { border-bottom: 2px solid rgba(192,132,252,0.5); }
+        .qa-purple:hover { background: rgba(192,132,252,0.1); color: #c084fc; border-color: #c084fc; box-shadow: 0 0 15px rgba(192,132,252,0.6), 0 0 30px rgba(192,132,252,0.3), inset 0 0 15px rgba(192,132,252,0.2) !important; }
+
+        .quick-action-btn:not([class*="qa-"]):hover { box-shadow: 0 0 15px rgba(255,255,255,0.4), 0 0 30px rgba(255,255,255,0.2), inset 0 0 15px rgba(255,255,255,0.1) !important; }
+
+        .qa-icon {
+            font-size: 1.3rem; /* Increased size by one step */
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px; /* Slightly larger wrapper */
+            height: 38px;
+            border-radius: 10px; /* Sharp rounded corners */
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.04);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            margin-left: 8px; /* Spacing for RTL */
+            flex-shrink: 0;
+        }
+        
+        /* Default/Dark Mode: Color coding for the quick action buttons */
+        /* 1. Settings */
+        .admin-action-settings .qa-icon { background: rgba(100, 116, 139, 0.15); border-color: rgba(100, 116, 139, 0.35); }
+        /* 2. Master Data */
+        .admin-action-master .qa-icon { background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.35); }
+        /* 3. Jobs/Tasks */
+        .admin-action-jobs .qa-icon { background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.35); }
+        /* 4. Notifications */
+        .admin-action-notifications .qa-icon { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.35); }
+        /* 5. Sales (qa-primary) */
+        .qa-primary .qa-icon { background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.35); }
+        /* 6. Purchases & 8. Checks (qa-warning) */
+        .qa-warning .qa-icon { background: rgba(251, 191, 36, 0.15); border-color: rgba(251, 191, 36, 0.35); }
+        /* 7. Transactions (qa-danger) */
+        .qa-danger .qa-icon { background: rgba(248, 113, 113, 0.15); border-color: rgba(248, 113, 113, 0.35); }
+        /* 9. Reports (qa-purple) */
+        .qa-purple .qa-icon { background: rgba(192, 132, 252, 0.15); border-color: rgba(192, 132, 252, 0.35); }
+        /* 10. Warehouses (inventory-report link) */
+        a[data-href="inventory-report.php"] .qa-icon { background: rgba(167, 139, 250, 0.15); border-color: rgba(167, 139, 250, 0.35); }
+
+        /* Hover states in default/Dark Mode: scale to 1.4, border to 4.5px, background darkens */
+        .admin-action-btn:hover .qa-icon,
+        .quick-action-btn:hover .qa-icon {
+            transform: scale(1.4) rotate(5deg) translateY(-2px) !important;
+            border-width: 4.5px !important;
+        }
+        
+        .admin-action-settings:hover .qa-icon { background: rgba(100, 116, 139, 0.45) !important; border-color: #64748b !important; }
+        .admin-action-master:hover .qa-icon { background: rgba(59, 130, 246, 0.45) !important; border-color: #3b82f6 !important; }
+        .admin-action-jobs:hover .qa-icon { background: rgba(16, 185, 129, 0.45) !important; border-color: #10b981 !important; }
+        .admin-action-notifications:hover .qa-icon { background: rgba(239, 68, 68, 0.45) !important; border-color: #ef4444 !important; }
+        .qa-primary:hover .qa-icon { background: rgba(56, 189, 248, 0.45) !important; border-color: #38bdf8 !important; }
+        .qa-warning:hover .qa-icon { background: rgba(251, 191, 36, 0.45) !important; border-color: #fbbf24 !important; }
+        .qa-danger:hover .qa-icon { background: rgba(248, 113, 113, 0.45) !important; border-color: #f87171 !important; }
+        .qa-purple:hover .qa-icon { background: rgba(192, 132, 252, 0.45) !important; border-color: #c084fc !important; }
+        a[data-href="inventory-report.php"]:hover .qa-icon { background: rgba(167, 139, 250, 0.45) !important; border-color: #a78bfa !important; }
+
+        /* Compact Tables */
+        .premium-table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 0.85rem; }
+        .premium-table th { padding: 10px; text-align: right; color: #94a3b8; border-bottom: 1px solid rgba(255,255,255,0.05); font-weight: 700; }
+        .premium-table td { padding: 10px; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        .premium-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
+
+        /* List Items */
+        .list-item {
+            display:flex; align-items:center; gap:12px; padding:12px; border-radius:12px; 
+        }
+        .list-icon {
+            width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; 
+        }
+        .list-title { margin:0; color:#fff; font-size:0.9rem; }
+        .list-sub { color:var(--text-secondary); font-size:0.75rem; }
+        .list-btn { padding:6px 12px; background:var(--primary-accent); color:#fff; border-radius:8px; text-decoration:none; font-size:0.8rem; font-weight:800; }
+
+        /* Admin action buttons styling */
+        .admin-action-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 16px; border-radius: 20px; text-decoration: none; font-weight: 800; font-size: 0.85rem;
+            color: #fff; background: rgba(15, 23, 42, 0.4); border: 1.5px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); cursor: pointer;
+            font-family: 'Tajawal', sans-serif;
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.01), 0 4px 10px rgba(0,0,0,0.15);
+        }
+        .admin-action-btn:hover {
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.08);
+            border-color: rgba(255,255,255,0.25);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+        .admin-action-settings {
+            border-bottom: 2.5px solid #64748b !important;
+        }
+        .admin-action-settings:hover {
+            color: #fff;
+            box-shadow: 0 0 15px rgba(100,116,139,0.5), inset 0 0 10px rgba(100,116,139,0.15) !important;
+            border-color: #94a3b8 !important;
+        }
+        .admin-action-master {
+            border-bottom: 2.5px solid var(--theme-blue) !important;
+        }
+        .admin-action-master:hover {
+            color: #fff;
+            box-shadow: 0 0 15px rgba(59,130,246,0.5), inset 0 0 10px rgba(59,130,246,0.15) !important;
+            border-color: #60a5fa !important;
+        }
+        .admin-action-jobs {
+            border-bottom: 2.5px solid #10b981 !important;
+        }
+        .admin-action-jobs:hover {
+            color: #fff;
+            box-shadow: 0 0 15px rgba(16,185,129,0.5), inset 0 0 10px rgba(16,185,129,0.15) !important;
+            border-color: #34d399 !important;
+        }
+        .admin-action-notifications {
+            border-bottom: 2.5px solid var(--theme-red) !important;
+        }
+        .admin-action-notifications:hover {
+            color: #fff;
+            box-shadow: 0 0 15px rgba(248,113,113,0.5), inset 0 0 10px rgba(248,113,113,0.15) !important;
+            border-color: #f87171 !important;
+        }
+        .admin-action-btn:hover .qa-icon {
+            transform: scale(1.4) rotate(5deg) translateY(-2px);
+            filter: brightness(1.25) drop-shadow(0 2px 6px rgba(255,255,255,0.4));
+        }
+
+        /* Two levels rows styling */
+        .admin-actions-row {
+            display: flex; gap: 15px; margin-bottom: 8px; align-items: center; 
+            border: 1px solid rgba(255,255,255,0.05); background: rgba(15, 23, 42, 0.25); 
+            padding: 6px 14px; border-radius: 14px; flex-wrap: wrap; 
+            box-shadow: inset 0 0 15px rgba(255,255,255,0.01);
+        }
+        .operations-actions-row {
+            display: flex; gap: 15px; align-items: center; 
+            border: 1px solid rgba(255,255,255,0.03); background: rgba(15, 23, 42, 0.15); 
+            padding: 6px 14px; border-radius: 14px; flex-wrap: wrap; 
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.01);
+        }
+        .actions-row-title {
+            font-size: 0.82rem; font-weight: 800; color: #94a3b8; 
+            display: flex; align-items: center; gap: 8px; min-width: 140px; 
+            border-left: 2px solid rgba(255,255,255,0.15); padding-left: 10px; 
+            margin-left: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .header-controls { justify-content: center; width: 100%; flex-wrap: wrap; }
+            .charts-grid, .bottom-section { grid-template-columns: 1fr; }
+        }
+        
         /* Fix double sidebar spacing issue */
         body.has-sidebar { padding-right: 0 !important; }
 
@@ -524,13 +866,91 @@ function switchToMobileEdition() {
             color: #000000 !important;
             border-color: rgba(0, 0, 0, 0.08) !important;
         }
+        :root.light-theme .pos-grid thead th {
+            background: rgba(0, 0, 0, 0.04) !important;
+            color: #000000 !important;
+        }
+        :root.light-theme .pos-grid tbody tr {
+            background: rgba(255, 255, 255, 0.95) !important;
+        }
+        :root.light-theme .pos-grid tbody tr:hover {
+            background: rgba(0, 0, 0, 0.04) !important;
+        }
         :root.light-theme input, :root.light-theme select, :root.light-theme textarea {
             background: #ffffff !important;
             color: #000000 !important;
             border: 1px solid rgba(0, 0, 0, 0.18) !important;
         }
+        :root.light-theme .admin-action-btn {
+            background: rgba(0,0,0,0.03);
+            border-color: rgba(0,0,0,0.1);
+            color: #000000;
+        }
+        :root.light-theme .admin-action-btn:hover {
+            background: rgba(0,0,0,0.06);
+            border-color: rgba(0,0,0,0.18);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+        :root.light-theme .qa-icon {
+            border: 2px solid rgba(0, 0, 0, 0.15) !important;
+            background: rgba(0, 0, 0, 0.03) !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+        }
+        
+        /* Light Mode specific color coding (lighter backgrounds, clear borders) */
+        :root.light-theme .admin-action-settings .qa-icon { background: rgba(100, 116, 139, 0.1) !important; border-color: rgba(100, 116, 139, 0.35) !important; }
+        :root.light-theme .admin-action-master .qa-icon { background: rgba(59, 130, 246, 0.1) !important; border-color: rgba(59, 130, 246, 0.35) !important; }
+        :root.light-theme .admin-action-jobs .qa-icon { background: rgba(16, 185, 129, 0.1) !important; border-color: rgba(16, 185, 129, 0.35) !important; }
+        :root.light-theme .admin-action-notifications .qa-icon { background: rgba(239, 68, 68, 0.1) !important; border-color: rgba(239, 68, 68, 0.35) !important; }
+        :root.light-theme .qa-primary .qa-icon { background: rgba(56, 189, 248, 0.1) !important; border-color: rgba(56, 189, 248, 0.35) !important; }
+        :root.light-theme .qa-warning .qa-icon { background: rgba(251, 191, 36, 0.1) !important; border-color: rgba(251, 191, 36, 0.35) !important; }
+        :root.light-theme .qa-danger .qa-icon { background: rgba(248, 113, 113, 0.1) !important; border-color: rgba(248, 113, 113, 0.35) !important; }
+        :root.light-theme .qa-purple .qa-icon { background: rgba(192, 132, 252, 0.1) !important; border-color: rgba(192, 132, 252, 0.35) !important; }
+        :root.light-theme a[data-href="inventory-report.php"] .qa-icon { background: rgba(167, 139, 250, 0.1) !important; border-color: rgba(167, 139, 250, 0.35) !important; }
+
+        /* Hover states in Light Mode: backgrounds darken, borders thicken (4.5px), scale up to 1.4 */
+        :root.light-theme .admin-action-btn:hover .qa-icon,
+        :root.light-theme .quick-action-btn:hover .qa-icon {
+            border-width: 4.5px !important;
+            transform: scale(1.4) rotate(5deg) translateY(-2px) !important;
+        }
+        
+        :root.light-theme .admin-action-settings:hover .qa-icon { background: rgba(100, 116, 139, 0.3) !important; border-color: #64748b !important; }
+        :root.light-theme .admin-action-master:hover .qa-icon { background: rgba(59, 130, 246, 0.3) !important; border-color: #3b82f6 !important; }
+        :root.light-theme .admin-action-jobs:hover .qa-icon { background: rgba(16, 185, 129, 0.3) !important; border-color: #10b981 !important; }
+        :root.light-theme .admin-action-notifications:hover .qa-icon { background: rgba(239, 68, 68, 0.3) !important; border-color: #ef4444 !important; }
+        :root.light-theme .qa-primary:hover .qa-icon { background: rgba(56, 189, 248, 0.3) !important; border-color: #38bdf8 !important; }
+        :root.light-theme .qa-warning:hover .qa-icon { background: rgba(251, 191, 36, 0.3) !important; border-color: #fbbf24 !important; }
+        :root.light-theme .qa-danger:hover .qa-icon { background: rgba(248, 113, 113, 0.3) !important; border-color: #f87171 !important; }
+        :root.light-theme .qa-purple:hover .qa-icon { background: rgba(192, 132, 252, 0.3) !important; border-color: #c084fc !important; }
+        :root.light-theme a[data-href="inventory-report.php"]:hover .qa-icon { background: rgba(167, 139, 250, 0.3) !important; border-color: #a78bfa !important; }
+        :root.light-theme .admin-actions-row {
+            background: rgba(0, 0, 0, 0.03);
+            border-color: rgba(0, 0, 0, 0.06);
+            box-shadow: none;
+        }
+        :root.light-theme .operations-actions-row {
+            background: rgba(0, 0, 0, 0.015);
+            border-color: rgba(0, 0, 0, 0.04);
+            box-shadow: none;
+        }
+        :root.light-theme .actions-row-title {
+            color: #1e293b;
+            border-left-color: rgba(0,0,0,0.12);
+        }
+        :root.light-theme .islamic-ticker-container {
+            background: rgba(0, 0, 0, 0.04) !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+        }
+        :root.light-theme #ticker-profit,
+        :root.light-theme #ticker-monthly-profit {
+            color: #059669 !important; /* High contrast green */
+        }
+    
+        
         /* Universal Light Theme Overrides for Internal Screens */
-        :root.light-theme body {
+        :root.light-theme body,
+        :root.light-theme .ambient-bg {
             background: #f8fafc !important;
         }
         :root.light-theme .glass-panel,
@@ -552,17 +972,153 @@ function switchToMobileEdition() {
         :root.light-theme .summary-card * {
             text-shadow: none !important;
         }
+        :root.light-theme table.pro-table th,
+        :root.light-theme .pos-grid thead th,
+        :root.light-theme .ledger-table th,
+        :root.light-theme .report-table th {
+            background: #f1f5f9 !important;
+            color: #0f172a !important;
+            border-bottom: 2px solid #cbd5e1 !important;
+        }
+        :root.light-theme table.pro-table td,
+        :root.light-theme .pos-grid tbody td,
+        :root.light-theme .ledger-table td,
+        :root.light-theme .report-table td {
+            color: #1e293b !important;
+            border-bottom: 1px solid rgba(0,0,0,0.08) !important;
+        }
+        :root.light-theme table.pro-table tbody tr:hover td,
+        :root.light-theme .pos-grid tbody tr:hover td,
+        :root.light-theme .ledger-table tbody tr:hover td,
+        :root.light-theme .report-table tbody tr:hover td {
+            background: rgba(0,0,0,0.02) !important;
+        }
+        :root.light-theme .h-label,
+        :root.light-theme .form-label,
+        :root.light-theme .tot-lbl,
+        :root.light-theme .lbl,
+        :root.light-theme label,
+        :root.light-theme .table-header {
+            color: #334155 !important;
+        }
+        :root.light-theme .tot-val,
+        :root.light-theme .val {
+            color: #0f172a !important;
+        }
+        :root.light-theme .h-form-group,
+        :root.light-theme .control-panel {
+            background: transparent !important;
+            border-color: rgba(0,0,0,0.08) !important;
+        }
+        :root.light-theme .modern-btn {
+            color: #1e293b !important;
+        }
+        :root.light-theme .modern-btn:hover {
+            color: #0f172a !important;
+        }
         /* Neon text colors correction for light theme */
         :root.light-theme .text-emerald-400, :root.light-theme span[style*="color: #34d399"], :root.light-theme span[style*="color:#34d399"] { color: #059669 !important; }
         :root.light-theme .text-rose-400, :root.light-theme span[style*="color: #f87171"], :root.light-theme span[style*="color:#f87171"] { color: #e11d48 !important; }
         :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
         :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
         :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
+\n
+        /* =======================================================================
+           تعديلات التبسيط الجمالي لتوحيد التصميم وجعله مريحاً للعين (حذف النيون والألوان الصارخة)
+           ======================================================================= */
+        .neon-border-primary,
+        .neon-border-success,
+        .neon-border-warning,
+        .neon-border-danger,
+        .neon-border-purple {
+            border: 1px solid rgba(255, 255, 255, 0.08) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+        }
+
+        :root.light-theme .neon-border-primary,
+        :root.light-theme .neon-border-success,
+        :root.light-theme .neon-border-warning,
+        :root.light-theme .neon-border-danger,
+        :root.light-theme .neon-border-purple {
+            border: 1px solid rgba(0, 0, 0, 0.06) !important;
+            border-top: 1px solid rgba(0, 0, 0, 0.06) !important;
+        }
+
+        .quick-action-btn, .admin-action-btn {
+            border-bottom: 1.5px solid rgba(255, 255, 255, 0.08) !important;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important;
+        }
+
+        .quick-action-btn:hover, .admin-action-btn:hover {
+            transform: translateY(-2px) !important;
+            background: rgba(255, 255, 255, 0.08) !important;
+            border-color: rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25) !important;
+            color: #fff !important;
+            animation: none !important;
+        }
+
+        .qa-primary, .qa-warning, .qa-success, .qa-danger, .qa-purple,
+        .admin-action-settings, .admin-action-master, .admin-action-jobs, .admin-action-notifications {
+            border-bottom: 1.5px solid rgba(255, 255, 255, 0.08) !important;
+        }
+        
+        .qa-primary:hover, .qa-warning:hover, .qa-success:hover, .qa-danger:hover, .qa-purple:hover,
+        .admin-action-settings:hover, .admin-action-master:hover, .admin-action-jobs:hover, .admin-action-notifications:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+            color: #fff !important;
+            border-color: rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25) !important;
+        }
+
+        :root.light-theme .quick-action-btn, 
+        :root.light-theme .admin-action-btn,
+        :root.light-theme .qa-primary, 
+        :root.light-theme .qa-warning, 
+        :root.light-theme .qa-success, 
+        :root.light-theme .qa-danger, 
+        :root.light-theme .qa-purple,
+        :root.light-theme .admin-action-settings, 
+        :root.light-theme .admin-action-master, 
+        :root.light-theme .admin-action-jobs, 
+        :root.light-theme .admin-action-notifications {
+            background: #ffffff !important;
+            color: #1e293b !important;
+            border: 1px solid rgba(0, 0, 0, 0.08) !important;
+            border-bottom: 1.5px solid rgba(0, 0, 0, 0.12) !important;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04) !important;
+        }
+        
+        :root.light-theme .quick-action-btn:hover, 
+        :root.light-theme .admin-action-btn:hover,
+        :root.light-theme .qa-primary:hover, 
+        :root.light-theme .qa-warning:hover, 
+        :root.light-theme .qa-success:hover, 
+        :root.light-theme .qa-danger:hover, 
+        :root.light-theme .qa-purple:hover,
+        :root.light-theme .admin-action-settings:hover, 
+        :root.light-theme .admin-action-master, 
+        :root.light-theme .admin-action-jobs, 
+        :root.light-theme .admin-action-notifications {
+            background: rgba(0, 0, 0, 0.02) !important;
+            color: #0f172a !important;
+            border-color: rgba(0, 0, 0, 0.18) !important;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06) !important;
+        }
+    
 </style>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
+
+    <!-- Ambient Animated Background -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+    </div>
 
     <div class="dash-main">
 
@@ -570,9 +1126,6 @@ function switchToMobileEdition() {
                 <?php $header_theme_class = 'header-theme-dashboard'; ?>
         <?php include 'includes/header.php'; ?>
 
-        <div id="market-broker-restore-pill" style="display:none;align-self:flex-start;">
-            <button type="button" onclick="toggleMarketBrokerTicker(true)" style="padding:3px 12px;border-radius:999px;background:linear-gradient(135deg,#059669,#047857);color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #fde047;font-size:12px;font-weight:900;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.4);">📢 إظهار شريطي البورصة (العروض والطلبات)</button>
-        </div>
         <div id="market-broker-ticker-wrap" style="display:flex;flex-direction:column;gap:6px;margin:0;">
             <div class="mkt-broker-row" id="market-broker-offers-row">
                 <div style="flex:1;overflow:hidden;position:relative;direction:rtl;">
@@ -686,9 +1239,9 @@ function switchToMobileEdition() {
                 @keyframes brkNewPulse { 0%, 100% { box-shadow: 0 0 12px rgba(253,224,71,0.75), inset 0 0 8px rgba(253,224,71,0.35); border-color: #fde047 !important; } 50% { box-shadow: 0 0 22px rgba(16,185,129,0.95), inset 0 0 12px rgba(253,224,71,0.55); border-color: #34d399 !important; } }
                 .broker-new-item-pill { animation: brkNewPulse 1.8s infinite ease-in-out; background: linear-gradient(135deg, rgba(6,95,70,0.96), rgba(15,23,42,0.96)) !important; border-width: 2px !important; }
                 @keyframes execPrismGlow { 0%, 100% { box-shadow: 0 10px 26px rgba(245,158,11,0.38), 0 4px 14px rgba(253,224,71,0.32), 0 0 20px rgba(251,191,36,0.52), inset 0 1.5px 3px rgba(255,255,255,0.62); border-color: #fde047; } 50% { box-shadow: 0 12px 32px rgba(245,158,11,0.52), 0 6px 18px rgba(253,224,71,0.45), 0 0 28px rgba(254,240,138,0.72), inset 0 2px 4px rgba(255,255,255,0.75); border-color: #fef08a; } }
-                #exec-sticky-command-bar, html.light-theme #exec-sticky-command-bar { position: sticky; top: 8px; z-index: 99990; margin-top: 0 !important; margin-bottom: 0 !important; padding: 7px 12px; border-radius: 18px; border: 2.5px solid #fef08a !important; background: linear-gradient(135deg, #78350f 0%, #b45309 28%, #d97706 50%, #b45309 72%, #78350f 100%) !important; box-shadow: 0 10px 26px rgba(245,158,11,0.38), 0 4px 14px rgba(253,224,71,0.32), 0 0 22px rgba(251,191,36,0.52), inset 0 1.5px 3px rgba(255,255,255,0.62) !important; display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 6px; flex-wrap: nowrap !important; overflow: hidden !important; direction: rtl !important; box-sizing: border-box !important; }
+                #exec-sticky-command-bar, html.light-theme #exec-sticky-command-bar { position: sticky; top: 0px !important; z-index: 99990; margin-top: 0 !important; margin-bottom: 0 !important; padding: 7px 12px; border-radius: 18px; border: 2.5px solid #fef08a !important; background: linear-gradient(135deg, #78350f 0%, #b45309 28%, #d97706 50%, #b45309 72%, #78350f 100%) !important; box-shadow: 0 10px 26px rgba(245,158,11,0.38), 0 4px 14px rgba(253,224,71,0.32), 0 0 22px rgba(251,191,36,0.52), inset 0 1.5px 3px rgba(255,255,255,0.62) !important; display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 6px; flex-wrap: nowrap !important; overflow: hidden !important; direction: rtl !important; box-sizing: border-box !important; }
                 #exec-sticky-command-bar > div { display: flex !important; align-items: center !important; flex-shrink: 0 !important; gap: 5px !important; }
-                #exec-sticky-command-bar.is-pinned-fixed, html.light-theme #exec-sticky-command-bar.is-pinned-fixed { position: fixed !important; top: 8px !important; margin-top: 0 !important; margin-bottom: 0 !important; z-index: 2147483500 !important; background: linear-gradient(135deg, #78350f 0%, #b45309 28%, #d97706 50%, #b45309 72%, #78350f 100%) !important; border: 2.5px solid #fef08a !important; }
+                #exec-sticky-command-bar.is-pinned-fixed, html.light-theme #exec-sticky-command-bar.is-pinned-fixed { position: fixed !important; top: 0px !important; margin-top: 0 !important; margin-bottom: 0 !important; border-top-left-radius: 0 !important; border-top-right-radius: 0 !important; z-index: 2147483500 !important; background: linear-gradient(135deg, #78350f 0%, #b45309 28%, #d97706 50%, #b45309 72%, #78350f 100%) !important; border: 2.5px solid #fef08a !important; box-shadow: 0 -10px 0 10px #020617, 0 12px 28px rgba(0,0,0,0.85) !important; }
                 #exec-sticky-command-bar .exec-period-pill { position: relative; overflow: hidden; height: 36px; padding: 0 11px; border-radius: 11px; font-size: 13.5px !important; font-weight: 900 !important; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; cursor: pointer; transition: border-color 0.2s ease, box-shadow 0.2s ease; border: 1.5px solid rgba(253,224,71,0.6); background: linear-gradient(180deg, rgba(15,23,42,0.94) 0%, rgba(2,6,23,0.98) 100%); color: #fef08a !important; -webkit-text-fill-color: #fef08a !important; box-shadow: 0 4px 10px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.22); }
                 #exec-sticky-command-bar .exec-period-pill::after, #exec-sticky-command-bar .exec-royal-action::after { content: ''; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 25%, rgba(255,255,255,0.28) 50%, transparent 75%); transform: translateX(-120%); transition: transform 0.55s ease; pointer-events: none; }
                 #exec-sticky-command-bar .exec-period-pill:hover { transform: translateY(-1px); border-color: #38bdf8; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; box-shadow: 0 6px 16px rgba(56,189,248,0.45), 0 0 12px rgba(56,189,248,0.5); }
@@ -698,14 +1251,14 @@ function switchToMobileEdition() {
                 #exec-sticky-command-bar .exec-royal-action:hover { transform: translateY(-1px) !important; filter: brightness(1.15); box-shadow: 0 8px 18px rgba(0,0,0,0.55), 0 0 14px rgba(253,224,71,0.55) !important; }
                 #dash-today-harvest-strip .exec-jewel-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
                 @media (max-width: 900px) { #dash-today-harvest-strip .exec-jewel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-                #dash-today-harvest-strip .exec-jewel-btn, html.light-theme #dash-today-harvest-strip .exec-jewel-btn { position: relative; overflow: hidden; min-height: 64px; padding: 10px 16px !important; border-radius: 16px !important; display: flex; align-items: center; justify-content: space-between !important; gap: 8px; transition: all 0.26s cubic-bezier(0.34, 1.56, 0.64, 1) !important; box-shadow: 0 8px 22px rgba(0,0,0,0.48), inset 0 1px 1px rgba(255,255,255,0.22) !important; }
-                #dash-today-harvest-strip .exec-jewel-btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 25%, rgba(255,255,255,0.22) 50%, transparent 75%); transform: translateX(-120%); transition: transform 0.55s ease; pointer-events: none; }
-                #dash-today-harvest-strip .exec-jewel-btn:hover { transform: translateY(-4px) scale(1.035) !important; filter: brightness(1.18) saturate(1.2); z-index: 5; box-shadow: 0 14px 30px rgba(0,0,0,0.68), 0 0 24px var(--jewel-glow, rgba(56,189,248,0.7)), inset 0 0 14px rgba(255,255,255,0.28) !important; }
+                #dash-today-harvest-strip .exec-jewel-btn, html.light-theme #dash-today-harvest-strip .exec-jewel-btn { position: relative; overflow: hidden; min-height: 78px; padding: 8px 12px 9px !important; border-radius: 12px !important; border-top: 1px solid rgba(255,255,255,0.14) !important; border-left: 1px solid rgba(255,255,255,0.12) !important; border-bottom: 1px solid rgba(255,255,255,0.12) !important; border-right: 5px solid var(--jewel-accent, #38bdf8) !important; display: flex; flex-direction: column !important; align-items: stretch !important; justify-content: space-between !important; gap: 6px; transition: all 0.24s ease !important; box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 8px 20px rgba(0,0,0,0.42) !important; }
+                #dash-today-harvest-strip .exec-jewel-btn::after { content: ''; position: absolute; inset: 0; background: linear-gradient(120deg, transparent 25%, rgba(255,255,255,0.16) 50%, transparent 75%); transform: translateX(-120%); transition: transform 0.55s ease; pointer-events: none; }
+                #dash-today-harvest-strip .exec-jewel-btn:hover { transform: translateY(-2px) !important; filter: brightness(1.12); z-index: 5; box-shadow: 0 12px 26px rgba(0,0,0,0.6), 0 0 18px var(--jewel-glow, rgba(56,189,248,0.55)) !important; }
                 #dash-today-harvest-strip .exec-jewel-btn:hover::after { transform: translateX(120%); }
-                #dash-today-harvest-strip .exec-jewel-lbl, html.light-theme #dash-today-harvest-strip .exec-jewel-lbl { font-size: 15.5px !important; font-weight: 900 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; white-space: nowrap; letter-spacing: -0.2px; padding-right: 4px; }
-                #dash-today-harvest-strip .exec-jewel-lbl-ap, html.light-theme #dash-today-harvest-strip .exec-jewel-lbl-ap { font-size: 13.2px !important; font-weight: 900 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; white-space: nowrap; letter-spacing: -0.3px; padding-right: 2px; }
-                #dash-today-harvest-strip .exec-jewel-val { font-size: 18px !important; font-weight: 900 !important; white-space: nowrap; text-shadow: 0 2px 8px rgba(0,0,0,0.55); padding: 4px 11px; border-radius: 10px; background: rgba(2, 6, 23, 0.62); border: 1px solid rgba(255, 255, 255, 0.16); display: inline-flex; align-items: baseline; gap: 3px; }
-                #dash-today-harvest-strip .exec-jewel-val .exec-unit-tag { font-size: 10.5px !important; font-weight: 800 !important; opacity: 0.9; letter-spacing: 0; }
+                #dash-today-harvest-strip .exec-jewel-lbl, html.light-theme #dash-today-harvest-strip .exec-jewel-lbl,
+                #dash-today-harvest-strip .exec-jewel-lbl-ap, html.light-theme #dash-today-harvest-strip .exec-jewel-lbl-ap { font-size: 13.5px !important; font-weight: 900 !important; color: #e2e8f0 !important; -webkit-text-fill-color: #e2e8f0 !important; white-space: nowrap; letter-spacing: 0; display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 0 2px; }
+                #dash-today-harvest-strip .exec-jewel-val { width: 100%; font-size: 19.5px !important; font-weight: 900 !important; white-space: nowrap; text-shadow: 0 2px 8px rgba(0,0,0,0.65); padding: 5px 10px; border-radius: 8px; background: rgba(2, 6, 23, 0.86); border: 1px solid rgba(255, 255, 255, 0.14); box-shadow: inset 0 2px 6px rgba(0,0,0,0.75); display: flex; align-items: baseline; justify-content: center; gap: 4px; letter-spacing: 0.3px; }
+                #dash-today-harvest-strip .exec-jewel-val .exec-unit-tag { font-size: 11px !important; font-weight: 800 !important; opacity: 0.92; letter-spacing: 0; }
                 @keyframes mktBrokerMarquee { 0% { transform: translateX(0); } 100% { transform: translateX(50%); } }
                 @keyframes brkNewElectroGlow {
                     0%, 100% { background: linear-gradient(135deg, #e11d48, #be123c) !important; box-shadow: 0 0 12px #e11d48, 0 0 22px rgba(225,29,72,0.85) !important; border-color: #fde047 !important; transform: scale(1.04); }
@@ -713,8 +1266,10 @@ function switchToMobileEdition() {
                     70% { background: linear-gradient(135deg, #9333ea, #7c3aed) !important; box-shadow: 0 0 14px #a855f7, 0 0 26px rgba(147,51,234,0.92) !important; border-color: #fde047 !important; transform: scale(1.06); }
                 }
                 .brk-new-electro-badge { display: inline-flex; align-items: center; gap: 3px; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; padding: 1px 8px; border-radius: 999px; border: 1.5px solid #fde047; font-weight: 900 !important; animation: brkNewElectroGlow 1.35s infinite ease-in-out !important; }
-                #market-broker-ticker-wrap, html.light-theme #market-broker-ticker-wrap { position: relative; background: #020617 !important; border: none !important; border-radius: 7px !important; padding: 0 !important; margin: 0 !important; display: flex !important; flex-direction: column !important; gap: 6px !important; overflow: hidden; box-shadow: 0 4px 14px rgba(2,6,23,0.65) !important; direction: rtl; }
-                #market-broker-ticker-wrap > .mkt-broker-row { display: flex !important; align-items: center !important; gap: 6px !important; overflow: hidden; width: 100% !important; min-height: 36px !important; height: auto !important; max-height: none !important; padding: 4px 8px !important; margin: 0 !important; border-radius: 6px; line-height: 1.25 !important; box-sizing: border-box !important; }
+                #market-broker-ticker-wrap, html.light-theme #market-broker-ticker-wrap { position: relative; background: #020617 !important; border: none !important; border-radius: 7px !important; padding: 0 !important; margin: 0 !important; display: flex; flex-direction: column !important; gap: 6px !important; overflow: hidden; box-shadow: 0 4px 14px rgba(2,6,23,0.65) !important; direction: rtl; }
+                #market-broker-ticker-wrap.is-broker-hidden, html.light-theme #market-broker-ticker-wrap.is-broker-hidden { display: none !important; }
+                #market-broker-ticker-wrap > .mkt-broker-row { display: flex; align-items: center !important; gap: 6px !important; overflow: hidden; width: 100% !important; min-height: 36px !important; height: auto !important; max-height: none !important; padding: 4px 8px !important; margin: 0 !important; border-radius: 6px; line-height: 1.25 !important; box-sizing: border-box !important; }
+                #market-broker-ticker-wrap > .mkt-broker-row.is-row-hidden { display: none !important; }
                 #market-broker-offers-row, html.light-theme #market-broker-offers-row, html.light-theme[data-light-tone] #market-broker-offers-row { background: #0c1d47 !important; border: 1px solid rgba(253,224,71,0.55) !important; box-shadow: 0 2px 6px rgba(15,23,42,0.35) !important; }
                 #market-broker-orders-row, html.light-theme #market-broker-orders-row, html.light-theme[data-light-tone] #market-broker-orders-row { background: #0a2536 !important; border: 1px solid rgba(134,239,172,0.5) !important; box-shadow: 0 2px 6px rgba(15,23,42,0.35) !important; }
                 html.light-theme[data-light-tone="rose_blossom"] body, html.light-theme[data-light-tone="rose_blossom"] .dash-main { background: linear-gradient(180deg, #fdf2f8 0%, #fce7f3 50%, #fdf2f8 100%) !important; color: #000000 !important; }
@@ -756,7 +1311,7 @@ function switchToMobileEdition() {
                     <button type="button" id="exec-more-periods-btn" onclick="document.documentElement.classList.toggle('show-all-periods');this.textContent=document.documentElement.classList.contains('show-all-periods')?'− طي':'+ فترات';" class="exec-period-pill" title="إظهار أو طي الفترات الإضافية" style="padding:0 10px;border-color:#38bdf8;">+ فترات</button>
                 </div>
                 <div class="flex items-center gap-1.5 shrink-0" style="margin-right: auto;">
-                    <span id="exec-calm-pulse-badge" class="exec-royal-action" style="background:linear-gradient(135deg,#065f46,#047857);border:1.5px solid #6ee7b7;color:#fff!important;-webkit-text-fill-color:#fff!important;" title="مؤشر النبض المالي النفسي: مقارنة السيولة الفورية بمستحقات الموردين">🟢 سيولة مطمئنة</span>
+                    <button type="button" id="exec-calm-pulse-badge" onclick="const liq=(document.getElementById('strip-liq-amt')?.innerText||'').trim(),ap=(document.getElementById('strip-ap-amt')?.innerText||'').trim(),ar=(document.getElementById('strip-ar-amt')?.innerText||'').trim();const msg='مؤشر السيولة المطمئنة: يقارن سيولتك الجاهزة ('+liq+') بمستحقات الموردين ('+ap+') وديون العملاء ('+ar+') ليضمن أن نقديتك تغطي التزاماتك بأمان تام.';if(typeof _speakDashArabicText==='function')_speakDashArabicText(msg);const sec=document.getElementById('sec-flow')||document.getElementById('sec-calm');if(sec)sec.scrollIntoView({behavior:'smooth',block:'center'});" class="exec-royal-action" style="background:linear-gradient(135deg,#065f46,#047857);border:1.5px solid #6ee7b7;color:#fff!important;-webkit-text-fill-color:#fff!important;cursor:pointer;" title="مؤشر النبض المالي: اضغط لسماع وعرض مقارنة السيولة الفورية بمستحقات الموردين">🟢 سيولة مطمئنة</button>
                     <button type="button" id="prof-zen-btn" onclick="toggleProfZenMode()" class="exec-royal-action" style="background:linear-gradient(135deg,#4f46e5,#312e81);border:1.5px solid #c7d2fe;color:#fff!important;-webkit-text-fill-color:#fff!important;" title="وضع التركيز الهادئ: طي الأقسام السفلية لراحة العين">🧘 تركيز</button>
                     <button onclick="toggleCurrency()" id="currency-btn" class="exec-royal-action" style="background:linear-gradient(135deg,#10b981,#059669)!important;border:1.5px solid #fef08a!important;color:#fff!important;-webkit-text-fill-color:#fff!important;" title="اضغط للتحويل الفوري بين الجنيه والدولار">
                         <span>🪙</span><span id="currency-btn-txt">جنيه ⇄</span>
@@ -814,47 +1369,47 @@ function switchToMobileEdition() {
                     setTimeout(window.updateCalmPulseBadge, 200);
                 })();
             </script>
-            <div id="dash-today-harvest-strip" class="bento-card" style="padding: 14px 18px; border-radius: 22px; border: 1.5px solid rgba(56,189,248,0.55); background: linear-gradient(180deg, rgba(15,23,42,0.98) 0%, rgba(7,12,24,0.99) 100%); box-shadow: 0 18px 42px rgba(0,0,0,0.68), inset 0 1px 2px rgba(255,255,255,0.22);">
+            <div id="dash-today-harvest-strip" class="bento-card" style="padding: 12px 16px; border-radius: 18px; border: 1.5px solid rgba(56,189,248,0.45); background: linear-gradient(180deg, rgba(9,15,29,0.98) 0%, rgba(4,8,18,0.99) 100%); box-shadow: 0 18px 42px rgba(0,0,0,0.68), inset 0 1px 2px rgba(255,255,255,0.18);">
                 <div class="exec-jewel-grid num-font">
-                    <button type="button" onclick="switchSalesProfitCardView('day')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-glow: rgba(56,189,248,0.78); border: 1.5px solid rgba(56,189,248,0.5) !important; border-bottom: 3.5px solid #38bdf8 !important; background: linear-gradient(180deg, rgba(14,165,233,0.22), rgba(15,23,42,0.95)) !important;">
-                        <span class="exec-jewel-lbl">المبيعات:</span>
+                    <button type="button" onclick="switchSalesProfitCardView('day')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #38bdf8; --jewel-glow: rgba(56,189,248,0.78); background: linear-gradient(165deg, rgba(14,165,233,0.16), rgba(15,23,42,0.96)) !important;">
+                        <span class="exec-jewel-lbl"><span>📈 المبيعات</span><small style="font-size:10px;color:#38bdf8;">مؤشر حي</small></span>
                         <strong class="exec-jewel-val text-amber-300" style="color:#fde047!important;-webkit-text-fill-color:#fde047!important;" id="strip-sal-amt" data-sdg="1890000">1,890,000 <small class="exec-unit-tag">ج.س</small></strong>
                     </button>
-                    <button type="button" onclick="switchSalesProfitCardView('purchases', document.getElementById('btn-card2-purchases'))" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-glow: rgba(245,158,11,0.75); border: 1.5px solid rgba(251,191,36,0.5) !important; border-bottom: 3.5px solid #f59e0b !important; background: linear-gradient(180deg, rgba(251,191,36,0.20), rgba(15,23,42,0.95)) !important;">
-                        <span class="exec-jewel-lbl">المشتريات:</span>
+                    <button type="button" onclick="switchSalesProfitCardView('purchases', document.getElementById('btn-card2-purchases'))" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #f59e0b; --jewel-glow: rgba(245,158,11,0.75); background: linear-gradient(165deg, rgba(251,191,36,0.15), rgba(15,23,42,0.96)) !important;">
+                        <span class="exec-jewel-lbl"><span>🛒 المشتريات</span><small style="font-size:10px;color:#fbbf24;">توريد</small></span>
                         <strong class="exec-jewel-val text-amber-300" style="color:#fbbf24!important;-webkit-text-fill-color:#fbbf24!important;" id="strip-pur-amt" data-sdg="1420000">1,420,000 <small class="exec-unit-tag">ج.س</small></strong>
                     </button>
-                    <button type="button" onclick="switchLiquidityCardView('overview')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-glow: rgba(52,211,153,0.75); border: 1.5px solid rgba(52,211,153,0.5) !important; border-bottom: 3.5px solid #34d399 !important; background: linear-gradient(180deg, rgba(52,211,153,0.20), rgba(15,23,42,0.95)) !important;">
-                        <span class="exec-jewel-lbl">السيولة:</span>
+                    <button type="button" onclick="switchLiquidityCardView('overview')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #34d399; --jewel-glow: rgba(52,211,153,0.75); background: linear-gradient(165deg, rgba(52,211,153,0.16), rgba(15,23,42,0.96)) !important;">
+                        <span class="exec-jewel-lbl"><span>💎 السيولة</span><small style="font-size:10px;color:#6ee7b7;">خزن وبنوك</small></span>
                         <strong class="exec-jewel-val text-emerald-300" style="color:#6ee7b7!important;-webkit-text-fill-color:#6ee7b7!important;" id="strip-liq-amt" data-sdg="3450000">3,450,000 <small class="exec-unit-tag">ج.س</small></strong>
                     </button>
-                    <button type="button" onclick="switchSalesProfitCardView('day')" class="inner-box exec-jewel-btn text-right cursor-pointer" id="strip-prf-card" style="--jewel-glow: rgba(16,185,129,0.8); border: 1.5px solid rgba(16,185,129,0.55) !important; border-bottom: 3.5px solid #10b981 !important; background: linear-gradient(180deg, rgba(16,185,129,0.22), rgba(15,23,42,0.95)) !important;">
-                        <span class="exec-jewel-lbl" id="strip-prf-lbl">الأرباح:</span>
+                    <button type="button" onclick="switchSalesProfitCardView('day')" class="inner-box exec-jewel-btn text-right cursor-pointer" id="strip-prf-card" style="--jewel-accent: #10b981; --jewel-glow: rgba(16,185,129,0.8); background: linear-gradient(165deg, rgba(16,185,129,0.18), rgba(15,23,42,0.96)) !important;">
+                        <span class="exec-jewel-lbl" id="strip-prf-lbl"><span>🏆 الأرباح</span><small style="font-size:10px;color:#4ade80;">صافي</small></span>
                         <strong class="exec-jewel-val text-emerald-400" style="color:#4ade80!important;-webkit-text-fill-color:#4ade80!important;" id="strip-prf-amt" data-sdg="348000">+348,000 <small class="exec-unit-tag">ج.س</small></strong>
                     </button>
-                    <button type="button" onclick="switchCashflowCardView('ai_cf')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-glow: rgba(244,63,94,0.75); border: 1.5px solid rgba(244,63,94,0.5) !important; border-bottom: 3.5px solid #f43f5e !important; background: linear-gradient(180deg, rgba(244,63,94,0.20), rgba(15,23,42,0.95)) !important;">
-                        <span class="exec-jewel-lbl" id="strip-exp-lbl">المصروفات:</span>
+                    <button type="button" onclick="switchCashflowCardView('ai_cf')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #f43f5e; --jewel-glow: rgba(244,63,94,0.75); background: linear-gradient(165deg, rgba(244,63,94,0.16), rgba(15,23,42,0.96)) !important;">
+                        <span class="exec-jewel-lbl" id="strip-exp-lbl"><span>📉 المصروفات</span><small style="font-size:10px;color:#fda4af;">تشغيل</small></span>
                         <strong class="exec-jewel-val text-rose-300" style="color:#fda4af!important;-webkit-text-fill-color:#fda4af!important;" id="strip-exp-amt" data-sdg="42000">42,000 <small class="exec-unit-tag">ج.س</small></strong>
                     </button>
-                    <button type="button" onclick="switchSalesProfitCardView('warehouses')" title="القيمة السوقية الإجمالية = الكاش + البنوك + الشيكات + قيمة البضاعة بسعر السوق اليوم" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-glow: rgba(14,165,233,0.8); border: 1.5px solid rgba(14,165,233,0.5) !important; border-bottom: 3.5px solid #0ea5e9 !important; background: linear-gradient(180deg, rgba(14,165,233,0.20), rgba(15,23,42,0.95)) !important;">
-                        <span class="exec-jewel-lbl">القيمة السوقية:</span>
+                    <button type="button" onclick="switchSalesProfitCardView('warehouses')" title="القيمة السوقية الإجمالية = الكاش + البنوك + الشيكات + قيمة البضاعة بسعر السوق اليوم" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #0ea5e9; --jewel-glow: rgba(14,165,233,0.8); background: linear-gradient(165deg, rgba(14,165,233,0.16), rgba(15,23,42,0.96)) !important;">
+                        <span class="exec-jewel-lbl"><span>🏛️ القيمة السوقية</span><small style="font-size:10px;color:#7dd3fc;">إجمالي</small></span>
                         <strong class="exec-jewel-val text-sky-300" style="color:#7dd3fc!important;-webkit-text-fill-color:#7dd3fc!important;" id="stock-mkt-val" data-sdg="184300000">184.3M <small class="exec-unit-tag">ج.س</small></strong>
                     </button>
-                    <button type="button" onclick="switchLiveRadarFeed('vouchers')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-glow: rgba(20,184,166,0.75); border: 1.5px solid rgba(20,184,166,0.5) !important; border-bottom: 3.5px solid #14b8a6 !important; background: linear-gradient(180deg, rgba(20,184,166,0.20), rgba(15,23,42,0.95)) !important;">
-                        <span class="exec-jewel-lbl">المقبوضات:</span>
+                    <button type="button" onclick="switchLiveRadarFeed('vouchers')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #14b8a6; --jewel-glow: rgba(20,184,166,0.75); background: linear-gradient(165deg, rgba(20,184,166,0.16), rgba(15,23,42,0.96)) !important;">
+                        <span class="exec-jewel-lbl"><span>📥 المقبوضات</span><small style="font-size:10px;color:#5eead4;">تحصيل</small></span>
                         <strong class="exec-jewel-val text-emerald-300" style="color:#5eead4!important;-webkit-text-fill-color:#5eead4!important;" id="strip-in-amt" data-sdg="1320000">+1,320,000 <small class="exec-unit-tag">ج.س</small></strong>
                     </button>
-                    <button type="button" onclick="switchLiveRadarFeed('vouchers')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-glow: rgba(249,115,22,0.75); border: 1.5px solid rgba(249,115,22,0.5) !important; border-bottom: 3.5px solid #f97316 !important; background: linear-gradient(180deg, rgba(249,115,22,0.20), rgba(15,23,42,0.95)) !important;">
-                        <span class="exec-jewel-lbl">المدفوعات:</span>
+                    <button type="button" onclick="switchLiveRadarFeed('vouchers')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #f97316; --jewel-glow: rgba(249,115,22,0.75); background: linear-gradient(165deg, rgba(249,115,22,0.16), rgba(15,23,42,0.96)) !important;">
+                        <span class="exec-jewel-lbl"><span>📤 المدفوعات</span><small style="font-size:10px;color:#fb7185;">منصرف</small></span>
                         <strong class="exec-jewel-val text-rose-400" style="color:#fb7185!important;-webkit-text-fill-color:#fb7185!important;" id="strip-out-amt" data-sdg="368000">-368,000 <small class="exec-unit-tag">ج.س</small></strong>
                     </button>
-                    <button type="button" onclick="openFullCardModal('debt_aging')" title="مجموع المبالغ التي يريدها منا الموردون كلهم" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-glow: rgba(168,85,247,0.75); border: 1.5px solid rgba(192,132,252,0.5) !important; border-bottom: 3.5px solid #a855f7 !important; background: linear-gradient(180deg, rgba(168,85,247,0.20), rgba(15,23,42,0.95)) !important;">
-                        <span class="exec-jewel-lbl-ap">مستحقات الموردين:</span>
+                    <button type="button" onclick="openFullCardModal('debt_aging')" title="مجموع المبالغ التي يريدها منا الموردون كلهم" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #a855f7; --jewel-glow: rgba(168,85,247,0.75); background: linear-gradient(165deg, rgba(168,85,247,0.16), rgba(15,23,42,0.96)) !important;">
+                        <span class="exec-jewel-lbl-ap"><span>🚚 مستحقات الموردين</span><small style="font-size:10px;color:#d8b4fe;">التزامات</small></span>
                         <strong class="exec-jewel-val text-amber-300" style="color:#fde047!important;-webkit-text-fill-color:#fde047!important;" id="strip-ap-amt" data-sdg="290000">290,000 <small class="exec-unit-tag">ج.س</small></strong>
                     </button>
-                    <button type="button" onclick="openFullCardModal('debt_aging')" title="مجموع المبالغ التي نريدها من العملاء كلهم" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-glow: rgba(52,211,153,0.75); border: 1.5px solid rgba(52,211,153,0.5) !important; border-bottom: 3.5px solid #34d399 !important; background: linear-gradient(180deg, rgba(52,211,153,0.20), rgba(15,23,42,0.95)) !important;">
-                        <span class="exec-jewel-lbl">ديون العملاء:</span>
-                        <strong class="exec-jewel-val text-emerald-300" style="color:#4ade80!important;-webkit-text-fill-color:#4ade80!important;" id="strip-ar-amt" data-sdg="820000">820,000 <small class="exec-unit-tag">ج.س</small></strong>
+                    <button type="button" onclick="openFullCardModal('debt_aging')" title="مجموع المبالغ التي نريدها من العملاء كلهم" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #34d399; --jewel-glow: rgba(52,211,153,0.75); background: linear-gradient(165deg, rgba(52,211,153,0.16), rgba(15,23,42,0.96)) !important;">
+                        <span class="exec-jewel-lbl"><span>👥 ديون العملاء</span><small style="font-size:10px;color:#4ade80;">لنا بالسوق</small></span>
+                        <strong class="exec-jewel-val text-emerald-300" style="color:#4ade80!important;-webkit-text-fill-color:#4ade80!important;" id="strip-ar-amt" data-sdg="820,000">820,000 <small class="exec-unit-tag">ج.س</small></strong>
                     </button>
                 </div>
             </div>
@@ -1301,72 +1856,43 @@ function switchToMobileEdition() {
             </section>
             <!-- 5.5 المنظومة العالمية للتحليل البياني البصري التلقائي ورادار التنبؤ بالذكاء الاصطناعي للمخاطر -->
             <div id="auto-charts-slot" class="w-full mt-4"></div>
-            <!-- 6. ستارة الأرصدة والسمات المنزلقة -->
-            <aside id="curtain-drawer" class="fixed top-0 left-0 h-full w-96 bento-card z-50 p-6 transform -translate-x-full transition-transform duration-300 overflow-y-auto rounded-none border-r-2 border-emerald-400">
-                <div class="flex items-center justify-between pb-4 mb-4 border-b border-white/15">
-                    <h3 class="font-extrabold text-base text-white">🎛️ ستارة الأرصدة الافتتاحية</h3>
-                    <button onclick="toggleCurtain()" class="px-3 py-1 rounded-xl bg-rose-500/20 text-rose-300 text-xs font-extrabold">✕ إغلاق</button>
-                </div>
-                <div class="space-y-4 text-xs num-font">
-                    <div class="grid grid-cols-2 gap-3">
-                        <div><label class="font-bold text-slate-300 block mb-1">رصيد السيولة (الخزينة/البنك)</label><input id="cur-liq" type="number" value="3450000" oninput="updateFromCurtain()" class="w-full inner-box p-2.5 text-white font-black text-sm"></div>
-                        <div><label class="font-bold text-slate-300 block mb-1">سعر صرف الدولار ($)</label><input id="cur-usd" type="number" value="600" oninput="updateFromCurtain()" class="w-full inner-box p-2.5 text-amber-400 font-black text-sm"></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div><label class="font-bold text-slate-300 block mb-1">لنا بالسوق (المدينون)</label><input id="cur-ar" type="number" value="820000" oninput="updateFromCurtain()" class="w-full inner-box p-2.5 text-sky-400 font-black text-sm"></div>
-                        <div><label class="font-bold text-slate-300 block mb-1">علينا للموردين (الدائنون)</label><input id="cur-ap" type="number" value="290000" oninput="updateFromCurtain()" class="w-full inner-box p-2.5 text-rose-400 font-black text-sm"></div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-3">
-                        <div><label class="font-bold text-slate-300 block mb-1">إجمالي مخزون السيخ (بالطن)</label><input id="cur-tons" type="number" step="0.5" value="420.5" oninput="updateFromCurtain()" class="w-full inner-box p-2.5 text-amber-300 font-black text-sm"></div>
-                        <div><label class="font-bold text-slate-300 block mb-1">سعر طن السيخ اليوم (ج.س)</label><input id="cur-rebar" type="number" value="420000" oninput="updateFromCurtain()" class="w-full inner-box p-2.5 text-emerald-400 font-black text-sm"></div>
-                    </div>
-                    <button onclick="resetDemoRecords()" class="w-full mt-4 py-3 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-200 font-extrabold text-xs">🧹 تصفير سجل الفواتير التجريبية والبدء بسجل نظيف</button>
-                </div>
-            </aside>
+            <div id="curtain-drawer" style="display:none!important;" aria-hidden="true">
+                <input id="cur-liq" type="hidden" value="3450000">
+                <input id="cur-usd" type="hidden" value="600">
+                <input id="cur-ar" type="hidden" value="820000">
+                <input id="cur-ap" type="hidden" value="290000">
+                <input id="cur-tons" type="hidden" value="420.5">
+                <input id="cur-rebar" type="hidden" value="420000">
+            </div>
 
-            <!-- 7. نافذة طباعة الفاتورة الفورية المحمية ضد الاختلاس (80mm / A4 / PDF / Excel / WhatsApp / باركود وحيد الاستعمال) -->
+            <!-- 7. نافذة طباعة الفاتورة الفورية -->
             <div id="print-modal" class="fixed inset-0 bg-black/75 z-50 hidden items-center justify-center p-4">
-                <div id="print-modal-card" class="bg-white text-slate-900 rounded-2xl max-w-lg w-full p-6 shadow-2xl num-font relative overflow-hidden" style="border:3px solid #059669;">
-                    <div id="prt-duplicate-watermark" style="display:none;position:absolute;inset:0;pointer-events:none;align-items:center;justify-content:center;transform:rotate(-28deg);font-size:1.55rem;font-weight:900;color:rgba(220,38,38,0.22);text-align:center;z-index:10;border:4px dashed rgba(220,38,38,0.28);margin:18px;border-radius:16px;">نسخة مكررة — بدل فاقد — لا يُصرف بها بضاعة</div>
-                    <div class="text-center border-b-2 border-slate-200 pb-3 mb-3 relative z-20">
-                        <div class="flex items-center justify-between mb-1">
-                            <span id="prt-copy-badge" class="px-2.5 py-0.5 rounded-full text-[11px] font-black" style="background:#d1fae5;color:#065f46;border:1px solid #10b981;">✅ نسخة أصلية — طبعة رقم (1)</span>
-                            <div class="flex gap-1">
-                                <button type="button" onclick="window.setDashPrintPaperSize('80mm')" class="px-2 py-0.5 rounded bg-slate-800 text-white text-[10px] font-black">🧾 حراري 80mm</button>
-                                <button type="button" onclick="window.setDashPrintPaperSize('A4')" class="px-2 py-0.5 rounded bg-sky-700 text-white text-[10px] font-black">📄 A4 قياسي</button>
-                            </div>
-                        </div>
+                <div class="bg-white text-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl num-font">
+                    <div class="text-center border-b-2 border-slate-200 pb-3 mb-4">
                         <h2 class="text-xl font-black text-emerald-800">نظام مقاييس ERP - السجانة</h2>
-                        <p class="text-xs text-slate-600 font-bold" id="prt-type">فاتورة مبيعات وأوزان معتمدة</p>
+                        <p class="text-xs text-slate-500" id="prt-type">فاتورة مبيعات وأوزان معتمدة</p>
                     </div>
-                    <div class="space-y-1.5 text-xs mb-3 relative z-20">
+                    <div class="space-y-2 text-xs mb-4">
                         <div class="flex justify-between"><span>العميل / الجهة:</span><strong id="prt-client">-</strong></div>
                         <div class="flex justify-between"><span>الوزن الفعلي بالطن:</span><strong id="prt-tons">-</strong></div>
                         <div class="flex justify-between"><span>العدد المعادل (تجاري 135):</span><strong id="prt-bars">-</strong></div>
                         <div class="flex justify-between"><span>عدد الشيلات (15/شيلة):</span><strong id="prt-bundles">-</strong></div>
-                        <div class="flex justify-between border-t pt-1.5 mt-1.5"><span>الإجمالي الكلي:</span><strong class="text-emerald-700 font-black" id="prt-total">-</strong></div>
-                        <div class="flex justify-between"><span>المدفوع المستلم:</span><strong class="text-sky-700 font-black" id="prt-paid">-</strong></div>
-                        <div class="flex justify-between"><span>المتبقي (آجل/ذمة):</span><strong class="text-rose-700 font-black" id="prt-rem">0 ج.س (خالص ✓)</strong></div>
+                        <div class="flex justify-between text-sm border-t pt-2 mt-2"><span>الإجمالي الكلي:</span><strong class="text-emerald-700 font-black" id="prt-total">-</strong></div>
                     </div>
-                    <div class="p-2 rounded-xl bg-slate-100 border border-slate-300 text-center mb-3 relative z-20">
-                        <div id="prt-single-barcode-bars" style="font-family:monospace;font-size:15px;letter-spacing:3px;font-weight:900;color:#0f172a;">||| |||| || ||||| ||| |||| |||</div>
-                        <div id="prt-single-barcode-txt" class="text-[10.5px] font-black text-slate-700 mt-0.5">باركود صرف وحيد الاستعمال: DSP-000000</div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-1.5 mb-2 relative z-20">
-                        <button id="prt-exec-btn" onclick="window.executeGuardedReceiptPrint()" class="py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs">🖨️ طباعة الآن (نسخة 1)</button>
-                        <button onclick="window.sendDashInstantWhatsAppReceipt()" class="py-2 rounded-xl bg-green-600 hover:bg-green-500 text-white font-black text-xs">📲 إرسال بطاقة إيصال واتساب</button>
-                    </div>
-                    <div class="grid grid-cols-3 gap-1.5 relative z-20">
-                        <button onclick="window.exportDashReceiptPdf()" class="py-1.5 rounded-lg bg-sky-600 text-white font-bold text-[11px]">📄 تصدير PDF</button>
-                        <button onclick="window.exportDashReceiptExcel()" class="py-1.5 rounded-lg bg-amber-600 text-white font-bold text-[11px]">📊 تصدير Excel</button>
-                        <button onclick="closePrintModal()" class="py-1.5 rounded-lg bg-slate-200 text-slate-800 font-black text-[11px]">إغلاق ✕</button>
+                    <div class="flex gap-2">
+                        <button onclick="window.print()" class="flex-1 py-2.5 rounded-xl bg-emerald-600 text-white font-bold text-xs">🖨️ طباعة الآن</button>
+                        <button onclick="closePrintModal()" class="px-4 py-2.5 rounded-xl bg-slate-200 text-slate-800 font-bold text-xs">إغلاق</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Minimal Compatibility Hooks -->
+            <!-- Hidden Legacy DOM Hooks -->
             <div style="display:none;" aria-hidden="true">
-                <span id="current-scope-label"></span><span id="dash-live-fx-badge"></span><button id="dash-cur-toggle-btn"></button>
+                <span id="current-scope-label"></span><span id="dash-live-fx-badge"></span><button id="dash-cur-toggle-btn"></button><span id="dash-top-jobs-count"></span>
+                <span id="kpi-sales-title"></span><span id="kpi-sales"></span><span id="kpi-vault-liquidity"></span><span id="kpi-liquidity"></span><span id="kpi-monthly-profit"></span><span id="kpi-inventory"></span><span id="kpi-warehouses-count"></span><span id="kpi-alerts"></span>
+                <span id="cf-summary-in"></span><span id="cf-summary-out"></span><span id="cf-summary-net"></span>
+                <canvas id="customersChart"></canvas><canvas id="cashflowChart"></canvas><canvas id="categoryChart"></canvas><canvas id="inventoryChart"></canvas><canvas id="warehousesChart"></canvas>
+                <table><tbody id="recent-transactions-tbody"></tbody></table><div id="pending-deliveries-list"></div><div id="low-stock-list"></div><div id="dashboard-jobs-list"></div>
             </div>
             <!-- 8. المحرك البرمجي الشامل -->
             <script>
@@ -1577,14 +2103,16 @@ function switchToMobileEdition() {
                         const mainEl = document.querySelector('.dash-main');
                         if (mainEl && mainEl.style.transform) mainEl.style.transform = '';
                         const refRect = ref.getBoundingClientRect();
-                        if (refRect.top <= 84) {
+                        if (refRect.top <= 60) {
                             ph.style.display = 'block';
                             bar.classList.add('is-pinned-fixed');
+                            bar.style.top = '0px';
                             bar.style.left = refRect.left + 'px';
                             bar.style.width = refRect.width + 'px';
                         } else {
                             ph.style.display = 'none';
                             bar.classList.remove('is-pinned-fixed');
+                            bar.style.top = '0px';
                             bar.style.left = '';
                             bar.style.width = '';
                         }
@@ -1605,10 +2133,25 @@ function switchToMobileEdition() {
                     const wrap = document.getElementById('market-broker-ticker-wrap');
                     const pill = document.getElementById('market-broker-restore-pill');
                     const ordRow = document.getElementById('market-broker-orders-row');
-                    if (wrap) wrap.style.display = show ? 'flex' : 'none';
-                    if (show && ordRow) ordRow.style.display = 'flex';
-                    if (pill) pill.style.display = show ? 'none' : 'block';
+                    const offRow = document.getElementById('market-broker-offers-row');
+                    window._userManuallyClosedBroker = !show;
                     localStorage.setItem('magaiees_hide_broker_ticker', show ? '0' : '1');
+                    if (wrap) {
+                        wrap.classList.toggle('is-broker-hidden', !show);
+                        wrap.style.setProperty('display', show ? 'flex' : 'none', 'important');
+                    }
+                    if (show) {
+                        _savedBrkPrefs.offersLocked = false;
+                        _savedBrkPrefs.ordersLocked = false;
+                        if (offRow) { offRow.classList.remove('is-row-hidden'); offRow.style.setProperty('display', 'flex', 'important'); }
+                        if (ordRow) { ordRow.classList.remove('is-row-hidden'); ordRow.style.setProperty('display', 'flex', 'important'); }
+                    }
+                    if (pill) {
+                        pill.style.display = 'none';
+                    }
+                }
+                if (localStorage.getItem('magaiees_hide_broker_ticker') === '1') {
+                    setTimeout(() => toggleMarketBrokerTicker(false), 30);
                 }
                 function _safeBrkSet(k, v) {
                     try { localStorage.setItem(k, v); } catch (e) {
@@ -1699,14 +2242,28 @@ function switchToMobileEdition() {
                     window._brokerDockMode = next;
                     _safeBrkSet('magaiees_broker_dock_mode', next);
                     const qaBar = document.getElementById('qa-bar-container');
+                    const isHidden = localStorage.getItem('magaiees_hide_broker_ticker') === '1' || window._userManuallyClosedBroker;
+                    const disp = isHidden ? 'none!important' : 'flex';
                     if (next === 'bottom') {
-                        w.style.cssText = 'position:fixed;bottom:2px;left:6px;right:calc(var(--sb-collapsed, 62px) + 6px);z-index:9990;display:flex;flex-direction:column;gap:6px;padding:0;margin:0;background:#020617;border-radius:7px;';
+                        w.style.cssText = `position:fixed;bottom:2px;left:6px;right:calc(var(--sb-collapsed, 62px) + 6px);z-index:9990;display:${disp};flex-direction:column;gap:6px;padding:0;margin:0;background:#020617;border-radius:7px;`;
                     } else {
                         if (qaBar && qaBar.parentNode && w.nextElementSibling !== qaBar) qaBar.parentNode.insertBefore(w, qaBar);
-                        w.style.cssText = 'display:flex;flex-direction:column;gap:6px;padding:0;margin:0;z-index:9990;background:#020617;border-radius:7px;';
+                        w.style.cssText = `display:${disp};flex-direction:column;gap:6px;padding:0;margin:0;z-index:9990;background:#020617;border-radius:7px;`;
                     }
+                    if (isHidden) w.classList.add('is-broker-hidden');
                     const btn = document.getElementById('brk-dock-pos-btn');
                     if (btn) btn.innerHTML = next === 'top' ? '📍 الموقع: أعلى الشاشة ⇄' : '📍 الموقع: أسفل الشاشة ⇄';
+                }
+                function toggleMarketBrokerAllScreens() {
+                    const cur = localStorage.getItem('magaiees_broker_all_screens') !== '0';
+                    const next = !cur;
+                    _safeBrkSet('magaiees_broker_all_screens', next ? '1' : '0');
+                    const btn = document.getElementById('brk-all-screens-btn');
+                    if (btn) {
+                        btn.innerHTML = next ? '🌐 الظهور: كل الشاشات ⇄' : '🖥️ الظهور: الرئيسية فقط ⇄';
+                        btn.style.background = next ? '#059669' : '#1e293b';
+                    }
+                    saveBrokerPrefs(true);
                 }
                 function toggleMarketBrokerDock() {
                     const cur = window._brokerDockMode === 'bottom' ? 'bottom' : 'top';
@@ -1986,9 +2543,23 @@ function switchToMobileEdition() {
                 function toggleSingleBrokerRow(rowId, btn) {
                     const r = document.getElementById(rowId);
                     if (!r) return;
-                    const show = r.style.display === 'none';
-                    r.style.display = show ? 'flex' : 'none';
+                    const show = r.style.display === 'none' || r.classList.contains('is-row-hidden');
+                    r.classList.toggle('is-row-hidden', !show);
+                    r.style.setProperty('display', show ? 'flex' : 'none', 'important');
                     if (btn) btn.textContent = show ? '🔒 قفل الشريط' : '🔓 إظهار الشريط';
+                    const r1 = document.getElementById('market-broker-offers-row');
+                    const r2 = document.getElementById('market-broker-orders-row');
+                    const b1Hidden = !r1 || r1.style.display === 'none' || r1.classList.contains('is-row-hidden');
+                    const b2Hidden = !r2 || r2.style.display === 'none' || r2.classList.contains('is-row-hidden');
+                    if (b1Hidden && b2Hidden) toggleMarketBrokerTicker(false);
+                    else {
+                        const wrap = document.getElementById('market-broker-ticker-wrap');
+                        const pill = document.getElementById('market-broker-restore-pill');
+                        if (wrap) { wrap.classList.remove('is-broker-hidden'); wrap.style.setProperty('display', 'flex', 'important'); }
+                        if (pill) pill.style.display = 'none';
+                        window._userManuallyClosedBroker = false;
+                        localStorage.setItem('magaiees_hide_broker_ticker', '0');
+                    }
                 }
                 function switchBrokerControlScope(scope) {
                     window._brkActiveScope = (scope === 'order') ? 'order' : 'offer';
@@ -2087,6 +2658,8 @@ function switchToMobileEdition() {
                                         <option value="168" ${window._brokerMaxAgeHours===168?'selected':''}>⏱️ التحديث: أسبوع كامل</option>
                                     </select>
                                     <button type="button" id="brk-dock-pos-btn" onclick="toggleMarketBrokerDock()" style="height:32px;padding:0 9px;border-radius:9px;background:#1e293b;color:#fde047!important;-webkit-text-fill-color:#fde047!important;border:1px solid #f59e0b;font-size:11.5px;font-weight:900;cursor:pointer;">📍 الموقع: ${localStorage.getItem('magaiees_broker_dock_mode')==='bottom'?'أسفل الشاشة ⇄':'أعلى الشاشة ⇄'}</button>
+                                    <button type="button" id="brk-all-screens-btn" onclick="toggleMarketBrokerAllScreens()" title="التحكم في إظهار شريط البورصة في كل الشاشات أو في الشاشة الرئيسية فقط" style="height:32px;padding:0 9px;border-radius:9px;background:${localStorage.getItem('magaiees_broker_all_screens')!=='0'?'#059669':'#1e293b'};color:#fff!important;-webkit-text-fill-color:#fff!important;border:1px solid #34d399;font-size:11.5px;font-weight:900;cursor:pointer;">${localStorage.getItem('magaiees_broker_all_screens')!=='0'?'🌐 الظهور: كل الشاشات ⇄':'🖥️ الظهور: الرئيسية فقط ⇄'}</button>
+                                    <button type="button" id="brk-hide-all-btn" onclick="toggleMarketBrokerTicker(false);document.getElementById('broker-post-modal').style.display='none';" title="إخفاء شريطي البورصة بالكامل مع إمكانية استعادتهما في أي وقت" style="height:32px;padding:0 9px;border-radius:9px;background:#881337;color:#fecdd3!important;-webkit-text-fill-color:#fecdd3!important;border:1px solid #f43f5e;font-size:11.5px;font-weight:900;cursor:pointer;">🙈 إخفاء البورصة</button>
                                     <button type="button" onclick="window._hiddenBrokerIds=[];window._brokerFontStep=2;window._brokerOffersSec=160;window._brokerOrdersSec=200;window._brokerMaxAgeHours=24;window._brokerHideNames=false;window._brokerMyItemsFilter=true;const agSel=document.getElementById('brk-max-age-sel');if(agSel)agSel.value='24';localStorage.setItem('magaiees_hidden_broker_ids','[]');applyMarketBrokerDock('top');applyMarketBrokerSpeed();saveBrokerPrefs(true);window._lastBrokerSig='';loadMarketBrokerTicker();" style="height:32px;padding:0 9px;border-radius:9px;background:#0f172a;color:#38bdf8!important;-webkit-text-fill-color:#38bdf8!important;border:1px solid #38bdf8;font-size:11.5px;font-weight:900;cursor:pointer;">♻️ استعادة الافتراضي</button>
                                     <button type="button" onclick="saveBrokerPrefs(true);document.getElementById('broker-post-modal').style.display='none'" style="height:32px;padding:0 12px;border-radius:9px;background:linear-gradient(135deg,#059669,#047857);color:#fff!important;-webkit-text-fill-color:#fff!important;border:1.5px solid #fde047;font-size:12px;font-weight:900;cursor:pointer;">💾 حفظ وخروج</button>
                                 </div>
@@ -2331,49 +2904,43 @@ function switchToMobileEdition() {
                     bot.innerHTML = `<div class="inner-box p-2.5 flex items-center justify-between" ${clk}><span class="text-slate-300">${map[7]}</span><strong class="text-rose-400 font-bold">${map[8]}</strong></div><div class="inner-box p-2.5 flex items-center justify-between" ${clk}><span class="text-slate-300">${map[9]}</span><strong class="text-amber-300 font-bold">${map[10]}</strong></div><div class="inner-box p-2.5 flex items-center justify-between" ${clk}><span class="text-slate-300">${map[11]}</span><strong class="text-sky-300 font-bold">${map[12]}</strong></div>`;
                 }
                 function switchAuditCommandView(mode, btn) {
-                    window._currentAuditCmdMode = mode;
                     if (btn) _activateMiniTab(btn, mode === 'ai_audit' ? 'bg-amber-600' : 'bg-emerald-600');
                     const m = typeof _fmtRadarMoney === 'function' ? _fmtRadarMoney : (v => v.toLocaleString() + ' ج.س');
-                    const liqNow = parseFloat((document.getElementById('cur-liq') || {}).value) || 3450000;
-                    const tonsNow = parseFloat((document.getElementById('cur-tons') || {}).value) || 420.5;
-                    const arNow = parseFloat((document.getElementById('cur-ar') || {}).value) || 820000;
-                    const apNow = parseFloat((document.getElementById('cur-ap') || {}).value) || 290000;
                     const tb = document.getElementById('dash-audit-command-tbody');
                     if (!tb) return;
                     const rows = {
-                        trial: [['صافي السيولة بالخزائن والبنوك', m(liqNow), 'emerald', 'متطابق 100% ✓', 'TRIAL-LIQ'], ['مخزون سيخ التسليح والأسمنت', tonsNow.toFixed(1) + ' طن (' + Math.round(tonsNow * 135).toLocaleString() + ' سيخة)', 'amber', 'مضبوط وزنياً وعدداً ✓', 'TRIAL-INV'], ['إجمالي ذمم العملاء (المدينون)', m(arNow), 'sky', 'مؤكد بالقيود ✓', 'TRIAL-AR'], ['التزامات الموردين (الدائنون)', m(apNow), 'rose', 'مؤكد بالقيود ✓', 'TRIAL-AP']],
-                        pnl: [['إجمالي إيرادات المبيعات المعتمدة', m(54800000), 'sky', 'نمو +18.4% ▲', 'PNL-REV'], ['تكلفة البضاعة المباعة (COGS)', m(43900000), 'amber', 'ضمن السقف المعياري ✓', 'PNL-COGS'], ['المصروفات التشغيلية والترحيل', m(1040000), 'rose', '1.9% من المبيعات ✓', 'PNL-EXP'], ['صافي الربح القابل للتوزيع', '+' + m(9860000), 'emerald', 'هامش صافي 18.0% ✓', 'PNL-NET']],
-                        balance: [['إجمالي الأصول المتداولة والمخزنية', m(180870000), 'emerald', 'مغطى بالكامل ✓', 'BAL-ASSETS'], ['إجمالي الالتزامات والشيكات الصادرة', m(556000), 'rose', '0.3% من الأصول ✓', 'BAL-LIAB'], ['صافي حقوق الملكية والمركز المالي', m(180314000), 'sky', 'ملاءة ممتازة ✓', 'BAL-EQ'], ['مؤشر التوازن المحاسبي العام', '0 فروقات', 'emerald', 'ميزان مراجعة صفري ✓', 'BAL-ZERO']],
-                        ai_audit: [['فحص الفواتير والأسعار تحت التكلفة', '0 فاتورة خاسرة', 'emerald', 'حماية الربح 100% ✓', 'AUD-COST'], ['فحص أرصدة الخزائن والبنوك اللحظي', '0 انحراف نقدي', 'emerald', 'مطابق للجرد الفعلي ✓', 'AUD-CASH'], ['مطابقة أوزان الميزان مع الفواتير', tonsNow.toFixed(1) + ' طن متطابق', 'sky', 'بلا فاقد أو عجز ✓', 'AUD-WEIGHT'], ['فحص القيود المزدوجة والترحيل الآلي', '100% مرحّل آلياً', 'amber', 'تدقيق ذكي مكتمل ✓', 'AUD-GL']]
+                        trial: [['صافي السيولة بالخزائن والبنوك', m(3450000), 'emerald', 'متطابق 100% ✓'], ['مخزون سيخ التسليح والأسمنت', '420.5 طن (56,767 سيخة)', 'amber', 'مضبوط وزنياً وعدداً ✓'], ['إجمالي ذمم العملاء (المدينون)', m(820000), 'sky', 'مؤكد بالقيود ✓'], ['التزامات الموردين (الدائنون)', m(290000), 'rose', 'مؤكد بالقيود ✓']],
+                        pnl: [['إجمالي إيرادات المبيعات المعتمدة', m(54800000), 'sky', 'نمو +18.4% ▲'], ['تكلفة البضاعة المباعة (COGS)', m(43900000), 'amber', 'ضمن السقف المعياري ✓'], ['المصروفات التشغيلية والترحيل', m(1040000), 'rose', '1.9% من المبيعات ✓'], ['صافي الربح القابل للتوزيع', '+' + m(9860000), 'emerald', 'هامش صافي 18.0% ✓']],
+                        balance: [['إجمالي الأصول المتداولة والمخزنية', m(180870000), 'emerald', 'مغطى بالكامل ✓'], ['إجمالي الالتزامات والشيكات الصادرة', m(556000), 'rose', '0.3% من الأصول ✓'], ['صافي حقوق الملكية والمركز المالي', m(180314000), 'sky', 'ملاءة ممتازة ✓'], ['مؤشر التوازن المحاسبي العام', '0 فروقات', 'emerald', 'ميزان مراجعة صفري ✓']],
+                        ai_audit: [['فحص الفواتير والأسعار تحت التكلفة', '0 فاتورة خاسرة', 'emerald', 'حماية الربح 100% ✓'], ['فحص أرصدة الخزائن والبنوك اللحظي', '0 انحراف نقدي', 'emerald', 'مطابق للجرد الفعلي ✓'], ['مطابقة أوزان الميزان مع الفواتير', '420.5 طن متطابق', 'sky', 'بلا فاقد أو عجز ✓'], ['فحص القيود المزدوجة والترحيل الآلي', '100% مرحّل آلياً', 'amber', 'تدقيق ذكي مكتمل ✓']]
                     }[mode] || [];
-                    tb.innerHTML = rows.map(r => `<tr onclick="if(typeof window.openAtomicSourceDocumentDrillDown==='function')window.openAtomicSourceDocumentDrillDown({code:'${r[4]}',title:'${r[0]}',val:'${r[1]}',status:'${r[3]}'})" style="cursor:pointer;" title="اضغط لفتح أصل المستند والقيد المحاسبي التفصيلي (Drill-Down 0ms)"><td class="py-3 font-bold text-white">${r[0]} 🔍</td><td class="py-3 font-extrabold text-${r[2]}-300">${r[1]}</td><td class="py-3"><span class="px-2 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 font-bold text-xs">${r[3]}</span></td></tr>`).join('');
+                    tb.innerHTML = rows.map(r => `<tr><td class="py-3 font-bold text-white">${r[0]}</td><td class="py-3 font-extrabold text-${r[2]}-300">${r[1]}</td><td class="py-3"><span class="px-2 py-1 rounded-lg bg-emerald-500/20 text-emerald-300 font-bold text-xs">${r[3]}</span></td></tr>`).join('');
                 }
                 function switchLiveRadarFeed(mode, btn) {
-                    window._currentRadarFeedMode = mode;
                     if (btn) _activateMiniTab(btn, 'bg-sky-600');
                     const m = typeof _fmtRadarMoney === 'function' ? _fmtRadarMoney : (v => v.toLocaleString() + ' ج.س');
                     const feed = document.getElementById('radar-feed');
                     if (!feed) return;
                     const items = {
                         all: [
-                            ['مؤسسة البنيان الحديثة', 'فاتورة بيع نقدي', 'emerald', 'الوزن: 1.0 طن | 135 سيخة تجاري | 9.0 شيلة', 420000, '1.0', '135', '9.0', 'INV-SLS-101'],
-                            ['توريد سيخ تسليح 16مم', 'سند مشتريات', 'amber', 'الوزن: 15.0 طن | مخزن السجانة الرئيسي', 5850000, '15.0', '2025', '135.0', 'INV-PUR-204'],
-                            ['شركة النيل للمقاولات', 'سند قبض بنكي', 'sky', 'تحصيل دفعة عبر بنك الخرطوم • مطابقة فورية', 1250000, '3.0', '405', '27.0', 'VCH-RCV-309']
+                            ['مؤسسة البنيان الحديثة', 'فاتورة بيع نقدي', 'emerald', 'الوزن: 1.0 طن | 135 سيخة تجاري | 9.0 شيلة', 420000, '1.0', '135', '9.0'],
+                            ['توريد سيخ تسليح 16مم', 'سند مشتريات', 'amber', 'الوزن: 15.0 طن | مخزن السجانة الرئيسي', 5850000, '15.0', '2025', '135.0'],
+                            ['شركة النيل للمقاولات', 'سند قبض بنكي', 'sky', 'تحصيل دفعة عبر بنك الخرطوم • مطابقة فورية', 1250000, '3.0', '405', '27.0']
                         ],
                         sales: [
-                            ['مؤسسة البنيان الحديثة', 'فاتورة بيع نقدي', 'emerald', 'الوزن: 1.0 طن | ربح الفاتورة: +72,000 ج.س', 420000, '1.0', '135', '9.0', 'INV-SLS-101'],
-                            ['شركة النيل للمقاولات', 'فاتورة بيع آجل', 'emerald', 'الوزن: 5.0 طن | ربح الفاتورة: +340,000 ج.س', 2100000, '5.0', '675', '45.0', 'INV-SLS-102']
+                            ['مؤسسة البنيان الحديثة', 'فاتورة بيع نقدي', 'emerald', 'الوزن: 1.0 طن | ربح الفاتورة: +72,000 ج.س', 420000, '1.0', '135', '9.0'],
+                            ['شركة النيل للمقاولات', 'فاتورة بيع آجل', 'emerald', 'الوزن: 5.0 طن | ربح الفاتورة: +340,000 ج.س', 2100000, '5.0', '675', '45.0']
                         ],
                         purchases: [
-                            ['توريد سيخ تسليح 16مم', 'سند مشتريات', 'amber', 'الوزن: 15.0 طن | مخزن السجانة الرئيسي', 5850000, '15.0', '2025', '135.0', 'INV-PUR-204'],
-                            ['توريد أسمنت عطبرة بورتلاندي', 'إذن استلام مخزني', 'amber', 'الوزن: 30.0 طن | مخزن الصناعية', 5100000, '30.0', '600', '30.0', 'INV-PUR-205']
+                            ['توريد سيخ تسليح 16مم', 'سند مشتريات', 'amber', 'الوزن: 15.0 طن | مخزن السجانة الرئيسي', 5850000, '15.0', '2025', '135.0'],
+                            ['توريد أسمنت عطبرة بورتلاندي', 'إذن استلام مخزني', 'amber', 'الوزن: 30.0 طن | مخزن الصناعية', 5100000, '30.0', '600', '30.0']
                         ],
                         vouchers: [
-                            ['شركة النيل للمقاولات', 'سند قبض بنكي', 'sky', 'بنك الخرطوم • إشعار تحصيل #8841', 1250000, '0', '0', '0', 'VCH-RCV-309'],
-                            ['مصنع السجانة للحديد', 'سند صرف موردين', 'rose', 'سداد دفعة توريد عبر بنك فيصل', 650000, '0', '0', '0', 'VCH-PAY-412']
+                            ['شركة النيل للمقاولات', 'سند قبض بنكي', 'sky', 'بنك الخرطوم • إشعار تحصيل #8841', 1250000, '0', '0', '0'],
+                            ['مصنع السجانة للحديد', 'سند صرف موردين', 'rose', 'سداد دفعة توريد عبر بنك فيصل', 650000, '0', '0', '0']
                         ]
                     }[mode] || [];
-                    feed.innerHTML = items.map(x => `<div onclick="if(typeof window.openAtomicSourceDocumentDrillDown==='function'){window.openAtomicSourceDocumentDrillDown({code:'${x[8]}',client:'${x[0]}',type:'${x[1]}',details:'${x[3]}',amount:${x[4]},tons:'${x[5]}',bars:'${x[6]}',bundles:'${x[7]}'});}else{printReceipt('${x[0]}', '${x[1]}', '${x[5]}', '${x[6]}', '${x[7]}', '${x[4].toLocaleString()}');}" class="inner-box p-3.5 hover:border-emerald-400 cursor-pointer transition flex items-center justify-between" title="اضغط لفتح أصل الفاتورة/السند والقيد المحاسبي والدورة المستندية (Drill-Down 0ms)"><div><div class="font-bold text-white text-sm">${x[0]} <span class="text-${x[2]}-400">(${x[1]})</span></div><div class="text-xs text-slate-300">${x[3]}</div></div><div class="text-left"><div class="font-black text-${x[2]}-400 text-sm">${m(x[4])}</div><div class="text-[11px] text-slate-300">🔍 فتح الأصل / طباعة 🖨️</div></div></div>`).join('');
+                    feed.innerHTML = items.map(x => `<div onclick="printReceipt('${x[0]}', '${x[1]}', '${x[5]}', '${x[6]}', '${x[7]}', '${x[4].toLocaleString()}')" class="inner-box p-3.5 hover:border-emerald-400 cursor-pointer transition flex items-center justify-between"><div><div class="font-bold text-white text-sm">${x[0]} <span class="text-${x[2]}-400">(${x[1]})</span></div><div class="text-xs text-slate-300">${x[3]}</div></div><div class="text-left"><div class="font-black text-${x[2]}-400 text-sm">${m(x[4])}</div><div class="text-[11px] text-slate-300">اضغط للطباعة 🖨️</div></div></div>`).join('');
                 }
                 function switchCenterChartCard(mode, btn) {
                     window._centerChartMode = mode;
@@ -3358,71 +3925,32 @@ function switchToMobileEdition() {
                 }
 
                 function submitInstantInvoice() {
-                    const clientEl = document.getElementById('op-client');
-                    const tonsEl = document.getElementById('sajana-tons');
-                    const curTonsInput = document.getElementById('cur-tons');
-                    const client = (clientEl ? clientEl.value.trim() : '') || 'عميل نقدي';
+                    const client = document.getElementById('op-client').value || 'عميل نقدي';
                     const type = document.getElementById('op-type').value;
-                    const tons = parseFloat(tonsEl ? tonsEl.value : 0) || 0;
-                    const currentStockTons = parseFloat(curTonsInput ? curTonsInput.value : 0) || 0;
+                    const tons = parseFloat(document.getElementById('sajana-tons').value) || 0;
                     const rebar = parseFloat(document.getElementById('cur-rebar').value) || 420000;
-                    if (tons <= 0) {
-                        if (typeof window.notifyDashFc1Toast === 'function') {
-                            window.notifyDashFc1Toast('⚠️ يرجى إدخال كمية صحيحة بالطن أو السيخة أو الشيلة قبل الترحيل!', 'warning', tonsEl);
-                        }
-                        return;
-                    }
-                    // النقطة الحاسمة (7): حارس المخزن الصفري بروح السوق السوداني
-                    if (type === 'فاتورة بيع' && typeof window.checkDashZeroStockGuard === 'function') {
-                        if (!window.checkDashZeroStockGuard('سيخ 12مم السجانة', tons, currentStockTons, tonsEl)) {
-                            return;
-                        }
-                    }
                     const amount = Math.round(tons * rebar);
-                    // النقطة الحاسمة (6): منع حفظ نفس الفاتورة مرتين بالخطأ في نفس اليوم
-                    if (typeof window.checkSameDayDuplicateTxGuard === 'function') {
-                        const sig = type + '|' + client + '|' + tons.toFixed(2) + '|' + amount;
-                        if (!window.checkSameDayDuplicateTxGuard(sig, clientEl || tonsEl)) {
-                            return;
-                        }
-                    }
                     const bars = Math.round(tons * 135);
-                    const weightBars = Math.round(tons * 140);
                     const bundles = ((tons * 135) / 15).toFixed(1);
-                    const docCode = 'DOC-' + Date.now().toString().slice(-6);
 
                     const feed = document.getElementById('radar-feed');
                     const row = document.createElement('div');
                     row.className = "inner-box p-3 border border-emerald-400/60 cursor-pointer transition flex items-center justify-between";
-                    row.onclick = () => {
-                        if (typeof window.openAtomicSourceDocumentDrillDown === 'function') {
-                            window.openAtomicSourceDocumentDrillDown({
-                                code: docCode,
-                                client: client,
-                                type: type,
-                                details: `الوزن: ${tons} طن | ${bars} سيخة عددي (${weightBars} وزني) | ${bundles} شيلة`,
-                                amount: amount,
-                                tons: String(tons),
-                                bars: String(bars),
-                                bundles: String(bundles)
-                            });
-                        } else {
-                            printReceipt(client, type, tons, bars, bundles, amount.toLocaleString());
-                        }
-                    };
+                    row.onclick = () => printReceipt(client, type, tons, bars, bundles, amount.toLocaleString());
                     row.innerHTML = `
                         <div>
-                            <div class="font-bold text-white text-xs">${client} <span class="text-emerald-400">(${type} #${docCode})</span></div>
-                            <div class="text-[11px] text-slate-300">الوزن: ${tons} طن | ${bars} سيخة عددي (${weightBars} وزني) | ${bundles} شيلة</div>
+                            <div class="font-bold text-white text-xs">${client} <span class="text-emerald-400">(${type})</span></div>
+                            <div class="text-[11px] text-slate-300">الوزن: ${tons} طن | ${bars} سيخة تجاري | ${bundles} شيلة</div>
                         </div>
                         <div class="text-left">
                             <div class="font-black text-emerald-400 text-sm">${amount.toLocaleString()} ج.س</div>
-                            <div class="text-[10px] text-emerald-300">تم التسميع الذري 0ms ✓ (اضغط لفتح الأصل)</div>
+                            <div class="text-[10px] text-emerald-300">تم الترحيل الآن ✓</div>
                         </div>
                     `;
-                    if (feed) feed.prepend(row);
+                    feed.prepend(row);
 
                     const curLiqInput = document.getElementById('cur-liq');
+                    const curTonsInput = document.getElementById('cur-tons');
                     if (type === 'فاتورة بيع') {
                         curLiqInput.value = (parseFloat(curLiqInput.value) || 0) + amount;
                         curTonsInput.value = Math.max(0, (parseFloat(curTonsInput.value) || 0) - tons).toFixed(1);
@@ -3433,21 +3961,6 @@ function switchToMobileEdition() {
                         curLiqInput.value = (parseFloat(curLiqInput.value) || 0) + amount;
                     }
                     updateFromCurtain();
-                    // النقطة الحاسمة (1): التسميع الذري اللحظي 0ms في كافة كشوفات النظام الـ 7
-                    if (typeof window.executeAtomicCrossSystemSync === 'function') {
-                        window.executeAtomicCrossSystemSync({
-                            code: docCode,
-                            type: type,
-                            partner: client,
-                            item: 'سيخ 12مم السجانة',
-                            tons: tons,
-                            barsCount: bars,
-                            barsWeight: weightBars,
-                            bundles: parseFloat(bundles),
-                            amount: amount,
-                            payMethod: 'نقداً'
-                        });
-                    }
                 }
 
                 function printReceipt(client, type, tons, bars, bundles, total) {
@@ -3457,14 +3970,6 @@ function switchToMobileEdition() {
                     document.getElementById('prt-bars').innerText = bars + ' سيخة';
                     document.getElementById('prt-bundles').innerText = bundles + ' شيلة';
                     document.getElementById('prt-total').innerText = total + ' ج.س';
-                    const isCredit = /آجل|اجل|دين/.test(String(type));
-                    const paidEl = document.getElementById('prt-paid');
-                    const remEl = document.getElementById('prt-rem');
-                    if (paidEl) paidEl.innerText = isCredit ? '0 ج.س' : (total + ' ج.س');
-                    if (remEl) remEl.innerText = isCredit ? (total + ' ج.س (ذمة آجلة)') : '0 ج.س (خالص نقداً ✓)';
-                    if (typeof window.prepareGuardedPrintModalState === 'function') {
-                        window.prepareGuardedPrintModalState(client, type, tons, bars, bundles, total);
-                    }
                     const modal = document.getElementById('print-modal');
                     modal.classList.remove('hidden');
                     modal.classList.add('flex');
@@ -3579,6 +4084,32 @@ function switchToMobileEdition() {
                 _spotlightTick = false;
             });
         }, { passive: true });
+
+        // Dynamic 60fps EaseOutExpo Animated Counter Engine
+        function animateValue(elementOrId, start, end, duration = 1200, suffix = '') {
+            const obj = typeof elementOrId === 'string' ? document.getElementById(elementOrId) : elementOrId;
+            if (!obj) return;
+            start = parseFloat(start) || 0;
+            end = parseFloat(end) || 0;
+            if (start === end) {
+                obj.innerText = end.toLocaleString('en-US') + (suffix ? ' ' + suffix : '');
+                return;
+            }
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const easeProgress = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+                const currentVal = Math.floor(easeProgress * (end - start) + start);
+                obj.innerText = currentVal.toLocaleString('en-US') + (suffix ? ' ' + suffix : '');
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    obj.innerText = end.toLocaleString('en-US') + (suffix ? ' ' + suffix : '');
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
 
         // Check Authentication & Initialize Dashboard App
         function initDashboardApp() {
@@ -4242,11 +4773,604 @@ function switchToMobileEdition() {
             }
         };
 
-        // 0ms Featherweight Initialization (Purged unused legacy loops & hidden canvases per Final Clause 5)
+        // Load Dynamic Dashboard Data
+        function loadDynamicDashboardData() {
+            syncDashboardFXSettings();
+            const curSuffix = window.dashDisplayCurrency || 'SDG';
+
+            // Fetch data
+            const invoices = (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []).filter(x => !x.deleted && x.saleType !== 'preliminary' && x.status !== 'preliminary');
+            const banks = (JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => !x.deleted);
+            const vaults = (JSON.parse(localStorage.getItem('erp_vaults_v1')) || []).filter(x => !x.deleted);
+            const items = (JSON.parse(localStorage.getItem('erp_items_v1')) || []).filter(x => !x.deleted);
+            const gl = (JSON.parse(localStorage.getItem('erp_gl_v1')) || []).filter(x => !x.deleted);
+            const customers = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
+            const inventory = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+
+            // Helper to get total actual stock of an item across warehouses (ignoring virtual pending states)
+            function getItemActualStock(itemId) {
+                return inventory
+                    .filter(inv => inv.itemId === itemId && inv.warehouse !== 'PENDING_RECEIPT')
+                    .reduce((sum, inv) => sum + (Number(inv.qty) || 0), 0);
+            }
+
+            // Get EXACT local date YYYY-MM-DD
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
+
+            const sevenDaysAgo = new Date(now);
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            const sevenDaysAgoStr = sevenDaysAgo.toISOString().split('T')[0];
+
+            // Filter invoices by scope
+            let scopedInvoices = invoices;
+            if (window.currentDashboardScope === 'today') {
+                scopedInvoices = invoices.filter(inv => inv.date && inv.date.startsWith(todayStr));
+                if (document.getElementById('kpi-sales-title')) document.getElementById('kpi-sales-title').textContent = 'مبيعات اليوم';
+            } else if (window.currentDashboardScope === 'week') {
+                scopedInvoices = invoices.filter(inv => inv.date && inv.date >= sevenDaysAgoStr);
+                if (document.getElementById('kpi-sales-title')) document.getElementById('kpi-sales-title').textContent = 'مبيعات آخر 7 أيام';
+            } else if (window.currentDashboardScope === 'month') {
+                scopedInvoices = invoices.filter(inv => inv.date && inv.date.startsWith(`${year}-${month}`));
+                if (document.getElementById('kpi-sales-title')) document.getElementById('kpi-sales-title').textContent = 'مبيعات الشهر';
+            } else {
+                if (document.getElementById('kpi-sales-title')) document.getElementById('kpi-sales-title').textContent = 'إجمالي المبيعات';
+            }
+
+            // 1. Calculate Scoped Sales with Multi-Currency awareness
+            const totalScopedSales = scopedInvoices.reduce((sum, inv) => {
+                const rawAmt = Number(inv.grandTotal) || Number(inv.totalAmount) || 0;
+                return sum + convertDashVal(rawAmt, inv.currency, inv.exchangeRate);
+            }, 0);
+            animateValue('kpi-sales', 0, totalScopedSales, 1300, curSuffix);
+
+            // 2. Calculate Vault Liquidity & Total Liquidity (reading both erp_vaults_v1 and erp_banks_v1)
+            let vaultLiquidity = 0;
+            let bankLiquidity = 0;
+            vaults.forEach(v => {
+                let bal = Number(v.currentBalance) ?? Number(v.balance) ?? Number(v.openingBalance) ?? 0;
+                vaultLiquidity += convertDashVal(bal, v.currency, v.exchangeRate);
+            });
+            banks.forEach(b => {
+                let bal = Number(b.currentBalance) ?? Number(b.balance) ?? Number(b.openingBalance) ?? 0;
+                if (b.type === 'cash' || String(b.name || '').includes('صندوق') || String(b.name || '').includes('خزينة')) {
+                    vaultLiquidity += convertDashVal(bal, b.currency, b.exchangeRate);
+                } else {
+                    bankLiquidity += convertDashVal(bal, b.currency, b.exchangeRate);
+                }
+            });
+            let totalLiquidity = vaultLiquidity + bankLiquidity;
+
+            animateValue('kpi-vault-liquidity', 0, vaultLiquidity, 1400, curSuffix);
+            animateValue('kpi-liquidity', 0, totalLiquidity, 1400, curSuffix);
+
+            // 4. Total Items
+            const totalItems = items.length;
+            animateValue('kpi-inventory', 0, totalItems, 1200, 'صنف');
+            
+            let warehousesList = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
+            if (warehousesList.length === 0) {
+                warehousesList = [{ id: 'w-main', name: 'المخزن الرئيسي' }];
+            }
+            const activeWhsCount = warehousesList.filter(w => !w.deleted).length;
+            const whsCountEl = document.getElementById('kpi-warehouses-count');
+            if (whsCountEl) {
+                whsCountEl.innerText = `موزعة على ${activeWhsCount} ${activeWhsCount > 2 && activeWhsCount < 11 ? 'مخازن' : 'مخزن'}`;
+            }
+
+            // 5. Low Stock computed from actual inventory levels
+            const lowStockItems = items.filter(item => {
+                let available = getItemActualStock(item.id);
+                let safeLimit = Number(item.safeLimit) || Number(item.minQty) || 10;
+                return available <= safeLimit;
+            });
+            animateValue('kpi-alerts', 0, lowStockItems.length, 1200, 'أصناف');
+
+            const lowStockHTML = lowStockItems.slice(0, 5).map(item => {
+                const stockVal = getItemActualStock(item.id);
+                return `
+                <div class="list-item" style="background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.2);">
+                    <div class="list-icon" style="background:var(--theme-red); color:#fff; box-shadow: 0 3px 10px rgba(248,113,113,0.3);">!</div>
+                    <div style="flex:1;">
+                        <h4 class="list-title">${item.name}</h4>
+                        <span class="list-sub">الرصيد: <strong style="color:var(--theme-red); font-size: 0.9rem;">${stockVal}</strong></span>
+                    </div>
+                    <a href="purchase.php" data-href="purchase.php" onclick="window.location.href='purchase.php'" class="list-btn" style="box-shadow: 0 2px 8px rgba(99,102,241,0.3);">طلب</a>
+                </div>
+                `;
+            }).join('');
+            document.getElementById('low-stock-list').innerHTML = lowStockHTML || '<div style="color:var(--text-secondary); font-size:0.85rem; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 10px; text-align: center;">المخزون آمن حالياً ✅</div>';
+
+            // Dynamic cost calculation
+            const _cachedPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]');
+            function getItemCost(itemId) {
+                const item = items.find(i => i.id === itemId);
+                if (item && item.openingQty > 0 && item.openingValue > 0) {
+                    return Number(item.openingValue) / Number(item.openingQty);
+                }
+                const purchases = _cachedPurchases;
+                let lastPrice = null;
+                for (let inv of purchases) {
+                    if (inv.deleted) continue;
+                    const line = (inv.items || inv.lines || []).find(l => l.itemId === itemId || l.productId === itemId);
+                    if (line && line.price) {
+                        lastPrice = Number(line.price);
+                        break;
+                    }
+                }
+                if (lastPrice !== null) return lastPrice;
+                if (item) {
+                    let sp = item.sellingPrice || (item.units && item.units[0] ? item.units[0].cashPrice : 0) || 0;
+                    return sp * 0.7; // default 30% margin fallback
+                }
+                return 0;
+            }
+
+            // Calculate Real Scoped Profit (using actual item costs)
+            const todayInvoices = scopedInvoices;
+            let todayProfitBase = 0;
+            todayInvoices.forEach(inv => {
+                let invProfit = 0;
+                (inv.items || []).forEach(line => {
+                    const cost = getItemCost(line.itemId);
+                    const sellPrice = Number(line.price) || 0;
+                    const qty = Number(line.quantity) || Number(line.qty) || 0;
+                    invProfit += (sellPrice - cost) * qty;
+                });
+                if (invProfit === 0 && (Number(inv.grandTotal) || Number(inv.totalAmount))) {
+                    invProfit = (Number(inv.grandTotal) || Number(inv.totalAmount)) * 0.22;
+                }
+                const disc = Number(inv.discount) || 0;
+                todayProfitBase += (invProfit - disc);
+            });
+            const todayProfit = convertDashVal(todayProfitBase, window.dashBaseCurrency, window.dashRateUSD);
+            animateValue('kpi-monthly-profit', 0, todayProfit, 1500, curSuffix);
+
+            const currentMonthStr = `${year}-${month}`;
+            const monthlyInvoices = invoices.filter(inv => inv.date && inv.date.startsWith(currentMonthStr));
+            let monthlyProfitBase = 0;
+            monthlyInvoices.forEach(inv => {
+                let invProfit = 0;
+                (inv.items || []).forEach(line => {
+                    const cost = getItemCost(line.itemId);
+                    const sellPrice = Number(line.price) || 0;
+                    const qty = Number(line.quantity) || Number(line.qty) || 0;
+                    invProfit += (sellPrice - cost) * qty;
+                });
+                const disc = Number(inv.discount) || 0;
+                monthlyProfitBase += (invProfit - disc);
+            });
+            const monthlyProfit = convertDashVal(monthlyProfitBase, window.dashBaseCurrency, window.dashRateUSD);
+
+            // Update Ticker
+            if (document.getElementById('ticker-sales')) document.getElementById('ticker-sales').innerText = totalScopedSales.toLocaleString('en-US') + ' ' + curSuffix;
+            if (document.getElementById('ticker-profit')) document.getElementById('ticker-profit').innerText = todayProfit.toLocaleString('en-US') + ' ' + curSuffix;
+            if (document.getElementById('ticker-monthly-profit')) document.getElementById('ticker-monthly-profit').innerText = monthlyProfit.toLocaleString('en-US') + ' ' + curSuffix;
+            if (document.getElementById('ticker-liquidity')) document.getElementById('ticker-liquidity').innerText = totalLiquidity.toLocaleString('en-US') + ' ' + curSuffix;
+
+            // Trigger Stock Alerts Toast if any critical items
+            const criticalItems = lowStockItems.filter(item => getItemActualStock(item.id) <= 0);
+            if (criticalItems.length > 0 && !sessionStorage.getItem('stock_alert_shown')) {
+                showToast(`⚠️ تنبيه مخزون: هناك ${criticalItems.length} أصناف نفذت تماماً من المخزن! يرجى مراجعة التنبيهات.`, 'error');
+                sessionStorage.setItem('stock_alert_shown', 'true');
+            }
+
+            // 4.5 Pending Deliveries
+            const pendingDeliveries = scopedInvoices.filter(inv => {
+                const s = inv.deliveryStatus;
+                return s !== 'delivered' && s !== 'Admin_Closed' && s !== 'Delivered_Pending_Admin';
+            }).slice(0, 5);
+            
+            const pendingContainer = document.getElementById('pending-deliveries-list');
+            if (pendingContainer) {
+                if (pendingDeliveries.length > 0) {
+                    pendingContainer.innerHTML = pendingDeliveries.map(inv => {
+                        const custName = customers.find(c => c.id === inv.customerId || c.id === inv.customer)?.name || inv.customerName || inv.customer || inv.customerId || 'عميل';
+                        const invDate = inv.date || '-';
+                        return `
+                        <div class="list-item" style="background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.2);">
+                            <div class="list-icon" style="background:var(--theme-orange); color:#fff; box-shadow: 0 3px 10px rgba(245,158,11,0.3);">🚚</div>
+                            <div style="flex:1;">
+                                <h4 class="list-title">إذن #${inv.invoiceNo || inv.id}</h4>
+                                <span class="list-sub"><span style="color:#e2e8f0;">${custName}</span> | ${invDate}</span>
+                            </div>
+                            <a href="sales-delivery.php" data-href="sales-delivery.php" onclick="window.location.href='sales-delivery.php'" class="list-btn" style="box-shadow: 0 2px 8px rgba(99,102,241,0.3);">تسليم</a>
+                        </div>
+                        `;
+                    }).join('');
+                } else {
+                    pendingContainer.innerHTML = '<div style="color:var(--text-secondary); text-align:center; font-size:0.85rem; padding: 15px; background: rgba(255,255,255,0.02); border-radius: 10px;">كل الأذونات مسلمة! 🎉</div>';
+                }
+            }
+
+            // 4.8 Executive Jobs & Tasks Widget (connected to erp_jobs_v1 / jobs.php)
+            const jobsList = (JSON.parse(localStorage.getItem('erp_jobs_v1') || '[]')).filter(j => j.status !== 'done');
+            const topJobsCountEl = document.getElementById('dash-top-jobs-count');
+            if (topJobsCountEl) topJobsCountEl.innerText = jobsList.length;
+            const dashJobsContainer = document.getElementById('dashboard-jobs-list');
+            if (dashJobsContainer) {
+                if (jobsList.length > 0) {
+                    dashJobsContainer.innerHTML = jobsList.slice(0, 4).map(j => {
+                        const isCrit = j.priority === 'critical' || j.priority === 'high';
+                        return `
+                        <div class="list-item" style="background:${isCrit ? 'rgba(244,63,94,0.08)' : 'rgba(168,85,247,0.08)'}; border:1px solid ${isCrit ? 'rgba(244,63,94,0.25)' : 'rgba(168,85,247,0.25)'};">
+                            <div class="list-icon" style="background:${isCrit ? '#e11d48' : '#7c3aed'}; color:#fff;">💼</div>
+                            <div style="flex:1; min-width:0;">
+                                <h4 class="list-title" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${j.title}</h4>
+                                <span class="list-sub">👤 ${j.user || 'غير مسند'} ${j.dueDate ? '| 📅 ' + j.dueDate : ''}</span>
+                            </div>
+                            <a href="${j.linkedScreen || 'jobs.php'}" class="list-btn" style="background:rgba(168,85,247,0.25); border:1px solid #c084fc; color:#fff;">تنفيذ</a>
+                        </div>
+                        `;
+                    }).join('');
+                } else {
+                    dashJobsContainer.innerHTML = `
+                        <div style="color:var(--text-secondary); text-align:center; font-size:0.82rem; padding:14px; background:rgba(255,255,255,0.02); border-radius:10px;">
+                            لا توجد مهام معلقة حالياً ✅
+                            <div style="margin-top:8px;">
+                                <a href="jobs.php" style="color:#38bdf8; font-weight:800; text-decoration:none;">➕ توليد مهام ذكية من النظام</a>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            // 5. Recent Transactions (with clickable drill-down links)
+            let allTx = [];
+            scopedInvoices.forEach(i => allTx.push({ id: i.invoiceNo || i.id, type: 'مبيعات', desc: 'فاتورة مبيعات', amount: convertDashVal(i.grandTotal || i.totalAmount, i.currency, i.exchangeRate), date: i.date, href: 'direct-sales.php' }));
+            
+            const purchases = (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []).filter(x => !x.deleted && !x.isGRN && !x.isReturn);
+            purchases.forEach(i => allTx.push({ id: i.invoiceNo || i.id, type: 'مشتريات', desc: 'فاتورة مشتريات', amount: convertDashVal(i.grandTotal || i.totalAmount, i.currency, i.exchangeRate), date: i.date, href: 'purchase.php' }));
+
+            const sReceipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
+            sReceipts.forEach(i => allTx.push({ id: i.id, type: 'قبض', desc: i.description || 'سند قبض مفرد', amount: convertDashVal(i.amount, i.currency, i.exchangeRate), date: i.date, href: 'single-cash-payment.php' }));
+
+            const sPayments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+            sPayments.forEach(i => allTx.push({ id: i.id, type: 'صرف', desc: i.description || 'سند صرف مفرد', amount: convertDashVal(i.amount, i.currency, i.exchangeRate), date: i.date, href: 'single-cash-payment.php' }));
+            
+            const jvs = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
+            jvs.forEach(i => allTx.push({ id: i.voucherNo || i.id, type: 'قيد يومية', desc: i.statement || 'قيد مالي', amount: convertDashVal(i.totalAmount || i.totalDebit, i.currency, i.exchangeRate), date: i.date, href: `journal-voucher.php?id=${encodeURIComponent(i.id || '')}` }));
+
+            allTx.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+
+            const recentTx = allTx.slice(0, 5);
+            const recentHTML = recentTx.map(entry => {
+                let badge = '<span style="background:rgba(16, 185, 129, 0.15); color:var(--theme-green); padding:4px 8px; border-radius:8px; font-size:0.75rem; font-weight: 800; border: 1px solid rgba(16,185,129,0.3);">مكتمل ✅</span>';
+                return `
+                <tr onclick="window.location.href='${entry.href || 'audit-log.php'}'" style="cursor:pointer;" title="انقر لفتح المستند">
+                    <td><strong style="color:var(--theme-blue);">#${entry.id}</strong></td>
+                    <td><span class="type-badge">${entry.type}</span></td>
+                    <td>${entry.desc || '-'}</td>
+                    <td><strong style="color:#fff;">${(Number(entry.amount)||0).toLocaleString()} ${curSuffix}</strong></td>
+                    <td>${badge}</td>
+                </tr>
+                `;
+            }).join('');
+            document.getElementById('recent-transactions-tbody').innerHTML = recentHTML || '<tr><td colspan="5" style="text-align:center; padding:15px; color:var(--text-secondary); font-size: 0.85rem;">لا توجد حركات مالية مسجلة بعد.</td></tr>';
+
+            if (new URLSearchParams(window.location.search).get('modal') === 'fx' && !window._fxModalAutoOpened) {
+                window._fxModalAutoOpened = true;
+                setTimeout(() => window.openDashboardFXModal(), 300);
+            }
+
+            return { invoices: scopedInvoices, items, customers, banks };
+        }
+
+        // Initialize Chart.js Graphs
         function initProCharts() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('modal') === 'fx' && typeof window.openDashboardFXModal === 'function') {
-                setTimeout(() => window.openDashboardFXModal(), 250);
+            const data = loadDynamicDashboardData();
+            const inventory = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+            
+            const textColor = '#94a3b8';
+            const gridColor = 'rgba(255, 255, 255, 0.05)';
+
+            Chart.defaults.color = textColor;
+            Chart.defaults.font.family = "'Tajawal', sans-serif";
+            Chart.defaults.font.size = 11;
+
+            // 1. Cashflow Chart (Dynamic Weekly) using grandTotal/totalAmount
+            const sReceipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
+            const sPayments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+            
+            let daysLabels = [];
+            let receiptsData = [0,0,0,0,0,0,0];
+            let paymentsData = [0,0,0,0,0,0,0];
+            
+            const today = new Date();
+            for(let i=6; i>=0; i--) {
+                let d = new Date(today);
+                d.setDate(d.getDate() - i);
+                const dayStr = d.toLocaleDateString('ar-EG', { weekday: 'short' });
+                daysLabels.push(dayStr);
+                
+                const dStr = d.toISOString().split('T')[0];
+                
+                let dayReceipts = sReceipts.filter(r => (r.date || '').startsWith(dStr) && !r.deleted).reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+                let cashSales = data.invoices.filter(inv => (inv.date || '').startsWith(dStr) && inv.paymentMethod !== 'credit' && !inv.deleted).reduce((sum, inv) => sum + (Number(inv.grandTotal) || Number(inv.totalAmount) || 0), 0);
+                
+                let dayPayments = sPayments.filter(p => (p.date || '').startsWith(dStr) && !p.deleted).reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+                const purchases = (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []).filter(x => !x.deleted);
+                let cashPurchases = purchases.filter(inv => (inv.date || '').startsWith(dStr) && inv.paymentMethod !== 'credit').reduce((sum, inv) => sum + (Number(inv.grandTotal) || Number(inv.totalAmount) || 0), 0);
+
+                receiptsData[6-i] = convertDashVal(dayReceipts + cashSales, window.dashBaseCurrency, window.dashRateUSD);
+                paymentsData[6-i] = convertDashVal(dayPayments + cashPurchases, window.dashBaseCurrency, window.dashRateUSD);
+            }
+
+            let totalReceiptsInScope = receiptsData.reduce((a, b) => a + b, 0);
+            let totalPaymentsInScope = paymentsData.reduce((a, b) => a + b, 0);
+            let netCashflow = totalReceiptsInScope - totalPaymentsInScope;
+            const cfCur = window.dashDisplayCurrency || 'SDG';
+
+            if (document.getElementById('cf-summary-in')) document.getElementById('cf-summary-in').innerText = totalReceiptsInScope.toLocaleString('en-US') + ' ' + cfCur;
+            if (document.getElementById('cf-summary-out')) document.getElementById('cf-summary-out').innerText = totalPaymentsInScope.toLocaleString('en-US') + ' ' + cfCur;
+            if (document.getElementById('cf-summary-net')) {
+                const netEl = document.getElementById('cf-summary-net');
+                netEl.innerText = (netCashflow >= 0 ? '+' : '') + netCashflow.toLocaleString('en-US') + ' ' + cfCur;
+                netEl.style.color = netCashflow >= 0 ? '#10b981' : '#f87171';
+            }
+
+            window._dashboardChartInstances = window._dashboardChartInstances || {};
+            function createOrUpdateChart(id, config) {
+                if (window._dashboardChartInstances[id]) {
+                    try { window._dashboardChartInstances[id].destroy(); } catch(e) {}
+                }
+                const canvas = document.getElementById(id);
+                if (canvas) {
+                    window._dashboardChartInstances[id] = new Chart(canvas.getContext('2d'), config);
+                }
+            }
+
+            createOrUpdateChart('cashflowChart', {
+                type: 'line',
+                data: {
+                    labels: daysLabels,
+                    datasets: [
+                        { label: 'المقبوضات', data: receiptsData, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.15)', fill: true, borderWidth: 2, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#10b981' },
+                        { label: 'المصروفات', data: paymentsData, borderColor: '#f87171', backgroundColor: 'rgba(248,113,113,0.15)', fill: true, borderWidth: 2, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#f87171' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { usePointStyle: true, padding: 10, font: {family: "'Tajawal'", size: 11} } } }, scales: { x: { grid: { color: gridColor } }, y: { grid: { color: gridColor } } } }
+            });
+
+            // 2. Sales by Category (Dynamic from Sales Invoices)
+            const catSales = {};
+            data.invoices.forEach(inv => {
+                if(inv.items && Array.isArray(inv.items)) {
+                    inv.items.forEach(item => {
+                        const itemDef = data.items.find(i => i.id === item.itemId);
+                        let c = (itemDef ? itemDef.category : '') || 'أخرى';
+                        let quantity = Number(item.quantity) || Number(item.qty) || 0;
+                        let price = Number(item.price) || 0;
+                        let total = quantity * price;
+                        catSales[c] = (catSales[c] || 0) + total;
+                    });
+                }
+            });
+            const catLabels = Object.keys(catSales).length > 0 ? Object.keys(catSales) : ['بدون مبيعات'];
+            const catData = Object.keys(catSales).length > 0 ? Object.values(catSales) : [1];
+
+            createOrUpdateChart('categoryChart', {
+                type: 'doughnut',
+                data: {
+                    labels: catLabels,
+                    datasets: [{ data: catData, backgroundColor: ['#3b82f6', '#f59e0b', '#f87171', '#10b981', '#c084fc', '#ec4899'], borderWidth: 0, hoverOffset: 10 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'right', labels: { usePointStyle: true, padding: 10, font: {family: "'Tajawal'", size: 11} } }, tooltip: { callbacks: { label: function(context) { return ' ' + context.label + ': ' + context.raw.toLocaleString() + ' SDG'; } } } } }
+            });
+
+            // 3. Inventory Radar (Dynamic - Lowest Stock Items)
+            function getItemActualStock(itemId) {
+                return inventory
+                    .filter(inv => inv.itemId === itemId && inv.warehouse !== 'PENDING_RECEIPT')
+                    .reduce((sum, inv) => sum + (Number(inv.qty) || 0), 0);
+            }
+            
+            let radarItemsList = [...data.items].map(i => {
+                let avail = getItemActualStock(i.id);
+                let safe = Number(i.safeLimit) || Number(i.minQty) || 10;
+                let ratio = safe > 0 ? avail / safe : 1;
+                return { ...i, avail, safe, ratio };
+            });
+            radarItemsList.sort((a, b) => a.ratio - b.ratio);
+            const radarItems = radarItemsList.slice(0, 5);
+            
+            const radarLabels = radarItems.length > 0 ? radarItems.map(i => i.name) : ['لا يوجد'];
+            const radarAvail = radarItems.length > 0 ? radarItems.map(i => i.avail) : [0];
+            const radarSafe = radarItems.length > 0 ? radarItems.map(i => i.safe) : [0];
+
+            createOrUpdateChart('inventoryChart', {
+                type: 'radar',
+                data: {
+                    labels: radarLabels,
+                    datasets: [
+                        { label: 'المتوفر', data: radarAvail, backgroundColor: 'rgba(248,113,113,0.2)', borderColor: '#f87171', pointBackgroundColor: '#f87171', borderWidth: 1.5 },
+                        { label: 'حد الأمان', data: radarSafe, backgroundColor: 'rgba(59,130,246,0.2)', borderColor: '#3b82f6', pointBackgroundColor: '#3b82f6', borderWidth: 1.5 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { usePointStyle: true, padding: 10, font: {family: "'Tajawal'", size: 11} } } }, scales: { r: { grid: { color: gridColor }, angleLines: { color: gridColor }, ticks: { display: false } } } }
+            });
+
+            // 4. Warehouses Capacity (Actual Item Stock Quantities in Each Warehouse)
+            const whTotals = {};
+            let warehouses = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
+            if (warehouses.length === 0) {
+                warehouses = [{ id: 'w-main', name: 'المخزن الرئيسي' }];
+            }
+            const activeWarehouses = warehouses.filter(w => !w.deleted);
+            activeWarehouses.forEach(w => {
+                whTotals[w.name || w.id] = 0;
+            });
+            inventory.forEach(inv => {
+                if (inv.warehouse !== 'PENDING_RECEIPT') {
+                    const w = warehouses.find(wh => wh.id === inv.warehouse || wh.name === inv.warehouse);
+                    if (w && !w.deleted) {
+                        const name = w.name || w.id;
+                        whTotals[name] = (whTotals[name] || 0) + (Number(inv.qty) || Number(inv.quantity) || 0);
+                    } else if (!w) {
+                        const name = inv.warehouse;
+                        whTotals[name] = (whTotals[name] || 0) + (Number(inv.qty) || Number(inv.quantity) || 0);
+                    }
+                }
+            });
+
+            const whLabels = Object.keys(whTotals).length > 0 ? Object.keys(whTotals) : ['لا توجد مخازن'];
+            const whData = Object.keys(whTotals).length > 0 ? Object.values(whTotals) : [0];
+
+            createOrUpdateChart('warehousesChart', {
+                type: 'doughnut',
+                data: {
+                    labels: whLabels,
+                    datasets: [{ data: whData, backgroundColor: ['#f87171', '#3b82f6', '#10b981', '#f59e0b', '#c084fc'], borderWidth: 0, hoverOffset: 10 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 10, font: {family: "'Tajawal'", size: 11} } }, tooltip: { callbacks: { label: function(context) { return ' ' + context.label + ': ' + context.raw.toLocaleString() + ' وحدة'; } } } } }
+            });
+
+            // 5. Customer & Supplier Credit & Debt Analysis (Dual Bar Chart)
+            let allCreditEntities = [];
+            try {
+                const cList = (JSON.parse(localStorage.getItem('erp_customers_v1')) || data.customers || []).filter(x => !x.deleted);
+                const sList = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
+                
+                const cMapped = cList.map(c => ({
+                    name: c.name || 'عميل',
+                    typeLabel: '👤 عميل',
+                    creditLimit: parseFloat(c.creditLimit) || 0,
+                    debt: Math.abs(parseFloat(c.currentBalance) || 0)
+                }));
+
+                const sMapped = sList.map(s => ({
+                    name: s.name || 'مورد',
+                    typeLabel: '🏭 مورد',
+                    creditLimit: parseFloat(s.creditLimit) || 0,
+                    debt: Math.abs(parseFloat(s.currentBalance) || 0)
+                }));
+
+                allCreditEntities = [...cMapped, ...sMapped];
+            } catch(e) {
+                allCreditEntities = (data.customers || []).map(c => ({
+                    name: c.name || 'عميل',
+                    typeLabel: '👤 عميل',
+                    creditLimit: parseFloat(c.creditLimit) || 0,
+                    debt: Math.abs(parseFloat(c.currentBalance) || 0)
+                }));
+            }
+
+            let validEntities = allCreditEntities.filter(c => c.creditLimit > 0 || c.debt > 0);
+
+            const topEntities = validEntities.slice(0, 15);
+            const creditLabels = topEntities.map(c => `${c.name} (${c.typeLabel})`);
+            const creditValues = topEntities.map(c => c.creditLimit);
+            const debtValues = topEntities.map(c => c.debt);
+
+            const canvasCust = document.getElementById('customersChart');
+            if (canvasCust) {
+                const ctxCust = canvasCust.getContext('2d');
+                
+                const skyGrad = ctxCust.createLinearGradient(0, 0, 0, 320);
+                skyGrad.addColorStop(0, '#38bdf8');
+                skyGrad.addColorStop(1, '#0284c7');
+
+                const roseGrad = ctxCust.createLinearGradient(0, 0, 0, 320);
+                roseGrad.addColorStop(0, '#fb7185');
+                roseGrad.addColorStop(1, '#e11d48');
+
+                createOrUpdateChart('customersChart', {
+                    type: 'bar',
+                    data: {
+                        labels: creditLabels,
+                        datasets: [
+                            {
+                                label: '💳 سقف الائتمان (المسموح)',
+                                data: creditValues,
+                                backgroundColor: skyGrad,
+                                borderColor: '#38bdf8',
+                                borderWidth: 1,
+                                borderRadius: { topLeft: 6, topRight: 6 },
+                                barPercentage: 0.45,
+                                categoryPercentage: 0.7
+                            },
+                            {
+                                label: '⚠️ المديونية القائمة (المسحوب)',
+                                data: debtValues,
+                                backgroundColor: roseGrad,
+                                borderColor: '#fb7185',
+                                borderWidth: 1,
+                                borderRadius: { topLeft: 6, topRight: 6 },
+                                barPercentage: 0.45,
+                                categoryPercentage: 0.7
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top',
+                                align: 'center',
+                                labels: {
+                                    color: '#e2e8f0',
+                                    usePointStyle: true,
+                                    padding: 15,
+                                    font: { family: "'Tajawal', sans-serif", size: 12, weight: '800' }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                                titleColor: '#fff',
+                                bodyColor: '#38bdf8',
+                                borderColor: 'rgba(56, 189, 248, 0.3)',
+                                borderWidth: 1,
+                                padding: 12,
+                                callbacks: {
+                                    title: function(items) {
+                                        const entity = topEntities[items[0].dataIndex];
+                                        return entity.name + ' (' + entity.typeLabel + ')';
+                                    },
+                                    label: function(context) {
+                                        const entity = topEntities[context.dataIndex];
+                                        const val = Number(context.raw).toLocaleString('en-US') + ' SDG';
+                                        if (context.datasetIndex === 0) {
+                                            return ' 💳 سقف الائتمان: ' + val;
+                                        } else {
+                                            const rem = Math.max(0, entity.creditLimit - entity.debt);
+                                            const usage = entity.creditLimit > 0 ? Math.round((entity.debt / entity.creditLimit) * 100) : 0;
+                                            return [
+                                                ' ⚠️ المديونية القائمة: ' + val + ' (' + usage + '% من السقف)',
+                                                ' 🟢 المتبقي المتاح: ' + rem.toLocaleString('en-US') + ' SDG'
+                                            ];
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                grid: { display: false },
+                                ticks: {
+                                    color: '#94a3b8',
+                                    maxRotation: 35,
+                                    minRotation: 20,
+                                    font: { family: "'Tajawal', sans-serif", size: 11, weight: '700' }
+                                }
+                            },
+                            y: {
+                                grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                                ticks: {
+                                    color: '#94a3b8',
+                                    font: { family: "'JetBrains Mono', monospace", size: 11, weight: '700' },
+                                    callback: function(val) {
+                                        return val.toLocaleString('en-US');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
             }
         }
     </script>
@@ -5978,6 +7102,5 @@ function switchToMobileEdition() {
             -webkit-text-fill-color: var(--lt-ink, #120500) !important;
         }
     </style>
-    <script src="js/dashboard-final-constitution-1.js?v=<?php echo file_exists('js/dashboard-final-constitution-1.js') ? filemtime('js/dashboard-final-constitution-1.js') : time(); ?>"></script>
 </body>
 </html>

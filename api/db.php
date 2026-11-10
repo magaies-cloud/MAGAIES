@@ -97,6 +97,54 @@ $__isApiEndpoint = (strpos($__scriptPath, '/api/') !== false)
     || (strpos($__scriptBase, 'api_') === 0);
 $__allowUiFallback = (defined('ALLOW_OFFLINE_DB_FALLBACK') && ALLOW_OFFLINE_DB_FALLBACK) || !$__isApiEndpoint;
 
+if (!class_exists('MagaieesNullSafeStmt')) {
+    class MagaieesNullSafeStmt implements \IteratorAggregate {
+        public function execute($params = null) { return true; }
+        public function fetch($mode = null, $cursorOrientation = null, $cursorOffset = null) { return false; }
+        public function fetchAll($mode = null, ...$args) { return []; }
+        public function fetchColumn($column = 0) { return false; }
+        public function fetchObject($class = "stdClass", $ctorArgs = []) { return false; }
+        public function rowCount() { return 0; }
+        public function columnCount() { return 0; }
+        public function bindValue($param, $value, $type = null) { return true; }
+        public function bindParam($param, &$var, $type = null, $maxLength = null, $driverOptions = null) { return true; }
+        public function closeCursor() { return true; }
+        public function setFetchMode($mode, ...$args) { return true; }
+        public function getIterator(): \Traversable { return new \ArrayIterator([]); }
+    }
+}
+if (!class_exists('MagaieesNullSafePDO')) {
+    class MagaieesNullSafePDO extends \PDO {
+        public function __construct() {}
+        #[\ReturnTypeWillChange]
+        public function prepare($query, $options = []) { return new MagaieesNullSafeStmt(); }
+        #[\ReturnTypeWillChange]
+        public function query($query, $fetchMode = null, ...$fetchModeArgs) { return new MagaieesNullSafeStmt(); }
+        #[\ReturnTypeWillChange]
+        public function exec($statement) { return 0; }
+        #[\ReturnTypeWillChange]
+        public function lastInsertId($name = null) { return '0'; }
+        #[\ReturnTypeWillChange]
+        public function beginTransaction() { return true; }
+        #[\ReturnTypeWillChange]
+        public function commit() { return true; }
+        #[\ReturnTypeWillChange]
+        public function rollBack() { return true; }
+        #[\ReturnTypeWillChange]
+        public function inTransaction() { return false; }
+        #[\ReturnTypeWillChange]
+        public function quote($string, $type = \PDO::PARAM_STR) { return "'" . addslashes((string)$string) . "'"; }
+        #[\ReturnTypeWillChange]
+        public function setAttribute($attribute, $value) { return true; }
+        #[\ReturnTypeWillChange]
+        public function getAttribute($attribute) { return null; }
+        #[\ReturnTypeWillChange]
+        public function errorInfo() { return ['00000', null, null]; }
+        #[\ReturnTypeWillChange]
+        public function errorCode() { return '00000'; }
+    }
+}
+
 try {
     if ((PHP_OS_FAMILY === 'Windows' || stripos(PHP_OS, 'WIN') === 0) && ($host === '127.0.0.1' || $host === 'localhost')) {
         $fp = @fsockopen('127.0.0.1', (int)$port, $errno, $errstr, 0.05);
@@ -107,38 +155,17 @@ try {
     }
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (\PDOException $e) {
-    // إذا فشل الاتصال الدائم (Persistent Socket)، نعيد المحاولة عبر اتصال مباشر جديد بدون التأثير على المستخدم
-    if (!empty($options[PDO::ATTR_PERSISTENT])) {
-        unset($options[PDO::ATTR_PERSISTENT]);
-        try {
-            $pdo = new PDO($dsn, $user, $pass, $options);
-        } catch (\PDOException $e2) {
-            error_log('DB Connection Error: ' . $e2->getMessage());
-            if ($__allowUiFallback) {
-                $pdo = null;
-            } else {
-                if (!headers_sent()) {
-                    http_response_code(503);
-                    header('Content-Type: application/json; charset=UTF-8');
-                    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-                }
-                echo json_encode(['success' => false, 'error' => 'فشل الاتصال بقاعدة البيانات']);
-                exit;
-            }
-        }
+    error_log('DB Connection Error: ' . $e->getMessage());
+    if ($__allowUiFallback) {
+        $pdo = new MagaieesNullSafePDO();
     } else {
-        error_log('DB Connection Error: ' . $e->getMessage());
-        if ($__allowUiFallback) {
-            $pdo = null;
-        } else {
-            if (!headers_sent()) {
-                http_response_code(503);
-                header('Content-Type: application/json; charset=UTF-8');
-                header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-            }
-            echo json_encode(['success' => false, 'error' => 'فشل الاتصال بقاعدة البيانات']);
-            exit;
+        if (!headers_sent()) {
+            http_response_code(503);
+            header('Content-Type: application/json; charset=UTF-8');
+            header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
         }
+        echo json_encode(['success' => false, 'error' => 'فشل الاتصال بقاعدة البيانات']);
+        exit;
     }
 }
 
