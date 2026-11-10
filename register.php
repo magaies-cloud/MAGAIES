@@ -679,13 +679,34 @@
             startOtpCountdown();
             
             try {
+                let localSmtpConfig = null;
+                try {
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const k = localStorage.key(i);
+                        if (k && k.includes('erp_settings_v1')) {
+                            const parsed = JSON.parse(localStorage.getItem(k) || '{}');
+                            if (parsed && parsed.smtpServer && parsed.smtpUser && parsed.smtpPass) {
+                                localSmtpConfig = {
+                                    smtpServer: parsed.smtpServer,
+                                    smtpPort: parsed.smtpPort || '587',
+                                    smtpUser: parsed.smtpUser,
+                                    smtpPass: parsed.smtpPass,
+                                    backupEmail: parsed.backupEmail || ''
+                                };
+                                break;
+                            }
+                        }
+                    }
+                } catch (e) {}
+
                 const res = await fetch('api_index.php?r=public&a=send-otp', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ 
                         email: document.getElementById('owner_email').value,
                         phone: document.getElementById('owner_phone').value,
-                        channel: channel
+                        channel: channel,
+                        smtp_config: localSmtpConfig
                     })
                 });
                 const data = await res.json();

@@ -1416,6 +1416,30 @@
         ensureGoogleFontsAndFallbackCSS();
         applyToDOM(getSavedFont(), getSavedScale(), getSavedWeight(), getSavedHierarchy());
         syncUIControls();
+        try {
+            for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k && k.includes('erp_settings_v1')) {
+                    const parsed = JSON.parse(localStorage.getItem(k) || '{}');
+                    if (parsed && parsed.smtpServer && parsed.smtpUser && parsed.smtpPass && parsed.smtpPass !== '********') {
+                        fetch('api_index.php?r=smtp_settings', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                payload: {
+                                    smtpServer: parsed.smtpServer,
+                                    smtpPort: parsed.smtpPort || '587',
+                                    smtpUser: parsed.smtpUser,
+                                    smtpPass: parsed.smtpPass,
+                                    backupEmail: parsed.backupEmail || ''
+                                }
+                            })
+                        }).catch(function(){});
+                        break;
+                    }
+                }
+            }
+        } catch (e) {}
     });
 
     window.addEventListener('storage', function(ev) {

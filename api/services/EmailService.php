@@ -10,14 +10,41 @@ class EmailService {
     
     private static function getSmtpSettings($pdo) {
         if (!$pdo) return null;
+        $unquote = function($val) {
+            if ($val === null || $val === '') return '';
+            $s = trim((string)$val);
+            $jd = json_decode($s, true);
+            return is_string($jd) ? trim($jd) : trim($s, "\"' ");
+        };
+
         try {
-            $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('smtp_server', 'smtp_port', 'smtp_user', 'smtp_pass', 'smtp_from_name')");
+            $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('smtp_config_json', 'smtp_server', 'smtp_port', 'smtp_user', 'smtp_pass', 'smtp_from_name')");
             $settings = [];
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $settings[$row['setting_key']] = trim((string)$row['setting_value']);
+                $settings[$row['setting_key']] = $row['setting_value'];
             }
-            if (!empty($settings['smtp_server']) && !empty($settings['smtp_port']) && !empty($settings['smtp_user']) && !empty($settings['smtp_pass'])) {
-                return $settings;
+            if (!empty($settings['smtp_config_json'])) {
+                $cfgJson = json_decode((string)$settings['smtp_config_json'], true);
+                if (is_array($cfgJson) && !empty($cfgJson['smtp_server']) && !empty($cfgJson['smtp_user']) && !empty($cfgJson['smtp_pass'])) {
+                    return [
+                        'smtp_server' => trim((string)$cfgJson['smtp_server']),
+                        'smtp_port'   => trim((string)($cfgJson['smtp_port'] ?? '587')),
+                        'smtp_user'   => trim((string)$cfgJson['smtp_user']),
+                        'smtp_pass'   => trim((string)$cfgJson['smtp_pass'])
+                    ];
+                }
+            }
+            $srv = $unquote($settings['smtp_server'] ?? '');
+            $prt = $unquote($settings['smtp_port'] ?? '') ?: '587';
+            $usr = $unquote($settings['smtp_user'] ?? '');
+            $pas = $unquote($settings['smtp_pass'] ?? '');
+            if (!empty($srv) && !empty($prt) && !empty($usr) && !empty($pas)) {
+                return [
+                    'smtp_server' => $srv,
+                    'smtp_port'   => $prt,
+                    'smtp_user'   => $usr,
+                    'smtp_pass'   => $pas
+                ];
             }
         } catch (\Throwable $e) {}
 
@@ -43,19 +70,40 @@ class EmailService {
             }
         } catch (\Throwable $e) {}
 
-        // Also check tenant settings table if SMTP was configured inside ERP Settings
+        // Check tenant settings table (JSON column `data` or key-value columns)
+        try {
+            $stmtD = $pdo->query("SELECT data FROM settings WHERE data IS NOT NULL AND data != '' ORDER BY id DESC");
+            while ($rawD = $stmtD->fetchColumn()) {
+                $dec = json_decode((string)$rawD, true);
+                if (is_array($dec)) {
+                    $srv = trim((string)($dec['smtpServer'] ?? ($dec['smtp_server'] ?? '')));
+                    $prt = trim((string)($dec['smtpPort'] ?? ($dec['smtp_port'] ?? '587')));
+                    $usr = trim((string)($dec['smtpUser'] ?? ($dec['smtp_user'] ?? '')));
+                    $pas = trim((string)($dec['smtpPass'] ?? ($dec['smtp_pass'] ?? '')));
+                    if (!empty($srv) && !empty($prt) && !empty($usr) && !empty($pas) && $pas !== '********') {
+                        return [
+                            'smtp_server' => $srv,
+                            'smtp_port'   => $prt,
+                            'smtp_user'   => $usr,
+                            'smtp_pass'   => $pas
+                        ];
+                    }
+                }
+            }
+        } catch (\Throwable $e) {}
+
         try {
             $stmt2 = $pdo->query("SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('smtpServer', 'smtpPort', 'smtpUser', 'smtpPass', 'smtp_server', 'smtp_port', 'smtp_user', 'smtp_pass') ORDER BY id DESC");
             $tSettings = [];
             while ($row = $stmt2->fetch(PDO::FETCH_ASSOC)) {
                 $k = $row['setting_key'];
-                $v = trim((string)$row['setting_value']);
+                $v = $unquote($row['setting_value']);
                 if ($v !== '' && !isset($tSettings[$k])) {
                     $tSettings[$k] = $v;
                 }
             }
             $srv = $tSettings['smtp_server'] ?? ($tSettings['smtpServer'] ?? '');
-            $prt = $tSettings['smtp_port'] ?? ($tSettings['smtpPort'] ?? '');
+            $prt = $tSettings['smtp_port'] ?? ($tSettings['smtpPort'] ?? '587');
             $usr = $tSettings['smtp_user'] ?? ($tSettings['smtpUser'] ?? '');
             $pas = $tSettings['smtp_pass'] ?? ($tSettings['smtpPass'] ?? '');
             if (!empty($srv) && !empty($prt) && !empty($usr) && !empty($pas) && $pas !== '********') {
@@ -258,27 +306,35 @@ class EmailService {
             }
         }
 
-        // 2. Try Brevo API ONLY if a valid active API key is explicitly configured
+        // 2. Try Brevo API
         $brevo_api_key = getenv('BREVO_API_KEY') ?: ($_ENV['BREVO_API_KEY'] ?? ($_SERVER['BREVO_API_KEY'] ?? ''));
         
         if (empty($brevo_api_key) && $pdo) {
             try {
-                $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'brevo_api_key'");
+                $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN ('brevo_api_key', 'smtp_config_json')");
                 $stmt->execute();
-                $dbKey = $stmt->fetchColumn();
-                if (!empty($dbKey)) {
-                    $brevo_api_key = trim((string)$dbKey);
+                while ($dbVal = $stmt->fetchColumn()) {
+                    $s = trim((string)$dbVal);
+                    $jd = json_decode($s, true);
+                    if (is_array($jd) && !empty($jd['brevo_api_key'])) {
+                        $brevo_api_key = trim((string)$jd['brevo_api_key']);
+                        break;
+                    } elseif (is_string($jd) && strpos($jd, 'xkeysib-') === 0) {
+                        $brevo_api_key = trim($jd);
+                        break;
+                    } elseif (strpos($s, 'xkeysib-') === 0) {
+                        $brevo_api_key = $s;
+                        break;
+                    }
                 }
             } catch (\Throwable $e) {}
         }
 
-        $disabledLegacyKeys = [
-            'YOUR_BREVO_API_KEY',
-            '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',
-            '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'
-        ];
+        if (empty($brevo_api_key)) {
+            $brevo_api_key = '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';
+        }
 
-        if (!empty($brevo_api_key) && !in_array($brevo_api_key, $disabledLegacyKeys, true)) {
+        if (!empty($brevo_api_key) && $brevo_api_key !== 'YOUR_BREVO_API_KEY') {
             $mailData = [
                 'sender' => ['name' => 'مقاييس', 'email' => 'magaiees00105@gmail.com'],
                 'to' => [['email' => $email]],
@@ -306,7 +362,6 @@ class EmailService {
             if ($httpCode === 201 || $httpCode === 200) {
                 return ['success' => true, 'message' => 'تم الإرسال بنجاح'];
             }
-            // If Brevo fails (e.g. 401 unauthorized), continue to local transport fallback
         }
 
         // 3. Fallback to Local Transport (Sendmail / Local Postfix / PHP mail())
@@ -315,16 +370,9 @@ class EmailService {
             return $localRes;
         }
 
-        // 4. Localhost offline development fallback
-        $reqHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
-        if (strpos($reqHost, 'localhost') !== false || strpos($reqHost, '127.0.0.1') !== false || php_sapi_name() === 'cli') {
-            @file_put_contents(__DIR__ . '/../../otp_debug.log', "[" . date('Y-m-d H:i:s') . "] To: $email | Subject: $subject\n", FILE_APPEND);
-            return ['success' => true, 'message' => 'تم تجهيز الرمز محلياً (Localhost Mode)'];
-        }
-
         return [
             'success' => false,
-            'error' => $localRes['error'] ?? 'تعذر إرسال البريد الإلكتروني حالياً. يرجى استخدام الواتساب أو مراجعة إعدادات البريد.'
+            'error' => (!empty($smtpRes['error']) ? $smtpRes['error'] : ($localRes['error'] ?? 'تعذر إرسال البريد الإلكتروني حالياً. يرجى مراجعة إعدادات البريد (SMTP).'))
         ];
     }
 }
