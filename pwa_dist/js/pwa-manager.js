@@ -562,7 +562,9 @@ window.PWAManager = {
             const cached = localStorage.getItem('magaiees_mobile_live_cache');
             if (cached) {
                 const data = JSON.parse(cached);
-                if (data && data.success) {
+                if (data && data.success && Number(data.tenant_id) === 12) {
+                    this.liveData = data;
+                    window.MAGAIEES_REAL_DB = data;
                     this.hydrateViewsWithRealData(data, true);
                 }
             }
@@ -589,7 +591,8 @@ window.PWAManager = {
 
         try {
             const token = localStorage.getItem('authToken') || '';
-            const tenantId = localStorage.getItem('currentTenantId') || '2';
+            const savedTid = localStorage.getItem('currentTenantId');
+            const tenantId = (savedTid && savedTid !== '2') ? savedTid : '12';
 
             const headers = { 'X-Tenant-Id': String(tenantId) };
             if (token) headers['Authorization'] = 'Bearer ' + token;
@@ -645,6 +648,11 @@ window.PWAManager = {
 
     hydrateViewsWithRealData(data, isCached = false) {
         if (!data) return;
+        this.liveData = data;
+        window.MAGAIEES_REAL_DB = data;
+        if (data.tenant_id) {
+            try { localStorage.setItem('currentTenantId', String(data.tenant_id)); } catch (e) {}
+        }
 
         if (window.SuiteFXManager && typeof window.SuiteFXManager.fetchSystemRate === 'function' && !isCached) {
             window.SuiteFXManager.fetchSystemRate();
@@ -668,65 +676,103 @@ window.PWAManager = {
         }
 
         // 1. Update Master Accounts List in memory for transfers, dropdowns, searches
-        if (Array.isArray(data.master_accounts) && data.master_accounts.length > 0) {
+        if (Array.isArray(data.master_accounts)) {
             window.masterAccountsList = data.master_accounts;
         }
-
-        // 2. Update KPI Dashboards
-        if (data.kpis) {
-            const k = data.kpis;
-
-            // Bank Balance KPI
-            const bankCardAmt = document.getElementById('cardBankBalanceAmt');
-            if (bankCardAmt) bankCardAmt.textContent = k.total_bank_balance_sdg;
-
-            // Safe Balance KPI
-            const safeCardAmt = document.getElementById('cardSafeBalanceAmt');
-            if (safeCardAmt) safeCardAmt.textContent = k.total_safe_balance_sdg;
-
-            // Receivables / Customers Debt KPI
-            const custDebtEl = document.getElementById('dashReceivablesAmt');
-            if (custDebtEl) custDebtEl.textContent = k.total_receivables_sdg;
-
-            // Payables / Suppliers KPI
-            const suppDebtEl = document.getElementById('dashPayablesAmt');
-            if (suppDebtEl) suppDebtEl.textContent = k.total_payables_sdg;
-
-            // Sales Total Today / Recent
-            const salesTotalEl = document.getElementById('dashSalesTotalAmt');
-            if (salesTotalEl) salesTotalEl.textContent = k.total_sales_amount_sdg;
-
-            const salesCountEl = document.getElementById('dashSalesCountBadge');
-            if (salesCountEl) salesCountEl.textContent = `${k.total_sales_count} فاتورة`;
-
-            // Inventory Total
-            const invCountEl = document.getElementById('dashInventoryItemsCount');
-            if (invCountEl) invCountEl.textContent = `${k.total_items_count} صنف`;
+        if (window.SuiteSalesPOS) {
+            if (Array.isArray(data.customers)) window.SuiteSalesPOS.dbCustomers = data.customers;
+            if (Array.isArray(data.items)) window.SuiteSalesPOS.dbItems = data.items;
+            if (Array.isArray(data.warehouses)) window.SuiteSalesPOS.dbWarehouses = data.warehouses;
+        }
+        if (window.SuitePurchasePOS) {
+            if (Array.isArray(data.suppliers)) window.SuitePurchasePOS.dbSuppliers = data.suppliers;
+            if (Array.isArray(data.items)) window.SuitePurchasePOS.dbItems = data.items;
+            if (Array.isArray(data.warehouses)) window.SuitePurchasePOS.dbWarehouses = data.warehouses;
         }
 
-        // 3. Render Real Banks into modalBanks
+        // 2. Update All KPI Dashboards & Bento Glance Cards
+        const isPriv = document.body.classList.contains('privacy-active');
+        const setMaskedVal = (id, valStr) => {
+            const el = document.getElementById(id);
+            if (!el || valStr === undefined || valStr === null) return;
+            const targetSpan = el.querySelector('.privacy-mask') || el;
+            targetSpan.setAttribute('data-original', String(valStr));
+            targetSpan.textContent = isPriv ? '??????' : String(valStr);
+        };
+
+        if (data.kpis) {
+            const k = data.kpis;
+            setMaskedVal('mgBentoLiquidityVal', k.total_liquidity_usd || k.total_liquidity_sdg);
+            setMaskedVal('mgBentoSalesVal', k.today_sales_usd !== undefined ? ('$' + Math.round(k.today_sales_usd).toLocaleString('en-US')) : k.total_sales_amount_usd);
+            setMaskedVal('mgBentoProfitVal', k.today_net_profit_usd !== undefined ? ('+$' + Math.round(k.today_net_profit_usd).toLocaleString('en-US')) : '+$0');
+
+            const bentoSalesCard = document.getElementById('mgBentoSalesVal');
+            if (bentoSalesCard && bentoSalesCard.nextElementSibling) {
+                bentoSalesCard.nextElementSibling.textContent = `+ ?????? (${k.total_sales_count || 0} ????? ????????) ?`;
+            }
+
+            setMaskedVal('cardBankBalanceAmt', k.total_bank_balance_sdg);
+            setMaskedVal('cardSafeBalanceAmt', k.total_safe_balance_sdg);
+            setMaskedVal('dashReceivablesAmt', k.total_receivables_usd || k.total_receivables_sdg);
+            setMaskedVal('dashPayablesAmt', k.total_payables_usd || k.total_payables_sdg);
+            setMaskedVal('dashSalesTotalAmt', k.total_sales_amount_sdg);
+            setMaskedVal('dashInventoryValuation', k.total_inventory_valuation_usd || '$0');
+
+            const salesCountEl = document.getElementById('dashSalesCountBadge');
+            if (salesCountEl) salesCountEl.textContent = `${k.total_sales_count} ??????`;
+
+            const invCountEl = document.getElementById('dashInventoryItemsCount');
+            if (invCountEl) invCountEl.textContent = `${k.total_items_count} ??? (${Math.round(k.total_inventory_qty || 0).toLocaleString('en-US')} ????)`;
+        }
+
+        // 3. Sync Unified Executive Pulse, Waterfall, Comparator, Aging Debtors, Statements, Cheques & AI Engines
+        if (window.UnifiedExecutivePulseEngine && typeof window.UnifiedExecutivePulseEngine.syncFromRealDb === 'function') {
+            window.UnifiedExecutivePulseEngine.syncFromRealDb(data);
+        }
+        if (window.CashFlowWaterfallEngine && typeof window.CashFlowWaterfallEngine.syncFromRealDb === 'function') {
+            window.CashFlowWaterfallEngine.syncFromRealDb(data);
+        }
+        if (window.ExecutiveComparatorEngine && typeof window.ExecutiveComparatorEngine.syncFromRealDb === 'function') {
+            window.ExecutiveComparatorEngine.syncFromRealDb(data);
+        }
+        if (window.UnifiedAgingDebtCollectorEngine && typeof window.UnifiedAgingDebtCollectorEngine.syncFromRealDb === 'function') {
+            window.UnifiedAgingDebtCollectorEngine.syncFromRealDb(data);
+        }
+        if (window.UnifiedChequeAndBankEngine && typeof window.UnifiedChequeAndBankEngine.syncFromRealDb === 'function') {
+            window.UnifiedChequeAndBankEngine.syncFromRealDb(data);
+        }
+        if (window.UnifiedSecurityAndAlertsEngine && typeof window.UnifiedSecurityAndAlertsEngine.syncFromRealDb === 'function') {
+            window.UnifiedSecurityAndAlertsEngine.syncFromRealDb(data);
+        }
+        if (window.UnifiedStatementEngine && typeof window.UnifiedStatementEngine.init === 'function') {
+            window.UnifiedStatementEngine.init();
+        }
+        if (window.UnifiedBalanceEngine && typeof window.UnifiedBalanceEngine.render === 'function') {
+            window.UnifiedBalanceEngine.render();
+        }
+        if (window.SuiteBreakEvenManager && data.kpis) {
+            window.SuiteBreakEvenManager.grossProfitUsd = Math.max(0, Math.round(Number(data.kpis.today_net_profit_usd || 0)));
+            window.SuiteBreakEvenManager.refresh();
+        }
+        if (window.SuiteApprovalInbox && typeof window.SuiteApprovalInbox.syncFromRealDb === 'function') {
+            window.SuiteApprovalInbox.syncFromRealDb(data);
+        }
+
+        // 4. Render Real Banks, Safes, Inventory, and Recent Transactions
         this.renderRealBanksModal(data.banks || []);
-
-        // 4. Render Real Safes into modalSafes
         this.renderRealSafesModal(data.safes || []);
-
-        // 5. Render Real Inventory Items into pageInventory
         this.renderRealInventoryItems(data.items || []);
-
-        // 6. Render Real Recent Transactions into pageTransactions
         this.renderRealTransactions(data.recent_transactions || []);
 
-        // 7. Update Non-Zero Balances List if currently filtered
         if (typeof window.filterBalances === 'function') {
             window.filterBalances();
         }
-
-        // 8. Update Financial Transfer modal options if available
         if (typeof window.initFinancialTransferModal === 'function') {
             window.initFinancialTransferModal();
         }
-    },
 
+        window.dispatchEvent(new CustomEvent('magaiees:real-data-synced', { detail: data }));
+    },
     renderRealBanksModal(banks) {
         const container = document.getElementById('realBanksListContainer');
         const countBadge = document.getElementById('banksCountBadge');
@@ -851,7 +897,8 @@ window.PWAManager = {
     // ────────────────────────────────────────────────────────────────────
     async savePartnerToBackend(partnerPayload) {
         try {
-            const tenantId = localStorage.getItem('currentTenantId') || '2';
+            const savedTid = localStorage.getItem('currentTenantId');
+            const tenantId = (savedTid && savedTid !== '2') ? savedTid : '12';
             const res = await fetch('api/mobile_api.php', {
                 method: 'POST',
                 headers: {
@@ -879,7 +926,8 @@ window.PWAManager = {
 
     async recordFinancialTransferToBackend(transferPayload) {
         try {
-            const tenantId = localStorage.getItem('currentTenantId') || '2';
+            const savedTid = localStorage.getItem('currentTenantId');
+            const tenantId = (savedTid && savedTid !== '2') ? savedTid : '12';
             const res = await fetch('api/mobile_api.php', {
                 method: 'POST',
                 headers: {

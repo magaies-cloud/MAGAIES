@@ -98,6 +98,13 @@ $__isApiEndpoint = (strpos($__scriptPath, '/api/') !== false)
 $__allowUiFallback = (defined('ALLOW_OFFLINE_DB_FALLBACK') && ALLOW_OFFLINE_DB_FALLBACK) || !$__isApiEndpoint;
 
 try {
+    if ((PHP_OS_FAMILY === 'Windows' || stripos(PHP_OS, 'WIN') === 0) && ($host === '127.0.0.1' || $host === 'localhost')) {
+        $fp = @fsockopen('127.0.0.1', (int)$port, $errno, $errstr, 0.05);
+        if (!$fp) {
+            throw new \PDOException("Local MySQL port $port is not listening");
+        }
+        @fclose($fp);
+    }
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (\PDOException $e) {
     // إذا فشل الاتصال الدائم (Persistent Socket)، نعيد المحاولة عبر اتصال مباشر جديد بدون التأثير على المستخدم

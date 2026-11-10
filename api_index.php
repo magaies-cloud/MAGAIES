@@ -1904,7 +1904,7 @@ if ($token === $saasSecret) {
         }
         $tenant_id = $session['tenant_id'];
         $userId = $session['user_id'] ?? null;
-    } elseif (strpos($token, 'offline_token_') === 0 && (isLocalLaptopEnvironment() || !empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL']))) {
+    } elseif ((strpos($token, 'offline_token_') === 0 || isLocalLaptopEnvironment()) && (isLocalLaptopEnvironment() || !empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL']))) {
         // Strictly resolve the explicit tenant for an offline session or local-to-cloud mirror
         $explicitTid = (int)($_SERVER['HTTP_X_TENANT_ID'] ?? ($_GET['tenant_id'] ?? ($_COOKIE['currentTenantId'] ?? ($_COOKIE['mg_tenant_id'] ?? 0))));
         if ($explicitTid <= 0 && !empty($_SERVER['HTTP_X_TENANT_SUBDOMAIN'])) {
@@ -1914,7 +1914,7 @@ if ($token === $saasSecret) {
                 $explicitTid = (int)$stSub->fetchColumn();
             } catch (Throwable $e) {}
         }
-        if ($explicitTid <= 0 && !empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL'])) {
+        if ($explicitTid <= 0 && (!empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL']) || isLocalLaptopEnvironment())) {
             $explicitTid = 12;
         }
         if ($explicitTid > 0) {
