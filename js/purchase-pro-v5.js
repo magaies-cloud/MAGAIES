@@ -693,15 +693,20 @@ function populateDropdowns() {
         whSel.appendChild(o);
     });
     
-    // Cost Centers
+    // Cost Centers (Unified Master Data + Jobs, active only)
     const ccSel = document.getElementById('hdr-cost-center');
     if (ccSel) {
         ccSel.innerHTML = '<option value="">-- بدون مركز تكلفة --</option>';
         try {
-            const costCenters = JSON.parse(localStorage.getItem('erp_jobs_v1')) || [];
-            costCenters.forEach(cc => {
+            const ccMaster = JSON.parse(localStorage.getItem('erp_cost_centers_v1') || '[]') || [];
+            const ccJobs = JSON.parse(localStorage.getItem('erp_jobs_v1') || '[]') || [];
+            const ccMap = new Map();
+            [...ccMaster, ...ccJobs].forEach(cc => {
+                if (cc && cc.id && !cc.deleted && !cc.isInactive && cc.status !== 'inactive') ccMap.set(String(cc.id), cc);
+            });
+            ccMap.forEach(cc => {
                 const o = document.createElement('option');
-                o.value = cc.id; o.textContent = cc.name;
+                o.value = cc.id; o.textContent = cc.name || cc.title || cc.id;
                 ccSel.appendChild(o);
             });
         } catch(e) {}

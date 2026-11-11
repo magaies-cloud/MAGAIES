@@ -318,7 +318,13 @@ onDBReady(() => {
     try { localBanks = JSON.parse(localStorage.getItem(getTenantKey('erp_banks_v1')) || localStorage.getItem('erp_banks_v1')) || []; } catch(e) {}
     try { localSafes = JSON.parse(localStorage.getItem(getTenantKey('erp_safes_v1')) || localStorage.getItem('erp_safes_v1')) || []; } catch(e) {}
     try { localExp = JSON.parse(localStorage.getItem(getTenantKey('erp_accounts_v1')) || localStorage.getItem('erp_accounts_v1')) || []; } catch(e) {}
-    try { localJobs = JSON.parse(localStorage.getItem(getTenantKey('erp_jobs_v1')) || localStorage.getItem('erp_jobs_v1')) || []; } catch(e) {}
+    try {
+        const cc1 = JSON.parse(localStorage.getItem(getTenantKey('erp_cost_centers_v1')) || localStorage.getItem('erp_cost_centers_v1') || '[]') || [];
+        const cc2 = JSON.parse(localStorage.getItem(getTenantKey('erp_jobs_v1')) || localStorage.getItem('erp_jobs_v1') || '[]') || [];
+        const m = new Map();
+        [...cc1, ...cc2].forEach(c => { if (c && c.id && !c.deleted && !c.isInactive && c.status !== 'inactive') m.set(String(c.id), c); });
+        localJobs = Array.from(m.values());
+    } catch(e) {}
     
     if (window.MagaieesPermissions && typeof window.MagaieesPermissions.filterEntitiesByClearance === 'function') {
         localCusts = window.MagaieesPermissions.filterEntitiesByClearance(localCusts);
@@ -2033,91 +2039,104 @@ function submitVoucherInner() {
             try { return JSON.parse(localStorage.getItem(getTenantKey(key)) || localStorage.getItem(key)) || []; } catch(e) { return []; }
         };
         const saveEntity = (key, data) => {
-            localStorage.setItem(key, JSON.stringify(data));
+            const json = JSON.stringify(data);
+            localStorage.setItem(key, json);
+            if (typeof getTenantKey === 'function') localStorage.setItem(getTenantKey(key), json);
         };
+        const matchAcc = (row, fullId, shortId) => String(row.id) === String(fullId) || String(row.id) === String(shortId);
+        const curBal = (row) => parseFloat(row.currentBalance ?? row.balance ?? row.openingBalance ?? 0) || 0;
 
-        // 1. Update fromAccount (Safe/Bank) — balance DECREASES
+        // 1. Update fromAccount (Safe/Bank) — balance DECREASES (amtFrom is negative on apply, positive on reverse)
         if (fromAccId.startsWith('safe-')) {
             let id = fromAccId.substring(5);
             let safes = loadEntity('erp_safes_v1');
-            let idx = safes.findIndex(s => String(s.id) === String(id));
+            let idx = safes.findIndex(s => matchAcc(s, fromAccId, id));
             if (idx > -1) {
-                safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtFrom;
+                safes[idx].currentBalance = curBal(safes[idx]) + amtFrom;
                 saveEntity('erp_safes_v1', safes);
             }
         } else if (fromAccId.startsWith('bank-')) {
             let id = fromAccId.substring(5);
             let banks = loadEntity('erp_banks_v1');
-            let idx = banks.findIndex(b => String(b.id) === String(id));
+            let idx = banks.findIndex(b => matchAcc(b, fromAccId, id));
             if (idx > -1) {
-                banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtFrom;
+                banks[idx].currentBalance = curBal(banks[idx]) + amtFrom;
                 saveEntity('erp_banks_v1', banks);
             }
         } else if (fromAccId.startsWith('cust-')) {
             let id = fromAccId.substring(5);
             let custs = loadEntity('erp_customers_v1');
-            let idx = custs.findIndex(c => String(c.id) === String(id));
+            let idx = custs.findIndex(c => matchAcc(c, fromAccId, id));
             if (idx > -1) {
-                custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amtFrom;
+                custs[idx].currentBalance = curBal(custs[idx]) + amtFrom;
                 saveEntity('erp_customers_v1', custs);
             }
         } else if (fromAccId.startsWith('supp-')) {
             let id = fromAccId.substring(5);
             let sups = loadEntity('erp_suppliers_v1');
-            let idx = sups.findIndex(s => String(s.id) === String(id));
+            let idx = sups.findIndex(s => matchAcc(s, fromAccId, id));
             if (idx > -1) {
-                sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amtFrom;
+                sups[idx].currentBalance = curBal(sups[idx]) + amtFrom;
                 saveEntity('erp_suppliers_v1', sups);
             }
         } else if (fromAccId.startsWith('exp-')) {
             let id = fromAccId.substring(4);
             let accounts = loadEntity('erp_accounts_v1');
-            let idx = accounts.findIndex(a => String(a.id) === String(id));
+            let idx = accounts.findIndex(a => matchAcc(a, fromAccId, id));
             if (idx > -1) {
-                accounts[idx].currentBalance = (parseFloat(accounts[idx].currentBalance) || 0) + amtFrom;
+                accounts[idx].currentBalance = curBal(accounts[idx]) + amtFrom;
                 saveEntity('erp_accounts_v1', accounts);
             }
         }
 
-        // 2. Update toAccount (Beneficiary) — balance INCREASES
+        // 2. Update toAccount (Beneficiary)
         if (toAccId.startsWith('cust-')) {
             let id = toAccId.substring(5);
             let custs = loadEntity('erp_customers_v1');
-            let idx = custs.findIndex(c => String(c.id) === String(id));
+            let idx = custs.findIndex(c => matchAcc(c, toAccId, id));
             if (idx > -1) {
-                custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amtToPositive;
+                custs[idx].currentBalance = curBal(custs[idx]) + amtToPositive;
                 saveEntity('erp_customers_v1', custs);
             }
         } else if (toAccId.startsWith('supp-')) {
             let id = toAccId.substring(5);
             let sups = loadEntity('erp_suppliers_v1');
-            let idx = sups.findIndex(s => String(s.id) === String(id));
+            let idx = sups.findIndex(s => matchAcc(s, toAccId, id));
             if (idx > -1) {
-                sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amtToPositive;
+                // Paying a supplier reduces supplier payable balance
+                sups[idx].currentBalance = curBal(sups[idx]) - amtToPositive;
                 saveEntity('erp_suppliers_v1', sups);
+            }
+        } else if (toAccId.startsWith('emp-')) {
+            let id = toAccId.substring(4);
+            let emps = loadEntity('erp_employees_v1');
+            let idx = emps.findIndex(e => matchAcc(e, toAccId, id));
+            if (idx > -1) {
+                emps[idx].currentBalance = curBal(emps[idx]) - amtToPositive;
+                saveEntity('erp_employees_v1', emps);
             }
         } else if (toAccId.startsWith('bank-')) {
             let id = toAccId.substring(5);
             let banks = loadEntity('erp_banks_v1');
-            let idx = banks.findIndex(b => String(b.id) === String(id));
+            let idx = banks.findIndex(b => matchAcc(b, toAccId, id));
             if (idx > -1) {
-                banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtToPositive;
+                banks[idx].currentBalance = curBal(banks[idx]) + amtToPositive;
                 saveEntity('erp_banks_v1', banks);
             }
         } else if (toAccId.startsWith('safe-')) {
             let id = toAccId.substring(5);
             let safes = loadEntity('erp_safes_v1');
-            let idx = safes.findIndex(s => String(s.id) === String(id));
+            let idx = safes.findIndex(s => matchAcc(s, toAccId, id));
             if (idx > -1) {
-                safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtToPositive;
+                safes[idx].currentBalance = curBal(safes[idx]) + amtToPositive;
                 saveEntity('erp_safes_v1', safes);
             }
         } else if (toAccId.startsWith('exp-')) {
             let id = toAccId.substring(4);
             let accounts = loadEntity('erp_accounts_v1');
-            let idx = accounts.findIndex(a => String(a.id) === String(id));
+            let idx = accounts.findIndex(a => matchAcc(a, toAccId, id));
             if (idx > -1) {
-                accounts[idx].currentBalance = (parseFloat(accounts[idx].currentBalance) || 0) + amtToPositive;
+                accounts[idx].currentBalance = curBal(accounts[idx]) + amtToPositive;
                 saveEntity('erp_accounts_v1', accounts);
             }
         }
@@ -3044,7 +3063,13 @@ window.buildAccountsArray = function() {
     try { localBanks = JSON.parse(localStorage.getItem(getTenantKey('erp_banks_v1')) || localStorage.getItem('erp_banks_v1')) || []; } catch(e) {}
     try { localSafes = JSON.parse(localStorage.getItem(getTenantKey('erp_safes_v1')) || localStorage.getItem('erp_safes_v1')) || []; } catch(e) {}
     try { localExp = JSON.parse(localStorage.getItem(getTenantKey('erp_accounts_v1')) || localStorage.getItem('erp_accounts_v1')) || []; } catch(e) {}
-    try { localJobs = JSON.parse(localStorage.getItem(getTenantKey('erp_jobs_v1')) || localStorage.getItem('erp_jobs_v1')) || []; } catch(e) {}
+    try {
+        const cc1 = JSON.parse(localStorage.getItem(getTenantKey('erp_cost_centers_v1')) || localStorage.getItem('erp_cost_centers_v1') || '[]') || [];
+        const cc2 = JSON.parse(localStorage.getItem(getTenantKey('erp_jobs_v1')) || localStorage.getItem('erp_jobs_v1') || '[]') || [];
+        const m = new Map();
+        [...cc1, ...cc2].forEach(c => { if (c && c.id && !c.deleted && !c.isInactive && c.status !== 'inactive') m.set(String(c.id), c); });
+        localJobs = Array.from(m.values());
+    } catch(e) {}
     
     if (window.MagaieesPermissions && typeof window.MagaieesPermissions.filterEntitiesByClearance === 'function') {
         localCusts = window.MagaieesPermissions.filterEntitiesByClearance(localCusts);

@@ -5604,7 +5604,8 @@ function switchToMobileEdition() {
                     { href: 'settings.php', label: 'إعدادات النظام والقواعد', icon: 'fa-gear', color: '#94a3b8', border: '#64748b', bg: 'rgba(100, 116, 139, 0.2)' },
                     { href: 'settings.php?tab=fonts', label: 'الخطوط وحجم العرض', icon: 'fa-font', color: '#38bdf8', border: '#0284c7', bg: 'rgba(56, 189, 248, 0.2)' },
                     { href: 'backup.php', label: 'النسخ الاحتياطي', icon: 'fa-hard-drive', color: '#a78bfa', border: '#a78bfa', bg: 'rgba(167, 139, 250, 0.2)' },
-                    { href: 'audit-log.php', label: 'سجل الرقابة والتدقيق وتتبع العمليات', icon: 'fa-user-shield', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' }
+                    { href: 'audit-log.php', label: 'سجل الرقابة والتدقيق وتتبع العمليات', icon: 'fa-user-shield', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' },
+                    { href: 'system-self-audit.php', label: 'محرك الفحص الذاتي الفوري (شهادة المطابقة)', icon: 'fa-shield-check', color: '#10b981', border: '#059669', bg: 'rgba(16, 185, 129, 0.22)' }
                 ]
             }
         ];
@@ -5725,6 +5726,7 @@ function switchToMobileEdition() {
         //  SINGLE-ROW 7-ITEM QUICK ACTIONS ENGINE WITH RIGHT-CLICK CUSTOMIZER
         // ═════════════════════════════════════════════════════════════════════
         const ALL_QUICK_ACTIONS = [
+            { id: 'self_audit', href: 'system-self-audit.php', label: 'الفحص الذاتي', category: 'الإدارة والصلاحيات', icon: 'fa-circle-check', color: '#10b981', bg: 'rgba(16, 185, 129, 0.24)', border: '#059669' },
             { id: 'audit_log', href: 'audit-log.php', label: 'السجل الرقابي', category: 'الإدارة والصلاحيات', icon: 'fa-user-shield', color: '#fbbf24', bg: 'rgba(245, 158, 11, 0.25)', border: '#f59e0b', isAudit: true },
             { id: 'ai_guardian', href: 'ai_advisor.php', label: 'الحارس الذكي', category: 'الذكاء الاصطناعي', icon: 'fa-shield-halved', color: '#22d3ee', bg: 'rgba(6, 182, 212, 0.2)', border: '#06b6d4' },
             { id: 'ai_goods', href: 'ai_goods_advisor.php', label: 'مستشار AI للبضائع', category: 'الذكاء الاصطناعي', icon: 'fa-robot', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },

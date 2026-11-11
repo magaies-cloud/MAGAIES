@@ -227,22 +227,39 @@
         });
 
         function generateTrialBalance() {
-            // Fetch General Ledger Entries
-            const glEntries = (JSON.parse(localStorage.getItem('erp_gl_v1')) || []).filter(x => !x.deleted);
+            if (typeof window.rebuildGLFromAllTables === 'function') {
+                try { window.rebuildGLFromAllTables(false); } catch (e) {}
+            }
+            const glKey = (typeof window.getTenantKey === 'function') ? window.getTenantKey('erp_gl_v1') : 'erp_gl_v1';
+            const glEntries = (JSON.parse(localStorage.getItem(glKey) || localStorage.getItem('erp_gl_v1') || '[]') || []).filter(x => x && !x.deleted);
 
             const accounts = {};
+            const addAcc = (accName, dr, cr) => {
+                const acc = String(accName || 'حساب غير معروف');
+                if (!accounts[acc]) accounts[acc] = { name: acc, debit: 0, credit: 0 };
+                accounts[acc].debit += Number(dr) || 0;
+                accounts[acc].credit += Number(cr) || 0;
+            };
 
-            // Aggregate Data
+            // Include Opening Balances from Master Entities
+            const readMaster = (k) => {
+                const tk = (typeof window.getTenantKey === 'function') ? window.getTenantKey(k) : k;
+                try { return (JSON.parse(localStorage.getItem(tk) || localStorage.getItem(k) || '[]') || []).filter(x => x && !x.deleted); } catch (e) { return []; }
+            };
+            readMaster('erp_safes_v1').forEach(s => { const op = Number(s.openingBalance) || 0; if (op !== 0) addAcc(s.name || s.id, op > 0 ? op : 0, op < 0 ? Math.abs(op) : 0); });
+            readMaster('erp_banks_v1').forEach(b => { const op = Number(b.openingBalance) || 0; if (op !== 0) addAcc(b.name || b.id, op > 0 ? op : 0, op < 0 ? Math.abs(op) : 0); });
+            readMaster('erp_customers_v1').forEach(c => { const op = Number(c.openingBalance) || 0; if (op !== 0) addAcc(c.name || c.id, op > 0 ? op : 0, op < 0 ? Math.abs(op) : 0); });
+            readMaster('erp_suppliers_v1').forEach(s => { const op = Number(s.openingBalance) || 0; if (op !== 0) addAcc(s.name || s.id, op < 0 ? Math.abs(op) : 0, op > 0 ? op : 0); });
+
+            // Aggregate GL Data (supports both debit/credit fields and legacy type/amount)
             glEntries.forEach(entry => {
-                const acc = entry.account || 'حساب غير معروف';
-                if (!accounts[acc]) {
-                    accounts[acc] = { name: acc, debit: 0, credit: 0 };
-                }
-                
-                if (entry.type === 'debit' || entry.type === 'in' || entry.type === 'مدين') {
-                    accounts[acc].debit += Number(entry.amount) || 0;
+                const acc = entry.accountName || entry.account || 'حساب غير معروف';
+                if (entry.debit !== undefined || entry.credit !== undefined) {
+                    addAcc(acc, entry.debit, entry.credit);
+                } else if (entry.type === 'debit' || entry.type === 'in' || entry.type === 'مدين') {
+                    addAcc(acc, entry.amount, 0);
                 } else if (entry.type === 'credit' || entry.type === 'out' || entry.type === 'دائن') {
-                    accounts[acc].credit += Number(entry.amount) || 0;
+                    addAcc(acc, 0, entry.amount);
                 }
             });
 

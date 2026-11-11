@@ -48,7 +48,7 @@
                     title: 'شاشة المبيعات الرئيسية الموحدة (Sales 2027)',
                     icon: 'fa-cart-shopping',
                     desc: 'إصدار فواتير المبيعات النقدية والآجلة، التحويلات البنكية، والشيكات',
-                    supportedActions: ['new', 'save', 'edit', 'delete', 'print', 'share', 'preview']
+                    supportedActions: ['new', 'save', 'edit', 'delete', 'print', 'print_permit', 'statement', 'share', 'preview']
                 },
                 {
                     id: 'direct_sales',
@@ -56,7 +56,7 @@
                     title: 'فاتورة تقسيم وتسليم المبيعات (POS / Direct Split)',
                     icon: 'fa-cart-shopping',
                     desc: 'إصدار فواتير الكاشير، نقاط البيع السريعة، وتقسيم التسليم الفوري',
-                    supportedActions: ['new', 'save', 'edit', 'delete', 'print', 'share', 'preview']
+                    supportedActions: ['new', 'save', 'edit', 'delete', 'print', 'print_permit', 'statement', 'share', 'preview']
                 },
                 {
                     id: 'sales_invoice',
@@ -64,7 +64,7 @@
                     title: 'فاتورة المبيعات الشاملة والآجلة (Sales Invoice)',
                     icon: 'fa-file-invoice-dollar',
                     desc: 'إصدار فواتير المبيعات النقدية والآجلة، الباركود، والعملات المتعددة',
-                    supportedActions: ['new', 'save', 'edit', 'delete', 'print', 'share', 'preview']
+                    supportedActions: ['new', 'save', 'edit', 'delete', 'print', 'print_permit', 'statement', 'share', 'preview']
                 },
                 {
                     id: 'sales_return',
@@ -72,7 +72,7 @@
                     title: 'مرتجع المبيعات واسترداد البضائع',
                     icon: 'fa-rotate-left',
                     desc: 'إصدار مرتجعات المبيعات واسترداد البضائع للمخازن',
-                    supportedActions: ['new', 'save', 'edit', 'delete', 'return', 'print', 'share', 'preview']
+                    supportedActions: ['new', 'save', 'edit', 'delete', 'return', 'print', 'print_permit', 'statement', 'share', 'preview']
                 },
                 {
                     id: 'smart_logistics_sales',
@@ -145,7 +145,7 @@
                     title: 'فواتير المشتريات العامة والتوريدات',
                     icon: 'fa-bag-shopping',
                     desc: 'إدخال فواتير الشراء، التكاليف، وحسابات الموردين',
-                    supportedActions: ['new', 'save', 'edit', 'delete', 'print', 'share', 'preview']
+                    supportedActions: ['new', 'save', 'edit', 'delete', 'print', 'print_permit', 'statement', 'share', 'preview']
                 },
                 {
                     id: 'purchase_receipt',
@@ -861,7 +861,9 @@
         edit: { label: 'تعديل', icon: 'fa-pen-to-square', color: '#fbbf24' },
         delete: { label: 'حذف / مسح', icon: 'fa-trash-can', color: '#ef4444' },
         preview: { label: 'معاينة', icon: 'fa-eye', color: '#60a5fa' },
-        print: { label: 'طباعة', icon: 'fa-print', color: '#a855f7' },
+        print: { label: 'طباعة فاتورة', icon: 'fa-print', color: '#a855f7' },
+        print_permit: { label: 'طباعة إذن مخزني', icon: 'fa-truck-ramp-box', color: '#14b8a6' },
+        statement: { label: 'كشف حساب / أستاذ', icon: 'fa-book-open', color: '#0ea5e9' },
         share: { label: 'مشاركة/واتساب', icon: 'fa-share-nodes', color: '#25d366' },
         export: { label: 'تصدير إكسل/PDF', icon: 'fa-file-export', color: '#ec4899' },
         receive: { label: 'استلام بضائع', icon: 'fa-box-open', color: '#34d399' },
@@ -2423,10 +2425,7 @@
 
             const validPins = [
                 targetManager?.managerPin,
-                targetManager?.password,
-                '9999',
-                '123456',
-                'admin'
+                targetManager?.password
             ].filter(Boolean);
 
             const isPinValid = validPins.includes(inputPin);
@@ -2872,7 +2871,7 @@
             if (sessionStorage.getItem('temp_screen_unlock_' + cleanFile) === '1') return;
 
             // Check both Screen catalog and Report catalog
-            const isKnownScreen = SYSTEM_SCREENS_CATALOG.some(s => s.file === cleanFile);
+            const isKnownScreen = SYSTEM_SCREENS_CATALOG.some(cat => (cat.screens && cat.screens.some(s => s.file === cleanFile)) || cat.file === cleanFile);
             const isKnownReport = SYSTEM_REPORTS_CATALOG.some(r => r.id === cleanFile);
 
             let allowed = true;
@@ -3014,7 +3013,7 @@
     function applyScreenButtonSecurity(currentFile, user) {
         if (isCurrentUserAdmin(user)) return;
 
-        const actionsToCheck = ['save', 'new', 'edit', 'delete', 'preview', 'print', 'share', 'export', 'receive', 'return', 'approve'];
+        const actionsToCheck = ['save', 'new', 'edit', 'delete', 'preview', 'print', 'print_permit', 'statement', 'share', 'export', 'receive', 'return', 'approve'];
 
         actionsToCheck.forEach(action => {
             const allowed = canUserDoAction(currentFile, action, user);
@@ -3023,8 +3022,8 @@
             }
         });
 
-        // Global override for window.print if printing is forbidden
-        if (!canUserDoAction(currentFile, 'print', user)) {
+        // Global override for window.print only if BOTH invoice print and permit print are forbidden
+        if (!canUserDoAction(currentFile, 'print', user) && !canUserDoAction(currentFile, 'print_permit', user)) {
             window.print = function() {
                 alert('⛔ الأمن السيبراني: لا تملك صلاحية الطباعة في هذه الشاشة.');
             };
@@ -3060,6 +3059,8 @@
                 const cf = (location.pathname.split('/').pop() || '');
                 const txt = ((btn.innerText || btn.value || btn.title || '') + ' ' + (btn.id || '') + ' ' + (btn.className || '') + ' ' + (btn.getAttribute('onclick') || '')).toLowerCase();
                 const rules = [
+                    { act: 'statement', rx: /hdr-customer-ledger-btn|opengeneralledgerforaccount|opencustomerledgerfromheader|account-statement\.php|كشف حساب|دفتر الأستاذ|\bأستاذ\b/ },
+                    { act: 'print_permit', rx: /printofficialgdngatepass|confirmandprintdeliveryaction|printsplitfamilyvouchers|delivery_order|receipt_order|طباعة إذن|إذن تسليم|إذن استلام|إذن بيع/ },
                     { act: 'save', rx: /\bsave\b|حفظ|ترحيل|اعتماد الفاتورة|اعتماد السند|checkout/ },
                     { act: 'delete', rx: /\bdelete\b|\bdel\b|حذف|إلغاء الفاتورة|مسح السجل/ },
                     { act: 'edit', rx: /\bedit\b|تعديل/ },
@@ -3067,9 +3068,11 @@
                     { act: 'print', rx: /\bprint\b|طباعة/ }
                 ];
                 for (const r of rules) {
-                    if (r.rx.test(txt) && !canUserDoAction(cf, r.act, uNow)) {
-                        ev.preventDefault(); ev.stopImmediatePropagation();
-                        alert('⛔ الأمن السيبراني: غير مصرح لحسابك بتنفيذ (' + r.act + ') في هذه الشاشة.');
+                    if (r.rx.test(txt)) {
+                        if (!canUserDoAction(cf, r.act, uNow)) {
+                            ev.preventDefault(); ev.stopImmediatePropagation();
+                            alert('⛔ الأمن السيبراني: غير مصرح لحسابك بتنفيذ (' + (ACTION_META[r.act]?.label || r.act) + ') في هذه الشاشة.');
+                        }
                         return;
                     }
                 }
@@ -3112,8 +3115,9 @@
         } else if (action === 'print') {
             selectors = [
                 '#btn-print', '.btn-print', '.print-btn',
-                'button[onclick*="print"]', 'button[onclick*="Print"]',
-                'button[onclick*="printInvoice"]', 'button[onclick*="printVoucher"]'
+                'button[onclick*="printInvoice"]', 'button[onclick*="printVoucher"]',
+                'button[onclick*="executeSalesFc2ControlledPrint"]', 'button[onclick*="printSalesFc2Thermal80mm"]',
+                'button[onclick*="printThermalPurchaseReceipt80mm"]'
             ];
         } else if (action === 'preview') {
             selectors = [
@@ -3130,6 +3134,18 @@
         } else if (action === 'return') {
             selectors = [
                 '#btn-return', '.btn-return', 'button[onclick*="return"]', 'button[onclick*="refund"]'
+            ];
+        } else if (action === 'print_permit') {
+            selectors = [
+                'button[onclick*="printOfficialGdnGatePass"]', 'button[onclick*="confirmAndPrintDeliveryAction"]',
+                'button[onclick*="printSplitFamilyVouchers"]', '[data-mode="delivery_order_doc"]', '[data-mode="receipt_order_doc"]',
+                '.btn-print-permit', '#btn-print-permit'
+            ];
+        } else if (action === 'statement') {
+            selectors = [
+                '#hdr-customer-ledger-btn', '.btn-statement', '.btn-ledger',
+                'button[onclick*="openGeneralLedgerForAccount"]', 'button[onclick*="openCustomerLedgerFromHeader"]',
+                'button[onclick*="suppliers.php?ledger="]', 'a[href*="account-statement.php"]'
             ];
         } else if (action === 'approve') {
             selectors = [
@@ -3370,6 +3386,8 @@
                                 let roleChanged = false;
                                 roles.forEach(r => {
                                     if (!r || typeof r !== 'object') return;
+                                    const isRoleAdmin = r.id === 'role_admin' || r.isAdmin === true || String(r.name || '').includes('مدير النظام');
+                                    if (!isRoleAdmin) return;
                                     if (!r.permissions || typeof r.permissions !== 'object') r.permissions = {};
                                     allMods.forEach(m => {
                                         if (!r.permissions[m] || r.permissions[m].view === false) {

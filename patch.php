@@ -1,4 +1,6 @@
-<?php $f = file_get_contents('js/mainbalances-report.js'); $new = <<<'EOF'
+<?php
+if (PHP_SAPI !== 'cli') { http_response_code(403); exit('Forbidden: CLI only'); }
+$f = file_get_contents('js/mainbalances-report.js'); $new = <<<'EOF'
         const isDefaultGroup = idx < 4 || (p.name && p.name.includes('�������'));
         if (isDefaultGroup) {
             btn.innerHTML = p.name + (p.isLocked ? ' ??' : ' ??');

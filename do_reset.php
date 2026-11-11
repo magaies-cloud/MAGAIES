@@ -1,4 +1,5 @@
 <?php
+if (PHP_SAPI !== 'cli') { http_response_code(403); exit('Forbidden: CLI only'); }
 $content = file_get_contents('general-ledger.php');
 $lines = explode("\n", $content);
 foreach($lines as $i => $line) {

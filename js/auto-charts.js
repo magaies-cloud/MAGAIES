@@ -338,9 +338,10 @@
         const pRiskBg = isLt ? 'linear-gradient(145deg, #fff1f2 0%, #ffedd5 50%, #fef2f2 100%)' : 'linear-gradient(145deg, rgba(45, 6, 22, 0.95) 0%, rgba(24, 8, 36, 0.98) 55%, rgba(12, 10, 28, 0.99) 100%)';
         const subBoxBg = isLt ? 'rgba(255, 255, 255, 0.88)' : 'rgba(9, 15, 32, 0.82)';
 
-        const labels = tableData.labels.slice(0, 8);
-        const primary = tableData.datasets[0] ? tableData.datasets[0].data.slice(0, 8) : labels.map((_, i) => (i + 1) * 150000);
-        const secondary = tableData.datasets[1] ? tableData.datasets[1].data.slice(0, 8) : primary.map(v => Math.round(v * 0.28));
+        const labels = (tableData.labels && tableData.labels.length ? tableData.labels : ['بند 1', 'بند 2', 'بند 3', 'بند 4']).slice(0, 8);
+        const rawPrimary = tableData.datasets[0] && Array.isArray(tableData.datasets[0].data) && tableData.datasets[0].data.length ? tableData.datasets[0].data.slice(0, 8) : labels.map((_, i) => (i + 1) * 150000);
+        const primary = rawPrimary.map(v => Number.isFinite(Number(v)) ? Number(v) : 0);
+        const secondary = tableData.datasets[1] && Array.isArray(tableData.datasets[1].data) ? tableData.datasets[1].data.slice(0, 8).map(v => Number.isFinite(Number(v)) ? Number(v) : 0) : primary.map(v => Math.round(v * 0.28));
         const maxVal = Math.max(...primary.map(v => Math.abs(v)), 1);
         const totalPrimary = primary.reduce((s, v) => s + Math.abs(v), 0) || 1;
 

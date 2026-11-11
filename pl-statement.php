@@ -230,37 +230,37 @@
         });
 
         function generatePLStatement() {
-            const glEntries = (JSON.parse(localStorage.getItem('erp_gl_v1')) || []).filter(x => !x.deleted);
+            if (typeof window.rebuildGLFromAllTables === 'function') {
+                try { window.rebuildGLFromAllTables(false); } catch (e) {}
+            }
+            const glKey = (typeof window.getTenantKey === 'function') ? window.getTenantKey('erp_gl_v1') : 'erp_gl_v1';
+            const glEntries = (JSON.parse(localStorage.getItem(glKey) || localStorage.getItem('erp_gl_v1') || '[]') || []).filter(x => x && !x.deleted);
             
             const revenueAccounts = {};
             const cogsAccounts = {}; // Cost of Goods Sold
             const expenseAccounts = {};
 
-            // Categorize based on Keywords
+            // Categorize based on Standard IDs + Arabic Keywords
             glEntries.forEach(entry => {
-                const acc = entry.account || 'غير محدد';
-                const name = acc.toLowerCase();
-                const amount = Number(entry.amount) || 0;
+                const rawAcc = String(entry.account || 'غير محدد');
+                const labelAcc = String(entry.accountName || entry.account || 'غير محدد');
+                const name = (rawAcc + ' ' + labelAcc).toLowerCase();
+                const dr = (entry.debit !== undefined || entry.credit !== undefined) ? (Number(entry.debit) || 0) : ((entry.type === 'debit' || entry.type === 'in' || entry.type === 'مدين') ? (Number(entry.amount) || 0) : 0);
+                const cr = (entry.debit !== undefined || entry.credit !== undefined) ? (Number(entry.credit) || 0) : ((entry.type === 'credit' || entry.type === 'out' || entry.type === 'دائن') ? (Number(entry.amount) || 0) : 0);
+                if (dr === 0 && cr === 0) return;
                 
-                // Determine nature of entry
-                const isDebit = entry.type === 'debit' || entry.type === 'in' || entry.type === 'مدين';
-                const isCredit = entry.type === 'credit' || entry.type === 'out' || entry.type === 'دائن';
-                
-                // Signed Amount: Revenue increases with Credit, Expenses increase with Debit
-                
-                if (name.includes('مبيعات') || name.includes('إيراد') || name.includes('ايراد')) {
-                    if (!revenueAccounts[acc]) revenueAccounts[acc] = 0;
-                    revenueAccounts[acc] += isCredit ? amount : -amount;
+                if (rawAcc.startsWith('revenue-') || rawAcc === 'exp-sales-discounts' || name.includes('مبيعات') || name.includes('إيراد') || name.includes('ايراد')) {
+                    if (!revenueAccounts[labelAcc]) revenueAccounts[labelAcc] = 0;
+                    revenueAccounts[labelAcc] += (cr - dr);
                 } 
-                else if (name.includes('مشتريات') || name.includes('تكلفة')) {
-                    if (!cogsAccounts[acc]) cogsAccounts[acc] = 0;
-                    cogsAccounts[acc] += isDebit ? amount : -amount;
+                else if (rawAcc === 'exp-purchases' || rawAcc === 'rev-purchase-discounts' || name.includes('مشتريات') || name.includes('تكلفة')) {
+                    if (!cogsAccounts[labelAcc]) cogsAccounts[labelAcc] = 0;
+                    cogsAccounts[labelAcc] += (dr - cr);
                 }
-                else if (name.includes('مصروف') || name.includes('راتب') || name.includes('رواتب') || name.includes('أجور') || name.includes('كهرباء') || name.includes('ايجار') || name.includes('إيجار') || name.includes('نثريات')) {
-                    if (!expenseAccounts[acc]) expenseAccounts[acc] = 0;
-                    expenseAccounts[acc] += isDebit ? amount : -amount;
+                else if (rawAcc.startsWith('exp-') || name.includes('مصروف') || name.includes('راتب') || name.includes('رواتب') || name.includes('أجور') || name.includes('كهرباء') || name.includes('ايجار') || name.includes('إيجار') || name.includes('نثريات')) {
+                    if (!expenseAccounts[labelAcc]) expenseAccounts[labelAcc] = 0;
+                    expenseAccounts[labelAcc] += (dr - cr);
                 }
-                // Balance sheet accounts (Cash, Bank, AP, AR, Inventory) are ignored in P&L
             });
 
             // Sums

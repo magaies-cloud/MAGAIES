@@ -14,10 +14,10 @@ const CACHE_NAME = 'magaiees-pwa-v2027.99-11-10-merged-v1';
 const PRECACHE_ASSETS = [
     './',
     './manifest.json',
+    './index.php',
     './mobile-suite.html',
-    './mobile_erp_global_suite.html',
+    './mobile-suite.php',
     './mobile-voucher.php',
-    './mobile-voucher.html',
     './mobile-dashboard.php',
     './magaiees_unified_dashboard.php',
     './single-cash-payment.php',
@@ -47,8 +47,8 @@ const PRECACHE_ASSETS = [
     './js/app.js',
     './js/single-cash-payment.js',
     './js/multi-cash-payment.js',
-    './js/direct-sales-v2027.99.js',
-    './js/purchase-pro-v2027.99.js',
+    './js/direct-sales-v3.js',
+    './js/purchase-pro-v5.js',
     './js/sales-delivery.js'
 ];
 
@@ -306,7 +306,7 @@ function openSwIDB() {
     return new Promise((resolve) => {
         if (typeof indexedDB === 'undefined') return resolve(null);
         try {
-            const req = indexedDB.open('MagaiesOfflineIDB_v2027.99', 2);
+            const req = indexedDB.open('MagaiesOfflineIDB_v1', 2);
             req.onupgradeneeded = (e) => {
                 const db = e.target.result;
                 if (!db.objectStoreNames.contains('outbox')) {
@@ -439,10 +439,11 @@ async function flushIndexedDBOutboxInSW() {
                     const tx = db.transaction(['outbox', 'synced_ack'], 'readwrite');
                     const outboxStore = tx.objectStore('outbox');
                     const ackStore = tx.objectStore('synced_ack');
-                    outboxStore.clear();
                     out.synced.forEach((sItem) => {
                         if (sItem && sItem.offline_id) {
                             const orig = outboxMap[String(sItem.offline_id)] || {};
+                            if (orig.id !== undefined) outboxStore.delete(orig.id);
+                            else outboxStore.delete(String(sItem.offline_id));
                             const p = orig.payload || sItem.record || {};
                             const party = p.customerName || p.customer || p.supplierName || p.supplier ||
                                 ((p.fromAccountName || p.fromAccount) && (p.toAccountName || p.toAccount)

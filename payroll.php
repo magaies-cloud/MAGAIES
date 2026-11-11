@@ -342,8 +342,9 @@
                 window.MagaiesPayrollAccrual2027.runMonthlyAccrual();
             }
             currentMonth = document.getElementById('payroll-month').value;
-            const uList = (JSON.parse(localStorage.getItem('erp_users_v1') || '[]') || []).filter(x => x && !x.deleted);
-            const eList = (JSON.parse(localStorage.getItem('erp_employees_v1') || '[]') || []).filter(x => x && !x.deleted);
+            const isActiveEmp = (x) => x && !x.deleted && !x.isInactive && x.active !== false && x.status !== 'inactive' && x.status !== 'stopped';
+            const uList = (JSON.parse(localStorage.getItem('erp_users_v1') || '[]') || []).filter(isActiveEmp);
+            const eList = (JSON.parse(localStorage.getItem('erp_employees_v1') || '[]') || []).filter(isActiveEmp);
             const empMap = new Map();
             [...eList, ...uList].forEach(e => { if (e && e.id) empMap.set(String(e.id), Object.assign({}, empMap.get(String(e.id)) || {}, e)); });
             employees = Array.from(empMap.values());

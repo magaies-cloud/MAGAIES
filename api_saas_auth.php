@@ -70,16 +70,10 @@ if (!empty($input['pass'])) {
 $correctToken = !empty($_ENV['SAAS_ADMIN_TOKEN']) ? $_ENV['SAAS_ADMIN_TOKEN'] : 'SUPER_ADMIN_SECRET_2026';
 $correctPass  = !empty($_ENV['SAAS_ADMIN_PASSWORD']) ? $_ENV['SAAS_ADMIN_PASSWORD'] : $correctToken;
 
-$allowedPasswords = [
+$allowedPasswords = array_values(array_filter([
     $correctPass,
-    $correctToken,
-    'SUPER_ADMIN_SECRET_2026',
-    '123456',
-    'admin',
-    'admin123',
-    '1234',
-    '12345'
-];
+    $correctToken
+]));
 
 if (empty($pass)) {
     http_response_code(400);

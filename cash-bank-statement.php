@@ -433,13 +433,22 @@
 
         // Load Accounts (Banks/Safes) dynamically
         document.addEventListener('DOMContentLoaded', () => {
-            const banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+            const banks = (JSON.parse(localStorage.getItem('erp_banks_v1') || '[]')).filter(x => x && !x.deleted);
+            const safes = (JSON.parse(localStorage.getItem('erp_safes_v1') || '[]')).filter(x => x && !x.deleted);
+            const allAccs = [
+                ...safes.map(s => ({ ...s, _kind: 'safe', _label: (s.name || s.safeName || 'خزينة') + ' (خزينة)' })),
+                ...banks.map(b => ({ ...b, _kind: 'bank', _label: (b.name || b.bankName || 'بنك') + (b.type === 'safe' ? ' (خزينة)' : ' (بنك)') }))
+            ];
+            const seen = new Set();
             const select = document.getElementById('account-select');
             select.innerHTML = '<option value="">اختر الحساب...</option>';
-            banks.forEach(b => {
-                select.innerHTML += `<option value="${b.id}">${b.name} ${b.type === 'safe' ? '(خزينة)' : '(بنك)'}</option>`;
+            allAccs.forEach(a => {
+                const key = String(a.id);
+                if (!key || seen.has(key)) return;
+                seen.add(key);
+                select.innerHTML += `<option value="${key}">${a._label}${a.isInactive ? ' [موقوف]' : ''}</option>`;
             });
-            if(banks.length > 0) select.value = banks[0].id;
+            if (select.options.length > 1) select.selectedIndex = 1;
         });
 
         function parseNum(n) { return parseFloat(String(n || '0').replace(/,/g, '')) || 0; }
@@ -462,8 +471,18 @@
         }
 
         function generateReport() {
-            const accountId = parseInt(document.getElementById('account-select').value);
+            const accountId = String(document.getElementById('account-select').value || '').trim();
             if (!accountId) return alert('الرجاء اختيار حساب!');
+            const cleanAccId = accountId.replace(/^(safe|bank)-/i, '');
+            const allDefs = [...(JSON.parse(localStorage.getItem('erp_safes_v1') || '[]')), ...(JSON.parse(localStorage.getItem('erp_banks_v1') || '[]'))].filter(x => x && !x.deleted);
+            const accDef = allDefs.find(x => String(x.id) === accountId || String(x.id) === cleanAccId);
+            const accDefName = accDef ? String(accDef.name || accDef.safeName || accDef.bankName || '').trim() : '';
+            const isAccMatch = (v) => {
+                const s = String(v ?? '').trim();
+                if (!s) return false;
+                const cs = s.replace(/^(safe|bank)-/i, '');
+                return s === accountId || s === cleanAccId || cs === cleanAccId || (accDefName && s === accDefName);
+            };
             
             const dateFrom = document.getElementById('date-from').value;
             const dateTo = document.getElementById('date-to').value;
@@ -492,57 +511,27 @@
                 let txns = [];
                 
                 // Single Receipts (Cash In)
-                const receipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
+                const receipts = (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || []).filter(x => x && !x.deleted);
                 receipts.forEach(r => {
-                    if (parseInt(r.toAccount) === accountId && r.toType === 'bank') {
-                        txns.push({
-                            date: r.date,
-                            ref: 'س.ق-' + r.id,
-                            note: r.statement || 'مقبوضات',
-                            in: parseNum(r.amountLocal),
-                            out: 0
-                        });
+                    if (isAccMatch(r.toAccount || r.safeId || r.bankId)) {
+                        txns.push({ date: r.date, ref: 'س.ق-' + (r.voucherNo || r.id), note: r.statement || 'مقبوضات', in: parseNum(r.amountLocal || r.amount), out: 0 });
                     }
                 });
 
                 // Single Payments (Cash Out)
-                const payments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+                const payments = (JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []).filter(x => x && !x.deleted);
                 payments.forEach(p => {
-                    const fromAcc = p.fromAccount || '';
+                    const fromAcc = p.fromAccount || p.safeId || p.bankId || '';
                     if (p.paymentMethod === 'mobile' && p.bankTransfers && p.bankTransfers.length > 0) {
                         p.bankTransfers.forEach(bt => {
-                            if (parseInt(fromAcc) === accountId || String(fromAcc).replace(/^(safe|bank)-/, '') == accountId) {
-                                txns.push({
-                                    date: p.date,
-                                    ref: 'س.ص-' + p.id,
-                                    note: bt.statement || p.statement || 'مدفوعات تحويل',
-                                    in: 0,
-                                    out: parseNum(bt.amount)
-                                });
-                            }
+                            if (isAccMatch(bt.bankName || bt.bankId || fromAcc)) txns.push({ date: p.date, ref: 'س.ص-' + (p.voucherNo || p.id), note: bt.statement || p.statement || 'مدفوعات تحويل', in: 0, out: parseNum(bt.amount) });
                         });
                     } else if (p.paymentMethod === 'check' && p.cheques && p.cheques.length > 0) {
                         p.cheques.forEach(ch => {
-                            if (parseInt(fromAcc) === accountId || String(fromAcc).replace(/^(safe|bank)-/, '') == accountId) {
-                                txns.push({
-                                    date: p.date,
-                                    ref: 'س.ص-' + p.id,
-                                    note: ch.statement || p.statement || 'مدفوعات شيك',
-                                    in: 0,
-                                    out: parseNum(ch.amount)
-                                });
-                            }
+                            if (isAccMatch(ch.chequeBank || fromAcc)) txns.push({ date: p.date, ref: 'س.ص-' + (p.voucherNo || p.id), note: ch.statement || p.statement || 'مدفوعات شيك', in: 0, out: parseNum(ch.amount) });
                         });
-                    } else {
-                        if (parseInt(fromAcc) === accountId) {
-                            txns.push({
-                                date: p.date,
-                                ref: 'س.ص-' + p.id,
-                                note: p.statement || 'مدفوعات',
-                                in: 0,
-                                out: parseNum(p.amountLocal)
-                            });
-                        }
+                    } else if (isAccMatch(fromAcc)) {
+                        txns.push({ date: p.date, ref: 'س.ص-' + (p.voucherNo || p.id), note: p.statement || 'مدفوعات', in: 0, out: parseNum(p.amountLocal || p.amount) });
                     }
                 });
 
@@ -680,36 +669,30 @@
                     }
                 });
 
-                // Journal Vouchers (can be both)
-                const jvs = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
+                // Journal Vouchers + Sales & Purchase Invoices
+                const jvs = (JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || []).filter(x => x && !x.deleted);
                 jvs.forEach(v => {
-                    if (!v.lines) return;
-                    v.lines.forEach(line => {
-                        if (parseInt(line.account) === accountId && line.type === 'bank') {
-                            let deb = parseNum(line.debit);
-                            let cred = parseNum(line.credit);
-                            // In a Bank/Safe ledger: Debit = Cash In, Credit = Cash Out
-                            txns.push({
-                                date: v.date,
-                                ref: 'ق.ي-' + v.id,
-                                note: v.statement || line.note || 'تسوية يومية',
-                                in: deb,
-                                out: cred
-                            });
+                    const rows = v.lines || v.rows || [];
+                    rows.forEach(line => {
+                        if (isAccMatch(line.account || line.accountId)) {
+                            txns.push({ date: v.date, ref: 'ق.ي-' + (v.refNo || v.id), note: line.description || v.statement || line.note || 'تسوية يومية', in: parseNum(line.debit), out: parseNum(line.credit) });
                         }
                     });
                 });
+                (JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]')).filter(i => i && !i.deleted && i.status !== 'preliminary').forEach(inv => {
+                    const cashAmt = parseNum(inv.cashAmount);
+                    if (cashAmt > 0 && isAccMatch(inv.cashSafe || inv.safeId || inv.paymentAccountId)) txns.push({ date: inv.date, ref: 'مبيعات-' + (inv.invoiceNo || inv.id), note: 'تحصيل نقدي فاتورة مبيعات #' + (inv.invoiceNo || inv.id), in: cashAmt, out: 0 });
+                    (inv.bankTransfers || []).forEach(bt => { if (parseNum(bt.amount) > 0 && isAccMatch(bt.bankId || bt.bankName || inv.paymentAccountId)) txns.push({ date: inv.date, ref: 'مبيعات-' + (inv.invoiceNo || inv.id), note: 'تحويل بنكي فاتورة مبيعات #' + (inv.invoiceNo || inv.id), in: parseNum(bt.amount), out: 0 }); });
+                });
+                (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]')).filter(i => i && !i.deleted && i.status !== 'preliminary').forEach(inv => {
+                    const cashAmt = parseNum(inv.cashAmount);
+                    if (cashAmt > 0 && isAccMatch(inv.cashSafe || inv.safeId || inv.paymentAccountId)) txns.push({ date: inv.date, ref: 'مشتريات-' + (inv.invoiceNo || inv.id), note: 'سداد نقدي فاتورة مشتريات #' + (inv.invoiceNo || inv.id), in: 0, out: cashAmt });
+                    (inv.bankTransfers || []).forEach(bt => { if (parseNum(bt.amount) > 0 && isAccMatch(bt.bankId || bt.bankName || inv.paymentAccountId)) txns.push({ date: inv.date, ref: 'مشتريات-' + (inv.invoiceNo || inv.id), note: 'تحويل بنكي فاتورة مشتريات #' + (inv.invoiceNo || inv.id), in: 0, out: parseNum(bt.amount) }); });
+                });
 
-                // Calculate Opening Balance (all txns BEFORE dateFrom)
-                let openingBal = 0;
+                // Calculate Opening Balance (Safe or Bank openingBalance + all txns BEFORE dateFrom)
+                let openingBal = accDef ? parseNum(accDef.openingBalance ?? accDef.opening_balance ?? 0) : 0;
                 let filteredTxns = [];
-                
-                // Get bank opening balance from definition if available
-                const banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
-                const b = banks.find(x => x.id == accountId);
-                if (b && b.openingBalance) {
-                    openingBal += parseNum(b.openingBalance);
-                }
 
                 txns.forEach(t => {
                     if (t.date < dateFrom) {

@@ -221,11 +221,13 @@ if (!function_exists('checkBankReferenceDuplicateInDB')) {
                 ['table' => 'payments',        'label' => 'سند صرف نقدي متعدد']
             ];
 
+            $curTid = function_exists('resolveCurrentTenantId') ? (int)resolveCurrentTenantId($pdo) : 1;
             $activeVouchers = [];
             foreach ($tables as $tInfo) {
                 $tbl = $tInfo['table'];
                 try {
-                    $stmt = $pdo->query("SELECT id, data FROM `{$tbl}` WHERE (is_deleted = 0 OR is_deleted IS NULL)");
+                    $stmt = $pdo->prepare("SELECT id, data FROM `{$tbl}` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
+                    $stmt->execute([$curTid]);
                     if (!$stmt) continue;
                     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                         $d = json_decode($row['data'] ?? '{}', true);

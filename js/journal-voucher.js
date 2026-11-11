@@ -752,7 +752,7 @@ window.shareJournalWhatsApp = function() {
 };
 
 // ── Integrated Journal Register Archive Table ──
-window.renderJournalArchiveTable = function() {
+function renderJournalArchiveTable() {
     const tbody = document.getElementById('jv-archive-tbody');
     if (!tbody) return;
     jvData = readAllStoredJVs();

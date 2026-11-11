@@ -1069,9 +1069,9 @@ document.addEventListener('DOMContentLoaded', function() {
         </a>
     </div>
 </div>
-<script src="js/auto-charts-domains-2027.js?v=<?php echo file_exists(__DIR__ . '/../js/auto-charts-domains-2027.js') ? filemtime(__DIR__ . '/../js/auto-charts-domains-2027.js') : time(); ?>"></script>
-<script src="js/auto-charts.js?v=<?php echo time(); ?>"></script>
-<script src="js/quran_reciters_data.js?v=<?php echo file_exists(__DIR__ . '/../js/quran_reciters_data.js') ? filemtime(__DIR__ . '/../js/quran_reciters_data.js') : time(); ?>"></script>
+<script src="js/auto-charts-domains-2027.js?v=<?php echo file_exists(__DIR__ . '/../js/auto-charts-domains-2027.js') ? filemtime(__DIR__ . '/../js/auto-charts-domains-2027.js') : '2027'; ?>" defer></script>
+<script src="js/auto-charts.js?v=<?php echo file_exists(__DIR__ . '/../js/auto-charts.js') ? filemtime(__DIR__ . '/../js/auto-charts.js') : '2027'; ?>" defer></script>
+<script src="js/quran_reciters_data.js?v=<?php echo file_exists(__DIR__ . '/../js/quran_reciters_data.js') ? filemtime(__DIR__ . '/../js/quran_reciters_data.js') : '2027'; ?>" defer></script>
 <script src="js/global_background_media.js?v=<?php echo file_exists(__DIR__ . '/../js/global_background_media.js') ? filemtime(__DIR__ . '/../js/global_background_media.js') : time(); ?>" defer></script>
 <script src="js/magaiees_back.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees_back.js') ? filemtime(__DIR__ . '/../js/magaiees_back.js') : time(); ?>" defer></script><script src="js/magaies-smart-guide.js?v=<?php echo file_exists(__DIR__ . '/../js/magaies-smart-guide.js') ? filemtime(__DIR__ . '/../js/magaies-smart-guide.js') : time(); ?>" defer></script><script src="js/md-delayed-tooltips.js?v=<?php echo file_exists(__DIR__ . '/../js/md-delayed-tooltips.js') ? filemtime(__DIR__ . '/../js/md-delayed-tooltips.js') : time(); ?>" defer></script>
 <script src="js/magaiees-royal-buttons.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees-royal-buttons.js') ? filemtime(__DIR__ . '/../js/magaiees-royal-buttons.js') : time(); ?>" defer></script>

@@ -24,7 +24,7 @@ $page_title = 'منظومة سند قيد اليومية العام والتسو
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="css/sales-invoice.css">
-    <link rel="stylesheet" href="css/ unified-design-tokens.css">
+    <link rel="stylesheet" href="css/unified-design-tokens.css">
     <style>
         .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
         .toast {

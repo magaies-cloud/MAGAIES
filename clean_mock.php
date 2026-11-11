@@ -1,4 +1,5 @@
 <?php
+if (PHP_SAPI !== 'cli') { http_response_code(403); exit('Forbidden: CLI only'); }
 $files = glob('*.php');
 $count = 0;
 foreach ($files as $f) {

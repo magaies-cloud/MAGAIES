@@ -1,4 +1,5 @@
 <?php
+if (PHP_SAPI !== 'cli') { http_response_code(403); exit('Forbidden: CLI only'); }
 // Script to automatically upgrade the live database schema
 require_once 'api/db.php';
 

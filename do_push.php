@@ -1,4 +1,5 @@
 <?php
+if (PHP_SAPI !== 'cli') { http_response_code(403); exit('Forbidden: CLI only'); }
 $log = "Adding files...\n";
 $log .= shell_exec('git add . 2>&1');
 $log .= "\nCommitting...\n";

@@ -1,4 +1,5 @@
 <?php
+if (PHP_SAPI !== 'cli') { http_response_code(403); exit('Forbidden: CLI only'); }
 $token = getenv('GITHUB_TOKEN') ?: '';
 $url = 'https://api.github.com/repos/magaies-cloud/magaies/contents/balances-report.php';
 

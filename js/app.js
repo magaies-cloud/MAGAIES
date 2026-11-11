@@ -1202,23 +1202,19 @@ JSON.parse = function(val) {
                 if (hasData) {
                     const token = localStorage.getItem('authToken');
                     if (token) {
-                        const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+                        const jsonStr = JSON.stringify(payload);
                         const url = SYNC_PUSH_URL + '?token=' + encodeURIComponent(token);
-                        
-                        // Attempt sendBeacon first (fastest, asynchronous but 64KB limit)
-                        const sent = navigator.sendBeacon(url, blob);
-                        
-                        // Fallback to synchronous XHR if sendBeacon fails (e.g., payload > 64KB)
-                        if (!sent) {
-                            console.warn("sendBeacon failed (likely >64KB limit). Falling back to synchronous XHR.");
-                            const xhr = new XMLHttpRequest();
-                            xhr.open("POST", url, false); // false makes it synchronous
-                            xhr.setRequestHeader("Content-Type", "application/json");
-                            xhr.send(JSON.stringify(payload));
+                        let sent = false;
+                        if (jsonStr.length < 60000 && navigator.sendBeacon) {
+                            sent = navigator.sendBeacon(url, new Blob([jsonStr], { type: 'application/json' }));
                         }
-                        
-                        dirtyKeys.clear();
-                        persistDirtyKeys();
+                        if (sent) {
+                            dirtyKeys.clear();
+                            persistDirtyKeys();
+                        } else {
+                            // Keep dirtyKeys persisted so the next page or background sync flushes asynchronously without freezing UI on 2G
+                            persistDirtyKeys();
+                        }
                     }
                 }
             } catch(beaconErr) {
@@ -1703,12 +1699,12 @@ JSON.parse = function(val) {
             let payload = {};
             let hasData = false;
             
-            if (dirtyKeys.size === 0 && !force) {
+            if (dirtyKeys.size === 0 && force !== 'all') {
                 resolve();
                 return;
             }
             
-            // Sync only modified keys if available, otherwise fallback to all syncKeys (e.g. initial force sync)
+            // Sync only modified keys unless force === 'all' is explicitly requested
             const keysToSync = dirtyKeys.size > 0 ? Array.from(dirtyKeys) : syncKeys;
             
             // Keep a copy of current dirty keys in case we need to restore them if the sync fails
@@ -1721,7 +1717,8 @@ JSON.parse = function(val) {
                 const data = window.DB_STORE[pk] || localGetItem(pk) || (pk === k ? localGetItem(k) : null);
                 if (data) {
                     try {
-                        payload[k] = JSON.parse(data);
+                        const parsed = JSON.parse(data);
+                        payload[k] = Array.isArray(parsed) ? parsed.filter(item => !(item && item.isOffline === true)) : parsed;
                         hasData = true;
                     } catch(e) {}
                 }

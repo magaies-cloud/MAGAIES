@@ -734,6 +734,19 @@
         vouchers.sort((a, b) => new Date(a.date) - new Date(b.date));
         
         let runningBalance = 0;
+        const allMaster = [...(JSON.parse(localStorage.getItem('erp_customers_v1')||'[]')), ...(JSON.parse(localStorage.getItem('erp_suppliers_v1')||'[]')), ...(JSON.parse(localStorage.getItem('erp_banks_v1')||'[]')), ...(JSON.parse(localStorage.getItem('erp_safes_v1')||'[]'))];
+        const cleanAcc = String(accountId).replace(/^(cust|supp|bank|safe|exp)-/i, '');
+        const mEnt = allMaster.find(x => x && !x.deleted && (String(x.id) === String(accountId) || String(x.id) === cleanAcc));
+        if (mEnt) {
+            const rawOp = parseFloat(mEnt.openingBalance ?? mEnt.opening_balance ?? 0) || 0;
+            const isSup = (JSON.parse(localStorage.getItem('erp_suppliers_v1')||'[]')).some(s => s && !s.deleted && (String(s.id) === String(accountId) || String(s.id) === cleanAcc));
+            const opDr = isSup ? (rawOp < 0 ? Math.abs(rawOp) : 0) : (rawOp >= 0 ? rawOp : 0);
+            const opCr = isSup ? (rawOp >= 0 ? rawOp : 0) : (rawOp < 0 ? Math.abs(rawOp) : 0);
+            if (opDr > 0 || opCr > 0) {
+                runningBalance += (opDr - opCr);
+                transactions.push({ date: mEnt.openingDate || '-', ref: 'OPEN-BAL', voucher: 'رصيد أول المدة', desc: 'رصيد افتتاحي مسجل', contraAccount: 'الأرصدة الافتتاحية', notes: mEnt.notes || '', costCenter: '-', dr: opDr, cr: opCr, bal: runningBalance, curr: mEnt.currency || 'SDG', rate: 1, dr_fc: opDr, cr_fc: opCr, bal_fc: runningBalance });
+            }
+        }
         
         vouchers.forEach(v => {
             if (!v.rows) return;

@@ -3478,7 +3478,7 @@ foreach ($rules as $r) {
         list.forEach((l, idx) => {
             const isRed = l.severity === 'RED';
             const bgCls = isRed ? 'bg-rose-950/40 border-rose-500/40 text-rose-200' : 'bg-amber-950/40 border-amber-500/40 text-amber-200';
-            const key = (l.id || ('alert_' + idx)).replace(/'/g, '');
+            const key = String(l.id || ('alert_' + idx)).replace(/'/g, '');
             const safeMsg = String(l.message || '').replace(/'/g, "\\'");
             const safeScreen = String(l.screen_file || '').replace(/'/g, "\\'");
             const linkBtn = l.screen_file ? `<a href="${l.screen_file}" class="px-2.5 py-1.5 bg-slate-900/90 hover:bg-slate-800 text-sky-300 rounded-xl text-[11px] font-black transition border border-sky-500/30 whitespace-nowrap flex items-center gap-1">معالجة ↗</a>` : '';

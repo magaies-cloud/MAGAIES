@@ -1,6 +1,9 @@
 <?php
 ini_set('display_errors', '0');
 error_reporting(E_ALL);
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression')) {
+    @ob_start('ob_gzhandler');
+}
 header("Content-Type: application/json; charset=UTF-8");
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 if (!empty($origin)) {
