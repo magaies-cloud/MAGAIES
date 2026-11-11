@@ -1094,6 +1094,7 @@ function renderDetailPane(index) {
                     ${trRef ? `<span style="color:#38bdf8;">🔢 مرجع الإشعار البنكي: #${trRef}</span>` : ''}
                 </div>
                 <div style="display:flex;gap:5px;flex-wrap:wrap;">
+                    <button type="button" class="pa-dna-btn" style="height:28px;padding:0 9px;font-size:0.74rem;background:linear-gradient(135deg,#2563eb,#1d4ed8);border:2px solid #93c5fd;color:#fff !important;" onclick="if(window.ElsajanaAccountingBrain)window.location.href=window.ElsajanaAccountingBrain.resolveSourceDrillUrl(filteredData[${index}]);" title="فتح أصل الفاتورة أو السند بلمسة واحدة (Drill-Down)">🔗 فتح أصل المستند</button>
                     <button type="button" class="pa-dna-btn" style="height:28px;padding:0 9px;font-size:0.74rem;background:linear-gradient(135deg,#0f766e,#0284c7);border:2px solid #6ee7b7;color:#fff !important;" onclick="window.openPaChequeLifecycleModal && window.openPaChequeLifecycleModal()">🏦 حافظة ودورة الشيكات</button>
                     <button type="button" class="pa-dna-btn" style="height:28px;padding:0 9px;font-size:0.74rem;background:linear-gradient(135deg,#b45309,#d97706);border:2px solid #fde047;color:#fff !important;" onclick="window.openPaBankGuardAndPeriodModal && window.openPaBankGuardAndPeriodModal()">🛡️ رقابة الإشعارات وإقفال الفترة</button>
                 </div>
@@ -1732,8 +1733,10 @@ async function saveItemUnposted(item) {
             if (idx > -1) data[idx].isPosted = false;
         }
 
-        // Save using standard overridden localStorage.setItem
+        // Save using standard overridden localStorage.setItem + Atomic Reversal Sync
         localStorage.setItem(item._metaKey, JSON.stringify(data));
+        if (window.recordPaCrdtAtomicDelta) window.recordPaCrdtAtomicDelta(item, false, Date.now(), 'CRDT-UNPOST-' + Date.now());
+        if (window.broadcastPaAtomicLedgerSync) window.broadcastPaAtomicLedgerSync(item, true);
         return true;
     } catch(e) {
         console.error('Unposting save error', e);

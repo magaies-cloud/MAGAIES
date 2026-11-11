@@ -274,13 +274,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Live date display in header
+    // Live date display in header (0ms Featherweight — render once + 60s tick)
     const dateMini = document.getElementById('header-date-mini');
     if (dateMini) {
-        setInterval(() => {
-            const now = new Date();
-            dateMini.innerText = now.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-        }, 1000);
+        const updateHdrDate = () => { dateMini.innerText = new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }); };
+        updateHdrDate();
+        setInterval(updateHdrDate, 60000);
     }
 
     // If app is already ready
@@ -2009,10 +2008,15 @@ async function _saveVoucherCore() {
                     seenTransfers.add(targetSuffix);
                     
                     const cvNo = document.getElementById('voucher-no-display') ? document.getElementById('voucher-no-display').value : '';
+                    const tInp = row.querySelector('.block-transfer-no-input');
                     const isUnique = await window.checkTransferDuplicate(tno, cvNo);
-                    if (!isUnique) {
-                        showCenterError(`رقم التحويل ( ${tno} ) للحساب ( ${accountName} - السطر ${i + 1} ) مستخدم من قبل!<br><br>يوجد تطابق في آخر 6 أرقام (${targetSuffix}) مع سند آخر مسجل مسبقاً في النظام. يمنع النظام تكرار آخر 6 أرقام نهائياً.`, 'duplicate');
-                        highlightError(row.querySelector('.block-transfer-no-input'));
+                    const brainDup = window.ElsajanaAccountingBrain ? window.ElsajanaAccountingBrain.checkBankakDuplicate(tno, tInp?.dataset?.imgHash || '', cvNo) : { duplicate: false };
+                    if (!isUnique || brainDup.duplicate) {
+                        const bkMsg = 'أمسك عندك! إشعار بنكك دا دخل الخزنة قبل كدا.. الموية ما بتمر من تحتنا مرتين!';
+                        if (window.ElsajanaAccountingBrain) window.ElsajanaAccountingBrain.shakeAndFocus(tInp, bkMsg, 'error', 5500);
+                        else showToast(bkMsg, 'error');
+                        showCenterError(`${bkMsg}<br><br>رقم التحويل ( ${tno} ) للحساب ( ${accountName} - السطر ${i + 1} ) مستخدم مسبقاً في النظام.`, 'duplicate');
+                        highlightError(tInp);
                         hasInvalidTransfer = true;
                         break;
                     }
@@ -2057,6 +2061,14 @@ async function _saveVoucherCore() {
                         break;
                     }
                     const currentVoucherNo = document.getElementById('voucher-no-display')?.value || '';
+                    if (window.ElsajanaAccountingBrain) {
+                        const chkDup = window.ElsajanaAccountingBrain.checkDuplicateChequeNo(no, currentVoucherNo);
+                        if (chkDup.duplicate) {
+                            window.ElsajanaAccountingBrain.shakeAndFocus(row.querySelector('.block-cheque-no-input'), `🚫 رقم الشيك (${no}) مسجل مسبقاً في حافظة الشيكات!`, 'error', 4800);
+                            hasInvalidCheque = true;
+                            break;
+                        }
+                    }
                     chequeTotalAmt += amt;
                     cheques.push({ amount: amt, chequeBank: bank, chequeNo: no, chequeDate: dt, statement: desc });
                 }
@@ -2156,6 +2168,20 @@ async function _saveVoucherCore() {
     let existingData = getStoredVouchers(storageKey);
     const existingIdx = existingData.findIndex(v => (v && ((v.voucherNo === vNo || v.id === vNo) || (window._activeInboundReceiptId && v.inboundReceiptId && String(v.inboundReceiptId) === String(window._activeInboundReceiptId))) && v.isGrouped));
     const oldVoucher = (existingIdx > -1) ? existingData[existingIdx] : null;
+    if (!oldVoucher) {
+        const itemsSig = items.map(it => `${it.accountId}:${it.amount}`).sort().join('|');
+        const sameDayGrp = (existingData || []).find(v => v && !v.deleted && String(v.date || '').slice(0, 10) === String(date || '').slice(0, 10) && String(v.mainAccount) === String(mainAccount) && Math.abs((parseFloat(v.totalAmount) || 0) - finalTotal) < 0.01 && (Array.isArray(v.items) ? v.items.map(it => `${it.accountId || it.account}:${it.amount}`).sort().join('|') : '') === itemsSig);
+        if (sameDayGrp && !window._confirmSameDayGroupedDup) {
+            window._confirmSameDayGroupedDup = true;
+            setTimeout(() => { window._confirmSameDayGroupedDup = false; }, 9000);
+            showToast(`⚠️ تنبيه منع التكرار: يوجد سند مجمع مطابق اليوم برقم (#${sameDayGrp.voucherNo || sameDayGrp.id}) بنفس الحسابات والمبلغ! اضغط حفظ مجدداً إذا أردت تكراره فعلاً.`, 'warning', 5200);
+            reEnableSave();
+            return;
+        }
+        window._confirmSameDayGroupedDup = false;
+    }
+
+        // Rebuild GL immediately so General Ledger reflects new voucher BEFORE pushing to cloud
     if (oldVoucher && oldVoucher.voucherNo) vNo = oldVoucher.voucherNo;
     const curUser = (typeof window.getCurrentUserInfo === 'function') ? window.getCurrentUserInfo() : { id: 1, name: 'المسؤول', username: 'admin' };
 
@@ -2242,6 +2268,9 @@ async function _saveVoucherCore() {
         // Rebuild GL immediately so General Ledger reflects new voucher BEFORE pushing to cloud
         if (window.rebuildGLFromAllTables) {
             try { window.rebuildGLFromAllTables(false); } catch(e) {}
+        }
+        if (window.ElsajanaAccountingBrain && typeof window.ElsajanaAccountingBrain.syncVoucherAtomically === 'function') {
+            try { window.ElsajanaAccountingBrain.syncVoucherAtomically(voucher); } catch(e) {}
         }
 
         if (typeof window.pushToCloud === 'function') {

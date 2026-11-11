@@ -1609,6 +1609,9 @@ html.grn-ophthalmic-comfort-active body {
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=20261016_v28"></script>
     <script defer src="js/magaies-smart-guide.js?v=<?php echo file_exists('js/magaies-smart-guide.js') ? filemtime('js/magaies-smart-guide.js') : '20261030_v35'; ?>"></script>
+    <script defer src="js/elsajana-erp-brain-2027.js?v=<?php echo file_exists('js/elsajana-erp-brain-2027.js') ? filemtime('js/elsajana-erp-brain-2027.js') : 1; ?>"></script>
+    <script defer src="js/elsajana-charts-forensic-2027.js?v=<?php echo file_exists('js/elsajana-charts-forensic-2027.js') ? filemtime('js/elsajana-charts-forensic-2027.js') : 1; ?>"></script>
+    <script defer src="js/elsajana-universal-ui-2027.js?v=<?php echo file_exists('js/elsajana-universal-ui-2027.js') ? filemtime('js/elsajana-universal-ui-2027.js') : 1; ?>"></script>
     <script>
         var allPurchases = [];
         var itemsDb = [];
@@ -1623,7 +1626,17 @@ html.grn-ophthalmic-comfort-active body {
         // Formatting utilities
         function fmtNum(n) { return Number(n).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2}); }
         function parseNum(str) { if(!str) return 0; return parseFloat(String(str).replace(/,/g, '')) || 0; }
+        function resolveGrnElsajanaSteelFactor(unitName, curFactor) {
+            const u = String(unitName || '').trim();
+            if (u === 'طن عددي' || u.includes('طن عددي')) return 135;
+            if (u === 'طن وزني' || u.includes('طن وزني') || u === 'طن') return (curFactor && curFactor > 1 && curFactor !== 166) ? curFactor : 140;
+            if (u === 'شيلة' || u.includes('شيلة')) return 15;
+            return (curFactor && curFactor > 0) ? curFactor : 1;
+        }
         function showToast(msg, type='info') {
+            if (window.ElsajanaAccountingBrain && typeof window.ElsajanaAccountingBrain.floatingToast === 'function') {
+                return window.ElsajanaAccountingBrain.floatingToast(msg, type, 3800);
+            }
             const container = document.getElementById('toast-container');
             const t = document.createElement('div');
             t.style.padding = '12px 20px'; t.style.borderRadius = '8px'; t.style.color = '#fff'; t.style.fontSize = '0.9rem'; t.style.fontWeight = '700'; t.style.boxShadow = '0 5px 15px rgba(0,0,0,0.4)'; t.style.animation = 'slideDown 0.3s ease forwards';
@@ -2106,6 +2119,7 @@ html.grn-ophthalmic-comfort-active body {
                     }
                 }
                 if (isNaN(initialFactor) || initialFactor <= 0) initialFactor = 1;
+                initialFactor = resolveGrnElsajanaSteelFactor(line.unitName || line.unit, initialFactor);
 
                 return {
                     id: 'L' + index,
@@ -2533,11 +2547,27 @@ html.grn-ophthalmic-comfort-active body {
         function saveReceiptNote() {
             const receivingItems = receiptLines.filter(x => x.receiveQty > 0);
             if (receivingItems.length === 0) {
+                const firstQty = document.querySelector('#items-tbody input.qty-input');
+                if (window.ElsajanaAccountingBrain && firstQty) return window.ElsajanaAccountingBrain.shakeAndFocus(firstQty, 'يجب تحديد كمية استلام لصنف واحد على الأقل', 'error');
                 return showToast('يجب تحديد كمية استلام لصنف واحد على الأقل', 'error');
             }
 
             const hasEmptyWh = receivingItems.some(x => !x.warehouseId);
-            if (hasEmptyWh) return showToast('يرجى تحديد المستودع لجميع الأصناف المستلمة', 'error');
+            if (hasEmptyWh) {
+                const whSel = document.querySelector('#items-tbody select');
+                if (window.ElsajanaAccountingBrain && whSel) return window.ElsajanaAccountingBrain.shakeAndFocus(whSel, 'يرجى تحديد المستودع لجميع الأصناف المستلمة', 'error');
+                return showToast('يرجى تحديد المستودع لجميع الأصناف المستلمة', 'error');
+            }
+
+            // Same-Day Accidental Duplicate Receipt Guard (Point 6)
+            const todayKey = new Date().toISOString().slice(0, 10);
+            const saveSig = `${currentInvoiceId}|${todayKey}|${receivingItems.map(x => `${x.itemId}:${x.receiveQty}`).join(',')}`;
+            if (!editingGRNId && window._lastGrnSameDaySig === saveSig && !window._allowDupGrnOnce) {
+                window._allowDupGrnOnce = true;
+                return showToast('⚠️ تنبيه ذكي: تم اعتماد نفس مذكرة الاستلام بنفس الكميات اليوم! اضغط حفظ مرة أخرى إذا كان استلاماً متعمداً.', 'warning');
+            }
+            window._lastGrnSameDaySig = saveSig;
+            window._allowDupGrnOnce = false;
 
             const invData = pendingMap[currentInvoiceId];
             
@@ -2563,6 +2593,7 @@ html.grn-ophthalmic-comfort-active body {
                     }
                 }
 
+                lineFactor = resolveGrnElsajanaSteelFactor(line.unitName || line.unit, lineFactor);
                 const baseQtyReceived = (parseFloat(line.receiveQty) || 0) * lineFactor;
 
                 // Negative (Take out of PENDING)
@@ -2710,6 +2741,19 @@ html.grn-ophthalmic-comfort-active body {
 
             localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(freshPurchases));
             allPurchases = freshPurchases; // Update local memory reference
+            if (window.ElsajanaAccountingBrain && typeof window.ElsajanaAccountingBrain.syncLogisticsReceiptAtomically === 'function') {
+                const grnSyncItems = receivingItems.map(l => {
+                    const f = resolveGrnElsajanaSteelFactor(l.unitName || l.unit, parseFloat(l.factor || l.customFactor) || 1);
+                    return { itemId: l.itemId, itemName: getItemName(l.itemId), qtyReceived: l.receiveQty, baseQtyAdded: (parseFloat(l.receiveQty) || 0) * f, warehouseId: l.warehouseId };
+                });
+                const grnRec = { grnNo: grnInv.id, originalInvoiceNo: currentInvoiceId, date: grnInv.date.slice(0, 10), supplierName: getSupplierName(invData?.supplierId), items: grnSyncItems, notes: grnInv.notes };
+                try {
+                    const rList = JSON.parse(localStorage.getItem('erp_purchase_receipts_v1') || '[]');
+                    rList.unshift(grnRec);
+                    localStorage.setItem('erp_purchase_receipts_v1', JSON.stringify(rList.slice(0, 3000)));
+                } catch (_) {}
+                window.ElsajanaAccountingBrain.syncLogisticsReceiptAtomically(grnRec, invData, grnSyncItems);
+            }
             
             if (window._isQuickHubReceiving) {
                 calculatePendingGoods();
@@ -2861,7 +2905,7 @@ html.grn-ophthalmic-comfort-active body {
                 html += `
                     <tr style="border-bottom: 1px solid rgba(255,255,255,0.03); ${rowBg}">
                         <td style="color: #38bdf8; font-weight: 800; font-family: 'Outfit';">${grn.id} ${editBadge}</td>
-                        <td style="text-align:center; color: #fbbf24; font-weight: bold; font-family: 'Outfit'; cursor: pointer;" ondblclick="window.open('purchase.php?id=${grn.originalInvoiceId}', '_blank')" title="انقر مرتين لفتح الفاتورة">${grn.originalInvoiceId}</td>
+                        <td style="text-align:center; color: #fbbf24; font-weight: bold; font-family: 'Outfit'; cursor: pointer;" onclick="window.open('purchase.php?action=direct&inv='+encodeURIComponent('${grn.originalInvoiceId}'), '_blank')" title="انقر لفتح الفاتورة الأصلية بلمسة واحدة">${grn.originalInvoiceId}</td>
                         <td style="text-align:right; font-weight: 700; color: #fbbf24;">${supName}</td>
                         <td style="text-align:center; font-family: 'Outfit';">${dateStr}</td>
                         <td style="color:#e2e8f0; line-height: 1.4;">${itemsSummary}</td>
@@ -5106,9 +5150,19 @@ html.grn-ophthalmic-comfort-active body {
 
         // 📷 7-B. Client-Side Compressed GRN Photo Evidence Upload
         window._currentGrnPhotoDataUrl = null;
-        window.handleGrnPhotoUpload = function(fileInp) {
+        window.handleGrnPhotoUpload = async function(fileInp) {
             const file = fileInp && fileInp.files && fileInp.files[0];
             if (!file) return;
+            if (window.ElsajanaAccountingBrain && typeof window.ElsajanaAccountingBrain.compressImageTo40KB === 'function') {
+                const res = await window.ElsajanaAccountingBrain.compressImageTo40KB(file);
+                window._currentGrnPhotoDataUrl = res.dataUrl;
+                const lbl = document.getElementById('lbl-grn-photo-status');
+                const btn = document.getElementById('btn-grn-photo-attach');
+                if (lbl) lbl.textContent = `✅ تم إرفاق صورة الفحص (${res.sizeKB} KB ≤ 40KB)`;
+                if (btn) { btn.style.background = 'rgba(16,185,129,0.18)'; btn.style.borderColor = 'rgba(16,185,129,0.55)'; btn.style.color = '#34d399'; }
+                showToast(`📷 تم ضغط صورة الفحص إلى (${res.sizeKB} KB ≤ 40KB) وإرفاقها بنجاح`, 'success');
+                return;
+            }
             const reader = new FileReader();
             reader.onload = function(ev) {
                 const img = new Image();
@@ -7271,9 +7325,7 @@ html.grn-ophthalmic-comfort-active body {
         setInterval(function() {
             if (document.visibilityState === 'visible' && navigator.onLine) {
                 flushGrnOfflineQueue().then(() => window.updateGrnLiveSyncBadge());
-                syncPurchaseReceiptsWithMariaDB();
-            }
-        }, 6500);
+                syncPurchaseReceiptsWithMariaDB(); } }, 45000);
 
         // ═══════════════════════════════════════════════════════════════════════════
         // APPROVED CONSTITUTION 3 PROPOSALS (1, 2 & 3):
@@ -10599,6 +10651,15 @@ html.grn-ophthalmic-comfort-active body {
                 if (!itemId || qty <= 0) {
                     return window.showToast('⚠️ يرجى تحديد الصنف وكمية تحويل أكبر من صفر', 'warning');
                 }
+                if (window.ElsajanaAccountingBrain && typeof window.ElsajanaAccountingBrain.checkOutboundStockGuard === 'function') {
+                    const itObj = (window.itemsDb || []).find(i => i && (String(i.id) === String(itemId) || i.name === itemId));
+                    const g = window.ElsajanaAccountingBrain.checkOutboundStockGuard(itObj, qty, false);
+                    if (!g.allowed) {
+                        const qInp = document.getElementById('grn-c9-trf-qty');
+                        if (qInp) return window.ElsajanaAccountingBrain.shakeAndFocus(qInp, g.message, 'error', 5200);
+                        return window.showToast(g.message, 'error');
+                    }
+                }
 
                 const fromWhObj = (window.warehousesDb || []).find(w => String(w.id) === String(fromWh)) || { id: fromWh, name: fromWh };
                 const toWhObj   = (window.warehousesDb || []).find(w => String(w.id) === String(toWh)) || { id: toWh, name: toWh };
@@ -12072,6 +12133,17 @@ html.grn-ophthalmic-comfort-active body {
 
                 if (!chosenLines.length) {
                     return window.showToast('⚠️ يرجى تحديد كمية مرتجع أكبر من صفر لصنف واحد على الأقل', 'warning');
+                }
+                if (window.ElsajanaAccountingBrain && typeof window.ElsajanaAccountingBrain.checkOutboundStockGuard === 'function') {
+                    for (const cl of chosenLines) {
+                        const itObj = (window.itemsDb || []).find(i => i && (String(i.id) === String(cl.itemId) || i.name === cl.itemId));
+                        const g = window.ElsajanaAccountingBrain.checkOutboundStockGuard(itObj, (cl.returnQty || 0) * (cl.factor || 1), false);
+                        if (!g.allowed) {
+                            const qInp = modal.querySelector('.grn-c10-ret-qty');
+                            if (qInp) return window.ElsajanaAccountingBrain.shakeAndFocus(qInp, g.message, 'error', 5200);
+                            return window.showToast(g.message, 'error');
+                        }
+                    }
                 }
                 totalReturnVal = roundC10(totalReturnVal, 2);
                 const retId = 'RET-' + Date.now().toString().slice(-6);
@@ -16768,188 +16840,7 @@ html.grn-ophthalmic-comfort-active body {
             window.applyAndPersistC15ProportionalScale(window.getSavedC15ProportionalScale(), false);
 
             // 2. حقن الفواصل الراقية المستنسخة من "شاشة المشتريات (ما بعد الدساتير)" + توحيد الخطوط + قفل لون خانة الكتابة
-            const injectC15PurchaseSeparatorsAndUnifiedFonts = () => {
-                if (document.getElementById('grn-c15-master-constitution-styles')) return;
-                const styleEl = document.createElement('style');
-                styleEl.id = 'grn-c15-master-constitution-styles';
-                styleEl.textContent = `
-                    /* ═══════════════════════════════════════════════════════════════════════════
-                       1. الإصلاح الجذري لتناسب الرولة (Ctrl + Wheel — 6:8 Uniform 2D Scaling) والتنصيف بعد الشريط الجانبي
-                       ═══════════════════════════════════════════════════════════════════════════ */
-                    html body .dash-main, html body #grn-proportional-root {
-                        width: calc(100% - 24px) !important;
-                        max-width: calc(100% - 24px) !important;
-                        margin: 0 auto !important;
-                        transform: scale(var(--grn-zoom-scale, 1)) !important;
-                        transform-origin: top center !important;
-                        box-sizing: border-box !important;
-                    }
-
-                    /* ═══════════════════════════════════════════════════════════════════════════
-                       2. استنساخ ضبط وفواصل "شاشة المشتريات (ما بعد الدساتير)" — استقلال تام عن currentColor
-                       ═══════════════════════════════════════════════════════════════════════════ */
-                    /* أ) السمات الفاتحة (:root.light-theme / warm_cream / ultra_white / exec_gray) */
-                    :root.light-theme #grn-items-table,
-                    :root.light-theme #grn-history-table,
-                    :root.light-theme .pos-grid,
-                    :root.light-theme [id$="-modal"] table {
-                        border: 2px solid var(--lt-border, #5c2808) !important;
-                        background: var(--lt-card-1, #fffdf8) !important;
-                        border-collapse: collapse !important;
-                    }
-                    :root.light-theme #grn-items-table thead tr th,
-                    :root.light-theme #grn-history-table thead tr th,
-                    :root.light-theme .pos-grid thead tr th,
-                    :root.light-theme [id$="-modal"] table thead tr th {
-                        background: linear-gradient(180deg, var(--lt-th-1, #f5ead4) 0%, var(--lt-th-2, #e6d4b5) 100%) !important;
-                        color: #000000 !important;
-                        -webkit-text-fill-color: #000000 !important;
-                        border-top: 2px solid var(--lt-border, #5c2808) !important;
-                        border-bottom: 2px solid var(--lt-border, #5c2808) !important;
-                        border-left: 1.5px solid var(--lt-border, #5c2808) !important;
-                        border-right: 1.5px solid var(--lt-border, #5c2808) !important;
-                        font-weight: 900 !important;
-                        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75) !important;
-                    }
-                    :root.light-theme #grn-items-table tbody tr td,
-                    :root.light-theme #grn-history-table tbody tr td,
-                    :root.light-theme .pos-grid tbody tr td,
-                    :root.light-theme [id$="-modal"] table tbody tr td {
-                        background: var(--lt-row-odd, #ffffff) !important;
-                        color: #000000 !important;
-                        -webkit-text-fill-color: #000000 !important;
-                        border-top: 1.5px solid var(--lt-border, #5c2808) !important;
-                        border-bottom: 1.5px solid var(--lt-border, #5c2808) !important;
-                        border-left: 1px solid rgba(148, 163, 184, 0.30) !important;
-                        border-right: 1px solid rgba(148, 163, 184, 0.30) !important;
-                        font-weight: 800 !important;
-                    }
-                    :root.light-theme #grn-items-table tbody tr:hover td,
-                    :root.light-theme #grn-history-table tbody tr:hover td,
-                    :root.light-theme .pos-grid tbody tr:hover td,
-                    :root.light-theme [id$="-modal"] table tbody tr:hover td {
-                        background: var(--lt-sub-2, #f6ecda) !important;
-                    }
-
-                    /* ب) السمات الغامقة (فواصل مستقلة متناسقة بلون سماوي/فضي هادئ لا يتبع currentColor أبداً) */
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #grn-items-table,
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #grn-history-table,
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .pos-grid,
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) [id$="-modal"] table {
-                        border: 2px solid rgba(56, 189, 248, 0.40) !important;
-                        border-collapse: collapse !important;
-                    }
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #grn-items-table thead tr th,
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #grn-history-table thead tr th,
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .pos-grid thead tr th,
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) [id$="-modal"] table thead tr th {
-                        background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%) !important;
-                        color: #FFFFFF !important;
-                        -webkit-text-fill-color: #FFFFFF !important;
-                        border-top: 2px solid rgba(56, 189, 248, 0.45) !important;
-                        border-bottom: 2px solid rgba(56, 189, 248, 0.45) !important;
-                        border-left: 1px solid rgba(148, 163, 184, 0.24) !important;
-                        border-right: 1px solid rgba(148, 163, 184, 0.24) !important;
-                        font-weight: 900 !important;
-                    }
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #grn-items-table tbody tr td,
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #grn-history-table tbody tr td,
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .pos-grid tbody tr td,
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) [id$="-modal"] table tbody tr td {
-                        border-top: 1px solid rgba(148, 163, 184, 0.22) !important;
-                        border-bottom: 1px solid rgba(148, 163, 184, 0.22) !important;
-                        border-left: 1px solid rgba(148, 163, 184, 0.18) !important;
-                        border-right: 1px solid rgba(148, 163, 184, 0.18) !important;
-                        color: #FFFFFF !important;
-                    }
-
-                    /* ═══════════════════════════════════════════════════════════════════════════
-                       3. القفل الحديدي للون خانة الكتابة (منع انقلاب اللون عند التركيز أو الإكمال التلقائي)
-                       ═══════════════════════════════════════════════════════════════════════════ */
-                    /* أ) في السمات الغامقة: أرضية سوداء صريحة (#000000) وكتابة بيضاء صريحة (#FFFFFF) */
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="hidden"]),
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body select,
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body textarea,
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body input:focus,
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body select:focus,
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) body textarea:focus {
-                        background-color: #000000 !important;
-                        color: #FFFFFF !important;
-                        -webkit-box-shadow: 0 0 0 1000px #000000 inset !important;
-                        box-shadow: 0 0 0 1000px #000000 inset !important;
-                        -webkit-text-fill-color: #FFFFFF !important;
-                        border: 2px solid rgba(56, 189, 248, 0.55) !important;
-                        caret-color: #38bdf8 !important;
-                    }
-
-                    /* ب) في السمات الفاتحة: أرضية بيضاء صريحة (#FFFFFF) وكتابة سوداء صريحة (#000000) وحواف (+2) */
-                    :root.light-theme body input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="hidden"]),
-                    :root.light-theme body select,
-                    :root.light-theme body textarea,
-                    :root.light-theme body input:focus,
-                    :root.light-theme body select:focus,
-                    :root.light-theme body textarea:focus {
-                        background-color: #FFFFFF !important;
-                        color: #000000 !important;
-                        -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
-                        box-shadow: 0 0 0 1000px #FFFFFF inset !important;
-                        -webkit-text-fill-color: #000000 !important;
-                        border: 2px solid var(--lt-border, #5c2808) !important;
-                        caret-color: #000000 !important;
-                    }
-
-                    /* ═══════════════════════════════════════════════════════════════════════════
-                       4. القفل الحديدي لتوحيد الخطوط ومقاسات الخطوط في كامل الشاشة والشاشات الوليدة
-                       ═══════════════════════════════════════════════════════════════════════════ */
-                    html body .dash-main,
-                    html body .dash-main *,
-                    html body [id$="-modal"],
-                    html body [id$="-modal"] * {
-                        font-family: 'Cairo', 'Tajawal', 'Segoe UI', Tahoma, sans-serif !important;
-                    }
-                    html body .dash-main h1,
-                    html body .dash-main h2,
-                    html body .dash-main h3,
-                    html body .dash-main .neo-card-title,
-                    html body [id$="-modal"] h3 {
-                        font-size: 14.5px !important;
-                        font-weight: 900 !important;
-                        line-height: 1.4 !important;
-                    }
-                    html body .dash-main label,
-                    html body [id$="-modal"] label {
-                        font-size: 12px !important;
-                        font-weight: 800 !important;
-                        line-height: 1.35 !important;
-                    }
-                    html body .dash-main input:not([type="checkbox"]):not([type="radio"]),
-                    html body .dash-main select,
-                    html body .dash-main textarea,
-                    html body .dash-main table th,
-                    html body .dash-main table td,
-                    html body [id$="-modal"] input:not([type="checkbox"]):not([type="radio"]),
-                    html body [id$="-modal"] select,
-                    html body [id$="-modal"] textarea,
-                    html body [id$="-modal"] table th,
-                    html body [id$="-modal"] table td {
-                        font-size: 13px !important;
-                        font-weight: 800 !important;
-                    }
-                    html body .dash-main button,
-                    html body [id$="-modal"] button {
-                        font-size: 12px !important;
-                        font-weight: 900 !important;
-                        transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease !important;
-                    }
-                    /* إضاءة سفلية وتكبير طفيف للأزرار عند مرور الماوس (Hover Glow & Under-Glow) */
-                    html body .dash-main button:hover,
-                    html body [id$="-modal"] button:hover {
-                        transform: translateY(-2px) scale(1.035) !important;
-                        box-shadow: 0 8px 18px -4px rgba(16, 185, 129, 0.45), 0 0 12px rgba(56, 189, 248, 0.35) !important;
-                    }
-                `;
-                document.head.appendChild(styleEl);
-            };
+            const injectC15PurchaseSeparatorsAndUnifiedFonts = () => {};
 
             // 3. تطهير المقاسات العشوائية الفردية (Inline font-size) وتفعيل الآلة الحاسبة المدمجة داخل جميع الخانات الرقمية
             window.normalizeGrnC15UnifiedTypographyAndMathInputs = function(root = document) {
@@ -17083,16 +16974,7 @@ html.grn-ophthalmic-comfort-active body {
                 window.setGrnGlobalUnifiedFontPx(localStorage.getItem('magaies_global_font_px') || localStorage.getItem('elsajana_sl_font_size') || '15', true);
 
                 // مستمع حدث (Ctrl + Wheel) التلسكوبي الفائق (من 0.25x حتى 10x) وحفظه وتوريثه عبر كل الشاشات
-                window.addEventListener('wheel', (e) => {
-                    if (e.ctrlKey) {
-                        e.preventDefault();
-                        e.stopImmediatePropagation();
-                        const cur = window.getSavedC15ProportionalScale();
-                        const baseStep = cur >= 3 ? 0.5 : (cur >= 1.5 ? 0.2 : 0.08);
-                        const step = e.deltaY < 0 ? baseStep : -baseStep;
-                        window.applyAndPersistC15ProportionalScale(cur + step, true);
-                    }
-                }, { passive: false, capture: true });
+                window.addEventListener('wheel', (e) => { if (e.ctrlKey && window.ElsajanaUniversalUI2027) { if (e.target && e.target.closest && e.target.closest('.global-sidebar, .magical-glass-header')) return; e.preventDefault(); e.stopImmediatePropagation(); window.ElsajanaUniversalUI2027.stepZoom(e.deltaY < 0 ? 0.2 : -0.2); } }, { passive: false, capture: true });
 
                 // تزامن المقاس والخطوط المحفوظة فورياً بين التبويبات وجميع شاشات البرنامج
                 window.addEventListener('storage', (e) => {
@@ -17213,41 +17095,7 @@ html.grn-ophthalmic-comfort-active body {
             window.__c16SaveInFlightLock = false;
 
             // 1. حقن القاعدة الذهبية للفواصل خفيفة الحدة (rgba(255,255,255,0.22) للغامق و rgba(0,0,0,0.20) للفاتح) المستقلة تماماً عن currentColor
-            const injectC16ZeroErrorSeparatorAndButtonCss = () => {
-                if (document.getElementById('grn-c16-zero-error-styles')) return;
-                const st = document.createElement('style');
-                st.id = 'grn-c16-zero-error-styles';
-                st.textContent = `
-                    /* الحواف الراقية خفيفة الحدة للفواصل الداخلية المستقلة عن لون الكتابة (الدستور 16) */
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #grn-items-table tbody tr td,
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #grn-history-table tbody tr td,
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) .pos-grid tbody tr td,
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) [id$="-modal"] table tbody tr td,
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #grn-items-table thead tr th,
-                    html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #grn-history-table thead tr th {
-                        border-color: rgba(255, 255, 255, 0.22) !important;
-                    }
-                    :root.light-theme #grn-items-table tbody tr td,
-                    :root.light-theme #grn-history-table tbody tr td,
-                    :root.light-theme .pos-grid tbody tr td,
-                    :root.light-theme [id$="-modal"] table tbody tr td,
-                    :root.light-theme #grn-items-table thead tr th,
-                    :root.light-theme #grn-history-table thead tr th {
-                        border-color: rgba(0, 0, 0, 0.20) !important;
-                    }
-
-                    /* وضع السرعة القصوى لأجهزة 2010–2012 وإنترنت 2G (0ms Turbo Mode) */
-                    body.c16-legacy-2g-turbo *,
-                    body.c16-legacy-2g-turbo *::before,
-                    body.c16-legacy-2g-turbo *::after {
-                        animation-duration: 0.001s !important;
-                        transition-duration: 0.05s !important;
-                        backdrop-filter: none !important;
-                        -webkit-backdrop-filter: none !important;
-                    }
-                `;
-                document.head.appendChild(st);
-            };
+            const injectC16ZeroErrorSeparatorAndButtonCss = () => {};
 
             // 2. تنقية نصوص المرشد الذكي: الصلاة على النبي ﷺ مرة واحدة في البداية فقط وحذف عبارة "شرح من الألف للياء"
             window.sanitizeC16SmartGuideSpeeches = function() {
@@ -17917,7 +17765,7 @@ html.grn-ophthalmic-comfort-active body {
 
         // 3. النقطة الجوهرية (1): شريط الذكاء الاصطناعي الهجين (0ms Hybrid Edge + Cloud AI) والإدخال الصوتي والنصي باللغة الطبيعية
         function injectGrnFc1AiCommandBar() {
-            if (document.getElementById('grn-fc1-ai-command-bar')) return;
+            if (true) return; // Purged hidden #grn-fc1-ai-command-bar DOM overhead
             var viewHub = document.getElementById('view-hub');
             if (!viewHub) return;
 
@@ -19106,7 +18954,7 @@ html.grn-ophthalmic-comfort-active body {
             initGrnFc2All();
             setTimeout(initGrnFc2All, 350);
         }
-        setInterval(window.refreshGrnFc2LiveResultSummary, 3500);
+        // Event-driven only (0ms idle CPU)
     })();
     </script>
     <!-- ══════════════════════════════════════════════════════════════════════════

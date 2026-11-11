@@ -40,7 +40,6 @@ window.toggleNumberMagnification = function(el) {
 ﻿/* ═══════════════════════════════════════════════════════
    balances-report.js — Global Balances & Aging Report
    ═══════════════════════════════════════════════════════ */
-console.log('%c[balances-report.js] FILE LOADED v2', 'color: lime; font-size: 16px; font-weight: bold;');
 
 window.colConfigs = [
     { name: 'اسم الحساب', alias: 'اسم الحساب', id: 'name', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'right' },
@@ -765,8 +764,6 @@ function calculateAccountLedgerBalance(p, allTxns, systemUsdRate, ccFilter = 'AL
 }
 
 function loadData() {
-    console.log('%c[balances-report.js] loadData() CALLED', 'color: cyan; font-size: 14px;');
-    
     // Always rebuild GL from all tables to ensure fresh synchronization
     if (typeof window.rebuildGLFromAllTables === 'function') {
         try {
@@ -816,6 +813,7 @@ function loadData() {
             openingDebit: parseNum(c.openingDebit || c.debit || 0),
             openingCredit: parseNum(c.openingCredit || c.credit || 0),
             openingBalance: parseNum(c.openingBalance || c.opening_balance || c.balance || 0),
+            creditLimit: parseNum(c.creditLimit || c.credit_limit || 0),
             balanceType: c.balance_type || c.balanceType || 'debit',
             balance_type: c.balance_type || c.balanceType || 'debit',
             notes: c.notes || '',
@@ -832,6 +830,7 @@ function loadData() {
             openingDebit: parseNum(s.openingDebit || s.debit || 0),
             openingCredit: parseNum(s.openingCredit || s.credit || 0),
             openingBalance: parseNum(s.openingBalance || s.opening_balance || s.balance || 0),
+            creditLimit: parseNum(s.creditLimit || s.credit_limit || 0),
             balanceType: s.balance_type || s.balanceType || 'credit',
             balance_type: s.balance_type || s.balanceType || 'credit',
             notes: s.notes || '',
@@ -985,7 +984,6 @@ window.addEventListener('load', autoInitBalancesReport);
 
 function runReport(isAutoInit = false) {
     window.runReport = runReport;
-    console.log('%c[balances-report.js] runReport() CALLED. Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length, 'color: #ff6b6b; font-size: 16px; font-weight: bold;');
     if (ALL_PARTNERS.length === 0) {
         loadData();
     }
@@ -1377,6 +1375,9 @@ function bindRowContextMenu() {
             currentSelectedPartnerId = pId;
             currentSelectedPartnerType = pType;
             currentSelectedPartnerName = pName;
+            window.currentSelectedPartnerId = pId;
+            window.currentSelectedPartnerType = pType;
+            window.currentSelectedPartnerName = pName;
 
             const headerEl = document.getElementById('partnerMenuHeader');
             if (headerEl) {
@@ -2010,7 +2011,12 @@ function renderTable(results, isAutoInit = false) {
         const typeLabel = p.type === 'CUST' ? 'عميل' : (p.type === 'SUPP' ? 'مورد' : (p.type === 'BANK' ? 'بنك' : (p.type === 'SAFE' ? 'خزينة' : 'حساب')));
 
         let cells = [];
-        cells[0] = `<td style="${getCellStyle(0)}">${p.name} <span style="color:#64748b;font-size:0.7rem;margin-right:5px;">(${typeLabel})</span></td>`;
+        const limVal = parseFloat(p.creditLimit || 0) || 0;
+        const activeDebt = p.type === 'CUST' ? endingDebitLocal : (p.type === 'SUPP' ? endingCreditLocal : 0);
+        const limBadge = limVal > 0
+            ? `<span style="font-size:0.68rem;margin-right:6px;padding:1px 6px;border-radius:6px;font-weight:800;background:${activeDebt > limVal ? 'rgba(239,68,68,0.18)' : 'rgba(56,189,248,0.14)'};color:${activeDebt > limVal ? '#f87171' : '#38bdf8'};border:1px solid ${activeDebt > limVal ? 'rgba(239,68,68,0.4)' : 'rgba(56,189,248,0.3)'};">${activeDebt > limVal ? '⚠️ تجاوز السقف: ' : '💳 السقف: '}${limVal.toLocaleString('en-US')}</span>`
+            : '';
+        cells[0] = `<td style="${getCellStyle(0)}">${p.name} <span style="color:#64748b;font-size:0.7rem;margin-right:5px;">(${typeLabel})</span>${limBadge}</td>`;
         cells[1] = `<td class="num" dir="ltr" style="${getCellStyle(1)}" onclick="window.toggleNumberMagnification(this); event.stopPropagation();">${cleanPhone || '-'}</td>`;
         cells[2] = `<td class="num" style="${getCellStyle(2)}" onclick="window.toggleNumberMagnification(this); event.stopPropagation();">${p.taxNumber || '-'}</td>`;
         cells[3] = `<td style="font-weight:bold; color:#38bdf8; ${getCellStyle(3)}">${p.currency || 'SDG'}</td>`;
@@ -2021,11 +2027,13 @@ function renderTable(results, isAutoInit = false) {
         cells[8] = `<td style="max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; ${getCellStyle(8)}" title="${p.notes || ''}">${p.notes || '-'}</td>`;
         
         let orderedCells = window.colOrder.map(idx => cells[idx]).join('');
-        let delay = Math.min(idx * 0.03, 0.6).toFixed(2);
-        rows += `<tr class="partner-row animate-slide-up" data-partner-id="${p.id}" data-partner-name="${p.name}" data-partner-type="${p.type}" onclick="handleRowClick(event, '${p.id}', '${p.type}', '${encodeURIComponent(p.name || '')}')" style="cursor: pointer; animation-delay: ${delay}s;">${orderedCells}</tr>`;
+        const rowAnimCls = results.length <= 60 ? 'partner-row animate-slide-up' : 'partner-row';
+        const rowAnimSty = results.length <= 60 ? `cursor: pointer; animation-delay: ${Math.min(idx * 0.02, 0.4).toFixed(2)}s;` : 'cursor: pointer;';
+        rows += `<tr class="${rowAnimCls}" data-partner-id="${p.id}" data-partner-name="${p.name}" data-partner-type="${p.type}" onclick="handleRowClick(event, '${p.id}', '${p.type}', '${encodeURIComponent(p.name || '')}')" style="${rowAnimSty}">${orderedCells}</tr>`;
     });
 
     tbody.innerHTML = rows;
+    window.loadData = loadData;
 
     const net = sumCust - sumSupp;
     const netSign = net >= 0 ? ' (لنا)' : ' (علينا)';
@@ -2062,6 +2070,7 @@ function renderTable(results, isAutoInit = false) {
     bindContextMenu();
     bindRowContextMenu();
     bindColumnReorder();
+    if (typeof window.updateMainBalancesAiSummary === 'function') window.updateMainBalancesAiSummary(results, sumCust, sumSupp);
     renderVisualAnalytics(results);
 }
 
@@ -4438,10 +4447,10 @@ function savePresetData(lsKey, name, id) {
     .then(res => res.json())
     .then(data => {
         if(data.success) {
-            if (typeof showToast === 'function') {
+            if (window.ElsajanaAccountingBrain && window.ElsajanaAccountingBrain.floatingToast) {
+                window.ElsajanaAccountingBrain.floatingToast(`تم حفظ التخصيصات في ${name} حفظاً نهائياً!`, 'success');
+            } else if (typeof showToast === 'function') {
                 showToast(`تم حفظ التخصيصات في ${name} حفظاً نهائياً!`, 'success');
-            } else {
-                alert(`تم حفظ التخصيصات في ${name} حفظاً نهائياً!`);
             }
             if(!window.LOADED_BALANCES_PRESETS) window.LOADED_BALANCES_PRESETS = {};
             window.LOADED_BALANCES_PRESETS[lsKey] = dataToSave;
@@ -4450,10 +4459,10 @@ function savePresetData(lsKey, name, id) {
                 window.LOADED_BALANCES_PRESETS[lsKey + '_locked'] = true;
             }
         } else {
-            if (typeof showToast === 'function') {
+            if (window.ElsajanaAccountingBrain && window.ElsajanaAccountingBrain.floatingToast) {
+                window.ElsajanaAccountingBrain.floatingToast(data.error || 'حدث خطأ أثناء الحفظ', 'error');
+            } else if (typeof showToast === 'function') {
                 showToast(data.error || 'حدث خطأ أثناء الحفظ', 'error');
-            } else {
-                alert(data.error || 'حدث خطأ أثناء الحفظ');
             }
         }
     })
@@ -4488,10 +4497,10 @@ function loadPresetData(lsKey) {
             console.error('Error parsing preset', e);
         }
     } else {
-        if (typeof showToast === 'function') {
+        if (window.ElsajanaAccountingBrain && window.ElsajanaAccountingBrain.floatingToast) {
+            window.ElsajanaAccountingBrain.floatingToast('هذا النموذج فارغ، اضغط لمدة 8 ثوانٍ للحفظ عليه', 'warning');
+        } else if (typeof showToast === 'function') {
             showToast('هذا النموذج فارغ، اضغط لمدة 8 ثوانٍ للحفظ عليه', 'warning');
-        } else {
-            alert('هذا النموذج فارغ، اضغط لمدة 8 ثوانٍ للحفظ عليه');
         }
     }
 }

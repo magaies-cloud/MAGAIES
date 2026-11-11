@@ -18,15 +18,29 @@ $page_title = 'حساب الأرصدة الأساسية';
 })();
 </script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500;700&family=JetBrains+Mono:wght@400;600;800&family=Fira+Code:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حساب الأرصدة الأساسية | Al-Sajana ERP</title>
-    <link rel="stylesheet" href="css/design-system.css?v=20261029_fast">
-    <link rel="stylesheet" href="css/theme.css?v=20261029_fast">
-    <link rel="stylesheet" href="css/components.css?v=20261029_fast">
-    <link rel="stylesheet" href="css/sales-invoice.css?v=20261029_fast">
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+    (function initMbMaster13ToneEarly() {
+        try {
+            var ckM = document.cookie.match(/(?:^|; )magaies_light_tone=([^;]*)/);
+            var savedTone = (ckM ? decodeURIComponent(ckM[1]) : '') || localStorage.getItem('magaies_light_tone') || localStorage.getItem('pur_light_tone_palette') || 'ivory_default';
+            var darkSet = { dark_midnight: 1, pure_oled: 1, mocha_brown: 1, slate_twilight: 1 };
+            var root = document.documentElement;
+            root.setAttribute('data-light-tone', savedTone);
+            if (darkSet[savedTone]) { root.classList.remove('light-theme'); root.setAttribute('data-theme', savedTone === 'dark_midnight' ? 'dark' : savedTone); }
+            else { root.classList.add('light-theme'); root.setAttribute('data-theme', 'light'); }
+        } catch (e) {}
+    })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/design-system.css?v=<?php echo file_exists('css/design-system.css') ? filemtime('css/design-system.css') : 1; ?>">
+    <link rel="stylesheet" href="css/theme.css?v=<?php echo file_exists('css/theme.css') ? filemtime('css/theme.css') : 1; ?>">
+    <link rel="stylesheet" href="css/components.css?v=<?php echo file_exists('css/components.css') ? filemtime('css/components.css') : 1; ?>">
+    <link rel="stylesheet" href="css/sales-invoice.css?v=<?php echo file_exists('css/sales-invoice.css') ? filemtime('css/sales-invoice.css') : 1; ?>">
+    <script defer src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <style>
         /* Motion Engine & Dynamic Animation System */
@@ -1043,14 +1057,26 @@ $page_title = 'حساب الأرصدة الأساسية';
 <!-- Custom Context Menu for Partner Rows -->
 <div id="partnerContextMenu" style="display:none; position:fixed; z-index:100000; background:rgba(15, 23, 42, 0.98); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(56, 189, 248, 0.4); border-radius:12px; box-shadow:0 20px 50px rgba(0,0,0,0.8), 0 0 20px rgba(56,189,248,0.3); padding:8px; width:260px; color:#f8fafc; font-family:'Tajawal', sans-serif;">
     <div id="partnerMenuHeader" style="font-weight:bold; font-size:0.88rem; color:#38bdf8; padding:8px 12px; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">اسم الحساب</div>
-    <div id="gotoLedgerItem" onclick="window.goToPartnerLedger()" style="display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:0.9rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.2)'; this.style.color='#38bdf8';" onmouseout="this.style.background='transparent'; this.style.color='#f8fafc';">
+    <div id="gotoLedgerItem" onclick="window.goToPartnerLedger()" style="display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:0.9rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.2)'; this.style.color='#38bdf8';" onmouseout="this.style.background='transparent'; this.style.color='';">
         <span style="font-size:1.2rem;">📖</span>
         <span>الذهاب إلى دفتر الأستاذ العام (GL)</span>
+    </div>
+    <div onclick="window.openPartnerLastSourceDoc && window.openPartnerLastSourceDoc()" style="display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:0.9rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(16,185,129,0.2)';" onmouseout="this.style.background='transparent';">
+        <span style="font-size:1.2rem;">🧾</span>
+        <span>فتح آخر فاتورة / مستند أصلي (Drill-Down)</span>
+    </div>
+    <div onclick="window.issuePartnerQuickVoucher && window.issuePartnerQuickVoucher()" style="display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:0.9rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(245,158,11,0.2)';" onmouseout="this.style.background='transparent';">
+        <span style="font-size:1.2rem;">💵</span>
+        <span>سند قبض / صرف فوري بلمسة زر</span>
+    </div>
+    <div onclick="document.getElementById('partnerContextMenu').style.display='none'; window.ElsajanaForensicAndCharts2027 && window.ElsajanaForensicAndCharts2027.sendWhatsAppVisualReceiptCard()" style="display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:0.9rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(22,163,74,0.22)';" onmouseout="this.style.background='transparent';">
+        <span style="font-size:1.2rem;">📲</span>
+        <span>إرسال بطاقة كشف رصيد مصورة واتساب</span>
     </div>
 </div>
 
 
-<div class="sgl-master-container">
+<div class="sgl-master-container" id="mb-proportional-root">
     <!-- Premium Navigation Header -->
     <?php $header_theme_class = 'header-theme-reports'; ?>
     <?php include 'includes/header.php'; ?>
@@ -1897,43 +1923,11 @@ $page_title = 'حساب الأرصدة الأساسية';
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script defer src="js/localforage.min.js"></script>
-<script defer src="js/app.js?v=20261016_v28"></script>
-<script defer src="js/mainbalances-report.js?v=20261029_fast"></script>
-<script>
-// Debug wrapper: override runReport to catch and display errors
-document.addEventListener('DOMContentLoaded', function() {
-    // Wait for DBReady to fire, then wrap runReport
-    var checkInterval = setInterval(function() {
-        if (typeof window.runReport === 'function' && !window._runReportWrapped) {
-            window._runReportWrapped = true;
-            var originalRunReport = window.runReport;
-            window.runReport = function() {
-                try {
-                    console.log('[DEBUG] runReport called. ALL_PARTNERS:', (typeof ALL_PARTNERS !== 'undefined' ? ALL_PARTNERS.length : 'UNDEF'), 'ALL_TXNS:', (typeof ALL_TXNS !== 'undefined' ? ALL_TXNS.length : 'UNDEF'));
-                    originalRunReport.apply(this, arguments);
-                    console.log('[DEBUG] runReport completed successfully');
-                } catch(e) {
-                    alert('خطأ في التقرير: ' + e.message + '\n\nStack: ' + e.stack);
-                    console.error('[DEBUG] runReport error:', e);
-                }
-            };
-            clearInterval(checkInterval);
-            console.log('[DEBUG] runReport wrapped successfully');
-        }
-    }, 200);
-    
-    // Also check after 10 seconds if runReport was ever defined
-    setTimeout(function() {
-        if (typeof window.runReport !== 'function') {
-            console.error('[DEBUG] runReport is still not defined after 10 seconds!');
-            var tbody = document.getElementById('balances-tbody');
-            if (tbody) {
-                tbody.innerHTML = '<tr><td colspan="9" style="color:red;text-align:center;padding:20px;font-size:1.2em;">⚠️ خطأ: لم يتم تحميل ملف التقرير بشكل صحيح. يرجى مسح الكاش (Ctrl+Shift+Delete) وإعادة المحاولة.</td></tr>';
-            }
-        }
-    }, 10000);
-});
-</script>
+<script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : 1; ?>"></script>
+<script defer src="js/mainbalances-report.js?v=<?php echo file_exists('js/mainbalances-report.js') ? filemtime('js/mainbalances-report.js') : 1; ?>"></script>
+<script defer src="js/elsajana-universal-ui-2027.js?v=<?php echo file_exists('js/elsajana-universal-ui-2027.js') ? filemtime('js/elsajana-universal-ui-2027.js') : 1; ?>"></script>
+<script defer src="js/elsajana-erp-brain-2027.js?v=<?php echo file_exists('js/elsajana-erp-brain-2027.js') ? filemtime('js/elsajana-erp-brain-2027.js') : 1; ?>"></script>
+<script defer src="js/elsajana-charts-forensic-2027.js?v=<?php echo file_exists('js/elsajana-charts-forensic-2027.js') ? filemtime('js/elsajana-charts-forensic-2027.js') : 1; ?>"></script>
 <!-- Customization Sidebar Modal (Copied from General Ledger) -->
 <div class="sidebar-overlay" id="settings-overlay" onclick="toggleSettingsSidebar()"></div>
 <div class="settings-sidebar" id="settings-sidebar" style="resize: both; overflow: auto;">

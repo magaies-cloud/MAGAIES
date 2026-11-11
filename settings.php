@@ -680,7 +680,7 @@ try {
                     🎨 الثيمات الـ 7 المعتمدة
                 </button>
                 <button type="button" onclick="switchTab('fonts')" style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(37, 99, 235, 0.35)); color: #bae6fd; border: 1px solid rgba(56, 189, 248, 0.55); padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: 'Tajawal', sans-serif;">
-                    🔤 الخطوط وحجم العرض
+                    🖥️ مقاسات الشاشات والخطوط وراحة العين
                 </button>
             </div>
         </div>
@@ -1364,6 +1364,48 @@ try {
 
         <!-- Tab: Fonts & Display Scaling (الخطوط وحجم النص / العرض) -->
         <div class="tab-content" id="tab-fonts">
+            <!-- 0. Ophthalmic Multi-Monitor Calibration & Gemini Voice Key Panel -->
+            <div class="glass-panel" style="margin-bottom: 22px; padding: 24px; border-radius: 20px; background: linear-gradient(145deg, rgba(15, 23, 42, 0.94), rgba(8, 25, 48, 0.96)); border: 2px solid rgba(56, 189, 248, 0.45); box-shadow: 0 12px 35px rgba(0,0,0,0.4);">
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.1);">
+                    <div>
+                        <h3 style="margin:0;color:#38bdf8;font-size:1.28rem;font-weight:900;">🖥️ استوديو مقاسات الشاشات وطب راحة العين (لابتوب • كمبيوتر مكتبي عريض • شاشة طولية)</h3>
+                        <p style="margin:4px 0 0;color:#cbd5e1;font-size:0.88rem;font-weight:700;">يمنع التمطيط الأفقي على الشاشات المكتبية العريضة، ويزيد الارتفاع الرأسي للجداول، ويتكيف تلقائياً أو يدوياً للبرنامج كله أو لكل شاشة مستقلة.</p>
+                    </div>
+                    <span id="settings-ergo-live-badge" style="background:rgba(16,185,129,0.2);color:#34d399;border:1.5px solid #10b981;padding:6px 14px;border-radius:999px;font-weight:900;font-size:0.82rem;">👁️ راحة العين نشطة</span>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-bottom:14px;">
+                    <button type="button" onclick="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.setProfile('auto','global')" style="padding:12px;border-radius:12px;background:rgba(14,165,233,0.15);border:2px solid #0ea5e9;color:#f8fafc;font-weight:900;cursor:pointer;text-align:right;">🤖 تلقائي ذكي (موصى به)<div style="font-size:0.76rem;color:#94a3b8;margin-top:3px;">يتعرف تلقائياً على اللابتوب والمكتبي والطولي</div></button>
+                    <button type="button" onclick="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.setProfile('laptop','global')" style="padding:12px;border-radius:12px;background:rgba(15,23,42,0.8);border:1.5px solid rgba(148,163,184,0.35);color:#f8fafc;font-weight:900;cursor:pointer;text-align:right;">💻 مقاس اللابتوب (1480px)<div style="font-size:0.76rem;color:#94a3b8;margin-top:3px;">زاوية نظر بؤرية مركزة بدون أي مطّ</div></button>
+                    <button type="button" onclick="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.setProfile('desktop_comfort','global')" style="padding:12px;border-radius:12px;background:rgba(16,185,129,0.14);border:2px solid #10b981;color:#f8fafc;font-weight:900;cursor:pointer;text-align:right;">🖥️ كمبيوتر مكتبي مريح (+ارتفاع)<div style="font-size:0.76rem;color:#94a3b8;margin-top:3px;">يعالج ضيق الارتفاع ويمنع مطّ العرض</div></button>
+                    <button type="button" onclick="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.setProfile('portrait_tall','global')" style="padding:12px;border-radius:12px;background:rgba(168,85,247,0.14);border:1.5px solid #a855f7;color:#f8fafc;font-weight:900;cursor:pointer;text-align:right;">📱 شاشة طولية (Portrait)<div style="font-size:0.76rem;color:#94a3b8;margin-top:3px;">أقصى ارتفاع رأسي للجداول والتقارير</div></button>
+                    <button type="button" onclick="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.setProfile('ultrawide_full','global')" style="padding:12px;border-radius:12px;background:rgba(245,158,11,0.14);border:1.5px solid #f59e0b;color:#f8fafc;font-weight:900;cursor:pointer;text-align:right;">↔️ ملء العرض الكامل (100%)<div style="font-size:0.76rem;color:#94a3b8;margin-top:3px;">امتداد أفقي كامل من الحافة للحافة</div></button>
+                </div>
+                <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-top:10px;border-top:1px dashed rgba(255,255,255,0.12);font-size:0.86rem;font-weight:800;color:#e2e8f0;">
+                    <span>↕️ زيادة الارتفاع الرأسي وراحة الأسطر:</span>
+                    <input type="range" min="0" max="24" step="2" value="6" oninput="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.setVerticalBoost(this.value);document.getElementById('set-vboost-val').textContent='+'+this.value+'px';" style="width:200px;">
+                    <span id="set-vboost-val" style="color:#fde047;">+6px</span>
+                    <span style="color:#94a3b8;">| 💡 يمكنك أيضاً التبديل لأي شاشة منفردة من زر (🖥️ مقاس الشاشة) أعلى يمين كل شاشة بجوار زر السمات.</span>
+                </div>
+            </div>
+            <div class="glass-panel" style="margin-bottom:24px;padding:22px;border-radius:20px;background:linear-gradient(145deg,rgba(15,23,42,0.95),rgba(2,6,23,0.98));border:2px solid #f59e0b;box-shadow:0 12px 35px rgba(0,0,0,0.45);">
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+                    <div>
+                        <h3 style="margin:0;color:#fff;font-size:1.22rem;font-weight:900;">🔒 قفل اليومية التلقائي على حركات الأيام السابقة (بكلمة سر المالك)</h3>
+                        <p style="margin:4px 0 0;color:#cbd5e1;font-size:0.86rem;font-weight:700;">يمنع الموظفين تلقائياً من إضافة أو تعديل أو حذف أي فاتورة أو سند بتاريخ سابق لليوم إلا بعد إدخال كلمة سر المالك.</p>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                        <label style="display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:10px;background:rgba(16,185,129,0.18);border:1.5px solid #10b981;color:#6ee7b7;font-weight:900;cursor:pointer;">
+                            <input type="checkbox" id="cfg-lock-prev-days" checked onchange="(function(c){const s=JSON.parse(localStorage.getItem('erp_settings_v1')||'{}');s.lockPreviousDays=c;localStorage.setItem('erp_settings_v1',JSON.stringify(s));if(window.showToast)window.showToast(c?'🔒 تم تفعيل قفل اليومية التلقائي للأيام السابقة':'🔓 تم إيقاف القفل التلقائي للأيام السابقة','success',2500);})(this.checked)" style="width:18px;height:18px;accent-color:#10b981;">
+                            <span>مفعل تلقائياً ✅</span>
+                        </label>
+                        <div style="display:inline-flex;align-items:center;gap:6px;color:#e2e8f0;font-weight:800;font-size:0.84rem;">
+                            <span>تاريخ إغلاق ثابت (اختياري):</span>
+                            <input type="date" id="cfg-acc-lock-date" onchange="(function(v){const s=JSON.parse(localStorage.getItem('erp_settings_v1')||'{}');s.accountingLockDate=v;localStorage.setItem('erp_settings_v1',JSON.stringify(s));if(window.showToast)window.showToast('🔒 تم تحديث تاريخ إغلاق الفترة المحاسبية','success',2200);})(this.value)" style="padding:6px 10px;border-radius:8px;border:1px solid #f59e0b;background:#020617;color:#fff;font-weight:800;">
+                        </div>
+                    </div>
+                </div>
+                <script>(function(){try{const s=JSON.parse(localStorage.getItem('erp_settings_v1')||'{}');const c=document.getElementById('cfg-lock-prev-days'),d=document.getElementById('cfg-acc-lock-date');if(c)c.checked=(s.lockPreviousDays!==false);if(d&&s.accountingLockDate)d.value=s.accountingLockDate;}catch(_){}})();</script>
+            </div>
             <!-- 1. 4 Fonts Selection Panel -->
             <div class="glass-panel" style="margin-bottom: 24px; padding: 28px; border-radius: 20px; background: linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(2, 6, 23, 0.96)); border-right: 4px solid #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); box-shadow: 0 12px 35px rgba(0,0,0,0.45);">
                 <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; margin-bottom: 22px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08);">

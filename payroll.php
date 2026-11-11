@@ -338,9 +338,15 @@
         });
 
         function loadPayroll() {
+            if (window.MagaiesPayrollAccrual2027 && typeof window.MagaiesPayrollAccrual2027.runMonthlyAccrual === 'function') {
+                window.MagaiesPayrollAccrual2027.runMonthlyAccrual();
+            }
             currentMonth = document.getElementById('payroll-month').value;
-            // Load from dedicated employees table (separate from system users)
-            employees    = JSON.parse(localStorage.getItem('erp_employees_v1') || '[]');
+            const uList = (JSON.parse(localStorage.getItem('erp_users_v1') || '[]') || []).filter(x => x && !x.deleted);
+            const eList = (JSON.parse(localStorage.getItem('erp_employees_v1') || '[]') || []).filter(x => x && !x.deleted);
+            const empMap = new Map();
+            [...eList, ...uList].forEach(e => { if (e && e.id) empMap.set(String(e.id), Object.assign({}, empMap.get(String(e.id)) || {}, e)); });
+            employees = Array.from(empMap.values());
             payrollRecords = JSON.parse(localStorage.getItem('erp_payroll_v1') || '[]');
 
             renderEmployees();
@@ -428,11 +434,14 @@
             document.getElementById('pay-notes').value = '';
             calcNetPay();
 
-            // Load cash accounts
-            const banks = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]');
+            // Load cash safes & banks
+            const safes = (JSON.parse(localStorage.getItem('erp_safes_v1') || '[]') || []).filter(s => s && !s.deleted);
+            const banks = (JSON.parse(localStorage.getItem('erp_banks_v1') || '[]') || []).filter(b => b && !b.deleted);
             const sel = document.getElementById('pay-account');
-            sel.innerHTML = banks.filter(b => b.type === 'safe')
-                .map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+            sel.innerHTML = [
+                ...safes.map(s => `<option value="${s.id}">🗄️ ${s.safeName || s.name}</option>`),
+                ...banks.map(b => `<option value="${b.id}">🏦 ${b.bankName || b.name}</option>`)
+            ].join('');
             if (sel.options.length === 0) {
                 sel.innerHTML = '<option value="default">الخزينة الرئيسية</option>';
             }
@@ -479,16 +488,33 @@
             payrollRecords.push(record);
             localStorage.setItem('erp_payroll_v1', JSON.stringify(payrollRecords));
 
-            // Deduct from cash account balance
+            // Deduct from Safe or Bank currentBalance + post Payment Voucher & update Employee Ledger
+            const safes = JSON.parse(localStorage.getItem('erp_safes_v1') || '[]');
+            const sIdx = safes.findIndex(s => s && String(s.id) === String(accountId));
             const banks = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]');
-            const accIdx = banks.findIndex(b => b.id === accountId);
-            if (accIdx > -1) {
-                banks[accIdx].balance = (parseFloat(banks[accIdx].balance) || 0) - net;
+            const accIdx = banks.findIndex(b => b && String(b.id) === String(accountId));
+            if (sIdx > -1) {
+                safes[sIdx].currentBalance = (parseFloat(safes[sIdx].currentBalance ?? safes[sIdx].balance ?? safes[sIdx].openingBalance ?? 0) || 0) - net;
+                safes[sIdx].balance = safes[sIdx].currentBalance;
+                localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
+            } else if (accIdx > -1) {
+                banks[accIdx].currentBalance = (parseFloat(banks[accIdx].currentBalance ?? banks[accIdx].balance ?? banks[accIdx].openingBalance ?? 0) || 0) - net;
+                banks[accIdx].balance = banks[accIdx].currentBalance;
                 localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
             }
-
-            // Audit log
-            const emp = employees.find(e => e.id === empId);
+            const emp = employees.find(e => String(e.id) === String(empId));
+            ['erp_users_v1', 'erp_employees_v1'].forEach(k => {
+                const arr = JSON.parse(localStorage.getItem(k) || '[]');
+                const idx = arr.findIndex(x => x && String(x.id) === String(empId));
+                if (idx > -1) {
+                    arr[idx].currentBalance = (parseFloat(arr[idx].currentBalance ?? arr[idx].openingBalance ?? 0) || 0) + net;
+                    arr[idx].balance = arr[idx].currentBalance;
+                    localStorage.setItem(k, JSON.stringify(arr));
+                }
+            });
+            const pmtList = JSON.parse(localStorage.getItem('erp_single_payments_v1') || '[]');
+            pmtList.unshift({ id: record.id, paymentNo: 'PAY-SAL-' + currentMonth + '-' + empId, date: new Date().toISOString().slice(0, 10), partnerId: empId, toAccount: empId, partnerName: emp?.name || empId, amount: net, amountLocal: net, currency: 'SDG', rate: 1, accountId: accountId, fromAccount: accountId, notes: notes || ('صرف راتب شهر ' + currentMonth + ' - ' + (emp?.name || empId)), isPosted: true });
+            localStorage.setItem('erp_single_payments_v1', JSON.stringify(pmtList));
             if (window.logSystemAction) {
                 window.logSystemAction('Payroll', 'finance', `صرف راتب ${emp?.name || empId} بقيمة ${net.toLocaleString()} SDG لشهر ${currentMonth}`);
             }

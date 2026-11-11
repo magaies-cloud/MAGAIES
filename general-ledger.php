@@ -1801,8 +1801,8 @@ function renderGLCreditProfileAndConcentration() {
         const groups = [
             { title: '👥 حسابات العملاء', icon: '👤', items: custs.map(c => ({ id: 'cust-' + c.id, name: c.name || 'عميل', bal: parseFloat(c.currentBalance ?? c.balance ?? 0) || 0 })) },
             { title: '🤝 حسابات الموردين', icon: '🏢', items: sups.map(s => ({ id: 'supp-' + s.id, name: s.name || 'مورد', bal: parseFloat(s.currentBalance ?? s.balance ?? 0) || 0 })) },
-            { title: '🏦 الخزن والصناديق', icon: '💵', items: safes.map(s => ({ id: 'safe-' + s.id, name: s.name || 'خزنة', bal: parseFloat(s.balance ?? s.openingBalance ?? 0) || 0 })) },
-            { title: '🏛️ البنوك والحسابات الجارية', icon: '💳', items: banks.map(b => ({ id: 'bank-' + b.id, name: b.name || 'بنك', bal: parseFloat(b.balance ?? b.openingBalance ?? 0) || 0 })) }
+            { title: '🏦 الخزن والصناديق', icon: '💵', items: safes.map(s => ({ id: 'safe-' + s.id, name: s.name || 'خزنة', bal: parseFloat(s.currentBalance ?? s.balance ?? s.openingBalance ?? 0) || 0 })) },
+            { title: '🏛️ البنوك والحسابات الجارية', icon: '💳', items: banks.map(b => ({ id: 'bank-' + b.id, name: b.name || 'بنك', bal: parseFloat(b.currentBalance ?? b.balance ?? b.openingBalance ?? 0) || 0 })) }
         ];
 
         body.innerHTML = groups.map(g => {

@@ -436,14 +436,15 @@ function initSalesApp() {
             }
             localCusts.forEach(c => {
                 if (c && c.id) {
+                    const rawCustBal = parseFloat(c.currentBalance ?? c.balance ?? c.openingBalance ?? 0) || 0;
                     CUSTOMERS.push({
                         id: c.id,
                         name: c.name || 'عميل بدون اسم',
                         phone: c.phone || '',
                         email: c.email || '',
-                        ledger: Math.abs(c.currentBalance < 0 ? c.currentBalance : 0) || 0,
+                        ledger: rawCustBal,
                         checks: 0,
-                        creditLimit: c.creditLimit || 0,
+                        creditLimit: parseFloat(c.creditLimit || 0) || 0,
                         status: c.status || 'active'
                     });
                 }
@@ -4153,25 +4154,39 @@ function submitInvoice(ignoreWarnings = false) {
             return;
         }
 
-        // Stock availability check
-        const mainWh = document.getElementById('hdr-warehouse').value;
+        // Stock availability check (respects 🚚 البيع بالسالب / بضاعة بالطريق toggle)
+        const allowNegStock = (window.MagaiesInventoryGuard2027 && typeof window.MagaiesInventoryGuard2027.isNegativeAllowed === 'function')
+            ? window.MagaiesInventoryGuard2027.isNegativeAllowed() : false;
+        const negBlockedItems = [];
         for (const row of rows) {
             const item = ITEMS.find(i => String(i.id) === String(row.itemId));
             if (!item) continue;
             const calcs = getRowCalcs(row);
             if (calcs.availQty !== '—' && calcs.availQty !== undefined && calcs.baseQty > calcs.availQty) {
                 const diff = calcs.baseQty - calcs.availQty;
-                warnings.push(`الصنف "<strong>${item.name}</strong>" تجاوز المخزون المتاح. (سوف يدخل بالسالب بمقدار <strong>${fmtNum(diff)} ${item.baseUnit || 'وحدة أساسية'}</strong>)`);
+                if (!allowNegStock) {
+                    negBlockedItems.push(`${item.name} (عجز: ${fmtNum(diff)} ${item.baseUnit || 'وحدة'})`);
+                }
             }
         }
+        if (negBlockedItems.length > 0) {
+            window.isSubmitting = false;
+            alert(`🚫 البيع بالسالب مغلق حالياً!\nالأصناف التالية تتجاوز الرصيد المتاح بالمخزن:\n• ${negBlockedItems.join('\n• ')}\n\n💡 إذا كانت هناك بضاعة في الطريق، فعّل زر (🚚 البيع بالسالب: بضاعة بالطريق) أعلى الشاشة أو من شاشة المخازن.`);
+            return;
+        }
 
-        // Credit check for non-cash customers
-        if (creditAmt > 0 && cust && cust.id !== 'walk-in' && cust.creditLimit > 0) {
-            const totalDebt = cust.ledger + cust.checks;
-            const remainingLimit = cust.creditLimit - totalDebt;
-            if (creditAmt > remainingLimit) {
+        // Strict Credit Limit Block (includes Opening Balance + Current Debt)
+        if (creditAmt > 0 && cust && cust.id !== 'walk-in' && parseFloat(cust.creditLimit) > 0) {
+            const liveCusts = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
+            const liveC = liveCusts.find(x => String(x.id) === String(cust.id));
+            const curLedger = liveC ? (parseFloat(liveC.currentBalance ?? liveC.balance ?? liveC.openingBalance ?? 0) || 0) : (parseFloat(cust.ledger) || 0);
+            const totalDebt = curLedger + (parseFloat(cust.checks) || 0);
+            const remainingLimit = parseFloat(cust.creditLimit) - totalDebt;
+            if (creditAmt > remainingLimit + 0.01) {
                 const diff = creditAmt - remainingLimit;
-                warnings.push(`مبلغ البيع الآجل يتجاوز حد الائتمان. (المبلغ سيتجاوز الحد بمقدار <strong>${fmtNum(diff)} ${cur}</strong>)`);
+                window.isSubmitting = false;
+                alert(`🚫 حظر ائتماني صارم — تجاوز السقف الائتماني!\n• العميل: ${cust.name}\n• السقف الائتماني: ${fmtNum(cust.creditLimit)} ${cur}\n• الرصيد الحالي (شاملاً الافتتاحي): ${fmtNum(totalDebt)} ${cur}\n• المتاح للائتمان: ${fmtNum(Math.max(0, remainingLimit))} ${cur}\n• الآجل المطلوب يتجاوز السقف بمقدار: ${fmtNum(diff)} ${cur}`);
+                return;
             }
         }
 
@@ -4321,56 +4336,54 @@ function submitInvoice(ignoreWarnings = false) {
     
     if (currentSaleType !== 'preliminary' && postingMode === 'auto') {
         let banks = [];
+        let safes = [];
         try { banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e) {}
+        try { safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || []; } catch(e) {}
         
-        // A. Cash Safe Portion
+        // A. Cash Safe / Bank Portion
         if (cashAmt > 0 && paymentAccountId) {
-            const bIdx = banks.findIndex(b => b.id === paymentAccountId);
-            if (bIdx > -1) {
-                let currentBalance = parseFloat(banks[bIdx].currentBalance);
-                if (isNaN(currentBalance)) {
-                    currentBalance = parseFloat(banks[bIdx].openingBalance) || 0;
-                }
+            const sIdx = safes.findIndex(s => String(s.id) === String(paymentAccountId));
+            const bIdx = banks.findIndex(b => String(b.id) === String(paymentAccountId));
+            if (sIdx > -1) {
+                let curSafeBal = parseFloat(safes[sIdx].currentBalance ?? safes[sIdx].balance ?? safes[sIdx].openingBalance ?? 0) || 0;
+                safes[sIdx].currentBalance = curSafeBal + cashAmt;
+                safes[sIdx].balance = safes[sIdx].currentBalance;
+                safeAccountName = safes[sIdx].safeName || safes[sIdx].name || '';
+                localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
+            } else if (bIdx > -1) {
+                let currentBalance = parseFloat(banks[bIdx].currentBalance ?? banks[bIdx].balance ?? banks[bIdx].openingBalance ?? 0) || 0;
                 banks[bIdx].currentBalance = currentBalance + cashAmt;
-                safeAccountName = banks[bIdx].name;
+                banks[bIdx].balance = banks[bIdx].currentBalance;
+                safeAccountName = banks[bIdx].bankName || banks[bIdx].name || '';
             }
         }
         
         // B. Bank Transfer Portions
         bankTransfers.forEach(bt => {
-            const bIdx = banks.findIndex(b => b.id === bt.bankAccountId);
+            const bIdx = banks.findIndex(b => String(b.id) === String(bt.bankAccountId));
             if (bIdx > -1) {
-                let currentBalance = parseFloat(banks[bIdx].currentBalance);
-                if (isNaN(currentBalance)) {
-                    currentBalance = parseFloat(banks[bIdx].openingBalance) || 0;
-                }
+                let currentBalance = parseFloat(banks[bIdx].currentBalance ?? banks[bIdx].balance ?? banks[bIdx].openingBalance ?? 0) || 0;
                 banks[bIdx].currentBalance = currentBalance + bt.amount;
-                bankTransferNames.push(banks[bIdx].name);
+                banks[bIdx].balance = banks[bIdx].currentBalance;
+                bankTransferNames.push(banks[bIdx].bankName || banks[bIdx].name);
             }
         });
         
         localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
         
         // C. Customer Credit Debt / Surplus Portion
-        if (creditAmt > 0 && custId && custId !== 'walk-in') {
+        if ((creditAmt > 0 || overpaidAmt > 0) && custId && custId !== 'walk-in') {
             let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-            const cIdx = customers.findIndex(c => c.id === custId);
+            const cIdx = customers.findIndex(c => String(c.id) === String(custId));
             if (cIdx > -1) {
-                let currentBalance = parseFloat(customers[cIdx].currentBalance);
-                if (isNaN(currentBalance)) currentBalance = 0;
-                customers[cIdx].currentBalance = currentBalance + creditAmt;
+                let currentBalance = parseFloat(customers[cIdx].currentBalance ?? customers[cIdx].balance ?? customers[cIdx].openingBalance ?? 0) || 0;
+                customers[cIdx].currentBalance = currentBalance + (creditAmt > 0 ? creditAmt : -overpaidAmt);
+                customers[cIdx].balance = customers[cIdx].currentBalance;
                 localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
-            }
-        } else if (overpaidAmt > 0 && custId && custId !== 'walk-in') {
-            let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-            const cIdx = customers.findIndex(c => c.id === custId);
-            if (cIdx > -1) {
-                let currentBalance = parseFloat(customers[cIdx].currentBalance);
-                if (isNaN(currentBalance)) currentBalance = 0;
-                customers[cIdx].currentBalance = currentBalance - overpaidAmt;
-                localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
+                if (cust) cust.ledger = customers[cIdx].currentBalance;
             }
         }
+        try { if (window.BroadcastChannel) new BroadcastChannel('erp_global_sync').postMessage({ key: 'erp_customers_v1', ts: Date.now() }); } catch(_bc) {}
     }
 
     localStorage.setItem('erp_inv_' + committedNo, JSON.stringify(data));

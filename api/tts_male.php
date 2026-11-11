@@ -32,10 +32,10 @@ if ($text === '') {
     exit;
 }
 
-// Unified Studio-Pure HD Neural Voice Library (Warm & Crystal-Clear Articulation)
+// Unified Studio-Pure HD Neural Voice Library (Peak Clarity & Natural Executive Articulation by Default)
 $voiceMap = [
-    'warm_professor' => ['voice' => 'ar-SA-HamedNeural',    'rate' => '-2%', 'pitch' => '-3Hz'],
-    'warm_male'      => ['voice' => 'ar-OM-AbdullahNeural', 'rate' => '-2%', 'pitch' => '-2Hz'],
+    'warm_professor' => ['voice' => 'ar-SA-HamedNeural',    'rate' => '+4%', 'pitch' => '-1Hz'],
+    'warm_male'      => ['voice' => 'ar-OM-AbdullahNeural', 'rate' => '+4%', 'pitch' => '-1Hz'],
     'female_zariyah' => ['voice' => 'ar-SA-ZariyahNeural',  'rate' => '-3%', 'pitch' => '-2Hz'],
     'female_salma'   => ['voice' => 'ar-EG-SalmaNeural',    'rate' => '-3%', 'pitch' => '-2Hz'],
     'female_fatima'  => ['voice' => 'ar-AE-FatimaNeural',   'rate' => '-3%', 'pitch' => '-2Hz'],

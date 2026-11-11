@@ -2135,6 +2135,7 @@
                                 <span style="position:absolute; right:12px; top:50%; transform:translateY(-50%); pointer-events:none;">🔍</span>
                                 <input type="text" id="warehouse-search-input" oninput="renderWarehouses(this.value)" placeholder="بحث في المخازن..." style="padding-right:36px !important;">
                             </div>
+                            <button type="button" id="md-wh-allow-neg-btn" onclick="window.MagaiesInventoryGuard2027 && window.MagaiesInventoryGuard2027.toggleAllowNegativeStock()" style="height:38px;padding:0 13px;border-radius:10px;font-weight:900;font-size:0.84rem;cursor:pointer;border:2px solid #10b981;background:rgba(16,185,129,0.18);color:#6ee7b7;" title="خيار البيع بالسالب عند وجود بضاعة في الطريق (مرتبط بالإعدادات وشاشة المبيعات)">🚚 البيع بالسالب (بضاعة بالطريق): مفعل ✅</button>
                             <button class="btn-add" onclick="openWarehouseForm()">+ إضافة مخزن <span class="kbd-hint">F2</span></button>
                         </div>
                     </div>
@@ -3146,6 +3147,8 @@
                             <div class="input-group"><label>💬 رقم الواتساب / الهاتف</label><input type="text" id="emp-phone" placeholder="00249123000000"></div>
                             <div class="input-group"><label>كلمة المرور</label><input type="text" id="emp-password" placeholder="كلمة المرور"></div>
                             <div class="input-group"><label>الدور</label><select id="emp-role"><option value="admin">مدير</option><option value="accountant">محاسب</option><option value="cashier">كاشير</option><option value="sales">مبيعات</option><option value="storekeeper">أمين مخزن</option></select></div>
+                            <div class="input-group"><label style="color:#34d399; font-weight:900;">💰 الراتب الشهري (ينزل يوم 1 كل شهر)</label><input type="number" id="emp-salary" placeholder="مثال: 300000" step="any"></div>
+                            <div class="input-group"><label style="color:#fbbf24; font-weight:900;">⚖️ رصيد افتتاحي (+سلفة عليه / -مستحق له)</label><input type="number" id="emp-opening-balance" placeholder="مثال: 100000" step="any"></div>
                             <div class="input-group"><label>السرية</label><select id="emp-security"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></div>
                             <div class="input-group"><label>الحالة</label><select id="emp-status"><option value="active">نشط</option><option value="inactive">موقوف</option></select></div>
                         </div>
@@ -3156,7 +3159,7 @@
                     </div>
                     <div class="table-responsive" style="overflow-x: auto;">
                         <table class="pro-table">
-                            <thead><tr><th>الاسم</th><th>الدور</th><th>الهاتف</th><th>السرية</th><th>الحالة</th><th>الإجراء</th></tr></thead>
+                            <thead><tr><th>الاسم</th><th>الدور</th><th>الراتب الشهري</th><th>الرصيد الحالي</th><th>الهاتف</th><th>الحالة</th><th>الصلاحيات والإجراءات</th></tr></thead>
                             <tbody id="tab-employees-table"></tbody>
                         </table>
                     </div>

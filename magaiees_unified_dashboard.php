@@ -1266,7 +1266,8 @@ function switchToMobileEdition() {
                     70% { background: linear-gradient(135deg, #9333ea, #7c3aed) !important; box-shadow: 0 0 14px #a855f7, 0 0 26px rgba(147,51,234,0.92) !important; border-color: #fde047 !important; transform: scale(1.06); }
                 }
                 .brk-new-electro-badge { display: inline-flex; align-items: center; gap: 3px; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; padding: 1px 8px; border-radius: 999px; border: 1.5px solid #fde047; font-weight: 900 !important; animation: brkNewElectroGlow 1.35s infinite ease-in-out !important; }
-                #market-broker-ticker-wrap, html.light-theme #market-broker-ticker-wrap { position: relative; background: #020617 !important; border: none !important; border-radius: 7px !important; padding: 0 !important; margin: 0 !important; display: flex; flex-direction: column !important; gap: 6px !important; overflow: hidden; box-shadow: 0 4px 14px rgba(2,6,23,0.65) !important; direction: rtl; }
+                #market-broker-ticker-wrap, html.light-theme #market-broker-ticker-wrap { position: relative; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; background: #020617 !important; border: none !important; border-radius: 7px !important; padding: 0 !important; margin: 0 !important; display: flex; flex-direction: column !important; gap: 6px !important; overflow: hidden; box-shadow: 0 4px 14px rgba(2,6,23,0.65) !important; direction: rtl; }
+                .global-sidebar .sidebar-footer .sidebar-logout, #magaiees-master-back-btn, #sl-sovereign-law1-bar [onclick*="directExitToMain"] { display: none !important; }
                 #market-broker-ticker-wrap.is-broker-hidden, html.light-theme #market-broker-ticker-wrap.is-broker-hidden { display: none !important; }
                 #market-broker-ticker-wrap > .mkt-broker-row { display: flex; align-items: center !important; gap: 6px !important; overflow: hidden; width: 100% !important; min-height: 36px !important; height: auto !important; max-height: none !important; padding: 4px 8px !important; margin: 0 !important; border-radius: 6px; line-height: 1.25 !important; box-sizing: border-box !important; }
                 #market-broker-ticker-wrap > .mkt-broker-row.is-row-hidden { display: none !important; }
@@ -1340,9 +1341,9 @@ function switchToMobileEdition() {
                         const cb = document.getElementById('exec-calm-pulse-badge');
                         const zb = document.getElementById('prof-zen-btn');
                         if (b) b.innerHTML = on ? '↩️ تراجع' : '✨ تفعيل التحسينات';
-                        if (mb) mb.style.display = on ? 'inline-flex' : 'none';
-                        if (cb) cb.style.display = on ? 'inline-flex' : 'none';
-                        if (zb) zb.style.display = on ? 'inline-flex' : 'none';
+                        if (mb) mb.style.display = 'inline-flex';
+                        if (cb) cb.style.display = 'inline-flex';
+                        if (zb) zb.style.display = 'inline-flex';
                         if (!on) document.documentElement.classList.remove('prof-zen-mode');
                     };
                     window.toggleProfUx2027 = function() {
@@ -2098,23 +2099,35 @@ function switchToMobileEdition() {
                     const syncPin = () => {
                         const bar = document.getElementById('exec-sticky-command-bar');
                         const ph = document.getElementById('exec-sticky-command-placeholder');
-                        const ref = document.getElementById('dash-today-harvest-strip');
-                        if (!bar || !ph || !ref) return;
-                        const mainEl = document.querySelector('.dash-main');
-                        if (mainEl && mainEl.style.transform) mainEl.style.transform = '';
-                        const refRect = ref.getBoundingClientRect();
-                        if (refRect.top <= 60) {
+                        if (!bar || !ph) return;
+                        const refBox = document.getElementById('new-unified-dashboard-design') || document.querySelector('.dash-main');
+                        if (!refBox) return;
+                        const isPinned = bar.classList.contains('is-pinned-fixed');
+                        if (!isPinned) {
+                            const bh = bar.offsetHeight;
+                            if (bh > 24) ph.style.height = bh + 'px';
+                        }
+                        const triggerRect = (isPinned ? ph : bar).getBoundingClientRect();
+                        const dm = document.querySelector('.dash-main');
+                        if (dm && dm.style.transform) dm.style.transform = '';
+                        if (refBox.style.transform) refBox.style.transform = '';
+                        const scTop = Math.max(window.pageYOffset || 0, document.documentElement.scrollTop || 0, document.body.scrollTop || 0, dm ? dm.scrollTop : 0);
+                        if (triggerRect.top <= 4 && (scTop > 6 || triggerRect.top < -2)) {
+                            const boxRect = refBox.getBoundingClientRect();
+                            const z = parseFloat(window.getComputedStyle( document.querySelector('.dash-main') || refBox ).zoom) || 1;
                             ph.style.display = 'block';
                             bar.classList.add('is-pinned-fixed');
-                            bar.style.top = '0px';
-                            bar.style.left = refRect.left + 'px';
-                            bar.style.width = refRect.width + 'px';
+                            bar.style.setProperty('position', 'fixed', 'important');
+                            bar.style.setProperty('top', '0px', 'important');
+                            bar.style.setProperty('left', Math.max(0, Math.round(boxRect.left / z)) + 'px', 'important');
+                            bar.style.setProperty('width', Math.max(280, Math.round(boxRect.width / z)) + 'px', 'important');
                         } else {
                             ph.style.display = 'none';
                             bar.classList.remove('is-pinned-fixed');
+                            bar.style.removeProperty('position');
                             bar.style.top = '0px';
                             bar.style.left = '';
-                            bar.style.width = '';
+                            bar.style.width = '100%';
                         }
                     };
                     let pinTick = false;
@@ -2124,7 +2137,7 @@ function switchToMobileEdition() {
                             requestAnimationFrame(() => { syncPin(); pinTick = false; });
                         }
                     };
-                    window.addEventListener('scroll', onScrollPin, { passive: true });
+                    window.addEventListener('scroll', onScrollPin, { passive: true, capture: true });
                     window.addEventListener('resize', onScrollPin, { passive: true });
                     setTimeout(syncPin, 80);
                 })();
@@ -2770,10 +2783,17 @@ function switchToMobileEdition() {
                         });
                     }
                     if (typeof window.updateCalmPulseBadge === 'function') setTimeout(window.updateCalmPulseBadge, 50);
+                    const rdArr = k => { try { const a = JSON.parse(localStorage.getItem(k) || '[]'); return Array.isArray(a) ? a.filter(x => x && !x.deleted) : []; } catch (_) { return []; } };
+                    const liveSafes = rdArr('erp_safes_v1'), liveBanks = rdArr('erp_banks_v1'), liveCusts = rdArr('erp_customers_v1'), liveSups = rdArr('erp_suppliers_v1');
+                    const liveLiqSum = [...liveSafes, ...liveBanks].reduce((s, x) => s + ((parseFloat(x.currentBalance ?? x.balance ?? x.openingBalance ?? 0) || 0) * ((x.currency && x.currency !== 'SDG') ? usd : 1)), 0);
+                    const liveArSum = liveCusts.reduce((s, c) => s + Math.max(0, parseFloat(c.currentBalance ?? c.balance ?? c.openingBalance ?? 0) || 0), 0);
+                    const liveApSum = liveSups.reduce((s, x) => s + Math.max(0, parseFloat(x.currentBalance ?? x.balance ?? x.openingBalance ?? 0) || 0), 0);
+                    const effLiq = liveLiqSum > 0 ? liveLiqSum : (3450000 * (1 + (p.mult - 1) * 0.08));
                     const setHtml = (id, v) => { const el = document.getElementById(id); if (el) el.innerHTML = v; };
                     setHtml('strip-sal-amt', m(1890000 * p.mult));
                     setHtml('strip-pur-amt', m(1420000 * p.mult));
-                    setHtml('strip-liq-amt', m(3450000 * (1 + (p.mult - 1) * 0.08)));
+                    const liqEl = document.getElementById('strip-liq-amt'); if (liqEl) liqEl.setAttribute('data-sdg', String(Math.round(effLiq)));
+                    setHtml('strip-liq-amt', m(effLiq));
                     const prfVal = Math.round(348000 * p.mult);
                     const prfLbl = document.getElementById('strip-prf-lbl');
                     const prfAmt = document.getElementById('strip-prf-amt');
@@ -2794,8 +2814,9 @@ function switchToMobileEdition() {
                     setHtml('stock-mkt-val', `${(((p.mktSdg / factor) / 1000000).toFixed(1))}M ${uTag}`);
                     setHtml('strip-in-amt', '+' + m(1320000 * p.mult));
                     setHtml('strip-out-amt', '-' + m(368000 * p.mult));
-                    setHtml('strip-ap-amt', m(p.apSdg));
-                    setHtml('strip-ar-amt', m(p.arSdg));
+                    const apEl = document.getElementById('strip-ap-amt'); if (apEl && liveApSum > 0) apEl.setAttribute('data-sdg', String(Math.round(liveApSum)));
+                    setHtml('strip-ap-amt', m(liveApSum > 0 ? liveApSum : p.apSdg));
+                    setHtml('strip-ar-amt', m(liveArSum > 0 ? liveArSum : p.arSdg));
                     if (!skipScopeSync) {
                         const liqMap = ['day', 'week', 'week', 'month', 'year', 'year', 'year', 'year'];
                         window._liqPeriod = liqMap[window._execSumPeriodIdx] || 'day';

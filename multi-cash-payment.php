@@ -608,35 +608,24 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
 <head>
 
 <script>
-(function initScreenMaster7ThemeEarly() {
-  var raw = localStorage.getItem('magaies_active_theme') || 
-            localStorage.getItem('magaiees_global_theme') || 
-            localStorage.getItem('magaiees_mobile_theme') || 
-            localStorage.getItem('ui_theme') || 
-            'warm_cream';
-  var aliasMap = {
-    'warm-alabaster': 'warm_cream', 'beige': 'warm_cream', 'ivory': 'warm_cream', 'light-linen': 'warm_cream',
-    'pure-platinum': 'ultra_white', 'offwhite': 'ultra_white', 'white': 'ultra_white', 'light': 'ultra_white',
-    'pearl-platinum': 'exec_gray', 'nordic-paper': 'warm_cream', 'solar_contrast': 'warm_cream',
-    'midnight-executive': 'midnight_obsidian', 'navy-kohl': 'midnight_obsidian', 'royal-blue': 'midnight_obsidian', 'ocean-navy': 'midnight_obsidian', 'navy': 'midnight_obsidian',
-    'sepia-brown': 'mocha_brown', 'desert-mocha': 'mocha_brown', 'brown': 'mocha_brown',
-    'obsidian-charcoal': 'pure_oled', 'midnight': 'pure_oled', 'black': 'pure_oled', 'dark': 'pure_oled',
-    'twilight-indigo': 'slate_twilight', 'emerald-forest': 'slate_twilight', 'forest': 'slate_twilight'
-  };
-  var activeKey = aliasMap[raw] || raw;
-  var valid7 = ['warm_cream', 'ultra_white', 'exec_gray', 'midnight_obsidian', 'mocha_brown', 'pure_oled', 'slate_twilight'];
-  if (!valid7.includes(activeKey)) activeKey = 'warm_cream';
-  var isLight = ['warm_cream', 'ultra_white', 'exec_gray'].includes(activeKey);
-
+(function initScreenMaster13ToneEarly() {
+  var ckMatch = document.cookie.match(/(?:^|; )magaies_light_tone=([^;]*)/);
+  var rawTone = (ckMatch ? decodeURIComponent(ckMatch[1]) : '') || localStorage.getItem('magaies_light_tone') || localStorage.getItem('pur_light_tone_palette') || '';
+  var darkTones = { dark_midnight: 'midnight_obsidian', pure_oled: 'pure_oled', mocha_brown: 'mocha_brown', slate_twilight: 'slate_twilight' };
+  var lightToneThemes = { ivory_default: 'warm_cream', royal_bronze: 'warm_cream', platinum_gray: 'exec_gray', crystal_silver: 'ultra_white', sage_pearl: 'warm_cream', sky_alabaster: 'ultra_white', rose_blossom: 'warm_cream', warm_mocha_dark: 'warm_cream', deep_slate_dark: 'exec_gray' };
+  var activeTone = (darkTones[rawTone] || lightToneThemes[rawTone]) ? rawTone : 'ivory_default';
+  var isDark = !!darkTones[activeTone];
+  var activeKey = darkTones[activeTone] || lightToneThemes[activeTone] || 'warm_cream';
+  document.documentElement.setAttribute('data-light-tone', activeTone);
   document.documentElement.setAttribute('data-theme', activeKey);
-  if (isLight) document.documentElement.classList.add('light-theme');
-  else document.documentElement.classList.remove('light-theme');
-
-  document.addEventListener("DOMContentLoaded", function() {
+  document.documentElement.classList.toggle('light-theme', !isDark);
+  document.documentElement.classList.toggle('dark-theme', isDark);
+  document.addEventListener('DOMContentLoaded', function() {
     if (document.body) {
+      document.body.setAttribute('data-light-tone', activeTone);
       document.body.setAttribute('data-theme', activeKey);
-      if (isLight) document.body.classList.add('light-theme');
-      else document.body.classList.remove('light-theme');
+      document.body.classList.toggle('light-theme', !isDark);
+      document.body.classList.toggle('dark-theme', isDark);
     }
   });
 })();
@@ -2712,7 +2701,7 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
     </div>
     <div class="toast-container" id="toast-container"></div>
 
-    <div class="pos-wrapper" style="max-width: 98%; margin: 0 auto; padding: 15px 10px; padding-bottom: 100px;">
+    <div class="pos-wrapper" id="mcp-proportional-root" style="width: calc(100% - 24px); max-width: calc(100% - 24px); margin: 0 auto; padding: 8px 0 36px 0; box-sizing: border-box;">
         <?php $header_theme_class = 'header-theme-sales'; ?>
         <?php include 'includes/header.php'; ?>
 
@@ -4244,10 +4233,10 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
     <script defer src="js/html2pdf.bundle.min.js"></script>
     <script defer src="js/whatsapp-integration.js?v=<?= file_exists('js/whatsapp-integration.js') ? filemtime('js/whatsapp-integration.js') : '1' ?>"></script>
     <script defer src="js/app.js?v=20261016_v28"></script>
-    <script defer src="js/promissory-flight-animation.js?v=<?= time() ?>"></script>
+    <script defer src="js/promissory-flight-animation.js?v=<?= file_exists('js/promissory-flight-animation.js') ? filemtime('js/promissory-flight-animation.js') : '1' ?>"></script>
     <script defer src="js/master-banks-helper.js?v=<?= file_exists('js/master-banks-helper.js') ? filemtime('js/master-banks-helper.js') : '1' ?>"></script>
     <script defer src="js/voucher-qr-barcode-suite.js?v=20261103"></script>
-    <script defer src="js/multi-cash-payment.js?v=<?= time() ?>"></script>
+    <script defer src="js/multi-cash-payment.js?v=<?= file_exists('js/multi-cash-payment.js') ? filemtime('js/multi-cash-payment.js') : '1' ?>"></script>
     <script>
     let hasWarnedAboutEdit = false;
 
@@ -4940,7 +4929,10 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
 
     <!-- Financial OCR Modal & Script -->
     <?php include 'includes/financial-ocr-modal.php'; ?>
-    <script src="js/financial-ocr.js?v=<?php echo file_exists('js/financial-ocr.js') ? filemtime('js/financial-ocr.js') : 1; ?>"></script>
+    <script defer src="js/financial-ocr.js?v=<?php echo file_exists('js/financial-ocr.js') ? filemtime('js/financial-ocr.js') : 1; ?>"></script>
+    <script defer src="js/elsajana-universal-ui-2027.js?v=<?php echo file_exists('js/elsajana-universal-ui-2027.js') ? filemtime('js/elsajana-universal-ui-2027.js') : 1; ?>"></script>
+    <script defer src="js/elsajana-erp-brain-2027.js?v=<?php echo file_exists('js/elsajana-erp-brain-2027.js') ? filemtime('js/elsajana-erp-brain-2027.js') : 1; ?>"></script>
+    <script defer src="js/elsajana-charts-forensic-2027.js?v=<?php echo file_exists('js/elsajana-charts-forensic-2027.js') ? filemtime('js/elsajana-charts-forensic-2027.js') : 1; ?>"></script>
 
     <!-- ══════════════════════════════════════════════════════════════════════════════ -->
     <!-- الدستور الثاني (Constitution 2): هندسة المرشد الذكي، الصوت الرجالي، عدم تكرار الافتتاحية، والمحاكاة الحية للشاشات الوليدة -->
@@ -18329,7 +18321,7 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
             // 5. القفل الزمني المشفر لمنع التلاعب بساعة الجهاز في الأوفلاين (Monotonic Time-Lock)
             initMonotonicTimeLockGuard() {
                 this.checkSystemClockIntegrity(false);
-                setInterval(() => this.checkSystemClockIntegrity(false), 10000);
+                setInterval(() => this.checkSystemClockIntegrity(false), 60000);
             },
 
             checkSystemClockIntegrity(simulateTamper) {
@@ -20862,7 +20854,7 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
                 });
 
                 // تطبيق التناسب الهندسي المتزامن (6 إلى 8) من الأسفل واليمين والشمال بنفس المستوى دون تشوه
-                const mainTarget = document.querySelector('.main-container, .page-wrapper, .voucher-container, main') || document.body;
+                const mainTarget = document.getElementById('mcp-zoom-stage') || document.getElementById('main-layout-wrapper') || document.querySelector('.main-container, .page-wrapper, .voucher-container, main') || document.body;
                 if (mainTarget && mainTarget !== document.body) {
                     mainTarget.style.zoom = String(this.currentZoomScale);
                     mainTarget.style.transformOrigin = 'top center';
@@ -20888,7 +20880,7 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
                 }
 
                 window.addEventListener('wheel', (e) => {
-                    if (!e.ctrlKey) return;
+                    if (!e.ctrlKey || window.ElsajanaUniversalUI2027) return;
                     e.preventDefault();
                     const delta = e.deltaY < 0 ? 0.04 : -0.04;
                     this.saveAndApplyZoomScale(this.currentZoomScale + delta, true);
@@ -22690,6 +22682,14 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
                 let ans = '';
                 if (q.includes('عملاء') || q.includes('ربحية') || q.includes('أكثر')) {
                     ans = '🏆 أكثر 5 جهات/عملاء التزاماً وربحية هذا الشهر (تحليل AI): 1) مؤسسة التوريدات التجارية (هامش ربح 22.4% — التزام سداد 98%)، 2) عماد للتوريدات والمقاولات (20.1%)، 3) شركة النيل للتجارة (18.9%)، 4) مؤسسة النور التجارية (17.5%)، 5) مركز البناء الحديث (16.8%).';
+                } else if (/نفاد|مخزن|صنف|حديد|سيخ/.test(q)) {
+                    var itArr = []; try { itArr = JSON.parse(localStorage.getItem('erp_items_v1') || '[]'); } catch (_) {}
+                    var lowIt = itArr.filter(function(x) { return x && (parseFloat(x.currentStock ?? x.quantity ?? 0) || 0) <= (parseFloat(x.minStock || 5) || 5); }).slice(0, 4).map(function(x) { return x.name + ' (رصيد: ' + (parseFloat(x.currentStock ?? x.quantity ?? 0) || 0) + ')'; });
+                    ans = '📦 رادار الأصناف القريبة من النفاد (معيار السجانة): ' + (lowIt.length ? lowIt.join(' | ') : 'جميع أصناف الحديد ومواد البناء متوفرة فوق حد الأمان.');
+                } else if (/متوقع|تحصيل|أسبوع|اسبوع|سداد/.test(q)) {
+                    var cuArr = []; try { cuArr = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]'); } catch (_) {}
+                    var dueCu = cuArr.filter(function(c) { return c && (parseFloat(c.currentBalance) || 0) > 0; }).sort(function(a, b) { return (parseFloat(b.currentBalance) || 0) - (parseFloat(a.currentBalance) || 0); }).slice(0, 4).map(function(c) { return (c.name || 'عميل') + ' (' + Math.round(parseFloat(c.currentBalance) || 0).toLocaleString('en-US') + ' SDG)'; });
+                    ans = '🔮 العملاء المتوقع سدادهم هذا الأسبوع: ' + (dueCu.length ? dueCu.join(' | ') : 'لا توجد مديونيات عملاء مستحقة حالياً.');
                 } else if (q.includes('مصروفات') || q.includes('زيادة') || q.includes('سبب')) {
                     ans = '📉 تحليل سبب تغير المصروفات (AI Variance Analysis): 64% من المدفوعات الحالية موجهة لتسويات الموردين وشراء البضاعة، و18% مصروفات نقل وعتالة (Landed Cost) محمّلة على تكلفة الأصناف، و18% مصروفات تشغيلية اعتيادية ضمن الموازنة المعتمدة.';
                 } else {
@@ -22768,13 +22768,15 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
 
                 // فحص التكرار أو التزوير عبر قاعدة البيانات بالكامل في كسر من الثانية
                 const registry = this.getBankakFawryRegistry();
-                const dup = registry.find((r) => String(r.trxId).toUpperCase() === trxId);
+                const brainDup = window.ElsajanaAccountingBrain ? window.ElsajanaAccountingBrain.checkBankakDuplicate(trxId) : { duplicate: false };
+                const dup = registry.find((r) => String(r.trxId).toUpperCase() === trxId) || (brainDup.duplicate ? { voucherNo: brainDup.source || 'سجل النظام', date: 'سابق' } : null);
                 if (dup) {
+                    const bkGuardMsg = 'أمسك عندك! إشعار بنكك دا دخل الخزنة قبل كدا.. الموية ما بتمر من تحتنا مرتين!';
                     if (statusBox) {
                         statusBox.style.background = '#fef2f2';
                         statusBox.style.borderColor = '#dc2626';
                         statusBox.style.color = '#991b1b';
-                        statusBox.innerHTML = `🚨 <strong>كشف محاولة اختلاس / إشعار بنكك مكرر!</strong> رقم العملية المرجعي (<code>${trxId}</code>) مستخدم مسبقاً في السند (<strong>${dup.voucherNo}</strong>) بتاريخ (${dup.date}). تم رفض الإشعار وإرسال إنذار أحمر للمالك!`;
+                        statusBox.innerHTML = `🚨 <strong>${bkGuardMsg}</strong> — رقم العملية (<code>${trxId}</code>) مستخدم مسبقاً في (<strong>${dup.voucherNo}</strong>).`;
                     }
                     if (window.McpDesktopConstitution13) {
                         window.McpDesktopConstitution13.recordBlackBoxEntry(
@@ -22789,7 +22791,8 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
                             `تم إحباط محاولة استخدام إشعار بنكك مكرر رقم (${trxId}) بقيمة (${amount.toFixed(2)}) المسجل مسبقاً في السند (${dup.voucherNo}).`
                         );
                     }
-                    this.notify(`🚨 تم رفض إشعار بنكك رقم (${trxId}) لأنه مكرر ومستخدم سابقاً في سند (${dup.voucherNo})!`, 'error', inputEl);
+                    if (window.ElsajanaAccountingBrain && inputEl) window.ElsajanaAccountingBrain.shakeAndFocus(inputEl, bkGuardMsg, 'error', 5500);
+                    else this.notify(bkGuardMsg, 'error', inputEl);
                     return;
                 }
 
@@ -23268,14 +23271,3 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-

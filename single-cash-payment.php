@@ -549,35 +549,24 @@ try {
 <head>
 
 <script>
-(function initScreenMaster7ThemeEarly() {
-  var raw = localStorage.getItem('magaies_active_theme') || 
-            localStorage.getItem('magaiees_global_theme') || 
-            localStorage.getItem('magaiees_mobile_theme') || 
-            localStorage.getItem('ui_theme') || 
-            'warm_cream';
-  var aliasMap = {
-    'warm-alabaster': 'warm_cream', 'beige': 'warm_cream', 'ivory': 'warm_cream', 'light-linen': 'warm_cream',
-    'pure-platinum': 'ultra_white', 'offwhite': 'ultra_white', 'white': 'ultra_white', 'light': 'ultra_white',
-    'pearl-platinum': 'exec_gray', 'nordic-paper': 'warm_cream', 'solar_contrast': 'warm_cream',
-    'midnight-executive': 'midnight_obsidian', 'navy-kohl': 'midnight_obsidian', 'royal-blue': 'midnight_obsidian', 'ocean-navy': 'midnight_obsidian', 'navy': 'midnight_obsidian',
-    'sepia-brown': 'mocha_brown', 'desert-mocha': 'mocha_brown', 'brown': 'mocha_brown',
-    'obsidian-charcoal': 'pure_oled', 'midnight': 'pure_oled', 'black': 'pure_oled', 'dark': 'pure_oled',
-    'twilight-indigo': 'slate_twilight', 'emerald-forest': 'slate_twilight', 'forest': 'slate_twilight'
-  };
-  var activeKey = aliasMap[raw] || raw;
-  var valid7 = ['warm_cream', 'ultra_white', 'exec_gray', 'midnight_obsidian', 'mocha_brown', 'pure_oled', 'slate_twilight'];
-  if (!valid7.includes(activeKey)) activeKey = 'warm_cream';
-  var isLight = ['warm_cream', 'ultra_white', 'exec_gray'].includes(activeKey);
-
+(function initScreenMaster13ToneEarly() {
+  var ckMatch = document.cookie.match(/(?:^|; )magaies_light_tone=([^;]*)/);
+  var rawTone = (ckMatch ? decodeURIComponent(ckMatch[1]) : '') || localStorage.getItem('magaies_light_tone') || localStorage.getItem('pur_light_tone_palette') || '';
+  var darkTones = { dark_midnight: 'midnight_obsidian', pure_oled: 'pure_oled', mocha_brown: 'mocha_brown', slate_twilight: 'slate_twilight' };
+  var lightToneThemes = { ivory_default: 'warm_cream', royal_bronze: 'warm_cream', platinum_gray: 'exec_gray', crystal_silver: 'ultra_white', sage_pearl: 'warm_cream', sky_alabaster: 'ultra_white', rose_blossom: 'warm_cream', warm_mocha_dark: 'warm_cream', deep_slate_dark: 'exec_gray' };
+  var activeTone = (darkTones[rawTone] || lightToneThemes[rawTone]) ? rawTone : 'ivory_default';
+  var isDark = !!darkTones[activeTone];
+  var activeKey = darkTones[activeTone] || lightToneThemes[activeTone] || 'warm_cream';
+  document.documentElement.setAttribute('data-light-tone', activeTone);
   document.documentElement.setAttribute('data-theme', activeKey);
-  if (isLight) document.documentElement.classList.add('light-theme');
-  else document.documentElement.classList.remove('light-theme');
-
-  document.addEventListener("DOMContentLoaded", function() {
+  document.documentElement.classList.toggle('light-theme', !isDark);
+  document.documentElement.classList.toggle('dark-theme', isDark);
+  document.addEventListener('DOMContentLoaded', function() {
     if (document.body) {
+      document.body.setAttribute('data-light-tone', activeTone);
       document.body.setAttribute('data-theme', activeKey);
-      if (isLight) document.body.classList.add('light-theme');
-      else document.body.classList.remove('light-theme');
+      document.body.classList.toggle('light-theme', !isDark);
+      document.body.classList.toggle('dark-theme', isDark);
     }
   });
 })();
@@ -4193,8 +4182,11 @@ try {
     </div>
     <!-- Financial OCR Modal & Script -->
     <?php include 'includes/financial-ocr-modal.php'; ?>
-    <script src="js/magaies-offline-sync.js?v=20261014"></script>
-    <script src="js/financial-ocr.js?v=<?php echo file_exists('js/financial-ocr.js') ? filemtime('js/financial-ocr.js') : 1; ?>"></script>
+    <script defer src="js/magaies-offline-sync.js?v=20261014"></script>
+    <script defer src="js/financial-ocr.js?v=<?php echo file_exists('js/financial-ocr.js') ? filemtime('js/financial-ocr.js') : 1; ?>"></script>
+    <script defer src="js/elsajana-universal-ui-2027.js?v=<?php echo file_exists('js/elsajana-universal-ui-2027.js') ? filemtime('js/elsajana-universal-ui-2027.js') : 1; ?>"></script>
+    <script defer src="js/elsajana-erp-brain-2027.js?v=<?php echo file_exists('js/elsajana-erp-brain-2027.js') ? filemtime('js/elsajana-erp-brain-2027.js') : 1; ?>"></script>
+    <script defer src="js/elsajana-charts-forensic-2027.js?v=<?php echo file_exists('js/elsajana-charts-forensic-2027.js') ? filemtime('js/elsajana-charts-forensic-2027.js') : 1; ?>"></script>
 
     <!-- ============================================================================
          👑 الدستور الأول (1 من 14): دستور السمات، الشاشات الوليدة، زيادة سُمك الحواف والخطوط (+2)،
@@ -14589,7 +14581,7 @@ try {
 
             /* محرك الطباعة الموزون والمفصول هندسياً (A4 الرسمي + 80mm الحراري) */
             @media print {
-              @body[data-mg-print-mode="THERMAL_80MM"] > *:not(#mgC14Thermal80mmReceipt) {
+              body[data-mg-print-mode="THERMAL_80MM"] > *:not(#mgC14Thermal80mmReceipt) {
                 display: none !important;
               }body[data-mg-print-mode="THERMAL_80MM"] #mgC14Thermal80mmReceipt {
                 display: block !important;
@@ -16928,13 +16920,14 @@ try {
                 rootEl.style.marginRight = 'auto';
                 rootEl.style.setProperty('width', 'calc(100% - 24px)', 'important');
                 rootEl.style.setProperty('max-width', 'calc(100% - 24px)', 'important');
-                if (Math.abs(scpSovZoom - 1) < 0.01) {
-                    rootEl.style.transform = '';
-                    rootEl.style.marginBottom = '';
-                } else {
-                    rootEl.style.transform = 'scale(' + scpSovZoom + ')';
-                    var h = rootEl.offsetHeight || window.innerHeight;
-                    rootEl.style.marginBottom = Math.round((scpSovZoom - 1) * h * (scpSovZoom > 1 ? 0.85 : 1)) + 'px';
+                rootEl.style.transform = 'none';
+                rootEl.style.marginBottom = '';
+                var zStage = document.getElementById('scp-zoom-stage') || document.getElementById('main-layout-wrapper');
+                var clampedVecZ = Math.max(1, Math.min(10, scpSovZoom));
+                if (zStage) zStage.style.zoom = String(clampedVecZ);
+                if (window.ElsajanaUniversalUI2027 && typeof window.ElsajanaUniversalUI2027.setTelescopicZoom === 'function' && !window.__scpInZoomSync) {
+                    window.__scpInZoomSync = true;
+                    try { window.ElsajanaUniversalUI2027.setTelescopicZoom(clampedVecZ); } finally { window.__scpInZoomSync = false; }
                 }
             }
 
@@ -16961,15 +16954,7 @@ try {
             }
         };
 
-        window.addEventListener('wheel', function(ev) {
-            if (ev.ctrlKey || ev.metaKey) {
-                ev.preventDefault();
-                ev.stopImmediatePropagation();
-                var baseStep = scpSovZoom >= 3 ? 0.5 : (scpSovZoom >= 1.5 ? 0.2 : 0.08);
-                var step = ev.deltaY < 0 ? baseStep : -baseStep;
-                window.setScpFc1ProportionalZoom('step', step, false);
-            }
-        }, { passive: false, capture: true });
+        /* Ctrl+Wheel 10x Vector Zoom handled cleanly by ElsajanaUniversalUI2027 on #scp-zoom-stage */
 
         window.addEventListener('storage', function(ev) {
             if ([SOV_MASTER_KEY, SCP_ZOOM_KEY, C15_SCALE_KEY, MD_SCALE_KEY, PUR_ZOOM_KEY, GRN_ZOOM_KEY, SL_FC1_KEY, SALES_ZOOM_KEY].includes(ev.key)) {
@@ -17758,10 +17743,13 @@ try {
                         '<button type="button" onclick="if(typeof window.openScpFc2AtomicSyncAndDrillDownModal===\'function\')window.openScpFc2AtomicSyncAndDrillDownModal()" style="height:26px;padding:0 9px;border-radius:6px;background:rgba(16,185,129,0.2);color:#34d399;border:1px solid #10b981;font-size:0.74rem;font-weight:900;cursor:pointer;" title="التسميع الذري اللحظي والوصول لأصل السند Drill-Down (F8)">🔗 التسميع الذري (7 تقارير)</button>' +
                         '<button type="button" onclick="if(typeof window.openScpFc2AiResultInterpreterModal===\'function\')window.openScpFc2AiResultInterpreterModal()" style="height:26px;padding:0 9px;border-radius:6px;background:rgba(56,189,248,0.2);color:#7dd3fc;border:1px solid #38bdf8;font-size:0.74rem;font-weight:900;cursor:pointer;" title="مفسر النتائج التنفيذي والتنبؤ والاستعلام الذكي من التقارير">🧠 مفسر النتائج AI</button>' +
                         '<button type="button" onclick="if(typeof window.openScpFc2DocumentaryAndLandedCostModal===\'function\')window.openScpFc2DocumentaryAndLandedCostModal()" style="height:26px;padding:0 9px;border-radius:6px;background:rgba(168,85,247,0.2);color:#d8b4fe;border:1px solid #a855f7;font-size:0.74rem;font-weight:900;cursor:pointer;" title="الدورة المستندية بلمسة زر وتوزيع المصروفات المضافة Landed Cost">🔄 الدورة المستندية والتكلفة</button>' +
-                        '<button type="button" onclick="if(typeof window.openScpFc2ChequeAndOcrGuardModal===\'function\')window.openScpFc2ChequeAndOcrGuardModal()" style="height:26px;padding:0 9px;border-radius:6px;background:rgba(245,158,11,0.2);color:#fde047;border:1px solid #f59e0b;font-size:0.74rem;font-weight:900;cursor:pointer;" title="دورة الشيكات الـ 5 وكاشف تزوير إشعارات بنكك وفوري (<=40KB)">🏦 الشيكات ورادار بنكك</button>' +
+                        '<button type="button" onclick="if(window.ElsajanaAccountingBrain)window.ElsajanaAccountingBrain.openBankakFawrySmartModal();else if(typeof window.openScpFc2ChequeAndOcrGuardModal===\'function\')window.openScpFc2ChequeAndOcrGuardModal();" style="height:26px;padding:0 9px;border-radius:6px;background:rgba(2,132,199,0.25);color:#7dd3fc;border:1px solid #38bdf8;font-size:0.74rem;font-weight:900;cursor:pointer;" title="قراءة وفحص إشعار بنكك/فوري بالذكاء وضغط 40KB">🏦 بنكك/فوري AI (40KB)</button>' +
+                        '<button type="button" onclick="if(window.ElsajanaAccountingBrain)window.ElsajanaAccountingBrain.openInspectionAndBasculeModal();" style="height:26px;padding:0 9px;border-radius:6px;background:rgba(16,185,129,0.22);color:#6ee7b7;border:1px solid #10b981;font-size:0.74rem;font-weight:900;cursor:pointer;" title="فحص واستلام وميزان البسكول والعتالة ومعادلة الحديد (135/140/15)">⚖️ فحص وبسكول (135/140/15)</button>' +
+                        '<button type="button" onclick="if(window.ElsajanaAccountingBrain)window.ElsajanaAccountingBrain.openChecksLifecycleModal();else if(typeof window.openScpFc2ChequeAndOcrGuardModal===\'function\')window.openScpFc2ChequeAndOcrGuardModal();" style="height:26px;padding:0 9px;border-radius:6px;background:rgba(245,158,11,0.2);color:#fde047;border:1px solid #f59e0b;font-size:0.74rem;font-weight:900;cursor:pointer;" title="دورة الشيكات الـ 5 وكاشف تزوير إشعارات بنكك وفوري (<=40KB)">💳 دورة الشيكات الـ 5</button>' +
                         '<button type="button" onclick="if(typeof window.openScpFc2OwnerForensicRadarModal===\'function\')window.openScpFc2OwnerForensicRadarModal()" style="height:26px;padding:0 9px;border-radius:6px;background:rgba(239,68,68,0.2);color:#fca5a5;border:1px solid #ef4444;font-size:0.74rem;font-weight:900;cursor:pointer;" title="رادار المالك الجنائي السري (أصفر/برتقالي/أحمر) والصندوق الأسود">🕵️ رادار المالك والجرد الأعمى</button>' +
                         '<button type="button" onclick="if(typeof window.openScpFc2SupremeConstitutionModal===\'function\')window.openScpFc2SupremeConstitutionModal()" style="height:26px;padding:0 10px;border-radius:6px;background:linear-gradient(135deg,#d97706,#b91c1c);color:#fff;border:1px solid #fbbf24;font-size:0.74rem;font-weight:900;cursor:pointer;">🛡️ الدستور الثاني (2/2)</button>' +
                         '<button type="button" onclick="if(typeof window.openScpFc2MasterAudit10AdditionsModal===\'function\')window.openScpFc2MasterAudit10AdditionsModal()" style="height:26px;padding:0 10px;border-radius:6px;background:linear-gradient(135deg,#0284c7,#059669);color:#fff;border:1px solid #38bdf8;font-size:0.74rem;font-weight:900;cursor:pointer;">🏆 بوابة الحسم (10 إضافات AI)</button>' +
+                        '<span id="scp-sovereign-3-slot" style="display:inline-flex;align-items:center;gap:4px;flex-wrap:wrap;"></span>' +
                     '</div>' +
                     '<span id="scp-fc1-copilot-hint" style="font-size:0.75rem;font-weight:800;color:#bae6fd;">🤖 مساعد الشاشة: جاهز للإدخال الفوري (0ms)</span>' +
                 '</div>' +
@@ -18057,6 +18045,14 @@ try {
 
             if (/أكثر|اعلى|أعلى|5|خمس|عملاء|مستفيد/.test(q)) {
                 box.innerHTML = '🏆 <b>أعلى 5 حسابات/مستفيدين حركة في السندات:</b><br>' + (top5 || 'لا توجد بيانات كافية بعد.');
+            } else if (/نفاد|مخزن|صنف|حديد|سيخ/.test(q)) {
+                var itemsL = []; try { itemsL = JSON.parse(localStorage.getItem('erp_items_v1') || '[]'); } catch (_) {}
+                var low = itemsL.filter(function(it) { return it && (parseFloat(it.currentStock ?? it.quantity ?? 0) || 0) <= (parseFloat(it.minStock || 5) || 5); }).slice(0, 4).map(function(it) { return it.name + ' (رصيد: ' + (parseFloat(it.currentStock ?? it.quantity ?? 0) || 0) + ')'; });
+                box.innerHTML = '📦 <b>رادار المخزون والأصناف القريبة من النفاد:</b> ' + (low.length ? low.join(' | ') : 'جميع الأصناف الرئيسية متوفرة فوق حد الأمان.');
+            } else if (/متوقع|تحصيل|أسبوع|اسبوع|سداد/.test(q)) {
+                var custsL = []; try { custsL = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]'); } catch (_) {}
+                var dueC = custsL.filter(function(c) { return c && (parseFloat(c.currentBalance) || 0) > 0; }).sort(function(a, b) { return (parseFloat(b.currentBalance) || 0) - (parseFloat(a.currentBalance) || 0); }).slice(0, 4).map(function(c) { return (c.name || 'عميل') + ' (' + Math.round(parseFloat(c.currentBalance) || 0).toLocaleString('en-US') + ' SDG)'; });
+                box.innerHTML = '🔮 <b>العملاء المتوقع سدادهم هذا الأسبوع:</b> ' + (dueC.length ? dueC.join(' | ') : 'لا توجد مديونيات عملاء مستحقة حالياً.');
             } else if (/سبب|زيادة|مصروف|مقارن/.test(q)) {
                 box.innerHTML = '📊 <b>تفسير الذكاء الاصطناعي للمنصرفات:</b> إجمالي حركات اليوم (' + stats.todayCount + ' سند بقيمة ' + stats.todaySum.toLocaleString('en-US') + ' SDG) مقارنة بمتوسط السند العام (' + stats.avgPerVoucher.toLocaleString('en-US') + ' SDG). ' + (stats.todaySum > stats.avgPerVoucher * 3 ? '⚠️ توجد زيادة ملحوظة اليوم ناتجة عن دفعات الموردين والتحويلات البنكية.' : '✅ معدل الصرف اليومي ضمن النطاق الآمن المعتاد.');
             } else {
@@ -18086,6 +18082,8 @@ try {
                         '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">' +
                             '<button type="button" onclick="window.answerScpFc2ReportQuestion(\'من هم أكثر 5 مستفيدين؟\')" style="padding:3px 9px;border-radius:6px;background:#1e293b;color:#7dd3fc;border:1px solid #38bdf8;font-size:0.74rem;cursor:pointer;">🏆 أعلى 5 مستفيدين</button>' +
                             '<button type="button" onclick="window.answerScpFc2ReportQuestion(\'ما سبب زيادة المصروفات؟\')" style="padding:3px 9px;border-radius:6px;background:#1e293b;color:#fde047;border:1px solid #f59e0b;font-size:0.74rem;cursor:pointer;">📈 تحليل سبب تغير المصروفات</button>' +
+                            '<button type="button" onclick="window.answerScpFc2ReportQuestion(\'ما هو الصنف القريب من النفاد؟\')" style="padding:3px 9px;border-radius:6px;background:#1e293b;color:#6ee7b7;border:1px solid #10b981;font-size:0.74rem;cursor:pointer;">📦 أصناف قاربت على النفاد</button>' +
+                            '<button type="button" onclick="window.answerScpFc2ReportQuestion(\'العميل المتوقع سداده هذا الأسبوع\')" style="padding:3px 9px;border-radius:6px;background:#1e293b;color:#e9d5ff;border:1px solid #a855f7;font-size:0.74rem;cursor:pointer;">🔮 المتوقع تحصيلهم هذا الأسبوع</button>' +
                         '</div>' +
                         '<div id="scp-fc2-ask-report-answer" style="padding:9px;border-radius:8px;background:rgba(2,6,23,0.75);border:1px solid rgba(255,255,255,0.2);font-size:0.8rem;color:#e2e8f0;">اضغط على أحد الأسئلة الذكية أو اكتب سؤالك ليُجيبك الذكاء الاصطناعي فوراً من واقع الأرقام الفعلية.</div>' +
                     '</div>' +
@@ -18189,7 +18187,7 @@ try {
                         '<div style="font-weight:900;color:#67e8f9;font-size:0.84rem;margin-bottom:6px;">📷 2. كاشف تزوير وتكرار إشعارات (بنكك / فوري) بالذكاء الاصطناعي + ضغط الصور إلى (<= 40KB):</div>' +
                         '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">' +
                             '<input type="text" id="scp-fc2-test-trx-input" placeholder="أدخل رقم عملية بنكك / فوري لفحص عدم التكرار أو التزوير..." style="flex:1;min-width:220px;height:34px;padding:0 10px;border-radius:8px;font-size:0.8rem;">' +
-                            '<button type="button" onclick="var el=document.getElementById(\'scp-fc2-test-trx-input\');var r=window.verifyScpBankakTrxNotDuplicate(el.value);if(r.duplicate){window.shakeScpField(el,\'🚨 تنبيه أحمر: رقم إشعار بنكك مكرر ومستخدم مسبقاً في السند #\'+r.voucherId+\'!\');}else{window.notifyScpFc1Toast(\'✅ رقم الإشعار سليم وغير مكرر في قاعدة البيانات (0ms)!\',\'success\');}" style="height:34px;padding:0 12px;border-radius:8px;background:#059669;color:#fff;border:none;font-weight:900;cursor:pointer;">🔍 فحص الإشعار (0ms)</button>' +
+                            '<button type="button" onclick="var el=document.getElementById(\'scp-fc2-test-trx-input\');var r=window.verifyScpBankakTrxNotDuplicate(el.value);var bDup=window.ElsajanaAccountingBrain?window.ElsajanaAccountingBrain.checkBankakDuplicate(el.value):{duplicate:false};if(r.duplicate||bDup.duplicate){window.shakeScpField(el,\'أمسك عندك! إشعار بنكك دا دخل الخزنة قبل كدا.. الموية ما بتمر من تحتنا مرتين!\');}else{window.notifyScpFc1Toast(\'✅ رقم الإشعار سليم وغير مكرر في قاعدة البيانات (0ms)!\',\'success\');}" style="height:34px;padding:0 12px;border-radius:8px;background:#059669;color:#fff;border:none;font-weight:900;cursor:pointer;">🔍 فحص الإشعار (0ms)</button>' +
                             '<button type="button" onclick="if(window.FinancialOCR)window.FinancialOCR.openScanner({target:\'single\'})" style="height:34px;padding:0 12px;border-radius:8px;background:#0284c7;color:#fff;border:none;font-weight:900;cursor:pointer;">📷 فتح ماسح AI OCR (ضغط <= 40KB)</button>' +
                         '</div>' +
                     '</div>' +
@@ -18302,9 +18300,9 @@ try {
                     '</div>' +
                     '<div style="padding:10px;border-radius:10px;background:rgba(16,185,129,0.12);border:1.5px solid #10b981;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">' +
                         '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
-                            '<span style="font-weight:900;color:#34d399;font-size:0.8rem;">🔒 الجرد الأعمى للخزينة (Blind Close):</span>' +
-                            '<input type="number" id="scp-fc2-blind-cash-inp" placeholder="أدخل النقدية الفعلية بالدرج..." style="width:170px;height:30px;padding:0 8px;border-radius:6px;font-size:0.78rem;">' +
-                            '<button type="button" onclick="var v=parseFloat(document.getElementById(\'scp-fc2-blind-cash-inp\').value)||0;window.appendScpBlackBoxAndRadar(\'INFO\',\'BLIND_CLOSE\',\'تسليم جرد أعمى للخزينة بمبلغ: \'+v);window.notifyScpFc1Toast(\'✅ تم توثيق الجرد الأعمى للخزينة وإرساله لتقرير المالك السري!\',\'success\');" style="height:30px;padding:0 10px;border-radius:6px;background:#059669;color:#fff;border:none;font-weight:800;font-size:0.75rem;cursor:pointer;">اعتماد الجرد الأعمى</button>' +
+                            '<span style="font-weight:900;color:#34d399;font-size:0.8rem;">🔒 الجرد الأعمى ("عدّ قروشك سمح واكتب الصافي.. الرادار شايف كل جنيه!"):</span>' +
+                            '<input type="number" id="scp-fc2-blind-cash-inp" placeholder="عدّ قروشك سمح واكتب الصافي..." style="width:170px;height:30px;padding:0 8px;border-radius:6px;font-size:0.78rem;">' +
+                            '<button type="button" onclick="if(window.ElsajanaForensicAndCharts2027){document.getElementById(\'scp-fc2-radar-modal\').remove();window.ElsajanaForensicAndCharts2027.openBlindTreasuryHandoverModal();}else{var v=parseFloat(document.getElementById(\'scp-fc2-blind-cash-inp\').value)||0;window.appendScpBlackBoxAndRadar(\'INFO\',\'BLIND_CLOSE\',\'تسليم جرد أعمى للخزينة بمبلغ: \'+v);window.notifyScpFc1Toast(\'عدّ قروشك سمح واكتب الصافي.. الرادار شايف كل جنيه! — تم التوثيق\',\'success\');}" style="height:30px;padding:0 10px;border-radius:6px;background:#059669;color:#fff;border:none;font-weight:800;font-size:0.75rem;cursor:pointer;">اعتماد الجرد الأعمى</button>' +
                         '</div>' +
                         '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
                             '<span style="font-weight:900;color:#fde047;font-size:0.78rem;">📅 قفل الفترة المالية حتى:</span>' +
@@ -18470,15 +18468,3 @@ try {
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-<!-- FORCE CACHE BUST: 10001 -->

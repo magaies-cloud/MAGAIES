@@ -1556,20 +1556,21 @@ function submitVoucherInner() {
     const toAcc = document.getElementById('to-account').value;
     const fromAcc = document.getElementById('from-account').value;
 
+    const _shakeF = (sel, msg) => window.ElsajanaAccountingBrain ? window.ElsajanaAccountingBrain.shakeAndFocus(sel, msg, 'error', 4200) : showToast(msg, 'error');
     if (amtLocal <= 0) {
-        showToast("لا يمكن اعتماد سند بقيمة صفر", "error");
+        _shakeF('#amount-local', "لا يمكن اعتماد سند بقيمة صفر");
         return;
     }
     if (!toAcc) {
-        showToast("يرجى اختيار الحساب المستفيد", "error");
+        _shakeF('#to-account-search', "يرجى اختيار الحساب المستفيد");
         return;
     }
     if (!fromAcc) {
-        showToast("يرجى اختيار حساب الدفع (الدافع)", "error");
+        _shakeF('#from-account-search', "يرجى اختيار حساب الدفع (الدافع)");
         return;
     }
     if (String(fromAcc).trim() === String(toAcc).trim()) {
-        showToast("⚠️ خطأ محاسبي: لا يمكن أن يكون حساب الصرف هو نفس حساب الاستلام!", "error");
+        _shakeF('#to-account-search', "⚠️ خطأ محاسبي: لا يمكن أن يكون حساب الصرف هو نفس حساب الاستلام!");
         return;
     }
 
@@ -1604,6 +1605,15 @@ function submitVoucherInner() {
     const oldVoucher = (currentViewedIndex !== -1 && singlePaymentsData && singlePaymentsData[currentViewedIndex]) ? singlePaymentsData[currentViewedIndex] : null;
 
     if (!oldVoucher) {
+        const sameDayHit = (singlePaymentsData || []).find(v => v && !v.deleted && String(v.date || '').slice(0, 10) === _docDateStr && String(v.fromAccount) === String(fromAcc) && String(v.toAccount) === String(toAcc) && Math.abs((parseFloat(v.amountLocal || v.amount) || 0) - amtLocal) < 0.01);
+        if (sameDayHit && !window._confirmSameDayDupVoucher) {
+            window._confirmSameDayDupVoucher = true;
+            setTimeout(() => { window._confirmSameDayDupVoucher = false; }, 9000);
+            _shakeF('#amount-local', `⚠️ تنبيه منع التكرار: يوجد سند مطابق اليوم برقم (#${sameDayHit.id || sameDayHit.voucherNo}) لنفس الحساب وبنفس المبلغ! اضغط حفظ مرة ثانية إذا أردت تكراره فعلاً.`);
+            window.isSubmitting = false;
+            return;
+        }
+        window._confirmSameDayDupVoucher = false;
         const vSig = `${fromAcc}|${toAcc}|${amtLocal}|${document.getElementById('to-statement')?.value || ''}|${document.getElementById('hdr-date')?.value || ''}`;
         if (window._lastSubmittedVoucherSig === vSig && (Date.now() - (window._lastSubmittedVoucherTime || 0)) < 15000) {
             showToast(`✅ تم حفظ هذا السند مسبقاً برقم (${window._lastSubmittedVoucherId || ''}) — لن يتم تكرار الحفظ`, 'info', 3500);
@@ -1810,14 +1820,18 @@ function submitVoucherInner() {
             }
 
             if (!chNo) {
-                showToast(`السطر ${idx + 1}: رقم الشيك إجباري، لابد من كتابة رقم الشيك`, "error");
-                if (chNoInput) {
-                    chNoInput.focus();
-                    chNoInput.style.borderColor = '#ef4444';
-                    setTimeout(() => { chNoInput.style.borderColor = 'rgba(255,255,255,0.1)'; }, 3500);
-                }
+                _shakeF(chNoInput, `السطر ${idx + 1}: رقم الشيك إجباري، لابد من كتابة رقم الشيك`);
                 hasInvalidCheque = true;
                 return;
+            }
+            if (window.ElsajanaAccountingBrain) {
+                const curVChk = (document.getElementById('voucher-number')?.innerText || '').trim();
+                const chkDup = window.ElsajanaAccountingBrain.checkDuplicateChequeNo(chNo, curVChk);
+                if (chkDup.duplicate) {
+                    window.ElsajanaAccountingBrain.shakeAndFocus(chNoInput, `🚫 رقم الشيك (${chNo}) مسجل مسبقاً في حافظة الشيكات!`, 'error', 4800);
+                    hasInvalidCheque = true;
+                    return;
+                }
             }
 
             cheques.push({ checkNo: chNo, checkBranch: chBranch, checkDate: chDate, amount: chAmt, statement: chStmt });
@@ -1908,12 +1922,12 @@ function submitVoucherInner() {
 
             const currentVNo = (document.getElementById('voucher-number')?.innerText || '').trim();
             const dup = checkTransferDuplicate(trNo, currentVNo);
-            if (dup && dup.duplicate) {
-                showDuplicateWarningModal(trNo, dup);
-                if (trNoInput) {
-                    trNoInput.focus();
-                    trNoInput.style.borderColor = '#ef4444';
-                }
+            const brainDup = window.ElsajanaAccountingBrain ? window.ElsajanaAccountingBrain.checkBankakDuplicate(trNo, trNoInput?.dataset?.imgHash || '', currentVNo) : { duplicate: false };
+            if ((dup && dup.duplicate) || brainDup.duplicate) {
+                const msgBk = 'أمسك عندك! إشعار بنكك دا دخل الخزنة قبل كدا.. الموية ما بتمر من تحتنا مرتين!';
+                if (window.ElsajanaAccountingBrain) window.ElsajanaAccountingBrain.shakeAndFocus(trNoInput, msgBk, 'error', 5500);
+                else showToast(msgBk, 'error');
+                if (dup && dup.duplicate) showDuplicateWarningModal(trNo, dup);
                 hasInvalidTransfer = true;
                 return;
             }
@@ -1958,14 +1972,18 @@ function submitVoucherInner() {
             }
 
             if (!chNo) {
-                showToast(`السطر ${idx + 1}: رقم الشيك إجباري، لابد من كتابة رقم الشيك`, "error");
-                if (chNoInput) {
-                    chNoInput.focus();
-                    chNoInput.style.borderColor = '#ef4444';
-                    setTimeout(() => { chNoInput.style.borderColor = 'rgba(255,255,255,0.1)'; }, 3500);
-                }
+                _shakeF(chNoInput, `السطر ${idx + 1}: رقم الشيك إجباري، لابد من كتابة رقم الشيك`);
                 hasInvalidCheque = true;
                 return;
+            }
+            if (window.ElsajanaAccountingBrain) {
+                const curVChk = (document.getElementById('voucher-number')?.innerText || '').trim();
+                const chkDup = window.ElsajanaAccountingBrain.checkDuplicateChequeNo(chNo, curVChk);
+                if (chkDup.duplicate) {
+                    window.ElsajanaAccountingBrain.shakeAndFocus(chNoInput, `🚫 رقم الشيك (${chNo}) مسجل مسبقاً في حافظة الشيكات!`, 'error', 4800);
+                    hasInvalidCheque = true;
+                    return;
+                }
             }
 
             cheques.push({ checkNo: chNo, checkBranch: chBranch, checkDate: chDate, amount: chAmt, statement: chStmt });
@@ -2132,6 +2150,7 @@ function submitVoucherInner() {
             localStorage.setItem('magaiees_vouchers_history', JSON.stringify(singlePaymentsData));
             window.SERVER_SINGLE_PAYMENTS = singlePaymentsData;
             if (typeof window.rebuildGLFromAllTables === 'function') window.rebuildGLFromAllTables(false);
+            if (window.ElsajanaAccountingBrain && typeof window.ElsajanaAccountingBrain.syncVoucherAtomically === 'function') window.ElsajanaAccountingBrain.syncVoucherAtomically(voucherData);
             if (window.logSystemAction) {
                 window.logSystemAction('تعديل سند صرف', 'المعاملات المالية', voucherData.id, `تعديل سند صرف رقم ${voucherData.id} بمبلغ ${voucherData.amountLocal} ${voucherData.currency} من ${fromName} إلى ${toName}`);
             }
@@ -2180,6 +2199,7 @@ function submitVoucherInner() {
             const currentSeq = parseInt(localStorage.getItem(getTenantKey('erp_single_payment_seq')) || localStorage.getItem('erp_single_payment_seq') || '0');
             localStorage.setItem('erp_single_payment_seq', currentSeq + 1);
             if (typeof window.rebuildGLFromAllTables === 'function') window.rebuildGLFromAllTables(false);
+            if (window.ElsajanaAccountingBrain && typeof window.ElsajanaAccountingBrain.syncVoucherAtomically === 'function') window.ElsajanaAccountingBrain.syncVoucherAtomically(voucherData);
             if (window.logSystemAction) {
                 window.logSystemAction('حفظ سند صرف', 'المعاملات المالية', voucherData.id, `إصدار سند صرف رقم ${voucherData.id} بمبلغ ${voucherData.amountLocal} ${voucherData.currency} من ${fromName} إلى ${toName}`);
             }

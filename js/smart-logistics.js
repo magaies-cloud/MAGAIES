@@ -20,6 +20,10 @@ let slContinuousRejectedCount = 0;
 
 // ── TOAST & AUDIO-VISUAL SYNTHESIZER ─────────────────────────────────────────
 function showSlToast(message, type = 'success', duration = 3500) {
+    if (window.ElsajanaAccountingBrain && typeof window.ElsajanaAccountingBrain.floatingToast === 'function') {
+        window.ElsajanaAccountingBrain.floatingToast(message, type, duration);
+        return;
+    }
     const container = document.getElementById('toast-container');
     if (!container) return;
     const toast = document.createElement('div');
@@ -179,11 +183,14 @@ function resolveSlItemMeta(it) {
     }
     if (!factor || isNaN(factor) || factor <= 0) {
         const n = normStr(name);
-        if (/طن/.test(normStr(unit))) {
-            if (/3\s*لين|8\s*مم|8\s*ملي/.test(n)) factor = /وزني/.test(unit) ? 166 : 135;
-            else if (/4\s*لين|10\s*مم|12\s*مم/.test(n)) factor = /وزني/.test(unit) ? 110 : 92;
-            else if (/5\s*لين|16\s*مم/.test(n)) factor = 63;
+        const uNorm = normStr(unit);
+        if (/شيل/.test(uNorm)) {
+            factor = /4\s*لين|10\s*مم|12\s*مم/.test(n) ? 10 : (/5\s*لين|16\s*مم/.test(n) ? 5 : 15);
+        } else if (/طن/.test(uNorm)) {
+            if (/4\s*لين|10\s*مم|12\s*مم/.test(n)) factor = /وزني/.test(unit) ? 110 : 92;
+            else if (/5\s*لين|16\s*مم/.test(n)) factor = /وزني/.test(unit) ? 59 : 52;
             else if (/اسمنت/.test(n)) factor = 20;
+            else if (/سيخ|حديد|لينيه|لينية|تسليح|3\s*لين|8\s*مم|8\s*ملي/.test(n)) factor = /وزني/.test(unit) ? 140 : 135;
             else factor = 1;
         } else {
             factor = 1;
@@ -198,10 +205,10 @@ function resolveSlItemMeta(it) {
 
     let tonRefHint = '';
     const nCheck = normStr(name);
-    if (/سيخ|حديد|لينيه|لينية/.test(nCheck) && /طن/.test(normStr(unit))) {
-        if (/3\s*لين|8\s*مم|8\s*ملي/.test(nCheck)) tonRefHint = 'طن عددي = 135 سيخة | طن وزني = 166 سيخة';
-        else if (/4\s*لين|10\s*مم|12\s*مم/.test(nCheck)) tonRefHint = 'طن عددي = 92 سيخة | طن وزني = 110 سيخة';
-        else if (/5\s*لين|16\s*مم/.test(nCheck)) tonRefHint = 'طن عددي = 52 سيخة | طن وزني = 59 سيخة';
+    if (/سيخ|حديد|لينيه|لينية|تسليح/.test(nCheck) && (/طن|شيل/.test(normStr(unit)))) {
+        if (/4\s*لين|10\s*مم|12\s*مم/.test(nCheck)) tonRefHint = 'طن عددي = 92 سيخة | طن وزني = 110 سيخة | شيلة = 10';
+        else if (/5\s*لين|16\s*مم/.test(nCheck)) tonRefHint = 'طن عددي = 52 سيخة | طن وزني = 59 سيخة | شيلة = 5';
+        else tonRefHint = 'معيار السجانة: طن عددي = 135 سيخة | طن وزني = 140 سيخة | شيلة = 15 سيخة';
     }
     return {
         itemId: master ? master.id : (itemId || name),
@@ -1162,8 +1169,25 @@ function executeSlSalesDelivery() {
     });
 
     if (!deliveredItemsPayload.length) {
-        showSlToast('⚠️ يرجى تحديد كمية أكبر من صفر للصرف والتسليم', 'warning');
+        if (window.ElsajanaAccountingBrain) window.ElsajanaAccountingBrain.shakeAndFocus(priInputs[0] || '#sl-items-tbody', '⚠️ يرجى تحديد كمية أكبر من صفر للصرف والتسليم', 'warning');
+        else showSlToast('⚠️ يرجى تحديد كمية أكبر من صفر للصرف والتسليم', 'warning');
         return false;
+    }
+
+    // Point 7 Guard: Block zero/negative stock outbound delivery without explicit permission
+    if (typeof window.elsajanaCheckOutboundStockGuard === 'function') {
+        const masterList = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
+        for (let i = 0; i < deliveredItemsPayload.length; i++) {
+            const dIt = deliveredItemsPayload[i];
+            const mObj = masterList.find(x => x && (String(x.id) === String(dIt.itemId || dIt.id) || String(x.name || '').trim() === String(dIt.name || '').trim()));
+            const factorVal = parseFloat(dIt.customFactor || dIt.factor || 1) || 1;
+            const gRes = window.elsajanaCheckOutboundStockGuard(mObj, (parseFloat(dIt.qty) || 0) * factorVal, false);
+            if (!gRes.allowed) {
+                if (window.ElsajanaAccountingBrain) window.ElsajanaAccountingBrain.shakeAndFocus(priInputs[i] || '#sl-items-tbody', gRes.message, 'error', 5600);
+                else showSlToast(gRes.message, 'error', 5600);
+                return false;
+            }
+        }
     }
 
     inv.items = updatedInvItems;
@@ -1340,9 +1364,23 @@ function executeSlPurchaseReceipt() {
     });
 
     if (!grnItems.length) {
-        showSlToast('⚠️ يرجى تحديد كمية أكبر من صفر لاستلام البضاعة', 'warning');
+        if (window.ElsajanaAccountingBrain) window.ElsajanaAccountingBrain.shakeAndFocus(priInputs[0] || '#sl-items-tbody', '⚠️ يرجى تحديد كمية أكبر من صفر لاستلام البضاعة', 'warning');
+        else showSlToast('⚠️ يرجى تحديد كمية أكبر من صفر لاستلام البضاعة', 'warning');
         return false;
     }
+
+    // Point 6: Prevent accidental duplicate GRN save on the same day
+    const todayKey = new Date().toISOString().slice(0, 10);
+    const grnSig = `${invNo}|${todayKey}|${grnItems.map(g => `${g.itemId}:${g.quantity}:${g.warehouseId}`).join(',')}`;
+    if (!window._forceAllowDupSlGrn && window._lastSlGrnSig === grnSig) {
+        if (window.ElsajanaAccountingBrain) {
+            window.ElsajanaAccountingBrain.floatingToast('⚠️ تم حفظ هذا الإذن بنفس الكميات اليوم مسبقاً — تم منع الحفظ المزدوج سهواً!', 'warning', 5500, 'تأكيد الحفظ', () => {
+                window._forceAllowDupSlGrn = true; executeSlPurchaseReceipt(); window._forceAllowDupSlGrn = false;
+            });
+        }
+        return false;
+    }
+    window._lastSlGrnSig = grnSig;
 
     // Add stock to erp_inventory_v1 and erp_items_v1 (+ Stock In)
     let inventory = JSON.parse(localStorage.getItem('erp_inventory_v1') || '[]');
@@ -1458,11 +1496,16 @@ function executeSlPurchaseReceipt() {
     if (typeof window.pushToCloud === 'function') window.pushToCloud(true);
 
     try {
-        fetch('api/mirror_sync.php?action=save_purchase_receipt', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(grnRecord)
-        }).catch(() => {});
+        if (window.ElsajanaAccountingBrain && typeof window.ElsajanaAccountingBrain.syncLogisticsReceiptAtomically === 'function') {
+            window.ElsajanaAccountingBrain.syncLogisticsReceiptAtomically(grnRecord, origInv, grnItems);
+        } else {
+            fetch('api/mirror_sync.php?action=save_purchase_receipt', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                keepalive: true,
+                body: JSON.stringify(grnRecord)
+            }).catch(() => {});
+        }
     } catch (e) {}
 
     loadSlDocument(invNo);
@@ -1854,9 +1897,20 @@ function startSlMobileBridgeListener(enableHttpPoll = false) {
 }
 
 // ── PHOTO PROOF, TYPOGRAPHY & COLUMN CUSTOMIZATION ───────────────────────────
-function handleSlPhotoUpload(e) {
+async function handleSlPhotoUpload(e) {
     const file = e.target.files[0];
     if (!file) return;
+    if (window.ElsajanaAccountingBrain && typeof window.ElsajanaAccountingBrain.compressImageTo40KB === 'function') {
+        try {
+            const compressed = await window.ElsajanaAccountingBrain.compressImageTo40KB(file);
+            slCurrentPhoto = compressed.dataUrl;
+            const wrap = document.getElementById('sl-photo-preview-wrap');
+            const img = document.getElementById('sl-photo-preview-img');
+            if (wrap && img) { img.src = slCurrentPhoto; wrap.style.display = 'block'; }
+            showSlToast(`📸 تم ضغط الصورة آلياً (${compressed.sizeKB}KB ≤ 40KB) وإرفاقها بنجاح`, 'success');
+            return;
+        } catch (_) {}
+    }
     const reader = new FileReader();
     reader.onload = (ev) => {
         slCurrentPhoto = ev.target.result;

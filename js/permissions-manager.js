@@ -43,6 +43,14 @@
             desc: 'نقاط البيع، الفواتير الآجلة، الحجوزات، وأذونات تسليم البضائع',
             screens: [
                 {
+                    id: 'sales_main',
+                    file: 'sales.php',
+                    title: 'شاشة المبيعات الرئيسية الموحدة (Sales 2027)',
+                    icon: 'fa-cart-shopping',
+                    desc: 'إصدار فواتير المبيعات النقدية والآجلة، التحويلات البنكية، والشيكات',
+                    supportedActions: ['new', 'save', 'edit', 'delete', 'print', 'share', 'preview']
+                },
+                {
                     id: 'direct_sales',
                     file: 'direct-sales.php',
                     title: 'فاتورة تقسيم وتسليم المبيعات (POS / Direct Split)',
@@ -766,7 +774,7 @@
     // A. Dashboard Widgets
     const DASHBOARD_COMPONENTS = [
         { id: 'kpi_sales', title: 'مؤشر إجمالي المبيعات (Sales KPI Card)', icon: 'fa-cash-register', selector: '#kpi-sales' },
-        { id: 'kpi_liquidity', title: 'مؤشر السيولة والخزائن والبنوك (Liquidity KPI)', icon: 'fa-coins', selector: '#kpi-liquidity, #kpi-vault-liquidity' },
+        { id: 'kpi_liquidity', title: 'مؤشر السيولة المطمئنة والخزائن والبنوك (Liquidity KPI)', icon: 'fa-coins', selector: '#kpi-liquidity, #kpi-vault-liquidity, #exec-calm-pulse-badge' },
         { id: 'kpi_profit', title: 'مؤشر الأرباح التقديرية للشهر (Monthly Profit KPI)', icon: 'fa-chart-line', selector: '#kpi-monthly-profit' },
         { id: 'kpi_inventory', title: 'مؤشر إجمالي الأصناف والمخزون (Inventory KPI)', icon: 'fa-boxes-stacked', selector: '#kpi-inventory' },
         { id: 'kpi_alerts', title: 'مؤشر نواقص المخزون والتنبيهات (Low Stock KPI)', icon: 'fa-triangle-exclamation', selector: '#kpi-alerts, #low-stock-list' },
@@ -1652,7 +1660,6 @@
         if (uRoleId === 'role_admin' || uRoleId === 'role_admin_default' || uRoleId === 'admin_fallback' || uRoleId === 'admin') return true;
         if (uName === 'admin' || uName === 'c' || uName === 'c1' || uName === 'c2' || uName === 'owner' || uName.indexOf('admin') !== -1) return true;
         if (u.isSystem === true || u.isOwner === true || u.is_owner === true) return true;
-        if (u.securityLevel && Number(u.securityLevel) >= 8) return true;
         return false;
     }
 
@@ -1753,10 +1760,18 @@
             return true; // Default allowed unless revoked
         }
 
-        // Direct allowedScreens map: only block if explicitly set to false
+        // Direct allowedScreens map + customPermissions fallback
         if (u.allowedScreens && typeof u.allowedScreens === 'object') {
             if (u.allowedScreens[baseFile] === false) return false;
             if (u.allowedScreens[baseFile] === true) return true;
+        }
+        if (u.allowedReports && typeof u.allowedReports === 'object') {
+            const matchedRep = (SYSTEM_REPORTS_CATALOG || []).flatMap(c => c.reports || [c]).find(r => r && (r.file === baseFile || r.url === baseFile || r.id === baseFile));
+            if (matchedRep && u.allowedReports[matchedRep.id] === false) return false;
+        }
+        if (u.customPermissions && u.customPermissions.screens) {
+            const matchedSc = (SYSTEM_SCREENS_CATALOG || []).flatMap(c => c.screens || []).find(s => s && s.file === baseFile);
+            if (matchedSc && u.customPermissions.screens[matchedSc.id] && u.customPermissions.screens[matchedSc.id].access === false) return false;
         }
 
         return true; // Default allowed unless explicitly blocked in allowedScreens
@@ -1773,8 +1788,16 @@
 
         const baseFile = (screenUrl || '').split('?')[0].split('/').pop();
 
+        if (u.viewOnlyScreens && u.viewOnlyScreens[baseFile] === true) {
+            return action === 'preview';
+        }
         if (u.screenButtons && u.screenButtons[baseFile] && typeof u.screenButtons[baseFile][action] === 'boolean') {
             return u.screenButtons[baseFile][action];
+        }
+        if (u.customPermissions && u.customPermissions.screens) {
+            const matchedSc = (SYSTEM_SCREENS_CATALOG || []).flatMap(c => c.screens || []).find(s => s && s.file === baseFile);
+            const sp = matchedSc && u.customPermissions.screens[matchedSc.id];
+            if (sp && sp.actions && typeof sp.actions[action] === 'boolean') return sp.actions[action];
         }
 
         return true;
@@ -1791,6 +1814,9 @@
 
         if (u.allowedReports && typeof u.allowedReports[reportId] === 'boolean') {
             return u.allowedReports[reportId];
+        }
+        if (u.customPermissions && u.customPermissions.reports && typeof u.customPermissions.reports[reportId] === 'boolean') {
+            return u.customPermissions.reports[reportId];
         }
         return true;
     }
@@ -1836,6 +1862,14 @@
 
         if (u.masterDataPermissions && typeof u.masterDataPermissions[actionId] === 'boolean') {
             return u.masterDataPermissions[actionId];
+        }
+        const mdScreenMap = {
+            cust_add: ['customers.php', 'new'], cust_edit: ['customers.php', 'edit'], cust_del: ['customers.php', 'delete'],
+            supp_add: ['suppliers.php', 'new'], supp_edit: ['suppliers.php', 'edit'], supp_del: ['suppliers.php', 'delete'],
+            item_add: ['items.php', 'new'], item_edit: ['items.php', 'edit'], item_del: ['items.php', 'delete']
+        };
+        if (mdScreenMap[actionId]) {
+            return canUserDoAction(mdScreenMap[actionId][0], mdScreenMap[actionId][1], u);
         }
         return true;
     }
@@ -2883,14 +2917,23 @@
     function checkAccountingPeriodLock(docDateStr) {
         try {
             const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+            const today = new Date().toISOString().slice(0, 10);
+            const autoLockPrev = cfg.lockPreviousDays !== false;
+            const checkDate = (docDateStr || today).slice(0, 10);
+            if (autoLockPrev && checkDate < today) {
+                return {
+                    locked: true,
+                    lockDate: today,
+                    message: `🔒 قفل اليومية التلقائي نشط: يمنع إضافة أو تعديل أو حذف حركات الأيام السابقة (${checkDate}) إلا بكلمة سر المالك.`
+                };
+            }
             const lockDate = cfg.accountingLockDate || '';
             if (!lockDate) return { locked: false, lockDate: null };
-            const checkDate = (docDateStr || new Date().toISOString().slice(0, 10)).slice(0, 10);
             if (checkDate <= lockDate) {
                 return {
                     locked: true,
                     lockDate: lockDate,
-                    message: `🔒 الفترة المحاسبية مغلقة حتى تاريخ (${lockDate}). يمنع إضافة أو تعديل أو حذف مستندات بتاريخ سابق أو مساوٍ لتاريخ الإغلاق إلا بتفويض المدير العام.`
+                    message: `🔒 الفترة المحاسبية مغلقة حتى تاريخ (${lockDate}). يمنع إضافة أو تعديل أو حذف مستندات بتاريخ سابق إلا بكلمة سر المالك.`
                 };
             }
             return { locked: false, lockDate: lockDate };
@@ -2901,26 +2944,28 @@
 
     function enforceAccountingPeriodLockGuard(currentFile, user) {
         try {
-            const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
-            if (!cfg.accountingLockDate) return;
+            if (isCurrentUserAdmin(user)) return;
             const financialScreens = [
-                'pos.php', 'direct-sales.php', 'sales-invoice.php', 'purchase.php', 'returns.php',
-                'sales-return.php', 'single-cash-payment.php', 'multi-cash-payment.php',
-                'vouchers-hub.php', 'journal-voucher.php', 'journal.php', 'posting-accounts.php'
+                'pos.php', 'sales.php', 'direct-sales.php', 'sales-invoice.php', 'purchase.php', 'purchase-return.php', 'returns.php',
+                'sales-return.php', 'single-cash-payment.php', 'multi-cash-payment.php', 'single-cash-receipt.php', 'multi-cash-receipt.php',
+                'vouchers-hub.php', 'journal-voucher.php', 'journal.php', 'posting-accounts.php', 'payroll.php'
             ];
             if (!financialScreens.includes(currentFile)) return;
 
             document.addEventListener('click', function(e) {
-                const btn = e.target.closest('#btn-save, .btn-save, .btn-save-invoice, #btn-save-voucher, .btn-delete, #btn-delete');
+                const btn = e.target && e.target.closest ? e.target.closest('#btn-save, .btn-save, .btn-save-invoice, #btn-save-voucher, .btn-delete, #btn-delete, .edit-btn, .btn-edit, button[onclick*="save"], button[onclick*="delete"], button[onclick*="edit"]') : null;
                 if (!btn) return;
-                if (sessionStorage.getItem('temp_period_lock_override') === '1') return;
+                if (sessionStorage.getItem('temp_period_lock_override') === '1') {
+                    setTimeout(() => sessionStorage.removeItem('temp_period_lock_override'), 1500);
+                    return;
+                }
 
-                const dateInput = document.querySelector('input[type="date"]');
-                const docDate = dateInput ? dateInput.value : new Date().toISOString().slice(0, 10);
+                const dateInput = document.querySelector('#inv-date, #voucher-date, #doc-date, input[type="date"]');
+                const docDate = dateInput && dateInput.value ? dateInput.value : new Date().toISOString().slice(0, 10);
                 const status = checkAccountingPeriodLock(docDate);
                 if (status.locked) {
                     e.preventDefault();
-                    e.stopPropagation();
+                    e.stopImmediatePropagation();
                     if (typeof requestManagerApproval === 'function') {
                         requestManagerApproval(status.message, function() {
                             sessionStorage.setItem('temp_period_lock_override', '1');
@@ -2928,6 +2973,38 @@
                         });
                     } else {
                         alert(status.message);
+                    }
+                    return;
+                }
+
+                // Enforce Employee Financial Ceilings (Discount % / Voucher Amount / Invoice Amount)
+                const uNow = getCurrentUser();
+                if (uNow && !isCurrentUserAdmin(uNow) && /save|حفظ|اعتماد|ترحيل/i.test((btn.innerText || '') + ' ' + (btn.id || '') + ' ' + (btn.className || ''))) {
+                    const discPctEl = document.querySelector('#discount-percent, #inv-discount-pct, #disc-pct, input[name="discount_percent"]');
+                    const discAmtEl = document.querySelector('#discount-amount, #inv-discount, #hdr-discount, input[name="discount"]');
+                    const vchAmtEl = document.querySelector('#amount-local, #voucher-amount, .block-amount-input');
+                    const invTotEl = document.querySelector('#grand-total, #net-total, #lbl-grand-total');
+                    const parseNum = el => el ? (parseFloat(String(el.value ?? el.innerText ?? '0').replace(/[^0-9.-]/g, '')) || 0) : 0;
+                    const checks = [];
+                    if (discPctEl && parseNum(discPctEl) > 0) checks.push(checkFinancialLimits('discount_percent', parseNum(discPctEl), uNow));
+                    if (discAmtEl && parseNum(discAmtEl) > 0 && uNow.financialLimits && parseFloat(uNow.financialLimits.maxDiscountAmount) >= 0) {
+                        const mx = parseFloat(uNow.financialLimits.maxDiscountAmount);
+                        if (parseNum(discAmtEl) > mx) checks.push({ allowed: false, message: `مبلغ الخصم (${parseNum(discAmtEl).toLocaleString()} SDG) يتجاوز سقف الخصم المصرح لك (${mx.toLocaleString()} SDG).` });
+                    }
+                    if (vchAmtEl && parseNum(vchAmtEl) > 0) checks.push(checkFinancialLimits('voucher_amount', parseNum(vchAmtEl), uNow));
+                    if (invTotEl && parseNum(invTotEl) > 0) checks.push(checkFinancialLimits('invoice_amount', parseNum(invTotEl), uNow));
+                    const violated = checks.find(c => c && c.allowed === false);
+                    if (violated) {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                        if (typeof requestManagerApproval === 'function') {
+                            requestManagerApproval('⛔ تجاوز السقف المالي للموظف: ' + violated.message + ' — أدخل كلمة سر المالك للموافقة الاستثنائية:', function() {
+                                sessionStorage.setItem('temp_period_lock_override', '1');
+                                btn.click();
+                            });
+                        } else {
+                            alert('⛔ ' + violated.message);
+                        }
                     }
                 }
             }, true);
@@ -2949,8 +3026,54 @@
         // Global override for window.print if printing is forbidden
         if (!canUserDoAction(currentFile, 'print', user)) {
             window.print = function() {
-                alert('عذراً، لا تملك صلاحية الطباعة في هذه الشاشة.');
+                alert('⛔ الأمن السيبراني: لا تملك صلاحية الطباعة في هذه الشاشة.');
             };
+        }
+
+        const isViewOnly = !!(user && user.viewOnlyScreens && user.viewOnlyScreens[currentFile]) ||
+            (!canUserDoAction(currentFile, 'save', user) && !canUserDoAction(currentFile, 'new', user) && !canUserDoAction(currentFile, 'edit', user) && !canUserDoAction(currentFile, 'delete', user));
+
+        if (isViewOnly && typeof document !== 'undefined' && document.body && !document.getElementById('erp-cyber-viewonly-banner')) {
+            const b = document.createElement('div');
+            b.id = 'erp-cyber-viewonly-banner';
+            b.style.cssText = 'position:fixed;bottom:14px;left:14px;z-index:2147483640;background:linear-gradient(135deg,#7f1d1d,#991b1b);color:#fff;border:2px solid #fca5a5;padding:6px 14px;border-radius:999px;font-weight:900;font-size:0.8rem;box-shadow:0 8px 24px rgba(0,0,0,0.45);pointer-events:none;';
+            b.textContent = '👁️ وضع الرؤية والنظر فقط — الحفظ والتعديل والحذف مقفول لحسابك';
+            document.body.appendChild(b);
+        }
+
+        if (typeof window !== 'undefined' && !window._erpCyberActionGuardBound) {
+            window._erpCyberActionGuardBound = true;
+            document.addEventListener('keydown', function(ev) {
+                const uNow = getCurrentUser();
+                if (!uNow || isCurrentUserAdmin(uNow)) return;
+                const cf = (location.pathname.split('/').pop() || '');
+                if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 's' && !canUserDoAction(cf, 'save', uNow)) { ev.preventDefault(); ev.stopImmediatePropagation(); alert('⛔ لا تملك صلاحية الحفظ في هذه الشاشة.'); }
+                if ((ev.ctrlKey || ev.metaKey) && ev.key.toLowerCase() === 'p' && !canUserDoAction(cf, 'print', uNow)) { ev.preventDefault(); ev.stopImmediatePropagation(); alert('⛔ لا تملك صلاحية الطباعة في هذه الشاشة.'); }
+                if (ev.key === 'F9' && !canUserDoAction(cf, 'save', uNow)) { ev.preventDefault(); ev.stopImmediatePropagation(); alert('⛔ لا تملك صلاحية الحفظ في هذه الشاشة.'); }
+                if (ev.key === 'F2' && !canUserDoAction(cf, 'new', uNow)) { ev.preventDefault(); ev.stopImmediatePropagation(); alert('⛔ لا تملك صلاحية الإضافة الجديدة في هذه الشاشة.'); }
+            }, true);
+            document.addEventListener('click', function(ev) {
+                const btn = ev.target && ev.target.closest ? ev.target.closest('button, a.btn, input[type="submit"]') : null;
+                if (!btn) return;
+                const uNow = getCurrentUser();
+                if (!uNow || isCurrentUserAdmin(uNow)) return;
+                const cf = (location.pathname.split('/').pop() || '');
+                const txt = ((btn.innerText || btn.value || btn.title || '') + ' ' + (btn.id || '') + ' ' + (btn.className || '') + ' ' + (btn.getAttribute('onclick') || '')).toLowerCase();
+                const rules = [
+                    { act: 'save', rx: /\bsave\b|حفظ|ترحيل|اعتماد الفاتورة|اعتماد السند|checkout/ },
+                    { act: 'delete', rx: /\bdelete\b|\bdel\b|حذف|إلغاء الفاتورة|مسح السجل/ },
+                    { act: 'edit', rx: /\bedit\b|تعديل/ },
+                    { act: 'new', rx: /\bnewinvoice\b|فاتورة جديدة|سند جديد|\+\s*إضافة/ },
+                    { act: 'print', rx: /\bprint\b|طباعة/ }
+                ];
+                for (const r of rules) {
+                    if (r.rx.test(txt) && !canUserDoAction(cf, r.act, uNow)) {
+                        ev.preventDefault(); ev.stopImmediatePropagation();
+                        alert('⛔ الأمن السيبراني: غير مصرح لحسابك بتنفيذ (' + r.act + ') في هذه الشاشة.');
+                        return;
+                    }
+                }
+            }, true);
         }
     }
 
@@ -3084,7 +3207,10 @@
             document.querySelectorAll('#btn-add-customer, button[onclick*="showAddCustomer"], button[onclick*="clearCustomerForm"]').forEach(b => b.style.display = 'none');
         }
         if (!canUserDoMasterDataAction('cust_edit', user)) {
-            document.querySelectorAll('button[onclick*="editCustomer"], button[onclick*="saveCustomer"]').forEach(b => b.style.display = 'none');
+            document.querySelectorAll('button[onclick*="editCustomer"]').forEach(b => b.style.display = 'none');
+        }
+        if (!canUserDoMasterDataAction('cust_add', user) && !canUserDoMasterDataAction('cust_edit', user)) {
+            document.querySelectorAll('button[onclick*="saveCustomer"]').forEach(b => b.style.display = 'none');
         }
         if (!canUserDoMasterDataAction('cust_del', user)) {
             document.querySelectorAll('.del-cust-btn, button[onclick*="deleteCustomer"]').forEach(b => b.style.display = 'none');
@@ -3093,7 +3219,10 @@
             document.querySelectorAll('#btn-add-supplier, button[onclick*="showAddSupplier"], button[onclick*="clearSupplierForm"]').forEach(b => b.style.display = 'none');
         }
         if (!canUserDoMasterDataAction('supp_edit', user)) {
-            document.querySelectorAll('button[onclick*="editSupplier"], button[onclick*="saveSupplier"]').forEach(b => b.style.display = 'none');
+            document.querySelectorAll('button[onclick*="editSupplier"]').forEach(b => b.style.display = 'none');
+        }
+        if (!canUserDoMasterDataAction('supp_add', user) && !canUserDoMasterDataAction('supp_edit', user)) {
+            document.querySelectorAll('button[onclick*="saveSupplier"]').forEach(b => b.style.display = 'none');
         }
         if (!canUserDoMasterDataAction('supp_del', user)) {
             document.querySelectorAll('.del-supp-btn, button[onclick*="deleteSupplier"]').forEach(b => b.style.display = 'none');
@@ -3102,7 +3231,10 @@
             document.querySelectorAll('#btn-add-item, button[onclick*="showAddItem"], button[onclick*="openItemForm"]').forEach(b => b.style.display = 'none');
         }
         if (!canUserDoMasterDataAction('item_edit', user)) {
-            document.querySelectorAll('.edit-item-btn, button[onclick*="editItem"], button[onclick*="saveItem"]').forEach(b => b.style.display = 'none');
+            document.querySelectorAll('.edit-item-btn, button[onclick*="editItem"]').forEach(b => b.style.display = 'none');
+        }
+        if (!canUserDoMasterDataAction('item_add', user) && !canUserDoMasterDataAction('item_edit', user)) {
+            document.querySelectorAll('button[onclick*="saveItem"]').forEach(b => b.style.display = 'none');
         }
         if (!canUserDoMasterDataAction('item_del', user)) {
             document.querySelectorAll('.del-item-btn, button[onclick*="deleteItem"]').forEach(b => b.style.display = 'none');

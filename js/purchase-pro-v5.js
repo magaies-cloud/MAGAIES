@@ -42,15 +42,13 @@ function extractItemUnits(item) {
     const normName = (item.name || '').toLowerCase();
     const isSteel = normName.includes('سيخ') || normName.includes('لينيا') || normName.includes('حديد') || normName.includes('تسليح') || normName.includes('ل');
     if (isSteel && list.length <= 1) {
-        let fallbackMatrix = null;
-        if (normName.includes('3') || normName.includes('ثلاث')) {
-            fallbackMatrix = [
-                { name: 'سيخه', unitName: 'سيخه', factor: 1, price: 0 },
-                { name: 'طن عددي', unitName: 'طن عددي', factor: 135, price: 0 },
-                { name: 'طن وزني', unitName: 'طن وزني', factor: 166, price: 0 },
-                { name: 'شيله', unitName: 'شيله', factor: 15, price: 0 }
-            ];
-        } else if (normName.includes('4') || normName.includes('اربع') || normName.includes('أربع')) {
+        let fallbackMatrix = [
+            { name: 'سيخه', unitName: 'سيخه', factor: 1, price: 0 },
+            { name: 'طن عددي', unitName: 'طن عددي', factor: 135, price: 0 },
+            { name: 'طن وزني', unitName: 'طن وزني', factor: 140, price: 0 },
+            { name: 'شيله', unitName: 'شيله', factor: 15, price: 0 }
+        ];
+        if (normName.includes('4') || normName.includes('اربع') || normName.includes('أربع')) {
             fallbackMatrix = [
                 { name: 'سيخه', unitName: 'سيخه', factor: 1, price: 0 },
                 { name: 'طن عددي', unitName: 'طن عددي', factor: 92, price: 0 },
@@ -362,7 +360,9 @@ function initPurchaseApp() {
             try { localStorage.setItem('erp_suppliers_v1', JSON.stringify(supps)); } catch(e){}
         }
 
-        // For Purchase Invoices, we only want Suppliers, NOT Customers.
+        // Include Suppliers + Customers (dual trading partners)
+        let dualCusts = [];
+        try { dualCusts = (JSON.parse(localStorage.getItem('erp_customers_v1') || '[]') || []).filter(x => x && !x.deleted); } catch(e) {}
         const uniquePartners = Array.from(new Map(supps.map(item => [item.id, item])).values());
         
         VENDORS = [
@@ -372,6 +372,12 @@ function initPurchaseApp() {
                 phone: s.phone || '', code: s.code || '',
                 ledger: parseFloat(s.currentBalance) || 0, checks: 0,
                 creditLimit: s.creditLimit || 0
+            })),
+            ...dualCusts.filter(c => c.id && !uniquePartners.some(s => String(s.id) === String(c.id))).map(c => ({
+                id: c.id, name: c.name, isCustomer: true,
+                phone: c.phone || '', code: c.code || '',
+                ledger: -(parseFloat(c.currentBalance ?? c.balance ?? c.openingBalance ?? 0) || 0), checks: 0,
+                creditLimit: c.creditLimit || 0
             }))
         ];
 
@@ -1327,6 +1333,16 @@ async function renderCustomerDropdown(filter = '') {
                 });
             }
         });
+        try {
+            const liveCusts = (JSON.parse(localStorage.getItem('erp_customers_v1') || '[]') || []).filter(x => x && !x.deleted);
+            liveCusts.forEach(c => {
+                if (!c || !c.id) return;
+                let existing = VENDORS.find(v => String(v.id) === String(c.id));
+                const pLedger = -(parseFloat(c.currentBalance ?? c.balance ?? c.openingBalance ?? 0) || 0);
+                if (existing && existing.isCustomer) { existing.name = c.name || 'بدون اسم'; existing.ledger = pLedger; existing.creditLimit = parseFloat(c.creditLimit) || 0; }
+                else if (!existing) VENDORS.push({ id: c.id, name: c.name || 'بدون اسم', isCustomer: true, phone: c.phone || '', code: c.code || '', ledger: pLedger, checks: 0, creditLimit: parseFloat(c.creditLimit) || 0 });
+            });
+        } catch (_ec) {}
 
         let localMatches = VENDORS;
         if (normalizedTerm) {
@@ -2856,15 +2872,29 @@ function submitInvoice(ignoreWarnings = false) {
             const bankAccountId = row.querySelector('.bt-bank-select') ? row.querySelector('.bt-bank-select').value : '';
             const refEl = row.querySelector('.bt-ref-input') || row.querySelector('.bt-no-input');
             const reference = refEl ? refEl.value.trim() : '';
+            const imgHash = (refEl && refEl.dataset && refEl.dataset.imgHash) ? refEl.dataset.imgHash : '';
             const noteEl = row.querySelector('.bt-note-input');
             const notes = noteEl ? noteEl.value.trim() : '';
             const amountEl = row.querySelector('.bt-amount-input');
             const amount = amountEl ? parseNum(amountEl.value) : 0;
             if (amount > 0) {
-                bankTransfers.push({ bankAccountId, reference, notes, amount });
+                bankTransfers.push({ bankAccountId, reference, imgHash, notes, amount, _refEl: refEl });
                 transfersSum += amount;
             }
         });
+    }
+
+    if (window.ElsajanaAccountingBrain && bankTransfers.length > 0) {
+        for (const bt of bankTransfers) {
+            const dup = window.ElsajanaAccountingBrain.checkBankakDuplicate(bt.reference, bt.imgHash, currentViewedInvoiceNo || '');
+            if (dup && dup.duplicate) {
+                window.isSubmitting = false;
+                try { _atomicKeys.forEach(k => { if (_atomicSnapshot[k] !== null && _atomicSnapshot[k] !== undefined) localStorage.setItem(k, _atomicSnapshot[k]); }); } catch (_) {}
+                window.ElsajanaAccountingBrain.shakeAndFocus(bt._refEl || '#bank-transfers-list', window.ElsajanaAccountingBrain.BANKAK_DUP_MSG, 'error', 5800);
+                return;
+            }
+            delete bt._refEl;
+        }
     }
 
     if (chequeActive) {
@@ -2877,10 +2907,39 @@ function submitInvoice(ignoreWarnings = false) {
             const amountEl = row.querySelector('.ch-amount-input');
             const amount = amountEl ? parseNum(amountEl.value) : 0;
             if (amount > 0) {
-                cheques.push({ chequeNo, bankAccountId, dueDate, notes, amount });
+                cheques.push({ chequeNo, bankAccountId, dueDate, notes, amount, _noEl: row.querySelector('.ch-no-input') });
                 chequesSum += amount;
             }
         });
+    }
+
+    if (window.ElsajanaAccountingBrain && cheques.length > 0) {
+        const seenInForm = new Set();
+        for (const ch of cheques) {
+            const norm = String(ch.chequeNo || '').trim().toUpperCase();
+            const dup = norm ? window.ElsajanaAccountingBrain.checkDuplicateChequeNo(norm, currentViewedInvoiceNo || '') : { duplicate: false };
+            if ((norm && seenInForm.has(norm)) || dup.duplicate) {
+                window.isSubmitting = false;
+                window.ElsajanaAccountingBrain.shakeAndFocus(ch._noEl || '#cheques-list', `🚫 رقم الشيك (${ch.chequeNo}) مكرر وموجود مسبقاً في حافظة الشيكات!`, 'error', 4800);
+                return;
+            }
+            if (norm) seenInForm.add(norm);
+            delete ch._noEl;
+        }
+    }
+
+    if (!currentViewedInvoiceNo && !ignoreWarnings && window.ElsajanaAccountingBrain) {
+        const sameDayHit = window.ElsajanaAccountingBrain.checkSameDayDuplicateInvoice(custId, grandAmount, rows, _docDateStr);
+        if (sameDayHit) {
+            window.isSubmitting = false;
+            window.ElsajanaAccountingBrain.floatingToast(
+                `⚠️ تنبيه منع التكرار: هذه الفاتورة محفوظة اليوم مسبقاً برقم (#${sameDayHit.invoiceNo || sameDayHit.id}) بنفس المورد والمبلغ والأصناف!`,
+                'warning', 6500, 'حفظ رغم التكرار', () => submitInvoice(true)
+            );
+            const sb = document.getElementById('btn-submit-purchase-invoice');
+            if (sb) { sb.classList.add('input-error-shake'); setTimeout(() => sb.classList.remove('input-error-shake'), 800); }
+            return;
+        }
     }
 
     // The remaining unpaid portion is automatically treated as Credit (آجل على حساب المورد)
@@ -3104,17 +3163,8 @@ function submitInvoice(ignoreWarnings = false) {
                     }
                 });
             }
-            // Subtract cheques immediately (always in local base currency)
-            if (cheques && cheques.length > 0) {
-                cheques.forEach(ch => {
-                    const bIdx = banks.findIndex(b => b.id === ch.bankAccountId);
-                    if (bIdx > -1) {
-                        const localChAmt = isBase ? ch.amount : ch.amount * rate;
-                        banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - localChAmt;
-                    }
-                });
-            }
-            if ((bankTransfers && bankTransfers.length > 0) || (cheques && cheques.length > 0)) {
+            // Cheques enter Stage 1 (in_portfolio intermediate account) — bank balance only deducted when cleared in Stage 3
+            if (bankTransfers && bankTransfers.length > 0) {
                 localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
             }
         } else if (paymentMethod !== 'credit') {
@@ -3145,23 +3195,23 @@ function submitInvoice(ignoreWarnings = false) {
             creditBalanceToAdd = grandAmount;
         }
         const overpaidAmt = Math.max(0, totalPaymentsPaid - grandAmount);
-        if (creditBalanceToAdd > 0 && custId && custId !== 'walk-in') {
+        if ((creditBalanceToAdd > 0 || overpaidAmt > 0) && custId && custId !== 'walk-in') {
+            const deltaSup = creditBalanceToAdd > 0 ? (isBase ? creditBalanceToAdd : creditBalanceToAdd * rate) : -(isBase ? overpaidAmt : overpaidAmt * rate);
             let suppliers = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
-            const sIdx = suppliers.findIndex(s => s.id === custId);
+            const sIdx = suppliers.findIndex(s => String(s.id) === String(custId));
             if (sIdx > -1) {
-                const localCreditToAdd = isBase ? creditBalanceToAdd : creditBalanceToAdd * rate;
-                let currentBalance = parseFloat(suppliers[sIdx].currentBalance) || 0;
-                suppliers[sIdx].currentBalance = currentBalance + localCreditToAdd;
+                suppliers[sIdx].currentBalance = (parseFloat(suppliers[sIdx].currentBalance) || 0) + deltaSup;
+                suppliers[sIdx].balance = suppliers[sIdx].currentBalance;
                 localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
-            }
-        } else if (overpaidAmt > 0 && custId && custId !== 'walk-in') {
-            let suppliers = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
-            const sIdx = suppliers.findIndex(s => s.id === custId);
-            if (sIdx > -1) {
-                const localOverpaid = isBase ? overpaidAmt : overpaidAmt * rate;
-                let currentBalance = parseFloat(suppliers[sIdx].currentBalance) || 0;
-                suppliers[sIdx].currentBalance = currentBalance - localOverpaid;
-                localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
+            } else {
+                let customers = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []);
+                const cIdx = customers.findIndex(c => c && String(c.id) === String(custId));
+                if (cIdx > -1) {
+                    const curC = parseFloat(customers[cIdx].currentBalance ?? customers[cIdx].balance ?? customers[cIdx].openingBalance ?? 0) || 0;
+                    customers[cIdx].currentBalance = curC - deltaSup;
+                    customers[cIdx].balance = customers[cIdx].currentBalance;
+                    localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
+                }
             }
         }
 
@@ -3248,7 +3298,7 @@ function submitInvoice(ignoreWarnings = false) {
                     exchangeRate: rate,
                     beneficiary: data.supplierName || 'مورد عام',
                     beneficiaryId: custId,
-                    status: 'issued',
+                    status: 'in_portfolio',
                     refInvoice: committedNo,
                     notes: 'شيك آلي من شاشة المشتريات فاتورة #' + committedNo
                 });
@@ -3297,11 +3347,12 @@ function submitInvoice(ignoreWarnings = false) {
         const localAdditions = (data.laborCost||0) + (data.transportCost||0) + (data.additionsCost||0) + (data.taxCost||0) - (data.discountCost||0);
         const fcAdditions = (data.laborCostFc||0) + (data.transportCostFc||0) + (data.additionsCostFc||0) + (data.taxCostFc||0) - (data.discountCostFc||0);
         const landedMode = data.landedCostMode || (document.getElementById('hdr-landed-cost-mode')?.value) || 'value';
-        let totalItemValueLocal = 0, totalItemValueFc = 0, totalItemQtyAll = 0;
+        let totalItemValueLocal = 0, totalItemValueFc = 0, totalItemQtyAll = 0, totalItemWeightBars = 0;
         data.items.forEach(r => {
             totalItemValueLocal += (parseFloat(r.price)||0) * (parseFloat(r.quantity)||0);
             totalItemValueFc += (parseFloat(r.fcPrice)||0) * (parseFloat(r.quantity)||0);
             totalItemQtyAll += (parseFloat(r.quantity)||0);
+            totalItemWeightBars += (parseFloat(r.quantity)||0) * (parseFloat(r.customFactor || 1) || 1);
         });
         const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
         const valuationMethod = cfg.inventoryValuation || 'moving_average';
@@ -3332,12 +3383,17 @@ function submitInvoice(ignoreWarnings = false) {
             let itemTotalFc = (parseFloat(row.fcPrice)||0) * (parseFloat(row.quantity)||0);
             let rowQtyVal = parseFloat(row.quantity) || 0;
             
-            let ratioLocal = landedMode === 'qty'
-                ? (totalItemQtyAll > 0 ? (rowQtyVal / totalItemQtyAll) : 0)
-                : (totalItemValueLocal > 0 ? (itemTotalLocal / totalItemValueLocal) : 0);
-            let ratioFc = landedMode === 'qty'
-                ? (totalItemQtyAll > 0 ? (rowQtyVal / totalItemQtyAll) : 0)
-                : (totalItemValueFc > 0 ? (itemTotalFc / totalItemValueFc) : 0);
+            let rowWeightBars = rowQtyVal * (parseFloat(selectedUnitFactor) || 1);
+            let ratioLocal = landedMode === 'weight'
+                ? (totalItemWeightBars > 0 ? (rowWeightBars / totalItemWeightBars) : 0)
+                : (landedMode === 'qty'
+                    ? (totalItemQtyAll > 0 ? (rowQtyVal / totalItemQtyAll) : 0)
+                    : (totalItemValueLocal > 0 ? (itemTotalLocal / totalItemValueLocal) : 0));
+            let ratioFc = landedMode === 'weight'
+                ? (totalItemWeightBars > 0 ? (rowWeightBars / totalItemWeightBars) : 0)
+                : (landedMode === 'qty'
+                    ? (totalItemQtyAll > 0 ? (rowQtyVal / totalItemQtyAll) : 0)
+                    : (totalItemValueFc > 0 ? (itemTotalFc / totalItemValueFc) : 0));
             
             let newCostBaseLocal = baseQty > 0 ? ((itemTotalLocal + (localAdditions * ratioLocal)) / baseQty) : 0;
             let newCostBaseFc = baseQty > 0 ? ((itemTotalFc + (fcAdditions * ratioFc)) / baseQty) : 0;
@@ -3403,6 +3459,10 @@ function submitInvoice(ignoreWarnings = false) {
 
     window._cachedPurchaseInvoicesRaw = null;
     window._cachedPurchaseList = null;
+
+    if (window.ElsajanaAccountingBrain && typeof window.ElsajanaAccountingBrain.atomicCrossSystemSync === 'function') {
+        try { window.ElsajanaAccountingBrain.atomicCrossSystemSync(data); } catch (_eAtom) {}
+    }
 
     // Trigger immediate cloud push so changes are immediately persisted to MySQL
     if (typeof window.pushToCloud === 'function') {
@@ -3587,10 +3647,19 @@ function postInvoice(invoiceNo) {
     if (creditBalanceToAdd > 0 && custId && custId !== 'walk-in') {
         const localCreditToAdd = isBase ? creditBalanceToAdd : creditBalanceToAdd * rate;
         let suppliers = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
-        const sIdx = suppliers.findIndex(s => s.id === custId);
+        const sIdx = suppliers.findIndex(s => String(s.id) === String(custId));
         if (sIdx > -1) {
             suppliers[sIdx].currentBalance = (parseFloat(suppliers[sIdx].currentBalance) || 0) + localCreditToAdd;
+            suppliers[sIdx].balance = suppliers[sIdx].currentBalance;
             localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
+        } else {
+            let customers = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
+            const cIdx = customers.findIndex(c => c && String(c.id) === String(custId));
+            if (cIdx > -1) {
+                customers[cIdx].currentBalance = (parseFloat(customers[cIdx].currentBalance ?? customers[cIdx].balance ?? customers[cIdx].openingBalance ?? 0) || 0) - localCreditToAdd;
+                customers[cIdx].balance = customers[cIdx].currentBalance;
+                localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
+            }
         }
     }
 
@@ -3601,11 +3670,12 @@ function postInvoice(invoiceNo) {
         const localAdditions = (parseFloat(inv.laborCost)||0) + (parseFloat(inv.transportCost)||0) + (parseFloat(inv.additionsCost)||0) + (parseFloat(inv.taxCost)||0) - (parseFloat(inv.discountCost)||0);
         const fcAdditions = (parseFloat(inv.laborCostFc)||0) + (parseFloat(inv.transportCostFc)||0) + (parseFloat(inv.additionsCostFc)||0) + (parseFloat(inv.taxCostFc)||0) - (parseFloat(inv.discountCostFc)||0);
         const landedMode = inv.landedCostMode || (document.getElementById('hdr-landed-cost-mode')?.value) || 'value';
-        let totalItemValueLocal = 0, totalItemValueFc = 0, totalItemQtyAll = 0;
+        let totalItemValueLocal = 0, totalItemValueFc = 0, totalItemQtyAll = 0, totalItemWeightBars = 0;
         inv.items.forEach(r => {
             totalItemValueLocal += (parseFloat(r.price)||0) * (parseFloat(r.quantity)||0);
             totalItemValueFc += (parseFloat(r.fcPrice)||0) * (parseFloat(r.quantity)||0);
             totalItemQtyAll += (parseFloat(r.quantity)||0);
+            totalItemWeightBars += (parseFloat(r.quantity)||0) * (parseFloat(r.customFactor || 1) || 1);
         });
         const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
         const valuationMethod = cfg.inventoryValuation || 'moving_average';
@@ -3633,12 +3703,17 @@ function postInvoice(invoiceNo) {
             let itemTotalFc = (parseFloat(row.fcPrice)||0) * (parseFloat(row.quantity)||0);
             let rowQtyVal = parseFloat(row.quantity) || 0;
             
-            let ratioLocal = landedMode === 'qty'
-                ? (totalItemQtyAll > 0 ? (rowQtyVal / totalItemQtyAll) : 0)
-                : (totalItemValueLocal > 0 ? (itemTotalLocal / totalItemValueLocal) : 0);
-            let ratioFc = landedMode === 'qty'
-                ? (totalItemQtyAll > 0 ? (rowQtyVal / totalItemQtyAll) : 0)
-                : (totalItemValueFc > 0 ? (itemTotalFc / totalItemValueFc) : 0);
+            let rowWeightBars = rowQtyVal * (parseFloat(selectedUnitFactor) || 1);
+            let ratioLocal = landedMode === 'weight'
+                ? (totalItemWeightBars > 0 ? (rowWeightBars / totalItemWeightBars) : 0)
+                : (landedMode === 'qty'
+                    ? (totalItemQtyAll > 0 ? (rowQtyVal / totalItemQtyAll) : 0)
+                    : (totalItemValueLocal > 0 ? (itemTotalLocal / totalItemValueLocal) : 0));
+            let ratioFc = landedMode === 'weight'
+                ? (totalItemWeightBars > 0 ? (rowWeightBars / totalItemWeightBars) : 0)
+                : (landedMode === 'qty'
+                    ? (totalItemQtyAll > 0 ? (rowQtyVal / totalItemQtyAll) : 0)
+                    : (totalItemValueFc > 0 ? (itemTotalFc / totalItemValueFc) : 0));
             
             let newCostBaseLocal = baseQty > 0 ? ((itemTotalLocal + (localAdditions * ratioLocal)) / baseQty) : 0;
             let newCostBaseFc = baseQty > 0 ? ((itemTotalFc + (fcAdditions * ratioFc)) / baseQty) : 0;
@@ -4003,13 +4078,21 @@ function revertOldInvoiceEffects(currentInvNo) {
     }
     
     if (creditRevertAmount > 0 && oldInv.customer && oldInv.customer !== 'walk-in') {
+        const localCreditRevert = isOldBase ? creditRevertAmount : creditRevertAmount * oldRate;
         let suppliers = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
-        const sIdx = suppliers.findIndex(s => s.id === oldInv.customer);
+        const sIdx = suppliers.findIndex(s => String(s.id) === String(oldInv.customer));
         if (sIdx > -1) {
-            let currentBalance = parseFloat(suppliers[sIdx].currentBalance) || 0;
-            const localCreditRevert = isOldBase ? creditRevertAmount : creditRevertAmount * oldRate;
-            suppliers[sIdx].currentBalance = currentBalance - localCreditRevert; // Revert debt
+            suppliers[sIdx].currentBalance = (parseFloat(suppliers[sIdx].currentBalance) || 0) - localCreditRevert;
+            suppliers[sIdx].balance = suppliers[sIdx].currentBalance;
             localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
+        } else {
+            let customers = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
+            const cIdx = customers.findIndex(c => c && String(c.id) === String(oldInv.customer));
+            if (cIdx > -1) {
+                customers[cIdx].currentBalance = (parseFloat(customers[cIdx].currentBalance ?? customers[cIdx].balance ?? customers[cIdx].openingBalance ?? 0) || 0) + localCreditRevert;
+                customers[cIdx].balance = customers[cIdx].currentBalance;
+                localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
+            }
         }
     }
 
@@ -4248,6 +4331,10 @@ function executeDeleteTransaction() {
     localStorage.removeItem('erp_draft_' + currentInvNo);
     window._cachedPurchaseInvoicesRaw = null;
     window._cachedPurchaseList = null;
+
+    if (window.ElsajanaAccountingBrain && typeof window.ElsajanaAccountingBrain.atomicCrossSystemSync === 'function') {
+        try { window.ElsajanaAccountingBrain.atomicCrossSystemSync({ invoiceNo: currentInvNo, status: 'deleted', items: [] }); } catch (_eAtom) {}
+    }
 
     // Broadcast deletion to open reports & mobile sync
     try {

@@ -26,6 +26,9 @@
     }
 
     function getDomainFallbackData() {
+        if (window.MagaiesScreenChartDomains2027 && typeof window.MagaiesScreenChartDomains2027.getScreenIntelligence === 'function') {
+            return window.MagaiesScreenChartDomains2027.getScreenIntelligence(pageName);
+        }
         if (pageName.includes('purchase') || pageName.includes('supplier')) {
             return {
                 domainTitle: 'منظومة المشتريات والتوريد وسلاسل الإمداد ومستحقات الموردين',
@@ -196,6 +199,7 @@
             if (parsed && parsed.labels.length >= 2 && parsed.datasets.length >= 1) {
                 parsed.domainTitle = document.title ? (document.title.split('|')[0].trim() + ' — ' + fallback.domainTitle) : fallback.domainTitle;
                 parsed.liqForecastMsg = fallback.liqForecastMsg;
+                parsed._intel = fallback;
                 return parsed;
             }
         }
@@ -437,10 +441,12 @@
             return `<circle cx="105" cy="105" r="70" fill="none" stroke="${palette[i % palette.length]}" stroke-width="24" stroke-dasharray="${dash} 440" stroke-dashoffset="-${offset}" stroke-linecap="butt"/>`;
         }).join('');
 
+        const intel = tableData._intel || (window.MagaiesScreenChartDomains2027 ? window.MagaiesScreenChartDomains2027.getScreenIntelligence(pageName) : tableData);
+        const rVals = intel.rings || [86, 74, 91];
         const concentricRings = [
-            { r: 76, pct: 86, col: palette[0] },
-            { r: 56, pct: 74, col: palette[1] },
-            { r: 36, pct: 91, col: palette[2] }
+            { r: 76, pct: rVals[0], col: palette[0] },
+            { r: 56, pct: rVals[1], col: palette[1] },
+            { r: 36, pct: rVals[2], col: palette[2] }
         ].map(rg => {
             const circ = (2 * Math.PI * rg.r).toFixed(1);
             const dash = ((rg.pct / 100) * 2 * Math.PI * rg.r).toFixed(1);
@@ -586,12 +592,10 @@
             `;
         }).join('');
 
-        const cohortRows = [
-            { name: 'فوج كبار المقاولين (VIP)', m1: '100%', m2: '94%', m3: '91%', m4: '89%', ltv: '48.5M' },
-            { name: 'فوج تجار الجملة والحديد', m1: '100%', m2: '88%', m3: '84%', m4: '81%', ltv: '32.1M' },
-            { name: 'فوج المغالق الإقليمية', m1: '100%', m2: '82%', m3: '76%', m4: '72%', ltv: '19.4M' },
-            { name: 'فوج المبيعات النقدية المباشرة', m1: '100%', m2: '79%', m3: '71%', m4: '68%', ltv: '14.8M' }
-        ].map(r => `
+        const cohortSrc = (intel && intel.cohorts) ? intel.cohorts.map(c => ({ name: c[0], m1: c[1], m2: c[2], m3: c[3], m4: c[4], ltv: c[5] })) : [
+            { name: 'فوج كبار المقاولين (VIP)', m1: '100%', m2: '94%', m3: '91%', m4: '89%', ltv: '48.5M' }
+        ];
+        const cohortRows = cohortSrc.map(r => `
             <div style="display: grid; grid-template-columns: 1.8fr repeat(4, 1fr) 1.1fr; gap: 5px; align-items: center; font-size: 11.5px; font-weight: 900;">
                 <div style="background: ${subBoxBg}; padding: 6px 8px; border-radius: 7px; color: ${inkMain}; border-right: 3.5px solid #059669;">${r.name}</div>
                 <div style="background: #059669; color: #fff; text-align: center; padding: 6px 4px; border-radius: 7px;">${r.m1}</div>
@@ -602,17 +606,15 @@
             </div>
         `).join('');
 
-        // 10. AI PREDICTIVE RISK & LIQUIDITY DEFICIT EARLY-WARNING COMMAND CENTER
-        const riskMatrixCells = [
-            { lbl: 'تذبذب الصرف', p: 'احتمال 78%', imp: 'أثر حرج', bg: isLt ? 'linear-gradient(135deg,#fecdd3,#fda4af)' : 'linear-gradient(135deg,#991b1b,#e11d48)', border: '#e11d48', badge: '🚨 خطر 92%' },
-            { lbl: 'تركز ديون كبار العملاء', p: 'احتمال 64%', imp: 'أثر مرتفع', bg: isLt ? 'linear-gradient(135deg,#fed7aa,#fdba74)' : 'linear-gradient(135deg,#9a3412,#f97316)', border: '#ea580c', badge: '⚠️ خطر 79%' },
-            { lbl: 'نفاد سيخ 12مم و16مم', p: 'احتمال 58%', imp: 'أثر مرتفع', bg: isLt ? 'linear-gradient(135deg,#ffedd5,#fdba74)' : 'linear-gradient(135deg,#9a3412,#ea580c)', border: '#d97706', badge: '⚠️ خطر 74%' },
-            { lbl: 'تأخر شحنات الموردين', p: 'احتمال 46%', imp: 'أثر متوسط', bg: isLt ? 'linear-gradient(135deg,#fef08a,#fde047)' : 'linear-gradient(135deg,#854d0e,#eab308)', border: '#ca8a04', badge: '🟡 مراقبة 58%' },
-            { lbl: 'تآكل هامش النقل والعمالة', p: 'احتمال 42%', imp: 'أثر متوسط', bg: isLt ? 'linear-gradient(135deg,#fef9c3,#fde047)' : 'linear-gradient(135deg,#854d0e,#ca8a04)', border: '#ca8a04', badge: '🟡 مراقبة 52%' },
-            { lbl: 'الشيكات المؤجلة والارتداد', p: 'احتمال 29%', imp: 'أثر منخفض', bg: isLt ? 'linear-gradient(135deg,#bae6fd,#7dd3fc)' : 'linear-gradient(135deg,#0c4a6e,#0284c7)', border: '#0284c7', badge: '🛡️ آمن 31%' },
-            { lbl: 'انحراف تسعير الأصناف', p: 'احتمال 22%', imp: 'أثر محدود', bg: isLt ? 'linear-gradient(135deg,#a7f3d0,#6ee7b7)' : 'linear-gradient(135deg,#065f46,#10b981)', border: '#059669', badge: '🟢 محصن 22%' },
-            { lbl: 'حماية السيولة من العجز', p: 'احتمال عجز 0%', imp: 'فائض قوي', bg: isLt ? 'linear-gradient(135deg,#6ee7b7,#34d399)' : 'linear-gradient(135deg,#064e3b,#059669)', border: '#059669', badge: '🟢 محصن 100%' }
-        ].map(c => {
+        const riskSrc = (intel && intel.riskCells) ? intel.riskCells.map(rc => {
+            const sc = rc.score;
+            const tier = sc >= 75 ? { bg: isLt ? 'linear-gradient(135deg,#fecdd3,#fda4af)' : 'linear-gradient(135deg,#991b1b,#e11d48)', border: '#e11d48', badge: `🚨 خطر ${sc}%` }
+                : sc >= 58 ? { bg: isLt ? 'linear-gradient(135deg,#fed7aa,#fdba74)' : 'linear-gradient(135deg,#9a3412,#f97316)', border: '#ea580c', badge: `⚠️ مرتفع ${sc}%` }
+                : sc >= 35 ? { bg: isLt ? 'linear-gradient(135deg,#fef08a,#fde047)' : 'linear-gradient(135deg,#854d0e,#eab308)', border: '#ca8a04', badge: `🟡 مراقبة ${sc}%` }
+                : { bg: isLt ? 'linear-gradient(135deg,#a7f3d0,#6ee7b7)' : 'linear-gradient(135deg,#065f46,#10b981)', border: '#059669', badge: `🟢 محصن ${100 - sc}%` };
+            return { lbl: rc.lbl, p: rc.p, imp: rc.imp, ...tier };
+        }) : [];
+        const riskMatrixCells = riskSrc.map(c => {
             const cInk = isLt ? '#120500' : '#ffffff';
             return `
                 <div style="background: ${c.bg}; border: 2px solid ${c.border}; border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; justify-content: space-between; gap: 4px;">
@@ -649,9 +651,11 @@
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid ${isLt ? 'var(--lt-border, #5c2808)' : 'rgba(56, 189, 248, 0.28)'}; padding-bottom: 10px; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <span style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #059669, #0284c7); color: #ffffff; display: inline-flex; align-items: center; justify-content: center; font-size: 18px;">📊</span>
-                    <h3 style="margin: 0; font-size: 18px; font-weight: 900; color: ${inkMain} !important;">التحليل البياني البصري ورادار المخاطر</h3>
+                    <div>
+                        <h3 style="margin: 0; font-size: 18px; font-weight: 900; color: ${inkMain} !important;">التحليل البياني البصري ورادار المخاطر — ${tableData.domainTitle || intel.domainTitle}</h3>
+                    </div>
                 </div>
-                <span style="padding: 4px 12px; border-radius: 999px; background: rgba(5,150,105,0.18); border: 1.5px solid #059669; color: ${inkEmerald}; font-size: 12px; font-weight: 900;">🌌 المنظومة الشاملة</span>
+                <span style="padding: 4px 12px; border-radius: 999px; background: rgba(5,150,105,0.18); border: 1.5px solid #059669; color: ${inkEmerald}; font-size: 12px; font-weight: 900;">${intel.badge || '🌌 المنظومة الشاملة'}</span>
             </div>
 
             <!-- شريط التنبؤ الاستباقي بالسيولة وحمايتها من العجز قبل وقوعه (AI Liquidity Protection Strip) -->
@@ -820,12 +824,12 @@
 
                 <div style="background: ${pDepthBg}; border: 2px solid #059669; border-radius: 18px; padding: 16px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(5,150,105,0.25); padding-bottom: 8px;">
-                        <span style="font-size: 14px; font-weight: 900; color: ${inkEmerald};">🧬 10. تحليل سلوك الأفواج والقيمة الدائمة (Cohort & LTV)</span>
-                        <span style="font-size: 10.5px; font-weight: 900; color: ${inkAccent};">ولاء العملاء والاحتفاظ</span>
+                        <span style="font-size: 14px; font-weight: 900; color: ${inkEmerald};">${intel.cohortTitle || '🧬 10. تحليل سلوك الأفواج والقيمة الدائمة'}</span>
+                        <span style="font-size: 10.5px; font-weight: 900; color: ${inkAccent};">مؤشرات خاصة بهذه الشاشة</span>
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 6px;">
                         <div style="display: grid; grid-template-columns: 1.8fr repeat(4, 1fr) 1.1fr; gap: 5px; font-size: 10.5px; font-weight: 900; color: ${inkSub}; text-align: center;">
-                            <span style="text-align: right;">الفوج / الشريحة</span><span>ش1</span><span>ش2</span><span>ش3</span><span>ش4</span><span style="color:${inkAccent};">القيمة LTV</span>
+                            <span style="text-align: right;">المحور / الفئة</span><span>م1</span><span>م2</span><span>م3</span><span>م4</span><span style="color:${inkAccent};">المعيار</span>
                         </div>
                         ${cohortRows}
                     </div>
@@ -839,16 +843,16 @@
                         <span style="width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(135deg, #e11d48, #f97316); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 19px;">🚨</span>
                         <div>
                             <h4 style="margin: 0; font-size: 17.5px; font-weight: 900; color: ${inkMain} !important;">
-                                قسم التنبؤ لمخاطر السيولة AI
+                                رادار المخاطر الاستباقي AI — ${intel.badge || ''}
                             </h4>
                             <div style="font-size: 11.5px; font-weight: 900; color: ${inkRose};">
-                                🛡️ رصد استباقي من الألف إلى الياء: مصفوفة الاحتمالات × الأثر • الرادار السداسي للمخاطر • مخروط التنبؤ بالسيولة ومنع العجز
+                                🛡️ فحص متخصص ومستقل لهذه الشاشة: مصفوفة الاحتمال × الأثر • الرادار السداسي • مخروط الـ 90 يوماً
                             </div>
                         </div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="padding: 5px 12px; border-radius: 999px; background: #059669; color: #ffffff !important; font-size: 11.5px; font-weight: 900;">🛡️ مؤشر الأمان السيبراني والمالي: 88.4% (محصن)</span>
-                        <span style="padding: 5px 12px; border-radius: 999px; background: #e11d48; color: #ffffff !important; font-size: 11.5px; font-weight: 900;">⚡ 2 تنبيهات استباقية نشطة</span>
+                        <span style="padding: 5px 12px; border-radius: 999px; background: #059669; color: #ffffff !important; font-size: 11.5px; font-weight: 900;">🛡️ مؤشر التحصين الرقابي: ${intel.secScore || '91.2'}%</span>
+                        <span style="padding: 5px 12px; border-radius: 999px; background: #e11d48; color: #ffffff !important; font-size: 11.5px; font-weight: 900;">⚡ ${intel.activeAlerts ?? 2} محاور تحت المراقبة</span>
                     </div>
                 </div>
 
@@ -868,33 +872,27 @@
                             <svg viewBox="0 0 200 200" style="width: 175px; height: 175px; margin: auto;">
                                 <polygon points="100,18 171,59 171,141 100,182 29,141 29,59" fill="none" stroke="${inkSub}" stroke-width="1.5"/>
                                 <polygon points="100,45 148,72 148,128 100,155 52,128 52,72" fill="none" stroke="${inkSub}" stroke-width="1.2" stroke-dasharray="3,3"/>
-                                <polygon points="100,28 162,65 142,132 100,166 44,125 48,68" fill="rgba(225,29,72,0.28)" stroke="#e11d48" stroke-width="2.5"/>
-                                <polygon points="100,42 145,74 155,136 100,150 58,120 62,75" fill="rgba(5,150,105,0.25)" stroke="#059669" stroke-width="2"/>
-                                <text x="100" y="12" fill="${inkAccent}" font-size="10" font-weight="900" text-anchor="middle">العملة 78%</text>
-                                <text x="182" y="58" fill="${inkRose}" font-size="9.5" font-weight="900" text-anchor="middle">الائتمان 64%</text>
-                                <text x="182" y="150" fill="${inkEmerald}" font-size="9.5" font-weight="900" text-anchor="middle">السيولة 15%</text>
-                                <text x="100" y="195" fill="${inkSky}" font-size="10" font-weight="900" text-anchor="middle">المخزون 58%</text>
-                                <text x="20" y="150" fill="${inkAccent}" font-size="9.5" font-weight="900" text-anchor="middle">التوريد 46%</text>
-                                <text x="20" y="58" fill="${inkPurple}" font-size="9.5" font-weight="900" text-anchor="middle">الهامش 42%</text>
+                                <polygon points="${intel.radarPolyRisk || '100,28 162,65 142,132 100,166 44,125 48,68'}" fill="rgba(225,29,72,0.28)" stroke="#e11d48" stroke-width="2.5"/>
+                                <polygon points="${intel.radarPolySafe || '100,42 145,74 155,136 100,150 58,120 62,75'}" fill="rgba(5,150,105,0.25)" stroke="#059669" stroke-width="2"/>
+                                <text x="100" y="12" fill="${inkAccent}" font-size="9.5" font-weight="900" text-anchor="middle">${intel.radarAxes?.[0] ? `${intel.radarAxes[0].name} ${intel.radarAxes[0].pct}%` : 'العملة 78%'}</text>
+                                <text x="178" y="58" fill="${inkRose}" font-size="9" font-weight="900" text-anchor="middle">${intel.radarAxes?.[1] ? `${intel.radarAxes[1].name} ${intel.radarAxes[1].pct}%` : 'الائتمان 64%'}</text>
+                                <text x="178" y="150" fill="${inkEmerald}" font-size="9" font-weight="900" text-anchor="middle">${intel.radarAxes?.[2] ? `${intel.radarAxes[2].name} ${intel.radarAxes[2].pct}%` : 'السيولة 15%'}</text>
+                                <text x="100" y="195" fill="${inkSky}" font-size="9.5" font-weight="900" text-anchor="middle">${intel.radarAxes?.[3] ? `${intel.radarAxes[3].name} ${intel.radarAxes[3].pct}%` : 'المخزون 58%'}</text>
+                                <text x="22" y="150" fill="${inkAccent}" font-size="9" font-weight="900" text-anchor="middle">${intel.radarAxes?.[4] ? `${intel.radarAxes[4].name} ${intel.radarAxes[4].pct}%` : 'التوريد 46%'}</text>
+                                <text x="22" y="58" fill="${inkPurple}" font-size="9" font-weight="900" text-anchor="middle">${intel.radarAxes?.[5] ? `${intel.radarAxes[5].name} ${intel.radarAxes[5].pct}%` : 'الهامش 42%'}</text>
                             </svg>
                             <div style="display: flex; flex-direction: column; gap: 6px;">
-                                <div style="font-size: 13.5px; font-weight: 900; color: ${inkAccent};">🕸️ ب. الرادار السداسي للمخاطر والتوجيه الذكي</div>
-                                <div style="padding: 7px 10px; border-radius: 9px; background: ${isLt ? '#ffe4e6' : 'rgba(225,29,72,0.22)'}; border-right: 4px solid #e11d48; font-size: 11.5px; font-weight: 900; color: ${inkMain};">
-                                    🚨 تنبيه الصرف والتسعير: يوصي الذكاء الاصطناعي بتثبيت هامش تحوط +4.5% على أصناف الحديد الثقيل.
-                                </div>
-                                <div style="padding: 7px 10px; border-radius: 9px; background: ${isLt ? '#fef3c7' : 'rgba(245,158,11,0.2)'}; border-right: 4px solid #d97706; font-size: 11.5px; font-weight: 900; color: ${inkMain};">
-                                    ⚠️ تنبيه الائتمان: تحصيل 35% من ذمم أعلى 3 عملاء يرفع السيولة الحرة بـ ${fmtNum(Math.round(freeCashFlow * 0.35))}.
-                                </div>
-                                <div style="padding: 7px 10px; border-radius: 9px; background: ${isLt ? '#d1fae5' : 'rgba(16,185,129,0.2)'}; border-right: 4px solid #059669; font-size: 11.5px; font-weight: 900; color: ${inkMain};">
-                                    🛡️ التنبؤ بالسيولة: رصيد التشغيل يغطي ${runwayDays} يوماً مع صفر احتمالية عجز نقدي.
-                                </div>
+                                <div style="font-size: 13.5px; font-weight: 900; color: ${inkAccent};">🕸️ ب. الرادار السداسي المتخصص والتوجيه الذكي</div>
+                                <div style="padding: 7px 10px; border-radius: 9px; background: ${isLt ? '#ffe4e6' : 'rgba(225,29,72,0.22)'}; border-right: 4px solid #e11d48; font-size: 11.5px; font-weight: 900; color: ${inkMain};">${intel.tips?.[0] || ''}</div>
+                                <div style="padding: 7px 10px; border-radius: 9px; background: ${isLt ? '#fef3c7' : 'rgba(245,158,11,0.2)'}; border-right: 4px solid #d97706; font-size: 11.5px; font-weight: 900; color: ${inkMain};">${intel.tips?.[1] || ''}</div>
+                                <div style="padding: 7px 10px; border-radius: 9px; background: ${isLt ? '#d1fae5' : 'rgba(16,185,129,0.2)'}; border-right: 4px solid #059669; font-size: 11.5px; font-weight: 900; color: ${inkMain};">${intel.tips?.[2] || ''}</div>
                             </div>
                         </div>
 
                         <div style="background: ${subBoxBg}; border: 2px solid #059669; border-radius: 16px; padding: 14px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                <span style="font-size: 13px; font-weight: 900; color: ${inkEmerald};">🔮 ج. مخروط التنبؤ الاستباقي بالسيولة لمدة 90 يوماً (AI Liquidity Confidence Cone)</span>
-                                <span style="font-size: 10.5px; font-weight: 900; color: ${inkAccent};">دقة التنبؤ 94.2%</span>
+                                <span style="font-size: 13px; font-weight: 900; color: ${inkEmerald};">🔮 ج. مخروط الاستشراف لمدة 90 يوماً — ${intel.badge || ''}</span>
+                                <span style="font-size: 10.5px; font-weight: 900; color: ${inkAccent};">دقة المحاكاة ${intel.secScore || '94.2'}%</span>
                             </div>
                             <svg viewBox="0 0 600 130" style="width: 100%; height: auto; overflow: visible;">
                                 <polygon points="40,75 210,60 390,38 565,14 565,112 390,96 210,82" fill="rgba(5,150,105,0.15)"/>
@@ -902,9 +900,9 @@
                                 <path d="M 40,75 L 210,68 L 390,56 L 565,44" fill="none" stroke="#d97706" stroke-width="3.5"/>
                                 <path d="M 40,75 L 210,82 L 390,96 L 565,112" fill="none" stroke="#e11d48" stroke-width="2.8" stroke-dasharray="4,4"/>
                                 <circle cx="40" cy="75" r="5" fill="${inkMain}"/>
-                                <circle cx="565" cy="14" r="5" fill="#059669"/><text x="515" y="14" fill="${inkEmerald}" font-size="10.5" font-weight="900">متفائل (+32%)</text>
-                                <circle cx="565" cy="44" r="5.5" fill="#d97706"/><text x="510" y="42" fill="${inkAccent}" font-size="10.5" font-weight="900">المسار الذكي (+18%)</text>
-                                <circle cx="565" cy="112" r="5" fill="#e11d48"/><text x="500" y="122" fill="${inkRose}" font-size="10.5" font-weight="900">اختبار الضغط (-9%)</text>
+                                <circle cx="565" cy="14" r="5" fill="#059669"/><text x="515" y="14" fill="${inkEmerald}" font-size="10.5" font-weight="900">متفائل (+${intel.cone?.[0] ?? 32}%)</text>
+                                <circle cx="565" cy="44" r="5.5" fill="#d97706"/><text x="505" y="42" fill="${inkAccent}" font-size="10.5" font-weight="900">المسار المتوقع (+${intel.cone?.[1] ?? 18}%)</text>
+                                <circle cx="565" cy="112" r="5" fill="#e11d48"/><text x="498" y="122" fill="${inkRose}" font-size="10.5" font-weight="900">اختبار الضغط (${intel.cone?.[2] ?? -9}%)</text>
                                 <text x="40" y="124" fill="${inkMain}" font-size="10" font-weight="900" text-anchor="middle">اليوم</text>
                                 <text x="210" y="124" fill="${inkMain}" font-size="10" font-weight="900" text-anchor="middle">بعد 30 يوم</text>
                                 <text x="390" y="124" fill="${inkMain}" font-size="10" font-weight="900" text-anchor="middle">بعد 60 يوم</text>
@@ -952,6 +950,12 @@
         });
         themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'data-theme', 'data-light-tone', 'style'] });
 
+        document.addEventListener('click', function (e) {
+            if (e.target && e.target.closest && e.target.closest('.md-tab-btn, .tab-btn, [role="tab"], .nav-item, [onclick*="switchTab"]')) {
+                clearTimeout(window._g7AutoChartTimer);
+                window._g7AutoChartTimer = setTimeout(renderGolden7Dashboard, 180);
+            }
+        });
         document.addEventListener('input', function (e) {
             if (e.target && e.target.closest && e.target.closest('#inv-tbody')) {
                 clearTimeout(window._g7AutoChartTimer);

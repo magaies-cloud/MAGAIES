@@ -2881,6 +2881,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     injectSidebar();
+    if (!window.ElsajanaUniversalUI2027 && !document.querySelector('script[src*="elsajana-universal-ui-2027.js?v=2027_fix5"]')) {
+        const uScript = document.createElement('script');
+        uScript.src = 'js/elsajana-universal-ui-2027.js?v=2027_fix5';
+        uScript.defer = true;
+        document.head.appendChild(uScript);
+    }
     if (!window.__MagaieesPanoramicSidebarLoaded && !document.querySelector('script[src*="sidebar-panoramic-flyout.js"]')) {
         const pfScript = document.createElement('script');
         pfScript.src = 'js/sidebar-panoramic-flyout.js?v=20261104_v5';

@@ -5273,7 +5273,15 @@
             const res = this.validateReference(ref, this.currentBatchIndex);
             if (!res.valid && res.isDuplicate) {
                 this.playWarningBeep();
-                alert(`🚫 حظر محاسبي قطعي:\n\n${res.message}\n\nزر الاعتماد لا يعتمد هذا السند نهائياً لأنه لا يمكن اعتماد هذا السند لأنه مكرر مسبقاً بالنظام! تم منع الصرف لحماية الحسابات.`);
+                const refEl = document.getElementById('ocr-field-ref');
+                const dupMsg = (window.ElsajanaAccountingBrain && window.ElsajanaAccountingBrain.BANKAK_DUP_MSG)
+                    ? window.ElsajanaAccountingBrain.BANKAK_DUP_MSG
+                    : 'أمسك عندك! إشعار بنكك دا دخل الخزنة قبل كدا.. الموية ما بتمر من تحتنا مرتين!';
+                if (window.ElsajanaAccountingBrain && typeof window.ElsajanaAccountingBrain.shakeAndFocus === 'function') {
+                    window.ElsajanaAccountingBrain.shakeAndFocus(refEl, dupMsg, 'error', 5800);
+                } else {
+                    alert(dupMsg);
+                }
                 return;
             }
 

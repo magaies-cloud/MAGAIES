@@ -37,19 +37,20 @@ if (!function_exists('getGeminiApiKey')) {
             return trim($envKey);
         }
 
-        if (!empty($clientKey)) {
-            return trim($clientKey);
-        }
-        if (!empty($envKey)) {
-            return trim($envKey);
-        }
-
+        if (!empty($clientKey)) return trim($clientKey);
+        if (!empty($envKey)) return trim($envKey);
         return '';
     }
 }
 
 if (!function_exists('getGeminiModel')) {
     function getGeminiModel() {
-        return 'gemini-2.5-flash';
+        return 'gemini-3.5-flash';
+    }
+}
+
+if (!function_exists('getGeminiFallbackModels')) {
+    function getGeminiFallbackModels() {
+        return ['gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-flash-latest'];
     }
 }

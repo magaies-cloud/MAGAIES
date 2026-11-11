@@ -858,6 +858,10 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
                     <span class="theme-btn-text">السمات</span>
                     <span class="theme-count-badge">13</span>
                 </button>
+                <button id="magaiees-master-screen-ergo-btn" type="button" class="magaiees-stack-btn stack-btn-themes" onclick="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.openPopover(this)" title="📐 ضبط مقاسات أنواع الشاشات وراحة العين (تلقائي / لابتوب / كمبيوتر مكتبي / طولية — للشاشة أو البرنامج كله)">
+                    <span style="font-size: 0.88rem;">🖥️</span>
+                    <span class="theme-btn-text" id="magaies-ergo-hdr-lbl">مقاس الشاشة</span>
+                </button>
 
                 <button id="magaiees-master-back-btn" class="magaiees-stack-btn stack-btn-back magaiees-back-btn" onclick="if(typeof window.magaiesGoBackStepLIFO==='function'){window.magaiesGoBackStepLIFO();}else{magaieesGoBack();}" title="الرجوع للخلف خطوة واحدة مع حفظ الحالة (LIFO)">
                     <svg class="back-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px;">
@@ -875,6 +879,10 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
                     <span class="theme-icon-art" style="font-size: 0.9rem;">🎨</span>
                     <span class="theme-btn-text">السمات</span>
                     <span class="theme-count-badge">13</span>
+                </button>
+                <button id="magaiees-master-screen-ergo-btn" type="button" class="magaiees-stack-btn stack-btn-themes" onclick="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.openPopover(this)" title="📐 ضبط مقاسات أنواع الشاشات وراحة العين (تلقائي / لابتوب / كمبيوتر مكتبي / طولية — للشاشة أو البرنامج كله)">
+                    <span style="font-size: 0.88rem;">🖥️</span>
+                    <span class="theme-btn-text" id="magaies-ergo-hdr-lbl">مقاس الشاشة</span>
                 </button>
 
                 <button id="magaiees-master-back-btn" class="magaiees-stack-btn stack-btn-back magaiees-back-btn" onclick="if(typeof window.magaiesGoBackStepLIFO==='function'){window.magaiesGoBackStepLIFO();}else{magaieesGoBack();}" title="الرجوع للخلف خطوة واحدة مع حفظ الحالة (LIFO)">
@@ -1061,6 +1069,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </a>
     </div>
 </div>
+<script src="js/auto-charts-domains-2027.js?v=<?php echo file_exists(__DIR__ . '/../js/auto-charts-domains-2027.js') ? filemtime(__DIR__ . '/../js/auto-charts-domains-2027.js') : time(); ?>"></script>
 <script src="js/auto-charts.js?v=<?php echo time(); ?>"></script>
 <script src="js/quran_reciters_data.js?v=<?php echo file_exists(__DIR__ . '/../js/quran_reciters_data.js') ? filemtime(__DIR__ . '/../js/quran_reciters_data.js') : time(); ?>"></script>
 <script src="js/global_background_media.js?v=<?php echo file_exists(__DIR__ . '/../js/global_background_media.js') ? filemtime(__DIR__ . '/../js/global_background_media.js') : time(); ?>" defer></script>
@@ -2817,15 +2826,19 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
                 if (!document.getElementById('magaies-sovereign-edge-to-edge-css')) {
                     var sovStyle = document.createElement('style');
                     sovStyle.id = 'magaies-sovereign-edge-to-edge-css';
-                    var rootSel = '#pur-proportional-root, #sales-proportional-root, #grn-proportional-root, #md-proportional-root, .dash-main, main.md-content-area, #purchase-editor-view, #purchase-hub-view, #sl-main-wrapper, .main-container, .page-container, .dashboard-container, .alarm-master-wrapper, .vouchers-container, .hub-container, .analytics-container, .eng-container, .settings-container, body.has-sidebar > main, body.has-sidebar > .container';
+                    var rootSel = '#pur-proportional-root, #sales-proportional-root, #grn-proportional-root, #scp-proportional-root, #mcp-proportional-root, #pa-proportional-root, #mb-proportional-root, #dmr-proportional-root, #md-proportional-root, .dash-main, main.md-content-area, #purchase-editor-view, #purchase-hub-view, #sl-main-wrapper, .main-container, .page-container, .dashboard-container, .alarm-master-wrapper, .vouchers-container, .hub-container, .analytics-container, .eng-container, .settings-container, body.has-sidebar > main, body.has-sidebar > .container';
                     sovStyle.textContent =
-                        ':root { --global-master-scale: 1; --global-master-font-px: 15px; --sb-collapsed: 62px; --sb-expanded: 240px; }\n' +
+                        ':root { --global-master-scale: 1; --global-master-font-px: 15px; --sb-collapsed: 62px; --sb-expanded: 240px; --erp-ergo-max-w: calc(100% - 28px); --erp-ergo-vpad: 0px; --erp-ergo-grid-min-h: auto; }\n' +
                         '#dash-fc1-smart-ai-command-bar, #curtain-drawer, #desktop-sync-shield-btn, #header-mobile-quick-btn, #magaiees-top-mobile-btn, .msg-quartet-shield, .msg-quartet-mobile { display: none !important; }\n' +
                         'html { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin: 0 !important; padding: 0 !important; }\n' +
                         'body { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin: 0 !important; padding: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: flex-start !important; }\n' +
-                        'html.has-sidebar body:not(.no-sidebar), body.has-sidebar:not(.no-sidebar) { margin-right: var(--sb-collapsed, 62px) !important; margin-left: 0 !important; margin-inline-start: var(--sb-collapsed, 62px) !important; margin-inline-end: 0 !important; padding-inline: 0 !important; width: calc(100vw - var(--sb-collapsed, 62px)) !important; max-width: calc(100vw - var(--sb-collapsed, 62px)) !important; }\n' +
-                        'html.has-sidebar body.sidebar-open:not(.no-sidebar), body.has-sidebar.sidebar-open:not(.no-sidebar) { margin-right: var(--sb-expanded, 240px) !important; margin-left: 0 !important; margin-inline-start: var(--sb-expanded, 240px) !important; margin-inline-end: 0 !important; width: calc(100vw - var(--sb-expanded, 240px)) !important; max-width: calc(100vw - var(--sb-expanded, 240px)) !important; }\n' +
-                        rootSel + ' { box-sizing: border-box !important; width: calc(100% - 28px) !important; max-width: calc(100% - 28px) !important; min-width: 0 !important; margin-inline: auto !important; margin-left: auto !important; margin-right: auto !important; padding-left: 0 !important; padding-right: 0 !important; padding-inline: 0 !important; left: 0 !important; right: 0 !important; transform-origin: top center !important; }\n' +
+                        'html.has-sidebar body:not(.no-sidebar), body.has-sidebar:not(.no-sidebar) { margin-right: var(--sb-collapsed, 62px) !important; margin-left: 0 !important; margin-inline-start: var(--sb-collapsed, 62px) !important; margin-inline-end: 0 !important; padding-inline: 0 !important; width: calc(100% - var(--sb-collapsed, 62px)) !important; max-width: calc(100% - var(--sb-collapsed, 62px)) !important; }\n' +
+                        'html.has-sidebar body.sidebar-open:not(.no-sidebar), body.has-sidebar.sidebar-open:not(.no-sidebar) { margin-right: var(--sb-expanded, 240px) !important; margin-left: 0 !important; margin-inline-start: var(--sb-expanded, 240px) !important; margin-inline-end: 0 !important; width: calc(100% - var(--sb-expanded, 240px)) !important; max-width: calc(100% - var(--sb-expanded, 240px)) !important; }\n' +
+                        rootSel + ' { box-sizing: border-box !important; width: var(--erp-ergo-max-w, calc(100% - 28px)) !important; max-width: var(--erp-ergo-max-w, calc(100% - 28px)) !important; min-width: 0 !important; margin-inline: auto !important; margin-left: auto !important; margin-right: auto !important; padding-left: 0 !important; padding-right: 0 !important; padding-inline: 0 !important; left: 0 !important; right: 0 !important; transform-origin: top center !important; }\n' +
+                        'html[data-ergo-resolved="desktop_comfort"] #purchase-editor-view, html[data-ergo-resolved="portrait_tall"] #purchase-editor-view { min-height: calc(100dvh - 38px) !important; height: auto !important; }\n' +
+                        'html[data-ergo-resolved="desktop_comfort"] #items-grid-wrapper, html[data-ergo-resolved="desktop_comfort"] .table-responsive, html[data-ergo-resolved="desktop_comfort"] .master-pane, html[data-ergo-resolved="desktop_comfort"] #print-container { min-height: var(--erp-ergo-grid-min-h, 58dvh) !important; }\n' +
+                        'html[data-ergo-resolved="portrait_tall"] #items-grid-wrapper, html[data-ergo-resolved="portrait_tall"] .table-responsive, html[data-ergo-resolved="portrait_tall"] .master-pane, html[data-ergo-resolved="portrait_tall"] #print-container { min-height: var(--erp-ergo-grid-min-h, 70dvh) !important; }\n' +
+                        'html[data-ergo-resolved="desktop_comfort"] tr td, html[data-ergo-resolved="desktop_comfort"] .account-block, html[data-ergo-resolved="desktop_comfort"] .section-block-card { padding-top: calc(10px + var(--erp-ergo-vpad, 0px)); padding-bottom: calc(10px + var(--erp-ergo-vpad, 0px)); }\n' +
                         '#purchase-editor-view, #purchase-hub-view, #new-unified-dashboard-design { width: 100% !important; max-width: 100% !important; margin-inline: auto !important; }\n' +
                         'body:not([data-zoomed-high="1"]) { overflow-x: hidden !important; }\n' +
                         'body[data-zoomed-high="1"] { overflow-x: auto !important; overflow-y: auto !important; }\n' +
@@ -2881,17 +2894,10 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
                         mainEl.style.marginInline = 'auto';
                         mainEl.style.marginLeft = 'auto';
                         mainEl.style.marginRight = 'auto';
-                        if (Math.abs(val - 1) < 0.01) {
-                            mainEl.style.zoom = '';
-                            mainEl.style.transform = '';
-                            mainEl.style.width = 'calc(100% - 28px)';
-                            mainEl.style.maxWidth = 'calc(100% - 28px)';
-                        } else {
-                            mainEl.style.transformOrigin = 'top center';
-                            mainEl.style.transform = 'scale(' + val + ')';
-                            mainEl.style.width = 'calc(100% - 28px)';
-                            mainEl.style.maxWidth = 'calc(100% - 28px)';
-                        }
+                        mainEl.style.transform = '';
+                        mainEl.style.zoom = Math.abs(val - 1) < 0.01 ? '' : String(val);
+                        mainEl.style.width = 'var(--erp-ergo-max-w, calc(100% - 28px))';
+                        mainEl.style.maxWidth = 'var(--erp-ergo-max-w, calc(100% - 28px))';
                     }
                     if (!skipSave && document.body) {
                         var zb = document.getElementById('magaies-telescopic-zoom-hud');
@@ -2909,11 +2915,17 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
                     }
                 };
 
-                var savedScale = localStorage.getItem(MASTER_SCALE_KEY) || localStorage.getItem(mdScaleKey) || localStorage.getItem(c15Key) || localStorage.getItem(grnScaleKey) || localStorage.getItem(slFc1Key);
+                if (!localStorage.getItem('magaies_scale_clean_20261111')) {
+                    try {
+                        [MASTER_SCALE_KEY, mdScaleKey, c15Key, grnScaleKey, slFc1Key, 'magaies_telescopic_zoom_scale', 'magaies_ergo_global_mode'].forEach(function(k) { localStorage.removeItem(k); });
+                        localStorage.setItem('magaies_scale_clean_20261111', '1');
+                    } catch (e) {}
+                }
+                var savedScale = localStorage.getItem(MASTER_SCALE_KEY);
                 if (savedScale) window.applyGlobalSovereignMasterScale(savedScale, true);
 
                 window.addEventListener('storage', function(ev) {
-                    if (ev.key === MASTER_SCALE_KEY || ev.key === c15Key || ev.key === mdScaleKey || ev.key === grnScaleKey || ev.key === slFc1Key) {
+                    if (ev.key === MASTER_SCALE_KEY) {
                         window.applyGlobalSovereignMasterScale(ev.newValue, true);
                     } else if (ev.key === GLOBAL_FONT_KEY && ev.newValue) {
                         document.documentElement.style.setProperty('--global-master-font-px', parseInt(ev.newValue, 10) + 'px');
@@ -2930,6 +2942,12 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
                 }
 
                 // دعم التكبير والتصغير الخارق بـ (Ctrl + رولة الماوس) حتى 10 أضعاف (10x) في جميع شاشات البرنامج
+                if (!window.ElsajanaUniversalUI2027 && !document.querySelector('script[src*="elsajana-universal-ui-2027.js?v=2027_fix5"]')) {
+                    var _ergoScr = document.createElement('script');
+                    _ergoScr.defer = true;
+                    _ergoScr.src = 'js/elsajana-universal-ui-2027.js?v=2027_fix5';
+                    (document.head || document.documentElement).appendChild(_ergoScr);
+                }
                 window.addEventListener('wheel', function(ev) {
                     if (ev.ctrlKey && typeof window.setMdProportionalZoom !== 'function') {
                         ev.preventDefault();

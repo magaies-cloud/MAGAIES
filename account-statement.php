@@ -587,6 +587,14 @@
             generalAccounts.forEach((acc, idx) => {
                 accountsData.push({ id: acc.id, name: acc.name || 'غير محدد', phone: '', group: 'المصروفات والحسابات' });
             });
+
+            // 6. الموظفين والرواتب
+            const empSeen = new Set();
+            [...(JSON.parse(localStorage.getItem('erp_users_v1') || '[]')), ...(JSON.parse(localStorage.getItem('erp_employees_v1') || '[]'))].filter(x => x && !x.deleted && x.id).forEach(e => {
+                if (empSeen.has(String(e.id))) return;
+                empSeen.add(String(e.id));
+                accountsData.push({ id: e.id, name: e.name || e.fullName || e.username || 'موظف', phone: e.phone || '', group: 'الموظفين والرواتب' });
+            });
         }
 
         function initCsDropdown() {
@@ -702,13 +710,19 @@
             try { accs = accs.concat(JSON.parse(localStorage.getItem('erp_suppliers_v1'))||[]); }catch(e){}
             try { accs = accs.concat(JSON.parse(localStorage.getItem('erp_banks_v1'))||[]); }catch(e){}
             try { accs = accs.concat(JSON.parse(localStorage.getItem('erp_safes_v1'))||[]); }catch(e){}
+            try { accs = accs.concat(JSON.parse(localStorage.getItem('erp_users_v1'))||[]); }catch(e){}
+            try { accs = accs.concat(JSON.parse(localStorage.getItem('erp_employees_v1'))||[]); }catch(e){}
             window.allAccountsCache = accs;
         }
-        const found = window.allAccountsCache.find(a => a.id === id);
-        return found ? (found.name || found.bankName || found.safeName || 'غير محدد') : id;
+        const found = window.allAccountsCache.find(a => a && String(a.id) === String(id));
+        return found ? (found.name || found.fullName || found.bankName || found.safeName || 'غير محدد') : id;
     }
 
     function loadTransactions(accountId) {
+        if (typeof window.MagaiesBuildUnifiedStatementRows === 'function') {
+            transactions = window.MagaiesBuildUnifiedStatementRows(accountId, getAccountName);
+            return;
+        }
         transactions = [];
         if (!accountId) return;
         
@@ -815,8 +829,9 @@
                 </div>
 
                 <!-- Center Side: Report Title -->
-                <div style="flex: 1; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                <div style="flex: 1; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 6px;">
                     <h2 id="ent-rep-title" style="margin: 0; padding: 10px 20px; background: #f8fafc; border-radius: 8px; border: 2px solid #111827; font-size: 1.4rem; color: #111827;">كشف حساب مؤسسي ديناميكي</h2>
+                    <div id="ent-credit-limit-strip" style="display:none; font-size:0.82rem; font-weight:900; padding:4px 12px; border-radius:8px; background:#eff6ff; color:#0f172a; border:1px solid #93c5fd;"></div>
                 </div>
 
                 <!-- Left Side: Logo Area -->
@@ -2041,8 +2056,13 @@ input:checked + .slider:before { transform: translateX(20px); }
         updateDecimalsUI();
         updateFontUI();
         
-        // Auto-select template from URL if present
+        // Auto-select partner/account and template from URL if present
         const urlParams = new URLSearchParams(window.location.search);
+        const partnerParam = urlParams.get('partner') || urlParams.get('id') || urlParams.get('account');
+        if (partnerParam && Array.isArray(accountsData)) {
+            const matchedAcc = accountsData.find(a => String(a.id) === String(partnerParam) || String(a.name || '').trim() === String(partnerParam).trim());
+            if (matchedAcc && typeof selectCsOption === 'function') selectCsOption(matchedAcc.id, matchedAcc.name);
+        }
         const modelId = urlParams.get('model');
         if (modelId) {
             changeView(modelId, null);

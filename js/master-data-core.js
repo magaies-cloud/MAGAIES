@@ -3356,18 +3356,25 @@
                 const stBadge = (emp.status === 'active' || emp.status === 'نشط')
                     ? '<span style="background:rgba(16,185,129,0.16); color:#34d399; padding:2px 8px; border-radius:8px; font-size:0.78rem; font-weight:800;">🟢 نشط</span>'
                     : '<span style="background:rgba(239,68,68,0.16); color:#f87171; padding:2px 8px; border-radius:8px; font-size:0.78rem; font-weight:800;">🔴 موقوف</span>';
+                const salVal = parseFloat(emp.salary || 0) || 0;
+                const curBal = parseFloat(emp.currentBalance ?? emp.balance ?? emp.openingBalance ?? 0) || 0;
+                const balHtml = curBal === 0 ? '<span style="opacity:0.45;">0</span>'
+                    : (curBal > 0 ? `<span style="color:#fbbf24;font-weight:900;">${curBal.toLocaleString('en-US')} (عليه سلفة)</span>`
+                    : `<span style="color:#34d399;font-weight:900;">${Math.abs(curBal).toLocaleString('en-US')} (له مستحق)</span>`);
                 return `<tr>
                     <td style="font-weight:bold;">${emp.name || emp.fullName || emp.username || '-'}</td>
                     <td><span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:2px 8px; border-radius:6px; font-size:0.8rem; font-weight:800;">${roleBadge}</span></td>
+                    <td style="font-weight:900; color:#34d399;">${salVal > 0 ? salVal.toLocaleString('en-US') + ' SDG' : '-'}</td>
+                    <td>${balHtml}</td>
                     <td style="direction:ltr; font-family:monospace;">${emp.phone||'-'}</td>
-                    <td>${emp.securityLevel || 1}</td>
                     <td>${stBadge}</td>
                     <td style="white-space:nowrap;">
-                        <button class="btn-text" style="color:#10b981; font-weight:900; margin-left:6px;" onclick="window.shareSingleEmployeeWhatsApp && window.shareSingleEmployeeWhatsApp('${emp.id}')" title="مراسلة الموظف أو إرسال بياناته عبر الواتساب">💬 واتساب</button>
+                        <button class="btn-text" style="color:#38bdf8; background:rgba(56,189,248,0.14); border:1px solid rgba(56,189,248,0.4); padding:3px 9px; border-radius:7px; font-weight:900; margin-left:6px;" onclick="window.openEmployeeScreenBoxesModal ? window.openEmployeeScreenBoxesModal('${emp.id}') : (window.location.href='users-roles.php')" title="تحديد مربعات الشاشات والتقارير المسموحة والممنوعة لهذا الموظف">☑️ مربعات الشاشات</button>
+                        <button class="btn-text" style="color:#f59e0b; font-weight:800; margin-left:6px;" onclick="window.location.href='account-statement.php?id='+encodeURIComponent('${emp.id}')" title="كشف حساب الموظف في دفتر الأستاذ">📄 كشف حساب</button>
                         <button class="btn-text" style="color:#34d399; font-weight:800; margin-left:6px;" onclick="window.location.href='payroll.php'" title="مسير الرواتب والاستحقاقات">💵 الرواتب</button>
-                        <button class="btn-text" style="color:#fbbf24; font-weight:800; margin-left:6px;" onclick="window.location.href='jobs.php'" title="المهام التنفيذية للموظف">📋 المهام</button>
-                        <button class="btn-text" style="color:#a855f7; font-weight:bold; margin-left:8px;" onclick="editEmployee('${emp.id}')">✏️ تعديل</button>
-                        <button class="btn-text" style="color:var(--danger-color); font-weight:bold;" onclick="deleteEmployee('${emp.id}')">🗑️ حذف</button>
+                        <button class="btn-text" style="color:#10b981; font-weight:900; margin-left:6px;" onclick="window.shareSingleEmployeeWhatsApp && window.shareSingleEmployeeWhatsApp('${emp.id}')" title="واتساب الموظف">💬</button>
+                        <button class="btn-text" style="color:#a855f7; font-weight:bold; margin-left:6px;" onclick="editEmployee('${emp.id}')">✏️ تعديل</button>
+                        <button class="btn-text" style="color:var(--danger-color); font-weight:bold;" onclick="deleteEmployee('${emp.id}')">🗑️</button>
                     </td>
                 </tr>`;
             }).join('');
@@ -3416,6 +3423,8 @@
             document.getElementById('emp-name').value = '';
             document.getElementById('emp-phone').value = '';
             document.getElementById('emp-password').value = '';
+            if (document.getElementById('emp-salary')) document.getElementById('emp-salary').value = '';
+            if (document.getElementById('emp-opening-balance')) document.getElementById('emp-opening-balance').value = '';
             document.getElementById('emp-role').value = 'cashier';
             document.getElementById('emp-security').value = '1';
             document.getElementById('emp-status').value = 'active';
@@ -3440,18 +3449,29 @@
             const existingIdx = employees.findIndex(e => e.id === id);
             
             const rawPassword = document.getElementById('emp-password').value;
-            const existingPassword = (existingIdx > -1 && employees[existingIdx].password) ? employees[existingIdx].password : '123456';
-            const empData = {
+            const existingObj = existingIdx > -1 ? employees[existingIdx] : {};
+            const existingPassword = existingObj.password ? existingObj.password : '123456';
+            const salary = parseFloat(document.getElementById('emp-salary')?.value || 0) || 0;
+            const opBal = parseFloat(document.getElementById('emp-opening-balance')?.value || 0) || 0;
+            const oldOpBal = parseFloat(existingObj.openingBalance || 0) || 0;
+            const curEmpBal = existingIdx > -1 ? ((parseFloat(existingObj.currentBalance ?? existingObj.balance ?? oldOpBal) || 0) + (opBal - oldOpBal)) : opBal;
+            const empData = Object.assign({}, existingObj, {
                 id,
                 name,
-                username: (name || '').trim().toLowerCase(),
+                username: existingObj.username || (name || '').trim().toLowerCase(),
                 fullName: name,
                 phone: document.getElementById('emp-phone').value,
                 password: rawPassword ? rawPassword : existingPassword,
                 role: document.getElementById('emp-role').value,
+                salary,
+                openingBalance: opBal,
+                openingDebit: opBal > 0 ? opBal : 0,
+                openingCredit: opBal < 0 ? Math.abs(opBal) : 0,
+                currentBalance: curEmpBal,
+                balance: curEmpBal,
                 securityLevel: parseInt(document.getElementById('emp-security').value) || 1,
                 status: document.getElementById('emp-status').value
-            };
+            });
             
             if (existingIdx > -1) {
                 employees[existingIdx] = empData;
@@ -3459,8 +3479,11 @@
                 employees.push(empData);
             }
             
-            setMasterLocalData('erp_users_v1', employees);
-            setMasterLocalData('erp_employees_v1', employees);
+            setMasterLocalData('erp_users_v1', employees, true);
+            setMasterLocalData('erp_employees_v1', employees, true);
+            if (window.MagaiesPayrollAccrual2027 && typeof window.MagaiesPayrollAccrual2027.runMonthlyAccrual === 'function') {
+                window.MagaiesPayrollAccrual2027.runMonthlyAccrual();
+            }
 
             syncToBackend('save_employee', empData);
             logMasterDataAudit(existingIdx > -1 ? 'تعديل' : 'إضافة', 'الموظفين', name, `الدور: ${empData.role} | السرية: ${empData.securityLevel}`);
@@ -3488,6 +3511,8 @@
             document.getElementById('emp-name').value = emp.name;
             document.getElementById('emp-phone').value = emp.phone || '';
             document.getElementById('emp-password').value = emp.password || '';
+            if (document.getElementById('emp-salary')) document.getElementById('emp-salary').value = emp.salary || '';
+            if (document.getElementById('emp-opening-balance')) document.getElementById('emp-opening-balance').value = emp.openingBalance || '';
             document.getElementById('emp-role').value = emp.role || 'cashier';
             document.getElementById('emp-security').value = emp.securityLevel || '1';
             document.getElementById('emp-status').value = emp.status || 'active';

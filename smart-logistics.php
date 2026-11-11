@@ -427,7 +427,16 @@
 <body class="has-sidebar" data-logistics-mode="<?php echo (isset($_GET['mode']) && (!isset($_GET['mode']) || $_GET['mode'] === 'purchases')) ? 'purchases' : 'sales'; ?>">
 
     <div class="toast-container" id="toast-container"></div>
-    <script defer src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script>
+    window.ensureHtml5QrCodeLoaded = function(cb) {
+        if (window.Html5Qrcode) { if (cb) cb(); return; }
+        var s = document.createElement('script');
+        s.src = 'https://unpkg.com/html5-qrcode';
+        s.async = true;
+        s.onload = function() { if (cb) cb(); };
+        document.head.appendChild(s);
+    };
+    </script>
 
     <div id="sl-main-wrapper" style="padding: 6px 0 55px 0; width: calc(100% - 24px); max-width: calc(100% - 24px); margin: 0 auto; display: flex; flex-direction: column; gap: 8px; box-sizing: border-box;">
 
@@ -436,7 +445,7 @@
              ═══════════════════════════════════════════════════════════════════ -->
         <div id="sl-top-cockpit-bar" class="sl-glass-card" style="background: var(--sl-header-grad); padding: 10px 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
             <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
-                <div style="display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #1d3561 0%, #142547 100%); border: 1.5px solid rgba(56, 189, 248, 0.65); padding: 7px 18px; border-radius: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.12);">
+                <div id="sl-main-title-banner" style="display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #1d3561 0%, #142547 100%); border: 1.5px solid rgba(56, 189, 248, 0.65); padding: 7px 18px; border-radius: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.12);">
                     <span id="sl-main-title-icon" style="font-size: 1.35rem;"><?php echo (isset($_GET['mode']) && $_GET['mode'] === 'purchases') ? '📥' : '📤'; ?></span>
                     <h1 id="sl-main-title-text" style="margin: 0; font-size: 1.18rem; font-weight: 900; color: #ffffff; letter-spacing: 0.2px;"><?php echo (isset($_GET['mode']) && $_GET['mode'] === 'purchases') ? 'بوابة استلام المشتريات' : 'بوابة تسليم المبيعات'; ?></h1>
                 </div>
@@ -902,6 +911,9 @@
     <script defer src="js/smart-logistics.js?v=<?php echo file_exists('js/smart-logistics.js') ? filemtime('js/smart-logistics.js') : '20261104_v5'; ?>"></script>
     <script src="js/global_background_media.js?v=20261022_v23" defer></script>
     <script src="js/magaiees_back.js?v=20261022_v23" defer></script>
+    <script defer src="js/elsajana-erp-brain-2027.js?v=<?php echo file_exists('js/elsajana-erp-brain-2027.js') ? filemtime('js/elsajana-erp-brain-2027.js') : 1; ?>"></script>
+    <script defer src="js/elsajana-charts-forensic-2027.js?v=<?php echo file_exists('js/elsajana-charts-forensic-2027.js') ? filemtime('js/elsajana-charts-forensic-2027.js') : 1; ?>"></script>
+    <script defer src="js/elsajana-universal-ui-2027.js?v=<?php echo file_exists('js/elsajana-universal-ui-2027.js') ? filemtime('js/elsajana-universal-ui-2027.js') : 1; ?>"></script>
     <!-- ═══════════════════════════════════════════════════════════════════
          💎 تناغم بصري موحد مع شاشة المشتريات (خلفية سوداء #030712 + مناطق كحلية داكنة متدرجة + إضاءة الحواف عند المرور)
          ═══════════════════════════════════════════════════════════════════ -->

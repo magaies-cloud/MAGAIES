@@ -4,6 +4,8 @@
     window._magaiesGlobalProfAiLoaded = true;
 
     let voiceMuted = false;
+    let voiceDialect = localStorage.getItem('magaies_prof_voice_dialect') || 'warm_professor';
+    let voiceSpeed = parseFloat(localStorage.getItem('magaies_prof_voice_speed') || '1.03') || 1.03;
     let recognition = null;
     let isListening = false;
     let liveOpenConversation = false;
@@ -71,14 +73,15 @@
         const clean = String(text).replace(/[*#_`~]/g, '').replace(/ج\.س/g, ' جنيه ').replace(/\$/g, ' دولار ').slice(0, 600).trim();
         const chunks = clean.split(/(?<=[.؟!؛])\s+/).map(s => s.trim()).filter(Boolean);
         if (!chunks.length) { finish(); return; }
-        const urls = chunks.map(c => 'api/tts_male.php?dialect=warm_professor&text=' + encodeURIComponent(c));
-        // Pre-warm all subsequent sentence chunks in parallel for zero-latency human breathing flow
+        const urls = chunks.map(c => 'api/tts_male.php?dialect=' + encodeURIComponent(voiceDialect) + '&text=' + encodeURIComponent(c));
+        // Pre-warm all sentence chunks in parallel for zero-latency human breathing flow
         urls.slice(1).forEach(u => { fetch(u).catch(() => {}); });
         let idx = 0;
         const playNext = () => {
             if (!isSpeakingReply || idx >= urls.length) { finish(); return; }
             const aud = new Audio(urls[idx]);
             aud.volume = 1.0;
+            aud.playbackRate = Math.min(1.25, Math.max(0.85, voiceSpeed));
             currentProfAudio = aud;
             idx++;
             aud.onended = () => { if (isSpeakingReply) playNext(); };
@@ -97,6 +100,8 @@
         const ar = (document.getElementById('strip-ar-amt')?.innerText || '').trim();
         const ap = (document.getElementById('strip-ap-amt')?.innerText || '').trim();
         const mkt = (document.getElementById('stock-mkt-val')?.innerText || '').trim();
+        const fx = (document.getElementById('hdr-exchange-rate')?.value || document.getElementById('exec-usd-rate-inp')?.value || localStorage.getItem('elsajana_usd_rate') || '').toString().trim();
+        const brokerTicker = (document.getElementById('market-broker-ticker-wrap')?.innerText || '').replace(/\s+/g, ' ').trim().slice(0, 320);
         const liveElements = [];
         document.querySelectorAll('button, a, [data-explain], [title], h1, h2, h3, th, label').forEach(el => {
             if (liveElements.length >= 65 || !el.offsetParent) return;
@@ -106,7 +111,7 @@
                 liveElements.push(hint ? `${txt} (${hint})` : txt);
             }
         });
-        return { title, page: location.pathname.split('/').pop() || 'index.php', sal, pur, liq, prf, ar, ap, mkt, live_dom_elements: Array.from(new Set(liveElements)).slice(0, 50) };
+        return { title, page: location.pathname.split('/').pop() || 'index.php', sal, pur, liq, prf, ar, ap, mkt, fx, broker_feed: brokerTicker, live_dom_elements: Array.from(new Set(liveElements)).slice(0, 50) };
     }
 
     const chatHistory = [];
@@ -208,7 +213,7 @@
                         try { recognition.stop(); } catch (err) {}
                         sendUserQuery(toSend);
                     }
-                }, 1100);
+                }, 780);
             }
         };
         recognition.onend = () => {
@@ -283,9 +288,24 @@
                         </div>
                         <div style="display:flex;align-items:center;gap:6px;">
                             <span id="prof-ai-live-status" style="display:none;padding:5px 10px;border-radius:99px;background:rgba(2,6,23,0.75);color:#fde047;border:1px solid #fde047;font-size:11px;font-weight:900;">🟢 المايك مضاء ومفتوح</span>
-                            <button id="prof-ai-mute-btn" type="button" style="padding:6px 11px;border-radius:10px;background:rgba(15,23,42,0.55);color:#fff;border:1px solid rgba(255,255,255,0.35);font-size:12px;font-weight:900;cursor:pointer;">🔊 الصوت الدافئ مفعل</button>
+                            <button id="prof-ai-gear-btn" type="button" title="تخصيص نبرة الصوت والسرعة (اختياري)" style="padding:6px 10px;border-radius:10px;background:rgba(15,23,42,0.55);color:#fde047;border:1px solid rgba(253,224,71,0.45);font-size:13px;font-weight:900;cursor:pointer;">⚙️ النبرة</button>
+                            <button id="prof-ai-mute-btn" type="button" style="padding:6px 11px;border-radius:10px;background:rgba(15,23,42,0.55);color:#fff;border:1px solid rgba(255,255,255,0.35);font-size:12px;font-weight:900;cursor:pointer;">🔊 الصوت النقي مفعل</button>
                             <button id="prof-ai-close-btn" type="button" style="width:34px;height:34px;border-radius:10px;background:rgba(225,29,72,0.85);color:#fff;border:none;font-size:16px;font-weight:900;cursor:pointer;">✕</button>
                         </div>
+                    </div>
+                    <div id="prof-ai-gear-drawer" style="display:none;padding:10px 14px;background:#081124;border-bottom:1px solid rgba(253,224,71,0.35);align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:12.5px;font-weight:900;color:#e2e8f0;">
+                        <label style="display:flex;align-items:center;gap:6px;">🎙️ نبرة البروفيسور:
+                            <select id="prof-ai-dialect-sel" style="background:#0f172a;color:#fff;border:1px solid #38bdf8;border-radius:8px;padding:4px 8px;font-weight:900;">
+                                <option value="warm_professor">الافتراضي الفائق (فصيح نقي HD)</option>
+                                <option value="sudanese">سوداني دافئ (معاوية HD)</option>
+                                <option value="egyptian">مصري واضح (شاكر HD)</option>
+                                <option value="warm_male">خليجي رخيم (عبدالله HD)</option>
+                            </select>
+                        </label>
+                        <label style="display:flex;align-items:center;gap:6px;">⚡ السرعة:
+                            <input id="prof-ai-speed-rng" type="range" min="0.88" max="1.22" step="0.03" value="1.03" style="accent-color:#10b981;cursor:pointer;" />
+                            <span id="prof-ai-speed-lbl" style="color:#34d399;min-width:38px;">1.03x</span>
+                        </label>
                     </div>
                     <div style="padding:14px;background:rgba(15,23,42,0.95);border-bottom:1px solid rgba(56,189,248,0.25);display:flex;align-items:center;justify-content:center;gap:14px;">
                         <button id="prof-ai-mic-btn" type="button" class="prof-mic-illuminated-active" style="height:52px;padding:0 24px;border-radius:999px;background:linear-gradient(135deg,#059669,#10b981,#047857);color:#fff;border:2px solid #fde047;font-size:15px;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;gap:10px;transition:all 0.25s ease;">🎙️ المايك مضاء (دردشة مفتوحة مستمرة)</button>
@@ -311,8 +331,15 @@
             document.getElementById('prof-ai-mute-btn').onclick = function () {
                 voiceMuted = !voiceMuted;
                 if (voiceMuted && 'speechSynthesis' in window) window.speechSynthesis.cancel();
-                this.innerText = voiceMuted ? '🔇 الصوت مكتوم' : '🔊 الصوت مفعل';
+                this.innerText = voiceMuted ? '🔇 الصوت مكتوم' : '🔊 الصوت النقي مفعل';
             };
+            const gearDrawer = document.getElementById('prof-ai-gear-drawer');
+            const dialectSel = document.getElementById('prof-ai-dialect-sel');
+            const speedRng = document.getElementById('prof-ai-speed-rng');
+            const speedLbl = document.getElementById('prof-ai-speed-lbl');
+            if (dialectSel) { dialectSel.value = voiceDialect; dialectSel.onchange = () => { voiceDialect = dialectSel.value; localStorage.setItem('magaies_prof_voice_dialect', voiceDialect); }; }
+            if (speedRng && speedLbl) { speedRng.value = String(voiceSpeed); speedLbl.textContent = voiceSpeed.toFixed(2) + 'x'; speedRng.oninput = () => { voiceSpeed = parseFloat(speedRng.value) || 1.03; speedLbl.textContent = voiceSpeed.toFixed(2) + 'x'; localStorage.setItem('magaies_prof_voice_speed', String(voiceSpeed)); }; }
+            document.getElementById('prof-ai-gear-btn').onclick = () => { if (gearDrawer) gearDrawer.style.display = gearDrawer.style.display === 'none' ? 'flex' : 'none'; };
             document.getElementById('prof-ai-send-btn').onclick = () => sendUserQuery();
             document.getElementById('prof-ai-mic-btn').onclick = () => toggleVoiceInput();
             document.getElementById('prof-ai-chat-input').addEventListener('keydown', (e) => {

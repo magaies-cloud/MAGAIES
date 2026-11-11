@@ -52,16 +52,32 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>التقرير اليومي الشامل | Al-Sajana ERP</title>
+    <script>
+    (function initDmrMaster13ToneEarly() {
+        try {
+            var ckM = document.cookie.match(/(?:^|; )magaies_light_tone=([^;]*)/);
+            var savedTone = (ckM ? decodeURIComponent(ckM[1]) : '') || localStorage.getItem('magaies_light_tone') || localStorage.getItem('pur_light_tone_palette') || 'ivory_default';
+            var darkSet = { dark_midnight: 1, pure_oled: 1, mocha_brown: 1, slate_twilight: 1 };
+            var root = document.documentElement;
+            root.setAttribute('data-light-tone', savedTone);
+            if (darkSet[savedTone]) { root.classList.remove('light-theme'); root.classList.add('dark-theme'); root.setAttribute('data-theme', savedTone === 'dark_midnight' ? 'dark' : savedTone); }
+            else { root.classList.add('light-theme'); root.classList.remove('dark-theme'); root.setAttribute('data-theme', 'light'); }
+        } catch (e) {}
+    })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/design-system.css">
-    <link rel="stylesheet" href="css/theme.css">
-    <link rel="stylesheet" href="css/components.css?v=20260723_v14">
-    <link rel="stylesheet" href="css/tailwind.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/design-system.css?v=<?php echo file_exists('css/design-system.css') ? filemtime('css/design-system.css') : 1; ?>">
+    <link rel="stylesheet" href="css/theme.css?v=<?php echo file_exists('css/theme.css') ? filemtime('css/theme.css') : 1; ?>">
+    <link rel="stylesheet" href="css/components.css?v=<?php echo file_exists('css/components.css') ? filemtime('css/components.css') : 1; ?>">
+    <link rel="stylesheet" href="css/tailwind.min.css?v=<?php echo file_exists('css/tailwind.min.css') ? filemtime('css/tailwind.min.css') : 1; ?>">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20261016_v28"></script>
+    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : 1; ?>"></script>
+    <script defer src="js/elsajana-universal-ui-2027.js?v=<?php echo file_exists('js/elsajana-universal-ui-2027.js') ? filemtime('js/elsajana-universal-ui-2027.js') : 1; ?>"></script>
+    <script defer src="js/elsajana-erp-brain-2027.js?v=<?php echo file_exists('js/elsajana-erp-brain-2027.js') ? filemtime('js/elsajana-erp-brain-2027.js') : 1; ?>"></script>
+    <script defer src="js/elsajana-charts-forensic-2027.js?v=<?php echo file_exists('js/elsajana-charts-forensic-2027.js') ? filemtime('js/elsajana-charts-forensic-2027.js') : 1; ?>"></script>
     
     <style>
         :root {
@@ -213,14 +229,14 @@ try {
     </style>
 </head>
 
-<body class="no-page-transition">
+<body class="has-sidebar no-page-transition">
 
-    <div class="report-master-container">
+    <div class="report-master-container" id="dmr-proportional-root">
         
         <?php include 'includes/header.php'; ?>
 
         <!-- Action & Navigation Bar -->
-        <div class="flex flex-wrap items-center justify-between gap-3 no-print bg-slate-900/80 dark:bg-slate-900/90 border-2 border-purple-500/30 p-3.5 rounded-2xl shadow-xl">
+        <div id="dmr-top-nav-bar" class="flex flex-wrap items-center justify-between gap-3 no-print bg-slate-900/80 dark:bg-slate-900/90 border-2 border-purple-500/30 p-3.5 rounded-2xl shadow-xl">
             <div class="flex items-center gap-4 flex-wrap">
                 <a href="analytics.php" onclick="window.location.href='analytics.php'; return false;" class="dmr-btn">
                     <i class="fa-solid fa-arrow-right"></i> ↩️ التقارير
@@ -244,7 +260,7 @@ try {
                 <button type="button" onclick="shareDailyReportWhatsApp();" class="dmr-btn" style="background:linear-gradient(135deg,#0d9488,#14b8a6)!important;">
                     <span>💬</span> واتساب
                 </button>
-                <button type="button" onclick="window.print();" class="dmr-btn" style="background:linear-gradient(135deg,#059669,#10b981)!important;">
+                <button type="button" onclick="if(window.ElsajanaForensicAndCharts2027){window.ElsajanaForensicAndCharts2027.printThermal80mmOrA4('A4');}else{window.print();}" class="dmr-btn" style="background:linear-gradient(135deg,#059669,#10b981)!important;">
                     <i class="fa-solid fa-print"></i> طباعة
                 </button>
             </div>
@@ -690,12 +706,13 @@ try {
         };
 
         window.openDailyAIAuditModal = function() {
-            const st = window._lastDailyStats || {};
-            const net = st.netFlow || 0;
-            alert(`🤖 نتائج التدقيق اليومي الذكي (${st.targetDate || 'اليوم'}):\n` +
-                `• صافي التدفق النقدي: ${net.toLocaleString()} SDG (${net >= 0 ? 'فائض سيولة إيجابي ✅' : 'عجز سيولة يومي يتطلب متابعة ⚠️'})\n` +
-                `• توازن القيود اليومية (${st.jvCount || 0} قيد): متطابق 100% ✅\n` +
-                `• مطابقة حركات المستودعات (${st.stockMoveCount || 0} حركة): متزامنة مع كشوفات الأصناف ✅`);
+            if (window.ElsajanaAccountingBrain && typeof window.ElsajanaAccountingBrain.openPurchaseAiAnalystModal === 'function') {
+                window.ElsajanaAccountingBrain.openPurchaseAiAnalystModal();
+                return;
+            }
+            if (window.DailyMasterSupremeEngine && typeof window.DailyMasterSupremeEngine.openAiExecutiveResultInterpreterModal === 'function') {
+                window.DailyMasterSupremeEngine.openAiExecutiveResultInterpreterModal();
+            }
         };
     </script>
 
@@ -767,31 +784,23 @@ window.ERP_DB_DAILY_BRIDGE = <?php echo json_encode($db_daily_bridge, JSON_UNESC
     --dk-canvas-1: #1e293b; --dk-canvas-2: #0f172a; --dk-card-1: #334155; --dk-card-2: #1e293b; --dk-border: rgba(255,255,255,0.26);
 }
 
-/* قفل التنصيف الليزري المتماثل (Laser Dead-Center Symmetry: Right Margin === Left Margin) */
+/* قفل التنصيف الليزري المتماثل بعد احتساب الشريط الجانبي الثابت */
 html, body {
-    width: 100% !important;
-    max-width: 100% !important;
-    margin-inline: auto !important;
     margin-block: 0 !important;
     padding-inline: 0 !important;
     box-sizing: border-box !important;
     overflow-x: auto !important;
     font-family: 'Cairo', 'Tajawal', 'Outfit', sans-serif !important;
 }
-body {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-}
 .report-master-container {
-    width: 100% !important;
-    max-width: 1680px !important;
-    margin-inline: auto !important;
-    padding: 14px 18px !important;
+    width: calc(100% - 24px) !important;
+    max-width: calc(100% - 24px) !important;
+    margin-left: 12px !important;
+    margin-right: 12px !important;
+    padding: 12px 14px !important;
     box-sizing: border-box !important;
     transform-origin: top center !important;
-    gap: 16px !important;
+    gap: 14px !important;
 }
 
 /* دستور (1 من 14): سريان السمات على الشاشة والشاشات الوليدة + سُمك (+2 = 2.2px) + منع انقلاب الكتابة + عدم القص */
@@ -825,10 +834,10 @@ i.fa-solid, i.fas, i.fa-regular { font-weight: 900 !important; -webkit-text-stro
 :root.light-theme .section-title-bar, :root.light-theme .kpi-stat-label, :root.light-theme .kpi-stat-val,
 :root.light-theme .dmr-pos-title, :root.light-theme .dmr-pos-val, :root.light-theme .dmr-pos-sub,
 :root.light-theme h1, :root.light-theme h2, :root.light-theme h3, :root.light-theme h4,
-:root.light-theme p, :root.light-theme label, :root.light-theme strong, :root.light-theme b,
-:root.light-theme .dmr-modal-box *, :root.light-theme #pur-light-tone-popover *,
-:root.light-theme span:not(.badge-keep-color) {
-    color: #000000 !important;
+:root.light-theme p, :root.light-theme label, :root.light-theme strong:not(button strong):not(.dmr-btn strong), :root.light-theme b,
+:root.light-theme .dmr-modal-box *:not(button):not(button *):not(.dmr-btn):not(.dmr-btn *),
+:root.light-theme span:not(.badge-keep-color):not(button span):not(.dmr-btn span):not(.global-sidebar span):not(.elsajana-ftoast span):not(.dmr-toast-item span) {
+    color: #0F172A !important;
     font-weight: 900 !important;
 }
 :root:not(.light-theme) .section-title-bar, :root:not(.light-theme) .kpi-stat-label, :root:not(.light-theme) .kpi-stat-val,
@@ -1215,8 +1224,9 @@ body.dmr-landscape-zero-header .report-master-container { min-height: 100dvh !im
         { id: 'crystal_silver',  name: '8. فضي جليدي ناصع',                 bg: '#cbd5e1', fg: '#e2e8f0', brd: '#64748b', isDark: false, themeKey: 'ultra_white' },
         { id: 'sage_pearl',      name: '9. لؤلؤي زمردي هادئ',               bg: '#10b981', fg: '#6ee7b7', brd: '#047857', isDark: false, themeKey: 'warm_cream' },
         { id: 'sky_alabaster',   name: '10. سماوي لازوردي فاتح',            bg: '#0284c7', fg: '#38bdf8', brd: '#0369a1', isDark: false, themeKey: 'ultra_white' },
-        { id: 'warm_mocha_dark', name: '11. موكا صحراوي دافئ',              bg: '#6b4226', fg: '#9c6b43', brd: '#451a03', isDark: false, themeKey: 'warm_cream' },
-        { id: 'deep_slate_dark', name: '12. رصاصي فحمي رسمي',               bg: '#334155', fg: '#475569', brd: '#0f172a', isDark: false, themeKey: 'exec_gray' }
+        { id: 'rose_blossom',    name: '11. وردي مخملي مشرق (Rose Blossom)', bg: '#db2777', fg: '#fbcfe8', brd: '#9d174d', isDark: false, themeKey: 'warm_cream' },
+        { id: 'warm_mocha_dark', name: '12. موكا صحراوي دافئ',              bg: '#6b4226', fg: '#9c6b43', brd: '#451a03', isDark: false, themeKey: 'warm_cream' },
+        { id: 'deep_slate_dark', name: '13. رصاصي فحمي رسمي',               bg: '#334155', fg: '#475569', brd: '#0f172a', isDark: false, themeKey: 'exec_gray' }
     ];
 
     let activeCurrencyMode = 'SDG'; // 'SDG' | 'USD'
@@ -1400,22 +1410,14 @@ body.dmr-landscape-zero-header .report-master-container { min-height: 100dvh !im
 
     function applyTelescopicZoom(rawScale, fromRemote) {
         let scale = parseFloat(rawScale) || 1.0;
-        scale = Math.max(0.45, Math.min(10.0, Math.round(scale * 100) / 100));
+        scale = Math.max(0.5, Math.min(10.0, Math.round(scale * 100) / 100));
+        const stage = document.getElementById('dmr-zoom-stage');
         const cont = document.querySelector('.report-master-container') || document.body;
-        cont.style.zoom = '';
-        cont.style.transformOrigin = 'top center';
-        if (Math.abs(scale - 1.0) < 0.01) {
-            cont.style.transform = '';
-            cont.style.marginBottom = '';
-        } else {
-            cont.style.transform = 'scale(' + scale + ')';
-            const naturalH = cont.offsetHeight || 1200;
-            cont.style.marginBottom = Math.round(naturalH * (scale - 1)) + 'px';
+        cont.style.transform = '';
+        cont.style.marginBottom = '';
+        if (stage) {
+            stage.style.zoom = String(scale);
         }
-        document.querySelectorAll('.dmr-modal-box').forEach(function(mb) {
-            mb.style.transformOrigin = 'center center';
-            mb.style.transform = Math.abs(scale - 1.0) < 0.01 ? '' : 'scale(' + Math.min(1.6, Math.max(0.65, scale)) + ')';
-        });
         document.querySelectorAll('#dmr-zoom-label, .dmr-zoom-label-sync').forEach(function(lbl) {
             lbl.textContent = '📐 أبعاد (6:8) ' + Math.round(scale * 100) + '% (' + scale + 'x)';
         });
@@ -1892,7 +1894,7 @@ body.dmr-landscape-zero-header .report-master-container { min-height: 100dvh !im
                     '</div>' +
                 '</div>' +
                 '<div id="dmr-closing-variance-box" style="margin-top:12px;padding:10px 14px;border-radius:10px;background:rgba(15,23,42,0.8);border:1.5px solid #38bdf8;font-weight:900;font-size:13px;">' +
-                    '🕵️‍♂️ نظام الجرد الأعمى نشط: أدخل النقدية الفعلية التي عددتها بيدك ليكشف النظام الرصيد الدفتري والفرق تلقائياً.' +
+                    '🕶️ عدّ قروشك سمح واكتب الصافي.. الرادار شايف كل جنيه! (أدخل النقدية الفعلية ليكشف النظام الرصيد الدفتري والفرق تلقائياً)' +
                 '</div>' +
                 '<div style="margin-top:14px;display:flex;justify-content:flex-end;gap:8px;">' +
                     '<button type="button" class="dmr-btn active-pill" onclick="window.DailyMasterSupremeEngine.commitDailyClosingLock()">🔒 اعتماد الجرد الأعمى وتقفيل اليومية وترحيل العجز إن وجد (F10)</button>' +
@@ -2288,8 +2290,9 @@ body.dmr-landscape-zero-header .report-master-container { min-height: 100dvh !im
                 return;
             }
             const usedRefs = safeParseJSON(localStorage.getItem('erp_used_bank_refs_v11'), []);
-            if (usedRefs.indexOf(bankRef) !== -1) {
-                showDmrToast('🚨 كاشف الإشعارات المكررة والمزورة: رقم الإشعار (' + bankRef + ') مستخدم في عملية سابقة! تم رفض الحفظ لمنع التكرار والاختلاس', 'error', bankRefEl);
+            const brainDup = window.ElsajanaAccountingBrain && window.ElsajanaAccountingBrain.checkBankakDuplicate ? window.ElsajanaAccountingBrain.checkBankakDuplicate(bankRef) : { duplicate: false };
+            if (usedRefs.indexOf(bankRef) !== -1 || brainDup.duplicate) {
+                showDmrToast('أمسك عندك! إشعار بنكك دا دخل الخزنة قبل كدا.. الموية ما بتمر من تحتنا مرتين!', 'error', bankRefEl);
                 return;
             }
             usedRefs.push(bankRef);
@@ -2343,6 +2346,9 @@ body.dmr-landscape-zero-header .report-master-container { min-height: 100dvh !im
                 ]
             });
             localStorage.setItem('erp_journal_vouchers_v1', JSON.stringify(jvList));
+            if (window.ElsajanaAccountingBrain && typeof window.ElsajanaAccountingBrain.syncVoucherAtomically === 'function') {
+                window.ElsajanaAccountingBrain.syncVoucherAtomically({ id: newId, voucherNo: newId, date: targetDate, amountLocal: amt, type: isReceipt ? 'receipt' : 'payment', toAccountName: party, fromAccountName: chTitle, mobileTransferNo: bankRef || '' });
+            }
         } catch (e) {}
 
         if (typeof enqueueCrdtNanoPacket === 'function') enqueueCrdtNanoPacket(targetCol, recObj);
@@ -3032,7 +3038,7 @@ body.dmr-landscape-zero-header .report-master-container { min-height: 100dvh !im
     }
 
     /* دستور 9 من 14: العمق المخزني — تعدد الوحدات والتحويل اللحظي + الاستلام الجزئي + شاشة فحص واستلام وفرز (سليم/تالف/مرفوض) + التحويل المخزني */
-    const DMR_UNIT_FACTORS = { piece: 1, meter: 1, bundle: 20, carton: 24, roll: 50, sack: 50, ton: 200 };
+    const DMR_UNIT_FACTORS = { piece: 1, meter: 1, sheila: 15, count_ton: 135, weight_ton: 140, bundle: 20, carton: 24, roll: 50, sack: 50, ton: 140 };
     function openWarehouseInspectionAndSortingModal(defaultItemName) {
         let modal = document.getElementById('dmr-wh-inspection-modal');
         if (!modal) {
@@ -3051,11 +3057,12 @@ body.dmr-landscape-zero-header .report-master-container { min-height: 100dvh !im
                 '</div>' +
                 '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:8px;margin-bottom:10px;">' +
                     '<div><label style="font-size:11.5px;font-weight:900;">📦 الصنف:</label><input type="text" id="dmr-wh-item" value="' + itName + '" style="width:100%;padding:6px;border-radius:8px;margin-top:3px;"></div>' +
-                    '<div><label style="font-size:11.5px;font-weight:900;">⚖️ وحدة القياس (تحويل لحظي):</label>' +
+                    '<div><label style="font-size:11.5px;font-weight:900;">⚖️ وحدة القياس (معادلة السجانة):</label>' +
                         '<select id="dmr-wh-unit" style="width:100%;padding:6px;border-radius:8px;margin-top:3px;" onchange="window.DailyMasterSupremeEngine.recalcMultiUnitAndPartialState()">' +
-                            '<option value="piece">حبة / سيخ (معامل = 1)</option>' +
-                            '<option value="bundle">ربطة (1 ربطة = 20 سيخ)</option>' +
-                            '<option value="ton">طن (1 طن = 10 ربطات = 200 سيخ)</option>' +
+                            '<option value="piece">سيخة / حبة (معامل = 1)</option>' +
+                            '<option value="sheila">شيلة حديد السجانة (1 شيلة = 15 سيخة)</option>' +
+                            '<option value="count_ton">طن عددي السجانة (1 طن عددي = 135 سيخة)</option>' +
+                            '<option value="weight_ton">طن وزني السجانة (1 طن وزني = 140 سيخة)</option>' +
                             '<option value="carton">كرتونة (1 كرتونة = 24 حبة)</option>' +
                             '<option value="roll">لفة (1 لفة = 50 متر)</option>' +
                         '</select>' +
@@ -3123,6 +3130,14 @@ body.dmr-landscape-zero-header .report-master-container { min-height: 100dvh !im
         const rejQty = parseFloat(document.getElementById('dmr-sort-rejected-qty')?.value || 0) || 0;
         const basePrice = parseFloat(document.getElementById('dmr-wh-base-price')?.value || 0) || 0;
         const allowOver = document.getElementById('dmr-wh-override-auth')?.checked;
+        if (mode === 'transfer' && !allowOver) {
+            const stItems = safeParseJSON(localStorage.getItem('erp_items_v1'), []);
+            const hitIt = stItems.find(function(x) { return x && x.name === item; });
+            if (hitIt && (parseFloat(hitIt.currentStock ?? hitIt.quantity ?? 0) || 0) <= 0) {
+                showDmrToast('المخزن فاضي يا حبيبنا! السيخ دا اتباع خلاص ولّا لسه في الدفار بره؟', 'error', document.getElementById('dmr-sort-good-qty'));
+                return;
+            }
+        }
         if (mode === 'inspect' && (prevQty + goodQty + dmgQty) > ordQty && !allowOver) {
             showDmrToast('🚫 ممنوع تجاوز الكمية المطلوبة بالمستند (' + ordQty + ') إلا بتفعيل (إذن رسمي لتجاوز كمية المستند)', 'error', document.getElementById('dmr-sort-good-qty'));
             return;
@@ -3254,12 +3269,16 @@ body.dmr-landscape-zero-header .report-master-container { min-height: 100dvh !im
         const docId = 'LC-' + nowTs.toString().slice(-6);
         const todayStr = document.getElementById('report-date-input')?.value || new Date().toISOString().slice(0, 10);
         try {
-            const sales = safeParseJSON(localStorage.getItem('erp_sales_invoices'), []);
-            sales.unshift({ id: docId, invoiceNumber: docId, date: todayStr, customer: party, grandTotal: totalVal, paidAmount: totalVal, paymentMethod: 'نقدي', landedCostAdded: totalAdded, items: [{ name: 'صنف دورة مستندية متكاملة', qty: qty, price: tierPrice, total: totalVal }] });
-            localStorage.setItem('erp_sales_invoices', JSON.stringify(sales));
+            if (totalAdded > 0 && window.ElsajanaAccountingBrain && typeof window.ElsajanaAccountingBrain.checkLandedCostMarginErosion === 'function') {
+                window.ElsajanaAccountingBrain.checkLandedCostMarginErosion([{ name: 'صنف دورة مستندية متكاملة', quantity: qty, price: basePrice * 0.75, sellingPrice: tierPrice }], totalAdded, true);
+            }
+            const sales = safeParseJSON(localStorage.getItem('erp_sales_invoices_v1'), []);
+            sales.unshift({ id: docId, invoiceNo: docId, invoiceNumber: docId, date: todayStr, customer: party, customerName: party, grandTotal: totalVal, paidAmount: totalVal, paymentMethod: 'cash', landedCostAdded: totalAdded, items: [{ name: 'صنف دورة مستندية متكاملة', quantity: qty, qty: qty, price: tierPrice, total: totalVal }] });
+            localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(sales));
             const jvList = safeParseJSON(localStorage.getItem('erp_journal_vouchers_v1'), []);
             jvList.unshift({ id: 'JV-' + docId, voucherNo: 'JV-' + docId, date: todayStr, totalDebit: totalVal, totalCredit: totalVal, amount: totalVal, description: 'دورة مستندية آلية (عرض سعر ⬅️ فاتورة ⬅️ إذن مخزني ⬅️ سند قبض): ' + party, lines: [{ accountName: 'الخزينة الرئيسية', debit: totalVal, credit: 0 }, { accountName: party, debit: 0, credit: totalVal }] });
             localStorage.setItem('erp_journal_vouchers_v1', JSON.stringify(jvList));
+            if (typeof BroadcastChannel !== 'undefined') { const bc = new BroadcastChannel('magaiees_sync_channel'); bc.postMessage({ type: 'doc_cycle_saved', id: docId, ts: Date.now() }); bc.close(); }
         } catch (e) {}
         document.getElementById('dmr-commercial-depth-modal')?.classList.remove('active');
         computeAndRenderSupremeDailyPosition();
@@ -3288,6 +3307,7 @@ body.dmr-landscape-zero-header .report-master-container { min-height: 100dvh !im
             const jvList = safeParseJSON(localStorage.getItem('erp_journal_vouchers_v1'), []);
             jvList.unshift({ id: 'JV-' + retId, voucherNo: 'JV-' + retId, date: todayStr, totalDebit: retVal, totalCredit: retVal, amount: retVal, description: 'قيد عكسي آلي لمرتجع مبيعات (' + retId + ') للعميل: ' + party, lines: [{ accountName: 'مردودات ومرتجعات المبيعات', debit: retVal, credit: 0 }, { accountName: party, debit: 0, credit: retVal }] });
             localStorage.setItem('erp_journal_vouchers_v1', JSON.stringify(jvList));
+            if (typeof BroadcastChannel !== 'undefined') { const bc = new BroadcastChannel('magaiees_sync_channel'); bc.postMessage({ type: 'return_saved_atomic', id: retId, ts: Date.now() }); bc.close(); }
         } catch (e) {}
         document.getElementById('dmr-commercial-depth-modal')?.classList.remove('active');
         computeAndRenderSupremeDailyPosition();
@@ -3405,6 +3425,10 @@ body.dmr-landscape-zero-header .report-master-container { min-height: 100dvh !im
             else if (stage === 'endorsed') { drAcc = extra || 'المورد المظهر له'; crAcc = 'حافظة أوراق القبض - ' + party; }
             jvList.unshift({ id: 'JV-CHQ-' + chqNo, voucherNo: 'JV-CHQ-' + chqNo, date: issueDate, totalDebit: amt, totalCredit: amt, amount: amt, description: 'قيد دورة الشيكات (' + stage + ') شيك #' + chqNo, lines: [{ accountName: drAcc, debit: amt, credit: 0 }, { accountName: crAcc, debit: 0, credit: amt }] });
             localStorage.setItem('erp_journal_vouchers_v1', JSON.stringify(jvList));
+            const allChks = safeParseJSON(localStorage.getItem('erp_checks_v1'), []).filter(function(c) { return !(c && (c.checkNo === chqNo || c.checkNumber === chqNo)); });
+            allChks.unshift({ id: chqNo, checkNo: chqNo, checkNumber: chqNo, bank: bank, bankName: bank, date: issueDate, dueDate: dueDate, partner: party, beneficiary: party, amount: amt, status: stage, type: 'incoming', extra: extra });
+            localStorage.setItem('erp_checks_v1', JSON.stringify(allChks.slice(0, 2000)));
+            if (typeof BroadcastChannel !== 'undefined') { const bc = new BroadcastChannel('magaiees_sync_channel'); bc.postMessage({ type: 'cheque_stage_saved', id: chqNo, stage: stage, ts: Date.now() }); bc.close(); }
         } catch (e) {}
         document.getElementById('dmr-cheque-lifecycle-modal')?.classList.remove('active');
         computeAndRenderSupremeDailyPosition();
@@ -3583,6 +3607,7 @@ body.dmr-landscape-zero-header .report-master-container { min-height: 100dvh !im
             const hash = 'SHA256-' + (h >>> 0).toString(16).toUpperCase().padStart(8, '0');
             list.unshift({ ts: tsStr, user: user, device: dev, action: actionType, oldVal: String(oldVal || '-'), newVal: String(newVal || '-'), meta: String(meta || ''), hash: hash });
             localStorage.setItem('erp_immutable_blackbox_v13', encryptOfflineVaultAES256(JSON.stringify(list.slice(0, 250))));
+            if (window.ElsajanaForensicAndCharts2027 && typeof window.ElsajanaForensicAndCharts2027.logBlackBox === 'function') window.ElsajanaForensicAndCharts2027.logBlackBox(actionType, meta || '', oldVal, newVal);
         } catch (e) {}
     }
 
@@ -3599,6 +3624,7 @@ body.dmr-landscape-zero-header .report-master-container { min-height: 100dvh !im
                 ts: new Date().toLocaleTimeString('ar-EG')
             });
             localStorage.setItem('erp_owner_silent_alerts_v13', encryptOfflineVaultAES256(JSON.stringify(alerts.slice(0, 120))));
+            if (window.ElsajanaForensicAndCharts2027 && typeof window.ElsajanaForensicAndCharts2027.logForensicAlert === 'function') window.ElsajanaForensicAndCharts2027.logForensicAlert(level || 'yellow', category || 'تنبيه رقابي', details || '');
             renderCyberBlackBoxAndAlerts();
         } catch (e) {}
     }
@@ -4191,12 +4217,21 @@ body.dmr-landscape-zero-header .report-master-container { min-height: 100dvh !im
     }
 
     function togglePrivacyMaskEye() {
+        if (window.ElsajanaForensicAndCharts2027 && typeof window.ElsajanaForensicAndCharts2027.togglePrivacyEyeMask === 'function') {
+            window.ElsajanaForensicAndCharts2027.togglePrivacyEyeMask();
+            document.body.classList.toggle('dmr-privacy-masked', document.body.classList.contains('els-privacy-masked'));
+            return;
+        }
         document.body.classList.toggle('dmr-privacy-masked');
         const masked = document.body.classList.contains('dmr-privacy-masked');
         showDmrToast(masked ? '👁️ تم تفعيل عين الخصوصية (****): تم تشفير وإخفاء الأرصدة على الشاشة ضد التلصص!' : '👁️ تم إظهار الأرصدة المالية بوضوح.', 'success');
     }
 
     function generateLightweightWhatsAppReceiptCard() {
+        if (window.ElsajanaForensicAndCharts2027 && typeof window.ElsajanaForensicAndCharts2027.sendWhatsAppVisualReceiptCard === 'function') {
+            window.ElsajanaForensicAndCharts2027.sendWhatsAppVisualReceiptCard();
+            return;
+        }
         const st = window._dmrSupremeStats || {};
         const cardText = '🧾 [بطاقة إيصال مصورة مضغوطة <= 40KB] | التاريخ: ' + getActiveDateISO() + ' | صافي الكاش: ' + fmtMoney(st.netCash || 0) + ' | صافي البنك: ' + fmtMoney(st.netBank || 0) + ' | الإجمالي: ' + fmtMoney(st.grandTotalLiquidity || 0) + ' (' + numberToArabicTafqeet(st.grandTotalLiquidity || 0) + ') — معتمد ذرياً 100%';
         window.open('https://wa.me/?text=' + encodeURIComponent(cardText), '_blank');
@@ -4206,7 +4241,7 @@ body.dmr-landscape-zero-header .report-master-container { min-height: 100dvh !im
     function bindBiometricAndAntiScreenshotShield() {
         if (window._dmrBioAntiScreenBound) return;
         window._dmrBioAntiScreenBound = true;
-        let wm = document.getElementById('dmr-digital-forensic-watermark');
+        let wm = document.getElementById('dmr-digital-forensic-watermark') || document.getElementById('els-cyber-watermark');
         if (!wm) {
             wm = document.createElement('div');
             wm.id = 'dmr-digital-forensic-watermark';
@@ -4461,6 +4496,7 @@ body.dmr-landscape-zero-header .report-master-container { min-height: 100dvh !im
             hoverTimer = setTimeout(function() { explainElementInstant(el); }, 420);
         });
         const obs = new MutationObserver(function(mutations) {
+            if (!isSmartGuideOpen) return;
             mutations.forEach(function(m) {
                 (m.addedNodes || []).forEach(function(n) {
                     if (n && n.nodeType === 1 && !n.getAttribute('data-c1-locked')) {
