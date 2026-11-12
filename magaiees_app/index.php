@@ -20,8 +20,6 @@ header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
   var dartVersion = '?v=' + new Date().getTime();
 </script>
   <base href="<?php echo rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/magaiees_app/index.php')), '/') . '/'; ?>">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png?v=2026_restore">
-  <link rel="icon" type="image/png" href="logo.png?v=2026_restore"/>
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="منصة مقاييس - سوق مواد البناء والمعدات">
@@ -38,13 +36,13 @@ header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="منصة مقاييس">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png?v=2026_bag_v2">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="logo.png"/>
+  <link rel="icon" type="image/png" href="logo.png?v=2026_bag_v2"/>
 
   <title>منصة مقاييس | Magaiees Marketplace</title>
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="manifest.json?v=2026_bag_v2">
 
   <style>
     * {
@@ -186,7 +184,7 @@ header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
 </head>
 <body>
   <div id="loading-container">
-    <img src="logo.png" alt="Magaiees Logo" class="splash-logo">
+    <img src="logo.png?v=2026_bag_v2" alt="Magaiees Logo" class="splash-logo">
     <div class="app-title">منصة مقاييس</div>
     <div class="app-subtitle">جاري تحميل المنصة...</div>
     <div class="loader">
