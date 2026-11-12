@@ -26,7 +26,7 @@ final wishlistProductsProvider = FutureProvider.autoDispose<List<ProductCardMode
     final json = rawJson is Map ? Map<String, dynamic>.from(rawJson) : <String, dynamic>{};
     final store = json['stores'] is Map ? Map<String, dynamic>.from(json['stores'] as Map) : null;
     final storeName = store?['name'] ?? 'Magaiees';
-    final storeNameAr = store?['name_ar'] ?? 'السيطرة';
+    final storeNameAr = store?['name_ar'] ?? 'مقاييس';
     final storeRate = (store?['usd_exchange_rate'] as num?)?.toDouble();
     final bool isExclusive = json['is_magaiees_exclusive'] ?? false;
     final double effectiveRate = (!isExclusive && storeRate != null && storeRate > 0)

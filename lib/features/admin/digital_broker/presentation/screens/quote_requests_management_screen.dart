@@ -108,7 +108,7 @@ class _QuoteRequestsManagementScreenState
           pageFormat: PdfPageFormat.a4.landscape,
           textDirection: pw.TextDirection.rtl,
           build: (context) => [
-            pw.Header(level: 0, text: 'كشف طلبات الوسيط الرقمي - منصة السيطرة', textStyle: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+            pw.Header(level: 0, text: 'كشف طلبات الوسيط الرقمي - منصة مقاييس', textStyle: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
             pw.Table.fromTextArray(
               headers: rows.first,
               data: rows.skip(1).toList(),
@@ -435,7 +435,7 @@ class _QuoteRequestsManagementScreenState
           badge: 'صفقات التوريد',
         ),
         _buildKpiCard(
-          title: 'عمولات الوساطة للسيطرة',
+          title: 'عمولات الوساطة لمقاييس',
           value: _fmt(insights.totalBrokerageCommissions),
           subtitle: 'أرباح المنصة بنسبة 2.0% من الصفقات',
           icon: Icons.account_balance_wallet_rounded,
@@ -950,7 +950,7 @@ class _QuoteRequestsManagementScreenState
                 InkWell(
                   onTap: () => _sendWhatsApp(
                     phone: req.buyerPhone,
-                    message: 'السلام عليكم ورحمة الله، بخصوص طلب التوريد رقم #${req.ticketNumber} (${req.materialType}) المقدم عبر منصة السيطرة...',
+                    message: 'السلام عليكم ورحمة الله، بخصوص طلب التوريد رقم #${req.ticketNumber} (${req.materialType}) المقدم عبر منصة مقاييس...',
                   ),
                   child: const Padding(
                     padding: EdgeInsets.all(4),
@@ -1036,7 +1036,7 @@ class _QuoteRequestsManagementScreenState
                         style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
                       ),
                       Text(
-                        'عمولة السيطرة: ${_fmt(req.commissionValue)}',
+                        'عمولة مقاييس: ${_fmt(req.commissionValue)}',
                         style: const TextStyle(fontSize: 10, color: Color(0xFF059669), fontWeight: FontWeight.bold),
                       ),
                     ] else ...[
@@ -1513,7 +1513,7 @@ class _QuoteRequestsManagementScreenState
                             keyboardType: TextInputType.number,
                             onChanged: (_) => setDialogState(() {}),
                             decoration: InputDecoration(
-                              labelText: 'عمولة السيطرة (%)',
+                              labelText: 'عمولة مقاييس (%)',
                               filled: true,
                               fillColor: const Color(0xFFF0FDF4),
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFA7F3D0))),
@@ -1539,7 +1539,7 @@ class _QuoteRequestsManagementScreenState
                         children: [
                           Column(
                             children: [
-                              const Text('عمولة السيطرة', style: TextStyle(fontSize: 11, color: Color(0xFF047857))),
+                              const Text('عمولة مقاييس', style: TextStyle(fontSize: 11, color: Color(0xFF047857))),
                               const SizedBox(height: 2),
                               Text(_fmt(cAmt), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF065F46))),
                             ],
@@ -1585,7 +1585,7 @@ class _QuoteRequestsManagementScreenState
                       controller: notesCtrl,
                       maxLines: 2,
                       decoration: InputDecoration(
-                        labelText: 'ملاحظات وسيط السيطرة الإدارية (اختياري)',
+                        labelText: 'ملاحظات وسيط مقاييس الإدارية (اختياري)',
                         hintText: 'أي شروط دفع، موقع التفريغ، أو تفاصيل المورد...',
                         filled: true,
                         fillColor: const Color(0xFFF8FAFC),
@@ -1871,7 +1871,7 @@ class _QuoteRequestsManagementScreenState
                     if (dVal > 0) ...[
                       const SizedBox(height: 8),
                       Text(
-                        'عمولة السيطرة المحسوبة: ${_fmt(cAmt)}',
+                        'عمولة مقاييس المحسوبة: ${_fmt(cAmt)}',
                         style: const TextStyle(fontSize: 12, color: Color(0xFF047857), fontWeight: FontWeight.bold),
                       ),
                     ],
@@ -2018,7 +2018,7 @@ ${userExtra.isNotEmpty ? 'ملاحظات: $userExtra\n' : ''}
                 Center(
                   child: Column(
                     children: [
-                      const Text('منصة السيطرة لمواد البناء والمقاولات', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0F172A))),
+                      const Text('منصة مقاييس لمواد البناء والمقاولات', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF0F172A))),
                       const Text('إدارة الوسيط الرقمي وتوريدات المشاريع الكبرى', style: TextStyle(fontSize: 12, color: Color(0xFF64748B))),
                       const SizedBox(height: 8),
                       Container(
@@ -2062,7 +2062,7 @@ ${userExtra.isNotEmpty ? 'ملاحظات: $userExtra\n' : ''}
                     child: Column(
                       children: [
                         _buildVoucherRow('القيمة التقديرية الإجمالية:', _fmt(req.dealValue)),
-                        _buildVoucherRow('عمولة وساطة السيطرة (2%):', _fmt(req.commissionValue)),
+                        _buildVoucherRow('عمولة وساطة مقاييس (2%):', _fmt(req.commissionValue)),
                         _buildVoucherRow('صافي استحقاق المورد المعلن:', _fmt(req.dealValue - req.commissionValue)),
                       ],
                     ),
@@ -2086,7 +2086,7 @@ ${userExtra.isNotEmpty ? 'ملاحظات: $userExtra\n' : ''}
                     pageFormat: PdfPageFormat.a4,
                     textDirection: pw.TextDirection.rtl,
                     build: (context) => pw.Center(
-                      child: pw.Text('سند أمر وساطة توريد - منصة السيطرة\nتذكرة رقم: #${req.ticketNumber}\nالمادة: ${req.materialType}\nالكمية: ${req.quantity}',
+                      child: pw.Text('سند أمر وساطة توريد - منصة مقاييس\nتذكرة رقم: #${req.ticketNumber}\nالمادة: ${req.materialType}\nالكمية: ${req.quantity}',
                         textDirection: pw.TextDirection.rtl,
                         style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold),
                       ),
@@ -2134,7 +2134,7 @@ ${userExtra.isNotEmpty ? 'ملاحظات: $userExtra\n' : ''}
     }
 
     final msg = '''السلام عليكم ورحمة الله وبركاته،
-منصة السيطرة - الوسيط الرقمي لمواد البناء والتوريدات
+منصة مقاييس - الوسيط الرقمي لمواد البناء والتوريدات
 إلى الشريك المعلن: $supplierName
 
 📌 تذكرة توريد جديدة برقم: #${req.ticketNumber}
@@ -2144,7 +2144,7 @@ ${userExtra.isNotEmpty ? 'ملاحظات: $userExtra\n' : ''}
 
 الرجاء مراجعة الكميات وتأكيد الجاهزية وعرض السعر المعتمد للتوريد المباشر.
 مع خالص التحية والتقدير،
-إدارة الوسيط الرقمي - السيطرة''';
+إدارة الوسيط الرقمي - مقاييس''';
 
     _sendWhatsApp(phone: supplierPhone, message: msg);
   }

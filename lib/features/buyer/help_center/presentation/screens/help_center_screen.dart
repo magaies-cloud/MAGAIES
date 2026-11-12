@@ -42,7 +42,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
       'color': Color(0xFFEA580C),
       'items': [
         {
-          'qAr': 'ما هي ميزات وفوائد الإعلانات المدفوعة في منصة السيطرة؟',
+          'qAr': 'ما هي ميزات وفوائد الإعلانات المدفوعة في منصة مقاييس؟',
           'qEn': 'What are the benefits of paid ads on Magaiees?',
           'aAr': '1. الظهور في البانرات الرئيسية (Hero Banners) في أعلى الشاشة الرئيسية أمام آلاف المقاولين يومياً.\n2. وضع شارة (ممول / Sponsored) على منتجاتك لتظهر في مقدمة نتائج البحث وقوائم التصنيفات.\n3. مضاعفة مبيعاتك وطلبات عروض الأسعار بكميات الجملة بنسبة تزيد عن 300%.\n4. استهداف جغرافي دقيق للمقاولين وأصحاب المشاريع في منطقتك.',
           'aEn': '1. Prominent placement in top Hero Banners seen by thousands of contractors.\n2. Sponsored tag on products to rank first in search and categories.\n3. Boost bulk quote requests and sales by over 300%.\n4. Precise geographic targeting for contractors in your area.',
@@ -154,7 +154,7 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                 const SizedBox(height: 12),
                 Text(
                   isRtl
-                      ? 'دليلك الشامل للاستفادة القصوى من منصة السيطرة: الحسابات، الإعلانات، الدفع، وحماية المشتريات.'
+                      ? 'دليلك الشامل للاستفادة القصوى من منصة مقاييس: الحسابات، الإعلانات، الدفع، وحماية المشتريات.'
                       : 'Your complete guide to Magaiees: Accounts, Ads, Payments, and Buyer Protection.',
                   style: TextStyle(color: Colors.white.withOpacity(0.9), fontSize: 12.5, height: 1.4),
                 ),

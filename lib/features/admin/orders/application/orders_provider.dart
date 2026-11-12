@@ -84,7 +84,7 @@ class OrderModel {
   bool get isFullyPaid => actualPaidAmount >= totalAmount && totalAmount > 0;
   bool get isOverpaid => actualPaidAmount > totalAmount;
   double get overpaidAmount => actualPaidAmount > totalAmount ? actualPaidAmount - totalAmount : 0.0;
-  bool get isExclusive => storeId.isEmpty || storeName == 'توريد السيطرة المباشر' || (notes != null && notes!.contains('حصري'));
+  bool get isExclusive => storeId.isEmpty || storeName == 'توريد مقاييس المباشر' || (notes != null && notes!.contains('حصري'));
 
   String? get staffAssignedName {
     if (notes == null) return null;
@@ -189,7 +189,7 @@ class OrderModel {
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : DateTime.now(),
       shippingAddress: json['shipping_address']?.toString() ?? json['address']?.toString(),
       paymentMethod: json['payment_method']?.toString() ?? 'تحويل بنكي',
-      storeName: storeName ?? (json['store_id'] != null && json['store_id'].toString().isNotEmpty ? 'متجر ${json['store_id']}' : 'توريد السيطرة المباشر'),
+      storeName: storeName ?? (json['store_id'] != null && json['store_id'].toString().isNotEmpty ? 'متجر ${json['store_id']}' : 'توريد مقاييس المباشر'),
       storeOwnerId: storeOwnerId,
       isStoreAdvertiser: isStoreAdv,
       buyerName: buyerName,

@@ -741,7 +741,7 @@ class SubscriberDetailSheet extends ConsumerWidget {
                         subtitle: Text(
                           sub.directPaymentEnabled
                               ? (isRtl ? 'مفعّل: تظهر حسابات التاجر للمشتري ويتم التحويل للتاجر مباشرة.' : 'Enabled: Merchant accounts are shown at checkout.')
-                              : (isRtl ? 'مقفل: يتم استلام المدفوعات في حساب شركة السيطرة وتودع في محفظة التاجر.' : 'Locked: Payments are received in Magaiees company account.'),
+                              : (isRtl ? 'مقفل: يتم استلام المدفوعات في حساب شركة مقاييس وتودع في محفظة التاجر.' : 'Locked: Payments are received in Magaiees company account.'),
                           style: TextStyle(
                             fontSize: 11,
                             color: sub.directPaymentEnabled ? Colors.green.shade800 : Colors.blue.shade900,
@@ -1275,7 +1275,7 @@ void _showEditMerchantWalletDialog(BuildContext context, WidgetRef ref, Subscrib
                     subtitle: Text(
                       isDirectEnabled
                           ? (isRtl ? 'مفعّل: يدفع المشتري لحسابات التاجر مباشرة' : 'Enabled: Buyer pays merchant directly')
-                          : (isRtl ? 'مقفل: يتم الاستلام في حساب شركة السيطرة' : 'Locked: Received in company account'),
+                          : (isRtl ? 'مقفل: يتم الاستلام في حساب شركة مقاييس' : 'Locked: Received in company account'),
                       style: TextStyle(
                         fontSize: 11,
                         color: isDirectEnabled ? Colors.green.shade800 : Colors.red.shade800,
@@ -1424,11 +1424,11 @@ Widget _buildB2bCreditCard(BuildContext context, WidgetRef ref, SubscriberModel 
 
   String scopeText;
   if (scope == 'exclusive_only') {
-    scopeText = isRtl ? 'منتجات السيطرة الحصرية فقط' : 'Magaiees Exclusive only';
+    scopeText = isRtl ? 'منتجات مقاييس الحصرية فقط' : 'Magaiees Exclusive only';
   } else if (scope == 'merchants_only') {
     scopeText = isRtl ? 'تجار السوق والموردين فقط' : 'Marketplace Merchants only';
   } else {
-    scopeText = isRtl ? 'المنصة بالكامل (السيطرة + تجار السوق)' : 'All Platform (Magaiees + Merchants)';
+    scopeText = isRtl ? 'المنصة بالكامل (مقاييس + تجار السوق)' : 'All Platform (Magaiees + Merchants)';
   }
 
   return Container(
@@ -1651,11 +1651,11 @@ void _showEditB2bCreditDialog(BuildContext context, WidgetRef ref, SubscriberMod
                     items: [
                       DropdownMenuItem(
                         value: 'all',
-                        child: Text(isRtl ? 'المنصة كاملة (منتجات السيطرة + تجار السوق)' : 'All Platform (Magaiees + Merchants)'),
+                        child: Text(isRtl ? 'المنصة كاملة (منتجات مقاييس + تجار السوق)' : 'All Platform (Magaiees + Merchants)'),
                       ),
                       DropdownMenuItem(
                         value: 'exclusive_only',
-                        child: Text(isRtl ? 'منتجات السيطرة الحصرية فقط' : 'Magaiees Exclusive Products only'),
+                        child: Text(isRtl ? 'منتجات مقاييس الحصرية فقط' : 'Magaiees Exclusive Products only'),
                       ),
                       DropdownMenuItem(
                         value: 'merchants_only',

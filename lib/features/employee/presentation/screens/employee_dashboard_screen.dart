@@ -49,7 +49,7 @@ class EmployeeDashboardScreen extends ConsumerWidget {
               FittedBox(
                 fit: BoxFit.scaleDown,
                 child: const Text(
-                  'طلب جديد على رادار اللسيطرة',
+                  'طلب جديد على رادار المقاييس',
                   style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                   maxLines: 1,
                 ),
@@ -186,17 +186,17 @@ class EmployeeDashboardScreen extends ConsumerWidget {
       child: Scaffold(
         backgroundColor: const Color(0xFF0F172A), // Deep Slate
         appBar: AppBar(
-          title: const Text('رادار السيطرة للموظفين', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+          title: const Text('رادار مقاييس للموظفين', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
           backgroundColor: const Color(0xFF0F172A),
           elevation: 0,
           actions: [
             IconButton(
               icon: const Icon(Icons.volume_up_rounded, color: Colors.amberAccent),
-              tooltip: 'اختبار نغمة إشعار السيطرة',
+              tooltip: 'اختبار نغمة إشعار مقاييس',
               onPressed: () {
                 ref.read(employeeOrdersProvider.notifier).playOrderNotificationSound();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('🔔 تم تشغيل نغمة تنبيه السيطرة الرسمية.'), backgroundColor: Color(0xFF1E3A8A), duration: Duration(seconds: 2)),
+                  const SnackBar(content: Text('🔔 تم تشغيل نغمة تنبيه مقاييس الرسمية.'), backgroundColor: Color(0xFF1E3A8A), duration: Duration(seconds: 2)),
                 );
               },
             ),

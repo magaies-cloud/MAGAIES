@@ -304,7 +304,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isRtl ? 'منصة السيطرة' : 'Magaiees Platform'),
+        title: Text(
+          isRtl ? 'منصة مقاييس' : 'Magaiees Platform',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         actions: const [LanguageSwitcher()],
       ),
       body: Container(
@@ -365,11 +368,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       AppSizes.gapH8,
                       Text(
                         isRtl
-                            ? 'أدخل بيانات الاعتماد للوصول إلى منصة السيطرة'
-                            : 'Enter your credentials to access the platform',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: const Color(0xFF64748B),
-                              fontSize: 14,
+                            ? 'أدخل بيانات الاعتماد للوصول إلى منصة مقاييس'
+                            : 'Enter your credentials to access Magaiees Marketplace',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                              fontSize: 13.5,
                             ),
                         textAlign: TextAlign.center,
                       ),

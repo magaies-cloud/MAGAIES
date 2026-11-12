@@ -10,7 +10,7 @@
 		<string>en</string>
 	</array>
 	<key>CFBundleDisplayName</key>
-	<string>السيطرة</string>
+	<string>مقاييس</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -51,15 +51,15 @@
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>NSFaceIDUsageDescription</key>
-	<string>يستخدم تطبيق السيطرة بصمة الوجه (Face ID) لتسجيل الدخول السريع والآمن إلى حسابك دون الحاجة لإعادة إدخال كلمة المرور.</string>
+	<string>يستخدم تطبيق مقاييس بصمة الوجه (Face ID) لتسجيل الدخول السريع والآمن إلى حسابك — Magaiees uses Face ID for fast and secure sign-in to your account.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>يحتاج تطبيق السيطرة إلى الكاميرا لتصوير المنتجات المعروضة للبيع، وتصوير إيصالات الدفع البنكية، وإجراء مكالمات الفيديو المباشرة بين المشتري والتاجر.</string>
+	<string>يحتاج تطبيق مقاييس إلى الكاميرا لتصوير المنتجات المعروضة للبيع وتصوير إيصالات الدفع البنكية — Magaiees needs camera access to photograph products, store logos, and bank payment receipts.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>يحتاج تطبيق السيطرة إلى الميكروفون لإرسال الرسائل الصوتية وإجراء المكالمات الصوتية والمرئية المباشرة بين المشتري والتاجر داخل المحادثة.</string>
+	<string>يحتاج تطبيق مقاييس إلى الميكروفون لإجراء المكالمات الصوتية المباشرة بين المشتري والتاجر داخل المحادثة — Magaiees needs microphone access for live voice calls between buyers and merchants.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>يحتاج تطبيق السيطرة إلى معرض الصور لاختيار ورفع صور المنتجات، وشعار المتجر، وإيصالات التحويل البنكي ومشاركتها في المحادثات.</string>
+	<string>يحتاج تطبيق مقاييس إلى معرض الصور لاختيار ورفع صور المنتجات وشعار المتجر وإيصالات التحويل ومشاركتها في المحادثات — Magaiees needs photo library access to upload product photos, store logos, and payment receipts.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>يحتاج تطبيق السيطرة إلى إذن حفظ الصور لحفظ الفواتير وإيصالات الطلبات في معرض الصور على جهازك.</string>
+	<string>يحتاج تطبيق مقاييس إلى إذن حفظ الصور لحفظ الفواتير وإيصالات الطلبات في معرض الصور — Magaiees needs permission to save order invoices and receipts to your photo library.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>

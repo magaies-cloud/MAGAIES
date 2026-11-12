@@ -44,7 +44,7 @@ class BuyerHomeScreen extends ConsumerWidget {
             const SizedBox(width: 8),
             Flexible(
               child: Text(
-                isRtl ? 'منصة السيطرة' : 'Magaiees Platform',
+                isRtl ? 'منصة مقاييس' : 'Magaiees Platform',
                 style: const TextStyle(fontWeight: FontWeight.bold),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -245,7 +245,7 @@ class BuyerHomeScreen extends ConsumerWidget {
                             ),
                             Expanded(
                               child: _buildHomeSegmentButton(
-                                title: isRtl ? '⭐ حصري السيطرة' : '⭐ Exclusive',
+                                title: isRtl ? '⭐ حصري مقاييس' : '⭐ Exclusive',
                                 icon: Icons.verified_rounded,
                                 isSelected: currentExclusivity == 1,
                                 onTap: () => ref.read(exclusivityFilterProvider.notifier).state = 1,

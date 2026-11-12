@@ -223,7 +223,7 @@ class Products extends _$Products {
         final String finalStoreNameAr;
         if (isExclusive) {
           finalStoreName = 'Magaiees Exclusive';
-          finalStoreNameAr = 'حصري على السيطرة';
+          finalStoreNameAr = 'حصري على مقاييس';
         } else {
           finalStoreName = (hasStore && rawStoreName.isNotEmpty) ? rawStoreName : 'Merchant Store';
           finalStoreNameAr = (hasStore && rawStoreNameAr.isNotEmpty) ? rawStoreNameAr : 'متجر تاجر';

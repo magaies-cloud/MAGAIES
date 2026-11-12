@@ -533,7 +533,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> with Sing
                 },
                 {
                   'key': 'exclusive',
-                  'label': isRtl ? '💎 طلبات السيطرة' : '💎 Magaiees Orders',
+                  'label': isRtl ? '💎 طلبات مقاييس' : '💎 Magaiees Orders',
                   'count': exclusiveCount,
                   'icon': Icons.verified_rounded,
                   'color': const Color(0xFF0F2E4A),
@@ -1346,7 +1346,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> with Sing
                     if (order.isExclusive) ...[
                       const SizedBox(width: 4),
                       const Tooltip(
-                        message: 'توريد السيطرة المباشر',
+                        message: 'توريد مقاييس المباشر',
                         child: Icon(Icons.verified_rounded, size: 14, color: Color(0xFFD4AF37)),
                       ),
                     ],
@@ -1366,7 +1366,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> with Sing
               Expanded(
                 flex: 3,
                 child: Tooltip(
-                  message: '${order.storeName ?? (isRtl ? "توريد السيطرة المباشر" : "Magaiees Direct Supply")}${order.staffAssignedName != null ? " (${isRtl ? "الموظف" : "Staff"}: ${order.staffAssignedName})" : ""}',
+                  message: '${order.storeName ?? (isRtl ? "توريد مقاييس المباشر" : "Magaiees Direct Supply")}${order.staffAssignedName != null ? " (${isRtl ? "الموظف" : "Staff"}: ${order.staffAssignedName})" : ""}',
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -1377,7 +1377,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> with Sing
                           const SizedBox(width: 6),
                           Expanded(
                             child: Text(
-                              order.storeName ?? (isRtl ? 'توريد السيطرة المباشر' : 'Magaiees Direct Supply'),
+                              order.storeName ?? (isRtl ? 'توريد مقاييس المباشر' : 'Magaiees Direct Supply'),
                               style: TextStyle(
                                 color: isDark ? Colors.white : const Color(0xFF0F172A),
                                 fontWeight: FontWeight.w700,
@@ -1731,7 +1731,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> with Sing
                               const Icon(Icons.verified, color: Color(0xFFD4AF37), size: 13),
                               const SizedBox(width: 4),
                               Text(
-                                isRtl ? 'توريد السيطرة المباشر' : 'Magaiees Direct Supply',
+                                isRtl ? 'توريد مقاييس المباشر' : 'Magaiees Direct Supply',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 11,
@@ -1785,7 +1785,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> with Sing
                       const Icon(Icons.storefront_rounded, size: 15, color: Color(0xFF2563EB)),
                       const SizedBox(width: 4),
                       Text(
-                        '${isRtl ? "المتجر:" : "Store:"} ${order.storeName ?? (isRtl ? "تطبيق السيطرة" : "Magaiees Platform")}',
+                        '${isRtl ? "المتجر:" : "Store:"} ${order.storeName ?? (isRtl ? "تطبيق مقاييس" : "Magaiees Platform")}',
                         style: TextStyle(
                           color: isDark ? Colors.white60 : const Color(0xFF334155),
                           fontSize: 12.5,
@@ -2032,7 +2032,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> with Sing
                                       const SizedBox(height: 2),
                                       Text(
                                         isRtl
-                                            ? 'هذا المتجر (${order.storeName ?? "المتجر"}) يمتلك حملات إعلانية نشطة على منصة السيطرة وتطبق عليه مزايا وتسهيلات الشركاء.'
+                                            ? 'هذا المتجر (${order.storeName ?? "المتجر"}) يمتلك حملات إعلانية نشطة على منصة مقاييس وتطبق عليه مزايا وتسهيلات الشركاء.'
                                             : 'This store (${order.storeName ?? "Store"}) has active ad campaigns on Magaiees platform.',
                                         style: const TextStyle(color: Color(0xFF4C1D95), fontSize: 11.5, fontWeight: FontWeight.bold),
                                       ),
@@ -2066,7 +2066,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> with Sing
                                 isRtl ? 'تفاصيل التوصيل والمتجر' : 'Delivery & Store',
                                 Icons.local_shipping,
                                 [
-                                  {'label': isRtl ? 'المتجر' : 'Store', 'value': order.storeName ?? (isRtl ? 'تطبيق السيطرة' : 'Magaiees')},
+                                  {'label': isRtl ? 'المتجر' : 'Store', 'value': order.storeName ?? (isRtl ? 'تطبيق مقاييس' : 'Magaiees')},
                                   if (order.staffAssignedName != null)
                                     {'label': isRtl ? 'الموظف المسؤول' : 'Handled by', 'value': order.staffAssignedName!},
                                   {'label': isRtl ? 'العنوان' : 'Address', 'value': order.shippingAddress ?? '-'},

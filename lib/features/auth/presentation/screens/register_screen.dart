@@ -132,7 +132,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          isRtl ? 'أهلاً بك في منصة السيطرة' : 'Join Magaiees Platform',
+                          isRtl ? 'أهلاً بك في منصة مقاييس' : 'Join Magaiees Platform',
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                 fontWeight: FontWeight.w900,
                                 color: isDark ? Colors.white : const Color(0xFF0F172A),

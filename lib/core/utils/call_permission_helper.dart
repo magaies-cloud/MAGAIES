@@ -267,7 +267,7 @@ class CallPermissionHelper {
             children: [
               Text(
                 isRtl
-                    ? 'لقد تم تعطيل إذن الميكروفون سابقاً. لإجراء المكالمات الصوتية، يرجى فتح إعدادات الهاتف وتفعيل خيار «الميكروفون» لتطبيق السيطرة.'
+                    ? 'لقد تم تعطيل إذن الميكروفون سابقاً. لإجراء المكالمات الصوتية، يرجى فتح إعدادات الهاتف وتفعيل خيار «الميكروفون» لتطبيق مقاييس.'
                     : 'Microphone permission was previously denied. Please open Settings and enable the Microphone toggle for Magaiees.',
                 style: TextStyle(
                   fontSize: 13,

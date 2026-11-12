@@ -460,7 +460,7 @@ class _AdminProductsScreenState extends ConsumerState<AdminProductsScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  isEditing ? 'تعديل بيانات ومواصفات الصنف' : 'إضافة صنف جديد لمنظومة السيطرة',
+                                  isEditing ? 'تعديل بيانات ومواصفات الصنف' : 'إضافة صنف جديد لمنظومة مقاييس',
                                   style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: Colors.white),
                                 ),
                                 const SizedBox(height: 3),
@@ -938,7 +938,7 @@ class _AdminProductsScreenState extends ConsumerState<AdminProductsScreen> {
                                     ),
                                     child: SwitchListTile(
                                       contentPadding: EdgeInsets.zero,
-                                      title: const Text('توريد حصري للسيطرة 🛡️', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+                                      title: const Text('توريد حصري لمقاييس 🛡️', style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
                                       subtitle: const Text('شارة التوريد الرسمي المعتمد', style: TextStyle(fontSize: 11, color: Colors.grey)),
                                       value: isExclusive,
                                       activeThumbColor: _kRoyalBlue,
@@ -1069,7 +1069,7 @@ class _AdminProductsScreenState extends ConsumerState<AdminProductsScreen> {
                                         stockQuantity: stockQty,
                                         merchantId: isExclusive ? 'm_magaiees' : (existingProduct?.merchantId ?? 'm_custom'),
                                         storeName: isExclusive ? 'Magaiees Direct Supply' : (existingProduct?.storeName ?? 'المتجر المعتمد'),
-                                        storeNameAr: isExclusive ? 'شركة السيطرة - توريد مباشر' : (existingProduct?.storeNameAr ?? 'المتجر المعتمد'),
+                                        storeNameAr: isExclusive ? 'شركة مقاييس - توريد مباشر' : (existingProduct?.storeNameAr ?? 'المتجر المعتمد'),
                                         imageUrl: finalImageUrl,
                                         inStock: stockQty > 0 && inStock,
                                         isMagaieesExclusive: isExclusive,
@@ -1295,7 +1295,7 @@ class _AdminProductsScreenState extends ConsumerState<AdminProductsScreen> {
                             _buildDetailLine('المعلومات البنكية المعتمدة:', analytics.storeBank!),
                           _buildDetailLine('حالة الشراكة الإعلانية:', '📢 معلن معتمد ونشط بالمنصة'),
                         ] else ...[
-                          _buildDetailLine('طبيعة الصنف:', 'صنف توريد مباشر معتمد حصرياً للسيطرة'),
+                          _buildDetailLine('طبيعة الصنف:', 'صنف توريد مباشر معتمد حصرياً لمقاييس'),
                           _buildDetailLine('الضمان:', 'مشمول بضمان الجودة والتوريد الرسمي'),
                         ],
                       ],
@@ -1484,7 +1484,7 @@ class _AdminProductsScreenState extends ConsumerState<AdminProductsScreen> {
           : (p.storeNameAr.trim().isNotEmpty ? p.storeNameAr.trim() : 'other');
       final name = p.storeNameAr.trim().isNotEmpty
           ? p.storeNameAr.trim()
-          : (p.storeName.trim().isNotEmpty ? p.storeName.trim() : (p.isMagaieesExclusive ? 'توريد السيطرة المباشر' : 'متجر شريك'));
+          : (p.storeName.trim().isNotEmpty ? p.storeName.trim() : (p.isMagaieesExclusive ? 'توريد مقاييس المباشر' : 'متجر شريك'));
       if (map.containsKey(key)) {
         map[key] = _StoreFilterOption(id: key, name: name, count: map[key]!.count + 1);
       } else {
@@ -1794,7 +1794,7 @@ class _AdminProductsScreenState extends ConsumerState<AdminProductsScreen> {
                         children: [
                           Icon(Icons.verified_rounded, color: Colors.white, size: 13),
                           SizedBox(width: 4),
-                          Text('حصري للسيطرة', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
+                          Text('حصري لمقاييس', style: TextStyle(color: Colors.white, fontSize: 10.5, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
@@ -2592,7 +2592,7 @@ class _AdminProductsScreenState extends ConsumerState<AdminProductsScreen> {
                               children: [
                                 _buildSegmentTab(0, '🌐 كل الأصناف', Icons.all_inclusive_rounded, _kDarkNavy, allProducts.length),
                                 const SizedBox(width: 10),
-                                _buildSegmentTab(1, '💎 توريد السيطرة', Icons.verified_rounded, _kRoyalBlue, exclusiveCount),
+                                _buildSegmentTab(1, '💎 توريد مقاييس', Icons.verified_rounded, _kRoyalBlue, exclusiveCount),
                                 const SizedBox(width: 10),
                                 _buildSegmentTab(2, '📢 أصناف المعلنين', Icons.campaign_rounded, _kPurple, merchantsCount),
                                 const SizedBox(width: 10),
@@ -2895,7 +2895,7 @@ class _AdminProductsScreenState extends ConsumerState<AdminProductsScreen> {
                                             if (_selectedSegment != 0)
                                               _buildActiveTag(
                                                 label: _selectedSegment == 1
-                                                    ? 'المصدر: توريد السيطرة'
+                                                    ? 'المصدر: توريد مقاييس'
                                                     : (_selectedSegment == 2 ? 'المصدر: أصناف المعلنين' : 'المصدر: الأكثر مبيعاً'),
                                                 color: _selectedSegment == 1 ? _kRoyalBlue : (_selectedSegment == 2 ? _kPurple : _kEmerald),
                                                 onDelete: () => setState(() => _selectedSegment = 0),
@@ -3136,7 +3136,7 @@ class _AdminProductsScreenState extends ConsumerState<AdminProductsScreen> {
                                                   ),
                                                   child: Text(
                                                     p.isMagaieesExclusive
-                                                        ? '🌟 توريد السيطرة الحصري'
+                                                        ? '🌟 توريد مقاييس الحصري'
                                                         : ('📢 ${a.advertiserStoreName}'),
                                                     style: TextStyle(
                                                       fontSize: 10.5,

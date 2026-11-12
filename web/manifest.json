@@ -1,11 +1,11 @@
 {
-    "name": "منصة السيطرة - Magaiees",
-    "short_name": "السيطرة",
+    "name": "منصة مقاييس - Magaiees",
+    "short_name": "مقاييس",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#1E40AF",
     "theme_color": "#1E40AF",
-    "description": "منصة السيطرة لمواد البناء والمعدات الثقيلة",
+    "description": "منصة مقاييس لمواد البناء والمعدات الثقيلة",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

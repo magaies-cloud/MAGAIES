@@ -206,7 +206,7 @@ class _EmployeeOrdersScreenState extends ConsumerState<EmployeeOrdersScreen> wit
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('مركز إدارة واستلام الطلبات', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: _kDarkNavy)),
-                  Text('رادار السيطرة الحصري ومتابعة التوصيل', style: TextStyle(fontSize: 11, color: Colors.grey)),
+                  Text('رادار مقاييس الحصري ومتابعة التوصيل', style: TextStyle(fontSize: 11, color: Colors.grey)),
                 ],
               ),
             ],
@@ -217,11 +217,11 @@ class _EmployeeOrdersScreenState extends ConsumerState<EmployeeOrdersScreen> wit
           actions: [
             IconButton(
               icon: const Icon(Icons.volume_up_rounded, color: _kAmber),
-              tooltip: 'اختبار نغمة إشعار السيطرة',
+              tooltip: 'اختبار نغمة إشعار مقاييس',
               onPressed: () {
                 ref.read(employeeOrdersProvider.notifier).playOrderNotificationSound();
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('🔔 تم تشغيل نغمة تنبيه السيطرة الرسمية.'), backgroundColor: _kRoyalBlue, duration: Duration(seconds: 2)),
+                  const SnackBar(content: Text('🔔 تم تشغيل نغمة تنبيه مقاييس الرسمية.'), backgroundColor: _kRoyalBlue, duration: Duration(seconds: 2)),
                 );
               },
             ),
@@ -286,7 +286,7 @@ class _EmployeeOrdersScreenState extends ConsumerState<EmployeeOrdersScreen> wit
                           const SizedBox(height: 16),
                           const Text('الرادار يبحث عن طلبات حصرية جديدة...', style: TextStyle(color: _kDarkNavy, fontSize: 18, fontWeight: FontWeight.bold)),
                           const SizedBox(height: 6),
-                          Text('أي طلب جديد للمنتجات الحصرية على السيطرة سيصل هنا مصحوباً بنغمة التنبيه.', style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                          Text('أي طلب جديد للمنتجات الحصرية على مقاييس سيصل هنا مصحوباً بنغمة التنبيه.', style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
                           const SizedBox(height: 20),
                           FilledButton.icon(
                             style: FilledButton.styleFrom(backgroundColor: _kRoyalBlue),
@@ -396,7 +396,7 @@ class _EmployeeOrdersScreenState extends ConsumerState<EmployeeOrdersScreen> wit
                         children: [
                           Icon(Icons.verified_rounded, color: _kRoyalBlue, size: 14),
                           SizedBox(width: 4),
-                          Text('حصري على السيطرة', style: TextStyle(color: _kRoyalBlue, fontSize: 11.5, fontWeight: FontWeight.bold)),
+                          Text('حصري على مقاييس', style: TextStyle(color: _kRoyalBlue, fontSize: 11.5, fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
@@ -443,7 +443,7 @@ class _EmployeeOrdersScreenState extends ConsumerState<EmployeeOrdersScreen> wit
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          order.buyerName.isNotEmpty ? order.buyerName : 'عميل السيطرة',
+                          order.buyerName.isNotEmpty ? order.buyerName : 'عميل مقاييس',
                           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5, color: _kDarkNavy),
                         ),
                       ),

@@ -83,7 +83,7 @@ class QuoteRequestModel {
     final buyerNameEn = buyer?['name']?.toString();
     final bName = (buyerNameAr != null && buyerNameAr.isNotEmpty)
         ? buyerNameAr
-        : (buyerNameEn != null && buyerNameEn.isNotEmpty ? buyerNameEn : 'عميل السيطرة');
+        : (buyerNameEn != null && buyerNameEn.isNotEmpty ? buyerNameEn : 'عميل مقاييس');
 
     final bPhone = buyer?['phone']?.toString() ?? 'غير متوفر';
 

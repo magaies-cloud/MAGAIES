@@ -816,7 +816,7 @@ class _OrderCard extends StatelessWidget {
                                       const Icon(Icons.pie_chart_outline, size: 14, color: Color(0xFFB45309)),
                                       const SizedBox(width: 4),
                                       Text(
-                                        '${isRtl ? 'خصم عمولة السيطرة' : 'Magaiees Commission'} (${commissionPercent.toStringAsFixed(commissionPercent.truncateToDouble() == commissionPercent ? 0 : 1)}%)',
+                                        '${isRtl ? 'خصم عمولة مقاييس' : 'Magaiees Commission'} (${commissionPercent.toStringAsFixed(commissionPercent.truncateToDouble() == commissionPercent ? 0 : 1)}%)',
                                         style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFFB45309)),
                                       ),
                                     ],
@@ -2103,7 +2103,7 @@ class _OrderCard extends StatelessWidget {
                         ),
                         DropdownMenuItem(
                           value: 'platform_account',
-                          child: Text(isRtl ? 'حساب منصة السيطرة الرئيسي' : 'Magaiees Platform Account', style: const TextStyle(fontSize: 13)),
+                          child: Text(isRtl ? 'حساب منصة مقاييس الرئيسي' : 'Magaiees Platform Account', style: const TextStyle(fontSize: 13)),
                         ),
                         DropdownMenuItem(
                           value: 'cash',
@@ -2211,7 +2211,7 @@ class _OrderCard extends StatelessWidget {
                 String resolvedBank = merchantBankName;
                 String resolvedAccount = merchantAccountNumber;
                 if (selectedDestination == 'platform_account') {
-                  resolvedBank = 'حساب منصة السيطرة';
+                  resolvedBank = 'حساب منصة مقاييس';
                   resolvedAccount = 'Platform Account';
                 } else if (selectedDestination == 'cash') {
                   resolvedBank = 'نقداً';

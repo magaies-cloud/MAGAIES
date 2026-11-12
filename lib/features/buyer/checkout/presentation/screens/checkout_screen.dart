@@ -531,7 +531,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> with SingleTick
 
                 // Track store name for confirmation dialog and order notes
                 final storeNameForTracking = isExclusiveOrder
-                    ? 'حصري على السيطرة'
+                    ? 'حصري على مقاييس'
                     : (items.isNotEmpty
                         ? (items.first.product.storeNameAr.isNotEmpty
                             ? items.first.product.storeNameAr
@@ -541,7 +541,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> with SingleTick
                 // Embed store name in notes for instant retrieval without queries
                 orderNotes += '\n[متجر: $storeNameForTracking]';
                 if (isExclusiveOrder) {
-                  orderNotes += '\n[طلب حصري السيطرة]';
+                  orderNotes += '\n[طلب حصري مقاييس]';
                 }
 
                 // Add multi-store coordination info
@@ -1535,9 +1535,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> with SingleTick
                       Text(
                         merchants.isNotEmpty
                             ? (isRtl
-                                ? 'الدفع الآمن عبر منصة السيطرة الرسمية (متجر: ${merchants.map((m) => m['name']).join('، ')})'
+                                ? 'الدفع الآمن عبر منصة مقاييس الرسمية (متجر: ${merchants.map((m) => m['name']).join('، ')})'
                                 : 'Secure Payment via Magaiees (Store: ${merchants.map((m) => m['name']).join(', ')})')
-                            : (isRtl ? 'منتجات حصرية ومباشرة عبر شركة السيطرة' : 'Exclusive Magaiees Products'),
+                            : (isRtl ? 'منتجات حصرية ومباشرة عبر شركة مقاييس' : 'Exclusive Magaiees Products'),
                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E40AF)),
                       ),
                       const SizedBox(height: 2),
@@ -1556,7 +1556,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> with SingleTick
 
           if (settings.exclusiveBankak)
             _PaymentRadio(
-              title: isRtl ? 'تطبيق بنكك (حساب شركة السيطرة)' : 'Bankak App (Magaiees Account)',
+              title: isRtl ? 'تطبيق بنكك (حساب شركة مقاييس)' : 'Bankak App (Magaiees Account)',
               subtitle: '${isRtl ? "رقم الحساب:" : "Account:"} ${settings.exclusiveBankakAccount} | ${settings.exclusiveBankakName}',
               value: 'bankak',
               groupValue: _selectedPaymentMethod,
@@ -1566,7 +1566,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> with SingleTick
 
           if (settings.exclusiveOcash)
             _PaymentRadio(
-              title: isRtl ? 'تطبيق أوكاش (محفظة السيطرة)' : 'O-Cash App (Magaiees Wallet)',
+              title: isRtl ? 'تطبيق أوكاش (محفظة مقاييس)' : 'O-Cash App (Magaiees Wallet)',
               subtitle: '${isRtl ? "رقم المحفظة:" : "Phone:"} ${settings.exclusiveOcashAccount} | ${settings.exclusiveOcashName}',
               value: 'ocash',
               groupValue: _selectedPaymentMethod,
@@ -1576,7 +1576,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> with SingleTick
 
           if (settings.exclusiveWire)
             _PaymentRadio(
-              title: isRtl ? 'تحويل بنكي مباشر (حساب شركة السيطرة)' : 'Direct Bank Wire (Magaiees)',
+              title: isRtl ? 'تحويل بنكي مباشر (حساب شركة مقاييس)' : 'Direct Bank Wire (Magaiees)',
               subtitle: '${settings.exclusiveWireBank} | ${settings.exclusiveWireAccount} | ${settings.exclusiveWireName}',
               value: 'bank',
               groupValue: _selectedPaymentMethod,
@@ -1598,7 +1598,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> with SingleTick
             _PaymentRadio(
               title: isRtl ? 'دفع جزء من المبلغ نقداً والباقي عند الاستلام' : 'Partial Payment (Deposit + Cash on Delivery)',
               subtitle: isRtl
-                  ? 'سداد دفعة مقدمة (عربون) لحساب شركة السيطرة، ودفع المتبقي نقداً عند الاستلام'
+                  ? 'سداد دفعة مقدمة (عربون) لحساب شركة مقاييس، ودفع المتبقي نقداً عند الاستلام'
                   : 'Pay an upfront deposit to Magaiees and remaining balance cash upon delivery',
               value: 'partial_cod',
               groupValue: _selectedPaymentMethod,
@@ -1765,7 +1765,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> with SingleTick
                                   ? 'يُرجى تحويل مبلغ الدفعة المقدمة لحساب التاجر وإرفاق الإشعار، وسيتم سداد باقي المبلغ كاش عند استلام الشحنة في الموقع.'
                                   : 'Please transfer deposit to merchant bank/wallet and upload receipt; balance will be paid cash upon delivery.')
                               : (isRtl
-                                  ? 'يُرجى تحويل مبلغ الدفعة المقدمة لحساب شركة السيطرة وإرفاق الإشعار، وسيتم سداد باقي المبلغ كاش عند استلام الشحنة في الموقع.'
+                                  ? 'يُرجى تحويل مبلغ الدفعة المقدمة لحساب شركة مقاييس وإرفاق الإشعار، وسيتم سداد باقي المبلغ كاش عند استلام الشحنة في الموقع.'
                                   : 'Please transfer deposit to Magaiees bank/wallet and upload receipt; balance will be paid cash upon delivery.'),
                           style: const TextStyle(fontSize: 11.5, color: Color(0xFF78350F), height: 1.3),
                         ),
@@ -2234,7 +2234,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> with SingleTick
                                       isSelfPickup
                                           ? (isRtl ? 'تفاصيل استلام الطلب:' : 'Pickup Details:')
                                           : (isRtl
-                                              ? (hasExclusive ? 'في انتظار مراجعة وتأكيد فريق السيطرة:' : 'في انتظار مراجعة وتأكيد التاجر:')
+                                              ? (hasExclusive ? 'في انتظار مراجعة وتأكيد فريق مقاييس:' : 'في انتظار مراجعة وتأكيد التاجر:')
                                               : (hasExclusive ? 'Pending Magaiees Review:' : 'Pending Merchant Review:')),
                                       style: TextStyle(
                                         fontWeight: FontWeight.bold,
@@ -2258,7 +2258,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> with SingleTick
                                     Text(
                                       isRtl
                                           ? (hasExclusive
-                                              ? 'بعد قيام فريق السيطرة بمراجعة تفاصيل طلبك الحصري وعنوانك وتحديد رسوم الترحيل والتنزيل، سيتم تأكيد طلبك وإشعارك بذلك.'
+                                              ? 'بعد قيام فريق مقاييس بمراجعة تفاصيل طلبك الحصري وعنوانك وتحديد رسوم الترحيل والتنزيل، سيتم تأكيد طلبك وإشعارك بذلك.'
                                               : 'بعد قيام التاجر بمراجعة تفاصيل طلبك وعنوانك وتحديد رسوم الترحيل والتنزيل، سيتم تأكيد طلبك وإشعارك بذلك.')
                                           : (hasExclusive
                                               ? 'After Magaiees team reviews your exclusive order location and sets transport fees, your order will be confirmed.'
@@ -2335,7 +2335,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> with SingleTick
                                 children: [
                                   const SizedBox(width: 26),
                                   Icon(
-                                    entry.value.contains('السيطرة') || entry.value.contains('حصري')
+                                    entry.value.contains('مقاييس') || entry.value.contains('حصري')
                                         ? Icons.verified_rounded
                                         : Icons.storefront_outlined,
                                     size: 14,

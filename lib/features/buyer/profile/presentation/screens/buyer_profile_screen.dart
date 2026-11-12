@@ -284,7 +284,7 @@ class BuyerProfileScreen extends ConsumerWidget {
                 child: ListTile(
                   leading: const Icon(Icons.storefront, color: Colors.grey),
                   title: Text(context.isRtl ? 'ترقية حسابك إلى تاجر' : 'Upgrade to Merchant'),
-                  subtitle: Text(context.isRtl ? 'ابدأ بالبيع على منصة السيطرة اليوم' : 'Start selling on Magaiees Marketplace today'),
+                  subtitle: Text(context.isRtl ? 'ابدأ بالبيع على منصة مقاييس اليوم' : 'Start selling on Magaiees Marketplace today'),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
                     _showMerchantUpgradeDialog(context, ref);
@@ -518,8 +518,8 @@ class BuyerProfileScreen extends ConsumerWidget {
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.info_outline, color: Colors.blue),
-                  title: Text(context.isRtl ? 'عن منصة السيطرة' : 'About Magaiees Platform'),
-                  subtitle: const Text('Version 1.0.9 (Build 11)'),
+                  title: Text(context.isRtl ? 'عن منصة مقاييس' : 'About Magaiees Platform'),
+                  subtitle: const Text('Version 1.0.10 (Build 13)'),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () => _showAboutDialog(context),
                 ),
@@ -943,13 +943,13 @@ class BuyerProfileScreen extends ConsumerWidget {
             controller: controller,
             children: [
               Text(
-                isRtl ? 'الشروط والأحكام - منصة السيطرة' : 'Terms & Conditions - Magaiees',
+                isRtl ? 'الشروط والأحكام - منصة مقاييس' : 'Terms & Conditions - Magaiees',
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               Text(
                 isRtl
-                    ? '1. منصة السيطرة هي سوق رقمي يربط بين تجار ومصانع مواد البناء والعملاء والمقاولين.\n\n'
+                    ? '1. منصة مقاييس هي سوق رقمي يربط بين تجار ومصانع مواد البناء والعملاء والمقاولين.\n\n'
                       '2. الأسعار المعروضة قابلة للتحديث وفق حركة السوق اليومية، وتعتبر ملزمة فور تأكيد الطلب والدفع.\n\n'
                       '3. يتم تحديد رسوم النقل والتفريغ بحسب موقع المشروع ووزن الشحنة المتفق عليه.\n\n'
                       '4. يتحمل المشتري مسؤولية توفير مسار آمن لدخول الشاحنات وتفريغ المواد في الموقع المحدد.'
@@ -1027,7 +1027,7 @@ class BuyerProfileScreen extends ConsumerWidget {
             Image.asset('assets/images/logo_final.png', height: 80),
             const SizedBox(height: 16),
             Text(
-              isRtl ? 'منصة السيطرة' : 'Magaiees Marketplace',
+              isRtl ? 'منصة مقاييس' : 'Magaiees Marketplace',
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),

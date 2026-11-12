@@ -27,7 +27,7 @@ header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
   </script>
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="منصة السيطرة - سوق مواد البناء والمعدات">
+  <meta name="description" content="منصة مقاييس - سوق مواد البناء والمعدات">
   <!-- Flutter Web handles the viewport tag automatically -->
 
   <!-- Preconnect to Font & CDN Servers for Instant Loading -->
@@ -40,13 +40,13 @@ header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="منصة السيطرة">
+  <meta name="apple-mobile-web-app-title" content="منصة مقاييس">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="logo.png"/>
 
-  <title>منصة السيطرة | Magaiees Marketplace</title>
+  <title>منصة مقاييس | Magaiees Marketplace</title>
   <link rel="manifest" href="manifest.json">
 
   <style>
@@ -190,7 +190,7 @@ header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
 <body>
   <div id="loading-container">
     <img src="logo.png" alt="Magaiees Logo" class="splash-logo">
-    <div class="app-title">منصة السيطرة</div>
+    <div class="app-title">منصة مقاييس</div>
     <div class="app-subtitle">جاري تحميل المنصة...</div>
     <div class="loader">
       <div class="dot dot-1"></div>

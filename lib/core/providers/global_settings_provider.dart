@@ -50,7 +50,7 @@ class GlobalSettings {
   final double vatPercent;
   final bool isTaxAndCommissionEnabled;
 
-  // ── 1. Exclusive Magaiees Settings (حصري على السيطرة) ───────────────
+  // ── 1. Exclusive Magaiees Settings (حصري على مقاييس) ───────────────
   final bool exclusiveBankak;
   final String exclusiveBankakAccount;
   final String exclusiveBankakName;
@@ -113,17 +113,17 @@ class GlobalSettings {
     this.isTaxAndCommissionEnabled = false,
     this.exclusiveBankak = true,
     this.exclusiveBankakAccount = '1984256',
-    this.exclusiveBankakName = 'شركة السيطرة للتوريدات الهندسية',
+    this.exclusiveBankakName = 'شركة مقاييس للتوريدات الهندسية',
     this.exclusiveBankakIban = 'SD84BOKH0000000001984256',
     this.exclusiveOcash = true,
     this.exclusiveOcashAccount = '0912300105',
-    this.exclusiveOcashName = 'محفظة السيطرة - أوكاش',
+    this.exclusiveOcashName = 'محفظة مقاييس - أوكاش',
     this.exclusiveCod = true,
     this.exclusiveMaxCod = 5000000.0,
     this.exclusiveWire = true,
     this.exclusiveWireBank = 'بنك فيصل الإسلامي',
     this.exclusiveWireAccount = '12345678',
-    this.exclusiveWireName = 'شركة السيطرة للتوريدات الهندسية',
+    this.exclusiveWireName = 'شركة مقاييس للتوريدات الهندسية',
     this.exclusiveFawry = true,
     this.exclusiveMaxFawry = 10000000.0,
     this.exclusiveB2b = true,
@@ -286,12 +286,12 @@ class GlobalSettingsNotifier extends StateNotifier<GlobalSettings> {
         // Exclusive Magaiees Payments
         final excBankak = perms['exclusive_bankak'] ?? ps['exclusiveBankak'] ?? perms['is_bankak_enabled'] ?? ps['enableBankak'] ?? true;
         final excBankakAcc = ps['exclusiveBankakAccount']?.toString() ?? ps['bankakAccount']?.toString() ?? '1984256';
-        final excBankakName = ps['exclusiveBankakName']?.toString() ?? ps['bankakName']?.toString() ?? 'شركة السيطرة للتوريدات الهندسية';
+        final excBankakName = ps['exclusiveBankakName']?.toString() ?? ps['bankakName']?.toString() ?? 'شركة مقاييس للتوريدات الهندسية';
         final excBankakIban = ps['exclusiveBankakIban']?.toString() ?? ps['bankakIban']?.toString() ?? 'SD84BOKH0000000001984256';
 
         final excOcash = perms['exclusive_ocash'] ?? ps['exclusiveOcash'] ?? perms['is_ocash_enabled'] ?? ps['enableOcash'] ?? true;
         final excOcashAcc = ps['exclusiveOcashAccount']?.toString() ?? ps['ocashAccount']?.toString() ?? '0912300105';
-        final excOcashName = ps['exclusiveOcashName']?.toString() ?? ps['ocashName']?.toString() ?? 'محفظة السيطرة - أوكاش';
+        final excOcashName = ps['exclusiveOcashName']?.toString() ?? ps['ocashName']?.toString() ?? 'محفظة مقاييس - أوكاش';
 
         final excCod = perms['exclusive_cod'] ?? ps['exclusiveCod'] ?? perms['is_cod_enabled'] ?? ps['enableCash'] ?? true;
         final excMaxCod = double.tryParse(ps['exclusiveMaxCod']?.toString() ?? ps['maxCodAmount']?.toString() ?? '5000000') ?? 5000000.0;
@@ -299,7 +299,7 @@ class GlobalSettingsNotifier extends StateNotifier<GlobalSettings> {
         final excWire = perms['exclusive_wire'] ?? ps['exclusiveWire'] ?? perms['is_wire_enabled'] ?? ps['enableDirectWire'] ?? true;
         final excWireBank = ps['exclusiveWireBank']?.toString() ?? ps['wireBankName']?.toString() ?? 'بنك فيصل الإسلامي';
         final excWireAcc = ps['exclusiveWireAccount']?.toString() ?? ps['wireAccount']?.toString() ?? '12345678';
-        final excWireName = ps['exclusiveWireName']?.toString() ?? ps['wireAccountName']?.toString() ?? 'شركة السيطرة للتوريدات الهندسية';
+        final excWireName = ps['exclusiveWireName']?.toString() ?? ps['wireAccountName']?.toString() ?? 'شركة مقاييس للتوريدات الهندسية';
 
         final excFawry = perms['exclusive_fawry'] ?? ps['exclusiveFawry'] ?? perms['enable_fawry'] ?? ps['enableFawry'] ?? true;
         final excMaxFawry = double.tryParse(ps['exclusiveMaxFawry']?.toString() ?? ps['maxElectronicPayAmount']?.toString() ?? '10000000') ?? 10000000.0;

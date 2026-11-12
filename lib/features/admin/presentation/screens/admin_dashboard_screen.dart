@@ -524,7 +524,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
-                                  isRtl ? 'أرباح السيطرة' : 'Net Profit',
+                                  isRtl ? 'أرباح مقاييس' : 'Net Profit',
                                   style: const TextStyle(
                                     color: Color(0xFF581C87),
                                     fontSize: 10,
@@ -1478,7 +1478,7 @@ class _AdminDashboardScreenState extends ConsumerState<AdminDashboardScreen> {
           children: [
             Text(
               isRtl
-                  ? 'هذا السعر هو السعر المرجعي المعتمد لكافة المتاجر والمنتجات المرتبطة بسعر صرف منصة السيطرة. سيتم تطبيق التحديث وتعميمه فوراً.'
+                  ? 'هذا السعر هو السعر المرجعي المعتمد لكافة المتاجر والمنتجات المرتبطة بسعر صرف منصة مقاييس. سيتم تطبيق التحديث وتعميمه فوراً.'
                   : 'This is the standard exchange rate for all stores synced with Magaiees Platform. Updates broadcast immediately.',
               style: TextStyle(fontSize: 13, color: Colors.grey.shade600, height: 1.4),
             ),

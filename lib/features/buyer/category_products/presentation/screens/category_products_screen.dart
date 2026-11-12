@@ -176,7 +176,7 @@ class _CategoryProductsScreenState extends ConsumerState<CategoryProductsScreen>
                                     const Icon(Icons.verified_rounded, size: 12, color: Color(0xFF1E3A8A)),
                                     const SizedBox(width: 4),
                                     Text(
-                                      isRtl ? 'حصري السيطرة' : 'Exclusive',
+                                      isRtl ? 'حصري مقاييس' : 'Exclusive',
                                       style: const TextStyle(
                                         color: Color(0xFF1E3A8A),
                                         fontSize: 10.5,
@@ -192,7 +192,7 @@ class _CategoryProductsScreenState extends ConsumerState<CategoryProductsScreen>
                         Text(
                           isRtl
                               ? (category?.isExclusiveToMagaiees == true 
-                                  ? 'أصناف ومقاسات معتمدة ومباشرة من السيطرة ($totalCatCount صنف)'
+                                  ? 'أصناف ومقاسات معتمدة ومباشرة من مقاييس ($totalCatCount صنف)'
                                   : 'تصفح الأصناف والأسعار المعتمدة ($totalCatCount صنف معروض)')
                               : 'Browse certified items and prices ($totalCatCount items)',
                           style: TextStyle(
@@ -532,7 +532,7 @@ class _CategoryProductsScreenState extends ConsumerState<CategoryProductsScreen>
                         ),
                         Expanded(
                           child: _buildSegmentButton(
-                            title: isRtl ? 'حصري السيطرة' : 'Exclusive',
+                            title: isRtl ? 'حصري مقاييس' : 'Exclusive',
                             icon: Icons.verified_rounded,
                             isSelected: _exclusivityFilter == 1,
                             onTap: () => setState(() => _exclusivityFilter = 1),

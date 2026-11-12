@@ -43,7 +43,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
   bool _realtimeOnline = true;
 
   // ── 1. System & Identity ──────────────────────────────────────────
-  final _nameArCtrl = TextEditingController(text: 'منصة السيطرة لمواد البناء والتوريدات');
+  final _nameArCtrl = TextEditingController(text: 'منصة مقاييس لمواد البناء والتوريدات');
   final _nameEnCtrl = TextEditingController(text: 'Magaiees Building Materials Marketplace');
   final _sloganArCtrl = TextEditingController(text: 'سوقك الهندسي المتكامل لتوريد مواد البناء');
   final _sloganEnCtrl = TextEditingController(text: 'Your Integrated Engineering Marketplace');
@@ -52,7 +52,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
   final _emailCtrl = TextEditingController(text: 'support@magaiees.com');
   final _websiteCtrl = TextEditingController(text: 'https://magaiees.com');
   final _aboutCtrl = TextEditingController(
-    text: 'السيطرة هي منصة رقمية رائدة تربط بين تجار ومصانع مواد البناء والمقاولين والعملاء لتسهيل عمليات البيع والشراء بأسعار تنافسية وخيارات متعددة مع التوصيل الفوري.',
+    text: 'مقاييس هي منصة رقمية رائدة تربط بين تجار ومصانع مواد البناء والمقاولين والعملاء لتسهيل عمليات البيع والشراء بأسعار تنافسية وخيارات متعددة مع التوصيل الفوري.',
   );
   final _maintenanceMsgCtrl = TextEditingController(
     text: 'النظام تحت الصيانة المجدولة لتطوير الأداء. سنعود للعمل قريباً جداً!',
@@ -75,15 +75,15 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
   final _currencyCtrl = TextEditingController(text: 'ج.س (SDG)');
   final _platformUsdRateCtrl = TextEditingController();
 
-  // ── 2.A Buyer Payment Settings: Exclusive Magaiees (إعدادات دفع منتجات السيطرة الحصرية) ─────
+  // ── 2.A Buyer Payment Settings: Exclusive Magaiees (إعدادات دفع منتجات مقاييس الحصرية) ─────
   bool _exclusiveBankak = true;
   final _exclusiveBankakAccountCtrl = TextEditingController(text: '1984256');
-  final _exclusiveBankakNameCtrl = TextEditingController(text: 'شركة السيطرة للتوريدات الهندسية');
+  final _exclusiveBankakNameCtrl = TextEditingController(text: 'شركة مقاييس للتوريدات الهندسية');
   final _exclusiveBankakIbanCtrl = TextEditingController(text: 'SD84BOKH0000000001984256');
 
   bool _exclusiveOcash = true;
   final _exclusiveOcashAccountCtrl = TextEditingController(text: '0912300105');
-  final _exclusiveOcashNameCtrl = TextEditingController(text: 'محفظة السيطرة - أوكاش');
+  final _exclusiveOcashNameCtrl = TextEditingController(text: 'محفظة مقاييس - أوكاش');
 
   bool _exclusiveCod = true;
   final _exclusiveMaxCodCtrl = TextEditingController(text: '5000000');
@@ -91,7 +91,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
   bool _exclusiveWire = true;
   final _exclusiveWireBankCtrl = TextEditingController(text: 'بنك فيصل الإسلامي');
   final _exclusiveWireAccountCtrl = TextEditingController(text: '12345678');
-  final _exclusiveWireNameCtrl = TextEditingController(text: 'شركة السيطرة للتوريدات الهندسية');
+  final _exclusiveWireNameCtrl = TextEditingController(text: 'شركة مقاييس للتوريدات الهندسية');
 
   bool _exclusiveFawry = true;
   final _exclusiveMaxFawryCtrl = TextEditingController(text: '10000000');
@@ -657,7 +657,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
                 controller: jsonInputCtrl,
                 maxLines: 8,
                 decoration: InputDecoration(
-                  hintText: '{\n  "nameAr": "منصة السيطرة...",\n  "commission": "5.0"\n}',
+                  hintText: '{\n  "nameAr": "منصة مقاييس...",\n  "commission": "5.0"\n}',
                   hintStyle: const TextStyle(fontFamily: 'monospace', fontSize: 12),
                   filled: true,
                   fillColor: const Color(0xFFF8FAFC),
@@ -908,7 +908,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
         children: [
           Row(
             children: [
-              Expanded(child: _buildField(controller: _nameArCtrl, label: 'اسم المنصة (بالعربية) *', icon: Icons.business, hintText: 'مثال: منصة السيطرة لمواد البناء')),
+              Expanded(child: _buildField(controller: _nameArCtrl, label: 'اسم المنصة (بالعربية) *', icon: Icons.business, hintText: 'مثال: منصة مقاييس لمواد البناء')),
               const SizedBox(width: 14),
               Expanded(child: _buildField(controller: _nameEnCtrl, label: 'اسم المنصة (بالإنجليزية) *', icon: Icons.language, hintText: 'e.g. Magaiees Marketplace')),
             ],
@@ -924,7 +924,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
           const SizedBox(height: 14),
           _buildField(
             controller: _aboutCtrl,
-            label: 'نبذة تعريفية شاملة عن منصة السيطرة',
+            label: 'نبذة تعريفية شاملة عن منصة مقاييس',
             icon: Icons.info_outline_rounded,
             maxLines: 3,
             hintText: 'وصف يظهر للمستخدمين في صفحة (عن المنصة)...',
@@ -1057,11 +1057,11 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
 
   // ── Tab 2: Finance, Payments & Logistics ───────────────────────────
   Widget _buildFinanceTab(bool isRtl, bool isWide) {
-    // 1. بطاقة إعدادات دفع منتجات السيطرة (حصري على السيطرة)
+    // 1. بطاقة إعدادات دفع منتجات مقاييس (حصري على مقاييس)
     final exclusivePaymentsCard = _buildCardContainer(
-      title: isRtl ? 'إعدادات دفع المشتري (المنتجات الحصرية على السيطرة)' : 'Exclusive Magaiees Payment Settings',
+      title: isRtl ? 'إعدادات دفع المشتري (المنتجات الحصرية على مقاييس)' : 'Exclusive Magaiees Payment Settings',
       subtitle: isRtl
-          ? 'طرق وخيارات الدفع وبيانات حسابات شركة السيطرة الرسمية للمنتجات الحصرية على المنصة'
+          ? 'طرق وخيارات الدفع وبيانات حسابات شركة مقاييس الرسمية للمنتجات الحصرية على المنصة'
           : 'Official Magaiees bank accounts and checkout payment rules for platform-exclusive products',
       icon: Icons.verified_rounded,
       accentColor: _kRoyalBlue,
@@ -1069,7 +1069,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
         // 1. Bankak
         _buildSwitch(
           title: isRtl ? 'تطبيق بنكك (Bank of Khartoum)' : 'Bankak Direct Transfer',
-          subtitle: isRtl ? 'السماح برفع إشعار التحويل البنكي لحساب بنكك الخاص بشركة السيطرة' : 'Allow uploading Bankak receipt to Magaiees official account',
+          subtitle: isRtl ? 'السماح برفع إشعار التحويل البنكي لحساب بنكك الخاص بشركة مقاييس' : 'Allow uploading Bankak receipt to Magaiees official account',
           value: _exclusiveBankak,
           activeColor: _kRoyalBlue,
           icon: Icons.account_balance_wallet_rounded,
@@ -1091,7 +1091,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
                   children: [
                     Icon(Icons.info_rounded, color: _kRoyalBlue, size: 16),
                     SizedBox(width: 8),
-                    Text('بيانات حساب بنكك المعتمد لمنصة السيطرة:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: _kRoyalBlue)),
+                    Text('بيانات حساب بنكك المعتمد لمنصة مقاييس:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: _kRoyalBlue)),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -1099,7 +1099,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
                   children: [
                     Expanded(child: _buildField(controller: _exclusiveBankakAccountCtrl, label: 'رقم الحساب (Account No) *', icon: Icons.numbers_rounded, hintText: '1984256')),
                     const SizedBox(width: 10),
-                    Expanded(child: _buildField(controller: _exclusiveBankakNameCtrl, label: 'اسم الحساب الرسمي *', icon: Icons.person_rounded, hintText: 'شركة السيطرة للتوريدات')),
+                    Expanded(child: _buildField(controller: _exclusiveBankakNameCtrl, label: 'اسم الحساب الرسمي *', icon: Icons.person_rounded, hintText: 'شركة مقاييس للتوريدات')),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -1112,7 +1112,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
         // 2. O-Cash
         _buildSwitch(
           title: isRtl ? 'تطبيق أوكاش (O-Cash)' : 'O-Cash Wallet',
-          subtitle: isRtl ? 'السماح بالتحويل لمحفظة أوكاش الرسمية الخاصة بشركة السيطرة' : 'Allow payment via Magaiees official O-Cash wallet',
+          subtitle: isRtl ? 'السماح بالتحويل لمحفظة أوكاش الرسمية الخاصة بشركة مقاييس' : 'Allow payment via Magaiees official O-Cash wallet',
           value: _exclusiveOcash,
           activeColor: _kPurple,
           icon: Icons.payments_rounded,
@@ -1134,7 +1134,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
                   children: [
                     Icon(Icons.info_rounded, color: _kPurple, size: 16),
                     SizedBox(width: 8),
-                    Text('بيانات محفظة أوكاش المعتمدة لمنصة السيطرة:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: _kPurple)),
+                    Text('بيانات محفظة أوكاش المعتمدة لمنصة مقاييس:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: _kPurple)),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -1142,7 +1142,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
                   children: [
                     Expanded(child: _buildField(controller: _exclusiveOcashAccountCtrl, label: 'رقم المحفظة / الهاتف *', icon: Icons.phone_android_rounded, hintText: '0912300105', iconColor: _kPurple)),
                     const SizedBox(width: 10),
-                    Expanded(child: _buildField(controller: _exclusiveOcashNameCtrl, label: 'اسم صاحب المحفظة *', icon: Icons.person_rounded, hintText: 'محفظة السيطرة أوكاش', iconColor: _kPurple)),
+                    Expanded(child: _buildField(controller: _exclusiveOcashNameCtrl, label: 'اسم صاحب المحفظة *', icon: Icons.person_rounded, hintText: 'محفظة مقاييس أوكاش', iconColor: _kPurple)),
                   ],
                 ),
               ],
@@ -1153,7 +1153,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
         // 3. Cash on Delivery (COD)
         _buildSwitch(
           title: isRtl ? 'الدفع نقداً عند الاستلام (Cash on Delivery)' : 'Cash on Delivery (COD)',
-          subtitle: isRtl ? 'السماح بدفع قيمة منتجات السيطرة كاش عند وصول الشحنة للموقع' : 'Allow cash payment upon material delivery to client location',
+          subtitle: isRtl ? 'السماح بدفع قيمة منتجات مقاييس كاش عند وصول الشحنة للموقع' : 'Allow cash payment upon material delivery to client location',
           value: _exclusiveCod,
           activeColor: _kEmerald,
           icon: Icons.local_shipping_rounded,
@@ -1168,7 +1168,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
               icon: Icons.attach_money_rounded,
               suffixText: 'SDG',
               isNumber: true,
-              helperText: 'أي طلب لمنتجات السيطرة يتجاوز هذا المبلغ يتطلب تحويلاً بنكياً مسبقاً',
+              helperText: 'أي طلب لمنتجات مقاييس يتجاوز هذا المبلغ يتطلب تحويلاً بنكياً مسبقاً',
               iconColor: _kEmerald,
             ),
           ),
@@ -1177,7 +1177,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
         // 4. Direct Bank Wire
         _buildSwitch(
           title: isRtl ? 'تحويل بنكي مباشر (Direct Bank Wire)' : 'Direct Bank Wire',
-          subtitle: isRtl ? 'التحويل المباشر لحساب شركة السيطرة البنكي الرسمي' : 'Direct wire transfer to Magaiees corporate bank account',
+          subtitle: isRtl ? 'التحويل المباشر لحساب شركة مقاييس البنكي الرسمي' : 'Direct wire transfer to Magaiees corporate bank account',
           value: _exclusiveWire,
           activeColor: _kNavy,
           icon: Icons.account_balance_rounded,
@@ -1199,7 +1199,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
                   children: [
                     Icon(Icons.info_rounded, color: _kNavy, size: 16),
                     SizedBox(width: 8),
-                    Text('بيانات الحساب البنكي الرسمي لشركة السيطرة:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: _kNavy)),
+                    Text('بيانات الحساب البنكي الرسمي لشركة مقاييس:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: _kNavy)),
                   ],
                 ),
                 const SizedBox(height: 10),
@@ -1211,7 +1211,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
                   ],
                 ),
                 const SizedBox(height: 10),
-                _buildField(controller: _exclusiveWireNameCtrl, label: 'اسم صاحب الحساب *', icon: Icons.person_rounded, hintText: 'شركة السيطرة للتوريدات الهندسية', iconColor: _kNavy),
+                _buildField(controller: _exclusiveWireNameCtrl, label: 'اسم صاحب الحساب *', icon: Icons.person_rounded, hintText: 'شركة مقاييس للتوريدات الهندسية', iconColor: _kNavy),
               ],
             ),
           ),
@@ -2002,7 +2002,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
         _buildCardContainer(
           title: isRtl ? 'وحدات البيع والقياس المعتمدة للمنصة' : 'Platform Measurement & Sale Units',
           subtitle: isRtl
-              ? 'إدارة الوحدات واللسيطرة الهندسية التي تظهر للتجار عند إضافة الأصناف والمنتجات'
+              ? 'إدارة الوحدات والمقاييس الهندسية التي تظهر للتجار عند إضافة الأصناف والمنتجات'
               : 'Manage engineering units displayed to merchants during product creation',
           icon: Icons.straighten_rounded,
           accentColor: _kRoyalBlue,
@@ -2362,7 +2362,7 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
         ),
         content: Text(
           isRtl
-              ? 'هل ترغب في إعادة ضبط قائمة وحدات القياس إلى القائمة القياسية المعتمدة لمنصة السيطرة (11 وحدة أساسية)؟'
+              ? 'هل ترغب في إعادة ضبط قائمة وحدات القياس إلى القائمة القياسية المعتمدة لمنصة مقاييس (11 وحدة أساسية)؟'
               : 'Reset measurement units list to the 11 platform standard defaults?',
         ),
         actions: [

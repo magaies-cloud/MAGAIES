@@ -1256,7 +1256,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                                           Row(
                                             children: [
                                               Text(
-                                                isRtl ? 'سعر صرف منصة السيطرة المعتمد' : 'Official Platform USD Rate',
+                                                isRtl ? 'سعر صرف منصة مقاييس المعتمد' : 'Official Platform USD Rate',
                                                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                                               ),
                                               const SizedBox(width: 8),

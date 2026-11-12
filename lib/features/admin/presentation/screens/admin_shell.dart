@@ -210,39 +210,21 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                 left: false,
                 child: Column(
                 children: [
-                  // Top Header / Logo
-                  Container(
-                    height: 70,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Row(
-                      children: [
-                        const SizedBox(
-                          width: 56,
-                          child: Center(
-                            child: Icon(
-                              Icons.admin_panel_settings,
-                              color: Colors.white,
-                              size: 30,
-                            ),
-                          ),
-                        ),
-                        if (_isSidebarExpanded)
-                          Expanded(
-                            child: AnimatedOpacity(
-                              duration: const Duration(milliseconds: 200),
-                              opacity: _isSidebarExpanded ? 1.0 : 0.0,
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Text(
-                                  isRtl ? 'لوحة تحكم السيطرة' : 'Magaiees Admin',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                  // Top Header / Logo (Tappable on Touch Devices)
+                  InkWell(
+                    onTap: () => setState(() => _isSidebarExpanded = !_isSidebarExpanded),
+                    child: Container(
+                      height: 64,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 56,
+                            child: Center(
+                              child: Icon(
+                                _isSidebarExpanded ? Icons.menu_open_rounded : Icons.admin_panel_settings,
+                                color: Colors.white,
+                                size: 28,
                               ),
                             ),
                           ),
@@ -254,7 +236,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                   child: Text(
-                                    isRtl ? 'لوحة تحكم السيطرة' : 'Magaiees Admin',
+                                    isRtl ? 'لوحة تحكم مقاييس' : 'Magaiees Admin',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,
