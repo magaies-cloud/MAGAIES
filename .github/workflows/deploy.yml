@@ -68,10 +68,12 @@ jobs:
           # STANDALONE MAGAIEES MARKETPLACE APP: https://magaiees.elsajana.com
           # Completely separated from the ERP root (/var/www/magaees)
           # ================================================
-          mkdir -p /var/www/magaiees_app
-          cp -rf /var/www/magaees/magaiees_app/. /var/www/magaiees_app/
-          chown -R www-data:www-data /var/www/magaiees_app
-          chmod -R 755 /var/www/magaiees_app
+          if [ ! -f /var/www/magaiees_app/index.php ]; then
+            mkdir -p /var/www/magaiees_app
+            cp -rf /var/www/magaees/magaiees_app/. /var/www/magaiees_app/
+            chown -R www-data:www-data /var/www/magaiees_app
+            chmod -R 755 /var/www/magaiees_app
+          fi
 
           # ================================================
           # PERMANENT FIX: SSL + Redirect for ALL www.*.elsajana.com
