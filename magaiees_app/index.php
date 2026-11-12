@@ -19,12 +19,9 @@ header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
   // Optional: add a version parameter to main.dart.js to force redownload
   var dartVersion = '?v=' + new Date().getTime();
 </script>
-  <base href="/magaees/magaiees_app/">
-  <script>
-    var path = window.location.pathname;
-    var base = path.substring(0, path.lastIndexOf('/') + 1);
-    // dynamically ensure correct base if needed
-  </script>
+  <base href="<?php echo rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/magaiees_app/index.php')), '/') . '/'; ?>">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png?v=2026_restore">
+  <link rel="icon" type="image/png" href="logo.png?v=2026_restore"/>
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="منصة مقاييس - سوق مواد البناء والمعدات">
