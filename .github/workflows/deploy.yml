@@ -60,9 +60,6 @@ jobs:
           chmod -R 755 /var/www/magaees
           chmod -R 777 /var/www/magaees/uploads/.ocr_engine /var/www/magaees/uploads/ocr_cache 2>/dev/null || true
           php /var/www/magaees/api/migrate_ui_preferences.php 2>/dev/null || true
-          pkill -9 -f "[n]ode.*whatsapp-service" || true
-          pkill -9 -f "[n]ode-ocr" || true
-          pkill -9 -f "[n]ode.*server\.js" || true
           fuser -k -9 3001/tcp 2>/dev/null || true
           sleep 1
           curl -s "http://127.0.0.1/api_index.php?r=wa-tenant&endpoint=status&userId=wa_tenant_12&local_only=1" >/dev/null 2>&1 || true
