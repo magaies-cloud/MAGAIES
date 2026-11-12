@@ -2,6 +2,7 @@ import 'package:magaiees_marketplace/features/admin/services/presentation/screen
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:magaiees_marketplace/core/theme/app_theme.dart';
 import 'package:magaiees_marketplace/features/admin/presentation/screens/admin_dashboard_screen.dart';
 import 'package:magaiees_marketplace/features/admin/presentation/screens/admin_ads_screen.dart';
 import 'package:magaiees_marketplace/features/admin/presentation/screens/admin_orders_screen.dart';
@@ -183,7 +184,9 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     final userName = (isRtl && authUser?.nameAr != null && authUser!.nameAr!.isNotEmpty ? authUser.nameAr : authUser?.name) ?? (isRtl ? 'مدير النظام' : 'Admin');
     final userEmail = authUser?.email ?? 'admin@magaiees.com';
 
-    return PopScope(
+    return Theme(
+      data: AppTheme.lightTheme,
+      child: PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
@@ -192,7 +195,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
       child: Scaffold(
       body: Row(
         children: [
-          // ── Collapsible Hover Sidebar ───────────────────────────────
+          // ── Collapsible Hover & Touch Sidebar ───────────────────────────────
           MouseRegion(
             onEnter: (_) => setState(() => _isSidebarExpanded = true),
             onExit: (_) => setState(() => _isSidebarExpanded = false),
@@ -202,45 +205,51 @@ class _AdminShellState extends ConsumerState<AdminShell> {
               width: _isSidebarExpanded ? _expandedWidth : _collapsedWidth,
               color: const Color(0xFF1E293B),
               clipBehavior: Clip.hardEdge,
-              child: Column(
+              child: SafeArea(
+                right: false,
+                left: false,
+                child: Column(
                 children: [
-                  // Top Header / Logo
-                  Container(
-                    height: 70,
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Row(
-                      children: [
-                        const SizedBox(
-                          width: 56,
-                          child: Center(
-                            child: Icon(
-                              Icons.admin_panel_settings,
-                              color: Colors.white,
-                              size: 30,
-                            ),
-                          ),
-                        ),
-                        if (_isSidebarExpanded)
-                          Expanded(
-                            child: AnimatedOpacity(
-                              duration: const Duration(milliseconds: 200),
-                              opacity: _isSidebarExpanded ? 1.0 : 0.0,
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Text(
-                                  isRtl ? 'لوحة تحكم مقاييس' : 'Magaiees Admin',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                  // Top Header / Logo (Tappable on Touch Devices)
+                  InkWell(
+                    onTap: () => setState(() => _isSidebarExpanded = !_isSidebarExpanded),
+                    child: Container(
+                      height: 64,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 56,
+                            child: Center(
+                              child: Icon(
+                                _isSidebarExpanded ? Icons.menu_open_rounded : Icons.admin_panel_settings,
+                                color: Colors.white,
+                                size: 28,
                               ),
                             ),
                           ),
-                      ],
+                          if (_isSidebarExpanded)
+                            Expanded(
+                              child: AnimatedOpacity(
+                                duration: const Duration(milliseconds: 200),
+                                opacity: _isSidebarExpanded ? 1.0 : 0.0,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                  child: Text(
+                                    isRtl ? 'لوحة تحكم مقاييس' : 'Magaiees Admin',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                   const Divider(color: Colors.white24, height: 1),
@@ -356,11 +365,47 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                                 ],
                               ),
                             ),
+                          )
+                        else
+                          Expanded(
+                            child: Center(
+                              child: IconButton(
+                                icon: const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 20),
+                                tooltip: isRtl ? 'تسجيل الخروج' : 'Logout',
+                                onPressed: () async {
+                                  final confirmed = await showDialog<bool>(
+                                    context: context,
+                                    builder: (ctx) => AlertDialog(
+                                      title: Text(isRtl ? 'تسجيل الخروج' : 'Logout'),
+                                      content: Text(isRtl ? 'هل أنت متأكد من رغبتك في تسجيل الخروج؟' : 'Are you sure you want to logout?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(ctx, false),
+                                          child: Text(isRtl ? 'إلغاء' : 'Cancel'),
+                                        ),
+                                        FilledButton(
+                                          style: FilledButton.styleFrom(backgroundColor: Colors.redAccent),
+                                          onPressed: () => Navigator.pop(ctx, true),
+                                          child: Text(isRtl ? 'تسجيل الخروج' : 'Logout'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                  if (confirmed == true) {
+                                    await ref.read(authNotifierProvider.notifier).logout();
+                                    if (context.mounted) {
+                                      context.go(RouteNames.login);
+                                    }
+                                  }
+                                },
+                              ),
+                            ),
                           ),
                       ],
                     ),
                   ),
                 ],
+                ),
               ),
             ),
           ),
@@ -383,9 +428,10 @@ class _AdminShellState extends ConsumerState<AdminShell> {
           ),
         ],
       ),
-    ),
-  );
-}
+      ),
+      ),
+    );
+  }
 
   /// Builds a slim breadcrumb bar at the top of the content area showing
   /// current location with Back and Forward navigation buttons

@@ -92,9 +92,8 @@ class _MerchantTeamScreenState extends ConsumerState<MerchantTeamScreen> {
           }
 
           final staffStoreId = permsMap['store_id']?.toString() ?? raw['store_id']?.toString();
-          final isStaff = permsMap['is_store_staff'] == true || staffStoreId == _storeId;
 
-          if (isStaff && (staffStoreId == _storeId || raw['store_name'] == _storeName)) {
+          if (staffStoreId == _storeId) {
             matchedStaff.add(raw);
           }
         }

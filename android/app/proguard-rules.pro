@@ -34,11 +34,13 @@
     java.lang.Object readResolve();
 }
 
-# Suppress harmless warnings from dependencies
+# Suppress harmless warnings from dependencies & preserve Tink/Gson reflection classes
 -dontwarn okio.**
 -dontwarn okhttp3.**
+-keep class com.google.crypto.tink.** { *; }
 -dontwarn com.google.crypto.tink.**
 -dontwarn androidx.**
+-keep class com.google.gson.** { *; }
 -dontwarn com.google.gson.**
 
 # Notifications (flutter_local_notifications Gson models)

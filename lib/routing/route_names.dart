@@ -11,8 +11,8 @@ abstract final class RouteNames {
   static const String buyerCart = '/buyer/cart';
   static const String buyerOrders = '/buyer/orders';
   static const String buyerProfile = '/buyer/profile';
-  static const String buyerProductDetail = '/buyer/product/:id';
-  static const String buyerCheckout = '/buyer/checkout';
+  static const String buyerProductDetail = '/buyer/home/product/:id';
+  static const String buyerCheckout = '/buyer/cart/checkout';
   static const String buyerDigitalBroker = '/buyer/digital-broker';
   static const String buyerChat = '/buyer/chat';
 
@@ -43,5 +43,5 @@ abstract final class RouteNames {
   static const String employeeDashboard = '/employee/dashboard';
 
   /// Helper to build product detail path.
-  static String productDetail(String id) => '/buyer/product/$id';
+  static String productDetail(String id) => '/buyer/home/product/$id';
 }

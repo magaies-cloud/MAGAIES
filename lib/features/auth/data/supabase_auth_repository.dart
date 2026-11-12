@@ -90,7 +90,14 @@ class SupabaseAuthRepository implements AuthRepository {
         return _mapSupabaseDataToUserModel(fallbackUser);
       }
 
-      return _mapSupabaseDataToUserModel(userData);
+      final mappedUser = _mapSupabaseDataToUserModel(userData);
+      if (userData['is_suspended'] == true || mappedUser.permissions['deletion_requested'] == true) {
+        try {
+          await _supabase.auth.signOut();
+        } catch (_) {}
+        throw Exception('Account deleted or suspended');
+      }
+      return mappedUser;
     }
 
     // 3. Fallback: Check if user exists in public.users with a temporary_pin / password
@@ -129,7 +136,11 @@ class SupabaseAuthRepository implements AuthRepository {
 
         final storedPin = perms['temporary_pin']?.toString() ?? perms['password']?.toString();
         if (storedPin != null && storedPin.isNotEmpty && (storedPin == password || storedPin == cleanPass)) {
-          return _mapSupabaseDataToUserModel(publicUser);
+          final mappedFallback = _mapSupabaseDataToUserModel(publicUser);
+          if (publicUser['is_suspended'] == true || mappedFallback.permissions['deletion_requested'] == true) {
+            throw Exception('Account deleted or suspended');
+          }
+          return mappedFallback;
         }
       }
     } catch (e) {

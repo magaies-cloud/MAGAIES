@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:magaiees_marketplace/features/auth/application/auth_provider.dart';
+import 'package:magaiees_marketplace/features/auth/domain/models/user_model.dart';
 
 final merchantWalletProvider = StateNotifierProvider.autoDispose<MerchantWalletNotifier, AsyncValue<Map<String, dynamic>>>((ref) {
   return MerchantWalletNotifier(ref);
@@ -9,18 +10,19 @@ final merchantWalletProvider = StateNotifierProvider.autoDispose<MerchantWalletN
 class MerchantWalletNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>>> {
   final Ref ref;
   RealtimeChannel? _realtimeChannel;
+  String? _subscribedStoreId;
 
   MerchantWalletNotifier(this.ref) : super(const AsyncValue.loading()) {
     loadWalletData();
-    _setupRealtime();
   }
 
-  void _setupRealtime() {
-    final user = ref.read(authNotifierProvider).valueOrNull;
-    if (user == null) return;
+  void _setupRealtime({required String userId, required String payoutMerchantId, String? storeId}) {
+    if (_realtimeChannel != null && _subscribedStoreId == storeId) return;
+    _subscribedStoreId = storeId;
     _realtimeChannel?.unsubscribe();
-    _realtimeChannel = Supabase.instance.client
-        .channel('merchant_wallet_user_${user.id}')
+
+    var channel = Supabase.instance.client
+        .channel('merchant_wallet_sync_${userId}_${storeId ?? "none"}')
         .onPostgresChanges(
           event: PostgresChangeEvent.all,
           schema: 'public',
@@ -28,11 +30,37 @@ class MerchantWalletNotifier extends StateNotifier<AsyncValue<Map<String, dynami
           filter: PostgresChangeFilter(
             type: PostgresChangeFilterType.eq,
             column: 'id',
-            value: user.id,
+            value: userId,
           ),
-          callback: (payload) => loadWalletData(),
+          callback: (_) => loadWalletData(),
         )
-        .subscribe();
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'merchant_payout_requests',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'merchant_id',
+            value: payoutMerchantId,
+          ),
+          callback: (_) => loadWalletData(),
+        );
+
+    if (storeId != null && storeId.isNotEmpty) {
+      channel = channel.onPostgresChanges(
+        event: PostgresChangeEvent.all,
+        schema: 'public',
+        table: 'orders',
+        filter: PostgresChangeFilter(
+          type: PostgresChangeFilterType.eq,
+          column: 'store_id',
+          value: storeId,
+        ),
+        callback: (_) => loadWalletData(),
+      );
+    }
+
+    _realtimeChannel = channel.subscribe();
   }
 
   @override
@@ -44,29 +72,47 @@ class MerchantWalletNotifier extends StateNotifier<AsyncValue<Map<String, dynami
   Future<void> loadWalletData() async {
     try {
       final user = ref.read(authNotifierProvider).valueOrNull;
-      if (user == null) return;
-      
-      // 1. Fetch Payouts
+      if (user == null) {
+        if (!mounted) return;
+        state = const AsyncValue.data({});
+        return;
+      }
+
+      // 1. Resolve merchant store (supports both Store Owner and Store Staff)
+      Map<String, dynamic>? storeRes;
+      if (user.isStoreStaff && user.storeId != null && user.storeId!.isNotEmpty) {
+        storeRes = await Supabase.instance.client
+            .from('stores')
+            .select('id, owner_id, bank_name, bank_account_name, bank_account_number')
+            .eq('id', user.storeId!)
+            .limit(1)
+            .maybeSingle();
+      } else {
+        storeRes = await Supabase.instance.client
+            .from('stores')
+            .select('id, owner_id, bank_name, bank_account_name, bank_account_number')
+            .eq('owner_id', user.id)
+            .limit(1)
+            .maybeSingle();
+      }
+
+      final storeId = storeRes?['id']?.toString() ?? user.storeId;
+      final ownerId = storeRes?['owner_id']?.toString() ?? user.id;
+
+      _setupRealtime(userId: user.id, payoutMerchantId: ownerId, storeId: storeId);
+
+      // 2. Fetch Payouts for the store owner
       final payoutsRes = await Supabase.instance.client
           .from('merchant_payout_requests')
           .select()
-          .eq('merchant_id', user.id)
+          .eq('merchant_id', ownerId)
           .order('created_at', ascending: false);
-          
-      // 2. Fetch merchant store
-      final storeRes = await Supabase.instance.client
-          .from('stores')
-          .select('id, bank_name, bank_account_name, bank_account_number')
-          .eq('owner_id', user.id)
-          .limit(1)
-          .maybeSingle();
-      final storeId = storeRes != null ? storeRes['id']?.toString() : null;
 
       // Also check users table for bank info fallback
       final userRes = await Supabase.instance.client
           .from('users')
           .select('bank_name, bank_account_name, bank_account_number')
-          .eq('id', user.id)
+          .eq('id', ownerId)
           .maybeSingle();
 
       String bankName = storeRes?['bank_name']?.toString() ?? '';
@@ -78,14 +124,13 @@ class MerchantWalletNotifier extends StateNotifier<AsyncValue<Map<String, dynami
       String bankAccountNumber = storeRes?['bank_account_number']?.toString() ?? '';
       if (bankAccountNumber.isEmpty) bankAccountNumber = userRes?['bank_account_number']?.toString() ?? '';
 
-      // 3. Fetch all delivered orders for this store to calculate total sales
+      // 3. Fetch all store orders to compute exact Sales, Collected, Debts & Delivered Wallet Balance
       List<dynamic> ordersRes = [];
-      if (storeId != null) {
+      if (storeId != null && storeId.isNotEmpty) {
         ordersRes = await Supabase.instance.client
             .from('orders')
-            .select('total_amount, paid_amount')
-            .eq('store_id', storeId)
-            .eq('status', 'delivered');
+            .select('status, payment_status, total_amount, paid_amount')
+            .eq('store_id', storeId);
       }
 
       // 4. Fetch Gamification settings for commission
@@ -95,9 +140,32 @@ class MerchantWalletNotifier extends StateNotifier<AsyncValue<Map<String, dynami
           .eq('id', 1)
           .maybeSingle();
 
-      double totalSales = 0;
-      for (var o in ordersRes) {
-        totalSales += (num.tryParse(o['total_amount']?.toString() ?? '0') ?? 0.0).toDouble();
+      double allActiveSales = 0.0;
+      double totalCollected = 0.0;
+      double totalDebts = 0.0;
+      double deliveredCollectedSales = 0.0;
+      double deliveredTotalSales = 0.0;
+
+      for (final o in ordersRes) {
+        final status = o['status']?.toString() ?? 'pending';
+        if (status == 'cancelled') continue;
+
+        final total = (num.tryParse(o['total_amount']?.toString() ?? '0') ?? 0.0).toDouble();
+        double paid = (num.tryParse(o['paid_amount']?.toString() ?? '0') ?? 0.0).toDouble();
+        if (o['payment_status'] == 'paid' && paid <= 0 && total > 0) {
+          paid = total;
+        }
+        final effectivePaid = paid.clamp(0.0, total);
+        final debt = (total - effectivePaid).clamp(0.0, double.infinity);
+
+        allActiveSales += total;
+        totalCollected += effectivePaid;
+        totalDebts += debt;
+
+        if (status == 'delivered') {
+          deliveredTotalSales += total;
+          deliveredCollectedSales += effectivePaid;
+        }
       }
 
       bool enableCommission = false;
@@ -109,34 +177,41 @@ class MerchantWalletNotifier extends StateNotifier<AsyncValue<Map<String, dynami
 
       double commissionAmount = 0.0;
       if (enableCommission) {
-        commissionAmount = (totalSales * commissionPercent) / 100;
+        commissionAmount = (deliveredCollectedSales * commissionPercent) / 100;
       }
 
-      double netProfit = totalSales - commissionAmount;
+      final double netProfit = (deliveredCollectedSales - commissionAmount).clamp(0.0, double.infinity);
 
-      // Calculate total approved and pending payouts to subtract from net profit
-      double totalWithdrawn = 0;
-      for (var p in payoutsRes) {
+      // Subtract approved and pending payouts from net collected profit
+      double totalWithdrawn = 0.0;
+      for (final p in payoutsRes) {
         if (p['status'] == 'approved' || p['status'] == 'pending') {
           totalWithdrawn += (num.tryParse(p['amount']?.toString() ?? '0') ?? 0.0).toDouble();
         }
       }
 
-      double withdrawableBalance = (netProfit - totalWithdrawn).clamp(0.0, double.infinity);
+      final double withdrawableBalance = (netProfit - totalWithdrawn).clamp(0.0, double.infinity);
 
+      if (!mounted) return;
       state = AsyncValue.data({
         'payouts': List<Map<String, dynamic>>.from(payoutsRes),
-        'totalSales': totalSales,
+        'totalSales': deliveredCollectedSales,
+        'deliveredTotalSales': deliveredTotalSales,
+        'allActiveSales': allActiveSales,
+        'totalCollected': totalCollected,
+        'totalDebts': totalDebts,
         'commissionAmount': commissionAmount,
         'commissionPercent': commissionPercent,
         'enableCommission': enableCommission,
         'netProfit': netProfit,
+        'totalWithdrawn': totalWithdrawn,
         'withdrawableBalance': withdrawableBalance,
         'bankName': bankName,
         'bankAccountName': bankAccountName,
         'bankAccountNumber': bankAccountNumber,
       });
     } catch (e, st) {
+      if (!mounted) return;
       state = AsyncValue.error(e, st);
     }
   }

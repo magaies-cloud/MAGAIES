@@ -278,58 +278,81 @@ class MerchantOrdersScreen extends ConsumerWidget {
       ),
       body: Column(
         children: [
-          // Smart Filters Header
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4, offset: const Offset(0, 2))],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
+          // Smart Filters Header (Professional Status & Payment Pill Indicators with Live Counts)
+          Builder(
+            builder: (context) {
+              final allOrders = ordersAsync.valueOrNull ?? const <Map<String, dynamic>>[];
+              int countStatus(String? s) => s == null ? allOrders.length : allOrders.where((o) => o['status'] == s).length;
+              bool isOrderPaid(Map<String, dynamic> o) {
+                if (o['status'] == 'cancelled') return false;
+                if (o['payment_status'] == 'paid') return true;
+                final total = double.tryParse(o['total_amount']?.toString() ?? '0') ?? 0;
+                final paid = double.tryParse(o['paid_amount']?.toString() ?? '0') ?? 0;
+                return total > 0 && paid >= total;
+              }
+              bool isOrderUnderReview(Map<String, dynamic> o) =>
+                  o['status'] != 'cancelled' && o['payment_status'] == 'under_review';
+              bool isOrderDebt(Map<String, dynamic> o) {
+                if (o['status'] == 'cancelled' || isOrderPaid(o)) return false;
+                final total = double.tryParse(o['total_amount']?.toString() ?? '0') ?? 0;
+                final paid = double.tryParse(o['paid_amount']?.toString() ?? '0') ?? 0;
+                return (total - paid) > 0;
+              }
+
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 6, offset: const Offset(0, 2))],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.filter_list, size: 18, color: Colors.blue),
-                    const SizedBox(width: 8),
-                    Text(isRtl ? 'حالة الطلب:' : 'Order Status:', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                    Row(
+                      children: [
+                        const Icon(Icons.tune_rounded, size: 17, color: Color(0xFF2563EB)),
+                        const SizedBox(width: 6),
+                        Text(isRtl ? 'حالة الطلب:' : 'Order Status:', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5)),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildFilterChip(context, ref, _statusFilterProvider, null, isRtl ? 'الكل' : 'All', count: countStatus(null), color: Colors.blueGrey),
+                          _buildFilterChip(context, ref, _statusFilterProvider, 'pending', isRtl ? 'قيد الانتظار' : 'Pending', count: countStatus('pending'), color: Colors.orange),
+                          _buildFilterChip(context, ref, _statusFilterProvider, 'processing', isRtl ? 'قيد المعالجة' : 'Processing', count: countStatus('processing'), color: Colors.blue),
+                          _buildFilterChip(context, ref, _statusFilterProvider, 'shipped', isRtl ? 'تم الشحن' : 'Shipped', count: countStatus('shipped'), color: Colors.indigo),
+                          _buildFilterChip(context, ref, _statusFilterProvider, 'delivered', isRtl ? 'تم التسليم' : 'Delivered', count: countStatus('delivered'), color: Colors.green),
+                          _buildFilterChip(context, ref, _statusFilterProvider, 'cancelled', isRtl ? 'ملغي' : 'Cancelled', count: countStatus('cancelled'), color: Colors.red),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        const Icon(Icons.payments_outlined, size: 17, color: Color(0xFF059669)),
+                        const SizedBox(width: 6),
+                        Text(isRtl ? 'حالة الدفع:' : 'Payment Status:', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5)),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _buildFilterChip(context, ref, _paymentFilterProvider, null, isRtl ? 'الكل' : 'All', count: allOrders.length, color: Colors.blueGrey),
+                          _buildFilterChip(context, ref, _paymentFilterProvider, 'paid', isRtl ? 'مدفوع بالكامل' : 'Fully Paid', count: allOrders.where(isOrderPaid).length, color: Colors.green),
+                          _buildFilterChip(context, ref, _paymentFilterProvider, 'under_review', isRtl ? 'قيد المراجعة' : 'Under Review', count: allOrders.where(isOrderUnderReview).length, color: Colors.purple),
+                          _buildFilterChip(context, ref, _paymentFilterProvider, 'debt', isRtl ? 'عليه متبقي' : 'Has Debt', count: allOrders.where(isOrderDebt).length, color: Colors.red),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      _buildFilterChip(context, ref, _statusFilterProvider, null, isRtl ? 'الكل' : 'All'),
-                      _buildFilterChip(context, ref, _statusFilterProvider, 'pending', isRtl ? 'قيد الانتظار' : 'Pending', color: Colors.orange),
-                      _buildFilterChip(context, ref, _statusFilterProvider, 'processing', isRtl ? 'قيد المعالجة' : 'Processing', color: Colors.blue),
-                      _buildFilterChip(context, ref, _statusFilterProvider, 'shipped', isRtl ? 'تم الشحن' : 'Shipped', color: Colors.indigo),
-                      _buildFilterChip(context, ref, _statusFilterProvider, 'delivered', isRtl ? 'تم التسليم' : 'Delivered', color: Colors.green),
-                      _buildFilterChip(context, ref, _statusFilterProvider, 'cancelled', isRtl ? 'ملغي' : 'Cancelled', color: Colors.red),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const Icon(Icons.payments_outlined, size: 18, color: Colors.blue),
-                    const SizedBox(width: 8),
-                    Text(isRtl ? 'حالة الدفع:' : 'Payment Status:', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      _buildFilterChip(context, ref, _paymentFilterProvider, null, isRtl ? 'الكل' : 'All'),
-                      _buildFilterChip(context, ref, _paymentFilterProvider, 'paid', isRtl ? 'مدفوع بالكامل' : 'Fully Paid', color: Colors.green),
-                      _buildFilterChip(context, ref, _paymentFilterProvider, 'debt', isRtl ? 'عليه متبقي' : 'Has Debt', color: Colors.red),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+              );
+            },
           ),
           
           // Orders List
@@ -367,12 +390,16 @@ class MerchantOrdersScreen extends ConsumerWidget {
                   final filteredOrders = orders.where((o) {
                     final matchStatus = statusFilter == null || o['status'] == statusFilter;
                     bool matchPayment = true;
+                    final total = double.tryParse(o['total_amount']?.toString() ?? '0') ?? 0;
+                    final paid = double.tryParse(o['paid_amount']?.toString() ?? '0') ?? 0;
+                    final isPaid = o['status'] != 'cancelled' &&
+                        (o['payment_status'] == 'paid' || (total > 0 && paid >= total));
                     if (paymentFilter == 'paid') {
-                      matchPayment = o['payment_status'] == 'paid';
+                      matchPayment = isPaid;
+                    } else if (paymentFilter == 'under_review') {
+                      matchPayment = o['status'] != 'cancelled' && o['payment_status'] == 'under_review';
                     } else if (paymentFilter == 'debt') {
-                      final total = double.tryParse(o['total_amount']?.toString() ?? '0') ?? 0;
-                      final paid = double.tryParse(o['paid_amount']?.toString() ?? '0') ?? 0;
-                      matchPayment = (total - paid) > 0;
+                      matchPayment = o['status'] != 'cancelled' && !isPaid && (total - paid) > 0;
                     }
                     return matchStatus && matchPayment;
                   }).toList();
@@ -412,26 +439,88 @@ class MerchantOrdersScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildFilterChip(BuildContext context, WidgetRef ref, AutoDisposeStateProvider<String?> provider, String? value, String label, {MaterialColor? color}) {
+  Widget _buildFilterChip(
+    BuildContext context,
+    WidgetRef ref,
+    AutoDisposeStateProvider<String?> provider,
+    String? value,
+    String label, {
+    MaterialColor? color,
+    int? count,
+  }) {
     final selectedValue = ref.watch(provider);
     final isSelected = selectedValue == value;
-    final themeColor = color ?? Colors.grey;
+    final themeColor = color ?? Colors.blueGrey;
 
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: FilterChip(
-        label: Text(label, style: TextStyle(fontSize: 12, color: isSelected ? Colors.white : Colors.black87)),
-        selected: isSelected,
-        showCheckmark: false,
-        backgroundColor: Colors.grey.shade100,
-        selectedColor: themeColor.shade600,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: isSelected ? themeColor.shade600 : Colors.grey.shade300),
+      padding: const EdgeInsetsDirectional.only(end: 8),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(24),
+          onTap: () => ref.read(provider.notifier).state = value,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            decoration: BoxDecoration(
+              color: isSelected ? themeColor.shade600 : themeColor.shade50.withValues(alpha: 0.7),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: isSelected ? themeColor.shade700 : themeColor.shade200,
+                width: isSelected ? 1.4 : 1.0,
+              ),
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: themeColor.withValues(alpha: 0.28),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: isSelected ? Colors.white : themeColor.shade600,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                    color: isSelected ? Colors.white : themeColor.shade900,
+                  ),
+                ),
+                if (count != null) ...[
+                  const SizedBox(width: 6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.white.withValues(alpha: 0.24) : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      count.toString(),
+                      style: TextStyle(
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w800,
+                        color: isSelected ? Colors.white : themeColor.shade800,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ),
-        onSelected: (bool selected) {
-          ref.read(provider.notifier).state = value;
-        },
       ),
     );
   }
@@ -460,9 +549,8 @@ class _OrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final orderId = OrderNumberFormatter.formatFromMap(order);
-    final date = order['created_at'] != null
-        ? DateFormat('yyyy-MM-dd HH:mm').format(DateTime.parse(order['created_at']).toLocal())
-        : '';
+    final parsedCreated = DateTime.tryParse(order['created_at']?.toString() ?? '')?.toLocal();
+    final date = parsedCreated != null ? DateFormat('yyyy-MM-dd HH:mm').format(parsedCreated) : '';
     final totalAmount = double.tryParse(order['total_amount']?.toString() ?? '0') ?? 0;
     final paidAmount = double.tryParse(order['paid_amount']?.toString() ?? '0') ?? 0;
     final transportFee = double.tryParse(order['transport_fee']?.toString() ?? '0') ?? 0;
@@ -888,9 +976,8 @@ class _OrderCard extends StatelessWidget {
                   Text(isRtl ? 'سجل المدفوعات:' : 'Payments:', style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                   const SizedBox(height: 6),
                   ...payments.map((p) {
-                    final pDate = p['created_at'] != null
-                        ? DateFormat('MM-dd HH:mm').format(DateTime.parse(p['created_at']).toLocal())
-                        : '';
+                    final parsedPDate = DateTime.tryParse(p['created_at']?.toString() ?? '')?.toLocal();
+                    final pDate = parsedPDate != null ? DateFormat('MM-dd HH:mm').format(parsedPDate) : '';
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 3),
                       child: Row(
@@ -1187,7 +1274,9 @@ class _OrderCard extends StatelessWidget {
                       if (order['store_id'] != null) 'store_id': order['store_id'],
                     }).eq('id', order['id']).eq('store_id', order['store_id']);
                     NotificationSoundService.play();
-                    ref.invalidate(merchantOrdersProvider);
+                    if (context.mounted) {
+                      ref.invalidate(merchantOrdersProvider);
+                    }
                   },
                   child: Text(isRtl ? 'تأكيد (0 رسوم)' : 'Confirm (0 fees)'),
                 ),
@@ -1636,8 +1725,8 @@ class _OrderCard extends StatelessWidget {
                               if (order['store_id'] != null) 'store_id': order['store_id'],
                             }).eq('id', order['id'].toString()).eq('store_id', order['store_id'].toString());
 
-                            ref.invalidate(merchantOrdersProvider);
                             if (context.mounted) {
+                              ref.invalidate(merchantOrdersProvider);
                               AppNotification.showSuccess(
                                 context,
                                 isRtl ? 'تم رفض الإشعار وإشعار المشتري بالسبب بنجاح' : 'Receipt rejected and buyer notified',
@@ -1856,11 +1945,10 @@ class _OrderCard extends StatelessWidget {
           .eq('id', order['id'].toString())
           .eq('store_id', order['store_id'].toString());
 
-      ref.invalidate(merchantOrdersProvider);
-      ref.invalidate(merchantInventoryProvider);
-      try { ref.invalidate(productsProvider); } catch (_) {}
-
       if (context.mounted) {
+        ref.invalidate(merchantOrdersProvider);
+        ref.invalidate(merchantInventoryProvider);
+        try { ref.invalidate(productsProvider); } catch (_) {}
         final orderId = order['id']?.toString();
         if (newStatus == 'shipped') {
           AppNotification.showShipped(
@@ -2163,9 +2251,9 @@ class _OrderCard extends StatelessWidget {
                     if (order['store_id'] != null) 'store_id': order['store_id'],
                   }).eq('id', order['id'].toString()).eq('store_id', order['store_id'].toString());
 
-                  ref.invalidate(merchantOrdersProvider);
                   if (dialogContext.mounted) Navigator.of(dialogContext).pop();
                   if (context.mounted) {
+                    ref.invalidate(merchantOrdersProvider);
                     AppNotification.showSuccess(
                       context,
                       isRtl ? 'تم تسجيل الدفعة ورقم الإشعار بنجاح!' : 'Payment & Reference recorded successfully!',

@@ -18,9 +18,12 @@ import 'package:magaiees_marketplace/core/utils/order_number_formatter.dart';
 import 'package:magaiees_marketplace/core/utils/data_validator.dart';
 import 'package:magaiees_marketplace/core/utils/name_formatter.dart';
 
+final _buyerStatusFilterProvider = StateProvider.autoDispose<String?>((ref) => null);
+final _buyerPaymentFilterProvider = StateProvider.autoDispose<String?>((ref) => null);
+
 final buyerOrdersProvider = StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) {
   final user = ref.watch(authNotifierProvider).valueOrNull;
-  if (user == null) {
+  if (user == null || user.role.isGuest) {
     return Stream.value([]);
   }
 
@@ -101,84 +104,317 @@ class BuyerOrdersScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final user = ref.watch(authNotifierProvider).valueOrNull;
+    final isGuest = user == null || user.role.isGuest;
     final ordersAsync = ref.watch(buyerOrdersProvider);
+    final statusFilter = ref.watch(_buyerStatusFilterProvider);
+    final paymentFilter = ref.watch(_buyerPaymentFilterProvider);
+
+    bool isOrderPaid(Map<String, dynamic> o) {
+      if (o['status'] == 'cancelled') return false;
+      if (o['payment_status'] == 'paid') return true;
+      final total = double.tryParse(o['total_amount']?.toString() ?? '0') ?? 0;
+      final paid = double.tryParse(o['paid_amount']?.toString() ?? '0') ?? 0;
+      return total > 0 && paid >= total;
+    }
+
+    bool isOrderUnderReview(Map<String, dynamic> o) =>
+        o['status'] != 'cancelled' && o['payment_status'] == 'under_review';
+
+    bool isOrderDebt(Map<String, dynamic> o) {
+      if (o['status'] == 'cancelled' || isOrderPaid(o)) return false;
+      final total = double.tryParse(o['total_amount']?.toString() ?? '0') ?? 0;
+      final paid = double.tryParse(o['paid_amount']?.toString() ?? '0') ?? 0;
+      return (total - paid) > 0;
+    }
 
     return Scaffold(
       appBar: AppBar(
         title: Text(isRtl ? 'طلباتي' : 'My Orders'),
+        actions: [
+          if (!isGuest)
+            IconButton(
+              icon: const Icon(Icons.refresh_rounded),
+              tooltip: isRtl ? 'تحديث' : 'Refresh',
+              onPressed: () => ref.invalidate(buyerOrdersProvider),
+            ),
+        ],
       ),
-      body: RefreshIndicator(
-        onRefresh: () async {
-          ref.invalidate(buyerOrdersProvider);
-        },
-        child: ordersAsync.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error: (err, stack) => SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Center(
+      body: isGuest
+          ? Center(
               child: Padding(
                 padding: const EdgeInsets.all(32),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.cloud_off_rounded, size: 64, color: Colors.grey.shade400),
+                    Icon(Icons.receipt_long_rounded, size: 68, color: Colors.blue.shade300),
                     const SizedBox(height: 16),
                     Text(
-                      isRtl ? 'تعذر الاتصال بالخادم' : 'Could not connect to server',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
+                      isRtl ? 'سجّل الدخول لمتابعة طلباتك' : 'Sign in to track your orders',
+                      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      isRtl ? 'تحقق من اتصال الإنترنت وأعد المحاولة' : 'Check your internet connection and try again',
-                      style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                      isRtl
+                          ? 'يمكنك متابعة حالة الطلب وحالة الدفع ورفع إشعارات التحويل بعد تسجيل الدخول.'
+                          : 'Track order status, payment status, and upload receipts once signed in.',
+                      style: TextStyle(fontSize: 13, color: Colors.grey.shade600),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 20),
                     FilledButton.icon(
-                      onPressed: () => ref.invalidate(buyerOrdersProvider),
-                      icon: const Icon(Icons.refresh),
-                      label: Text(isRtl ? 'إعادة المحاولة' : 'Retry'),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Colors.blue.shade600,
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                      ),
+                      onPressed: () => context.push('/login'),
+                      icon: const Icon(Icons.login_rounded),
+                      label: Text(isRtl ? 'تسجيل الدخول / إنشاء حساب' : 'Sign In / Register'),
                     ),
                   ],
                 ),
               ),
+            )
+          : Column(
+              children: [
+                Builder(
+                  builder: (context) {
+                    final allOrders = ordersAsync.valueOrNull ?? const <Map<String, dynamic>>[];
+                    int countStatus(String? s) =>
+                        s == null ? allOrders.length : allOrders.where((o) => o['status'] == s).length;
+
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 6,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.tune_rounded, size: 16, color: Color(0xFF2563EB)),
+                              const SizedBox(width: 6),
+                              Text(
+                                isRtl ? 'حالة الطلب:' : 'Order Status:',
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                _buildFilterChip(ref, _buyerStatusFilterProvider, null, isRtl ? 'الكل' : 'All', count: countStatus(null), color: Colors.blueGrey),
+                                _buildFilterChip(ref, _buyerStatusFilterProvider, 'pending', isRtl ? 'قيد الانتظار' : 'Pending', count: countStatus('pending'), color: Colors.orange),
+                                _buildFilterChip(ref, _buyerStatusFilterProvider, 'processing', isRtl ? 'قيد المعالجة' : 'Processing', count: countStatus('processing'), color: Colors.blue),
+                                _buildFilterChip(ref, _buyerStatusFilterProvider, 'shipped', isRtl ? 'تم الشحن' : 'Shipped', count: countStatus('shipped'), color: Colors.indigo),
+                                _buildFilterChip(ref, _buyerStatusFilterProvider, 'delivered', isRtl ? 'تم التسليم' : 'Delivered', count: countStatus('delivered'), color: Colors.green),
+                                _buildFilterChip(ref, _buyerStatusFilterProvider, 'cancelled', isRtl ? 'ملغي' : 'Cancelled', count: countStatus('cancelled'), color: Colors.red),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              const Icon(Icons.payments_outlined, size: 16, color: Color(0xFF059669)),
+                              const SizedBox(width: 6),
+                              Text(
+                                isRtl ? 'حالة الدفع:' : 'Payment Status:',
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                _buildFilterChip(ref, _buyerPaymentFilterProvider, null, isRtl ? 'الكل' : 'All', count: allOrders.length, color: Colors.blueGrey),
+                                _buildFilterChip(ref, _buyerPaymentFilterProvider, 'paid', isRtl ? 'مدفوع بالكامل' : 'Fully Paid', count: allOrders.where(isOrderPaid).length, color: Colors.green),
+                                _buildFilterChip(ref, _buyerPaymentFilterProvider, 'under_review', isRtl ? 'قيد المراجعة' : 'Under Review', count: allOrders.where(isOrderUnderReview).length, color: Colors.purple),
+                                _buildFilterChip(ref, _buyerPaymentFilterProvider, 'debt', isRtl ? 'عليه متبقي' : 'Remaining', count: allOrders.where(isOrderDebt).length, color: Colors.red),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      ref.invalidate(buyerOrdersProvider);
+                    },
+                    child: ordersAsync.when(
+                      loading: () => const Center(child: CircularProgressIndicator()),
+                      error: (err, stack) => SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(32),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.cloud_off_rounded, size: 64, color: Colors.grey.shade400),
+                                const SizedBox(height: 16),
+                                Text(
+                                  isRtl ? 'تعذر الاتصال بالخادم' : 'Could not connect to server',
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.grey.shade700),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  isRtl ? 'تحقق من اتصال الإنترنت وأعد المحاولة' : 'Check your internet connection and try again',
+                                  style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 20),
+                                FilledButton.icon(
+                                  onPressed: () => ref.invalidate(buyerOrdersProvider),
+                                  icon: const Icon(Icons.refresh),
+                                  label: Text(isRtl ? 'إعادة المحاولة' : 'Retry'),
+                                  style: FilledButton.styleFrom(
+                                    backgroundColor: Colors.blue.shade600,
+                                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      data: (orders) {
+                        final filtered = orders.where((o) {
+                          final matchStatus = statusFilter == null || o['status'] == statusFilter;
+                          bool matchPay = true;
+                          if (paymentFilter == 'paid') {
+                            matchPay = isOrderPaid(o);
+                          } else if (paymentFilter == 'under_review') {
+                            matchPay = isOrderUnderReview(o);
+                          } else if (paymentFilter == 'debt') {
+                            matchPay = isOrderDebt(o);
+                          }
+                          return matchStatus && matchPay;
+                        }).toList();
+
+                        if (filtered.isEmpty) {
+                          return ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: [
+                              SizedBox(height: MediaQuery.of(context).size.height * 0.2),
+                              Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.shopping_bag_outlined, size: 64, color: Colors.grey.shade400),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      orders.isEmpty
+                                          ? (isRtl ? 'لم تقم بأي طلبات بعد' : 'You have no orders yet')
+                                          : (isRtl ? 'لا توجد طلبات تطابق الفلتر المحدد' : 'No orders match selected filter'),
+                                      style: TextStyle(fontSize: 16, color: Colors.grey.shade600),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+
+                        return ListView.builder(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          itemCount: filtered.length,
+                          itemBuilder: (context, index) {
+                            return _BuyerOrderCard(order: filtered[index], isRtl: isRtl);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          data: (orders) {
-            if (orders.isEmpty) {
-              return ListView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                children: [
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.25),
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.shopping_bag_outlined, size: 64, color: Colors.grey.shade400),
-                        const SizedBox(height: 16),
-                        Text(isRtl ? 'لم تقم بأي طلبات بعد' : 'You have no orders yet',
-                            style: TextStyle(fontSize: 16, color: Colors.grey.shade600)),
-                      ],
+    );
+  }
+
+  Widget _buildFilterChip(
+    WidgetRef ref,
+    AutoDisposeStateProvider<String?> provider,
+    String? value,
+    String label, {
+    MaterialColor? color,
+    int? count,
+  }) {
+    final selectedValue = ref.watch(provider);
+    final isSelected = selectedValue == value;
+    final themeColor = color ?? Colors.blueGrey;
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(end: 8),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(24),
+          onTap: () => ref.read(provider.notifier).state = value,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6.5),
+            decoration: BoxDecoration(
+              color: isSelected ? themeColor.shade600 : themeColor.shade50.withValues(alpha: 0.7),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: isSelected ? themeColor.shade700 : themeColor.shade200,
+                width: isSelected ? 1.4 : 1.0,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 7.5,
+                  height: 7.5,
+                  decoration: BoxDecoration(
+                    color: isSelected ? Colors.white : themeColor.shade600,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                    color: isSelected ? Colors.white : themeColor.shade900,
+                  ),
+                ),
+                if (count != null) ...[
+                  const SizedBox(width: 5),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 5.5, vertical: 1),
+                    decoration: BoxDecoration(
+                      color: isSelected ? Colors.white.withValues(alpha: 0.24) : Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      count.toString(),
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: isSelected ? Colors.white : themeColor.shade800,
+                      ),
                     ),
                   ),
                 ],
-              );
-            }
-
-            return ListView.builder(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: orders.length,
-              itemBuilder: (context, index) {
-                final order = orders[index];
-                return _BuyerOrderCard(order: order, isRtl: isRtl);
-              },
-            );
-          },
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -193,9 +429,8 @@ class _BuyerOrderCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final orderId = OrderNumberFormatter.formatFromMap(order);
-    final date = order['created_at'] != null
-        ? DateFormat('yyyy-MM-dd HH:mm').format(DateTime.parse(order['created_at']).toLocal())
-        : '-';
+    final parsedCreated = DateTime.tryParse(order['created_at']?.toString() ?? '')?.toLocal();
+    final date = parsedCreated != null ? DateFormat('yyyy-MM-dd HH:mm').format(parsedCreated) : '-';
     final totalAmount = double.tryParse(order['total_amount']?.toString() ?? '0') ?? 0;
     final paidAmount = double.tryParse(order['paid_amount']?.toString() ?? '0') ?? 0;
     final transportFee = double.tryParse(order['transport_fee']?.toString() ?? '0') ?? 0;
@@ -2599,7 +2834,9 @@ class _BuyerOrderCard extends ConsumerWidget {
                                           );
                                         }
                                       } finally {
-                                        setSheetState(() => isUploading = false);
+                                        if (ctx.mounted) {
+                                          setSheetState(() => isUploading = false);
+                                        }
                                       }
                                     } else if (currentReceipts.isNotEmpty) {
                                       if (remainingBalance > 0) {
@@ -2639,7 +2876,9 @@ class _BuyerOrderCard extends ConsumerWidget {
                                           AppNotification.showError(context, 'Error: $e');
                                         }
                                       } finally {
-                                        setSheetState(() => isUploading = false);
+                                        if (ctx.mounted) {
+                                          setSheetState(() => isUploading = false);
+                                        }
                                       }
                                     } else {
                                       AppNotification.showError(
@@ -2741,9 +2980,14 @@ class _BuyerOrderCard extends ConsumerWidget {
                         setState(() => isSubmitting = true);
                         try {
                           final supabase = Supabase.instance.client;
+                          final buyerId = supabase.auth.currentUser?.id ??
+                              ProviderScope.containerOf(context, listen: false).read(authNotifierProvider).valueOrNull?.id;
+                          if (buyerId == null || buyerId == 'guest_user') {
+                            throw Exception(isRtl ? 'يرجى تسجيل الدخول للتقييم' : 'Please sign in to submit a review');
+                          }
                           await supabase.from('product_reviews').insert({
                             'product_id': item['product_id'],
-                            'buyer_id': supabase.auth.currentUser!.id,
+                            'buyer_id': buyerId,
                             'rating': selectedRating,
                             'comment': comment,
                           });

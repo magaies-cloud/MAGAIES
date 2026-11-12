@@ -43,6 +43,9 @@ class _MerchantWalletScreenState extends ConsumerState<MerchantWalletScreen> {
               ? List<Map<String, dynamic>>.from(walletData['payouts'] as List)
               : <Map<String, dynamic>>[];
           final totalSales = (walletData['totalSales'] as num?)?.toDouble() ?? 0.0;
+          final allActiveSales = (walletData['allActiveSales'] as num?)?.toDouble() ?? totalSales;
+          final totalDebts = (walletData['totalDebts'] as num?)?.toDouble() ?? 0.0;
+          final totalWithdrawn = (walletData['totalWithdrawn'] as num?)?.toDouble() ?? 0.0;
           final enableCommission = walletData['enableCommission'] == true;
           final commissionAmount = (walletData['commissionAmount'] as num?)?.toDouble() ?? 0.0;
           final commissionPercent = (walletData['commissionPercent'] as num?)?.toDouble() ?? 0.0;
@@ -66,12 +69,12 @@ class _MerchantWalletScreenState extends ConsumerState<MerchantWalletScreen> {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(colors: [Colors.blue.shade900, Colors.blue.shade600]),
                       borderRadius: BorderRadius.circular(24),
-                      boxShadow: [BoxShadow(color: Colors.blue.withOpacity(0.3), blurRadius: 10, offset: const Offset(0, 5))],
+                      boxShadow: [BoxShadow(color: Colors.blue.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, 5))],
                     ),
                     child: Column(
                       children: [
                         Text(
-                          isRtl ? 'الرصيد القابل للسحب' : 'Withdrawable Balance',
+                          isRtl ? 'الرصيد القابل للسحب (المحفظة)' : 'Withdrawable Wallet Balance',
                           style: const TextStyle(color: Colors.white70, fontSize: 16),
                         ),
                         const SizedBox(height: 8),
@@ -85,7 +88,7 @@ class _MerchantWalletScreenState extends ConsumerState<MerchantWalletScreen> {
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                             decoration: BoxDecoration(color: Colors.white24, borderRadius: BorderRadius.circular(12)),
                             child: Text(
-                              '${isRtl ? 'قيد المراجعة:' : 'Pending:'} ${NumberFormat.decimalPattern().format(totalPending)}',
+                              '${isRtl ? 'سحب قيد المراجعة:' : 'Pending Payout:'} ${NumberFormat.decimalPattern().format(totalPending)} ${isRtl ? 'ج.س' : 'SDG'}',
                               style: const TextStyle(color: Colors.white, fontSize: 12),
                             ),
                           )
@@ -96,29 +99,40 @@ class _MerchantWalletScreenState extends ConsumerState<MerchantWalletScreen> {
                 ),
               ),
 
-              if (enableCommission)
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  sliver: SliverToBoxAdapter(
-                    child: Card(
-                      color: Colors.blue.shade50,
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          children: [
-                            _buildSummaryRow(isRtl ? 'إجمالي المبيعات' : 'Total Sales', totalSales, isRtl),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                sliver: SliverToBoxAdapter(
+                  child: Card(
+                    color: Colors.blue.shade50,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        children: [
+                          _buildSummaryRow(isRtl ? 'إجمالي المبيعات النشطة' : 'Total Active Sales', allActiveSales, isRtl),
+                          const Divider(),
+                          _buildSummaryRow(isRtl ? 'المحصّل من الطلبات المستلمة' : 'Collected (Delivered Orders)', totalSales, isRtl),
+                          const Divider(),
+                          _buildSummaryRow(isRtl ? 'الديون المتبقية على العملاء' : 'Remaining Customer Debts', totalDebts, isRtl, isRed: totalDebts > 0),
+                          if (enableCommission) ...[
                             const Divider(),
                             _buildSummaryRow(isRtl ? 'عمولة المنصة ($commissionPercent%)' : 'Commission ($commissionPercent%)', commissionAmount, isRtl, isRed: true),
                             const Divider(),
-                            _buildSummaryRow(isRtl ? 'صافي الأرباح' : 'Net Profit', netProfit, isRtl, isBold: true),
+                            _buildSummaryRow(isRtl ? 'صافي أرباح المستلم' : 'Net Delivered Profit', netProfit, isRtl),
                           ],
-                        ),
+                          if (totalWithdrawn > 0) ...[
+                            const Divider(),
+                            _buildSummaryRow(isRtl ? 'المسحوب / قيد السحب' : 'Withdrawn / Pending', totalWithdrawn, isRtl, isRed: true),
+                          ],
+                          const Divider(),
+                          _buildSummaryRow(isRtl ? 'الرصيد المتاح للسحب' : 'Available Wallet Balance', withdrawableBalance, isRtl, isBold: true),
+                        ],
                       ),
                     ),
                   ),
                 ),
+              ),
 
               SliverPadding(
                 padding: const EdgeInsets.all(16),
@@ -246,7 +260,14 @@ class _MerchantWalletScreenState extends ConsumerState<MerchantWalletScreen> {
     final savedAccountNumber = walletState?['bankAccountNumber']?.toString() ?? '';
     final hasVerifiedBank = savedBankName.isNotEmpty && savedAccountNumber.isNotEmpty;
 
-    final dbBanks = ref.read(banksProvider).valueOrNull?.where((b) => b.isActive).map((b) => b.nameAr).toList() ?? [];
+    final dbBanks = ref
+            .read(banksProvider)
+            .valueOrNull
+            ?.where((b) => b.isActive && b.nameAr.trim().isNotEmpty)
+            .map((b) => b.nameAr.trim())
+            .toSet()
+            .toList() ??
+        [];
     final sudaneseBanks = dbBanks.isNotEmpty ? dbBanks : [
       'بنك الخرطوم (بنكك)',
       'بنك أمدرمان الوطني (أوكاش)',
@@ -446,7 +467,9 @@ class _MerchantWalletScreenState extends ConsumerState<MerchantWalletScreen> {
                       );
                     }
                   } catch (e) {
-                    setModalState(() => isSubmitting = false);
+                    if (dialogCtx.mounted) {
+                      setModalState(() => isSubmitting = false);
+                    }
                     if (context.mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),

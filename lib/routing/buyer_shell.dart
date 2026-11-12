@@ -64,6 +64,8 @@ class _BuyerShellState extends ConsumerState<BuyerShell> {
                 } catch (_) {}
               }
 
+              if (!mounted) return;
+
               if (rowBuyerId == user.id) {
                 // Play notification tone
                 NotificationSoundService.play();
@@ -193,6 +195,42 @@ class _BuyerShellState extends ConsumerState<BuyerShell> {
 
     final unreadCount = ref.watch(unreadMessagesCountProvider).valueOrNull ?? 0;
     final cartItemCount = ref.watch(cartNotifierProvider).items.length;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final activeColor = isDark ? AppColors.primaryLight : AppColors.primary;
+    final inactiveColor = isDark ? const Color(0xFF94A3B8) : AppColors.textSecondary;
+
+    final navItems = <({IconData icon, IconData selectedIcon, String label, int badge})>[
+      (
+        icon: Icons.home_outlined,
+        selectedIcon: Icons.home_rounded,
+        label: context.isRtl ? 'الرئيسية' : 'Home',
+        badge: 0,
+      ),
+      (
+        icon: Icons.shopping_cart_outlined,
+        selectedIcon: Icons.shopping_cart_rounded,
+        label: context.isRtl ? 'السلة' : 'Cart',
+        badge: cartItemCount,
+      ),
+      (
+        icon: Icons.receipt_long_outlined,
+        selectedIcon: Icons.receipt_long_rounded,
+        label: context.isRtl ? 'الطلبات' : 'Orders',
+        badge: 0,
+      ),
+      (
+        icon: Icons.chat_bubble_outline_rounded,
+        selectedIcon: Icons.chat_bubble_rounded,
+        label: context.isRtl ? 'المحادثات' : 'Chat',
+        badge: unreadCount,
+      ),
+      (
+        icon: Icons.person_outline_rounded,
+        selectedIcon: Icons.person_rounded,
+        label: context.isRtl ? 'حسابي' : 'Account',
+        badge: 0,
+      ),
+    ];
 
     return PopScope(
       canPop: widget.navigationShell.currentIndex == 0,
@@ -205,103 +243,86 @@ class _BuyerShellState extends ConsumerState<BuyerShell> {
         body: widget.navigationShell,
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: isDark ? const Color(0xFF0F172A) : Colors.white,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 10,
-                offset: const Offset(0, -3),
+                color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
+                blurRadius: 12,
+                offset: const Offset(0, -2),
               ),
             ],
             border: Border(
-              top: BorderSide(color: Colors.grey.shade200, width: 0.8),
+              top: BorderSide(
+                color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                width: 0.8,
+              ),
             ),
           ),
-          child: MediaQuery(
-            data: MediaQuery.of(context).copyWith(
-              textScaler: MediaQuery.of(context).textScaler.clamp(
-                minScaleFactor: 0.85,
-                maxScaleFactor: 1.05,
+          child: SafeArea(
+            top: false,
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: MediaQuery.of(context).textScaler.clamp(
+                  minScaleFactor: 0.85,
+                  maxScaleFactor: 1.0,
+                ),
               ),
-            ),
-            child: NavigationBarTheme(
-              data: NavigationBarThemeData(
-                indicatorColor: AppColors.primary.withValues(alpha: 0.12),
-                labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((states) {
-                  if (states.contains(WidgetState.selected)) {
-                    return const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
+              child: SizedBox(
+                height: 52,
+                child: Row(
+                  children: List.generate(navItems.length, (index) {
+                    final item = navItems[index];
+                    final isSelected = widget.navigationShell.currentIndex == index;
+                    final iconWidget = Icon(
+                      isSelected ? item.selectedIcon : item.icon,
+                      size: isSelected ? 22 : 21,
+                      color: isSelected ? activeColor : inactiveColor,
                     );
-                  }
-                  return const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.textSecondary,
-                  );
-                }),
-                iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {
-                  if (states.contains(WidgetState.selected)) {
-                    return const IconThemeData(
-                      size: 25,
-                      color: AppColors.primary,
+                    return Expanded(
+                      child: InkWell(
+                        onTap: () => _onTap(index),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            AnimatedContainer(
+                              duration: const Duration(milliseconds: 180),
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? activeColor.withValues(alpha: 0.12)
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              child: item.badge > 0
+                                  ? Badge(
+                                      label: Text(
+                                        item.badge > 99 ? '99+' : item.badge.toString(),
+                                        style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.bold),
+                                      ),
+                                      child: iconWidget,
+                                    )
+                                  : iconWidget,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              item.label,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 10.5,
+                                height: 1.1,
+                                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                                color: isSelected ? activeColor : inactiveColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     );
-                  }
-                  return const IconThemeData(
-                    size: 24,
-                    color: AppColors.textSecondary,
-                  );
-                }),
-              ),
-              child: NavigationBar(
-                selectedIndex: widget.navigationShell.currentIndex,
-                onDestinationSelected: _onTap,
-                backgroundColor: Colors.white,
-                elevation: 0,
-                destinations: [
-                  NavigationDestination(
-                    icon: const Icon(Icons.home_outlined),
-                    selectedIcon: const Icon(Icons.home_rounded),
-                    label: context.isRtl ? 'الرئيسية' : 'Home',
-                  ),
-                  NavigationDestination(
-                    icon: Badge(
-                      isLabelVisible: cartItemCount > 0,
-                      label: Text(cartItemCount.toString()),
-                      child: const Icon(Icons.shopping_cart_outlined),
-                    ),
-                    selectedIcon: Badge(
-                      isLabelVisible: cartItemCount > 0,
-                      label: Text(cartItemCount.toString()),
-                      child: const Icon(Icons.shopping_cart_rounded),
-                    ),
-                    label: context.isRtl ? 'السلة' : 'Cart',
-                  ),
-                  NavigationDestination(
-                    icon: const Icon(Icons.receipt_long_outlined),
-                    selectedIcon: const Icon(Icons.receipt_long_rounded),
-                    label: context.isRtl ? 'الطلبات' : 'Orders',
-                  ),
-                  NavigationDestination(
-                    icon: Badge(
-                      isLabelVisible: unreadCount > 0,
-                      label: Text(unreadCount.toString()),
-                      child: const Icon(Icons.chat_bubble_outline_rounded),
-                    ),
-                    selectedIcon: Badge(
-                      isLabelVisible: unreadCount > 0,
-                      label: Text(unreadCount.toString()),
-                      child: const Icon(Icons.chat_bubble_rounded),
-                    ),
-                    label: context.isRtl ? 'المحادثات' : 'Chat',
-                  ),
-                  NavigationDestination(
-                    icon: const Icon(Icons.person_outline_rounded),
-                    selectedIcon: const Icon(Icons.person_rounded),
-                    label: context.isRtl ? 'حسابي' : 'My Account',
-                  ),
-                ],
+                  }),
+                ),
               ),
             ),
           ),

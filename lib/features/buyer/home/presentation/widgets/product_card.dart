@@ -43,6 +43,7 @@ class ProductCard extends StatelessWidget {
     final sponsoredLabel = isRtl ? 'ممول' : 'Sponsored';
 
     return Card(
+      margin: EdgeInsets.zero,
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       clipBehavior: Clip.antiAlias,
@@ -51,7 +52,7 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Image Area (Standard 4:3)
+            // Image Area (Standard 4:3 — preserves exact natural aspect ratio without square resampling distortion)
             AspectRatio(
               aspectRatio: 4 / 3,
               child: Stack(
@@ -61,10 +62,9 @@ class ProductCard extends StatelessWidget {
                     color: Colors.white,
                     child: product.imageUrl != null && product.imageUrl!.isNotEmpty
                         ? CachedNetworkImage(
-                            imageUrl: ImageOptimizer.optimize(product.imageUrl!, width: 400),
+                            imageUrl: ImageOptimizer.optimize(product.imageUrl!, width: 600),
                             fit: BoxFit.cover,
-                            memCacheWidth: 400,
-                            memCacheHeight: 400,
+                            memCacheWidth: 600,
                             placeholder: (context, url) => Container(
                               color: Colors.white,
                               child: Center(
@@ -151,29 +151,36 @@ class ProductCard extends StatelessWidget {
                       top: 6,
                       right: isRtl ? null : 6,
                       left: isRtl ? 6 : null,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0F172A).withValues(alpha: 0.75),
-                          borderRadius: BorderRadius.circular(6),
-                          boxShadow: const [
-                            BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 1)),
-                          ],
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.storefront_rounded, size: 11, color: Color(0xFF38BDF8)),
-                            const SizedBox(width: 3),
-                            Text(
-                              displayStore,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 9.5,
-                                fontWeight: FontWeight.bold,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 132),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0F172A).withValues(alpha: 0.75),
+                            borderRadius: BorderRadius.circular(6),
+                            boxShadow: const [
+                              BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 1)),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.storefront_rounded, size: 11, color: Color(0xFF38BDF8)),
+                              const SizedBox(width: 3),
+                              Flexible(
+                                child: Text(
+                                  displayStore,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 9.5,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -231,10 +238,12 @@ class ProductCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           '$priceStr $currencyUnit',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontWeight: FontWeight.w900,
-                            fontSize: 14,
-                            color: Theme.of(context).primaryColor,
+                            fontSize: 13.5,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                         ),
                         const SizedBox(height: 4),
