@@ -119,7 +119,7 @@ try {
 
             $mail->isHTML(true);
             $mail->Subject = 'النسخة الاحتياطية اليومية - MAGAIES';
-            $mail->Body    = 'مرفق النسخة الاحتياطية لقاعدة البيانات الخاصة بنظام مقاييس لتاريخ: ' . date('Y-m-d');
+            $mail->Body    = 'مرفق النسخة الاحتياطية لقاعدة البيانات الخاصة بنظام السيطرة لتاريخ: ' . date('Y-m-d');
             
             $mail->addAttachment($finalAttachment, basename($finalAttachment));
 

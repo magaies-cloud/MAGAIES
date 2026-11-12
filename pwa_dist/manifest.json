@@ -1,7 +1,7 @@
 {
-  "name": "Magaiees ERP - مقاييس",
-  "short_name": "مقاييس ERP",
-  "description": "منظومة مقاييس لإدارة الموارد والمبيعات والمخزون والحسابات - Magaiees ERP & POS System",
+  "name": "Magaiees ERP - السيطرة",
+  "short_name": "السيطرة ERP",
+  "description": "منظومة السيطرة لإدارة الموارد والمبيعات والمخزون والحسابات - Magaiees ERP & POS System",
   "id": "magaiees-erp-2026-m-brand-new-v5",
   "start_url": "/",
   "scope": "/",

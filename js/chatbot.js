@@ -1289,12 +1289,12 @@
 
         if (intent === 'units') {
             const responseHtml = `
-                📐 <b>محول المقاييس والوحدات العالمية:</b><br><br>
+                📐 <b>محول اللسيطرة والوحدات العالمية:</b><br><br>
                 • 1 فدان = 4200.83 متر مربع.<br>
                 • 1 متر = 39.37 بوصة = 3.281 قدم.<br>
                 • 1 طن = 1000 كجم = 2204.62 رطل.
             `;
-            const btnHtml = `<br><button type="button" class="chat-action-btn" onclick="openToolSuite('units')">🔄 فتح محول المقاييس والوحدات</button>`;
+            const btnHtml = `<br><button type="button" class="chat-action-btn" onclick="openToolSuite('units')">🔄 فتح محول اللسيطرة والوحدات</button>`;
             callback(true, responseHtml, btnHtml);
             return;
         }

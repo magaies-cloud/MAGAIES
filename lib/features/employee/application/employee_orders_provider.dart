@@ -215,7 +215,7 @@ class EmployeeOrders extends _$EmployeeOrders {
           final orderId = newRec['id']?.toString() ?? 'new_order';
           LocalNotificationService.instance.showOrderNotification(
             orderId: orderId,
-            title: '🔔 طلبية جديدة في رادار مقاييس!',
+            title: '🔔 طلبية جديدة في رادار السيطرة!',
             body: 'وصل طلب جديد في انتظار القبول والتنفيذ، اضغط لمعاينة الطلب.',
             payload: orderId,
           );
@@ -642,7 +642,7 @@ class EmployeeOrders extends _$EmployeeOrders {
 
       await _supabase.from('orders').update({
         'status': 'cancelled',
-        'notes': '${currentNotes.isNotEmpty ? '$currentNotes\n' : ''}تم الرفض بواسطة موظف مقاييس: $reason',
+        'notes': '${currentNotes.isNotEmpty ? '$currentNotes\n' : ''}تم الرفض بواسطة موظف السيطرة: $reason',
       }).eq('id', orderId);
 
       await refreshAllOrders();

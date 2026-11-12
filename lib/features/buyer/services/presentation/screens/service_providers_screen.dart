@@ -207,7 +207,7 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        isRtl ? 'انضم لشبكة مقاييس المعتمدة لتصلك طلبات المشروعات والمواد' : 'Join Magaiees certified network for direct customer orders',
+                        isRtl ? 'انضم لشبكة السيطرة المعتمدة لتصلك طلبات المشروعات والمواد' : 'Join Magaiees certified network for direct customer orders',
                         style: const TextStyle(color: Color(0xFF64748B), fontSize: 11.5),
                       ),
                     ],
@@ -581,7 +581,7 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
       case 'logistics':
         return isRtl ? 'أسطول النقل الثقيل، الدفارات، والتعتيل' : 'Heavy Truck Fleets, Dyna & Offloading';
       default:
-        return isRtl ? 'دليل مقاولي وأساطيل منصة مقاييس' : 'Magaiees Services & Fleet Directory';
+        return isRtl ? 'دليل مقاولي وأساطيل منصة السيطرة' : 'Magaiees Services & Fleet Directory';
     }
   }
 
@@ -942,7 +942,7 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
                                                     ],
                                                   ),
                                                   content: const Text(
-                                                    'شكراً لاهتمامك بالانضمام إلى شبكة مزودي مقاييس المعتمدين.\n\nسيقوم فريق إدارة التطبيق بمراجعة بياناتك والتحقق من رقم الهاتف، وسيتم اعتماد وتفعيل ملفك الشخصي في الدليل الرسمي فور اكتمال التدقيق.',
+                                                    'شكراً لاهتمامك بالانضمام إلى شبكة مزودي السيطرة المعتمدين.\n\nسيقوم فريق إدارة التطبيق بمراجعة بياناتك والتحقق من رقم الهاتف، وسيتم اعتماد وتفعيل ملفك الشخصي في الدليل الرسمي فور اكتمال التدقيق.',
                                                     style: TextStyle(fontSize: 13, height: 1.5, color: Color(0xFF334155)),
                                                   ),
                                                   actions: [

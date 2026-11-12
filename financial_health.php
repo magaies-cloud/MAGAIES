@@ -457,7 +457,7 @@ if (!function_exists('convertReportAmount')) {
             color: #ff0055;
         }
 
-        /* === بطاقات المقاييس === */
+        /* === بطاقات اللسيطرة === */
         .gauge-section {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -667,7 +667,7 @@ if (!function_exists('convertReportAmount')) {
             </div>
         </div>
 
-        <!-- === بطاقات المقاييس الثلاثة (محسوبة ديناميكياً) === -->
+        <!-- === بطاقات اللسيطرة الثلاثة (محسوبة ديناميكياً) === -->
         <div class="gauge-section">
             <!-- بطاقة نسبة التداول السريعة Quick Ratio -->
             <div class="gauge-card">

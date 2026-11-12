@@ -522,7 +522,7 @@ class WhatsAppClient {
                                 );
                                 const isBotReplyTxt = (
                                     rawBrokerTxt.includes('━━━━') ||
-                                    rawBrokerTxt.includes('منظومة مقاييس') ||
+                                    rawBrokerTxt.includes('منظومة السيطرة') ||
                                     rawBrokerTxt.includes('تم نشر عرض الأسعار') ||
                                     rawBrokerTxt.includes('تم نشر طلب الشراء') ||
                                     rawBrokerTxt.includes('بورصة عروض الأسعار') ||
@@ -653,7 +653,7 @@ class WhatsAppClient {
                             const imgCaption = unwrapped?.imageMessage?.caption || unwrapped?.documentMessage?.caption || '';
                             const isBotOwnVoucherImg = Boolean(
                                 (msg.key?.id && this.processedWaMsgIds.has(msg.key.id)) ||
-                                imgCaption.includes('منظومة مقاييس المحاسبية') ||
+                                imgCaption.includes('منظومة السيطرة المحاسبية') ||
                                 imgCaption.includes('سَـنَـد رَصِـيـد')
                             );
                             if (isImg && !isGroupOrBroadcast && !isBotOwnVoucherImg) {
@@ -694,7 +694,7 @@ class WhatsAppClient {
                                 // Avoid processing bot's own outgoing replies when msg.key.fromMe is true
                                 const isBotOwnReply = (
                                     textMsg.includes('━━━━') ||
-                                    textMsg.includes('منظومة مقاييس') ||
+                                    textMsg.includes('منظومة السيطرة') ||
                                     /^[✅🏦📥⚠️🔔📊💰🔐🛡️🔒⏳⛔📋📄🏛️]/.test(textMsg)
                                 );
                                 const normalizedText = textMsg.replace(/[٠-٩۰-۹]/g, d => {
@@ -2034,7 +2034,7 @@ class WhatsAppClient {
     background: linear-gradient(180deg, rgba(8, 30, 25, 0.96) 0%, rgba(5, 17, 27, 0.99) 100%);
   }
 
-  /* 1. الترويسة العليا: شعار مقاييس الملون M على اليمين واسم المنظومة بالعربي والإنجليزي */
+  /* 1. الترويسة العليا: شعار السيطرة الملون M على اليمين واسم المنظومة بالعربي والإنجليزي */
   .header-section {
     margin-bottom: 10px;
   }
@@ -2550,14 +2550,14 @@ class WhatsAppClient {
 
     <div class="gold-frame-outer">
       <div class="gold-frame-inner">
-        <!-- 1. الترويسة: شعار مقاييس الملون M على اليمين + منظومة مقاييس المحاسبية العالمية بالعربي والإنجليزي -->
+        <!-- 1. الترويسة: شعار السيطرة الملون M على اليمين + منظومة السيطرة المحاسبية العالمية بالعربي والإنجليزي -->
         <div class="header-section">
           <div class="header-brand-row">
             <div class="magaiees-logo-right">
               ${logoHtml}
             </div>
             <div class="header-titles-center">
-              <div class="org-title">منظومة مقاييس المحاسبية العالمية</div>
+              <div class="org-title">منظومة السيطرة المحاسبية العالمية</div>
               <div class="org-sub">MAGAIEES GLOBAL ACCOUNTING SYSTEM</div>
             </div>
           </div>

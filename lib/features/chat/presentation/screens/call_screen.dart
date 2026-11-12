@@ -107,7 +107,7 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
     final peerDisplay = NameFormatter.cleanPrefix(widget.callerName ?? '');
     unawaited(
       LocalNotificationService.instance.showOngoingCallNotification(
-        peerName: peerDisplay.isNotEmpty ? peerDisplay : 'مستخدم مقاييس',
+        peerName: peerDisplay.isNotEmpty ? peerDisplay : 'مستخدم السيطرة',
         statusText: 'مكالمة صوتية نشطة عبر الإنترنت (VoIP) • الميكروفون يعمل في الخلفية',
       ),
     );
@@ -199,7 +199,7 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
       final peerDisplay = NameFormatter.cleanPrefix(widget.callerName ?? '');
       unawaited(
         LocalNotificationService.instance.showOngoingCallNotification(
-          peerName: peerDisplay.isNotEmpty ? peerDisplay : 'مستخدم مقاييس',
+          peerName: peerDisplay.isNotEmpty ? peerDisplay : 'مستخدم السيطرة',
           statusText: 'مكالمة صوتية نشطة عبر الإنترنت (VoIP) • الميكروفون يعمل في الخلفية',
         ),
       );
@@ -336,7 +336,7 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'يتطلب تطبيق مقاييس الوصول إلى الميكروفون لتمكينك من التحدث مع التاجر في مكالمات صوتية مباشرة لمناقشة المنتجات والأسعار.',
+                            'يتطلب تطبيق السيطرة الوصول إلى الميكروفون لتمكينك من التحدث مع التاجر في مكالمات صوتية مباشرة لمناقشة المنتجات والأسعار.',
                             style: TextStyle(
                               fontSize: 12.5,
                               height: 1.45,
@@ -415,7 +415,7 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'في حال رفض الإذن سابقاً: يرجى التوجه إلى إعدادات الهاتف > التطبيقات > مقاييس > الأذونات > تفعيل الميكروفون.',
+                        'في حال رفض الإذن سابقاً: يرجى التوجه إلى إعدادات الهاتف > التطبيقات > السيطرة > الأذونات > تفعيل الميكروفون.',
                         style: TextStyle(
                           fontSize: 11.5,
                           height: 1.4,

@@ -461,12 +461,12 @@ class _BuyerOrderCard extends ConsumerWidget {
 
     final isExclusiveOrder = order['store_id'] == null ||
         notes.contains('حصري') ||
-        notes.contains('[طلب حصري مقاييس]');
+        notes.contains('[طلب حصري السيطرة]');
 
     final storeData = order['stores'] as Map<String, dynamic>?;
     String storeName = '';
     if (isExclusiveOrder) {
-      storeName = isRtl ? 'حصري على مقاييس' : 'Magaiees Exclusive';
+      storeName = isRtl ? 'حصري على السيطرة' : 'Magaiees Exclusive';
     } else if (storeData != null) {
       final nameAr = storeData['name_ar']?.toString().trim();
       final nameEn = storeData['name']?.toString().trim();
@@ -483,7 +483,7 @@ class _BuyerOrderCard extends ConsumerWidget {
       }
     }
     if (storeName.isEmpty) {
-      storeName = isRtl ? 'متجر مقاييس' : 'Magaiees Store';
+      storeName = isRtl ? 'متجر السيطرة' : 'Magaiees Store';
     }
 
     return Card(
@@ -852,7 +852,7 @@ class _BuyerOrderCard extends ConsumerWidget {
                             children: [
                               Text(
                                 isRtl
-                                    ? (isExclusiveOrder ? 'بانتظار تحديد رسوم التوصيل من إدارة مقاييس' : 'بانتظار إضافة رسوم التوصيل')
+                                    ? (isExclusiveOrder ? 'بانتظار تحديد رسوم التوصيل من إدارة السيطرة' : 'بانتظار إضافة رسوم التوصيل')
                                     : (isExclusiveOrder ? 'Waiting for Magaiees to set shipping fees' : 'Waiting for shipping fees'),
                                 style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blue.shade900),
                               ),
@@ -860,7 +860,7 @@ class _BuyerOrderCard extends ConsumerWidget {
                               Text(
                                 isRtl 
                                   ? (isExclusiveOrder
-                                      ? 'تم إرسال طلبك الحصري بنجاح. بانتظار قيام فريق مقاييس بتحديد رسوم الترحيل والتنزيل بناءً على عنوانك. ستصلك رسالة تنبيه للموافقة عليها.'
+                                      ? 'تم إرسال طلبك الحصري بنجاح. بانتظار قيام فريق السيطرة بتحديد رسوم الترحيل والتنزيل بناءً على عنوانك. ستصلك رسالة تنبيه للموافقة عليها.'
                                       : 'تم إرسال الطلب بنجاح. بانتظار قيام التاجر بتحديد رسوم الترحيل والتنزيل بناءً على عنوانك. ستصلك رسالة تنبيه للموافقة.')
                                   : (isExclusiveOrder
                                       ? 'Exclusive order sent successfully. Waiting for Magaiees team to set transport fees based on your address.'
@@ -884,7 +884,7 @@ class _BuyerOrderCard extends ConsumerWidget {
                             children: [
                               Text(
                                 isRtl
-                                    ? (isExclusiveOrder ? 'قام فريق مقاييس بإضافة رسوم التوصيل' : 'قام التاجر بإضافة رسوم التوصيل')
+                                    ? (isExclusiveOrder ? 'قام فريق السيطرة بإضافة رسوم التوصيل' : 'قام التاجر بإضافة رسوم التوصيل')
                                     : (isExclusiveOrder ? 'Magaiees team has added shipping fees' : 'Merchant has added shipping fees'),
                                 style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange.shade900),
                               ),
@@ -1042,7 +1042,7 @@ class _BuyerOrderCard extends ConsumerWidget {
                                       Expanded(
                                         child: Text(
                                           isRtl
-                                              ? (isExclusiveOrder ? 'تم رفض إشعار التحويل من قِبل إدارة مقاييس!' : 'تم رفض إشعار التحويل من قِبل المتجر!')
+                                              ? (isExclusiveOrder ? 'تم رفض إشعار التحويل من قِبل إدارة السيطرة!' : 'تم رفض إشعار التحويل من قِبل المتجر!')
                                               : 'Payment Receipt Was Rejected!',
                                           style: const TextStyle(
                                             color: Color(0xFF991B1B),
@@ -1091,7 +1091,7 @@ class _BuyerOrderCard extends ConsumerWidget {
                                   Text(
                                     isRtl
                                         ? (isExclusiveOrder
-                                            ? 'يرجى مراجعة سبب الرفض وتصحيح التحويل ثم إعادة إرفاق إشعار جديد وصحيح حتى تقوم إدارة مقاييس بتأكيد طلبك.'
+                                            ? 'يرجى مراجعة سبب الرفض وتصحيح التحويل ثم إعادة إرفاق إشعار جديد وصحيح حتى تقوم إدارة السيطرة بتأكيد طلبك.'
                                             : 'يرجى مراجعة سبب الرفض وتصحيح التحويل ثم إعادة إرفاق إشعار جديد وصحيح حتى يقوم التاجر بتأكيد طلبك.')
                                         : 'Please check the rejection reason and re-upload a valid receipt so your order can be confirmed.',
                                     style: TextStyle(fontSize: 11.5, color: Colors.red.shade800, height: 1.3),
@@ -1966,7 +1966,7 @@ class _BuyerOrderCard extends ConsumerWidget {
   void _showUploadReceiptDialog(BuildContext context, WidgetRef ref, dynamic order, bool isRtl, double defaultAmount) {
     final bool isExclusiveOrder = order['store_id'] == null ||
         order['notes']?.toString().contains('حصري') == true ||
-        order['notes']?.toString().contains('[طلب حصري مقاييس]') == true;
+        order['notes']?.toString().contains('[طلب حصري السيطرة]') == true;
     Uint8List? newReceiptBytes;
     String? newReceiptExt;
     String currentNotes = order['notes']?.toString() ?? '';
@@ -2821,7 +2821,7 @@ class _BuyerOrderCard extends ConsumerWidget {
                                             context,
                                             isRtl
                                                 ? (isExclusiveOrder
-                                                    ? '✅ تم إرسال الإشعار لإدارة مقاييس بنجاح! سيتم مراجعته وتأكيده فوراً.'
+                                                    ? '✅ تم إرسال الإشعار لإدارة السيطرة بنجاح! سيتم مراجعته وتأكيده فوراً.'
                                                     : '✅ تم إرسال الإشعار للتاجر بنجاح! سيتم مراجعته وتأكيده من قبل التاجر.')
                                                 : 'Receipt submitted successfully! Will review and verify.',
                                           );
@@ -2866,7 +2866,7 @@ class _BuyerOrderCard extends ConsumerWidget {
                                             context,
                                             isRtl
                                                 ? (isExclusiveOrder
-                                                    ? '✅ تم إرسال كافة الإشعارات (${currentReceipts.length}) لإدارة مقاييس بنجاح!'
+                                                    ? '✅ تم إرسال كافة الإشعارات (${currentReceipts.length}) لإدارة السيطرة بنجاح!'
                                                     : '✅ تم إرسال كافة الإشعارات (${currentReceipts.length}) للتاجر بنجاح!')
                                                 : 'All receipts submitted successfully!',
                                           );
@@ -2896,7 +2896,7 @@ class _BuyerOrderCard extends ConsumerWidget {
                                   : (newReceiptBytes == null && currentReceipts.isNotEmpty && remainingBalance == 0
                                       ? (isRtl ? 'إغلاق (تم السداد بالكامل)' : 'Close (Fully Paid)')
                                       : (isExclusiveOrder
-                                          ? (isRtl ? 'إرسال الإشعار لإدارة مقاييس' : 'Send to Magaiees')
+                                          ? (isRtl ? 'إرسال الإشعار لإدارة السيطرة' : 'Send to Magaiees')
                                           : (isRtl ? 'إرسال الإشعار للتاجر' : 'Send to Merchant'))),
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5),
                             ),
@@ -3266,7 +3266,7 @@ class _BuyerChatWithMerchantButtonState extends ConsumerState<_BuyerChatWithMerc
   Widget build(BuildContext context) {
     final bool isExclusive = widget.order['store_id'] == null ||
         widget.order['notes']?.toString().contains('حصري') == true ||
-        widget.order['notes']?.toString().contains('[طلب حصري مقاييس]') == true;
+        widget.order['notes']?.toString().contains('[طلب حصري السيطرة]') == true;
     return OutlinedButton.icon(
       onPressed: _isLoading ? null : _handleChat,
       icon: _isLoading
@@ -3280,7 +3280,7 @@ class _BuyerChatWithMerchantButtonState extends ConsumerState<_BuyerChatWithMerc
         _isLoading
             ? (widget.isRtl ? 'جاري الفتح...' : 'Opening...')
             : (widget.isRtl
-                ? (isExclusive ? 'تواصل مع مقاييس' : 'تواصل مع التاجر')
+                ? (isExclusive ? 'تواصل مع السيطرة' : 'تواصل مع التاجر')
                 : (isExclusive ? 'Chat Magaiees' : 'Chat Seller')),
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
         overflow: TextOverflow.ellipsis,

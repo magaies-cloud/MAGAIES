@@ -168,13 +168,13 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                isRtl ? '⭐ صنف حصري ومباشر عبر شركة مقاييس' : '🌟 Exclusive Magaiees Product',
+                                isRtl ? '⭐ صنف حصري ومباشر عبر شركة السيطرة' : '🌟 Exclusive Magaiees Product',
                                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.5, color: Color(0xFF1E40AF)),
                               ),
                               const SizedBox(height: 2),
                               Text(
                                 isRtl
-                                    ? 'مملوك ومضمون رسمياً من شركة مقاييس مع ضمان جودة واستلام كامل.'
+                                    ? 'مملوك ومضمون رسمياً من شركة السيطرة مع ضمان جودة واستلام كامل.'
                                     : 'Directly verified and guaranteed by Magaiees official escrow.',
                                 style: TextStyle(fontSize: 11, color: Colors.blue.shade900),
                               ),
@@ -214,7 +214,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                               const SizedBox(height: 3),
                               Text(
                                 isRtl
-                                    ? 'منتج معروض بواسطة تاجر معتمد وموثق في سوق مقاييس.'
+                                    ? 'منتج معروض بواسطة تاجر معتمد وموثق في سوق السيطرة.'
                                     : 'Offered by a verified merchant on Magaiees marketplace.',
                                 style: TextStyle(fontSize: 11, color: Colors.purple.shade900),
                               ),

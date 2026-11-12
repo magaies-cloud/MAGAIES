@@ -233,9 +233,9 @@ window.PWAManager = {
             this.hideAllInstallBanners();
             this.updateFlagshipInstallButton();
             if (window.showModernToast) {
-                window.showModernToast('🎉 تم تثبيت تطبيق مقاييس بنجاح على الشاشة الرئيسية!', 'success', 5000);
+                window.showModernToast('🎉 تم تثبيت تطبيق السيطرة بنجاح على الشاشة الرئيسية!', 'success', 5000);
             } else {
-                alert('🎉 تم تثبيت تطبيق مقاييس بنجاح على الشاشة الرئيسية!');
+                alert('🎉 تم تثبيت تطبيق السيطرة بنجاح على الشاشة الرئيسية!');
             }
         });
     },
@@ -326,10 +326,10 @@ window.PWAManager = {
                 <button type="button" onclick="document.getElementById('${modalId}').remove()" style="position:absolute; top:14px; left:16px; background:rgba(255,255,255,0.1); border:none; color:#fff; border-radius:50%; width:30px; height:30px; cursor:pointer; font-weight:bold;">✕</button>
 
                 <div style="width:68px; height:68px; border-radius:20px; background:#020617; border:2px solid #38bdf8; margin:0 auto 12px; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 0 25px rgba(56,189,248,0.5);">
-                    <img src="assets/icon-192.png?v=2026_m_v7" alt="أيقونة مقاييس" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='assets/apple-touch-icon.png'">
+                    <img src="assets/icon-192.png?v=2026_m_v7" alt="أيقونة السيطرة" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='assets/apple-touch-icon.png'">
                 </div>
 
-                <h3 style="font-size:1.15rem; font-weight:900; margin:0 0 4px; color:#f8fafc;">تثبيت تطبيق مقاييس على الجوال</h3>
+                <h3 style="font-size:1.15rem; font-weight:900; margin:0 0 4px; color:#f8fafc;">تثبيت تطبيق السيطرة على الجوال</h3>
                 <p style="font-size:0.8rem; color:#94a3b8; margin:0 0 18px;">لتثبيت أيقونة التطبيق على شاشة هاتفك والتشغيل بشاشة كاملة وبأعلى سرعة</p>
 
                 <div style="background:rgba(30, 41, 59, 0.7); border:1px solid rgba(255,255,255,0.08); border-radius:20px; padding:14px; text-align:right; font-size:0.85rem; line-height:1.6; margin-bottom:20px; space-y-2;">
@@ -396,7 +396,7 @@ window.PWAManager = {
             btn.classList.add('is-installed');
             btn.classList.remove('flagship-sky');
             btn.classList.add('flagship-emerald');
-            btn.title = 'تطبيق مقاييس مثبت كنسخة أصلية كاملة على هاتفك';
+            btn.title = 'تطبيق السيطرة مثبت كنسخة أصلية كاملة على هاتفك';
             if (emblem) {
                 emblem.innerHTML = `
                     <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -434,9 +434,9 @@ window.PWAManager = {
 
         if (isInstalled) {
             if (window.showModernToast) {
-                window.showModernToast('✨ تطبيق مقاييس مثبت كنسخة أصلية ويعمل بكامل صلاحياته على جهازك!', 'success', 3500);
+                window.showModernToast('✨ تطبيق السيطرة مثبت كنسخة أصلية ويعمل بكامل صلاحياته على جهازك!', 'success', 3500);
             } else {
-                alert('✨ تطبيق مقاييس مثبت كنسخة أصلية ويعمل بكامل صلاحياته على جهازك!');
+                alert('✨ تطبيق السيطرة مثبت كنسخة أصلية ويعمل بكامل صلاحياته على جهازك!');
             }
             return;
         }
@@ -470,14 +470,14 @@ window.PWAManager = {
         const ring = document.getElementById('connectionDotRing');
         const indicator = document.getElementById('headerConnectionIndicator');
 
-        // 1. تحديث الحافة المضيئة لشعار مقاييس (أخضر = متصل بالنت، أحمر = انقطاع النت)
+        // 1. تحديث الحافة المضيئة لشعار السيطرة (أخضر = متصل بالنت، أحمر = انقطاع النت)
         const brandBadge = document.getElementById('headerBrandLogoBadge');
         const brandText = document.getElementById('headerBrandText');
         if (brandBadge) {
             if (isOnline) {
                 brandBadge.style.borderColor = 'rgba(16, 185, 129, 0.75)';
                 brandBadge.style.boxShadow = '0 0 14px rgba(16, 185, 129, 0.45)';
-                brandBadge.title = 'مقاييس ERP - متصل بالإنترنت وقاعدة البيانات (Online)';
+                brandBadge.title = 'السيطرة ERP - متصل بالإنترنت وقاعدة البيانات (Online)';
                 if (brandText) {
                     brandText.style.color = '#6ee7b7';
                     brandText.style.textShadow = '0 0 8px rgba(16, 185, 129, 0.5)';
@@ -485,7 +485,7 @@ window.PWAManager = {
             } else {
                 brandBadge.style.borderColor = 'rgba(244, 63, 94, 0.85)';
                 brandBadge.style.boxShadow = '0 0 14px rgba(244, 63, 94, 0.55)';
-                brandBadge.title = reason ? `مقاييس ERP - غير متصل (${reason})` : 'مقاييس ERP - انقطع الإنترنت (Offline)';
+                brandBadge.title = reason ? `السيطرة ERP - غير متصل (${reason})` : 'السيطرة ERP - انقطع الإنترنت (Offline)';
                 if (brandText) {
                     brandText.style.color = '#fda4af';
                     brandText.style.textShadow = '0 0 8px rgba(244, 63, 94, 0.5)';
@@ -972,7 +972,7 @@ function purgeLegacyAndroidBadges() {
         document.querySelectorAll('header *, .mobile-header *, .app-main-header *').forEach(el => {
             if (el.children.length === 0) {
                 const txt = el.innerText || '';
-                if ((txt.includes('665') && txt.includes('365')) || txt.includes('هاتف ذكي') || (txt.includes('أندرويد') && !txt.includes('مقاييس')) || txt.includes('🤖')) {
+                if ((txt.includes('665') && txt.includes('365')) || txt.includes('هاتف ذكي') || (txt.includes('أندرويد') && !txt.includes('السيطرة')) || txt.includes('🤖')) {
                     el.remove();
                 }
             }

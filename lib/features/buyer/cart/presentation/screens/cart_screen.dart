@@ -107,7 +107,7 @@ class CartScreen extends ConsumerWidget {
           if (firstItem == null) return const SizedBox.shrink();
           final isExclusive = firstItem.product.isMagaieesExclusive || merchantId == 'magaiees';
           final storeName = isExclusive
-              ? (isRtl ? 'حصري على مقاييس' : 'Exclusive to Magaiees')
+              ? (isRtl ? 'حصري على السيطرة' : 'Exclusive to Magaiees')
               : (isRtl
                   ? (firstItem.product.storeNameAr.isNotEmpty ? firstItem.product.storeNameAr : firstItem.product.storeName)
                   : (firstItem.product.storeName.isNotEmpty ? firstItem.product.storeName : firstItem.product.storeNameAr));
@@ -368,7 +368,7 @@ class _CartItemTile extends ConsumerWidget {
                       Flexible(
                         child: Text(
                           item.product.isMagaieesExclusive
-                              ? (isRtl ? 'حصري مقاييس' : 'Magaiees Exclusive')
+                              ? (isRtl ? 'حصري السيطرة' : 'Magaiees Exclusive')
                               : (isRtl
                                   ? (item.product.storeNameAr.isNotEmpty
                                       ? item.product.storeNameAr

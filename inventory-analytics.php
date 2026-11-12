@@ -7,7 +7,7 @@ $header_theme_class = "header-theme-inventory";
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $page_title; ?> - نظام مقاييس</title>
+    <title><?php echo $page_title; ?> - نظام السيطرة</title>
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">

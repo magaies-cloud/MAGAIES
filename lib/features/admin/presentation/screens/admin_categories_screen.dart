@@ -185,11 +185,11 @@ class _AdminCategoriesScreenState extends ConsumerState<AdminCategoriesScreen> {
                       ),
                       child: SwitchListTile(
                         title: Text(
-                          isRtl ? 'حصر مقاييس' : 'Magaiees Exclusive',
+                          isRtl ? 'حصر السيطرة' : 'Magaiees Exclusive',
                           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text(
-                          isRtl ? 'المنتجات التي تباع عبر مقاييس فقط' : 'Hidden from merchant product listing',
+                          isRtl ? 'المنتجات التي تباع عبر السيطرة فقط' : 'Hidden from merchant product listing',
                           style: const TextStyle(fontSize: 12),
                         ),
                         value: isExclusive,
@@ -369,11 +369,11 @@ class _AdminCategoriesScreenState extends ConsumerState<AdminCategoriesScreen> {
                       ),
                       child: SwitchListTile(
                         title: Text(
-                          isRtl ? 'حصر مقاييس' : 'Magaiees Exclusive',
+                          isRtl ? 'حصر السيطرة' : 'Magaiees Exclusive',
                           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                         ),
                         subtitle: Text(
-                          isRtl ? 'المنتجات التي تباع عبر مقاييس فقط' : 'Hidden from merchant product listing',
+                          isRtl ? 'المنتجات التي تباع عبر السيطرة فقط' : 'Hidden from merchant product listing',
                           style: const TextStyle(fontSize: 12),
                         ),
                         value: isExclusive,
@@ -1210,7 +1210,7 @@ class _AdminCategoriesScreenState extends ConsumerState<AdminCategoriesScreen> {
               label: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 4.0),
                 child: Text(
-                  isRtl ? '📌 حصر مقاييس' : '📌 Magaiees Exclusive',
+                  isRtl ? '📌 حصر السيطرة' : '📌 Magaiees Exclusive',
                   style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                 ),
               ),
@@ -2447,7 +2447,7 @@ class _AdminCategoriesScreenState extends ConsumerState<AdminCategoriesScreen> {
                   ),
                   child: Text(
                     category.isExclusiveToMagaiees 
-                      ? (isRtl ? 'حصري لمقاييس' : 'Exclusive') 
+                      ? (isRtl ? 'حصري للسيطرة' : 'Exclusive') 
                       : (isRtl ? 'سوق الموردين' : 'Marketplace'),
                     style: TextStyle(
                       fontSize: 11, 

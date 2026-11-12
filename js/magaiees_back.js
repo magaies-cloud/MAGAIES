@@ -432,6 +432,10 @@
 
 // 👑 AUTO-BOOTSTRAP UNIFIED ROYAL QUARTET (الرجوع للخلف • التلفاز • المرشد الذكي • اسألني بالمايك) ACROSS ALL SCREENS
 (function() {
+    const p = (window.location.pathname || '').toLowerCase();
+    if (p.endsWith('/login.php') || p.endsWith('/register.php') || p.endsWith('/index.php') || p.endsWith('/index.html') || p.endsWith('/magaees/') || p.endsWith('/magaees') || p.endsWith('/magaies/') || p.endsWith('/magaies')) {
+        return;
+    }
     const mountScriptIfMissing = function(matchStr, srcPath) {
         if (!document.querySelector('script[src*="' + matchStr + '"]')) {
             const s = document.createElement('script');
@@ -444,8 +448,8 @@
             }
         }
     };
-    mountScriptIfMissing('global_background_media', 'js/global_background_media.js?v=20261022_v23');
-    mountScriptIfMissing('magaies-smart-guide', 'js/magaies-smart-guide.js?v=20261102_cinema_v2');
+    mountScriptIfMissing('global_background_media', 'js/global_background_media.js?v=20261110_v24');
+    mountScriptIfMissing('magaies-smart-guide', 'js/magaies-smart-guide.js?v=20261110_cinema_v3');
 })();
 
 // 🧭 UNIVERSAL LIFO NAVIGATION STACK & STATE PRESERVATION ENGINE (تسلسل زر رجوع خطوة بخطوة + زر خروج للرئيسية + حفظ الحالة 0ms)

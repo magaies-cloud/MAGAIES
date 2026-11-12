@@ -301,7 +301,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
         var clk = (it[0] === 'mobile-dashboard.php') ? "try{localStorage.setItem('magaiees_view_preference','mobile');document.cookie='magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax';}catch(e){}; window.location.href='mobile-dashboard.php?force_mobile=1';" : "window.location.href='"+it[0]+"';";
         nav+='<a href="'+it[0]+'" style="cursor:pointer" data-href="'+it[0]+'" onclick="'+clk+'" class="sidebar-item'+ac+'"><span class="sidebar-icon" style="color:'+it[2]+'">'+mk(it[3],it[2])+'</span><span class="sidebar-text">'+it[1]+'</span></a>';
     }
-    var html='<aside class="global-sidebar"><div class="sidebar-header"><span class="sidebar-logo-icon"><svg width="26" height="26" fill="none" stroke="#38bdf8" viewBox="0 0 24 24">'+icons.brand+'</svg></span><span class="sidebar-logo-text">مقاييس (MAGAIEES)</span></div><nav class="sidebar-nav">'+nav+'</nav><div class="sidebar-footer"><a href="#" onclick="logout();return false;" class="sidebar-item sidebar-logout"><span class="sidebar-icon" style="color:#f87171"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">'+icons.out+'</svg></span><span class="sidebar-text">خروج</span></a></div></aside>';
+    var html='<aside class="global-sidebar"><div class="sidebar-header"><span class="sidebar-logo-icon"><svg width="26" height="26" fill="none" stroke="#38bdf8" viewBox="0 0 24 24">'+icons.brand+'</svg></span><span class="sidebar-logo-text">السيطرة (MAGAIEES)</span></div><nav class="sidebar-nav">'+nav+'</nav><div class="sidebar-footer"><a href="#" onclick="logout();return false;" class="sidebar-item sidebar-logout"><span class="sidebar-icon" style="color:#f87171"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">'+icons.out+'</svg></span><span class="sidebar-text">خروج</span></a></div></aside>';
     
     function inject(){
         if(document.body && !document.querySelector('.global-sidebar')){
@@ -618,12 +618,12 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
     ?>
     <!-- 1. الركن الأيمن الملكي الفاخر (مهذب بالكامل: نظام إدارة الشركات + سعر صرف الدولار البارز + التاريخ والوقت فقط) -->
     <div class="header-compact-right-cluster header-flagship-identity-suite" style="display:flex; flex-direction:column; justify-content:space-between; gap:4px; flex:0.88 1 315px !important; min-width:280px !important; max-width:455px !important; height:78px !important; min-height:78px !important; max-height:78px !important; box-sizing:border-box !important; background:linear-gradient(135deg, rgba(2, 6, 23, 0.96) 0%, rgba(15, 23, 42, 0.95) 55%, rgba(6, 78, 59, 0.55) 100%); border:1.5px solid rgba(251, 191, 36, 0.85); border-radius:13px; padding:6px 10px; box-shadow:0 7px 21px rgba(0, 0, 0, 0.8), 0 0 16px rgba(251, 191, 36, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.22); position:relative; overflow:hidden;">
-        <!-- الصف الأول: شعار مقاييس وكلمة مقاييس أولاً + بعد ذلك نظام إدارة الشركات ERP -->
+        <!-- الصف الأول: شعار السيطرة وكلمة السيطرة أولاً + بعد ذلك نظام إدارة الشركات ERP -->
         <div style="display:flex; align-items:center; justify-content:flex-start; gap:8px; white-space:nowrap; height:34px; border-bottom:1px solid rgba(251, 191, 36, 0.22); padding-bottom:3px; overflow:hidden;">
-            <!-- 1. شعار مقاييس المعتمد الكبير وكلمة مقاييس في الأول -->
-            <a href="index.php" class="header-magaiees-emblem-badge" style="display:inline-flex; align-items:center; gap:6px; text-decoration:none; flex-shrink:0; height:32px; padding:1px 7px; border-radius:8px; background:linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 0.98)); border:1.5px solid rgba(251, 191, 36, 0.75); box-shadow:0 2px 10px rgba(0, 0, 0, 0.7), 0 0 12px rgba(251, 191, 36, 0.35); transition:all 0.25s ease;" title="شعار مقاييس المعتمد — MAGAIEES ERP">
-                <img src="assets/logo.png" alt="شعار مقاييس المعتمد" style="height:30px; width:auto; max-height:32px; object-fit:contain; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.9)) drop-shadow(0 0 8px rgba(251, 191, 36, 0.5));">
-                <span style="color:#fef08a; font-weight:900; font-size:14.5px; letter-spacing:0.4px; text-shadow:0 2px 6px rgba(0,0,0,0.95), 0 0 10px rgba(251, 191, 36, 0.4);">مقاييس</span>
+            <!-- 1. شعار السيطرة المعتمد الكبير وكلمة السيطرة في الأول -->
+            <a href="index.php" class="header-magaiees-emblem-badge" style="display:inline-flex; align-items:center; gap:6px; text-decoration:none; flex-shrink:0; height:32px; padding:1px 7px; border-radius:8px; background:linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 0.98)); border:1.5px solid rgba(251, 191, 36, 0.75); box-shadow:0 2px 10px rgba(0, 0, 0, 0.7), 0 0 12px rgba(251, 191, 36, 0.35); transition:all 0.25s ease;" title="شعار السيطرة المعتمد — AL-SAYTARA ERP">
+                <img src="assets/logo.png?v=saytara_shield_v3" alt="شعار السيطرة المعتمد" style="height:30px; width:auto; max-height:32px; object-fit:contain; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.9)) drop-shadow(0 0 8px rgba(251, 191, 36, 0.5));">
+                <span style="color:#fef08a; font-weight:900; font-size:14.5px; letter-spacing:0.4px; text-shadow:0 2px 6px rgba(0,0,0,0.95), 0 0 10px rgba(251, 191, 36, 0.4);">السيطرة</span>
             </a>
             <!-- 2. بعد ذلك نظام إدارة الشركات ERP -->
             <div style="display:inline-flex; align-items:center; gap:6px; min-width:0; overflow:hidden; flex-shrink:1;">
@@ -655,8 +655,8 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
                 <span id="header-clock" style="font-size:11.5px !important; font-weight:900 !important; color:#34d399; letter-spacing:0.6px !important;"><script>var _n=new Date();document.write(_n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}))</script></span>
             </div>
 
-            <!-- شارة بورصة مقاييس المدمجة تحت لوحة التحكم مباشرة بدون مربع جانبي وبنفس نسق لوحة التحكم -->
-            <span id="header-magaiees-bourse-btn" role="button" tabindex="0" class="m7-solid-badge-guard" onclick="window.toggleMagaieesBourseGlobal();" title="إظهار أو إخفاء شريط بورصة مقاييس فوراً" style="margin-right:auto; height:22px; font-size:11px; font-weight:900; background:linear-gradient(135deg, #059669, #065f46); border:1.5px solid #fde047; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; padding:0 8px; border-radius:6px; display:inline-flex !important; align-items:center; justify-content:center; line-height:1; flex-shrink:0; cursor:pointer; user-select:none; box-shadow:0 0 8px rgba(16, 185, 129, 0.4);">بورصة مقاييس</span>
+            <!-- شارة بورصة السيطرة المدمجة تحت لوحة التحكم مباشرة بدون مربع جانبي وبنفس نسق لوحة التحكم -->
+            <span id="header-magaiees-bourse-btn" role="button" tabindex="0" class="m7-solid-badge-guard" onclick="window.toggleMagaieesBourseGlobal();" title="إظهار أو إخفاء شريط بورصة السيطرة فوراً" style="margin-right:auto; height:22px; font-size:11px; font-weight:900; background:linear-gradient(135deg, #059669, #065f46); border:1.5px solid #fde047; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; padding:0 8px; border-radius:6px; display:inline-flex !important; align-items:center; justify-content:center; line-height:1; flex-shrink:0; cursor:pointer; user-select:none; box-shadow:0 0 8px rgba(16, 185, 129, 0.4);">بورصة السيطرة</span>
             <script>
             window.toggleMagaieesBourseGlobal = function() {
                 var dashWrap = document.getElementById('market-broker-ticker-wrap');
@@ -845,7 +845,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
         <div id="magaiees-dashboard-header-stack" class="header-quad-matrix">
             <!-- العمود الأيمن: تثبيت التطبيق -->
             <div class="quad-matrix-col quad-col-right">
-                <button id="magaiees-top-install-btn" type="button" onclick="if(window.PWAManager && PWAManager.triggerInstall){PWAManager.triggerInstall();}else{alert('لتثبيت تطبيق مقاييس: اضغط على أيقونة التثبيت ⊕ في شريط عنوان المتصفح بالأعلى');}" class="magaiees-stack-btn stack-btn-install" title="تثبيت تطبيق مقاييس على جهازك كبرنامج مستقل">
+                <button id="magaiees-top-install-btn" type="button" onclick="if(window.PWAManager && PWAManager.triggerInstall){PWAManager.triggerInstall();}else{alert('لتثبيت تطبيق السيطرة: اضغط على أيقونة التثبيت ⊕ في شريط عنوان المتصفح بالأعلى');}" class="magaiees-stack-btn stack-btn-install" title="تثبيت تطبيق السيطرة على جهازك كبرنامج مستقل">
                     <span class="stack-btn-icon"><i class="fa-solid fa-download"></i></span>
                     <span class="stack-btn-text">تثبيت التطبيق 📲</span>
                 </button>
@@ -947,7 +947,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
             <span id="online-users-count" style="color:#ffffff; background:rgba(16,185,129,0.25); border:1px solid #10b981; padding:0 5px; border-radius:4px; font-weight:900;">1</span>
         </div>
         <span style="color:rgba(255,255,255,0.18);">|</span>
-        <span style="color:#cbd5e1; font-weight:700;">🌐 بروتوكول مقاييس السحابي الموحد (Cloud Sync 24/7)</span>
+        <span style="color:#cbd5e1; font-weight:700;">🌐 بروتوكول السيطرة السحابي الموحد (Cloud Sync 24/7)</span>
     </div>
 
     <!-- اليسار: بروتوكول واتساب المالي الذكي -->
@@ -2983,7 +2983,7 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
                     ? 'position:fixed;bottom:2px;left:6px;right:calc(var(--sb-collapsed, 62px) + 6px);z-index:9990;background:#0c1d47;border:1px solid rgba(253,224,71,0.55);border-radius:7px;padding:4px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;direction:rtl;color:#fde047;font-size:12.5px;font-weight:900;box-shadow:0 4px 14px rgba(0,0,0,0.65);'
                     : 'margin:4px auto;width:calc(100% - 28px);background:#0c1d47;border:1px solid rgba(253,224,71,0.55);border-radius:7px;padding:4px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;direction:rtl;color:#fde047;font-size:12.5px;font-weight:900;box-shadow:0 4px 14px rgba(0,0,0,0.55);';
                 var txt = res.items.slice(0, 8).map(function(it){ return (it.type === 'order' ? '🟠 طلب: ' : '🟢 عرض: ') + (it.text || ''); }).join('  •  ');
-                bar.innerHTML = '<div style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1;">📢 بورصة مقاييس: ' + txt + '</div>'
+                bar.innerHTML = '<div style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1;">📢 بورصة السيطرة: ' + txt + '</div>'
                     + '<div style="display:flex;gap:4px;flex-shrink:0;">'
                     + '<button type="button" onclick="var d=localStorage.getItem(\'magaiees_broker_dock_mode\')===\'bottom\'?\'top\':\'bottom\';localStorage.setItem(\'magaiees_broker_dock_mode\',d);window.renderGlobalScreensBrokerBar();" style="padding:1px 6px;border-radius:5px;background:#1e293b;color:#fde047;border:1px solid #f59e0b;font-size:10.5px;font-weight:900;cursor:pointer;" title="تبديل الموقع أعلى/أسفل">📍 أعلى/أسفل</button>'
                     + '<button type="button" onclick="window.toggleMagaieesBourseGlobal();" style="padding:1px 6px;border-radius:5px;background:#881337;color:#fecdd3;border:1px solid #f43f5e;font-size:10.5px;font-weight:900;cursor:pointer;" title="إخفاء البورصة">🙈 إخفاء</button>'

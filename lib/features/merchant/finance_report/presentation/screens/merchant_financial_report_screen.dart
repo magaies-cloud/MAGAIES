@@ -144,7 +144,7 @@ class _MerchantFinancialReportScreenState extends ConsumerState<MerchantFinancia
                   amount: '${_formatAmount(statement.totalOutflow)} ج.س',
                   subtext: statement.hasCommissionEnabled
                       ? (isRtl
-                          ? 'عمولة مقاييس (${statement.commissionRate}%): ${_formatAmount(statement.platformCommissionTotal)}'
+                          ? 'عمولة السيطرة (${statement.commissionRate}%): ${_formatAmount(statement.platformCommissionTotal)}'
                           : 'Commission (${statement.commissionRate}%): ${_formatAmount(statement.platformCommissionTotal)}')
                       : (isRtl ? 'سحوبات أرباح: ${_formatAmount(statement.payoutsTotal)}' : 'Payouts: ${_formatAmount(statement.payoutsTotal)}'),
                   color: PdfColors.red700,
@@ -223,7 +223,7 @@ class _MerchantFinancialReportScreenState extends ConsumerState<MerchantFinancia
                 isRtl ? 'المسؤول' : 'Staff',
                 isRtl ? 'الوارد (الإجمالي)' : 'Total Inflow',
                 isRtl ? 'الترحيل' : 'Transport',
-                if (statement.hasCommissionEnabled) isRtl ? 'خصم مقاييس' : 'Commission',
+                if (statement.hasCommissionEnabled) isRtl ? 'خصم السيطرة' : 'Commission',
                 isRtl ? 'الصافي' : 'Net',
                 isRtl ? 'الحالة' : 'Status',
               ],
@@ -585,7 +585,7 @@ class _MerchantFinancialReportScreenState extends ConsumerState<MerchantFinancia
                   children: [
                     if (statement.hasCommissionEnabled)
                       _buildSubMetric(
-                        isRtl ? 'عمولة مقاييس (${statement.commissionRate}%)' : 'Commission (${statement.commissionRate}%)',
+                        isRtl ? 'عمولة السيطرة (${statement.commissionRate}%)' : 'Commission (${statement.commissionRate}%)',
                         '${_formatAmount(statement.platformCommissionTotal)} ${isRtl ? 'ج.س' : 'SDG'}',
                         Colors.white70,
                       )
@@ -1036,7 +1036,7 @@ class _MerchantFinancialReportScreenState extends ConsumerState<MerchantFinancia
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                '${isRtl ? 'خصم عمولة مقاييس' : 'Commission'} (${statement.commissionRate}%):',
+                                '${isRtl ? 'خصم عمولة السيطرة' : 'Commission'} (${statement.commissionRate}%):',
                                 style: TextStyle(fontSize: 11, color: Colors.red.shade800),
                               ),
                               Text(

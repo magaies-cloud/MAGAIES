@@ -22,12 +22,12 @@ class LocalNotificationService {
       FlutterLocalNotificationsPlugin();
 
   static const String orderChannelId = 'magaiees_orders_channel';
-  static const String orderChannelName = 'طلبات مقاييس الفورية';
+  static const String orderChannelName = 'طلبات السيطرة الفورية';
   static const String orderChannelDesc =
       'إشعارات وتنبيهات فورية بالصوت والاهتزاز عند وصول طلبات جديدة للمتجر';
 
   static const String generalChannelId = 'magaiees_general_channel';
-  static const String generalChannelName = 'تنبيهات منصة مقاييس';
+  static const String generalChannelName = 'تنبيهات منصة السيطرة';
   static const String generalChannelDesc = 'إشعارات النظام العامة والتحديثات';
 
   static const String chatChannelId = 'magaiees_chat_channel';
@@ -37,7 +37,7 @@ class LocalNotificationService {
   static const String ongoingCallChannelId = 'magaiees_ongoing_call_channel';
   static const String ongoingCallChannelName = 'المكالمات الصوتية النشطة';
   static const String ongoingCallChannelDesc =
-      'إشعار مستمر في شريط الإشعارات أثناء إجراء مكالمة صوتية عبر مقاييس';
+      'إشعار مستمر في شريط الإشعارات أثناء إجراء مكالمة صوتية عبر السيطرة';
   static const int ongoingCallNotificationId = 999001;
 
   bool _initialized = false;
@@ -227,7 +227,7 @@ class LocalNotificationService {
       _incomingCallNotifIds.add(notifId);
 
       final title = '📞 مكالمة صوتية واردة من $callerName';
-      const body = 'انقر للرد وفتح المكالمة الصوتية عبر مقاييس';
+      const body = 'انقر للرد وفتح المكالمة الصوتية عبر السيطرة';
 
       final androidDetails = AndroidNotificationDetails(
         orderChannelId,
@@ -308,8 +308,8 @@ class LocalNotificationService {
         }
       }
 
-      final cleanPeer = peerName.trim().isNotEmpty ? peerName.trim() : 'مستخدم مقاييس';
-      final title = '📞 مكالمة صوتية جارية - مقاييس ($cleanPeer)';
+      final cleanPeer = peerName.trim().isNotEmpty ? peerName.trim() : 'مستخدم السيطرة';
+      final title = '📞 مكالمة صوتية جارية - السيطرة ($cleanPeer)';
       final body = statusText ??
           'مكالمة صوتية نشطة عبر الإنترنت (VoIP) • الميكروفون يعمل في الخلفية';
 
@@ -336,7 +336,7 @@ class LocalNotificationService {
           contentTitle: title,
           summaryText: 'مكالمة صوتية نشطة',
         ),
-        ticker: 'مكالمة صوتية جارية عبر مقاييس',
+        ticker: 'مكالمة صوتية جارية عبر السيطرة',
       );
 
       const iosDetails = DarwinNotificationDetails(

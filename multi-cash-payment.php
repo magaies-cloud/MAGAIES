@@ -633,7 +633,7 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حركة مالية مجمعة | مقاييس (MAGAIEES)</title>
+    <title>حركة مالية مجمعة | السيطرة (MAGAIEES)</title>
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css?v=<?php echo file_exists('css/theme.css') ? filemtime('css/theme.css') : '12'; ?>">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -20008,7 +20008,7 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
                 if (is80mm) {
                     container.innerHTML = `
                         <div style="text-align:center;border-bottom:2px dashed #000;padding-bottom:6px;margin-bottom:6px;">
-                            <div style="font-size:12pt;font-weight:900;">مقاييس ERP — MAGAIEES</div>
+                            <div style="font-size:12pt;font-weight:900;">السيطرة ERP — MAGAIEES</div>
                             <div style="font-size:9.5pt;font-weight:800;">إيصال حركة مالية مجمعة (كاشير 80mm)</div>
                             <div style="font-size:8pt;">التاريخ: ${nowStr}</div>
                         </div>
@@ -20048,7 +20048,7 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
                     container.innerHTML = `
                         <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2.5px solid #000;padding-bottom:8px;margin-bottom:10px;">
                             <div>
-                                <div style="font-size:15pt;font-weight:900;">نظام مقاييس العالمي — MAGAIEES ERP</div>
+                                <div style="font-size:15pt;font-weight:900;">نظام السيطرة العالمي — MAGAIEES ERP</div>
                                 <div style="font-size:11pt;font-weight:800;">كشف وسند الحركة المالية المجمعة الرسمي الموزون (A4 Official Layout)</div>
                             </div>
                             <div style="text-align:left;font-size:9.5pt;">
@@ -20177,7 +20177,7 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
                 this.triggerHapticPulse([25]);
                 const report = this.filterAndComputeStatementRows();
                 const msgLines = [
-                    '📊 *كشف حركة مالية مجمعة مفهرس — نظام مقاييس (MAGAIEES ERP)*',
+                    '📊 *كشف حركة مالية مجمعة مفهرس — نظام السيطرة (MAGAIEES ERP)*',
                     '━━━━━━━━━━━━━━━',
                     '💰 *رصيد أول المدة:* ' + report.openingBalance.toFixed(2),
                     '📤 *إجمالي المدين (المنصرف):* ' + report.totalDebit.toFixed(2),
@@ -22942,7 +22942,7 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
                 ctx.fillStyle = '#38bdf8';
                 ctx.font = 'bold 20px Cairo, Tajawal, Arial';
                 ctx.textAlign = 'right';
-                ctx.fillText('بطاقة إيصال حركة مالية مجمعة — مقاييس ERP', 530, 45);
+                ctx.fillText('بطاقة إيصال حركة مالية مجمعة — السيطرة ERP', 530, 45);
 
                 ctx.fillStyle = '#e2e8f0';
                 ctx.font = 'bold 15px Cairo, Tajawal, Arial';

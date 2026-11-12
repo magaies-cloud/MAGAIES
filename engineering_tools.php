@@ -29,7 +29,7 @@ $pdo = getDBConnection();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مركز الأدوات والمساعدات ومفاتيح البنوك | مقاييس (MAGAIEES)</title>
+    <title>مركز الأدوات والمساعدات ومفاتيح البنوك | السيطرة (MAGAIEES)</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -3261,7 +3261,7 @@ $pdo = getDBConnection();
                 <div class="flex items-center justify-between mb-5 border-b border-slate-800 pb-3">
                     <h3 class="text-lg font-black text-slate-100 flex items-center gap-2">
                         <i class="fa-solid fa-calculator text-emerald-400"></i>
-                        حاسبة التحويلات الهندسية ومقاييس الأراضي والمساحات والأوزان الشاملة
+                        حاسبة التحويلات الهندسية والسيطرة الأراضي والمساحات والأوزان الشاملة
                     </h3>
                     <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20">
                         تحويلات سريعة ومباشرة
@@ -7894,7 +7894,7 @@ $pdo = getDBConnection();
         </div>
 
         <!-- Maxim Card 21 -->
-        <div class="fiqh-maxim-card border-2 border-emerald-500/40 flex flex-col justify-between group min-h-[460px] relative space-y-6 shadow-xl hover:border-emerald-400 transition-all duration-400" data-maxim-cat="integrity" data-maxim-search="21 «إِيفَاءُ الْكَيْلِ وَالْمِيزَانِ وَحُرْمَةُ التَّطْفِيفِ الْمَالِي» 📖 نص قرآني صريح في سورة المطففين قوله تعالى: ﴿وَيْلٌ لِّلْمُطَفِّفِينَ · الَّذِينَ إِذَا اكْتَالُوا عَلَى النَّاسِ يَسْتَوْفُونَ · وَإِذَا كَالُوهُمْ أَو وَّزَنُوهُمْ يُخْسِرُونَ﴾ [المطففين: 1-3]. وجوب الدقة المطلقة والنزاهة في المقاييس والأوزان والكميات المبيعة، وتجريم أخذ الحق كاملاً عند الشراء وإنقاصه عند البيع والتسليم. التدقيق المحاسبي الصارم، منع التلاعب بالكميات في التعبئة والتغليف، وضبط عدادات الوقود والموازين الرقمية في الأسواق. إجماع علماء الأمة ويل للمطففين إيفاء الكيل والميزان التطفيف المالي التدقيق المحاسبي النزاهة">
+        <div class="fiqh-maxim-card border-2 border-emerald-500/40 flex flex-col justify-between group min-h-[460px] relative space-y-6 shadow-xl hover:border-emerald-400 transition-all duration-400" data-maxim-cat="integrity" data-maxim-search="21 «إِيفَاءُ الْكَيْلِ وَالْمِيزَانِ وَحُرْمَةُ التَّطْفِيفِ الْمَالِي» 📖 نص قرآني صريح في سورة المطففين قوله تعالى: ﴿وَيْلٌ لِّلْمُطَفِّفِينَ · الَّذِينَ إِذَا اكْتَالُوا عَلَى النَّاسِ يَسْتَوْفُونَ · وَإِذَا كَالُوهُمْ أَو وَّزَنُوهُمْ يُخْسِرُونَ﴾ [المطففين: 1-3]. وجوب الدقة المطلقة والنزاهة في اللسيطرة والأوزان والكميات المبيعة، وتجريم أخذ الحق كاملاً عند الشراء وإنقاصه عند البيع والتسليم. التدقيق المحاسبي الصارم، منع التلاعب بالكميات في التعبئة والتغليف، وضبط عدادات الوقود والموازين الرقمية في الأسواق. إجماع علماء الأمة ويل للمطففين إيفاء الكيل والميزان التطفيف المالي التدقيق المحاسبي النزاهة">
             <!-- خط توهج علوي انسيابي ناعم -->
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
@@ -7946,7 +7946,7 @@ $pdo = getDBConnection();
                         <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </div>
                     <p class="text-sm sm:text-base md:text-lg text-slate-100 font-bold leading-relaxed px-1" style="line-height: 2.1 !important; text-align: justify;">
-                        وجوب الدقة المطلقة والنزاهة في المقاييس والأوزان والكميات المبيعة، وتجريم أخذ الحق كاملاً عند الشراء وإنقاصه عند البيع والتسليم.
+                        وجوب الدقة المطلقة والنزاهة في اللسيطرة والأوزان والكميات المبيعة، وتجريم أخذ الحق كاملاً عند الشراء وإنقاصه عند البيع والتسليم.
                     </p>
                 </div>
 

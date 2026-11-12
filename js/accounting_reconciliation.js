@@ -1090,7 +1090,7 @@
         if (res.varianceMatches.length > 0) {
             whatsappLetter += `📌 حركات متطابقة بالمرجع وبها فارق بسيط للمراجعة المشتركة:\n` + res.varianceMatches.slice(0, 3).map(v => `• مرجع ${(v.rowA ? v.rowA.ref : null)} | فارق: ${formatMoney(Math.abs(v.diff))} (${v.explanation})`).join('\n') + `\n\n`;
         }
-        whatsappLetter += `نرجو التكرم بمراجعة البنود المذكورة لمطابقة الحساب وإغلاقه بشكل نهائي.\nشاكرين ومقدرين حسن تعاونكم الدائم.\nنظام مقاييس MAGAIEES ERP 2026`;
+        whatsappLetter += `نرجو التكرم بمراجعة البنود المذكورة لمطابقة الحساب وإغلاقه بشكل نهائي.\nشاكرين ومقدرين حسن تعاونكم الدائم.\nنظام السيطرة MAGAIEES ERP 2026`;
 
         return {
             engine: 'محرك التدقيق الجنائي الداخلي MAGAIEES 2026',
@@ -2681,7 +2681,7 @@
 
         // 1. Summary Sheet
         const summaryData = [
-            ["تقرير التطابق والتسوية المحاسبية الذكية - نظام مقاييس MAGAIEES 2026"],
+            ["تقرير التطابق والتسوية المحاسبية الذكية - نظام السيطرة MAGAIEES 2026"],
             ["تاريخ إعداد التقرير", new Date().toLocaleString('ar-SA')],
             [""],
             ["الطرف الأول (كشف الحساب الخاص)", stateA.name, "رصيد الإغلاق", stateA.summary.balance],
@@ -2979,7 +2979,7 @@
             return;
         }
         const sideName = window.RECON_ACTIVE_CAMERA_SIDE === 'A' ? 'الطرف الأول' : 'الطرف الثاني';
-        const msg = `📷 *رابط كاميرا فحص كشف الحساب (مقاييس ERP)*:\n\nافتح الرابط التالي في هاتفك لتصوير كشف الحساب (${sideName}) ومزامنته فوراً مع اللابتوب بالذكاء الاصطناعي:\n\n${url}`;
+        const msg = `📷 *رابط كاميرا فحص كشف الحساب (السيطرة ERP)*:\n\nافتح الرابط التالي في هاتفك لتصوير كشف الحساب (${sideName}) ومزامنته فوراً مع اللابتوب بالذكاء الاصطناعي:\n\n${url}`;
         const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
         window.open(waUrl, '_blank');
     }

@@ -34,7 +34,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ترحيل الحسابات | مقاييس (MAGAIEES)</title>
+    <title>ترحيل الحسابات | السيطرة (MAGAIEES)</title>
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=<?php echo file_exists('css/components.css') ? filemtime('css/components.css') : 1; ?>">
@@ -3130,7 +3130,7 @@
                 const ref = (item && (item.id || item.invoiceNo || item.voucherNo)) || 'INV-2027';
                 const party = (item && (item.customerName || item.supplierName || item.description)) || 'عميل معتمد';
                 const amt = Number((item && (item.totalAmount || item.amountLocal || item.amount)) || 250000).toLocaleString('en-US');
-                ctx.fillText('بطاقة إيصال وترحيل رسمية — مقاييس ERP (#' + ref + ')', c.width - 16, 34);
+                ctx.fillText('بطاقة إيصال وترحيل رسمية — السيطرة ERP (#' + ref + ')', c.width - 16, 34);
                 ctx.fillStyle = '#ffffff'; ctx.font = 'bold 15px Tajawal, sans-serif';
                 ctx.fillText('الطرف: ' + party + '  |  المبلغ: ' + amt + ' SDG', c.width - 16, 70);
                 ctx.fillStyle = '#38bdf8'; ctx.font = 'bold 13px Tajawal, sans-serif';

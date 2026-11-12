@@ -1499,7 +1499,7 @@
             alertMsg += `2. مراسلة العميل لطلب صورة أصلية واضحة من داخل التطبيق البنكي.\n`;
             alertMsg += `3. فحص التفقيط والخطوط عبر زر المعاينة 🔍.\n`;
             alertMsg += `4. إذا تأكدت من صحة الإيداع بالبنك، يمكنك اعتماده يدوياً.\n\n`;
-            alertMsg += `⚠️ تنبيه:\nمقاييس غير مسؤولة عن النتيجة، إنما هو اجتهاد بالذكاء الاصطناعي.`;
+            alertMsg += `⚠️ تنبيه:\nالسيطرة غير مسؤولة عن النتيجة، إنما هو اجتهاد بالذكاء الاصطناعي.`;
 
             alert(alertMsg);
         },
@@ -1581,8 +1581,8 @@
                 const modal = document.getElementById('financial-ocr-fraud-disclaimer-modal');
                 if (!modal) {
                     const fallbackMsg = isBatch
-                        ? `⚠️ تنبيه:\n\nمقاييس غير مسؤولة عن النتيجة، إنما هو اجتهاد بالذكاء الاصطناعي.\n\nهل ترغب في المتابعة وبدء كشف التزوير لكافة مستندات الدفعة (${count} مستند)؟`
-                        : `⚠️ تنبيه:\n\nمقاييس غير مسؤولة عن النتيجة، إنما هو اجتهاد بالذكاء الاصطناعي.\n\nهل ترغب في المتابعة وبدء كشف التزوير لهذا المستند؟`;
+                        ? `⚠️ تنبيه:\n\nالسيطرة غير مسؤولة عن النتيجة، إنما هو اجتهاد بالذكاء الاصطناعي.\n\nهل ترغب في المتابعة وبدء كشف التزوير لكافة مستندات الدفعة (${count} مستند)؟`
+                        : `⚠️ تنبيه:\n\nالسيطرة غير مسؤولة عن النتيجة، إنما هو اجتهاد بالذكاء الاصطناعي.\n\nهل ترغب في المتابعة وبدء كشف التزوير لهذا المستند؟`;
                     return resolve(confirm(fallbackMsg));
                 }
 
@@ -6266,7 +6266,7 @@
                         compTitle.textContent = ad.companyName || 'شريك معتمد';
                     }
                     if (subTitle) {
-                        subTitle.textContent = ad.subtitle || 'شريك معتمد في مقاييس ERP';
+                        subTitle.textContent = ad.subtitle || 'شريك معتمد في السيطرة ERP';
                     }
                     if (badgeElem) {
                         badgeElem.textContent = ad.badge || 'إعلان معتمد ✨';
@@ -6296,13 +6296,13 @@
                     const orb1Img = document.getElementById('ocr-ad-orbit-img-1');
                     const orb1Name = document.getElementById('ocr-ad-orbit-name-1');
                     if (orb1Img) orb1Img.src = orb1Ad.logo || orb1Ad.image;
-                    if (orb1Name) orb1Name.textContent = (orb1Ad.companyName || 'شريك مقاييس').split(' - ')[0].substring(0, 24);
+                    if (orb1Name) orb1Name.textContent = (orb1Ad.companyName || 'شريك السيطرة').split(' - ')[0].substring(0, 24);
 
                     const orb2Ad = this.ads[(this.currentIndex + 3) % this.ads.length];
                     const orb2Img = document.getElementById('ocr-ad-orbit-img-2');
                     const orb2Name = document.getElementById('ocr-ad-orbit-name-2');
                     if (orb2Img) orb2Img.src = orb2Ad.logo || orb2Ad.image;
-                    if (orb2Name) orb2Name.textContent = (orb2Ad.companyName || 'شريك مقاييس').split(' - ')[0].substring(0, 24);
+                    if (orb2Name) orb2Name.textContent = (orb2Ad.companyName || 'شريك السيطرة').split(' - ')[0].substring(0, 24);
                 }
 
                 this.updateDots();

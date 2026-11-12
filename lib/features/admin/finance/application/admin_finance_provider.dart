@@ -267,7 +267,7 @@ class AdminFinanceNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>
           'type': 'ad',
           'source': 'إعلانات',
           'category': 'income',
-          'store_name': a['company'] ?? 'مقاييس',
+          'store_name': a['company'] ?? 'السيطرة',
           'store_id': '',
           'title': 'إيراد إعلان: ${a['title'] ?? 'بدون عنوان'}',
           'description': a['company'] ?? '',
@@ -331,7 +331,7 @@ class AdminFinanceNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>
       final Set<String> merchantNames = {};
       for (var entry in ledger) {
         final name = entry['store_name']?.toString() ?? '';
-        if (name.isNotEmpty && name != 'مقاييس') {
+        if (name.isNotEmpty && name != 'السيطرة') {
           merchantNames.add(name);
         }
       }

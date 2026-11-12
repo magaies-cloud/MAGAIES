@@ -3308,7 +3308,7 @@ foreach ($rules as $r) {
         const red = alerts.filter(a => a.severity === 'RED').length;
         const yel = alerts.filter(a => a.severity !== 'RED').length;
         const topMsgs = alerts.slice(0, 6).map((a, i) => `${i + 1}. ${a.message}`).join('\n');
-        const text = `🛡️ *تقرير الحارس الأمين والإنذارات الحية — نظام مقاييس ERP*\n📅 التاريخ: ${new Date().toISOString().slice(0, 10)}\n🚨 إنذارات حرجة: ${red}\n⚠️ تحذيرات متوسطة: ${yel}\n\n📌 *أبرز الملاحظات المرصودة:*\n${topMsgs || '✅ جميع العمليات آمنة ومطابقة 100%.'}\n\n🔗 رابط الرادار: ${window.location.href}`;
+        const text = `🛡️ *تقرير الحارس الأمين والإنذارات الحية — نظام السيطرة ERP*\n📅 التاريخ: ${new Date().toISOString().slice(0, 10)}\n🚨 إنذارات حرجة: ${red}\n⚠️ تحذيرات متوسطة: ${yel}\n\n📌 *أبرز الملاحظات المرصودة:*\n${topMsgs || '✅ جميع العمليات آمنة ومطابقة 100%.'}\n\n🔗 رابط الرادار: ${window.location.href}`;
         window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
     };
 
@@ -3439,7 +3439,7 @@ foreach ($rules as $r) {
     }
 
     function shareAlertViaWhatsApp(msg, screenFile) {
-        const text = `🚨 *تنبيه رقابي عاجل — نظام مقاييس ERP*\n\n${msg}\n\n🔗 الشاشة المختصة: ${window.location.origin}/ELSAJANA2/magaies/${screenFile || 'alarm.php'}`;
+        const text = `🚨 *تنبيه رقابي عاجل — نظام السيطرة ERP*\n\n${msg}\n\n🔗 الشاشة المختصة: ${window.location.origin}/ELSAJANA2/magaies/${screenFile || 'alarm.php'}`;
         window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
     }
 

@@ -1,4 +1,4 @@
-<?php $page_title = 'مقاييس (MAGAIEES) - كشف المخزن التحليلي'; ?>
+<?php $page_title = 'السيطرة (MAGAIEES) - كشف المخزن التحليلي'; ?>
 <!-- c:\mynewapp\frontend-pwa\warehouse-ledger.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مقاييس (MAGAIEES) - كشف المخزن التحليلي</title>
+    <title>السيطرة (MAGAIEES) - كشف المخزن التحليلي</title>
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">

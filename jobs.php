@@ -1253,7 +1253,7 @@ $header_theme_class = 'header-theme-dashboard';
             const j = jobs.find(x => x.id === id);
             if (!j) return;
             const phone = (j.phone || '').replace(/[^0-9]/g, '');
-            const msg = `📋 *أمر تكليف مهمة تنفيذية - نظام مقاييس*\n` +
+            const msg = `📋 *أمر تكليف مهمة تنفيذية - نظام السيطرة*\n` +
                 `━━━━━━━━━━━━━━━━━━━━\n` +
                 `🔹 *رقم الأمر:* ${j.id}\n` +
                 `📌 *المهمة:* ${j.title}\n` +

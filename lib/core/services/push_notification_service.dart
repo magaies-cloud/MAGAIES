@@ -55,7 +55,7 @@ Future<void> _renderPushMessage(RemoteMessage message, {required bool foreground
 
     default:
       await LocalNotificationService.instance.showGeneralNotification(
-        title: data['title'] ?? 'مقاييس',
+        title: data['title'] ?? 'السيطرة',
         body: data['body'] ?? '',
       );
   }

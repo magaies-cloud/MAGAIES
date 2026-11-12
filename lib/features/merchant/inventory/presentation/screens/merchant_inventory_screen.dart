@@ -346,7 +346,7 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
                                   Row(
                                     children: [
                                       Text(
-                                        isRtl ? 'سعر منصة مقاييس المعتمد 🌐' : 'Platform USD Rate 🌐',
+                                        isRtl ? 'سعر منصة السيطرة المعتمد 🌐' : 'Platform USD Rate 🌐',
                                         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                                       ),
                                       const SizedBox(width: 6),
@@ -1098,15 +1098,24 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
                       runSpacing: 8,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        Text(isRtl ? 'نظام التسعير الذكي' : 'Smart Pricing System', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: isPlatformSource ? const Color(0xFF16A34A).withValues(alpha: 0.3) : const Color(0xFF2563EB).withValues(alpha: 0.3),
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(
-                              color: isPlatformSource ? const Color(0xFF22C55E) : const Color(0xFF60A5FA),
-                              width: 0.8,
+                        Row(
+                          children: [
+                            Text(isRtl ? 'نظام التسعير الذكي' : 'Smart Pricing System', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: isPlatformSource ? const Color(0xFF16A34A).withOpacity(0.3) : const Color(0xFF2563EB).withOpacity(0.3),
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: isPlatformSource ? const Color(0xFF22C55E) : const Color(0xFF60A5FA),
+                                  width: 0.8,
+                                ),
+                              ),
+                              child: Text(
+                                isPlatformSource ? (isRtl ? 'سعر منصة السيطرة المعتمد 🌐' : 'Platform Rate 🌐') : (isRtl ? 'سعر مخصص لمتجرك ⚙️' : 'Custom Store Rate ⚙️'),
+                                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                              ),
                             ),
                           ),
                           child: Text(
@@ -1164,7 +1173,7 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
                                 children: [
                                   Text(
                                     isPlatformSource
-                                        ? (isRtl ? 'سعر الدولار المعتمد (منصة مقاييس)' : 'Platform USD Rate')
+                                        ? (isRtl ? 'سعر الدولار المعتمد (منصة السيطرة)' : 'Platform USD Rate')
                                         : (isRtl ? 'سعر الدولار المخصص لمتجرك' : 'Custom Store USD Rate'),
                                     style: TextStyle(color: Colors.blue.shade100, fontSize: 11),
                                   ),

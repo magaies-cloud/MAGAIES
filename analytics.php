@@ -15,7 +15,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مقاييس 2026 - التقارير</title>
+    <title>السيطرة 2026 - التقارير</title>
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -1108,7 +1108,7 @@
         <div class="chart-card glass-panel">
             <div class="chart-header">
                 <div class="chart-title">🎯 رادار المؤشرات والصحة المالية العالمية 360°</div>
-                <span class="chart-sub-badge">6 مقاييس أداء</span>
+                <span class="chart-sub-badge">6 السيطرة أداء</span>
             </div>
             <div class="chart-container">
                 <canvas id="healthRadarChart"></canvas>

@@ -82,7 +82,7 @@
       var accName = sel && sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : 'حساب عميل';
       var summary = document.getElementById('quickStatementSummary');
       var summaryText = summary ? summary.innerText.replace(/\n+/g, ' | ') : '';
-      var msg = '📊 *كشف حساب معتمد - نظام مقاييس ERP*\n' +
+      var msg = '📊 *كشف حساب معتمد - نظام السيطرة ERP*\n' +
                 '━━━━━━━━━━━━━━\n' +
                 '👤 الحساب: ' + accName + '\n' +
                 '📌 الملخص: ' + summaryText + '\n' +
@@ -119,7 +119,7 @@
     };
 
     window.sharePageLedgerWhatsApp = function() {
-      var msg = '📊 *ملخص أرصدة الأستاذ والمديونيات - نظام مقاييس ERP*\n' +
+      var msg = '📊 *ملخص أرصدة الأستاذ والمديونيات - نظام السيطرة ERP*\n' +
                 '━━━━━━━━━━━━━━\n' +
                 '🔹 مديونية العملاء: $45,800 (274.75M ج.س)\n' +
                 '🔸 التزامات الموردين: $32,150 (192.87M ج.س)\n' +
@@ -204,7 +204,7 @@
       var salesTxt = salesEl ? salesEl.textContent.trim() : 'حسب السجل الحي';
       var netTxt = netEl ? netEl.textContent.trim() : 'حسب السجل الحي';
       var appTxt = appBadge ? appBadge.textContent.trim() : 'صفر';
-      var text = 'ملخص مقاييس التنفيذي الحي: مبيعات اليوم ' + salesTxt + '، وصافي الربح ' + netTxt + '، وطلبات الاعتماد ' + appTxt + '.';
+      var text = 'ملخص السيطرة التنفيذي الحي: مبيعات اليوم ' + salesTxt + '، وصافي الربح ' + netTxt + '، وطلبات الاعتماد ' + appTxt + '.';
       if ('speechSynthesis' in window) {
         try {
           window.speechSynthesis.cancel();
@@ -298,7 +298,7 @@
     window.shareModalSummaryWhatsApp = function(modalId, docTitle) {
       var modal = document.getElementById(modalId);
       if (!modal) return;
-      var lines = ['📄 *' + (docTitle || 'مستند رسمي') + ' - نظام مقاييس ERP*', '━━━━━━━━━━━━━━'];
+      var lines = ['📄 *' + (docTitle || 'مستند رسمي') + ' - نظام السيطرة ERP*', '━━━━━━━━━━━━━━'];
       modal.querySelectorAll('input, select, textarea').forEach(function(el) {
         if (el.type === 'hidden' || !el.value) return;
         var label = '';
@@ -1142,7 +1142,7 @@
           ? 'البرنامج الكامل'
           : (this.getShortcutsMatrix()[this.getActiveShortcut()]?.name || 'اختصار الجوال');
         const msg = [
-          '📊 *تقرير النبض المالي الفوري — مقاييس ERP*',
+          '📊 *تقرير النبض المالي الفوري — السيطرة ERP*',
           '• الواجهة النشطة: ' + (this.getUiMode() === 'modern' ? 'العصرية العالمية ✨' : 'الكلاسيكية 🏛️') + ' (' + scName + ')',
           '• مبيعات اليوم: $12,480 (48 فاتورة)',
           '• مشتريات اليوم: $4,650',
@@ -2358,7 +2358,7 @@
         });
         drawer.querySelector('.mg-row-act-wa')?.addEventListener('click', (ev) => {
           ev.stopPropagation();
-          window.open('https://wa.me/?text=' + encodeURIComponent('📄 مستند / سطر من نظام مقاييس:\n' + rowText), '_blank');
+          window.open('https://wa.me/?text=' + encodeURIComponent('📄 مستند / سطر من نظام السيطرة:\n' + rowText), '_blank');
         });
         drawer.querySelector('.mg-row-act-del')?.addEventListener('click', (ev) => {
           ev.stopPropagation();
@@ -2734,7 +2734,7 @@
                 <div class="text-xs font-black text-cyan-300">تم الخروج المؤقت لسطح المكتب في النصف الأيمن</div>
                 <div class="text-[10px] text-slate-400">بياناتك وفواتيرك محفوظة في الذاكرة الحية — اضغط بالأسفل للدخول الفوري للبرنامج</div>
                 <button type="button" onclick="window.MgConstitution4.toggleRightScreenDesktopExit()" class="w-full py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 text-xs font-black cursor-pointer shadow-lg">
-                  ▶️ الدخول الفوري لبرنامج مقاييس ERP
+                  ▶️ الدخول الفوري لبرنامج السيطرة ERP
                 </button>
               </div>
             `;
@@ -3498,7 +3498,7 @@
     const SCREEN_ACCOUNTING_PROFILES = {
       dashboard: {
         name: 'الشاشة الرئيسية وبوابة القيادة المالية للجوال',
-        what: 'هذه الشاشة هي غرفة القيادة الفورية لنظام مقاييس على الجوال؛ تعرض لك نبض السيولة والمبيعات والمشتريات وتمنحك الوصول السريع لكل العمليات والاختصارات.',
+        what: 'هذه الشاشة هي غرفة القيادة الفورية لنظام السيطرة على الجوال؛ تعرض لك نبض السيولة والمبيعات والمشتريات وتمنحك الوصول السريع لكل العمليات والاختصارات.',
         sources: 'تستمد بياناتها حياً من فواتير المبيعات، وفواتير المشتريات، وسندات القبض والصرف، وأذونات المخازن، وإشعارات بنكك وفوري.',
         outputs: 'تُسمّع قراراتها واعتماداتها مباشرة في الدفتر الأستاذ العام، وكشوفات حسابات العملاء والموردين، وأرصدة الخزينة والبنوك، وتقارير تقفيل الوردية.',
         goldenRule: 'راقب صافي السيولة وبطاقات النبض أولاً قبل إصدار أي أمر صرف، واستخدم الاختصارات لعزل الرام ومضاعفة السرعة.',
@@ -6680,7 +6680,7 @@
         ctx.fillStyle = '#38bdf8';
         ctx.font = 'bold 14px Tahoma, sans-serif';
         ctx.textAlign = 'right';
-        ctx.fillText('مقاييس ERP — بطاقة إيصال مالي رسمي', canvas.width - 16, 28);
+        ctx.fillText('السيطرة ERP — بطاقة إيصال مالي رسمي', canvas.width - 16, 28);
 
         ctx.fillStyle = copyNum > 1 ? '#fda4af' : '#6ee7b7';
         ctx.font = 'bold 11px Tahoma, sans-serif';
@@ -6712,7 +6712,7 @@
         const docId = this.getActiveDocumentId();
         this.drawWhatsAppReceiptCanvas(docId, 1);
         const msg = [
-          '🧾 *بطاقة إيصال مالي رسمي — نظام مقاييس ERP*',
+          '🧾 *بطاقة إيصال مالي رسمي — نظام السيطرة ERP*',
           `• رقم المستند: ${docId} (نسخة أصلية رقم 1)`,
           '• إجمالي الفاتورة: 1,250,000 ج.س',
           '• المدفوع المستلم: 1,000,000 ج.س',
@@ -7064,7 +7064,7 @@
         const liveBalEl = document.getElementById('mgDualCurrSdgInput') || document.getElementById('mgRevCalcTargetAmount');
         const balNum = parseFloat(liveBalEl?.value || '0') || 0;
         const msg = [
-          '📑 *طلب مصادقة رصيد حساب — نظام مقاييس ERP*',
+          '📑 *طلب مصادقة رصيد حساب — نظام السيطرة ERP*',
           `• الرصيد الحالي المسجل لدينا: ${balNum.toLocaleString('en-US')} ج.س`,
           `• كود المصادقة الرقمي: ${code}`,
           '✓ للمصادقة على صحة الرصيد يرجى الرد بكلمة (مطابق).'
@@ -7959,7 +7959,7 @@
       const periodBadge = document.getElementById('statementActivePeriodBadge')?.textContent || 'كل الفترة';
 
       let lines = [
-        '📊 *كشف حساب رسمي معتمد - نظام مقاييس ERP*',
+        '📊 *كشف حساب رسمي معتمد - نظام السيطرة ERP*',
         '━━━━━━━━━━━━━━━━━━━━',
         `👤 *الحساب:* ${acc.name} (#${acc.code})`,
         `🏷️ *التصنيف:* ${acc.typeLabel}`,
@@ -8050,7 +8050,7 @@
   <textarea id="rawStmtTxt" style="display:none;">${this.buildFormattedStatementText()}</textarea>
   <div class="hdr">
     <div>
-      <h2 style="margin:0; color:#0284c7;">منظومة مقاييس ERP المحاسبية العالمية</h2>
+      <h2 style="margin:0; color:#0284c7;">منظومة السيطرة ERP المحاسبية العالمية</h2>
       <div style="font-size:13px; font-weight:bold; margin-top:4px;">كشف حساب تفصيلي معتمد: ${acc.name} (#${acc.code})</div>
       <div style="font-size:11px; color:#475569; margin-top:2px;">التصنيف: ${acc.typeLabel} • تاريخ الإصدار: ${new Date().toISOString().slice(0, 10)}</div>
     </div>
@@ -8565,7 +8565,7 @@
       const all = this.getEnrichedAccounts();
       const acc = all.find(a => String(a.id) === String(accId));
       if (!acc) return;
-      const msg = `⚖️ *إشعار رصيد حي معتمد - نظام مقاييس ERP*\n`
+      const msg = `⚖️ *إشعار رصيد حي معتمد - نظام السيطرة ERP*\n`
         + `👤 الحساب: *${acc.name}* (#${acc.code})\n`
         + `🏷️ التصنيف: ${acc.netNature}\n`
         + `💵 الرصيد بالدولار: *$${acc.usd.toLocaleString('en-US')} USD*\n`
@@ -8579,7 +8579,7 @@
       const filtered = this.getFilteredAndSorted();
       const sum = this.computeGlobalSummary();
       let lines = [
-        '⚖️ *ميزان الأرصدة الحية المعتمد (AI) - نظام مقاييس ERP*',
+        '⚖️ *ميزان الأرصدة الحية المعتمد (AI) - نظام السيطرة ERP*',
         '━━━━━━━━━━━━━━━━━━━━',
         `🏦 السيولة الحاضرة: $${sum.cashUsd.toLocaleString('en-US')} (${sum.cashSdg.toLocaleString('en-US')} ج.س)`,
         `👥 مديونية العملاء: $${sum.custUsd.toLocaleString('en-US')}`,
@@ -8623,7 +8623,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>ميزان الأرصدة الحية المعتمد - مقاييس ERP</title>
+  <title>ميزان الأرصدة الحية المعتمد - السيطرة ERP</title>
   <style>
     body { font-family: Tahoma, Arial, sans-serif; margin: 16px; color: #0f172a; background: #fff; }
     .hdr { display:flex; justify-content:space-between; align-items:center; border-bottom:3px solid #f59e0b; padding-bottom:12px; margin-bottom:14px; }
@@ -8644,7 +8644,7 @@
   <div class="hdr">
     <div>
       <h2 style="margin:0;color:#d97706;">ميزان واستعلام الأرصدة الحية المعتمد (Trial Balance AI)</h2>
-      <div style="font-size:12px;color:#475569;margin-top:4px;">منظومة مقاييس ERP • تاريخ الإصدار: ${new Date().toISOString().slice(0, 10)} • سعر الصرف: ${sum.rate.toLocaleString('en-US')} ج.س</div>
+      <div style="font-size:12px;color:#475569;margin-top:4px;">منظومة السيطرة ERP • تاريخ الإصدار: ${new Date().toISOString().slice(0, 10)} • سعر الصرف: ${sum.rate.toLocaleString('en-US')} ج.س</div>
     </div>
     <img src="${qrUrl}" alt="QR" style="width:76px;height:76px;border:1px solid #cbd5e1;border-radius:8px;padding:3px;" />
   </div>
@@ -9275,7 +9275,7 @@
       let msg = '';
       if (this.activeMode === 'barcode') {
         const it = this.currentDetectedItem || CATALOG_ITEMS['62810001001'];
-        msg = `🏷️ *بطاقة صنف بالباركود و QR - مقاييس ERP*\n• الصنف: *${it.name}*\n• الباركود: #${it.code}\n• السعر: *$${it.priceUsd}*\n• المتاح بالمخزن: ${it.stock} ${it.unit || ''}`;
+        msg = `🏷️ *بطاقة صنف بالباركود و QR - السيطرة ERP*\n• الصنف: *${it.name}*\n• الباركود: #${it.code}\n• السعر: *$${it.priceUsd}*\n• المتاح بالمخزن: ${it.stock} ${it.unit || ''}`;
       } else if (this.activeMode === 'ocr') {
         msg = `🏦 *تأكيد استلام ومطابقة إشعار بنكي (AI OCR)*\n• رقم العملية: #${document.getElementById('ocrRefNo')?.value}\n• المبلغ: *${document.getElementById('ocrAmount')?.value}*\n• المحول: ${document.getElementById('ocrSender')?.value}\n• البنك: ${document.getElementById('ocrBank')?.value}`;
       } else {
@@ -12215,7 +12215,7 @@ window.UnifiedAgingDebtCollectorEngine = {
     if (tone === 'polite') {
       return `السلام عليكم ورحمة الله وبركاته\n` +
              `السادة المحترمون / *${debtor.name}* حفظكم الله،\n` +
-             `تحية طيبة من إدارة الحسابات (نظام مقاييس ERP).\n\n` +
+             `تحية طيبة من إدارة الحسابات (نظام السيطرة ERP).\n\n` +
              `نود تذكيركم بكل ود بالرصيد المستحق لحسابكم والبالغ قدره *${usdStr}* (${debtor.tafqeet} — ما يعادل *${sdgStr}*).\n` +
              `📄 مرفق لكم رابط كشف الحساب التفصيلي الموثق بباركود QR للمطابقة والمصادقة:\n` +
              `${verifyUrl}\n\n` +
@@ -12551,7 +12551,7 @@ window.ExecutiveComparatorEngine = {
     const pMom = this.calcDelta(today.profit, this.benchmarks.profit.mom, false);
 
     const msg =
-      `📊 *تقرير المقارنات التنفيذي الذكي (WoW / MoM) — مقاييس ERP*\n\n` +
+      `📊 *تقرير المقارنات التنفيذي الذكي (WoW / MoM) — السيطرة ERP*\n\n` +
       `🛒 *مبيعات اليوم:* $${today.sales.toLocaleString('en-US')}\n` +
       `   • مقابل الأسبوع الماضي ($${this.benchmarks.sales.wow.toLocaleString('en-US')}): *${sWow.pctStr}*\n` +
       `   • مقابل متوسط الشهر ($${this.benchmarks.sales.mom.toLocaleString('en-US')}): *${sMom.pctStr}*\n\n` +
@@ -13105,7 +13105,7 @@ window.CashFlowWaterfallEngine = {
   shareWhatsAppWaterfall() {
     const eq = this.getComputedEquation();
     const msg =
-      `💧 *تقرير "أين ذهبت السيولة اليوم؟" (شلال التدفق النقدي) — مقاييس ERP*\n\n` +
+      `💧 *تقرير "أين ذهبت السيولة اليوم؟" (شلال التدفق النقدي) — السيطرة ERP*\n\n` +
       `1️⃣ *رصيد أول اليوم:* ${this.fmtVal(eq.opening, '')}\n` +
       `➕ *المبيعات النقدية:* ${this.fmtVal(eq.cashSales, '+')}\n` +
       `➕ *التحصيلات من العملاء:* ${this.fmtVal(eq.collections, '+')}\n` +
@@ -13240,7 +13240,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const s = this.state;
       const topDebtor = (db.aging_debtors && db.aging_debtors[0]) ? db.aging_debtors[0] : null;
       const msg =
-        `🤖 التشخيص المالي الذكي من قاعدة البيانات (مقاييس AI):\n` +
+        `🤖 التشخيص المالي الذكي من قاعدة البيانات (السيطرة AI):\n` +
         `• السيولة النقدية الجاهزة: ${k.total_liquidity_sdg || ('$'+Math.round(s.readyLiquidity).toLocaleString())} (${k.total_banks_count || 0} بنوك + ${k.total_safes_count || 0} خزائن).\n` +
         `• إجمالي فواتير المبيعات المعتمدة: ${k.total_sales_count || 0} فاتورة بقيمة ${k.total_sales_amount_sdg || '0 ج.س'}.\n` +
         `• مديونية العملاء: ${k.total_receivables_sdg || '0 ج.س'} (${this.state.debtorsCount} عميل مدين)` +

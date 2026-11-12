@@ -39,7 +39,7 @@ class _EmployeeShellState extends ConsumerState<EmployeeShell> {
             AppNotification.showNewOrder(
               context,
               orderId: order.orderNumber,
-              message: 'طلب حصري جديد متاح (#${order.orderNumber}): ${order.buyerName.isNotEmpty ? order.buyerName : 'مشتري مقاييس'}',
+              message: 'طلب حصري جديد متاح (#${order.orderNumber}): ${order.buyerName.isNotEmpty ? order.buyerName : 'مشتري السيطرة'}',
               onTap: () {
                 ref.read(employeeShellIndexProvider.notifier).state = 0; // Go to Radar
               },

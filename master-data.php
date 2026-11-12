@@ -16,7 +16,7 @@
         <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مقاييس (MAGAIEES) - البيانات الأساسية</title>
+    <title>السيطرة (MAGAIEES) - البيانات الأساسية</title>
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -2147,7 +2147,7 @@
                         </div>
                         <div class="form-grid">
                             <input type="hidden" id="warehouse-id">
-                            <div class="input-group"><label>اسم المخزن *</label><input type="text" id="warehouse-name" placeholder="مثال: مخزن مقاييس الرئيسي"></div>
+                            <div class="input-group"><label>اسم المخزن *</label><input type="text" id="warehouse-name" placeholder="مثال: مخزن السيطرة الرئيسي"></div>
                             <div class="input-group"><label>النوع</label><select id="warehouse-type"><option value="مستودع رئيسي">مستودع رئيسي</option><option value="معرض (نقطة بيع)">معرض (نقطة بيع)</option><option value="مخزن فرعي">مخزن فرعي</option><option value="مخزن بضاعة تالفة">مخزن بضاعة تالفة</option></select></div>
                             <div class="input-group"><label style="justify-content:space-between;"><span>أمين المخزن</span><button type="button" class="btn-text" style="height:20px !important; min-height:20px !important; padding:0 6px !important; font-size:0.72rem !important;" onclick="quickAddKeeperModal()">➕</button></label><input type="text" id="warehouse-keeper" list="wh-keepers-datalist" placeholder="اسم أمين المخزن"><datalist id="wh-keepers-datalist"></datalist></div>
                             <div class="input-group"><label>الهاتف</label><input type="text" id="warehouse-phone" placeholder="0912345678" style="direction:ltr; text-align:center;"></div>
@@ -4083,7 +4083,7 @@
             var item = rows[idx];
             if (!item) return;
             var balFmt = Number(item.balance || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            var text = '📌 *بطاقة بيانات معتمدة — نظام مقاييس*\n' +
+            var text = '📌 *بطاقة بيانات معتمدة — نظام السيطرة*\n' +
                 '• التصنيف: ' + item.type + '\n' +
                 '• الاسم: ' + item.name + '\n' +
                 '• الكود / رقم الحساب: ' + item.code + '\n' +
@@ -9975,7 +9975,7 @@
                 '<html dir="rtl"><head><title>إيصال حراري 80mm</title></head>' +
                 '<body style="width:76mm;margin:0 auto;font-family:Tahoma,sans-serif;font-size:12px;padding:8px;">' +
                 '<div style="text-align:center;border-bottom:2px dashed #000;padding-bottom:6px;margin-bottom:6px;">' +
-                '<strong>مقاييس ERP — نسخة أصلية (1)</strong><br>إيصال حراري موزون 80mm</div>' +
+                '<strong>السيطرة ERP — نسخة أصلية (1)</strong><br>إيصال حراري موزون 80mm</div>' +
                 '<div>القسم: ' + (window.activeTabName || 'البيانات الأساسية') + '</div>' +
                 '<div>صافي المركز: ' + Number(m.netPosition).toLocaleString() + '</div>' +
                 '<div>المديونية: ' + Number(m.totalReceivables).toLocaleString() + '</div>' +
@@ -9988,7 +9988,7 @@
         window.shareMdFc2WhatsAppReceiptCard = function() {
             var m = computeMdFc2LiveMetrics();
             var fmt = function(n) { return Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 2 }); };
-            var msg = '🧾 *بطاقة إشعار مالي آلي — مقاييس ERP*\n' +
+            var msg = '🧾 *بطاقة إشعار مالي آلي — السيطرة ERP*\n' +
                 '• الإجمالي المعتمد: ' + fmt(m.totalInventoryRetail) + '\n' +
                 '• المسدد/السيولة: ' + fmt(m.totalCash + m.totalBank) + '\n' +
                 '• الرصيد المتبقي: ' + fmt(m.totalReceivables) + '\n' +

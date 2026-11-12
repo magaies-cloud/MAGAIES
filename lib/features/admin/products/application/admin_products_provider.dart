@@ -234,7 +234,7 @@ final adminProductsInsightsProvider =
       orderCount: orders,
       inventoryValue: invValue,
       isAdvertiserSponsored: isAdv,
-      advertiserStoreName: isExclusive ? 'شركة مقاييس - توريد مباشر' : storeName,
+      advertiserStoreName: isExclusive ? 'شركة السيطرة - توريد مباشر' : storeName,
       storeId: sId,
       storeUsdRate: storeRate,
       storeAddress: storeAddr,

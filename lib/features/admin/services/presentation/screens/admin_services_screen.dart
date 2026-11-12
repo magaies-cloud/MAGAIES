@@ -272,7 +272,7 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
                       _buildMiniMetricCard(
                         title: 'العمليات والطلبات المنفذة',
                         value: '${provider.completedOrdersCount} عملية',
-                        subtitle: 'عبر منصة مقاييس',
+                        subtitle: 'عبر منصة السيطرة',
                         color: _kRoyalBlue,
                         icon: Icons.task_alt_rounded,
                       ),
@@ -330,7 +330,7 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
                         _buildDetailRow('سنوات الخبرة المعتمدة:', '${provider.experienceYears} سنوات'),
                         _buildDetailRow(
                           'حالة التوثيق:',
-                          provider.isVerified ? '✅ مزود موثق وشريك معتمد بمنصة مقاييس' : '⏳ قيد المراجعة والتدقيق',
+                          provider.isVerified ? '✅ مزود موثق وشريك معتمد بمنصة السيطرة' : '⏳ قيد المراجعة والتدقيق',
                         ),
                       ],
                     ),

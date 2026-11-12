@@ -135,7 +135,7 @@ class ProductCard extends StatelessWidget {
                             const Icon(Icons.verified_rounded, size: 11, color: Colors.amber),
                             const SizedBox(width: 3),
                             Text(
-                              isRtl ? 'حصري مقاييس' : 'Magaiees Exclusive',
+                              isRtl ? 'حصري السيطرة' : 'Magaiees Exclusive',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 9.5,
@@ -146,7 +146,7 @@ class ProductCard extends StatelessWidget {
                         ),
                       ),
                     )
-                  else if (displayStore.isNotEmpty && displayStore != 'Magaiees' && displayStore != 'مقاييس')
+                  else if (displayStore.isNotEmpty && displayStore != 'Magaiees' && displayStore != 'السيطرة')
                     Positioned(
                       top: 6,
                       right: isRtl ? null : 6,
@@ -258,7 +258,7 @@ class ProductCard extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 product.isMagaieesExclusive
-                                    ? (isRtl ? 'حصري ومباشر عبر مقاييس' : 'Magaiees Exclusive')
+                                    ? (isRtl ? 'حصري ومباشر عبر السيطرة' : 'Magaiees Exclusive')
                                     : '${isRtl ? "متجر:" : "Store:"} $displayStore',
                                 style: TextStyle(
                                   fontSize: 11,

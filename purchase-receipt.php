@@ -5573,7 +5573,7 @@ html.grn-ophthalmic-comfort-active body {
     <div class="hdr">
         <div>
             <h1>📦 سند استلام بضاعة مخزني (Official GRN)</h1>
-            <div style="color:#475569;font-weight:700;margin-top:4px;">منظومة مقاييس العالمية لإدارة المخازن وسلاسل الإمداد</div>
+            <div style="color:#475569;font-weight:700;margin-top:4px;">منظومة السيطرة العالمية لإدارة المخازن وسلاسل الإمداد</div>
         </div>
         <div style="text-align:left;font-weight:900;font-size:18px;color:#0369a1;">
             رقم الإذن: ${doc.grnNo}<br>
@@ -18758,7 +18758,7 @@ html.grn-ophthalmic-comfort-active body {
             w.document.write(
                 '<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>إيصال استلام حراري 80mm</title>' +
                 '<style>body{width:76mm;margin:0 auto;padding:6px;font-family:Tahoma,Arial,sans-serif;font-size:12px;color:#000;} .hdr{text-align:center;border-bottom:2px dashed #000;padding-bottom:6px;margin-bottom:6px;font-weight:bold;} .row{display:flex;justify-content:space-between;margin:4px 0;} .bar{text-align:center;margin-top:8px;padding-top:6px;border-top:2px dashed #000;font-weight:bold;}</style></head><body>' +
-                '<div class="hdr">مقاييس ERP — سند استلام بضاعة (80mm)<br>' + s.invNo + '</div>' +
+                '<div class="hdr">السيطرة ERP — سند استلام بضاعة (80mm)<br>' + s.invNo + '</div>' +
                 '<div class="row"><span>المورد:</span><strong>' + s.supplier + '</strong></div>' +
                 '<div class="row"><span>المخزن:</span><strong>' + s.warehouse + '</strong></div>' +
                 '<div class="row"><span>إجمالي الكمية المستلمة:</span><strong>' + s.totalQty + '</strong></div>' +
@@ -18801,7 +18801,7 @@ html.grn-ophthalmic-comfort-active body {
                             '<button type="button" onclick="window.printGrnFc2Thermal80mm()" style="height:32px;padding:0 12px;border-radius:7px;background:#0284c7;color:#fff;border:none;font-weight:900;cursor:pointer;">🧾 طباعة حرارية 80mm</button>' +
                             '<button type="button" onclick="window.executeGrnFc2ControlledPrint();window.print();" style="height:32px;padding:0 12px;border-radius:7px;background:#4f46e5;color:#fff;border:none;font-weight:900;cursor:pointer;">🖨️ طباعة A4 رسمية / PDF</button>' +
                             '<button type="button" onclick="window.exportGrnFc2ToExcelCsv()" style="height:32px;padding:0 12px;border-radius:7px;background:#059669;color:#fff;border:none;font-weight:900;cursor:pointer;">📊 تصدير Excel</button>' +
-                            '<button type="button" onclick="window.open(\'https://wa.me/?text=\'+encodeURIComponent(\'📦 بطاقة إيصال استلام بضاعة مخزني (GRN) — مقاييس ERP\\nرقم الإذن: ' + s.invNo + '\\nالمورد: ' + s.supplier + '\\nالمخزن: ' + s.warehouse + '\\nالكمية المستلمة: ' + s.totalQty + ' | التالف: ' + s.damagedQty + '\'),\'_blank\')" style="height:32px;padding:0 12px;border-radius:7px;background:#16a34a;color:#fff;border:none;font-weight:900;cursor:pointer;">📲 بطاقة إيصال واتساب للمورد</button>' +
+                            '<button type="button" onclick="window.open(\'https://wa.me/?text=\'+encodeURIComponent(\'📦 بطاقة إيصال استلام بضاعة مخزني (GRN) — السيطرة ERP\\nرقم الإذن: ' + s.invNo + '\\nالمورد: ' + s.supplier + '\\nالمخزن: ' + s.warehouse + '\\nالكمية المستلمة: ' + s.totalQty + ' | التالف: ' + s.damagedQty + '\'),\'_blank\')" style="height:32px;padding:0 12px;border-radius:7px;background:#16a34a;color:#fff;border:none;font-weight:900;cursor:pointer;">📲 بطاقة إيصال واتساب للمورد</button>' +
                         '</div>' +
                     '</div>' +
                 '</div>';

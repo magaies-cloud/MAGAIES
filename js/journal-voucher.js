@@ -747,7 +747,7 @@ window.shareJournalWhatsApp = function() {
         + `• البيان: *${stmt}*\n`
         + `• إجمالي القيد المتوازن: *${tot} SDG*\n`
         + `━━━━━━━━━━━━━━━━━━━━\n`
-        + `مرحل ومطابق في دفتر الأستاذ العام — نظام مقاييس ERP.`;
+        + `مرحل ومطابق في دفتر الأستاذ العام — نظام السيطرة ERP.`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
 };
 
