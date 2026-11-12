@@ -52,6 +52,7 @@ $commands = [
     'git fetch origin main --depth=5 2>&1',
     'CHANGED_FILES=$(git diff --name-only HEAD origin/main 2>/dev/null; git diff --name-only HEAD~1 origin/main 2>/dev/null || echo "")',
     '(git update-index --refresh -q 2>/dev/null || true) && (git reset --hard origin/main 2>&1 || (git checkout -f origin/main 2>&1 && git reset --hard origin/main 2>&1))',
+    '(mkdir -p /var/www/magaiees_app && cp -rf /var/www/magaees/magaiees_app/. /var/www/magaiees_app/ && chown -R www-data:www-data /var/www/magaiees_app 2>/dev/null || true)',
     '(find /var/www/magaees -maxdepth 2 -not -path "*/.*" -not -path "/var/www/magaees/node_modules*" -not -path "/var/www/magaees/uploads*" -not -path "/var/www/magaees/baileys_auth*" -exec chown www-data:www-data {} + 2>/dev/null || true)',
     'mkdir -p /var/www/magaees/uploads/.ocr_engine /var/www/magaees/uploads/ocr_cache 2>/dev/null || true',
     'chmod 777 /var/www/magaees/uploads/.ocr_engine /var/www/magaees/uploads/ocr_cache 2>/dev/null || true',

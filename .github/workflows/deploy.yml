@@ -60,12 +60,21 @@ jobs:
           chmod -R 755 /var/www/magaees
           chmod -R 777 /var/www/magaees/uploads/.ocr_engine /var/www/magaees/uploads/ocr_cache 2>/dev/null || true
           php /var/www/magaees/api/migrate_ui_preferences.php 2>/dev/null || true
-          pkill -9 -f "[w]hatsapp-service" || true
+          pkill -9 -f "[n]ode.*whatsapp-service" || true
           pkill -9 -f "[n]ode-ocr" || true
           pkill -9 -f "[n]ode.*server\.js" || true
           fuser -k -9 3001/tcp 2>/dev/null || true
           sleep 1
           curl -s "http://127.0.0.1/api_index.php?r=wa-tenant&endpoint=status&userId=wa_tenant_12&local_only=1" >/dev/null 2>&1 || true
+
+          # ================================================
+          # STANDALONE MAGAIEES MARKETPLACE APP: https://magaiees.elsajana.com
+          # Completely separated from the ERP root (/var/www/magaees)
+          # ================================================
+          mkdir -p /var/www/magaiees_app
+          cp -rf /var/www/magaees/magaiees_app/. /var/www/magaiees_app/
+          chown -R www-data:www-data /var/www/magaiees_app
+          chmod -R 755 /var/www/magaiees_app
 
           # ================================================
           # PERMANENT FIX: SSL + Redirect for ALL www.*.elsajana.com
@@ -82,6 +91,67 @@ jobs:
           dns_cloudflare_api_token = cfut_z3Uk7prLhfKyYLDFeFZWBAlYQVpjmfu0Ft4ZcPlX6c16c17a
           CRED
           chmod 600 /etc/letsencrypt/cloudflare/credentials.ini
+
+          # Ensure SSL certificate exists for magaiees.elsajana.com
+          if [ ! -d "/etc/letsencrypt/live/magaiees.elsajana.com" ]; then
+            certbot certonly \
+              --dns-cloudflare \
+              --dns-cloudflare-credentials /etc/letsencrypt/cloudflare/credentials.ini \
+              -d "magaiees.elsajana.com" \
+              -d "www.magaiees.elsajana.com" \
+              --non-interactive \
+              --agree-tos \
+              --email Magaiees00105@gmail.com \
+              --cert-name "magaiees.elsajana.com" \
+              --keep-until-expiring \
+              2>/dev/null || certbot certonly --webroot -w /var/www/magaees -d "magaiees.elsajana.com" --non-interactive --agree-tos --email Magaiees00105@gmail.com 2>/dev/null || true
+          fi
+
+          CERT_PATH="/etc/letsencrypt/live/magaiees.elsajana.com"
+          if [ ! -f "$CERT_PATH/fullchain.pem" ]; then
+            CERT_PATH="/etc/letsencrypt/live/c.elsajana.com"
+          fi
+
+          cat > /etc/nginx/sites-available/magaiees.elsajana.com.conf << NGINX_MAGAIEES
+          server {
+              listen 80;
+              server_name magaiees.elsajana.com www.magaiees.elsajana.com;
+              return 301 https://magaiees.elsajana.com\$request_uri;
+          }
+
+          server {
+              listen 443 ssl;
+              server_name magaiees.elsajana.com www.magaiees.elsajana.com;
+              root /var/www/magaiees_app;
+              index index.php index.html;
+
+              ssl_certificate $CERT_PATH/fullchain.pem;
+              ssl_certificate_key $CERT_PATH/privkey.pem;
+              ssl_protocols TLSv1.2 TLSv1.3;
+              ssl_ciphers HIGH:!aNULL:!MD5;
+
+              location ^~ /.well-known/acme-challenge/ {
+                  allow all;
+                  default_type "text/plain";
+              }
+
+              location ~ \.php\$ {
+                  include snippets/fastcgi-php.conf;
+                  fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;
+                  fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+                  include fastcgi_params;
+              }
+
+              location ~* \.(jpg|jpeg|png|gif|ico|css|js|woff|woff2|svg|eot|ttf|json|otf|frag|bin|gz)\$ {
+                  try_files \$uri =404;
+              }
+
+              location / {
+                  try_files \$uri \$uri/ /index.php?\$query_string;
+              }
+          }
+          NGINX_MAGAIEES
+          ln -sf /etc/nginx/sites-available/magaiees.elsajana.com.conf /etc/nginx/sites-enabled/magaiees.elsajana.com.conf
 
           # Auto-discover ALL tenant subdomains from existing Let's Encrypt certs
           # Only run certbot loop if www-all-elsajana-redirect is not yet configured
