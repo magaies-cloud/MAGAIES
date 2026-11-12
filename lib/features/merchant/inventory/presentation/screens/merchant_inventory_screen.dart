@@ -1119,7 +1119,7 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
                             ),
                           ),
                           child: Text(
-                            isPlatformSource ? (isRtl ? 'سعر منصة مقاييس المعتمد 🌐' : 'Platform Rate 🌐') : (isRtl ? 'سعر مخصص لمتجرك ⚙️' : 'Custom Store Rate ⚙️'),
+                            isPlatformSource ? (isRtl ? 'سعر منصة السيطرة المعتمد 🌐' : 'Platform Rate 🌐') : (isRtl ? 'سعر مخصص لمتجرك ⚙️' : 'Custom Store Rate ⚙️'),
                             style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                           ),
                         ),

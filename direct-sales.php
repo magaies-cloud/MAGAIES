@@ -13275,7 +13275,7 @@ try {
         const paidAmt = parseFloat(inv.paidAmount || inv.cashAmount || grandTotal) || 0;
         const remAmt = Math.max(0, grandTotal - paidAmt);
         const lines = [
-            `✂️ *بطاقة إيصال وتقسيم فاتورة مبيعات #${rootNo} — مقاييس السجانة ERP*`,
+            `✂️ *بطاقة إيصال وتقسيم فاتورة مبيعات #${rootNo} — السيطرة السجانة ERP*`,
             `👤 العميل: ${inv.customerName || 'عميل نقدي'}`,
             `📅 التاريخ: ${inv.date || new Date().toISOString().slice(0, 10)}`,
             `💵 الإجمالي الكلي: ${grandTotal.toLocaleString('en-US')} ${currency} | المدفوع: ${paidAmt.toLocaleString('en-US')} | المتبقي: ${remAmt.toLocaleString('en-US')}`,
@@ -19866,7 +19866,7 @@ try {
         var sheilas = Math.round((countBars / 15) * 10) / 10;
 
         var msg =
-            '🧾 *بطاقة إيصال مبيعات مصورة — مقاييس السجانة ERP*\n' +
+            '🧾 *بطاقة إيصال مبيعات مصورة — السيطرة السجانة ERP*\n' +
             '━━━━━━━━━━━━━━━━━━━━\n' +
             '📌 *رقم الفاتورة:* ' + s.invNo + '\n' +
             '👤 *العميل:* ' + s.customer + '\n' +

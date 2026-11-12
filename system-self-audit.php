@@ -1,5 +1,5 @@
 <?php
-$pageTitle = 'محرك الفحص الذاتي الفوري وشهادة المطابقة | مقاييس ERP';
+$pageTitle = 'محرك الفحص الذاتي الفوري وشهادة المطابقة | السيطرة ERP';
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">

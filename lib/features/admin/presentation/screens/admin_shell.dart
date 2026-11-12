@@ -254,7 +254,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                                 child: Padding(
                                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
                                   child: Text(
-                                    isRtl ? 'لوحة تحكم مقاييس' : 'Magaiees Admin',
+                                    isRtl ? 'لوحة تحكم السيطرة' : 'Magaiees Admin',
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,

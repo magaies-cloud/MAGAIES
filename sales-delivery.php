@@ -2593,7 +2593,7 @@
             const weightBars = Math.round(tons * 140);
             const sheilas = Math.round((countBars / 15) * 10) / 10;
             const msg =
-                '🧾 *بطاقة إيصال استلام/تسليم مصورة — مقاييس السجانة ERP*\n' +
+                '🧾 *بطاقة إيصال استلام/تسليم مصورة — السيطرة السجانة ERP*\n' +
                 '━━━━━━━━━━━━━━━━━━━━\n' +
                 '📌 *رقم المستند:* ' + s.invNo + '\n' +
                 '👤 *العميل / المورد:* ' + s.party + '\n' +
@@ -2626,7 +2626,7 @@
             w.document.write(
                 '<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>إذن استلام/تسليم حراري 80mm</title>' +
                 '<style>body{width:76mm;margin:0 auto;padding:6px;font-family:Tahoma,Arial,sans-serif;font-size:12px;color:#000;} .hdr{text-align:center;border-bottom:2px dashed #000;padding-bottom:6px;margin-bottom:6px;font-weight:bold;} .row{display:flex;justify-content:space-between;margin:4px 0;} .bar{text-align:center;margin-top:8px;padding-top:6px;border-top:2px dashed #000;font-weight:bold;}</style></head><body>' +
-                '<div class="hdr">مقاييس السجانة ERP — إذن مخزني (80mm)<br>' + s.invNo + '</div>' +
+                '<div class="hdr">السيطرة السجانة ERP — إذن مخزني (80mm)<br>' + s.invNo + '</div>' +
                 '<div class="row"><span>العميل/المورد:</span><strong>' + s.party + '</strong></div>' +
                 '<div class="row"><span>الكمية المنفذة:</span><strong>' + tons + ' طن (' + Math.round(tons * 135) + ' سيخة)</strong></div>' +
                 '<div class="row"><span>الإجمالي:</span><strong>' + Number(s.grandTotal || 0).toLocaleString() + ' ج.س</strong></div>' +
