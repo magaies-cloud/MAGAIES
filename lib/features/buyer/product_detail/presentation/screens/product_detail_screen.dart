@@ -10,6 +10,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:magaiees_marketplace/core/utils/app_notification.dart';
 import 'package:magaiees_marketplace/core/utils/unit_formatter.dart';
 import 'package:magaiees_marketplace/core/enums/user_role.dart';
+import 'package:magaiees_marketplace/core/providers/ugc_moderation_provider.dart';
+import 'package:magaiees_marketplace/features/buyer/home/domain/models/product_card_model.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
@@ -37,10 +39,13 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             icon: const Icon(Icons.more_vert),
             tooltip: isRtl ? 'خيارات الإبلاغ والحظر' : 'Report & Block Options',
             onSelected: (value) {
+              final currentProducts = productsAsync.valueOrNull ?? const <ProductCardModel>[];
+              final idx = currentProducts.indexWhere((p) => p.id == widget.productId);
+              final targetProduct = idx >= 0 ? currentProducts[idx] : null;
               if (value == 'report') {
-                _showReportDialog(context, isRtl);
+                _showReportDialog(context, isRtl, targetProduct);
               } else if (value == 'block') {
-                _showBlockSellerDialog(context, isRtl);
+                _showBlockSellerDialog(context, isRtl, targetProduct);
               }
             },
             itemBuilder: (ctx) => [
@@ -240,14 +245,16 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        isRtl
-                            ? '${NumberFormat('#,##0').format(product.pricePerTon)} ج.س / ${UnitFormatter.format(product.unitAr, product.unit, isRtl: true)}'
-                            : '${NumberFormat('#,##0').format(product.pricePerTon)} SDG / ${UnitFormatter.format(product.unitAr, product.unit, isRtl: false)}',
-                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                              color: Theme.of(context).colorScheme.onPrimaryContainer,
-                              fontWeight: FontWeight.bold,
-                            ),
+                      Expanded(
+                        child: Text(
+                          isRtl
+                              ? '${NumberFormat('#,##0').format(product.pricePerTon)} ج.س / ${UnitFormatter.format(product.unitAr, product.unit, isRtl: true)}'
+                              : '${NumberFormat('#,##0').format(product.pricePerTon)} SDG / ${UnitFormatter.format(product.unitAr, product.unit, isRtl: false)}',
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                fontWeight: FontWeight.bold,
+                              ),
+                        ),
                       ),
                     ],
                   ),
@@ -603,7 +610,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     );
   }
 
-  void _showReportDialog(BuildContext context, bool isRtl) {
+  void _showReportDialog(BuildContext context, bool isRtl, ProductCardModel? product) {
     final reasonController = TextEditingController();
     showDialog(
       context: context,
@@ -612,7 +619,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           children: [
             const Icon(Icons.flag_outlined, color: Colors.orange),
             const SizedBox(width: 8),
-            Text(isRtl ? 'الإبلاغ عن محتوى مخالف' : 'Report Content'),
+            Expanded(
+              child: Text(isRtl ? 'الإبلاغ عن محتوى مخالف' : 'Report Content'),
+            ),
           ],
         ),
         content: TextField(
@@ -630,12 +639,22 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             child: Text(isRtl ? 'إلغاء' : 'Cancel'),
           ),
           FilledButton(
-            onPressed: () {
+            onPressed: () async {
+              final reason = reasonController.text.trim().isEmpty
+                  ? (isRtl ? 'مراجعة المنتج' : 'Product review')
+                  : reasonController.text.trim();
               Navigator.pop(ctx);
-              AppNotification.showSuccess(
-                context,
-                isRtl ? 'تم استلام البلاغ وسيتم مراجعته خلال 24 ساعة' : 'Report submitted and will be reviewed within 24 hours',
-              );
+              await ref.read(blockedEntitiesProvider.notifier).submitReport(
+                    targetType: 'product',
+                    targetId: product?.id ?? widget.productId,
+                    reason: reason,
+                  );
+              if (context.mounted) {
+                AppNotification.showSuccess(
+                  context,
+                  isRtl ? 'تم استلام البلاغ وسيتم مراجعته خلال 24 ساعة' : 'Report submitted and will be reviewed within 24 hours',
+                );
+              }
             },
             child: Text(isRtl ? 'إرسال البلاغ' : 'Submit Report'),
           ),
@@ -644,7 +663,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     );
   }
 
-  void _showBlockSellerDialog(BuildContext context, bool isRtl) {
+  void _showBlockSellerDialog(BuildContext context, bool isRtl, ProductCardModel? product) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -652,7 +671,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           children: [
             const Icon(Icons.block, color: Colors.red),
             const SizedBox(width: 8),
-            Text(isRtl ? 'حظر البائع' : 'Block Seller'),
+            Expanded(
+              child: Text(isRtl ? 'حظر البائع' : 'Block Seller'),
+            ),
           ],
         ),
         content: Text(
@@ -667,13 +688,23 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(ctx);
-              AppNotification.showSuccess(
-                context,
-                isRtl ? 'تم حظر البائع بنجاح' : 'Seller has been blocked',
-              );
-              if (context.canPop()) context.pop();
+              final targetId = (product != null && product.merchantId.isNotEmpty)
+                  ? product.merchantId
+                  : widget.productId;
+              await ref.read(blockedEntitiesProvider.notifier).blockEntity(
+                    targetId: targetId,
+                    secondaryKey: product?.storeName,
+                    reason: 'Buyer blocked seller from product detail',
+                  );
+              if (context.mounted) {
+                AppNotification.showSuccess(
+                  context,
+                  isRtl ? 'تم حظر البائع وإخفاء عروضه فوراً' : 'Seller has been blocked and hidden',
+                );
+                if (context.canPop()) context.pop();
+              }
             },
             child: Text(isRtl ? 'تأكيد الحظر' : 'Block'),
           ),

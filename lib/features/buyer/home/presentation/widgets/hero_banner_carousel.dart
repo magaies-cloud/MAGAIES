@@ -25,6 +25,7 @@ class _HeroBannerCarouselState extends ConsumerState<HeroBannerCarousel> {
   void _startTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 4), (Timer timer) {
+      if (!mounted) return;
       final asyncAds = ref.read(adsProvider);
       final ads = asyncAds.valueOrNull?.where((a) => a.isActive).toList() ?? [];
       if (ads.isEmpty) return;
@@ -90,7 +91,7 @@ class _HeroBannerCarouselState extends ConsumerState<HeroBannerCarousel> {
                 builder: (context, child) {
                   double value = 1.0;
                   if (_pageController.position.haveDimensions) {
-                    value = _pageController.page! - index;
+                    value = (_pageController.page ?? _currentPage.toDouble()) - index;
                     value = (1 - (value.abs() * 0.2)).clamp(0.8, 1.0);
                   }
                   return Center(

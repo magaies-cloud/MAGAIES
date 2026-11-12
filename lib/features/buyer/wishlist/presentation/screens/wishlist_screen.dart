@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:magaiees_marketplace/features/buyer/cart/application/cart_provider.dart';
 import 'package:magaiees_marketplace/features/buyer/home/domain/models/product_card_model.dart';
 import 'package:magaiees_marketplace/features/buyer/home/presentation/widgets/product_card.dart';
 import 'package:magaiees_marketplace/features/buyer/wishlist/application/wishlist_provider.dart';
 
 import 'package:magaiees_marketplace/core/providers/global_settings_provider.dart';
+import 'package:magaiees_marketplace/core/utils/app_notification.dart';
 import 'package:magaiees_marketplace/core/utils/unit_formatter.dart';
 
 final wishlistProductsProvider = FutureProvider.autoDispose<List<ProductCardModel>>((ref) async {
@@ -19,8 +22,9 @@ final wishlistProductsProvider = FutureProvider.autoDispose<List<ProductCardMode
 
   final platformRate = ref.read(globalSettingsProvider).platformUsdRate;
 
-  return List<dynamic>.from(res).map((json) {
-    final store = json['stores'] as Map<String, dynamic>?;
+  return List<dynamic>.from(res).map((rawJson) {
+    final json = rawJson is Map ? Map<String, dynamic>.from(rawJson) : <String, dynamic>{};
+    final store = json['stores'] is Map ? Map<String, dynamic>.from(json['stores'] as Map) : null;
     final storeName = store?['name'] ?? 'Magaiees';
     final storeNameAr = store?['name_ar'] ?? 'مقاييس';
     final storeRate = (store?['usd_exchange_rate'] as num?)?.toDouble();
@@ -117,46 +121,24 @@ class WishlistScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(16),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: 0.70,
-                crossAxisSpacing: 16,
-                mainAxisSpacing: 16,
+                childAspectRatio: 0.63,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
               ),
               itemCount: products.length,
               itemBuilder: (context, index) {
                 final product = products[index];
-                return Stack(
-                  children: [
-                    Positioned.fill(
-                      child: ProductCard(
-                        product: product,
-                        onTap: () {
-                          // Add navigation logic if needed
-                        },
-                        onAddToCart: () {
-                          // Add to cart logic if needed
-                        },
-                      ),
-                    ),
-                    Positioned(
-                      top: 4,
-                      left: 4,
-                      child: CircleAvatar(
-                        backgroundColor: Colors.white.withOpacity(0.9),
-                        radius: 18,
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          icon: const Icon(
-                            Icons.favorite,
-                            color: Colors.red,
-                            size: 20,
-                          ),
-                          onPressed: () {
-                            ref.read(wishlistProvider.notifier).toggleWishlist(product.id);
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
+                return ProductCard(
+                  product: product,
+                  onTap: () => context.push('/buyer/home/product/${product.id}'),
+                  onAddToCart: () {
+                    ref.read(cartNotifierProvider.notifier).addProduct(product, 1);
+                    AppNotification.showSuccess(
+                      context,
+                      'تمت الإضافة إلى السلة',
+                      icon: Icons.shopping_bag_outlined,
+                    );
+                  },
                 );
               },
             );

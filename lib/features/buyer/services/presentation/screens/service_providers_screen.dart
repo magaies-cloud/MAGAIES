@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:magaiees_marketplace/features/buyer/services/domain/models/service_provider_model.dart';
 import 'package:magaiees_marketplace/features/buyer/services/application/services_provider.dart';
 import 'package:magaiees_marketplace/core/utils/app_notification.dart';
@@ -459,12 +460,27 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
                             children: [
                               Expanded(
                                 child: OutlinedButton.icon(
-                                  onPressed: () {
-                                    AppNotification.showInfo(
-                                      context,
-                                      '${isRtl ? 'الاتصال بـ' : 'Calling'} $name (${p.phone})',
-                                      icon: Icons.call,
-                                    );
+                                  onPressed: () async {
+                                    final cleanPhone = p.phone.replaceAll(RegExp(r'[^\d+]'), '');
+                                    final uri = Uri.parse('tel:$cleanPhone');
+                                    try {
+                                      final ok = await launchUrl(uri);
+                                      if (!ok && context.mounted) {
+                                        AppNotification.showInfo(
+                                          context,
+                                          '${isRtl ? 'الاتصال بـ' : 'Calling'} $name (${p.phone})',
+                                          icon: Icons.call,
+                                        );
+                                      }
+                                    } catch (_) {
+                                      if (context.mounted) {
+                                        AppNotification.showInfo(
+                                          context,
+                                          '${isRtl ? 'الاتصال بـ' : 'Calling'} $name (${p.phone})',
+                                          icon: Icons.call,
+                                        );
+                                      }
+                                    }
                                   },
                                   icon: const Icon(Icons.call, size: 18),
                                   label: Text(isRtl ? 'اتصال مباشر' : 'Call'),
@@ -474,12 +490,28 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
                               Expanded(
                                 child: FilledButton.icon(
                                   style: FilledButton.styleFrom(backgroundColor: const Color(0xFF25D366)),
-                                  onPressed: () {
-                                    AppNotification.showInfo(
-                                      context,
-                                      '${isRtl ? 'فتح واتساب مع' : 'Opening WhatsApp with'} $name',
-                                      icon: Icons.chat_bubble_outline,
-                                    );
+                                  onPressed: () async {
+                                    var digits = p.phone.replaceAll(RegExp(r'[^\d]'), '');
+                                    if (digits.startsWith('00')) digits = digits.substring(2);
+                                    final uri = Uri.parse('https://wa.me/$digits');
+                                    try {
+                                      final ok = await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                      if (!ok && context.mounted) {
+                                        AppNotification.showInfo(
+                                          context,
+                                          '${isRtl ? 'فتح واتساب مع' : 'Opening WhatsApp with'} $name',
+                                          icon: Icons.chat_bubble_outline,
+                                        );
+                                      }
+                                    } catch (_) {
+                                      if (context.mounted) {
+                                        AppNotification.showInfo(
+                                          context,
+                                          '${isRtl ? 'فتح واتساب مع' : 'Opening WhatsApp with'} $name',
+                                          icon: Icons.chat_bubble_outline,
+                                        );
+                                      }
+                                    }
                                   },
                                   icon: const Icon(Icons.chat_bubble_outline, size: 18),
                                   label: Text(isRtl ? 'طلب عبر واتساب' : 'WhatsApp'),
@@ -737,6 +769,7 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
 
                                 // Category Dropdown
                                 DropdownButtonFormField<String>(
+                                  isExpanded: true,
                                   initialValue: selectedCategory,
                                   decoration: InputDecoration(
                                     labelText: isRtl ? 'القطاع والتصنيف الرئيسي *' : 'Primary Sector *',

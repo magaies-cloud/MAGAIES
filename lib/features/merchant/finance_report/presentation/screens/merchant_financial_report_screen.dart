@@ -411,7 +411,7 @@ class _MerchantFinancialReportScreenState extends ConsumerState<MerchantFinancia
               Expanded(
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String?>(
-                    value: selectedStaffId,
+                    value: options.any((o) => o.id == selectedStaffId) ? selectedStaffId : null,
                     isExpanded: true,
                     icon: const Icon(Icons.arrow_drop_down, color: AppColors.merchantAccent),
                     items: [

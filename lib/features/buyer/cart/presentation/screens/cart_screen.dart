@@ -98,17 +98,19 @@ class CartScreen extends ConsumerWidget {
             ),
           Expanded(
             child: ListView.builder(
-        padding: const EdgeInsets.only(bottom: 140, left: 16, right: 16, top: 16),
+        padding: const EdgeInsets.only(bottom: 24, left: 16, right: 16, top: 16),
         itemCount: itemsByMerchant.length,
         itemBuilder: (context, index) {
           final merchantId = itemsByMerchant.keys.elementAt(index);
-          final items = itemsByMerchant[merchantId]!;
-          final isExclusive = items.first.product.isMagaieesExclusive || merchantId == 'magaiees';
+          final items = itemsByMerchant[merchantId] ?? const [];
+          final firstItem = items.firstOrNull;
+          if (firstItem == null) return const SizedBox.shrink();
+          final isExclusive = firstItem.product.isMagaieesExclusive || merchantId == 'magaiees';
           final storeName = isExclusive
               ? (isRtl ? 'حصري على مقاييس' : 'Exclusive to Magaiees')
               : (isRtl
-                  ? (items.first.product.storeNameAr.isNotEmpty ? items.first.product.storeNameAr : items.first.product.storeName)
-                  : (items.first.product.storeName.isNotEmpty ? items.first.product.storeName : items.first.product.storeNameAr));
+                  ? (firstItem.product.storeNameAr.isNotEmpty ? firstItem.product.storeNameAr : firstItem.product.storeName)
+                  : (firstItem.product.storeName.isNotEmpty ? firstItem.product.storeName : firstItem.product.storeNameAr));
 
           return Card(
             margin: const EdgeInsets.only(bottom: 16),
@@ -163,16 +165,16 @@ class CartScreen extends ConsumerWidget {
           ),
         ],
       ),
-      bottomSheet: SafeArea(
+      bottomNavigationBar: SafeArea(
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surface,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: Colors.black.withValues(alpha: 0.06),
                 blurRadius: 10,
-                offset: const Offset(0, -5),
+                offset: const Offset(0, -4),
               ),
             ],
           ),
@@ -230,7 +232,7 @@ class CartScreen extends ConsumerWidget {
                           FilledButton(
                             onPressed: () {
                               Navigator.pop(ctx);
-                              ref.read(authNotifierProvider.notifier).logout();
+                              context.push('/login');
                             },
                             child: Text(isRtl ? 'تسجيل الدخول' : 'Log In'),
                           ),

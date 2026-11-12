@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:magaiees_marketplace/core/constants/app_colors.dart';
 import 'package:magaiees_marketplace/core/constants/app_sizes.dart';
 import 'package:magaiees_marketplace/features/auth/application/auth_provider.dart';
 import 'package:magaiees_marketplace/features/locale/presentation/widgets/language_switcher.dart';
@@ -9,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -21,11 +23,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  
+
   final LocalAuthentication _localAuth = LocalAuthentication();
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   bool _canCheckBiometrics = false;
   bool _hasFaceId = false;
+  bool _isPasswordVisible = false;
 
   @override
   void initState() {
@@ -53,8 +56,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
       final canCheck = await _localAuth.canCheckBiometrics;
       final isSupported = await _localAuth.isDeviceSupported();
-      final savedEmail = await _secureStorage.read(key: 'saved_email');
-      final hasSaved = savedEmail != null && savedEmail.isNotEmpty;
 
       List<BiometricType> available = [];
       try {
@@ -67,9 +68,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         setState(() {
           _canCheckBiometrics = canCheck || isSupported;
           _hasFaceId = hasFace;
-          if (hasSaved && _emailController.text.isEmpty) {
-            // Keep email input empty on screen open; only fill when biometric button is tapped.
-          }
         });
       }
     } catch (_) {}
@@ -92,7 +90,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ? 'يرجى تسجيل الدخول بكلمة المرور لمرة واحدة أولاً لحفظ البصمة / Face ID'
                 : 'Please log in with password once first to enable Biometrics / Face ID',
           ),
-          backgroundColor: const Color(0xFF1E40AF),
+          backgroundColor: AppColors.primary,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 4),
         ),
@@ -131,6 +129,101 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
   }
 
+  Future<void> _showForgotPasswordDialog(bool isRtl) async {
+    final resetEmailCtrl = TextEditingController(text: _emailController.text.trim());
+    bool isSending = false;
+
+    await showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDlgState) => AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: Text(
+            isRtl ? 'استعادة كلمة المرور' : 'Reset Password',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                isRtl
+                    ? 'أدخل بريدك الإلكتروني المسجل وسنرسل إليك رابط إعادة تعيين كلمة المرور.'
+                    : 'Enter your registered email address and we will send you a password reset link.',
+                style: const TextStyle(fontSize: 13.5, height: 1.4),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: resetEmailCtrl,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  labelText: isRtl ? 'البريد الإلكتروني' : 'Email Address',
+                  prefixIcon: const Icon(Icons.email_outlined),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: isSending ? null : () => Navigator.pop(ctx),
+              child: Text(isRtl ? 'إلغاء' : 'Cancel'),
+            ),
+            FilledButton(
+              onPressed: isSending
+                  ? null
+                  : () async {
+                      final email = resetEmailCtrl.text.trim();
+                      if (email.isEmpty || !email.contains('@')) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              isRtl ? 'يرجى إدخال بريد إلكتروني صحيح' : 'Please enter a valid email address',
+                            ),
+                          ),
+                        );
+                        return;
+                      }
+                      setDlgState(() => isSending = true);
+                      try {
+                        await Supabase.instance.client.auth.resetPasswordForEmail(email);
+                        if (ctx.mounted) Navigator.pop(ctx);
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                isRtl
+                                    ? 'تم إرسال رابط استعادة كلمة المرور إلى بريدك الإلكتروني بنجاح'
+                                    : 'Password reset link sent to your email',
+                              ),
+                              backgroundColor: AppColors.success,
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        if (ctx.mounted) setDlgState(() => isSending = false);
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                isRtl
+                                    ? 'تعذر إرسال الرابط حالياً، يرجى التحقق من البريد والمحاولة لاحقاً'
+                                    : 'Could not send reset link, please verify your email and try again',
+                              ),
+                            ),
+                          );
+                        }
+                      }
+                    },
+              child: isSending
+                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : Text(isRtl ? 'إرسال الرابط' : 'Send Link'),
+            ),
+          ],
+        ),
+      ),
+    );
+    resetEmailCtrl.dispose();
+  }
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -151,8 +244,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authNotifierProvider);
     final isLoading = authState.isLoading;
-
     final isRtl = context.isRtl;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final cardPadding = screenWidth < 390 ? 22.0 : 34.0;
 
     // Listen for errors and successes
     ref.listen(authNotifierProvider, (prev, next) {
@@ -160,8 +255,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         final errorStr = next.error.toString();
         String displayMsgAr = 'حدث خطأ غير متوقع، يرجى المحاولة لاحقاً';
         String displayMsgEn = 'An unexpected error occurred, please try again';
-        
-        if (errorStr.contains('Invalid login credentials') || errorStr.contains('invalid_credentials')) {
+
+        if (errorStr.contains('Account deleted or suspended')) {
+          displayMsgAr = 'هذا الحساب محذوف أو موقوف عن الاستخدام.';
+          displayMsgEn = 'This account has been deleted or suspended.';
+        } else if (errorStr.contains('Invalid login credentials') || errorStr.contains('invalid_credentials')) {
           displayMsgAr = 'البريد الإلكتروني أو كلمة المرور غير صحيحة';
           displayMsgEn = 'Invalid email or password';
         }
@@ -172,15 +270,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
             title: Column(
               children: [
-                const Icon(Icons.error_outline, color: Colors.redAccent, size: 56),
-                const SizedBox(height: 16),
-                Text(isRtl ? 'عذراً' : 'Error', style: const TextStyle(fontWeight: FontWeight.bold)),
+                const Icon(Icons.error_outline_rounded, color: Colors.redAccent, size: 52),
+                const SizedBox(height: 12),
+                Text(isRtl ? 'تنبيه' : 'Notice', style: const TextStyle(fontWeight: FontWeight.bold)),
               ],
             ),
             content: Text(
               isRtl ? displayMsgAr : displayMsgEn,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16),
+              style: const TextStyle(fontSize: 15),
             ),
             actionsAlignment: MainAxisAlignment.center,
             actions: [
@@ -196,7 +294,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ],
           ),
         );
-      } else if (next.hasValue && next.value != null && !next.isLoading) {
+      } else if (next.hasValue && next.value != null && !next.isLoading && !next.value!.role.isGuest) {
         if (_emailController.text.isNotEmpty && _passwordController.text.isNotEmpty) {
           _secureStorage.write(key: 'saved_email', value: _emailController.text.trim()).catchError((_) {});
           _secureStorage.write(key: 'saved_password', value: _passwordController.text).catchError((_) {});
@@ -206,27 +304,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isRtl ? 'منصة مقاييس' : 'Magaiees Platform'),
+        title: Text(
+          isRtl ? 'منصة مقاييس' : 'Magaiees Platform',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
         actions: const [LanguageSwitcher()],
       ),
       body: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
-          color: Color(0xFFF1F5F9), // Subtle clean background
-        ),
+        height: double.infinity,
+        color: isDark ? const Color(0xFF050B14) : const Color(0xFFF1F5F9),
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSizes.p24),
+            padding: EdgeInsets.symmetric(
+              horizontal: screenWidth < 390 ? 16.0 : AppSizes.p24,
+              vertical: AppSizes.p20,
+            ),
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 450), // Responsive Max Width for PCs
+              constraints: const BoxConstraints(maxWidth: 440),
               child: Container(
-                padding: const EdgeInsets.all(40),
+                padding: EdgeInsets.all(cardPadding),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: isDark ? const Color(0xFF0F172A) : Colors.white,
                   borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+                  ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
                       blurRadius: 24,
                       offset: const Offset(0, 8),
                     )
@@ -238,26 +344,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Stunning Logo
                       Center(
                         child: Image.asset(
                           'assets/images/logo_final.png',
-                          height: 120, // Clear and crisp height
-                          errorBuilder: (context, error, stackTrace) => const SizedBox(height: 120),
+                          height: 100,
+                          errorBuilder: (context, error, stackTrace) => const SizedBox(height: 100),
                           frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
                             if (wasSynchronouslyLoaded || frame != null) return child;
-                            return const SizedBox(height: 120);
+                            return const SizedBox(height: 100);
                           },
                         ),
                       ),
-                      AppSizes.gapH24,
+                      const SizedBox(height: 20),
 
-                      // Title
                       Text(
                         isRtl ? 'تسجيل الدخول' : 'Welcome Back',
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                               fontWeight: FontWeight.w900,
-                              color: const Color(0xFF0F172A),
+                              color: isDark ? Colors.white : const Color(0xFF0F172A),
                             ),
                         textAlign: TextAlign.center,
                       ),
@@ -265,31 +369,38 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       Text(
                         isRtl
                             ? 'أدخل بيانات الاعتماد للوصول إلى منصة مقاييس'
-                            : 'Enter your credentials to access the platform',
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: const Color(0xFF64748B),
-                              fontSize: 14,
+                            : 'Enter your credentials to access Magaiees Marketplace',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                              fontSize: 13.5,
                             ),
                         textAlign: TextAlign.center,
                       ),
-                      AppSizes.gapH32,
+                      AppSizes.gapH24,
 
                       // Email
                       TextFormField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         textInputAction: TextInputAction.next,
+                        style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A)),
                         decoration: InputDecoration(
                           labelText: isRtl ? 'البريد الإلكتروني' : 'Email Address',
                           prefixIcon: const Icon(Icons.email_outlined, color: Color(0xFF94A3B8)),
                           filled: true,
-                          fillColor: const Color(0xFFF8FAFC),
+                          fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF1E40AF), width: 2)),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: isDark ? AppColors.primaryLight : AppColors.primary, width: 2),
+                          ),
                         ),
                         validator: (value) {
-                          if (value == null || value.isEmpty) {
+                          if (value == null || value.trim().isEmpty) {
                             return isRtl ? 'الرجاء إدخال البريد الإلكتروني' : 'Please enter your email';
                           }
                           return null;
@@ -297,20 +408,37 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       AppSizes.gapH16,
 
-                      // Password
+                      // Password with Show/Hide Toggle
                       TextFormField(
                         controller: _passwordController,
-                        obscureText: true,
+                        obscureText: !_isPasswordVisible,
                         textInputAction: TextInputAction.done,
                         onFieldSubmitted: (_) => _handleLogin(),
+                        style: TextStyle(color: isDark ? Colors.white : const Color(0xFF0F172A)),
                         decoration: InputDecoration(
                           labelText: isRtl ? 'كلمة المرور' : 'Password',
                           prefixIcon: const Icon(Icons.lock_outlined, color: Color(0xFF94A3B8)),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isPasswordVisible ? Icons.visibility_outlined : Icons.visibility_off_outlined,
+                              color: const Color(0xFF94A3B8),
+                            ),
+                            onPressed: () => setState(() => _isPasswordVisible = !_isPasswordVisible),
+                            tooltip: isRtl
+                                ? (_isPasswordVisible ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور')
+                                : (_isPasswordVisible ? 'Hide password' : 'Show password'),
+                          ),
                           filled: true,
-                          fillColor: const Color(0xFFF8FAFC),
+                          fillColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFF8FAFC),
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                          enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
-                          focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFF1E40AF), width: 2)),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: isDark ? AppColors.primaryLight : AppColors.primary, width: 2),
+                          ),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -319,7 +447,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           return null;
                         },
                       ),
-                      AppSizes.gapH32,
+
+                      Align(
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: TextButton(
+                          onPressed: () => _showForgotPasswordDialog(isRtl),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            foregroundColor: isDark ? AppColors.primaryLight : AppColors.primary,
+                          ),
+                          child: Text(
+                            isRtl ? 'نسيت كلمة المرور؟' : 'Forgot Password?',
+                            style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ),
+                      AppSizes.gapH16,
 
                       // Login Button
                       if (_canCheckBiometrics)
@@ -329,26 +474,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               child: FilledButton(
                                 onPressed: isLoading ? null : _handleLogin,
                                 style: FilledButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  padding: const EdgeInsets.symmetric(vertical: 15),
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  backgroundColor: const Color(0xFF1E40AF),
+                                  backgroundColor: AppColors.primary,
+                                  foregroundColor: Colors.white,
                                 ),
                                 child: isLoading
                                     ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                                    : Text(isRtl ? 'تسجيل الدخول' : 'Login', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                    : Text(isRtl ? 'تسجيل الدخول' : 'Sign In', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: 10),
                             IconButton.filledTonal(
                               onPressed: _handleBiometricLogin,
-                              icon: Icon(_hasFaceId ? Icons.face_rounded : Icons.fingerprint_rounded, size: 28),
+                              icon: Icon(_hasFaceId ? Icons.face_rounded : Icons.fingerprint_rounded, size: 26),
                               tooltip: isRtl
                                   ? (_hasFaceId ? 'تسجيل الدخول عبر Face ID' : 'تسجيل الدخول بالبصمة')
-                                  : (_hasFaceId ? 'Login with Face ID' : 'Login with Biometrics'),
+                                  : (_hasFaceId ? 'Sign in with Face ID' : 'Sign in with Biometrics'),
                               style: IconButton.styleFrom(
-                                padding: const EdgeInsets.all(12),
-                                backgroundColor: const Color(0xFFEFF6FF),
-                                foregroundColor: const Color(0xFF1E40AF),
+                                padding: const EdgeInsets.all(13),
+                                backgroundColor: isDark ? const Color(0xFF1E293B) : const Color(0xFFEFF6FF),
+                                foregroundColor: isDark ? AppColors.primaryLight : AppColors.primary,
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                               ),
                             ),
@@ -358,41 +504,50 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         FilledButton(
                           onPressed: isLoading ? null : _handleLogin,
                           style: FilledButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 15),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            backgroundColor: const Color(0xFF1E40AF),
+                            backgroundColor: AppColors.primary,
+                            foregroundColor: Colors.white,
                           ),
                           child: isLoading
                               ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                              : Text(isRtl ? 'تسجيل الدخول' : 'Login', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                              : Text(isRtl ? 'تسجيل الدخول' : 'Sign In', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                         ),
-                      AppSizes.gapH24,
+                      AppSizes.gapH16,
 
                       // Guest Login Button
                       OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          side: const BorderSide(color: Color(0xFF1E40AF)),
-                          foregroundColor: const Color(0xFF1E40AF),
+                          side: BorderSide(color: isDark ? AppColors.primaryLight : AppColors.primary),
+                          foregroundColor: isDark ? AppColors.primaryLight : AppColors.primary,
                         ),
-                        onPressed: () {
-                          ref.read(authNotifierProvider.notifier).loginAsGuest();
-                        },
-                        icon: const Icon(Icons.explore_outlined),
-                        label: Text(isRtl ? 'تصفح المنصة كزائر' : 'Browse Platform as Guest', style: const TextStyle(fontWeight: FontWeight.bold)),
+                        onPressed: isLoading
+                            ? null
+                            : () {
+                                ref.read(authNotifierProvider.notifier).loginAsGuest();
+                              },
+                        icon: const Icon(Icons.explore_outlined, size: 20),
+                        label: Text(
+                          isRtl ? 'تصفح المنصة كزائر' : 'Browse as Guest',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                       AppSizes.gapH12,
 
                       // Register link
                       TextButton(
-                        style: TextButton.styleFrom(foregroundColor: const Color(0xFF64748B)),
+                        style: TextButton.styleFrom(
+                          foregroundColor: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                        ),
                         onPressed: () {
                           context.push('/register');
                         },
-                        child: Text(isRtl
-                            ? 'ليس لديك حساب؟ إنشاء حساب جديد'
-                            : "Don't have an account? Register"),
+                        child: Text(
+                          isRtl ? 'ليس لديك حساب؟ إنشاء حساب جديد' : "Don't have an account? Create Account",
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
                       ),
                     ],
                   ),

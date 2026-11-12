@@ -17,6 +17,7 @@ import 'package:magaiees_marketplace/routing/route_names.dart';
 
 import 'package:magaiees_marketplace/features/merchant/inventory/presentation/screens/merchant_inventory_screen.dart';
 import 'package:magaiees_marketplace/features/merchant/dashboard/presentation/widgets/merchant_tier_widget.dart';
+import 'package:magaiees_marketplace/features/merchant/dashboard/application/merchant_wallet_provider.dart';
 import 'package:magaiees_marketplace/features/merchant/dashboard/presentation/screens/merchant_wallet_screen.dart';
 import 'package:magaiees_marketplace/features/merchant/store_management/presentation/screens/merchant_coupons_screen.dart';
 import 'package:magaiees_marketplace/features/merchant/store_management/presentation/screens/merchant_reviews_screen.dart';
@@ -56,11 +57,15 @@ final merchantDashboardStatsProvider = Provider.autoDispose<AsyncValue<Map<Strin
   for (var order in orders) {
     if (order['status'] != 'cancelled') {
       final total = (num.tryParse(order['total_amount']?.toString() ?? '0') ?? 0.0).toDouble();
-      final paid = (num.tryParse(order['paid_amount']?.toString() ?? '0') ?? 0.0).toDouble();
+      double paid = (num.tryParse(order['paid_amount']?.toString() ?? '0') ?? 0.0).toDouble();
+      if (order['payment_status'] == 'paid' && paid <= 0 && total > 0) {
+        paid = total;
+      }
+      final effectivePaid = paid.clamp(0.0, total);
       
       totalSales += total;
-      if (total - paid > 0) {
-        totalDebts += (total - paid);
+      if (total - effectivePaid > 0) {
+        totalDebts += (total - effectivePaid);
       }
 
       final buyerId = order['buyer_id'];
@@ -368,6 +373,10 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
     }
 
     if (!context.mounted) return;
+    if (_reportType == 'customer' && customers.isEmpty) {
+      _reportType = 'overview';
+      _selectedCustomerId = null;
+    }
     
     showDialog(
       context: context,
@@ -477,6 +486,7 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
   Widget build(BuildContext context) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
     final statsAsync = ref.watch(merchantDashboardStatsProvider);
+    final walletAsync = ref.watch(merchantWalletProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -547,8 +557,12 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, s) => Center(child: Text('Error: $e')),
         data: (stats) {
+          final walletData = walletAsync.valueOrNull;
+          final walletBalanceNum = (walletData?['withdrawableBalance'] as num?)?.toDouble() ?? 0.0;
+          final syncedDebtsNum = (walletData?['totalDebts'] as num?)?.toDouble() ?? ((stats['totalDebts'] as num?)?.toDouble() ?? 0.0);
+          final walletBalance = NumberFormat.decimalPattern().format(walletBalanceNum);
           final totalSales = NumberFormat.decimalPattern().format(stats['totalSales']);
-          final totalDebts = NumberFormat.decimalPattern().format(stats['totalDebts']);
+          final totalDebts = NumberFormat.decimalPattern().format(syncedDebtsNum);
           final recentOrders = stats['recentOrders'] as List<Map<String, dynamic>>;
 
           return Builder(
@@ -565,16 +579,20 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
                   SliverPadding(
                     padding: const EdgeInsets.all(16.0),
                     sliver: SliverToBoxAdapter(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: Wrap(
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        runSpacing: 8,
                         children: [
                           Text(
                             isRtl ? 'نظرة عامة ماليّة' : 'Financial Overview',
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                           ),
                           Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
+                                visualDensity: VisualDensity.compact,
                                 icon: const Icon(Icons.star, color: Colors.amber),
                                 tooltip: isRtl ? 'التقييمات والآراء' : 'Reviews & Ratings',
                                 onPressed: () {
@@ -585,6 +603,7 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
                                 },
                               ),
                               IconButton(
+                                visualDensity: VisualDensity.compact,
                                 icon: const Icon(Icons.local_offer, color: Colors.purple),
                                 tooltip: isRtl ? 'إدارة الكوبونات' : 'Coupons Management',
                                 onPressed: () {
@@ -595,6 +614,7 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
                                 },
                               ),
                               IconButton(
+                                visualDensity: VisualDensity.compact,
                                 icon: const Icon(Icons.account_balance_wallet, color: Colors.blue),
                                 tooltip: isRtl ? 'المحفظة والسحوبات' : 'Wallet & Payouts',
                                 onPressed: () {
@@ -605,11 +625,13 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
                                 },
                               ),
                               IconButton(
+                                visualDensity: VisualDensity.compact,
                                 icon: const Icon(Icons.analytics_rounded, color: Color(0xFF0F766E)),
                                 tooltip: isRtl ? 'كشف الموقف المالي الشامل ومبيعات الموظفين' : 'Comprehensive Financial Report & Staff Sales',
                                 onPressed: () => context.push(RouteNames.merchantFinancialReport),
                               ),
                               IconButton(
+                                visualDensity: VisualDensity.compact,
                                 icon: const Icon(Icons.picture_as_pdf, color: Colors.red),
                                 tooltip: isRtl ? 'استخراج كشف حساب' : 'Statement of Account',
                                 onPressed: () => _showReportDialog(context, stats, isRtl),
@@ -621,7 +643,7 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
                     ),
                   ),
               
-              // Top Financial Summary
+              // Top Financial Summary (100% matched with Merchant Wallet & Financial Report)
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 sliver: SliverToBoxAdapter(
@@ -630,8 +652,9 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
                       Expanded(
                         child: _buildMetricCard(
                           context,
-                          title: isRtl ? 'إجمالي المبيعات (المحفظة)' : 'Total Sales (Wallet)',
-                          value: '$totalSales ${isRtl ? 'ج.س' : 'SDG'}',
+                          title: isRtl ? 'رصيد المحفظة المتاح' : 'Wallet Balance',
+                          value: '$walletBalance ${isRtl ? 'ج.س' : 'SDG'}',
+                          subtitle: isRtl ? 'المبيعات النشطة: $totalSales ج.س' : 'Active Sales: $totalSales SDG',
                           icon: Icons.account_balance_wallet,
                           color: Colors.green,
                           onTap: () {
@@ -642,14 +665,16 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
                           },
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: 12),
                       Expanded(
                         child: _buildMetricCard(
                           context,
-                          title: isRtl ? 'الديون والمتبقي' : 'Outstanding Debts',
+                          title: isRtl ? 'الديون والمتبقي' : 'Remaining Debts',
                           value: '$totalDebts ${isRtl ? 'ج.س' : 'SDG'}',
+                          subtitle: isRtl ? 'متبقي على العملاء' : 'Unpaid customer balances',
                           icon: Icons.money_off,
                           color: Colors.red,
+                          onTap: () => context.push(RouteNames.merchantFinancialReport),
                         ),
                       ),
                     ],
@@ -877,9 +902,9 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 sliver: SliverGrid.count(
                   crossAxisCount: 2,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                  childAspectRatio: 1.8,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 1.35,
                   children: [
                     _buildMetricCard(
                       context,
@@ -1002,6 +1027,7 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
     BuildContext context, {
     required String title,
     required String value,
+    String? subtitle,
     required IconData icon,
     required MaterialColor color,
     VoidCallback? onTap,
@@ -1014,7 +1040,7 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
           onTap: onTap,
           borderRadius: BorderRadius.circular(16),
           child: Container(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(14.0),
             decoration: BoxDecoration(
               color: color.shade50.withValues(alpha: 0.6),
               borderRadius: BorderRadius.circular(16),
@@ -1037,24 +1063,27 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
                   Expanded(
                     child: Text(
                       title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         color: color.shade800,
-                        fontSize: 13,
+                        fontSize: 12.5,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
                   ),
+                  const SizedBox(width: 6),
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(7),
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Icon(icon, color: color.shade700, size: 20),
+                    child: Icon(icon, color: color.shade700, size: 19),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               FittedBox(
                 fit: BoxFit.scaleDown,
                 alignment: Directionality.of(context) == TextDirection.rtl ? Alignment.centerRight : Alignment.centerLeft,
@@ -1062,11 +1091,24 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
                   value,
                   style: TextStyle(
                     color: color.shade900,
-                    fontSize: 22,
+                    fontSize: 20,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
               ),
+              if (subtitle != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: color.shade700,
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ],
           ),
         ),

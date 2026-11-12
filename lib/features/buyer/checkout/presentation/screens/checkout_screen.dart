@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../cart/application/cart_provider.dart';
+import '../../../cart/domain/models/cart_item_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:magaiees_marketplace/features/auth/application/auth_provider.dart';
 import 'package:magaiees_marketplace/features/buyer/checkout/application/checkout_merchants_provider.dart';
@@ -318,8 +319,16 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> with SingleTick
           // Place order in Supabase
           final user = ref.read(authNotifierProvider).valueOrNull;
           final cart = ref.read(cartNotifierProvider);
+          if (user == null || user.role.isGuest) {
+            AppNotification.showError(
+              context,
+              isRtl ? 'يرجى تسجيل الدخول لإتمام الطلب' : 'Please sign in to place your order',
+            );
+            context.push('/login');
+            return;
+          }
           
-          if (user != null && cart.items.isNotEmpty) {
+          if (cart.items.isNotEmpty) {
             final bool isSelfPickup = _deliveryOption == 'self_pickup';
             int createdOrdersCount = 0;
             final List<String> createdStoreNames = [];
@@ -327,8 +336,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> with SingleTick
             double? enteredReceiptAmount;
 
             // Group cart items by merchantId (exclusive items go strictly under 'magaiees')
-            final Map<String, List<dynamic>> storeItems = {};
-            for (var item in cart.items) {
+            final Map<String, List<CartItemModel>> storeItems = {};
+            for (final item in cart.items) {
               final merchantId = item.product.isMagaieesExclusive ? 'magaiees' : item.product.merchantId;
               storeItems.putIfAbsent(merchantId, () => []).add(item);
             }
@@ -543,22 +552,23 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> with SingleTick
                   }
                 }
 
-                // Calculate paid amount for this store order
-                double paidAmountForOrder = 0.0;
-                if (enteredReceiptAmount != null && enteredReceiptAmount > 0) {
-                  final ratio = grandTotal > 0 ? (storeTotal / grandTotal) : 1.0;
-                  paidAmountForOrder = (enteredReceiptAmount * ratio).clamp(0.0, storeTotal);
-                } else if (_selectedPaymentMethod == 'partial_cod') {
-                  paidAmountForOrder = upfrontPayment;
-                }
-
                 final refNum = _receiptRefController.text.trim();
-                // Receipt info applies if an actual receipt was uploaded or ref entered
+                // Receipt info applies ONLY if an actual receipt screenshot was uploaded or ref entered
                 final bool hasReceiptInfo = (uploadedReceiptUrl != null || refNum.isNotEmpty);
+
+                // Calculate paid amount for this store order ONLY when actual transfer proof is provided
+                double paidAmountForOrder = 0.0;
                 if (hasReceiptInfo) {
-                  final recordedAmt = (enteredReceiptAmount != null && enteredReceiptAmount > 0)
-                      ? enteredReceiptAmount
-                      : (upfrontPayment > 0 ? upfrontPayment : storeTotal);
+                  if (enteredReceiptAmount != null && enteredReceiptAmount > 0) {
+                    final ratio = grandTotal > 0 ? (storeTotal / grandTotal) : 1.0;
+                    paidAmountForOrder = (enteredReceiptAmount * ratio).clamp(0.0, storeTotal);
+                  } else if (_selectedPaymentMethod == 'partial_cod') {
+                    paidAmountForOrder = upfrontPayment;
+                  } else {
+                    paidAmountForOrder = storeTotal;
+                  }
+
+                  final recordedAmt = paidAmountForOrder > 0 ? paidAmountForOrder : storeTotal;
                   final receiptPrefix = uploadedReceiptUrl != null ? 'receipt_url:$uploadedReceiptUrl | ' : '';
                   orderNotes += '\n${receiptPrefix}ref:$refNum | bank:$_selectedPaymentMethod | amount:$recordedAmt';
                 }
@@ -872,9 +882,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> with SingleTick
                         Text(
                           _deliveryAddress.isEmpty 
                               ? (isRtl ? 'لم يتم تحديد عنوان بعد' : 'No address selected')
-                              : (isRtl ? _deliveryAddress : _deliveryAddressEn),
+                              : (isRtl ? _deliveryAddress : (_deliveryAddressEn.isNotEmpty ? _deliveryAddressEn : _deliveryAddress)),
                           style: TextStyle(
-                            color: _deliveryAddress.isEmpty ? Colors.red : Colors.black,
+                            color: _deliveryAddress.isEmpty ? Colors.red : Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                         if (_contactPhone.isNotEmpty) ...[
@@ -1389,48 +1399,63 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> with SingleTick
           ),
 
           // 1. Bankak for Merchant
-          if (settings.merchantAllowBankak) ...[
-            for (var m in directMerchants)
-              _PaymentRadio(
-                title: isRtl ? 'تطبيق بنكك (حساب التاجر: ${m['name']})' : 'Bankak App (Merchant: ${m['name']})',
-                subtitle: (m['bankak_account'] != null && m['bankak_account'].toString().isNotEmpty)
-                    ? '${isRtl ? "رقم الحساب:" : "Account:"} ${m['bankak_account']} | ${isRtl ? "الاسم:" : "Name:"} ${m['bankak_name']?.toString().isNotEmpty == true ? m['bankak_name'] : m['name']}'
-                    : (m['bank_account_number'] != null && m['bank_account_number'].toString().isNotEmpty)
-                        ? '${isRtl ? "رقم الحساب:" : "Account:"} ${m['bank_account_number']} | ${isRtl ? "الاسم:" : "Name:"} ${m['bank_account_name']?.toString().isNotEmpty == true ? m['bank_account_name'] : m['name']}'
-                        : (isRtl ? 'يرجى تحويل المبلغ ورفع إشعار بنكك' : 'Upload Bankak transfer receipt'),
-                value: 'bankak',
-                groupValue: _selectedPaymentMethod,
-                onChanged: (val) => setState(() => _selectedPaymentMethod = val!),
-                icon: Icons.account_balance_wallet,
-              ),
+          if (settings.merchantAllowBankak && directMerchants.isNotEmpty) ...[
+            _PaymentRadio(
+              title: directMerchants.length == 1
+                  ? (isRtl ? 'تطبيق بنكك (حساب التاجر: ${directMerchants.first['name']})' : 'Bankak App (Merchant: ${directMerchants.first['name']})')
+                  : (isRtl ? 'تطبيق بنكك (حسابات التجار المباشرة)' : 'Bankak App (Direct Merchant Accounts)'),
+              subtitle: directMerchants.map((m) {
+                final mName = m['name']?.toString() ?? '';
+                if (m['bankak_account'] != null && m['bankak_account'].toString().isNotEmpty) {
+                  final accName = m['bankak_name']?.toString().isNotEmpty == true ? m['bankak_name'] : mName;
+                  return '${isRtl ? "رقم الحساب:" : "Account:"} ${m['bankak_account']} | ${isRtl ? "الاسم:" : "Name:"} $accName';
+                }
+                if (m['bank_account_number'] != null && m['bank_account_number'].toString().isNotEmpty) {
+                  final accName = m['bank_account_name']?.toString().isNotEmpty == true ? m['bank_account_name'] : mName;
+                  return '${isRtl ? "رقم الحساب:" : "Account:"} ${m['bank_account_number']} | ${isRtl ? "الاسم:" : "Name:"} $accName';
+                }
+                return isRtl ? '$mName: يرجى تحويل المبلغ ورفع إشعار بنكك' : '$mName: Upload Bankak transfer receipt';
+              }).join('\n'),
+              value: 'bankak',
+              groupValue: _selectedPaymentMethod,
+              onChanged: (val) => setState(() => _selectedPaymentMethod = val!),
+              icon: Icons.account_balance_wallet,
+            ),
           ],
 
           // 2. O-Cash for Merchant
-          if (settings.merchantAllowOcash) ...[
-            for (var m in directMerchants)
-              _PaymentRadio(
-                title: isRtl ? 'تطبيق أوكاش (محفظة التاجر: ${m['name']})' : 'O-Cash Wallet (Merchant: ${m['name']})',
-                subtitle: (m['ocash_phone'] != null && m['ocash_phone'].toString().isNotEmpty)
-                    ? '${isRtl ? "رقم المحفظة:" : "Phone:"} ${m['ocash_phone']} | ${isRtl ? "الاسم:" : "Name:"} ${m['ocash_name']?.toString().isNotEmpty == true ? m['ocash_name'] : m['name']}'
-                    : (isRtl ? 'يرجى تحويل المبلغ ورفع إشعار أوكاش' : 'Upload O-Cash transfer receipt'),
-                value: 'ocash',
-                groupValue: _selectedPaymentMethod,
-                onChanged: (val) => setState(() => _selectedPaymentMethod = val!),
-                icon: Icons.payments,
-              ),
+          if (settings.merchantAllowOcash && directMerchants.isNotEmpty) ...[
+            _PaymentRadio(
+              title: directMerchants.length == 1
+                  ? (isRtl ? 'تطبيق أوكاش (محفظة التاجر: ${directMerchants.first['name']})' : 'O-Cash Wallet (Merchant: ${directMerchants.first['name']})')
+                  : (isRtl ? 'تطبيق أوكاش (محافظ التجار المباشرة)' : 'O-Cash Wallet (Direct Merchant Accounts)'),
+              subtitle: directMerchants.map((m) {
+                final mName = m['name']?.toString() ?? '';
+                if (m['ocash_phone'] != null && m['ocash_phone'].toString().isNotEmpty) {
+                  final accName = m['ocash_name']?.toString().isNotEmpty == true ? m['ocash_name'] : mName;
+                  return '${isRtl ? "رقم المحفظة:" : "Phone:"} ${m['ocash_phone']} | ${isRtl ? "الاسم:" : "Name:"} $accName';
+                }
+                return isRtl ? '$mName: يرجى تحويل المبلغ ورفع إشعار أوكاش' : '$mName: Upload O-Cash transfer receipt';
+              }).join('\n'),
+              value: 'ocash',
+              groupValue: _selectedPaymentMethod,
+              onChanged: (val) => setState(() => _selectedPaymentMethod = val!),
+              icon: Icons.payments,
+            ),
           ],
 
           // 3. Direct Wire to Merchant
-          if (settings.merchantAllowWire) ...[
-            for (var m in directMerchants)
-              _PaymentRadio(
-                title: isRtl ? 'تحويل بنكي مباشر لحساب التاجر' : 'Direct Wire to Merchant Bank',
-                subtitle: '${isRtl ? "البنك:" : "Bank:"} ${m['bank_name'] ?? "-"} | ${isRtl ? "رقم الحساب:" : "Account:"} ${m['bank_account_number'] ?? "-"} | ${isRtl ? "الاسم:" : "Name:"} ${m['bank_account_name'] ?? m['name']}',
-                value: 'bank',
-                groupValue: _selectedPaymentMethod,
-                onChanged: (val) => setState(() => _selectedPaymentMethod = val!),
-                icon: Icons.account_balance,
-              ),
+          if (settings.merchantAllowWire && directMerchants.isNotEmpty) ...[
+            _PaymentRadio(
+              title: isRtl ? 'تحويل بنكي مباشر لحساب التاجر' : 'Direct Wire to Merchant Bank',
+              subtitle: directMerchants.map((m) {
+                return '${isRtl ? "البنك:" : "Bank:"} ${m['bank_name'] ?? "-"} | ${isRtl ? "رقم الحساب:" : "Account:"} ${m['bank_account_number'] ?? "-"} | ${isRtl ? "الاسم:" : "Name:"} ${m['bank_account_name'] ?? m['name']}';
+              }).join('\n'),
+              value: 'bank',
+              groupValue: _selectedPaymentMethod,
+              onChanged: (val) => setState(() => _selectedPaymentMethod = val!),
+              icon: Icons.account_balance,
+            ),
           ],
 
           // 4. Cash on Delivery for Merchant

@@ -9,13 +9,13 @@ import 'package:magaiees_marketplace/features/auth/application/auth_provider.dar
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:magaiees_marketplace/core/utils/image_picker_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:magaiees_marketplace/core/utils/notification_sound_service.dart';
 import 'package:magaiees_marketplace/core/utils/call_ringtone_service.dart';
 import 'package:magaiees_marketplace/core/utils/call_permission_helper.dart';
 import 'package:magaiees_marketplace/core/utils/name_formatter.dart';
+import 'package:magaiees_marketplace/core/providers/ugc_moderation_provider.dart';
 import 'package:magaiees_marketplace/core/services/push_notification_service.dart';
 
 class ChatMessagesScreen extends ConsumerStatefulWidget {
@@ -426,13 +426,20 @@ class _ChatMessagesScreenState extends ConsumerState<ChatMessagesScreen> {
                         child: Text(isRtl ? 'إلغاء' : 'Cancel'),
                       ),
                       FilledButton(
-                        onPressed: () {
+                        onPressed: () async {
                           Navigator.pop(ctx);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(isRtl ? 'تم إرسال البلاغ لفريق المراجعة بنجاح' : 'Report submitted to moderation team'),
-                            ),
-                          );
+                          await ref.read(blockedEntitiesProvider.notifier).submitReport(
+                                targetType: 'chat_room',
+                                targetId: _otherUserId ?? widget.roomId,
+                                reason: 'Inappropriate chat content reported by user',
+                              );
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(isRtl ? 'تم إرسال البلاغ لفريق المراجعة بنجاح' : 'Report submitted to moderation team'),
+                              ),
+                            );
+                          }
                         },
                         child: Text(isRtl ? 'إرسال البلاغ' : 'Report'),
                       ),
@@ -456,17 +463,24 @@ class _ChatMessagesScreenState extends ConsumerState<ChatMessagesScreen> {
                       ),
                       FilledButton(
                         style: FilledButton.styleFrom(backgroundColor: Colors.red),
-                        onPressed: () {
+                        onPressed: () async {
                           Navigator.pop(ctx);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(isRtl ? 'تم حظر المستخدم بنجاح' : 'User blocked successfully'),
-                            ),
-                          );
-                          if (context.canPop()) {
-                            context.pop();
-                          } else {
-                            context.go('/buyer/chat');
+                          await ref.read(blockedEntitiesProvider.notifier).blockEntity(
+                                targetId: _otherUserId ?? widget.roomId,
+                                secondaryKey: _otherUserName,
+                                reason: 'Blocked from chat room ${widget.roomId}',
+                              );
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(isRtl ? 'تم حظر المستخدم بنجاح' : 'User blocked successfully'),
+                              ),
+                            );
+                            if (context.canPop()) {
+                              context.pop();
+                            } else {
+                              context.go('/buyer/chat');
+                            }
                           }
                         },
                         child: Text(isRtl ? 'حظر' : 'Block'),

@@ -1,14 +1,10 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
-  <base href="$FLUTTER_BASE_HREF">
-  <script>
-    var path = window.location.pathname;
-    var base = path.substring(0, path.lastIndexOf('/') + 1);
-    // dynamically ensure correct base if needed
-  </script>
   <meta charset="UTF-8">
+  <base href="$FLUTTER_BASE_HREF">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="theme-color" content="#1E40AF">
   <meta name="description" content="منصة مقاييس - سوق مواد البناء والمعدات">
   <!-- Flutter Web handles the viewport tag automatically -->
 
@@ -194,9 +190,9 @@
       }
     }
     window.addEventListener('flutter-first-frame', function() {
-      setTimeout(hideLoader, 200);
+      setTimeout(hideLoader, 150);
     });
-    setTimeout(hideLoader, 3500);
+    setTimeout(hideLoader, 12000);
 
     // Unlock AudioContext on first user interaction for Chrome Autoplay policy
     function unlockAudioContext() {

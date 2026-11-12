@@ -12,6 +12,7 @@ import 'package:magaiees_marketplace/features/chat/presentation/screens/chat_roo
 import 'package:magaiees_marketplace/features/admin/digital_broker/presentation/screens/quote_requests_management_screen.dart';
 import 'package:magaiees_marketplace/core/utils/app_notification.dart';
 import 'package:go_router/go_router.dart';
+import 'package:magaiees_marketplace/routing/route_names.dart';
 
 class EmployeeShell extends ConsumerStatefulWidget {
   const EmployeeShell({super.key});
@@ -150,9 +151,11 @@ class _EmployeeShellState extends ConsumerState<EmployeeShell> {
                       child: IconButton(
                         icon: const Icon(Icons.logout, color: Colors.red),
                         tooltip: 'تسجيل الخروج',
-                        onPressed: () {
-                          ref.read(authNotifierProvider.notifier).logout();
-                          context.go('/');
+                        onPressed: () async {
+                          await ref.read(authNotifierProvider.notifier).logout();
+                          if (context.mounted) {
+                            context.go(RouteNames.login);
+                          }
                         },
                       ),
                     ),
@@ -174,6 +177,7 @@ class _EmployeeShellState extends ConsumerState<EmployeeShell> {
             bottomDestinations.add(const NavigationDestination(icon: Icon(Icons.menu), label: 'المزيد'));
 
             return NavigationBar(
+              height: 58,
               selectedIndex: currentIndex < mainTabsCount ? currentIndex : mainTabsCount,
               onDestinationSelected: (idx) {
                 if (idx == mainTabsCount) {
@@ -228,10 +232,12 @@ class _EmployeeShellState extends ConsumerState<EmployeeShell> {
                 ListTile(
                   leading: const Icon(Icons.logout, color: Colors.redAccent),
                   title: const Text('تسجيل الخروج', style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.bold)),
-                  onTap: () {
+                  onTap: () async {
                     Navigator.pop(ctx);
-                    ref.read(authNotifierProvider.notifier).logout();
-                    context.go('/');
+                    await ref.read(authNotifierProvider.notifier).logout();
+                    if (context.mounted) {
+                      context.go(RouteNames.login);
+                    }
                   },
                 ),
                 const SizedBox(height: 16),

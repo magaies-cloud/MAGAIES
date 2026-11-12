@@ -55,7 +55,7 @@ class CartNotifier extends _$CartNotifier {
   }
 
   void removeCoupon() {
-    state = state.copyWith(appliedCouponCode: null, discountAmount: 0.0);
+    state = state.copyWith(clearCoupon: true);
   }
 }
 
