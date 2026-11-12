@@ -15,6 +15,7 @@ import 'package:magaiees_marketplace/core/utils/image_picker_helper.dart';
 import 'package:magaiees_marketplace/core/widgets/product_image_preview_box.dart';
 import 'package:magaiees_marketplace/features/auth/application/auth_provider.dart';
 import 'package:magaiees_marketplace/features/buyer/home/application/home_provider.dart';
+import 'package:magaiees_marketplace/features/buyer/home/domain/models/category_model.dart';
 import 'package:magaiees_marketplace/features/buyer/home/domain/models/sub_category_model.dart';
 import 'package:magaiees_marketplace/features/merchant/inventory/presentation/screens/merchant_inventory_screen.dart';
 
@@ -824,8 +825,8 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     final sdgPrice = double.tryParse(_priceController.text) ?? 0.0;
     final usdPrice = double.tryParse(_priceUsdController.text) ?? 0.0;
 
-    final selectedCat = categories.cast<dynamic>().firstWhere(
-          (c) => c.id == _selectedCategory,
+    final selectedCat = categories.cast<CategoryModel?>().firstWhere(
+          (c) => c?.id == _selectedCategory,
           orElse: () => null,
         );
     final categoryName = selectedCat != null
@@ -1590,8 +1591,8 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       _selectedCategory = categories.first.id;
     }
 
-    final currentCat = categories.cast<dynamic>().firstWhere(
-          (c) => c.id == _selectedCategory,
+    final currentCat = categories.cast<CategoryModel?>().firstWhere(
+          (c) => c?.id == _selectedCategory,
           orElse: () => null,
         );
     final List<SubCategoryModel> allSubCategories =

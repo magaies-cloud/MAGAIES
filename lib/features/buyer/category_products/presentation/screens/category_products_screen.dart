@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:magaiees_marketplace/core/utils/image_optimizer.dart';
 import 'package:magaiees_marketplace/features/buyer/home/application/home_provider.dart';
+import 'package:magaiees_marketplace/features/buyer/home/domain/models/category_model.dart';
+import 'package:magaiees_marketplace/features/buyer/home/domain/models/sub_category_model.dart';
 import 'package:magaiees_marketplace/features/buyer/home/presentation/widgets/product_card.dart';
 import 'package:magaiees_marketplace/features/buyer/cart/application/cart_provider.dart';
 
@@ -52,11 +54,15 @@ class _CategoryProductsScreenState extends ConsumerState<CategoryProductsScreen>
     final allProductsAsync = ref.watch(productsProvider);
 
     // Find current category
-    final categoryList = categoriesAsync.valueOrNull ?? [];
-    final category = categoryList.cast<dynamic>().firstWhere(
-      (c) => c.id.toString().trim().toLowerCase() == widget.categoryId.trim().toLowerCase(),
-      orElse: () => null,
-    );
+    final List<CategoryModel> categoryList = categoriesAsync.valueOrNull ?? const <CategoryModel>[];
+    final targetCatId = widget.categoryId.trim().toLowerCase();
+    CategoryModel? category;
+    for (final c in categoryList) {
+      if (c.id.trim().toLowerCase() == targetCatId) {
+        category = c;
+        break;
+      }
+    }
 
     final appBarTitle = category != null
         ? (isRtl ? category.nameAr : category.name)
@@ -64,12 +70,20 @@ class _CategoryProductsScreenState extends ConsumerState<CategoryProductsScreen>
     
     final bannerTitle = widget.categoryName ?? appBarTitle;
 
-    final subCategories = (category?.subCategories ?? []).where((s) => s.isVisible).toList();
+    final List<SubCategoryModel> subCategories = (category?.subCategories ?? const <SubCategoryModel>[])
+        .where((SubCategoryModel s) => s.isVisible)
+        .toList();
     
-    final subCategory = subCategories.cast<dynamic>().firstWhere(
-      (s) => s.id.toString().trim().toLowerCase() == _selectedSubCategoryId?.trim().toLowerCase(),
-      orElse: () => null,
-    );
+    final targetSubId = _selectedSubCategoryId?.trim().toLowerCase();
+    SubCategoryModel? subCategory;
+    if (targetSubId != null && targetSubId.isNotEmpty) {
+      for (final s in subCategories) {
+        if (s.id.trim().toLowerCase() == targetSubId) {
+          subCategory = s;
+          break;
+        }
+      }
+    }
     
     final bannerImageUrl = subCategory?.imageUrl ?? category?.imageUrl;
 
@@ -689,9 +703,11 @@ class _CategoryProductsScreenState extends ConsumerState<CategoryProductsScreen>
               );
             },
             loading: () => const SliverFillRemaining(
+              hasScrollBody: false,
               child: Center(child: CircularProgressIndicator()),
             ),
             error: (err, _) => SliverFillRemaining(
+              hasScrollBody: false,
               child: Center(child: Text(isRtl ? 'خطأ في جلب الأصناف' : 'Error loading items')),
             ),
           ),

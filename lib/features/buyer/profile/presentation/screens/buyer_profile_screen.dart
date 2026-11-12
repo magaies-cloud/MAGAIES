@@ -518,7 +518,7 @@ class BuyerProfileScreen extends ConsumerWidget {
                 ListTile(
                   leading: const Icon(Icons.info_outline, color: Colors.blue),
                   title: Text(context.isRtl ? 'عن منصة مقاييس' : 'About Magaiees Platform'),
-                  subtitle: const Text('Version 1.0.9 (Build 11)'),
+                  subtitle: const Text('Version 1.0.9 (Build 12)'),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () => _showAboutDialog(context),
                 ),
@@ -1029,7 +1029,7 @@ class BuyerProfileScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Version 1.0.9 (Build 11)',
+              'Version 1.0.9 (Build 12)',
               style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
             ),
             const SizedBox(height: 16),
