@@ -776,31 +776,22 @@ function getDefaultConfigs() {
 
 function getFactoryPreset1LedgerConfigs() {
     let conf = getDefaultConfigs();
-    conf[0] = { ...conf[0], label: "التاريخ", visible: true, align: 'center', fontWeight: 'bold', color: '#0f172a', bgColor: '' };
-    conf[1] = { ...conf[1], label: "الرقم المرجعي", visible: true, align: 'center', fontWeight: 'bold', color: '#2563eb', bgColor: '' };
-    conf[2] = { ...conf[2], label: "البيان / الوصف", visible: true, align: 'right', color: '#1e293b', bgColor: '' };
-    conf[3] = { ...conf[3], label: "الحساب المقابل", visible: true, align: 'right', color: '#334155', bgColor: '' };
-    conf[4] = { ...conf[4], label: "نوع الحركة", visible: true, align: 'center', fontWeight: 'bold', color: '#7c3aed', bgColor: '' };
-    
-    // Debit Local (مدين محلي) -> Light blue bg + vibrant dark blue text
-    conf[5] = { ...conf[5], label: "مدين (محلي)", visible: true, align: 'center', fontWeight: 'bold', color: '#0044cc', bgColor: '#e0f2fe' };
-    // Credit Local (دائن محلي) -> Light rose bg + vibrant red text
-    conf[6] = { ...conf[6], label: "دائن (محلي)", visible: true, align: 'center', fontWeight: 'bold', color: '#dc2626', bgColor: '#fee2e2' };
-    // Debit Foreign (مدين أجنبي) -> Light blue bg + vibrant dark blue text
-    conf[7] = { ...conf[7], label: "مدين (أجنبي)", visible: true, align: 'center', fontWeight: 'bold', color: '#0044cc', bgColor: '#e0f2fe' };
-    // Credit Foreign (دائن أجنبي) -> Light rose bg + vibrant red text
-    conf[8] = { ...conf[8], label: "دائن (أجنبي)", visible: true, align: 'center', fontWeight: 'bold', color: '#dc2626', bgColor: '#fee2e2' };
-    // Exchange Rate (سعر الصرف) -> Light emerald bg + emerald text
-    conf[9] = { ...conf[9], label: "سعر الصرف", visible: true, align: 'center', fontWeight: 'bold', color: '#059669', bgColor: '#dcfce7' };
-    // Total Balance Local (الإجمالي المحلي) -> Warm gold bg + royal brown text
-    conf[10] = { ...conf[10], label: "الإجمالي المحلي", visible: true, align: 'center', fontWeight: 'bold', color: '#78350f', bgColor: '#fef3c7' };
-    // Total Balance Foreign (الإجمالي الأجنبي) -> Warm gold bg + royal brown text
-    conf[11] = { ...conf[11], label: "الإجمالي الأجنبي", visible: true, align: 'center', fontWeight: 'bold', color: '#78350f', bgColor: '#fef3c7' };
-    
-    conf[12] = { ...conf[12], label: "ملاحظات", visible: true, align: 'center', color: '#475569', bgColor: '' };
-    conf[13] = { ...conf[13], visible: false };
+    conf[0] = { ...conf[0], label: "التاريخ", visible: true, align: 'center', fs: 1.02, fontWeight: '900', color: '#000000', bgColor: '#ffffff' };
+    conf[1] = { ...conf[1], label: "الرقم المرجعي", visible: true, align: 'center', fs: 1.04, fontWeight: '900', color: '#000000', bgColor: '#ffffff' };
+    conf[2] = { ...conf[2], label: "البيان / الوصف", visible: true, align: 'right', fs: 0.86, fontWeight: '800', color: '#000000', bgColor: '#ffffff', wrapText: true };
+    conf[3] = { ...conf[3], label: "الحساب المقابل", visible: true, align: 'right', fs: 1.04, fontWeight: '900', color: '#000000', bgColor: '#ffffff' };
+    conf[4] = { ...conf[4], label: "نوع الحركة", visible: true, align: 'center', fs: 1.04, fontWeight: '900', color: '#000000', bgColor: '#ffffff' };
+    conf[5] = { ...conf[5], label: "مدين (محلي)", visible: true, align: 'center', fs: 1.22, fontWeight: '900', color: '#000000', bgColor: '#f5faff' };
+    conf[6] = { ...conf[6], label: "دائن (محلي)", visible: true, align: 'center', fs: 1.22, fontWeight: '900', color: '#000000', bgColor: '#fff7f8' };
+    conf[7] = { ...conf[7], label: "مدين (أجنبي)", visible: true, align: 'center', fs: 1.22, fontWeight: '900', color: '#000000', bgColor: '#f5faff' };
+    conf[8] = { ...conf[8], label: "دائن (أجنبي)", visible: true, align: 'center', fs: 1.22, fontWeight: '900', color: '#000000', bgColor: '#fff7f8' };
+    conf[9] = { ...conf[9], label: "سعر الصرف", visible: true, align: 'center', fs: 1.14, fontWeight: '900', color: '#000000', bgColor: '#f6fef9' };
+    conf[10] = { ...conf[10], label: "الإجمالي المحلي", visible: true, align: 'center', fs: 1.28, fontWeight: '900', color: '#000000', bgColor: '#fffdf2' };
+    conf[11] = { ...conf[11], label: "الإجمالي الأجنبي", visible: true, align: 'center', fs: 1.28, fontWeight: '900', color: '#000000', bgColor: '#fffdf2' };
+    conf[12] = { ...conf[12], label: "ملاحظات", visible: true, align: 'right', fs: 0.86, fontWeight: '800', color: '#000000', bgColor: '#ffffff', wrapText: true };
+    conf[13] = { ...conf[13], label: "رقم التحويلة", visible: true, align: 'center', fs: 1.04, fontWeight: '900', color: '#000000', bgColor: '#ffffff' };
     conf[14] = { ...conf[14], visible: false };
-    conf[15] = { ...conf[15], label: "اسم البنك", visible: false, color: '#c026d3', bgColor: '' };
+    conf[15] = { ...conf[15], label: "اسم البنك", visible: false, color: '#000000', bgColor: '#ffffff' };
     return conf;
 }
 
@@ -1495,7 +1486,10 @@ function renderTable() {
         th.setAttribute("draggable", "true");
         th.style.cursor = "grab";
         th.style.position = "relative";
-        th.style.paddingTop = "18px";
+        th.style.padding = "6px 4px";
+        th.style.verticalAlign = "middle";
+        const thSpan = th.querySelector('span:last-child');
+        if (thSpan) { thSpan.style.top = '0px'; thSpan.style.display = 'block'; thSpan.style.textAlign = 'center'; }
         
         th.ondragstart = function(e) {
             e.dataTransfer.effectAllowed = "move";
@@ -1544,18 +1538,17 @@ function renderTable() {
             th.classList.add('selected-col');
         }
         
-        th.style.fontSize = (conf.fs || 0.9) + 'rem';
-        if (conf.width) { th.style.width = conf.width; th.style.minWidth = conf.width; }
-        th.style.textAlign = conf.align || 'center';
-        if (conf.fontWeight) th.style.fontWeight = conf.fontWeight;
+        th.style.setProperty('font-size', '0.78rem', 'important');
+        th.style.setProperty('text-align', 'center', 'important');
+        th.style.fontWeight = '900';
         if (conf.fontFamily && conf.fontFamily !== 'inherit') th.style.fontFamily = conf.fontFamily;
-        if (conf.color) th.style.color = conf.color;
-        if (conf.bgColor) th.style.backgroundColor = conf.bgColor;
         if (conf.width) {
             const wNum = parseInt(conf.width, 10);
-            th.style.width = conf.width;
-            th.style.minWidth = conf.width;
-            th.style.maxWidth = conf.width;
+            th.style.setProperty('width', conf.width, 'important');
+            th.style.setProperty('min-width', conf.width, 'important');
+            th.style.setProperty('max-width', conf.width, 'important');
+            th.style.overflow = 'hidden';
+            th.style.textOverflow = 'ellipsis';
             if (!isNaN(wNum)) {
                 if (wNum <= 10) {
                     th.style.padding = '0px';
@@ -1592,8 +1585,16 @@ function renderTable() {
     let colTotals = {};
     columnOrder.forEach(idx => { colTotals[idx] = 0; });
 
-    // Build Body
+    // Build Body (Fast DocumentFragment batching)
     tbody.innerHTML = '';
+    const bodyFrag = document.createDocumentFragment();
+    const lightenHex2Shades = (hex, fallback) => {
+        if (!hex || typeof hex !== 'string' || !hex.startsWith('#') || hex.length < 7) return fallback;
+        const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+        if (isNaN(r) || isNaN(g) || isNaN(b)) return fallback;
+        const nr = Math.round(r + (255 - r) * 0.72), ng = Math.round(g + (255 - g) * 0.72), nb = Math.round(b + (255 - b) * 0.72);
+        return '#' + [nr, ng, nb].map(x => x.toString(16).padStart(2, '0')).join('');
+    };
     filteredData.forEach(row => {
         let tr = document.createElement('tr');
         if (row.ref) {
@@ -1634,18 +1635,29 @@ function renderTable() {
                 }
             }
             
-            td.style.fontSize = (conf.fs || 0.9) + 'rem';
-            if (conf.width) { td.style.width = conf.width; td.style.minWidth = conf.width; }
+            const unifiedSoftBgMap = { 5: '#e6f2ff', 7: '#e6f2ff', 6: '#ffeef0', 8: '#ffeef0', 9: '#e8fbf0', 10: '#fef7d6', 11: '#fef7d6' };
+            const validCustomBg = (conf.bgColor && conf.bgColor !== '#ffffff' && conf.bgColor !== '#fcfdff') ? conf.bgColor : '#f1f5f9';
+            const rowBg = unifiedSoftBgMap[idx] || validCustomBg;
+            const defFs = (idx === 0 || idx === 13) ? 1.16 : ((idx === 10 || idx === 11) ? 1.36 : (c.isNum ? 1.32 : ((idx === 2 || idx === 12) ? 1.08 : 1.16)));
+            const oldFsList = [0.86, 0.9, 0.96, 1.0, 1.02, 1.04, 1.06, 1.08, 1.12, 1.14, 1.20, 1.22, 1.24, 1.28];
+            let finalFs = (conf.fs && !oldFsList.includes(Number(conf.fs))) ? Number(conf.fs) : defFs;
+            const textLen = String(td.innerText || '').trim().length;
+            if (idx !== 2 && idx !== 12 && textLen > 12) {
+                finalFs = Math.max(0.92, +(finalFs - Math.min(0.28, (textLen - 12) * 0.032)).toFixed(2));
+            }
+            td.style.setProperty('font-size', finalFs + 'rem', 'important');
             td.style.textAlign = conf.align || 'center';
-            if (conf.fontWeight) td.style.fontWeight = conf.fontWeight;
+            td.style.setProperty('font-weight', '900', 'important');
             if (conf.fontFamily && conf.fontFamily !== 'inherit') td.style.fontFamily = conf.fontFamily;
-            if (conf.color) td.style.color = conf.color;
-            if (conf.bgColor) { td.style.setProperty('background-color', conf.bgColor, 'important'); }
+            td.style.setProperty('color', '#000000', 'important');
+            td.style.setProperty('background-color', rowBg, 'important');
         if (conf.width) {
             const wNum = parseInt(conf.width, 10);
-            td.style.width = conf.width;
-            td.style.minWidth = conf.width;
-            td.style.maxWidth = conf.width;
+            td.style.setProperty('width', conf.width, 'important');
+            td.style.setProperty('min-width', conf.width, 'important');
+            td.style.setProperty('max-width', conf.width, 'important');
+            td.style.overflow = 'hidden';
+            td.style.textOverflow = 'ellipsis';
             if (!isNaN(wNum)) {
                 if (wNum <= 10) {
                     td.style.padding = '0px';
@@ -1674,8 +1686,9 @@ function renderTable() {
             
             tr.appendChild(td);
         });
-        tbody.appendChild(tr);
+        bodyFrag.appendChild(tr);
     });
+    tbody.appendChild(bodyFrag);
 
     // Build Summary Footer Row (tfoot)
     if (tfoot) {
@@ -1692,10 +1705,15 @@ function renderTable() {
             
             let td = document.createElement('td');
             td.setAttribute('data-col-idx', idx);
-            td.style.fontSize = (conf.fs || 0.9) + 'rem';
-            if (conf.width) { td.style.width = conf.width; td.style.minWidth = conf.width; }
+            td.style.fontSize = (conf.fs || 1.18) + 'rem';
+            if (conf.width) {
+                td.style.setProperty('width', conf.width, 'important');
+                td.style.setProperty('min-width', conf.width, 'important');
+                td.style.setProperty('max-width', conf.width, 'important');
+                td.style.overflow = 'hidden';
+            }
             td.style.textAlign = conf.align || 'center';
-            if (conf.fontWeight) td.style.fontWeight = conf.fontWeight;
+            td.style.fontWeight = '900';
             if (conf.fontFamily && conf.fontFamily !== 'inherit') td.style.fontFamily = conf.fontFamily;
             
             if (conf.italic) td.style.fontStyle = 'italic';
@@ -1709,8 +1727,10 @@ function renderTable() {
             if (conf.dir) td.style.direction = conf.dir;
 
             if (firstVisible) {
-                td.innerText = 'الإجمالي الكلي (' + filteredData.length + ')';
+                td.innerText = 'الإجمالي (' + filteredData.length + ')';
                 td.style.fontWeight = '900';
+                td.style.fontSize = '0.78rem';
+                td.style.padding = '4px 3px';
                 firstVisible = false;
             } else if (c.isNum) {
                 td.classList.add('num-cell');
@@ -1978,6 +1998,17 @@ function applyLiveColumnWidth(colIdx, widthVal) {
     if (lbl) lbl.textContent = widthStr;
     const rng = document.getElementById('col-width-range');
     if (rng && parseInt(rng.value, 10) !== wNum) rng.value = wNum;
+    clearTimeout(window._autoSaveColWidthTimer);
+    window._autoSaveColWidthTimer = setTimeout(() => {
+        try {
+            const presets = getSavedPresets();
+            if (presets && presets[currentPresetIndex]) {
+                presets[currentPresetIndex].configs = JSON.parse(JSON.stringify(columnConfigs));
+                presets[currentPresetIndex].order = [...columnOrder];
+                savePresets(presets);
+            }
+        } catch(e){}
+    }, 200);
 }
 window.applyLiveColumnWidth = applyLiveColumnWidth;
 

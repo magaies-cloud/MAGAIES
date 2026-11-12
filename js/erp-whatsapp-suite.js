@@ -244,6 +244,18 @@
             }
 
             /* Light theme overrides */
+            :root.light-theme #erp-wa-modal-overlay .erp-wa-card {
+                background: #ffffff !important; color: #000000 !important; border: 3px solid #0284c7 !important;
+                box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25) !important;
+            }
+            :root.light-theme #erp-wa-modal-overlay .erp-wa-card *:not(button) {
+                color: #000000 !important; font-weight: 800 !important;
+            }
+            :root.light-theme #erp-wa-modal-overlay .erp-wa-input,
+            :root.light-theme #erp-wa-modal-overlay select,
+            :root.light-theme #erp-wa-modal-overlay textarea {
+                background: #ffffff !important; color: #000000 !important; border: 2.5px solid #334155 !important; font-weight: 900 !important;
+            }
             :root.light-theme .btn-auto-send-toggle-unit.active,
             :root.light-theme .btn-auto-send-options-unit.active {
                 background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;

@@ -255,7 +255,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
         }
     });
 </script>
-<link id="magaiees-google-fonts-pack" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap">
+<link id="magaiees-google-fonts-pack" rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap">
 <script>(function(){try{var f=localStorage.getItem('magaiees_font_family')||'default',s=parseInt(localStorage.getItem('magaiees_font_scale')||'100',10)||100,w=localStorage.getItem('magaiees_font_weight')||'auto',r=document.documentElement,fm={'default':"'Tajawal','Cairo',sans-serif",'ibm_plex':"'IBM Plex Sans Arabic','Inter',sans-serif",'readex_pro':"'Readex Pro','Inter',sans-serif",'almarai':"'Almarai','Inter',sans-serif"};if(f&&f!=='default'&&fm[f]){r.setAttribute('data-magaiees-font',f);r.style.setProperty('--magaiees-active-font',fm[f]);}else{r.removeAttribute('data-magaiees-font');r.style.removeProperty('--magaiees-active-font');}if(w&&w!=='auto'){r.setAttribute('data-mg-master-weight',w);r.style.setProperty('--mg-master-weight',w);}else{r.removeAttribute('data-mg-master-weight');r.style.removeProperty('--mg-master-weight');}r.style.setProperty('--magaiees-font-scale',(s/100).toFixed(3));if(s!==100){r.setAttribute('data-magaiees-scaled','true');r.style.fontSize=(16*(s/100)).toFixed(2)+'px';}else{r.removeAttribute('data-magaiees-scaled');r.style.fontSize='';}var h=JSON.parse(localStorage.getItem('magaiees_typography_hierarchy_v1')||'{}'),lvls=['sidebar','flyout','titles','modals','details','tables','mobile'];for(var i=0;i<lvls.length;i++){var k=lvls[i],c=h[k]||{};var ls=parseInt(c.scale||100,10)||100,lw=c.weight||'auto',lf=c.font||'inherit';if(ls!==100||lw!=='auto'||lf!=='inherit'){r.setAttribute('data-mg-lvl-'+k,'1');r.style.setProperty('--mg-lvl-'+k+'-scale',(ls/100).toFixed(3));if(lw!=='auto'){r.style.setProperty('--mg-lvl-'+k+'-weight',lw);r.style.setProperty('--mg-lvl-'+k+'-weight-sub',lw);}else{r.style.removeProperty('--mg-lvl-'+k+'-weight');r.style.removeProperty('--mg-lvl-'+k+'-weight-sub');}if(lf!=='inherit'&&fm[lf])r.style.setProperty('--mg-lvl-'+k+'-font',fm[lf]);else r.style.removeProperty('--mg-lvl-'+k+'-font');}else{r.removeAttribute('data-mg-lvl-'+k);r.style.removeProperty('--mg-lvl-'+k+'-scale');r.style.removeProperty('--mg-lvl-'+k+'-weight');r.style.removeProperty('--mg-lvl-'+k+'-font');}}}catch(e){}})();</script>
 <link rel="stylesheet" href="css/theme.css?v=<?= file_exists(__DIR__ . '/../css/theme.css') ? filemtime(__DIR__ . '/../css/theme.css') : '12' ?>">
 <link rel="stylesheet" href="css/magaiees-royal-buttons.css?v=<?= file_exists(__DIR__ . '/../css/magaiees-royal-buttons.css') ? filemtime(__DIR__ . '/../css/magaiees-royal-buttons.css') : time() ?>">
@@ -279,13 +279,14 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
         set: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM15 12a3 3 0 11-6 0 3 3 0 016 0z"/>',
         out: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>',
         brand: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>',
-        mob: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>'
+        mob: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>',
+        shd: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 3l7 3v5.5c0 4.8-3.2 8.3-7 9.5-3.8-1.2-7-4.7-7-9.5V6l7-3z"/>'
     };
     var items = [
         ['magaiees_unified_dashboard.php','لوحة التحكم','#22d3ee','dash'],
         ['purchase.php','المشتريات','#fb923c','pur'],
         ['direct-sales.php','المبيعات','#34d399','sal'],
-        ['inventory-report.php','المخازن','#a78bfa','inv'],
+        ['inventory-report.php','تقارير المخازن','#a78bfa','inv'],
         ['vouchers-hub.php','المعاملات المالية','#fbbf24','fin'],
         ['analytics.php','تقارير مالية','#38bdf8','rep'],
         ['master-data.php','البيانات الأساسية','#f472b6','mas'],
@@ -301,6 +302,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
         var clk = (it[0] === 'mobile-dashboard.php') ? "try{localStorage.setItem('magaiees_view_preference','mobile');document.cookie='magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax';}catch(e){}; window.location.href='mobile-dashboard.php?force_mobile=1';" : "window.location.href='"+it[0]+"';";
         nav+='<a href="'+it[0]+'" style="cursor:pointer" data-href="'+it[0]+'" onclick="'+clk+'" class="sidebar-item'+ac+'"><span class="sidebar-icon" style="color:'+it[2]+'">'+mk(it[3],it[2])+'</span><span class="sidebar-text">'+it[1]+'</span></a>';
     }
+    nav+='<a href="#" data-href="system-self-audit.php" onclick="if(window.openMagaiesGuardianVault)window.openMagaiesGuardianVault();return false;" class="sidebar-item mgv-sidebar-slot magaiees-guardian-red-box" title="درع السيادة المحمي"><span class="sidebar-icon mgv-shield-icon" style="color:#10b981"><span style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;">'+mk('shd','#10b981')+'<span class="mgv-num" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:Cairo,Tajawal,sans-serif;font-weight:900;font-size:8.5px;line-height:1;padding-top:1px;color:currentColor;">0</span></span></span><span class="sidebar-text">درع السيادة</span></a>';
     var html='<aside class="global-sidebar"><div class="sidebar-header"><span class="sidebar-logo-icon"><svg width="26" height="26" fill="none" stroke="#38bdf8" viewBox="0 0 24 24">'+icons.brand+'</svg></span><span class="sidebar-logo-text">مقاييس (MAGAIEES)</span></div><nav class="sidebar-nav">'+nav+'</nav><div class="sidebar-footer"><a href="#" onclick="logout();return false;" class="sidebar-item sidebar-logout"><span class="sidebar-icon" style="color:#f87171"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">'+icons.out+'</svg></span><span class="sidebar-text">خروج</span></a></div></aside>';
     
     function inject(){
@@ -630,7 +632,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
                 <span style="color:#ffffff; font-weight:900; font-size:17.5px; letter-spacing:0.2px; text-shadow:0 2px 8px rgba(0,0,0,0.95), 0 0 14px rgba(251, 191, 36, 0.5); overflow:hidden; text-overflow:ellipsis;" id="header-company-name-top" data-i18n="sidebar.brand">نظام إدارة الشركات</span>
                 <span style="background:linear-gradient(135deg, rgba(251, 191, 36, 0.35), rgba(16, 185, 129, 0.35)); border:1.5px solid rgba(254, 240, 138, 0.85); color:#fef08a; font-size:11.5px; font-weight:900; padding:2px 7px; border-radius:999px; letter-spacing:0.4px; flex-shrink:0; box-shadow:0 0 8px rgba(251, 191, 36, 0.3);">ERP</span>
             </div>
-            <?php if (!empty($page_title)): ?><span class="header-page-title m7-solid-badge-guard" style="margin-right:auto; height:26px; font-size:12px; font-weight:900; background:linear-gradient(135deg, #0284c7, #1e3a8a); border:1.5px solid #38bdf8; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; padding:0 9px; border-radius:7px; display:inline-flex !important; align-items:center; gap:4px; line-height:1; flex-shrink:0; box-shadow:0 0 10px rgba(56, 189, 248, 0.35);"><span class="header-page-title-icon" style="font-size:12px;"><?php echo $dynamic_icon; ?></span><span style="color:#ffffff !important; -webkit-text-fill-color:#ffffff !important;"><?php echo htmlspecialchars($page_title); ?></span></span><?php else: ?><span class="header-page-title" style="display:none !important;"><span class="header-page-title-icon"></span></span><?php endif; ?>
+            <?php if (!empty($page_title)): ?><span class="header-page-title m7-solid-badge-guard" style="margin-right:auto; height:26px; font-size:12px; font-weight:900; background:linear-gradient(135deg, #ea580c, #9a3412); border:1.5px solid #fb923c; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; padding:0 9px; border-radius:7px; display:inline-flex !important; align-items:center; gap:4px; line-height:1; flex-shrink:0; box-shadow:0 2px 8px rgba(249, 115, 22, 0.35);"><span class="header-page-title-icon" style="font-size:12px;"><?php echo $dynamic_icon; ?></span><span style="color:#ffffff !important; -webkit-text-fill-color:#ffffff !important;"><?php echo htmlspecialchars($page_title); ?></span></span><?php else: ?><span class="header-page-title" style="display:none !important;"><span class="header-page-title-icon"></span></span><?php endif; ?>
         </div>
 
         <!-- الصف الثاني: بطاقة سعر صرف الدولار البارزة والمطلوبة + كبسولة التاريخ والوقت المدمجة -->
@@ -741,12 +743,39 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
             -webkit-text-fill-color: #ffffff !important;
             text-shadow: 0 2px 5px rgba(0, 0, 0, 0.98), 0 0 12px rgba(52, 211, 153, 0.7) !important;
         }
-        .quran-ornament-star {
-            color: #34d399 !important;
-            -webkit-text-fill-color: #34d399 !important;
-            font-size: 14px !important;
-            filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.85));
-        }
+        .quran-ornament-star { color: #34d399 !important; -webkit-text-fill-color: #34d399 !important; font-size: 14px !important; }
+        /* Global UI Purity & 120fps Smooth Wheel Scroll: Hide exit buttons near Quranic verse & redundant showcase/constitution clutter strips */
+        #sl-sovereign-law1-bar [onclick*="directExitToMain"], header [onclick*="directExitToMain"], .unified-header [onclick*="ExitToMain"], .global-sidebar .sidebar-logout,
+        #split-fc2-sovereign-row, #split-fc3-inline-7charts-body, #sales-fc3-hub-strip, #sl-fc3-hub-strip,
+        [onclick*="SupremeConstitutionModal"], [onclick*="Inline7ChartsDrawer"], [onclick*="MasterAudit10AdditionsModal"],
+        [onclick*="AtomicSyncAndDrillDownModal"], [onclick*="AiExecutiveInsightsModal"], [onclick*="ChequesAndBankakRadarModal"],
+        [onclick*="ForensicOwnerRadarModal"], [onclick*="AntiEmbezzlementLocksModal"], [onclick*="CyberBiometricAndPrintStudioModal"],
+        [onclick*="ProactiveAlertsCenterModal"], [onclick*="toggleDualSplitScreen"], [onclick*="openPurchaseAIAuditModal"], [onclick*="openGrnAIAuditModal"],
+        #split-laser-symmetry-badge, #split-sovereign-10x-badge, #split-fc2-crdt-pill, #btn-md-fc1-audit-gate, #btn-grn-fc1-gate { display: none !important; }
+        .ambient-bg { pointer-events: none !important; contain: strict; }
+        .ambient-bg, .ambient-bg .orb { display: none !important; animation: none !important; filter: none !important; }
+    .global-sidebar, .premium-header, .header-enterprise-meta-pod, .header-crystal-icon-dock, .auto-scroll-return-pill {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+    .global-sidebar {
+        background: #070d1a !important;
+        contain: layout style paint;
+        will-change: width;
+        transition: width 0.14s cubic-bezier(0.2, 0, 0, 1) !important;
+        box-shadow: -4px 0 18px rgba(0,0,0,0.55) !important;
+    }
+    .sidebar-nav {
+        overscroll-behavior: contain;
+        scroll-behavior: auto !important;
+    }
+    html, body {
+        scroll-behavior: auto !important;
+    }
+    #dashboard-athkar-container {
+        animation: none !important;
+    }
+        #dashboard-athkar-container { animation: none !important; transform: translateZ(0); contain: layout paint; }
     </style>
     <div id="dashboard-athkar-container" class="islamic-ticker-container" style="display:flex !important; flex:1.35 1 340px !important; min-width:240px !important; max-width:none !important; height:78px !important; min-height:78px !important; max-height:78px !important; box-sizing:border-box !important; margin:0 !important; padding:0 !important; border-radius:14px !important; background:radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.35), transparent 70%), linear-gradient(135deg, #022c22 0%, #064e3b 35%, #020617 70%, #1e1b4b 100%) !important; border:2px solid #fbbf24 !important; align-items:center !important; justify-content:center !important; overflow:hidden !important; position:relative !important; animation: quranMihrabBorderGlow 3.5s ease-in-out infinite alternate !important;" title="آيات قرآنية وأذكار مباركة — مرر الماوس لإيقاف الحركة مؤقتاً للقراءة">
         <!-- إطار زخرفي ذهبي داخلي فائق الجمال -->
@@ -1076,6 +1105,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="js/magaiees_back.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees_back.js') ? filemtime(__DIR__ . '/../js/magaiees_back.js') : time(); ?>" defer></script><script src="js/magaies-smart-guide.js?v=<?php echo file_exists(__DIR__ . '/../js/magaies-smart-guide.js') ? filemtime(__DIR__ . '/../js/magaies-smart-guide.js') : time(); ?>" defer></script><script src="js/md-delayed-tooltips.js?v=<?php echo file_exists(__DIR__ . '/../js/md-delayed-tooltips.js') ? filemtime(__DIR__ . '/../js/md-delayed-tooltips.js') : time(); ?>" defer></script>
 <script src="js/magaiees-royal-buttons.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees-royal-buttons.js') ? filemtime(__DIR__ . '/../js/magaiees-royal-buttons.js') : time(); ?>" defer></script>
 <script src="js/auto-header-scroll.js?v=<?php echo file_exists(__DIR__ . '/../js/auto-header-scroll.js') ? filemtime(__DIR__ . '/../js/auto-header-scroll.js') : time(); ?>" defer></script>
+<script src="js/magaies-guardian-vault.js?v=<?php echo file_exists(__DIR__ . '/../js/magaies-guardian-vault.js') ? filemtime(__DIR__ . '/../js/magaies-guardian-vault.js') : '2027'; ?>" defer></script>
 
 
 <!-- ═══════════════════════════════════════════════════════════════════
@@ -1293,8 +1323,8 @@ document.addEventListener('DOMContentLoaded', function() {
 .enterprise-user-pill #header-user-role {
     font-size: 0.68rem !important;
     font-weight: 800 !important;
-    color: #38bdf8 !important;
-    background: rgba(56, 189, 248, 0.14);
+    color: #fdba74 !important;
+    background: rgba(249, 115, 22, 0.22);
     padding: 2px 6px;
     border-radius: 5px;
     line-height: 1 !important;
@@ -2483,6 +2513,27 @@ html.light-theme input[type="date"]::-webkit-datetime-edit-year-field {
     -webkit-text-fill-color: var(--lt-ink, #120500) !important;
     font-weight: 900 !important;
 }
+/* توحيد القائمة الجانبية ولوحة البيانات الأساسية ومربعات البحث الذكي وإخفاء كبسولة المرشد في الجوال */
+@media (max-width: 960px) { #msg-universal-fixed-launcher { display: none !important; } }
+html.light-theme .global-sidebar .sidebar-item, html.light-theme .global-sidebar .sidebar-label,
+html.light-theme #magaiees-panoramic-flyout .pf-card-title, html.light-theme #magaiees-panoramic-flyout .pf-header-title {
+    color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 900 !important;
+}
+html.light-theme .global-sidebar .sidebar-icon, html.light-theme #magaiees-panoramic-flyout .pf-card-icon-box {
+    border: 2px solid #0f172a !important; background: #ffffff !important; box-shadow: 0 3px 8px rgba(15,23,42,0.16) !important;
+    filter: contrast(1.35) saturate(1.35) !important;
+}
+html.light-theme .autocomplete-list, html.light-theme .custom-dropdown-list {
+    background: #ffffff !important; border: 3px solid #0284c7 !important; box-shadow: 0 16px 36px rgba(15,23,42,0.22) !important;
+}
+html.light-theme .autocomplete-item, html.light-theme .custom-dropdown-item {
+    color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 900 !important; background: #ffffff !important;
+    border: 2px solid transparent !important; border-bottom: 1px solid #cbd5e1 !important; transition: border-color 0.08s ease !important;
+}
+html.light-theme .autocomplete-item:hover, html.light-theme .autocomplete-item.selected,
+html.light-theme .custom-dropdown-item:hover, html.light-theme .custom-dropdown-item.selected {
+    background: #ffffff !important; color: #000000 !important; border: 2.5px solid #ea580c !important;
+}
 </style>
 
 <script>
@@ -2915,10 +2966,10 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
                     }
                 };
 
-                if (!localStorage.getItem('magaies_scale_clean_20261111')) {
+                if (!localStorage.getItem('magaies_scale_clean_20261112_v2')) {
                     try {
-                        [MASTER_SCALE_KEY, mdScaleKey, c15Key, grnScaleKey, slFc1Key, 'magaies_telescopic_zoom_scale', 'magaies_ergo_global_mode'].forEach(function(k) { localStorage.removeItem(k); });
-                        localStorage.setItem('magaies_scale_clean_20261111', '1');
+                        [MASTER_SCALE_KEY, mdScaleKey, c15Key, grnScaleKey, slFc1Key, GLOBAL_FONT_KEY, 'magaies_telescopic_zoom_scale', 'magaies_ergo_global_mode'].forEach(function(k) { localStorage.removeItem(k); });
+                        localStorage.setItem('magaies_scale_clean_20261112_v2', '1');
                     } catch (e) {}
                 }
                 var savedScale = localStorage.getItem(MASTER_SCALE_KEY);
@@ -2948,15 +2999,32 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
                     _ergoScr.src = 'js/elsajana-universal-ui-2027.js?v=2027_fix5';
                     (document.head || document.documentElement).appendChild(_ergoScr);
                 }
-                window.addEventListener('wheel', function(ev) {
-                    if (ev.ctrlKey && typeof window.setMdProportionalZoom !== 'function') {
+                (function() {
+                    var _ctrlZoomHandler = function(ev) {
+                        if (!ev.ctrlKey) return;
+                        if (typeof window.setMdProportionalZoom === 'function') return;
                         ev.preventDefault();
                         var cur = parseFloat(localStorage.getItem(MASTER_SCALE_KEY) || '1') || 1;
                         var step = cur >= 2 ? (ev.deltaY < 0 ? 0.25 : -0.25) : (ev.deltaY < 0 ? 0.08 : -0.08);
                         var nextVal = Math.min(10.0, Math.max(0.25, Math.round((cur + step) * 100) / 100));
                         window.applyGlobalSovereignMasterScale(nextVal, false);
-                    }
-                }, { passive: false });
+                    };
+                    var _ctrlActive = false;
+                    window.addEventListener('keydown', function(e) {
+                        if (e.key === 'Control' && !_ctrlActive) {
+                            _ctrlActive = true;
+                            window.addEventListener('wheel', _ctrlZoomHandler, { passive: false });
+                        }
+                    }, { passive: true });
+                    var _releaseCtrl = function() {
+                        if (_ctrlActive) {
+                            _ctrlActive = false;
+                            window.removeEventListener('wheel', _ctrlZoomHandler, { passive: false });
+                        }
+                    };
+                    window.addEventListener('keyup', function(e) { if (e.key === 'Control') _releaseCtrl(); }, { passive: true });
+                    window.addEventListener('blur', _releaseCtrl, { passive: true });
+                })();
             } catch (e) {}
         }
         if (/account-statement\.php/i.test(window.location.pathname)) {
@@ -2982,8 +3050,12 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
                 bar.style.cssText = dock === 'bottom'
                     ? 'position:fixed;bottom:2px;left:6px;right:calc(var(--sb-collapsed, 62px) + 6px);z-index:9990;background:#0c1d47;border:1px solid rgba(253,224,71,0.55);border-radius:7px;padding:4px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;direction:rtl;color:#fde047;font-size:12.5px;font-weight:900;box-shadow:0 4px 14px rgba(0,0,0,0.65);'
                     : 'margin:4px auto;width:calc(100% - 28px);background:#0c1d47;border:1px solid rgba(253,224,71,0.55);border-radius:7px;padding:4px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;direction:rtl;color:#fde047;font-size:12.5px;font-weight:900;box-shadow:0 4px 14px rgba(0,0,0,0.55);';
-                var txt = res.items.slice(0, 8).map(function(it){ return (it.type === 'order' ? '🟠 طلب: ' : '🟢 عرض: ') + (it.text || ''); }).join('  •  ');
-                bar.innerHTML = '<div style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1;">📢 بورصة مقاييس: ' + txt + '</div>'
+                var txt = res.items.slice(0, 8).map(function(it, idx){
+                    var clr = (idx % 2 === 0) ? '#fb923c' : '#fde047';
+                    var lbl = it.type === 'order' ? '<span style="color:#fde047;">🟠 طلب:</span> ' : '<span style="color:#fde047;">🟢 عرض:</span> ';
+                    return '<span style="color:' + clr + ';">' + lbl + (it.text || '') + '</span>';
+                }).join(' <span style="color:#fb923c;">❖</span> ');
+                bar.innerHTML = '<div style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1;color:#fb923c;"><span style="color:#fde047;">📢 بورصة مقاييس:</span> ' + txt + '</div>'
                     + '<div style="display:flex;gap:4px;flex-shrink:0;">'
                     + '<button type="button" onclick="var d=localStorage.getItem(\'magaiees_broker_dock_mode\')===\'bottom\'?\'top\':\'bottom\';localStorage.setItem(\'magaiees_broker_dock_mode\',d);window.renderGlobalScreensBrokerBar();" style="padding:1px 6px;border-radius:5px;background:#1e293b;color:#fde047;border:1px solid #f59e0b;font-size:10.5px;font-weight:900;cursor:pointer;" title="تبديل الموقع أعلى/أسفل">📍 أعلى/أسفل</button>'
                     + '<button type="button" onclick="window.toggleMagaieesBourseGlobal();" style="padding:1px 6px;border-radius:5px;background:#881337;color:#fecdd3;border:1px solid #f43f5e;font-size:10.5px;font-weight:900;cursor:pointer;" title="إخفاء البورصة">🙈 إخفاء</button>'
@@ -3014,6 +3086,8 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
         }
     });
 })();
+
+        try { if (!localStorage.getItem('magaies_purge_sw_20261112_v4')) { localStorage.setItem('magaies_purge_sw_20261112_v4', '1'); if ('caches' in window) { caches.keys().then(ks => ks.forEach(k => caches.delete(k))); } if ('serviceWorker' in navigator) { navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.update())); } } } catch(e) {}
 </script>
 <script src="js/global-professor-ai-chat.js?v=<?= @filemtime(__DIR__ . '/../js/global-professor-ai-chat.js') ?: '2027.300' ?>"></script>
 

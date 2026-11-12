@@ -204,11 +204,11 @@
 
         /* Printable Area - Realistic Solid Paper Sheet Boundary */
         .print-area {
-            padding: 35px 40px;
-            margin: 25px auto 50px auto;
+            padding: 14px 10px !important;
+            margin: 10px auto 30px auto !important;
             background: var(--table-bg);
             color: var(--text-color);
-            border: 1px solid var(--table-border);
+            border: 2px solid #000000;
             border-radius: 4px;
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
@@ -221,8 +221,8 @@
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
         }
 
-        .print-area.paper-portrait { max-width: 1000px; width: 94%; }
-        .print-area.paper-landscape { max-width: 98%; width: 98%; }
+        .print-area.paper-portrait { max-width: 99% !important; width: 99% !important; }
+        .print-area.paper-landscape { max-width: 99.6% !important; width: 99.6% !important; }
 
         /* Paper sheet indicator badge */
         .print-area::before {
@@ -249,49 +249,82 @@
         .company-logo-wrap { width: 3.5cm; height: 100%; border: 1px solid var(--table-border); display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 8px; }
         .company-logo-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; }
 
-        /* Excel-like Flat Table */
+        /* Excel-like Flat Table — 3-Tier Border Hierarchy (Fine 1px Inner / 3px Section Dividers / Heavy 4.5px Outer Frame) */
         table.excel-table {
-            width: 100%; border-collapse: collapse; table-layout: auto;
-            background: var(--table-bg); color: inherit;
+            width: 100%; border-collapse: collapse !important; table-layout: auto;
+            background: #ffffff; color: #000000;
+            border: 4.5px solid #000000 !important;
+            outline: 1.5px solid #000000 !important;
         }
         table.excel-table th, table.excel-table td {
-            border: 1px solid var(--table-border);
-            padding: 7px 10px; text-align: center; font-size: 0.9rem; color: inherit;
-            white-space: nowrap !important; word-break: keep-all !important;
+            border-left: 1.1px solid #64748b !important;
+            border-right: 1.1px solid #64748b !important;
+            border-top: 1.9px solid #1e293b !important;
+            border-bottom: 1.9px solid #1e293b !important;
+            padding: 6px 4px; text-align: center; font-size: 1.22rem; color: #000000 !important;
+            font-family: 'Tajawal', 'Cairo', sans-serif; font-weight: 900;
+            white-space: nowrap; word-break: keep-all; box-sizing: border-box;
         }
-        table.excel-table th {
-            background: var(--table-header-bg); font-weight: 800; cursor: pointer; position: relative; user-select: none;
-            white-space: nowrap !important; word-break: keep-all !important;
+        table.excel-table thead th {
+            background: linear-gradient(180deg, #f2f7ff 0%, #e6f0ff 100%) !important;
+            color: #000000 !important; -webkit-text-fill-color: #000000 !important;
+            font-family: 'Tajawal', 'Cairo', sans-serif !important;
+            font-weight: 900 !important; font-size: 0.84rem !important;
+            letter-spacing: -0.35px !important; word-spacing: -1px !important;
+            line-height: 1.15 !important; text-align: center !important; vertical-align: middle !important;
+            padding: 4px 4px 8px 4px !important; border: 1.4px solid #334155 !important;
+            border-bottom: 3.2px solid #000000 !important; cursor: pointer; position: relative; user-select: none;
         }
-        table.excel-table th:hover { background: rgba(56,189,248,0.25); }
-        table.excel-table th.selected-col { background: #bae6fd !important; color: #0369a1 !important; border-bottom: 3px solid #0284c7 !important; }
-        body.dark-mode table.excel-table th.selected-col { background: #0369a1 !important; color: #ffffff !important; border-bottom-color: #38bdf8 !important; }
-        
-        table.excel-table td.num-cell { font-family: var(--num-font-family); font-weight: 600; direction: ltr; }
-
-        /* Default Column Background & Font Colors */
-        table.excel-table td[data-col-idx="5"], table.excel-table td[data-col-idx="7"] {
-            background-color: #e0f2fe !important;
-            color: #0044cc !important;
-            font-weight: 700 !important;
+        table.excel-table th[data-col-idx="0"], table.excel-table td[data-col-idx="0"] {
+            border-left: 2.8px solid #000000 !important;
         }
-        table.excel-table td[data-col-idx="6"], table.excel-table td[data-col-idx="8"] {
-            background-color: #fee2e2 !important;
-            color: #dc2626 !important;
-            font-weight: 700 !important;
+        table.excel-table th[data-col-idx="10"], table.excel-table td[data-col-idx="10"],
+        table.excel-table th[data-col-idx="11"], table.excel-table td[data-col-idx="11"] {
+            border-right: 2.8px solid #000000 !important; border-left: 2.8px solid #000000 !important;
         }
-        table.excel-table td[data-col-idx="9"] {
-            background-color: #dcfce7 !important;
-            color: #059669 !important;
-            font-weight: 700 !important;
+        table.excel-table thead tr:first-child th { border-top: 4.5px solid #000000 !important; }
+        table.excel-table tfoot tr:last-child td { border-bottom: 4.5px solid #000000 !important; }
+        table.excel-table tr th:first-child, table.excel-table tr td:first-child { border-right: 4.5px solid #000000 !important; }
+        table.excel-table tr th:last-child, table.excel-table tr td:last-child { border-left: 4.5px solid #000000 !important; }
+        table.excel-table th:hover { background: #bfdbfe !important; }
+        table.excel-table th.selected-col { background: #93c5fd !important; color: #000000 !important; border-bottom: 3.5px solid #0284c7 !important; }
+        body.dark-mode table.excel-table thead th { background: #1e3a8a !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; border-color: #60a5fa !important; }
+        table.excel-table tbody tr:nth-child(odd) td { background-color: #ffffff !important; color: #000000 !important; }
+        table.excel-table tbody tr:nth-child(even) td { background-color: #fcfdff !important; color: #000000 !important; }
+        body.dark-mode table.excel-table tbody tr:nth-child(odd) td { background-color: #0b1326 !important; color: #ffffff !important; border-color: #334155 !important; }
+        body.dark-mode table.excel-table tbody tr:nth-child(even) td { background-color: #101c36 !important; color: #ffffff !important; border-color: #334155 !important; }
+        table.excel-table td.num-cell { font-family: 'Cairo', 'Tajawal', sans-serif; font-size: 1.32rem; font-weight: 900 !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; direction: ltr; padding: 6px 4px; }
+        table.excel-table td[data-col-idx="0"], table.excel-table td[data-col-idx="13"] {
+            background-color: #f1f5f9; color: #000000 !important; font-size: 1.16rem; font-weight: 900 !important; padding: 6px 4px;
         }
-        table.excel-table td[data-col-idx="10"], table.excel-table td[data-col-idx="11"] {
-            background-color: #fef3c7 !important;
-            color: #78350f !important;
-            font-weight: 800 !important;
+        table.excel-table td[data-col-idx="2"], table.excel-table td[data-col-idx="12"] {
+            background-color: #f1f5f9; color: #000000 !important;
+            white-space: normal; word-break: break-word; text-align: right;
+            font-size: 1.08rem; line-height: 1.32; font-weight: 900 !important; padding: 6px 5px;
         }
-
-        table.excel-table tfoot td { font-weight: 900; background: var(--table-header-bg); }
+        /* زيادة درجة ألوان الخلفية درجتين مع إرجاع لون التاريخ والملحوظة ورقم التحويلة */
+        table.excel-table tbody td[data-col-idx="5"], table.excel-table tbody td[data-col-idx="7"] {
+            background-color: #e6f2ff !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 900 !important;
+        }
+        table.excel-table tbody td[data-col-idx="6"], table.excel-table tbody td[data-col-idx="8"] {
+            background-color: #ffeef0 !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 900 !important;
+        }
+        table.excel-table tbody td[data-col-idx="9"] {
+            background-color: #e8fbf0 !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 900 !important;
+        }
+        table.excel-table tbody td[data-col-idx="10"], table.excel-table tbody td[data-col-idx="11"] {
+            background-color: #fef7d6 !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 900 !important; font-size: 1.36rem;
+        }
+        table.excel-table tfoot td {
+            font-size: 1.34rem !important; font-weight: 900 !important; background: linear-gradient(180deg, #f2f7ff 0%, #e6f0ff 100%) !important;
+            color: #000000 !important; -webkit-text-fill-color: #000000 !important;
+            border: 2px solid #000000 !important; border-top: 3.2px solid #000000 !important; padding: 7px 4px !important;
+        }
+        table.excel-table tfoot td:first-child {
+            font-size: 0.78rem !important; letter-spacing: -0.4px !important; font-weight: 900 !important; padding: 4px 3px !important;
+        }
+        #report-main-title { background: #eff6ff !important; color: #000000 !important; border: 2px solid #1e3a8a !important; }
+        #report-subheader-row { background: #f8fafc !important; border: 1.5px solid #475569 !important; color: #000000 !important; }
         
         @media print {
             * {
@@ -565,7 +598,10 @@
         <button class="ribbon-btn" onclick="toggleDarkMode()" style="--btn-color: #a855f7;">
             <span style="font-size: 1.05rem;">🌙</span> الوضع الليلي
         </button>
-        <button class="ribbon-btn" onclick="window.history.back()" style="--btn-color: #ef4444;">
+        <button class="ribbon-btn" onclick="window.location.reload()" style="--btn-color: #10b981;">
+            <span style="font-size: 1.05rem;">🔄</span> تحديث التقرير
+        </button>
+        <button class="ribbon-btn" onclick="try{sessionStorage.removeItem('gl_open_preset_idx');}catch(e){} if(window.parent && window.parent !== window && window.parent.document.getElementById('preset-preview-modal')){window.parent.document.getElementById('preset-preview-modal').style.display='none';}else{window.history.back();}" style="--btn-color: #ef4444;">
             <span style="font-size: 1.05rem;">✖</span> إغلاق / عودة
         </button>
     </div>
@@ -644,11 +680,23 @@
 
 <!-- Long Press HUD Overlay for 8-second Save & Lock -->
 <?php include 'includes/studio-modals.php'; ?>
+<script>
+try {
+    if ('caches' in window) { caches.keys().then(function(ks){ ks.forEach(function(k){ caches.delete(k); }); }); }
+    window.addEventListener('keydown', function(e) {
+        if (e.key === 'F5' || ((e.ctrlKey || e.metaKey) && (e.key === 'r' || e.key === 'R'))) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.location.reload();
+        }
+    }, true);
+} catch(e){}
+</script>
 <script src="js/localforage.min.js"></script>
-<script src="js/app.js?v=20261016_v28"></script>
-<script src="js/general-ledger.js?v=20261029_fast"></script>
-<script src="js/preview-ledger.js?v=20261029_fast"></script>
-<script defer src="js/erp-whatsapp-suite.js?v=20261029_fast"></script>
+<script src="js/app.js?v=20261113_v36"></script>
+<script src="js/general-ledger.js?v=20261113_v39"></script>
+<script src="js/preview-ledger.js?v=20261113_v39"></script>
+<script defer src="js/erp-whatsapp-suite.js?v=20261113_v36"></script>
 
 <script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
 <script src="js/magaiees_back.js?v=2026_back_v2" defer></script>

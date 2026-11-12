@@ -12,7 +12,7 @@
 
     if (!window._mdDelayedTipsLoaded && !document.querySelector('script[src*="md-delayed-tooltips.js"]')) {
         const mdTipScript = document.createElement('script');
-        mdTipScript.src = 'js/md-delayed-tooltips.js?v=' + Date.now();
+        mdTipScript.src = 'js/md-delayed-tooltips.js?v=20261112_rc_v4';
         mdTipScript.defer = true;
         (document.head || document.documentElement).appendChild(mdTipScript);
     }
@@ -4227,7 +4227,8 @@
 
     function ensureFixedSquareLauncher() {
         let pod = document.getElementById('msg-universal-fixed-launcher');
-        if (isLandingStartupScreen()) {
+        const isMobileOrSubView = (window.innerWidth <= 960) || (window.self !== window.top) || /(mobile-|preview-|print-)/i.test(window.location.pathname);
+        if (isLandingStartupScreen() || isMobileOrSubView) {
             if (pod) {
                 try { pod.remove(); } catch (e) {}
             }
@@ -4355,8 +4356,11 @@
             if (pod.parentElement !== dockTarget) {
                 dockTarget.appendChild(pod);
             }
-        } else if (!pod.parentElement) {
-            document.body.appendChild(pod);
+        } else {
+            if (pod && pod.parentElement) {
+                try { pod.remove(); } catch (e) {}
+            }
+            return;
         }
 
         // Keep the 4 buttons permanently docked inside the top header so they scroll naturally with the header title
@@ -6741,8 +6745,9 @@
             if (btn) { btn.disabled = false; btn.textContent = '🤖 اسأل الذكاء'; }
         }
     };
-    function showGlobalSmartExplanationAt(e, forcedTarget) {
-        if (typeof window.__mdHandleUnifiedHumanExplain === 'function' && window.__mdHandleUnifiedHumanExplain(e, forcedTarget)) return;
+    function showGlobalSmartExplanationAt(e, forcedTarget, speakMode) {
+        if (e && e.type === "contextmenu" && !speakMode) { if (typeof window.__openErpRightClickChoiceMenu === "function") return window.__openErpRightClickChoiceMenu(e); return; }
+        if (typeof window.__mdHandleUnifiedHumanExplain === 'function' && window.__mdHandleUnifiedHumanExplain(e, forcedTarget, speakMode || 'audio')) return;
         const tipEl = document.getElementById('msg-smart-hover-tooltip');
         if (tipEl && tipEl.contains(e.target)) return;
         let target = forcedTarget || (e.target && e.target.closest ? e.target.closest('button, a, input, select, textarea, .pro-field-card, .input-group, .h-form-group, .form-group, .spotlight-card, .kpi-card, .stat-card, .hub-action-card, .fin-metric-pill, .qa-master-btn, .cat-hub-btn, .msg-quartet-btn, .md-tab-btn, .sl-btn, .uiverse-switch, canvas, th, td, [role="button"], [role="tab"], [onclick], [data-md-tip], [data-guide-desc]') : null);
@@ -6887,33 +6892,17 @@
             tip.style.left = `${Math.max(16, Math.round((window.innerWidth - 580) / 2))}px`;
             tip.style.width = 'min(580px, 95vw)';
             unlockBrowserAudioEnginesSync();
-            if (typeof window.speakMdExplanationPanelText === 'function') window.speakMdExplanationPanelText(adaptTextToDialect(fullSpeech, selectedMaleProfile));
+            if (speakMode !== 'text' && typeof window.speakMdExplanationPanelText === 'function') window.speakMdExplanationPanelText(adaptTextToDialect(fullSpeech, selectedMaleProfile));
             startTipPartSync(_spParts.map(x => x.length + 8));
         }
     }
     window.showUnifiedDoubleRightClickCard = showGlobalSmartExplanationAt;
-    window.addEventListener('contextmenu', showGlobalSmartExplanationAt, true);
-    let _hoverPrewarmTimer = null;
-    window.addEventListener('mouseover', function (e) {
-        if (_hoverPrewarmTimer) clearTimeout(_hoverPrewarmTimer);
-        const tgt = e.target && e.target.closest ? e.target.closest('button, a, input, select, textarea, .bento-card, .inner-box, .kpi-card, .stat-card, .fin-metric-pill, .qa-ribbon-btn, .md-tab-btn, .sl-btn, [onclick]') : null;
-        if (!tgt) return;
-        _hoverPrewarmTimer = setTimeout(() => {
-            try {
-                const rInf = (typeof window.explainUnifiedDashboardDomElement === 'function' && window.explainUnifiedDashboardDomElement(tgt))
-                    || (typeof window.explainPurchaseDomElement === 'function' && window.explainPurchaseDomElement(tgt))
-                    || (typeof window.explainMasterDataDomElement === 'function' && window.explainMasterDataDomElement(tgt))
-                    || (typeof window.autoSynthesizeElementExplanation === 'function' && window.autoSynthesizeElementExplanation(tgt));
-                if (rInf && rInf.title) {
-                    const inf = (typeof window.enrichProfessor6Pillars === 'function') ? window.enrichProfessor6Pillars(rInf, tgt) : rInf;
-                    const pts = [inf.title, ...String(inf.desc || '').split(' • ').filter(Boolean)].map(x => cleanTextForMaleTts(x));
-                    const fSp = adaptTextToDialect(stripAllSalawatPrefixes(pts.join('. ')), selectedMaleProfile);
-                    const { firstBurst } = splitInstantFirstBurst(fSp);
-                    if (firstBurst) fetchAndDecodeMaleBuffer(firstBurst, selectedMaleProfile).catch(() => {});
-                }
-            } catch (_) {}
-        }, 140);
-    }, { passive: true });
+    // تم إلغاء النطق التلقائي عند الكليك يمين أو الوقوف بالماوس 3 ثوانٍ أو الدبل كليك — الشرح يعمل حصراً عبر قائمة الكليك يمين (صوتي / كتابي)
+    window.addEventListener('contextmenu', function (e) {
+        if (typeof window.__openErpRightClickChoiceMenu === 'function') {
+            window.__openErpRightClickChoiceMenu(e);
+        }
+    }, true);
     document.addEventListener('keydown', function (e) {
         const tip = document.getElementById('msg-smart-hover-tooltip');
         if (!tip || tip.style.display === 'none') return;
@@ -6922,11 +6911,6 @@
         if (e.key === 'Escape') { window.__isDblRightCardPinned = false; if (window.stopMdExplanationPanelAudio) window.stopMdExplanationPanelAudio(); tip.style.display = 'none'; }
         else if (e.code === 'Space') { e.preventDefault(); if (window.togglePauseResumeAudio) window.togglePauseResumeAudio(); }
         else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); if (window.__stepNeighborFieldInCard) window.__stepNeighborFieldInCard(e.key === 'ArrowLeft' ? 1 : -1); }
-    }, true);
-    window.addEventListener('dblclick', function(e) {
-        if (e.target && e.target.closest && e.target.closest('#msg-smart-hover-tooltip, #msg-live-coach-bar, #msg-universal-modal')) return;
-        if (e.target && e.target.closest && e.target.closest('input:not([type=button]):not([type=submit]):not([type=checkbox]):not([type=radio]), textarea, [contenteditable="true"], tbody tr, th, [ondblclick], .resizer, .col-resizer, canvas, img, video')) return;
-        showGlobalSmartExplanationAt(e);
     }, true);
     let hoverHideTimer = null;
 
