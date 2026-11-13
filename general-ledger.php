@@ -1870,7 +1870,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
 <script defer src="js/html2pdf.bundle.min.js"></script>
 <script defer src="js/whatsapp-integration.js?v=20261029_fast"></script>
 <script defer src="js/erp-whatsapp-suite.js?v=20261029_fast"></script>
-<script src="js/general-ledger.js?v=20261029_fast"></script>
+<script src="js/general-ledger.js?v=20261113_v50"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof window.renderLedgerPresets === 'function') {

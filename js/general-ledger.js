@@ -1278,7 +1278,7 @@ window.syncLiveMasterAndReceiptsForGL = syncLiveMasterAndReceiptsForGL;
 /* ─── Initialization ─── */
 let choicesInstances = [];
 function initGeneralLedgerApp() {
-    if (window.location.pathname.includes('preview-ledger.php') || !document.getElementById('ledger-tbody')) return;
+    if (window.location.pathname.includes('preview-ledger.php') || !document.getElementById('recent-table')) return;
     buildAccountsList();
     extractFilters(); // Build filters dynamically
     const now = new Date();
@@ -3252,7 +3252,7 @@ window.addEventListener('keydown', function(e) {
     }
 }, true);
 window.addEventListener('load', function() {
-    if (window.self !== window.top || window.location.pathname.includes('preview-ledger.php') || !document.getElementById('ledger-tbody')) return;
+    if (window.self !== window.top || window.location.pathname.includes('preview-ledger.php') || !document.getElementById('recent-table')) return;
     try {
         const savedPreset = sessionStorage.getItem('gl_open_preset_idx');
         if (savedPreset !== null && savedPreset !== '') {

@@ -266,15 +266,17 @@
             white-space: nowrap; word-break: keep-all; box-sizing: border-box;
         }
         table.excel-table thead th {
-            background: linear-gradient(180deg, #f2f7ff 0%, #e6f0ff 100%) !important;
+            background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%) !important;
             color: #000000 !important; -webkit-text-fill-color: #000000 !important;
             font-family: 'Tajawal', 'Cairo', sans-serif !important;
-            font-weight: 900 !important; font-size: 0.84rem !important;
-            letter-spacing: -0.35px !important; word-spacing: -1px !important;
-            line-height: 1.15 !important; text-align: center !important; vertical-align: middle !important;
-            padding: 4px 4px 8px 4px !important; border: 1.4px solid #334155 !important;
-            border-bottom: 3.2px solid #000000 !important; cursor: pointer; position: relative; user-select: none;
+            font-weight: 900 !important; font-size: 1.04rem !important;
+            letter-spacing: -0.2px !important; word-spacing: -0.5px !important;
+            line-height: 1.2 !important; text-align: center !important; vertical-align: middle !important;
+            padding: 7px 4px !important; border: 1.5px solid #1e293b !important;
+            border-bottom: 5.2px solid #000000 !important; cursor: pointer; position: relative; user-select: none;
         }
+        table.excel-table tbody tr:first-child td { border-top: 5.2px solid #000000 !important; }
+        table.excel-table tbody tr:last-child td { border-bottom: 5.2px solid #000000 !important; }
         table.excel-table th[data-col-idx="0"], table.excel-table td[data-col-idx="0"] {
             border-left: 2.8px solid #000000 !important;
         }
@@ -294,13 +296,18 @@
         body.dark-mode table.excel-table tbody tr:nth-child(odd) td { background-color: #0b1326 !important; color: #ffffff !important; border-color: #334155 !important; }
         body.dark-mode table.excel-table tbody tr:nth-child(even) td { background-color: #101c36 !important; color: #ffffff !important; border-color: #334155 !important; }
         table.excel-table td.num-cell { font-family: 'Cairo', 'Tajawal', sans-serif; font-size: 1.32rem; font-weight: 900 !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; direction: ltr; padding: 6px 4px; }
-        table.excel-table td[data-col-idx="0"], table.excel-table td[data-col-idx="13"] {
+        table.excel-table td[data-col-idx="0"] {
             background-color: #f1f5f9; color: #000000 !important; font-size: 1.16rem; font-weight: 900 !important; padding: 6px 4px;
+        }
+        table.excel-table tbody td[data-col-idx="13"] {
+            background-color: #ede9fe !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-size: 1.16rem; font-weight: 900 !important; padding: 6px 4px;
         }
         table.excel-table td[data-col-idx="2"], table.excel-table td[data-col-idx="12"] {
             background-color: #f1f5f9; color: #000000 !important;
-            white-space: normal; word-break: break-word; text-align: right;
-            font-size: 1.08rem; line-height: 1.32; font-weight: 900 !important; padding: 6px 5px;
+            white-space: normal; word-break: break-word;
+            font-family: 'Tajawal', sans-serif !important; font-size: 0.80rem !important;
+            letter-spacing: -0.45px !important; word-spacing: -1.4px !important;
+            line-height: 1.15 !important; font-weight: 700 !important; padding: 4px 4px;
         }
         /* زيادة درجة ألوان الخلفية درجتين مع إرجاع لون التاريخ والملحوظة ورقم التحويلة */
         table.excel-table tbody td[data-col-idx="5"], table.excel-table tbody td[data-col-idx="7"] {
@@ -316,9 +323,9 @@
             background-color: #fef7d6 !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 900 !important; font-size: 1.36rem;
         }
         table.excel-table tfoot td {
-            font-size: 1.34rem !important; font-weight: 900 !important; background: linear-gradient(180deg, #f2f7ff 0%, #e6f0ff 100%) !important;
+            font-size: 1.34rem !important; font-weight: 900 !important; background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%) !important;
             color: #000000 !important; -webkit-text-fill-color: #000000 !important;
-            border: 2px solid #000000 !important; border-top: 3.2px solid #000000 !important; padding: 7px 4px !important;
+            border: 2px solid #000000 !important; border-top: 5.2px solid #000000 !important; padding: 7px 4px !important;
         }
         table.excel-table tfoot td:first-child {
             font-size: 0.78rem !important; letter-spacing: -0.4px !important; font-weight: 900 !important; padding: 4px 3px !important;
@@ -602,7 +609,7 @@
             <span style="font-size: 1.05rem;">🔄</span> تحديث التقرير
         </button>
         <button class="ribbon-btn" onclick="try{sessionStorage.removeItem('gl_open_preset_idx');}catch(e){} if(window.parent && window.parent !== window && window.parent.document.getElementById('preset-preview-modal')){window.parent.document.getElementById('preset-preview-modal').style.display='none';}else{window.history.back();}" style="--btn-color: #ef4444;">
-            <span style="font-size: 1.05rem;">✖</span> إغلاق / عودة
+            <span style="font-size: 1.15rem; font-weight: 900; line-height: 1;">⬅</span> عودة
         </button>
     </div>
 </div>
@@ -694,8 +701,8 @@ try {
 </script>
 <script src="js/localforage.min.js"></script>
 <script src="js/app.js?v=20261113_v36"></script>
-<script src="js/general-ledger.js?v=20261113_v39"></script>
-<script src="js/preview-ledger.js?v=20261113_v39"></script>
+<script src="js/general-ledger.js?v=20261113_v55"></script>
+<script src="js/preview-ledger.js?v=20261113_v55"></script>
 <script defer src="js/erp-whatsapp-suite.js?v=20261113_v36"></script>
 
 <script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
