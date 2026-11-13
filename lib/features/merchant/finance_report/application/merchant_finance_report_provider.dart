@@ -17,9 +17,9 @@ enum FinanceDateFilter {
 }
 
 /// Filter providers
-final financeDateFilterProvider = StateProvider<FinanceDateFilter>((ref) => FinanceDateFilter.thisMonth);
-final financeCustomDateRangeProvider = StateProvider<DateTimeRange?>((ref) => null);
-final financeStaffFilterProvider = StateProvider<String?>((ref) => null); // null = all staff
+final financeDateFilterProvider = StateProvider.autoDispose<FinanceDateFilter>((ref) => FinanceDateFilter.thisMonth);
+final financeCustomDateRangeProvider = StateProvider.autoDispose<DateTimeRange?>((ref) => null);
+final financeStaffFilterProvider = StateProvider.autoDispose<String?>((ref) => null); // null = all staff
 
 /// Model representing a staff member choice in dropdowns
 class StaffFilterOption {
@@ -64,7 +64,7 @@ final storeStaffOptionsProvider = FutureProvider.autoDispose<List<StaffFilterOpt
         if (raw is Map<String, dynamic>) {
           final perms = raw['permissions'] is Map ? raw['permissions'] as Map : {};
           final staffStoreId = perms['store_id']?.toString() ?? raw['store_id']?.toString();
-          if (staffStoreId == storeId || perms['is_store_staff'] == true) {
+          if (staffStoreId == storeId) {
             final name = (raw['name_ar'] ?? raw['name'] ?? '').toString();
             final job = (perms['job_title'] ?? 'موظف').toString();
             options.add(StaffFilterOption(
@@ -271,7 +271,11 @@ final merchantFinancialReportProvider = Provider.autoDispose<AsyncValue<Merchant
 
   for (final o in finalOrders) {
     final total = (num.tryParse(o['total_amount']?.toString() ?? '0') ?? 0.0).toDouble();
-    final paid = (num.tryParse(o['paid_amount']?.toString() ?? '0') ?? 0.0).toDouble();
+    double paid = (num.tryParse(o['paid_amount']?.toString() ?? '0') ?? 0.0).toDouble();
+    if (o['payment_status'] == 'paid' && paid <= 0 && total > 0) {
+      paid = total;
+    }
+    final effectivePaid = paid.clamp(0.0, total);
     final transport = (num.tryParse(o['transport_fee']?.toString() ?? '0') ?? 0.0).toDouble();
     final offloading = (num.tryParse(o['offloading_fee']?.toString() ?? '0') ?? 0.0).toDouble();
     final goods = (total - transport - offloading).clamp(0.0, double.infinity);
@@ -281,7 +285,7 @@ final merchantFinancialReportProvider = Provider.autoDispose<AsyncValue<Merchant
     goodsTotal += goods;
     transportTotal += transport;
     offloadingTotal += offloading;
-    collectedPaid += paid;
+    collectedPaid += effectivePaid;
     platformCommissionTotal += comm;
   }
 

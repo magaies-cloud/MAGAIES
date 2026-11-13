@@ -11,6 +11,7 @@ import 'package:magaiees_marketplace/core/network/api_client.dart';
 import 'package:magaiees_marketplace/core/network/supabase_safe_query.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:magaiees_marketplace/core/providers/global_settings_provider.dart';
+import 'package:magaiees_marketplace/core/providers/ugc_moderation_provider.dart';
 import 'package:magaiees_marketplace/core/utils/unit_formatter.dart';
 
 part 'home_provider.g.dart';
@@ -193,17 +194,17 @@ class Products extends _$Products {
           img = json['image_url'].toString();
         }
 
-        final double? usd = (json['price_usd'] as num?)?.toDouble() ?? 
-                            (json['price_in_usd'] as num?)?.toDouble();
+        final double? usd = num.tryParse(json['price_usd']?.toString() ?? '')?.toDouble() ??
+                            num.tryParse(json['price_in_usd']?.toString() ?? '')?.toDouble();
 
         final bool isActive = (json['is_active'] ?? true) == true;
-        final num stockNum = (json['stock'] as num?) ?? 100;
+        final num stockNum = num.tryParse(json['stock']?.toString() ?? '') ?? 100;
         final bool inStock = isActive && (stockNum > 0);
 
-        final storeData = (json['stores'] is Map) ? json['stores'] as Map<String, dynamic> : null;
+        final storeData = (json['stores'] is Map) ? Map<String, dynamic>.from(json['stores'] as Map) : null;
         final String rawStoreName = storeData?['name']?.toString().trim() ?? '';
         final String rawStoreNameAr = storeData?['name_ar']?.toString().trim() ?? rawStoreName;
-        final double? storeUsdRate = (storeData?['usd_exchange_rate'] as num?)?.toDouble();
+        final double? storeUsdRate = num.tryParse(storeData?['usd_exchange_rate']?.toString() ?? '')?.toDouble();
 
         final String? pStoreId = json['store_id']?.toString();
         final bool hasStore = pStoreId != null && pStoreId.isNotEmpty && pStoreId != 'null';
@@ -235,8 +236,8 @@ class Products extends _$Products {
             ? storeUsdRate
             : platformRate;
 
-        double sdg = (json['price_sdg'] as num?)?.toDouble() ?? 
-                     (json['price'] as num?)?.toDouble() ?? 
+        double sdg = num.tryParse(json['price_sdg']?.toString() ?? '')?.toDouble() ??
+                     num.tryParse(json['price']?.toString() ?? '')?.toDouble() ??
                      0.0;
         // If local currency price is not provided or zero, but USD is available, convert it to local currency!
         if (sdg <= 0 && usd != null && usd > 0 && effectiveRate > 0) {
@@ -418,8 +419,14 @@ Future<List<ProductCardModel>> filteredProducts(FilteredProductsRef ref) async {
   final selectedCategory = ref.watch(selectedCategoryProvider);
   final searchQuery = ref.watch(searchQueryProvider).toLowerCase();
   final exclusivity = ref.watch(exclusivityFilterProvider);
+  final blocked = ref.watch(blockedEntitiesProvider);
 
   return products.where((product) {
+    final merchantKey = product.merchantId.trim().toLowerCase();
+    final storeKey = product.storeName.trim().toLowerCase();
+    if (blocked.contains(merchantKey) || (storeKey.isNotEmpty && blocked.contains(storeKey))) {
+      return false;
+    }
     final matchesCategory = selectedCategory == null || product.categoryId == selectedCategory;
     final matchesSearch = searchQuery.isEmpty || 
         product.name.toLowerCase().contains(searchQuery) ||

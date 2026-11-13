@@ -74,7 +74,7 @@ if ($isDesktopOrLaptop && $savedPref !== 'mobile') {
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="مقاييس ERP">
+    <meta name="apple-mobile-web-app-title" content="السيطرة ERP">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2026_m_v5">
     <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=2026_m_v5">
     <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=2026_m_v5">
@@ -85,7 +85,7 @@ if ($isDesktopOrLaptop && $savedPref !== 'mobile') {
     <link rel="shortcut icon" href="assets/favicon.ico?v=2026_m_v5">
     <meta name="theme-color" content="#0F172A">
 
-    <title>Magaiees ERP - مقاييس | جاري التحويل للواجهة المثالية...</title>
+    <title>Magaiees ERP - السيطرة | جاري التحويل للواجهة المثالية...</title>
     
     <script>
     (function() {

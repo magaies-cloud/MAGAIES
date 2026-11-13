@@ -121,7 +121,7 @@ class EmailService {
 
     private static function sendViaLocalTransport($email, $subject, $htmlContent) {
         $fromEmail = 'info@elsajana.com';
-        $fromName  = 'مقاييس MAGAIES';
+        $fromName  = 'السيطرة MAGAIES';
 
         // 1. Try local MTA on 127.0.0.1:25 (Postfix / Exim) if listening
         $fp = @fsockopen('127.0.0.1', 25, $errno, $errstr, 1.5);
@@ -246,7 +246,7 @@ class EmailService {
                 ]
             ];
 
-            $mail->setFrom($smtp['smtp_user'], 'مقاييس MAGAIES');
+            $mail->setFrom($smtp['smtp_user'], 'السيطرة MAGAIES');
             $mail->addAddress($email);
 
             $mail->isHTML(true);
@@ -264,36 +264,36 @@ class EmailService {
         $htmlContent = '
             <div style="font-family: Arial, sans-serif; direction: rtl; text-align: right; background-color: #f8fafc; padding: 20px;">
                 <div style="background-color: #ffffff; padding: 30px; border-radius: 10px; max-width: 500px; margin: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                    <h2 style="color: #0ea5e9;">أهلاً بك في مقاييس 👋</h2>
+                    <h2 style="color: #0ea5e9;">أهلاً بك في السيطرة 👋</h2>
                     <p style="color: #334155; font-size: 16px;">لقد تلقينا طلباً لإنشاء حساب جديد. يرجى استخدام رمز التحقق التالي لإكمال عملية التسجيل:</p>
                     <div style="background-color: #f1f5f9; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0;">
                         <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #0f172a;">' . $otp . '</span>
                     </div>
                     <p style="color: #64748b; font-size: 14px;">هذا الرمز صالح لمدة 10 دقائق فقط. إذا لم تطلب هذا الرمز، يرجى تجاهل هذه الرسالة.</p>
                     <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-                    <p style="color: #94a3b8; font-size: 12px; text-align: center;">جميع الحقوق محفوظة © مقاييس MAGAIES</p>
+                    <p style="color: #94a3b8; font-size: 12px; text-align: center;">جميع الحقوق محفوظة © السيطرة MAGAIES</p>
                 </div>
             </div>';
 
-        return self::sendEmail($email, 'رمز التحقق (OTP) الخاص بك - مقاييس', $htmlContent, $pdo);
+        return self::sendEmail($email, 'رمز التحقق (OTP) الخاص بك - السيطرة', $htmlContent, $pdo);
     }
 
     public static function sendPasswordResetOTP($email, $otp, $pdo = null) {
         $htmlContent = '
             <div style="font-family: Arial, sans-serif; direction: rtl; text-align: right; background-color: #f8fafc; padding: 20px;">
                 <div style="background-color: #ffffff; padding: 30px; border-radius: 10px; max-width: 500px; margin: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                    <h2 style="color: #0ea5e9;">استرداد كلمة المرور - مقاييس 🔑</h2>
+                    <h2 style="color: #0ea5e9;">استرداد كلمة المرور - السيطرة 🔑</h2>
                     <p style="color: #334155; font-size: 16px;">لقد تلقينا طلباً لإعادة تعيين كلمة المرور لحسابك. استخدم رمز التحقق التالي لإكمال العملية:</p>
                     <div style="background-color: #f1f5f9; padding: 15px; border-radius: 8px; text-align: center; margin: 20px 0;">
                         <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #0f172a;">' . $otp . '</span>
                     </div>
                     <p style="color: #64748b; font-size: 14px;">هذا الرمز صالح لمدة 10 دقائق فقط. إذا لم تطلب إعادة تعيين كلمة المرور، يرجى تجاهل هذا البريد وتأمين حسابك.</p>
                     <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;">
-                    <p style="color: #94a3b8; font-size: 12px; text-align: center;">جميع الحقوق محفوظة © مقاييس MAGAIES</p>
+                    <p style="color: #94a3b8; font-size: 12px; text-align: center;">جميع الحقوق محفوظة © السيطرة MAGAIES</p>
                 </div>
             </div>';
 
-        return self::sendEmail($email, 'رمز استرداد كلمة المرور - مقاييس', $htmlContent, $pdo);
+        return self::sendEmail($email, 'رمز استرداد كلمة المرور - السيطرة', $htmlContent, $pdo);
     }
 
     private static function sendEmail($email, $subject, $htmlContent, $pdo) {
@@ -336,7 +336,7 @@ class EmailService {
 
         if (!empty($brevo_api_key) && $brevo_api_key !== 'YOUR_BREVO_API_KEY') {
             $mailData = [
-                'sender' => ['name' => 'مقاييس', 'email' => 'magaiees00105@gmail.com'],
+                'sender' => ['name' => 'السيطرة', 'email' => 'magaiees00105@gmail.com'],
                 'to' => [['email' => $email]],
                 'subject' => $subject,
                 'htmlContent' => $htmlContent

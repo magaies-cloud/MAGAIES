@@ -111,7 +111,7 @@ function switchToMobileEdition() {
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="مقاييس ERP">
+    <meta name="apple-mobile-web-app-title" content="السيطرة ERP">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2026_m_v5">
     <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=2026_m_v5">
     <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=2026_m_v5">
@@ -1869,7 +1869,7 @@ function switchToMobileEdition() {
             <div id="print-modal" class="fixed inset-0 bg-black/75 z-50 hidden items-center justify-center p-4">
                 <div class="bg-white text-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl num-font">
                     <div class="text-center border-b-2 border-slate-200 pb-3 mb-4">
-                        <h2 class="text-xl font-black text-emerald-800">نظام مقاييس ERP - السجانة</h2>
+                        <h2 class="text-xl font-black text-emerald-800">نظام السيطرة ERP - السجانة</h2>
                         <p class="text-xs text-slate-500" id="prt-type">فاتورة مبيعات وأوزان معتمدة</p>
                     </div>
                     <div class="space-y-2 text-xs mb-4">
@@ -2466,34 +2466,34 @@ function switchToMobileEdition() {
                     const isMasked = privacy === 'masked' || window._brokerHideNames;
                     em.innerHTML = `<div style="width:100%;max-width:620px;background:linear-gradient(160deg,#0f172a,#020617);border:2.5px solid #10b981;border-radius:20px;padding:16px 18px;color:#fff;box-shadow:0 24px 60px rgba(0,0,0,0.92);display:flex;flex-direction:column;gap:10px;">
                         <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:8px;border-bottom:1.5px solid rgba(16,185,129,0.35);">
-                            <strong style="font-size:16px;color:#34d399!important;-webkit-text-fill-color:#34d399!important;">🛡️ وساطة وضمان منصة مقاييس المعتمد (صفقة #${dealCode})</strong>
+                            <strong style="font-size:16px;color:#34d399!important;-webkit-text-fill-color:#34d399!important;">🛡️ وساطة وضمان منصة السيطرة المعتمد (صفقة #${dealCode})</strong>
                             <button type="button" onclick="document.getElementById('broker-escrow-modal').style.display='none'" style="background:#e11d48;color:#fff;border:none;border-radius:8px;padding:4px 12px;font-weight:900;cursor:pointer;">✕ إغلاق</button>
                         </div>
                         <div style="padding:10px 12px;border-radius:12px;background:rgba(15,23,42,0.9);border:1.5px solid #38bdf8;font-size:13.5px;font-weight:900;">
-                            <div style="color:#fde047!important;-webkit-text-fill-color:#fde047!important;margin-bottom:4px;">${isMasked ? '🔒 الهوية محجوبة ومحمية بالكامل بواسطة مقاييس (كود #' + dealCode + ')' : '👤 الطرف العارض: ' + sender}</div>
+                            <div style="color:#fde047!important;-webkit-text-fill-color:#fde047!important;margin-bottom:4px;">${isMasked ? '🔒 الهوية محجوبة ومحمية بالكامل بواسطة السيطرة (كود #' + dealCode + ')' : '👤 الطرف العارض: ' + sender}</div>
                             <div style="color:#fff!important;-webkit-text-fill-color:#fff!important;">📦 التفاصيل: ${text}</div>
                         </div>
                         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:11.5px;font-weight:900;text-align:center;">
                             <div style="padding:8px;border-radius:10px;background:rgba(16,185,129,0.14);border:1px solid #10b981;color:#6ee7b7!important;-webkit-text-fill-color:#6ee7b7!important;">1️⃣ ربط سري وتثبيت الكمية والسعر فوراً</div>
-                            <div style="padding:8px;border-radius:10px;background:rgba(2,132,199,0.14);border:1px solid #38bdf8;color:#bae6fd!important;-webkit-text-fill-color:#bae6fd!important;">2️⃣ ضمان مالي عبر حساب مقاييس الضامن</div>
+                            <div style="padding:8px;border-radius:10px;background:rgba(2,132,199,0.14);border:1px solid #38bdf8;color:#bae6fd!important;-webkit-text-fill-color:#bae6fd!important;">2️⃣ ضمان مالي عبر حساب السيطرة الضامن</div>
                             <div style="padding:8px;border-radius:10px;background:rgba(245,158,11,0.14);border:1px solid #f59e0b;color:#fde68a!important;-webkit-text-fill-color:#fde68a!important;">3️⃣ فحص واستلام البضاعة وتحرير السداد</div>
                         </div>
                         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
-                            <input id="escrow-buyer-name" type="text" placeholder="اسمك / شركتك (محفوظ سرياً لدى مقاييس)" style="height:36px;border-radius:9px;background:#1e293b;color:#fff;border:1px solid #475569;padding:0 10px;font-size:12.5px;font-weight:800;">
+                            <input id="escrow-buyer-name" type="text" placeholder="اسمك / شركتك (محفوظ سرياً لدى السيطرة)" style="height:36px;border-radius:9px;background:#1e293b;color:#fff;border:1px solid #475569;padding:0 10px;font-size:12.5px;font-weight:800;">
                             <input id="escrow-buyer-phone" type="text" placeholder="رقم واتسابك للتأكيد السري" value="249123005622" style="height:36px;border-radius:9px;background:#1e293b;color:#fff;border:1px solid #475569;padding:0 10px;font-size:12.5px;font-weight:800;direction:ltr;">
                         </div>
-                        <input id="escrow-buyer-note" type="text" placeholder="الكمية المطلوبة أو ملاحظة التسليم (مثلاً: أرغب بشراء الكمية كاملة تسليم فوري بضمان مقاييس)..." style="height:36px;border-radius:9px;background:#1e293b;color:#fff;border:1.5px solid #38bdf8;padding:0 10px;font-size:12.5px;font-weight:800;">
+                        <input id="escrow-buyer-note" type="text" placeholder="الكمية المطلوبة أو ملاحظة التسليم (مثلاً: أرغب بشراء الكمية كاملة تسليم فوري بضمان السيطرة)..." style="height:36px;border-radius:9px;background:#1e293b;color:#fff;border:1.5px solid #38bdf8;padding:0 10px;font-size:12.5px;font-weight:800;">
                         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                            <button type="button" onclick="executeProtectedBrokerDeal('${dealCode}', '${text.replace(/'/g, '')}')" style="flex:2;height:40px;border-radius:10px;background:linear-gradient(135deg,#059669,#0284c7);color:#fff!important;-webkit-text-fill-color:#fff!important;border:1.5px solid #fde047;font-size:13.5px;font-weight:900;cursor:pointer;">🛡️ اعتماد وربط الصفقة سرياً بضمان منصة مقاييس</button>
+                            <button type="button" onclick="executeProtectedBrokerDeal('${dealCode}', '${text.replace(/'/g, '')}')" style="flex:2;height:40px;border-radius:10px;background:linear-gradient(135deg,#059669,#0284c7);color:#fff!important;-webkit-text-fill-color:#fff!important;border:1.5px solid #fde047;font-size:13.5px;font-weight:900;cursor:pointer;">🛡️ اعتماد وربط الصفقة سرياً بضمان منصة السيطرة</button>
                             ${!isMasked ? `<button type="button" onclick="document.getElementById('broker-escrow-modal').style.display='none';openAiPartnerWhatsAppModal('${sender}', '${text.replace(/'/g, '')}');" style="flex:1;height:40px;border-radius:10px;background:#1e293b;color:#fde047!important;-webkit-text-fill-color:#fde047!important;border:1px solid #f59e0b;font-size:12.5px;font-weight:900;cursor:pointer;">📞 تواصل مباشر</button>` : ''}
                         </div>
                     </div>`;
                     em.style.display = 'flex';
                 }
                 async function executeProtectedBrokerDeal(dealCode, dealText) {
-                    const bName = (document.getElementById('escrow-buyer-name')?.value || 'تاجر معتمد عبر مقاييس').trim();
+                    const bName = (document.getElementById('escrow-buyer-name')?.value || 'تاجر معتمد عبر السيطرة').trim();
                     const bPhone = (document.getElementById('escrow-buyer-phone')?.value || '249123005622').trim();
-                    const bNote = (document.getElementById('escrow-buyer-note')?.value || 'موافق على الشراء/التنفيذ الفوري بضمان منصة مقاييس').trim();
+                    const bNote = (document.getElementById('escrow-buyer-note')?.value || 'موافق على الشراء/التنفيذ الفوري بضمان منصة السيطرة').trim();
                     document.getElementById('broker-escrow-modal').style.display = 'none';
                     try {
                         await fetch('api/market_broker_ticker.php?action=add', {
@@ -2502,7 +2502,7 @@ function switchToMobileEdition() {
                             body: JSON.stringify({ text: 'تواصل ' + dealCode, sender_name: bName, phone: bPhone, note: bNote })
                         });
                     } catch (e) {}
-                    openAiPartnerWhatsAppModal(`غرفة ضمان مقاييس #${dealCode}`, `🛡️ عقد ضمان وساطة مقاييس للصفقة السرية #${dealCode}\n• الصنف: ${dealText}\n• طالب التنفيذ: ${bName} (${bPhone})\n• التوجيه: ${bNote}\n• الضامن: منصة مقاييس (ربط سري كامل وحماية للطرفين)`);
+                    openAiPartnerWhatsAppModal(`غرفة ضمان السيطرة #${dealCode}`, `🛡️ عقد ضمان وساطة السيطرة للصفقة السرية #${dealCode}\n• الصنف: ${dealText}\n• طالب التنفيذ: ${bName} (${bPhone})\n• التوجيه: ${bNote}\n• الضامن: منصة السيطرة (ربط سري كامل وحماية للطرفين)`);
                 }
                 function toggleSingleBrokerRow(rowId, btn) {
                     const r = document.getElementById(rowId);
@@ -5536,7 +5536,7 @@ function switchToMobileEdition() {
             },
             {
                 id: 'cat_balances',
-                title: 'المقاييس والأرصدة والتقارير',
+                title: 'اللسيطرة والأرصدة والتقارير',
                 icon: 'fa-scale-balanced',
                 color: '#f472b6',
                 bg: 'rgba(244, 114, 182, 0.2)',

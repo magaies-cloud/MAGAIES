@@ -4953,7 +4953,7 @@
                         <div style="display:flex; flex-direction:column; gap:8px;">
                             <div style="display:flex; align-items:center; gap:8px; color:#fca5a5; font-weight:800; font-size:1.05rem;">
                                 <span>⚠️</span>
-                                <span>تنبيه نظام مقاييس المحاسبي:</span>
+                                <span>تنبيه نظام السيطرة المحاسبي:</span>
                             </div>
                             <p style="margin:0; color:#e2e8f0; font-size:0.95rem; line-height:1.6; font-weight:600;">
                                 تم استخدام ${cfg.label} (<span style="color:#38bdf8; font-weight:800;">${displayName}</span>) في عدد <span style="color:#f87171; font-weight:900; font-size:1.15rem; background:rgba(239,68,68,0.2); padding:1px 8px; border-radius:6px;">${allUsages.length}</span> سند / حركة / سجل مسجل.
@@ -6687,7 +6687,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const onclick = el.getAttribute('onclick') || '';
 
         const fieldMap = {
-            'warehouse-name': { title: 'خانة اسم المخزن أو المعرض', desc: 'تكتب هنا الاسم الرسمي للمستودع أو المعرض (مثل: مخزن مقاييس الرئيسي). بمجرد حفظه يظهر فوراً في فواتير المشتريات والمبيعات وبوابة الاستلام والتسليم وتقارير الجرد.' },
+            'warehouse-name': { title: 'خانة اسم المخزن أو المعرض', desc: 'تكتب هنا الاسم الرسمي للمستودع أو المعرض (مثل: مخزن السيطرة الرئيسي). بمجرد حفظه يظهر فوراً في فواتير المشتريات والمبيعات وبوابة الاستلام والتسليم وتقارير الجرد.' },
             'warehouse-type': { title: 'قائمة نوع المخزن', desc: 'تحدد تصنيف المستودع: مستودع رئيسي، معرض نقطة بيع، مخزن فرعي، أو مخزن بضاعة تالفة.' },
             'warehouse-location': { title: 'خانة الموقع الجغرافي للمخزن', desc: 'تحدد عنوان أو منطقة المستودع لتسهيل توجيه السائقين وأوامر التحويل المخزني بين الفروع.' },
             'warehouse-keeper': { title: 'خانة أمين المخزن المسؤول', desc: 'تختار الموظف المسؤول عهدةً عن استلام وصرف البضاعة في هذا المخزن ليظهر اسمه في أذونات الصرف والاستلام.' },

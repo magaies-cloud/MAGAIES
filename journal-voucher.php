@@ -19,7 +19,7 @@ $page_title = 'منظومة سند قيد اليومية العام والتسو
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منظومة سند قيد اليومية العام والتسويات الذكية 360° | مقاييس</title>
+    <title>منظومة سند قيد اليومية العام والتسويات الذكية 360° | السيطرة</title>
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -449,7 +449,7 @@ $page_title = 'منظومة سند قيد اليومية العام والتسو
                     </div>
                     <div style="display:flex; justify-content:space-between; border-top:1px dashed #64748b; padding-top:8px;">
                         <span>👤 معد القيد: <strong id="jv-print-creator">—</strong> | طُبع بواسطة: <strong id="jv-print-printer">—</strong> | التوقيت: <span id="jv-print-time">—</span></span>
-                        <span style="font-weight: 800; color: #7c3aed;">نظام مقاييس المحاسبي الموحد ⚡</span>
+                        <span style="font-weight: 800; color: #7c3aed;">نظام السيطرة المحاسبي الموحد ⚡</span>
                     </div>
                 </div>
             </div>

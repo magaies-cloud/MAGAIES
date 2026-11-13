@@ -8635,7 +8635,7 @@ window.printVoucher = function() {
     let cfg = {};
     try { cfg = JSON.parse(localStorage.getItem('tenant_' + tenantId + '_erp_settings_v1') || localStorage.getItem('erp_settings_v1') || '{}'); } catch(e) {}
     const companyLogo = cfg.logoBase64 || '';
-    const companyName = cfg.companyName || 'مقاييس (MAGAIEES)';
+    const companyName = cfg.companyName || 'السيطرة (MAGAIEES)';
     const printDateTime = new Date().toLocaleDateString('en-GB') + ' ' + new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute: '2-digit'});
 
     // Extract detailed items from DOM blocks
@@ -10256,7 +10256,7 @@ window.launchOneClickIndexedWhatsApp = function(specificBlockId) {
             : '';
 
         const indexedMessage =
-            `🏛️ *مقاييس ERP — ${docTitle}*\n` +
+            `🏛️ *السيطرة ERP — ${docTitle}*\n` +
             `━━━━━━━━━━━━━━━━━━━━\n` +
             `📌 *رقم السند:* #${vNum}\n` +
             `📅 *التاريخ:* ${vDate}\n` +
@@ -10266,7 +10266,7 @@ window.launchOneClickIndexedWhatsApp = function(specificBlockId) {
             `💰 *الإجمالي الكلي:* *${formattedTotal} ${curName}*\n` +
             (tafqeetText ? `✍️ *التفقيط:* فقط ${tafqeetText} لا غير\n` : '') +
             `━━━━━━━━━━━━━━━━━━━━\n` +
-            `✅ *تم التوثيق الآلي عبر منظومة مقاييس المالية*`;
+            `✅ *تم التوثيق الآلي عبر منظومة السيطرة المالية*`;
 
         if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
             navigator.clipboard.writeText(indexedMessage).catch(() => {});

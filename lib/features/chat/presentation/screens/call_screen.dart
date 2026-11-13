@@ -49,6 +49,7 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
   final List<Map<String, dynamic>> _signalQueue = [];
 
   bool _isMicOn = true;
+  bool _isSpeakerOn = false;
   bool _isVideoOn = true;
   bool _isConnected = false;
   bool _isCalling = true; // جاري الاتصال (الرنين)
@@ -765,6 +766,18 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
     }
   }
 
+  Future<void> _toggleSpeaker() async {
+    final nextState = !_isSpeakerOn;
+    setState(() => _isSpeakerOn = nextState);
+    if (!kIsWeb) {
+      try {
+        await Helper.setSpeakerphoneOn(nextState);
+      } catch (e) {
+        debugPrint('Error toggling speakerphone: $e');
+      }
+    }
+  }
+
   void _toggleVideo() {
     if (_localStream != null && _enableVideo) {
       final videoTracks = _localStream!.getVideoTracks();
@@ -958,12 +971,12 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
                           ),
                           const SizedBox(width: 40),
                           
-                          // مكبر الصوت (placeholder)
+                          // مكبر الصوت
                           _buildControlButton(
-                            icon: Icons.volume_up,
+                            icon: _isSpeakerOn ? Icons.volume_up_rounded : Icons.volume_down_rounded,
                             label: isRtl ? 'مكبر' : 'Speaker',
-                            isActive: false,
-                            onPressed: () {},
+                            isActive: _isSpeakerOn,
+                            onPressed: _toggleSpeaker,
                           ),
 
                           if (_enableVideo) ...[
@@ -1059,7 +1072,7 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
 class IncomingCallScreen extends StatefulWidget {
   final String roomId;
   final String callerName;
-  final dynamic currentUser;
+  final UserModel currentUser;
 
   const IncomingCallScreen({
     super.key,

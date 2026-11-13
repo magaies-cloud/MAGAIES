@@ -1895,7 +1895,7 @@ window.sendPaFormattedWhatsApp = function(index) {
     const ref = item.id || item.invoiceNo || item.voucherNo || '-';
     const party = item.customerName || item.supplierName || item.customer || item.supplier || item.description || 'العميل/المورد';
     const statusTxt = item.isPosted ? '✅ معتمدة ومرحّلة' : '⏳ قيد المراجعة والترحيل';
-    const msg = `📋 *إشعار رقابة ومراجعة حسابات — مقاييس*\n• *المرجع:* #${ref} (${item._typeLabel || '-'})\n• *الطرف:* ${party}\n• *الإجمالي:* ${fmtCurrency(totalNum)} ج.س\n• *المستلم منكم:* ${fmtCurrency(paidNum)} ج.س\n• *المتبقي كدين:* ${fmtCurrency(debtRem)} ج.س\n• *الحالة:* ${statusTxt}\n• *التاريخ:* ${item._dateStr || '-'}`;
+    const msg = `📋 *إشعار رقابة ومراجعة حسابات — السيطرة*\n• *المرجع:* #${ref} (${item._typeLabel || '-'})\n• *الطرف:* ${party}\n• *الإجمالي:* ${fmtCurrency(totalNum)} ج.س\n• *المستلم منكم:* ${fmtCurrency(paidNum)} ج.س\n• *المتبقي كدين:* ${fmtCurrency(debtRem)} ج.س\n• *الحالة:* ${statusTxt}\n• *التاريخ:* ${item._dateStr || '-'}`;
     window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
     showToast('📲 تم إرسال إشعار الواتساب الرقابي (الإجمالي / المستلم / المتبقي كدين)!', 'success');
 };

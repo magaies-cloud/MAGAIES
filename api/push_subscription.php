@@ -98,7 +98,7 @@ if ($action === 'save_subscription' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 // 3. SEND TEST OR REAL-TIME PUSH NOTIFICATION
 // ────────────────────────────────────────────────────────────────────
 if ($action === 'test_push' || $action === 'broadcast_risk_alert') {
-    $title = $input['title'] ?? '🔔 إشعار فوري: منظومة مقاييس ERP';
+    $title = $input['title'] ?? '🔔 إشعار فوري: منظومة السيطرة ERP';
     $body = $input['body'] ?? 'تم إرسال هذا الإشعار لاختبار وصول التنبيهات وشاشة الهاتف مقفلة بنجاح ⚡';
     $targetUrl = $input['url'] ?? './mobile-dashboard.php?tab=approvals';
 

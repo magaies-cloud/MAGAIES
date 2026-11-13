@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>مقاييس ERP - العمليات الميدانية ودرع الخصوصية</title>
+  <title>السيطرة ERP - العمليات الميدانية ودرع الخصوصية</title>
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -71,7 +71,7 @@
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="font-extrabold text-base lg:text-lg tracking-tight">مقاييس ERP & POS</h1>
+            <h1 class="font-extrabold text-base lg:text-lg tracking-tight">السيطرة ERP & POS</h1>
             <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">العمليات الميدانية</span>
           </div>
           <p class="text-xs text-slate-400">فرع الرياض الرئيسي | وردية الكاشير: سالم الدوسري</p>
@@ -665,7 +665,7 @@
       if (variance < 0) statusLine = `🔴 عجز بالصندوق (${variance.toLocaleString()} SAR)`;
 
       const text = 
-`📋 *تقرير الإغلاق المالي اليومي - مقاييس ERP*
+`📋 *تقرير الإغلاق المالي اليومي - السيطرة ERP*
 🏛️ *الفرع:* ${shiftData.branchName}
 👤 *الكاشير:* ${shiftData.cashierName}
 📅 *التاريخ:* ${dateStr} (${timeStr})
@@ -685,7 +685,7 @@
 • حالة المطابقة: *${statusLine}*
 ${notes ? `📝 *ملاحظة:* ${notes}\n` : ''}
 ━━━━━━━━━━━━━━━━━━━━━
-✅ تم ترحيل اليومية واعتماد الأرصدة بنظام مقاييس ERP.
+✅ تم ترحيل اليومية واعتماد الأرصدة بنظام السيطرة ERP.
 🌐 الرابط المباشر: https://magaiees.sa/audit/shift`;
 
       document.getElementById('whatsAppPreviewBox').innerText = text;
@@ -708,7 +708,7 @@ ${notes ? `📝 *ملاحظة:* ${notes}\n` : ''}
     }
 
     function executeShiftClosingFinal() {
-      alert('🔒 [مقاييس ERP]: تم إغلاق الوردية وترحيل الأرصدة آلياً للنظام المحاسبي الرئيسي بنجاح!');
+      alert('🔒 [السيطرة ERP]: تم إغلاق الوردية وترحيل الأرصدة آلياً للنظام المحاسبي الرئيسي بنجاح!');
     }
 
     // -------------------------------------------------------------------------
@@ -815,7 +815,7 @@ ${notes ? `📝 *ملاحظة:* ${notes}\n` : ''}
         return;
       }
 
-      alert(`🔍 [بحث مقاييس]: تم البحث عن "${transcript}"`);
+      alert(`🔍 [بحث السيطرة]: تم البحث عن "${transcript}"`);
     }
 
     function simulateSpokenVoice(phrase) {

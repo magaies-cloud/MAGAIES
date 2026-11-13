@@ -1,6 +1,6 @@
 <?php if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() === 0) { @ob_start('ob_gzhandler'); } ?>
 <?php
-$page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
+$page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -14,7 +14,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#050505">
-    <title>SaaS Super Admin - مقاييس (MAGAIEES)</title>
+    <title>SaaS Super Admin - السيطرة (MAGAIEES)</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -5452,7 +5452,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 const sendAdWa = document.getElementById('ad-send-whatsapp') ? document.getElementById('ad-send-whatsapp').checked : false;
                 if (sendAdWa && Array.isArray(allTenants) && allTenants.length > 0) {
                     let adSent = 0;
-                    const adWaText = `📢 *إعلان جديد عبر منظومة مقاييس*\n🏢 *الجهة المعلنة:* ${companyName}` + (link ? `\n🔗 *الرابط:* ${link}` : '');
+                    const adWaText = `📢 *إعلان جديد عبر منظومة السيطرة*\n🏢 *الجهة المعلنة:* ${companyName}` + (link ? `\n🔗 *الرابط:* ${link}` : '');
                     for (const t of allTenants) {
                         if (!t.owner_phone) continue;
                         try {

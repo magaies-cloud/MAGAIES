@@ -418,7 +418,7 @@ window.printCheckBordereau = function(customList) {
     </style></head><body>
     <div class="hdr">
         <div>
-            <h2 style="margin:0;">🏛️ نظام السجانة ومقاييس ERP — ${title}</h2>
+            <h2 style="margin:0;">🏛️ نظام السجانة والسيطرة ERP — ${title}</h2>
             <p style="margin:5px 0 0;color:#475569;">تاريخ الإصدار: ${new Date().toLocaleString('ar-EG')} | عدد الشيكات: ${list.length}</p>
         </div>
         <img src="${qrUrl}" alt="QR" width="95" height="95" />

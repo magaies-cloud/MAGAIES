@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>أداة استعادة بيانات مقاييس</title>
+    <title>أداة استعادة بيانات السيطرة</title>
     <script src="js/localforage.min.js"></script>
     <style>
         body { font-family: Tahoma, sans-serif; margin: 20px; background: #f8fafc; color: #0f172a; }

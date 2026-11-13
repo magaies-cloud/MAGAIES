@@ -12,9 +12,10 @@ import 'package:magaiees_marketplace/core/providers/global_settings_provider.dar
 import 'package:magaiees_marketplace/core/services/translation_service.dart';
 import 'package:magaiees_marketplace/core/utils/data_validator.dart';
 import 'package:magaiees_marketplace/core/utils/image_picker_helper.dart';
-import 'package:magaiees_marketplace/core/widgets/product_image_preview_box.dart';
 import 'package:magaiees_marketplace/features/auth/application/auth_provider.dart';
+import 'package:magaiees_marketplace/features/auth/domain/models/user_model.dart';
 import 'package:magaiees_marketplace/features/buyer/home/application/home_provider.dart';
+import 'package:magaiees_marketplace/features/buyer/home/domain/models/category_model.dart';
 import 'package:magaiees_marketplace/features/buyer/home/domain/models/sub_category_model.dart';
 import 'package:magaiees_marketplace/features/merchant/inventory/presentation/screens/merchant_inventory_screen.dart';
 
@@ -59,7 +60,6 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
   String? _imageExt;
   final _previewCropBoundaryKey = GlobalKey();
   final _previewTransformController = TransformationController();
-  final _imageBoxController = ProductImagePreviewBoxController();
 
   Future<Uint8List?> _captureCurrentFramedImage() async {
     if (_imageBytes == null) return null;
@@ -332,6 +332,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     _customUnitController.dispose();
     _stockController.dispose();
     _descriptionController.dispose();
+    _previewTransformController.dispose();
     super.dispose();
   }
 
@@ -402,7 +403,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
         String ext = _imageExt ?? 'png';
 
         try {
-          final framed = await _imageBoxController.captureFramedImage();
+          final framed = await _captureCurrentFramedImage();
           if (framed != null && framed.isNotEmpty) {
             uploadBytes = framed;
             ext = 'png';
@@ -427,41 +428,45 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       final user = ref.read(authNotifierProvider).valueOrNull;
       String? storeId;
       if (user != null) {
-        final storeRes = await Supabase.instance.client
-            .from('stores')
-            .select('id')
-            .eq('owner_id', user.id)
-            .limit(1)
-            .maybeSingle();
-        storeId = storeRes?['id'];
+        if (user.isStoreStaff && user.storeId != null && user.storeId!.isNotEmpty) {
+          storeId = user.storeId;
+        } else {
+          final storeRes = await Supabase.instance.client
+              .from('stores')
+              .select('id')
+              .eq('owner_id', user.id)
+              .limit(1)
+              .maybeSingle();
+          storeId = storeRes?['id']?.toString();
+        }
 
-        if (storeId == null) {
+        if (storeId == null && !user.isStoreStaff) {
           try {
             final newStore = await Supabase.instance.client
                 .from('stores')
                 .insert({'owner_id': user.id, 'name': user.name})
                 .select('id')
                 .single();
-            storeId = newStore['id'];
+            storeId = newStore['id']?.toString();
           } catch (_) {}
+        }
 
-          if (storeId == null) {
-            if (mounted) {
-              final isRtlMsg = Directionality.of(context) == TextDirection.rtl;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(isRtlMsg
-                      ? 'لا يوجد متجر مرتبط بحسابك. يرجى التواصل مع الإدارة لإنشاء متجرك أولاً.'
-                      : 'No store linked to your account. Please contact admin to set up your store first.'),
-                  backgroundColor: const Color(0xFFDC2626),
-                  behavior: SnackBarBehavior.floating,
-                  duration: const Duration(seconds: 4),
-                ),
-              );
-            }
-            setState(() => _isLoading = false);
-            return;
+        if (storeId == null) {
+          if (mounted) {
+            final isRtlMsg = Directionality.of(context) == TextDirection.rtl;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(isRtlMsg
+                    ? 'لا يوجد متجر مرتبط بحسابك. يرجى التواصل مع الإدارة لإنشاء متجرك أولاً.'
+                    : 'No store linked to your account. Please contact admin to set up your store first.'),
+                backgroundColor: const Color(0xFFDC2626),
+                behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 4),
+              ),
+            );
           }
+          setState(() => _isLoading = false);
+          return;
         }
       }
 
@@ -479,6 +484,18 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
           ? (int.tryParse(_stockController.text.trim()) ?? 100)
           : 0;
 
+      final List<String> descParts = [];
+      if (_descriptionController.text.trim().isNotEmpty) {
+        descParts.add(_descriptionController.text.trim());
+      }
+      if (_hasExpiryDate && _expiryDate != null) {
+        descParts.add('تاريخ الصلاحية/الضمان: ${DateFormat("yyyy-MM-dd").format(_expiryDate!)}');
+      }
+      if (_selectedPaymentMethods.isNotEmpty) {
+        descParts.add('طرق الدفع المعتمدة: ${_selectedPaymentMethods.join(", ")}');
+      }
+      final String fullDescription = descParts.join('\n');
+
       final insertData = <String, dynamic>{
         'store_id': storeId,
         'category_id': _selectedCategory ?? defaultCategoryId,
@@ -491,13 +508,24 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
         'images': finalImageUrl != null ? [finalImageUrl] : [],
         'is_magaiees_exclusive': false,
         'is_active': _inStock,
+        if (fullDescription.isNotEmpty) 'description': fullDescription,
       };
 
       if (_selectedSubCategory != null && _selectedSubCategory!.isNotEmpty) {
         insertData['subcategory_id'] = _selectedSubCategory;
       }
 
-      await Supabase.instance.client.from('products').insert(insertData);
+      try {
+        await Supabase.instance.client.from('products').insert(insertData);
+      } on PostgrestException catch (pgErr) {
+        if (insertData.containsKey('description') &&
+            pgErr.message.toLowerCase().contains('description')) {
+          final retryData = Map<String, dynamic>.from(insertData)..remove('description');
+          await Supabase.instance.client.from('products').insert(retryData);
+        } else {
+          rethrow;
+        }
+      }
 
       ref.invalidate(productsProvider);
       ref.invalidate(categoriesProvider);
@@ -824,8 +852,8 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     final sdgPrice = double.tryParse(_priceController.text) ?? 0.0;
     final usdPrice = double.tryParse(_priceUsdController.text) ?? 0.0;
 
-    final selectedCat = categories.cast<dynamic>().firstWhere(
-          (c) => c.id == _selectedCategory,
+    final selectedCat = categories.cast<CategoryModel?>().firstWhere(
+          (c) => c?.id == _selectedCategory,
           orElse: () => null,
         );
     final categoryName = selectedCat != null
@@ -1586,12 +1614,20 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       return isCatAllowed || hasAllowedSub;
     }).toList();
 
+    final effectiveSelectedCategory = categories.any((c) => c.id == _selectedCategory)
+        ? _selectedCategory
+        : (categories.length == 1 ? categories.first.id : null);
+
     if (_selectedCategory == null && categories.length == 1) {
-      _selectedCategory = categories.first.id;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _selectedCategory == null) {
+          setState(() => _selectedCategory = categories.first.id);
+        }
+      });
     }
 
-    final currentCat = categories.cast<dynamic>().firstWhere(
-          (c) => c.id == _selectedCategory,
+    final currentCat = categories.cast<CategoryModel?>().firstWhere(
+          (c) => c?.id == effectiveSelectedCategory,
           orElse: () => null,
         );
     final List<SubCategoryModel> allSubCategories =
@@ -1601,6 +1637,9 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       if (_allowedCategoryIds!.contains(currentCat?.id.toString())) return true;
       return _allowedCategoryIds!.contains(s.id.toString());
     }).toList();
+    final effectiveSelectedSubCategory = subCategories.any((s) => s.id == _selectedSubCategory)
+        ? _selectedSubCategory
+        : null;
 
     final globalSettings = ref.watch(globalSettingsProvider);
     final storeInfo = ref.watch(merchantStoreInfoProvider).valueOrNull;
@@ -1631,13 +1670,16 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     }
     _prevExchangeRate = _exchangeRate;
 
+    final seenUnitIds = <String>{};
     final List<Map<String, String>> unitOptions = [
-      ...globalSettings.measurementUnits.map((u) => {
+      for (final u in globalSettings.measurementUnits)
+        if (u.id.isNotEmpty && u.id != 'custom' && seenUnitIds.add(u.id))
+          {
             'id': u.id,
             'nameEn': u.nameEn,
             'nameAr': u.nameAr,
             'symbol': u.symbol,
-          }),
+          },
       {
         'id': 'custom',
         'nameEn': '+ Other (Enter custom unit)',
@@ -1760,7 +1802,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
               fillColor: const Color(0xFFF8FAFC),
               prefixIcon: const Icon(Icons.category, color: Color(0xFF2563EB)),
             ),
-            value: _selectedCategory,
+            value: effectiveSelectedCategory,
             items: categories.map((cat) {
               return DropdownMenuItem<String>(
                 value: cat.id,
@@ -1807,14 +1849,14 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                       : 'Select main category first to load brands')
                   : null,
             ),
-            value: _selectedSubCategory,
+            value: effectiveSelectedSubCategory,
             items: subCategories.map((sub) {
               return DropdownMenuItem<String>(
                 value: sub.id,
                 child: Text(isRtl ? sub.nameAr : sub.name),
               );
             }).toList(),
-            onChanged: _selectedCategory == null
+            onChanged: effectiveSelectedCategory == null
                 ? null
                 : (val) {
                     setState(() {
@@ -2413,38 +2455,37 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
             ),
             const SizedBox(height: 10),
             // Quick quantity helper pills
-            Row(
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 Text(
                   isRtl ? 'إضافة سريعة: ' : 'Quick fill: ',
                   style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                 ),
-                const SizedBox(width: 6),
                 ...[50, 100, 250, 500, 1000].map((qty) {
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 6),
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          _stockController.text = qty.toString();
-                        });
-                      },
-                      borderRadius: BorderRadius.circular(6),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: const Color(0xFFCBD5E1)),
-                        ),
-                        child: Text(
-                          '$qty',
-                          style: const TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFF334155),
-                          ),
+                  return InkWell(
+                    onTap: () {
+                      setState(() {
+                        _stockController.text = qty.toString();
+                      });
+                    },
+                    borderRadius: BorderRadius.circular(6),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: const Color(0xFFCBD5E1)),
+                      ),
+                      child: Text(
+                        '$qty',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF334155),
                         ),
                       ),
                     ),

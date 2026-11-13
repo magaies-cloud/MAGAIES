@@ -87,7 +87,7 @@ class _MerchantCouponsScreenState extends ConsumerState<MerchantCouponsScreen> {
                 itemBuilder: (context, index) {
                   final coupon = coupons[index];
                   final bool isActive = coupon['is_active'] ?? false;
-                  final DateTime expiry = DateTime.parse(coupon['expiry_date']);
+                  final DateTime expiry = DateTime.tryParse(coupon['expiry_date']?.toString() ?? '') ?? DateTime.now();
                   final bool isExpired = expiry.isBefore(DateTime.now());
 
                   return Card(
@@ -146,7 +146,7 @@ class _MerchantCouponsScreenState extends ConsumerState<MerchantCouponsScreen> {
                                   } catch (e) {
                                     if (mounted) {
                                       ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text('حدث خطأ: \$e')),
+                                        SnackBar(content: Text('حدث خطأ: $e')),
                                       );
                                     }
                                   }
@@ -441,7 +441,7 @@ class _AddCouponDialogState extends ConsumerState<AddCouponDialog> {
                       } catch (e) {
                         if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('حدث خطأ: \$e')),
+                            SnackBar(content: Text('حدث خطأ: $e')),
                           );
                         }
                       } finally {

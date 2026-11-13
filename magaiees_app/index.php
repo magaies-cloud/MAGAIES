@@ -1,11 +1,25 @@
+<?php
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
+header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
+?>
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
-  <script>
-    var path = window.location.pathname;
-    var base = path.substring(0, path.lastIndexOf('/') + 1);
-    document.write('<base href="' + base + '">');
-  </script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      for(let registration of registrations) {
+        registration.unregister();
+        console.log('ServiceWorker unregistered to bypass cache');
+      }
+    });
+  }
+  // Optional: add a version parameter to main.dart.js to force redownload
+  var dartVersion = '?v=' + new Date().getTime();
+</script>
+  <base href="<?php echo rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/magaiees_app/index.php')), '/') . '/'; ?>">
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="منصة مقاييس - سوق مواد البناء والمعدات">
@@ -16,17 +30,19 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
 
+
+
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="منصة مقاييس">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png?v=2026_m_logo_v4">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png?v=2026_bag_v2">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="icons/Icon-192.png?v=2026_m_logo_v4"/>
+  <link rel="icon" type="image/png" href="logo.png?v=2026_bag_v2"/>
 
   <title>منصة مقاييس | Magaiees Marketplace</title>
-  <link rel="manifest" href="manifest.json?v=2026_m_logo_v4">
+  <link rel="manifest" href="manifest.json?v=2026_bag_v2">
 
   <style>
     * {
@@ -168,7 +184,7 @@
 </head>
 <body>
   <div id="loading-container">
-    <img src="logo.png" alt="Magaiees Logo" class="splash-logo">
+    <img src="logo.png?v=2026_bag_v2" alt="Magaiees Logo" class="splash-logo">
     <div class="app-title">منصة مقاييس</div>
     <div class="app-subtitle">جاري تحميل المنصة...</div>
     <div class="loader">
@@ -211,6 +227,6 @@
     window.addEventListener('touchstart', unlockAudioContext, { once: true, capture: true });
     window.addEventListener('keydown', unlockAudioContext, { once: true, capture: true });
   </script>
-  <script src="flutter_bootstrap.js" async></script>
+  <script src="flutter_bootstrap.js?v=639300467172782393" async></script>
 </body>
 </html>

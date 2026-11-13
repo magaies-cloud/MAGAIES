@@ -2802,7 +2802,7 @@ window.generateVoucherDocumentHTML = function(voucher, qrDataUrl) {
             </div>
             <div style="font-size: 0.72rem; color: #475569; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; background: #f8fafc; padding: 4px 8px; border-radius: 6px; border: 1px solid #e2e8f0;">
                 <span>👤 المستخدم (معد السند): <strong>${voucher.createdByName || voucher.createdByUsername || voucher.createdBy || '—'}</strong>${voucher.updatedByName ? ' | عُدلت بواسطة: <strong>' + voucher.updatedByName + '</strong>' : ''} | طُبع بواسطة: <strong>${((typeof window.getCurrentUserInfo === 'function') ? window.getCurrentUserInfo().fullName : 'المسؤول')}</strong> | وقت الطباعة: ${new Date().toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' })}</span>
-                <span style="font-weight: 800; color: #0284c7;">نظام مقاييس المحاسبي الموحد ⚡</span>
+                <span style="font-weight: 800; color: #0284c7;">نظام السيطرة المحاسبي الموحد ⚡</span>
             </div>
         </div>
     </div>

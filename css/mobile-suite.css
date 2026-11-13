@@ -434,7 +434,7 @@
       transform: scale(0.94) translateY(0) !important;
     }
 
-    /* 1. BRAND BADGE (مقاييس - Compact Badge with +30% Thicker Online/Offline Border & No Status Dot) */
+    /* 1. BRAND BADGE (السيطرة - Compact Badge with +30% Thicker Online/Offline Border & No Status Dot) */
     .flagship-brand-badge {
       flex: 0 0 auto !important;
       min-width: 72px !important;

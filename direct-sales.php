@@ -11574,7 +11574,7 @@ try {
             filter: brightness(1.08) !important;
         }
 
-        /* F. المنطقة الأعلى للمقاييس (توضيح كلمة الدولار وسعر الصرف والتاريخ والوقت) + الشريط السفلي الأسود (المستخدم متصل الآن باللون الفاتح الواضح) */
+        /* F. المنطقة الأعلى للسيطرة (توضيح كلمة الدولار وسعر الصرف والتاريخ والوقت) + الشريط السفلي الأسود (المستخدم متصل الآن باللون الفاتح الواضح) */
         html body .header-flagship-identity-suite #global-exchange-rate-box,
         :root.light-theme body .header-flagship-identity-suite #global-exchange-rate-box,
         :root.light-theme #global-exchange-rate-box {
@@ -13275,7 +13275,7 @@ try {
         const paidAmt = parseFloat(inv.paidAmount || inv.cashAmount || grandTotal) || 0;
         const remAmt = Math.max(0, grandTotal - paidAmt);
         const lines = [
-            `✂️ *بطاقة إيصال وتقسيم فاتورة مبيعات #${rootNo} — مقاييس السجانة ERP*`,
+            `✂️ *بطاقة إيصال وتقسيم فاتورة مبيعات #${rootNo} — السيطرة السجانة ERP*`,
             `👤 العميل: ${inv.customerName || 'عميل نقدي'}`,
             `📅 التاريخ: ${inv.date || new Date().toISOString().slice(0, 10)}`,
             `💵 الإجمالي الكلي: ${grandTotal.toLocaleString('en-US')} ${currency} | المدفوع: ${paidAmt.toLocaleString('en-US')} | المتبقي: ${remAmt.toLocaleString('en-US')}`,
@@ -19866,7 +19866,7 @@ try {
         var sheilas = Math.round((countBars / 15) * 10) / 10;
 
         var msg =
-            '🧾 *بطاقة إيصال مبيعات مصورة — مقاييس السجانة ERP*\n' +
+            '🧾 *بطاقة إيصال مبيعات مصورة — السيطرة السجانة ERP*\n' +
             '━━━━━━━━━━━━━━━━━━━━\n' +
             '📌 *رقم الفاتورة:* ' + s.invNo + '\n' +
             '👤 *العميل:* ' + s.customer + '\n' +
@@ -19995,7 +19995,7 @@ try {
         w.document.write(
             '<!DOCTYPE html><html dir="rtl" lang="ar"><head><meta charset="utf-8"><title>إيصال مبيعات حراري 80mm</title>' +
             '<style>body{width:76mm;margin:0 auto;padding:6px;font-family:Tahoma,Arial,sans-serif;font-size:12px;color:#000;} .hdr{text-align:center;border-bottom:2px dashed #000;padding-bottom:6px;margin-bottom:6px;font-weight:bold;} .row{display:flex;justify-content:space-between;margin:4px 0;} .bar{text-align:center;margin-top:8px;padding-top:6px;border-top:2px dashed #000;font-weight:bold;}</style></head><body>' +
-            '<div class="hdr">مقاييس السجانة ERP — إيصال مبيعات (80mm)<br>' + s.invNo + '</div>' +
+            '<div class="hdr">السيطرة ERP — فاتورة مبيعات (80mm)<br>' + s.invNo + '</div>' +
             '<div class="row"><span>العميل:</span><strong>' + s.customer + '</strong></div>' +
             '<div class="row"><span>عدد البنود:</span><strong>' + s.rowCount + '</strong></div>' +
             '<div class="row"><span>الوزن (معيار السجانة):</span><strong>' + tons + ' طن (' + Math.round(tons * 135) + ' سيخة)</strong></div>' +
@@ -20039,7 +20039,7 @@ try {
                         '<button type="button" onclick="window.printSalesFc2Thermal80mm()" style="height:32px;padding:0 12px;border-radius:7px;background:#0284c7;color:#fff;border:none;font-weight:900;cursor:pointer;">🧾 طباعة حرارية 80mm</button>' +
                         '<button type="button" onclick="window.executeSalesFc2ControlledPrint();window.print();" style="height:32px;padding:0 12px;border-radius:7px;background:#4f46e5;color:#fff;border:none;font-weight:900;cursor:pointer;">🖨️ طباعة A4 رسمية / PDF</button>' +
                         '<button type="button" onclick="window.exportSalesFc2ToExcelCsv()" style="height:32px;padding:0 12px;border-radius:7px;background:#059669;color:#fff;border:none;font-weight:900;cursor:pointer;">📊 تصدير Excel</button>' +
-                        '<button type="button" onclick="window.sendSalesFc3WhatsAppVisualReceiptCard()" style="height:32px;padding:0 12px;border-radius:7px;background:#16a34a;color:#fff;border:none;font-weight:900;cursor:pointer;">📲 بطاقة إيصال واتساب (الطن والسيخ والشيلة)</button>' +
+                        '<button type="button" onclick="window.open(\'https://wa.me/?text=\'+encodeURIComponent(\'🧾 بطاقة إيصال مبيعات — السيطرة ERP\\nرقم الفاتورة: ' + s.invNo + '\\nالعميل: ' + s.customer + '\\nالإجمالي: ' + Number(s.grandTotal).toLocaleString() + ' ج.س\'),\'_blank\')" style="height:32px;padding:0 12px;border-radius:7px;background:#16a34a;color:#fff;border:none;font-weight:900;cursor:pointer;">📲 بطاقة إيصال واتساب للعميل</button>' +
                     '</div>' +
                 '</div>' +
             '</div>';

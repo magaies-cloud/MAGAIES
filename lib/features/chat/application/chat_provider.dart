@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:magaiees_marketplace/features/chat/domain/models/chat_room_model.dart';
 import 'package:magaiees_marketplace/features/chat/domain/models/chat_message_model.dart';
 import 'package:magaiees_marketplace/features/auth/application/auth_provider.dart';
+import 'package:magaiees_marketplace/core/providers/ugc_moderation_provider.dart';
 import 'package:magaiees_marketplace/core/utils/notification_sound_service.dart';
 import 'package:magaiees_marketplace/core/utils/name_formatter.dart';
 
@@ -12,8 +13,8 @@ final _supabase = Supabase.instance.client;
 
 /// Notifier that manages chat rooms state with Supabase Realtime synchronization
 class ChatRoomsNotifier extends StateNotifier<AsyncValue<List<ChatRoomModel>>> {
-  ChatRoomsNotifier(this._userId, {this.storeId}) : super(const AsyncValue.loading()) {
-    if (_userId == null) {
+  ChatRoomsNotifier(this._userId, {this.storeId, this.blockedEntities = const {}}) : super(const AsyncValue.loading()) {
+    if (_userId == null || _userId.isEmpty || _userId == 'guest_user') {
       state = const AsyncValue.data([]);
     } else {
       _fetchRooms();
@@ -23,6 +24,7 @@ class ChatRoomsNotifier extends StateNotifier<AsyncValue<List<ChatRoomModel>>> {
 
   final String? _userId;
   final String? storeId;
+  final Set<String> blockedEntities;
   final _supabase = Supabase.instance.client;
   RealtimeChannel? _channel;
 
@@ -85,6 +87,10 @@ class ChatRoomsNotifier extends StateNotifier<AsyncValue<List<ChatRoomModel>>> {
 
         // Determine who the "other" user is
         final otherUserId = room.buyerId == _userId ? room.merchantId : room.buyerId;
+        if (blockedEntities.contains(otherUserId.trim().toLowerCase()) ||
+            (room.storeId != null && blockedEntities.contains(room.storeId!.trim().toLowerCase()))) {
+          continue;
+        }
 
         // Get other user's name
         String? otherName;
@@ -166,8 +172,14 @@ class ChatRoomsNotifier extends StateNotifier<AsyncValue<List<ChatRoomModel>>> {
 /// Provider that fetches and streams all chat rooms for the current user (buyer or merchant)
 final chatRoomsProvider = StateNotifierProvider.autoDispose<ChatRoomsNotifier, AsyncValue<List<ChatRoomModel>>>((ref) {
   final user = ref.watch(authNotifierProvider).valueOrNull;
-  final staffStoreId = (user != null && user.isStoreStaff) ? user.storeId : null;
-  return ChatRoomsNotifier(user?.id, storeId: staffStoreId);
+  final blocked = ref.watch(blockedEntitiesProvider);
+  final isGuestOrAnon = user == null || user.role.isGuest || user.id == 'guest_user';
+  final staffStoreId = (!isGuestOrAnon && user.isStoreStaff) ? user.storeId : null;
+  return ChatRoomsNotifier(
+    isGuestOrAnon ? null : user.id,
+    storeId: staffStoreId,
+    blockedEntities: blocked,
+  );
 });
 
 /// Provider that streams messages for a specific chat room in real-time

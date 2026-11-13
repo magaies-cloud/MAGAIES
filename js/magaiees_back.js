@@ -432,6 +432,10 @@
 
 // 👑 AUTO-BOOTSTRAP UNIFIED ROYAL QUARTET (الرجوع للخلف • التلفاز • المرشد الذكي • اسألني بالمايك) ACROSS ALL SCREENS
 (function() {
+    const p = (window.location.pathname || '').toLowerCase();
+    if (p.endsWith('/login.php') || p.endsWith('/register.php') || p.endsWith('/index.php') || p.endsWith('/index.html') || p.endsWith('/magaees/') || p.endsWith('/magaees') || p.endsWith('/magaies/') || p.endsWith('/magaies')) {
+        return;
+    }
     const mountScriptIfMissing = function(matchStr, srcPath) {
         if (!document.querySelector('script[src*="' + matchStr + '"]')) {
             const s = document.createElement('script');

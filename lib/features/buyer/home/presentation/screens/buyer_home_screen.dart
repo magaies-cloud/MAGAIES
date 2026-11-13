@@ -41,6 +41,7 @@ class BuyerHomeScreen extends ConsumerWidget {
                 return const SizedBox(width: 28, height: 28);
               },
             ),
+            const SizedBox(width: 8),
             Flexible(
               child: Text(
                 isRtl ? 'منصة مقاييس' : 'Magaiees Platform',
@@ -106,8 +107,15 @@ class BuyerHomeScreen extends ConsumerWidget {
           const LanguageSwitcher(),
         ],
       ),
-      body: CustomScrollView(
-        slivers: [
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(productsProvider);
+          ref.invalidate(categoriesProvider);
+          ref.invalidate(marketPricesProvider);
+        },
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
           // 1. Premium Advertising Carousel (تحت الشعار مباشرة)
           const SliverToBoxAdapter(
             child: Padding(
@@ -142,10 +150,14 @@ class BuyerHomeScreen extends ConsumerWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    isRtl ? 'أقسام مواد البناء والمعدات' : 'Categories & Materials',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  Expanded(
+                    child: Text(
+                      isRtl ? 'أقسام مواد البناء والمعدات' : 'Categories & Materials',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   Text(
                     isRtl ? 'اختر القسم' : 'Select Category',
                     style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
@@ -192,10 +204,14 @@ class BuyerHomeScreen extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        isRtl ? 'أحدث المنتجات والمواد المعروضة' : 'Latest Products & Materials',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      Expanded(
+                        child: Text(
+                          isRtl ? 'أحدث المنتجات والمواد المعروضة' : 'Latest Products & Materials',
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       switch (filteredProductsAsync) {
                         AsyncData(:final value) => Text(
                             isRtl ? '${value.length} منتج' : '${value.length} products',
@@ -282,7 +298,7 @@ class BuyerHomeScreen extends ConsumerWidget {
                     sliver: SliverGrid(
                       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
-                        childAspectRatio: 0.70,
+                        childAspectRatio: 0.63,
                         crossAxisSpacing: 12,
                         mainAxisSpacing: 12,
                       ),
@@ -344,6 +360,7 @@ class BuyerHomeScreen extends ConsumerWidget {
             child: SizedBox(height: 24),
           ),
         ],
+        ),
       ),
     );
   }

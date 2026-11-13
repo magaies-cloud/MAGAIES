@@ -15,11 +15,12 @@ class CartModel {
     List<CartItemModel>? items,
     String? appliedCouponCode,
     double? discountAmount,
+    bool clearCoupon = false,
   }) {
     return CartModel(
       items: items ?? this.items,
-      appliedCouponCode: appliedCouponCode ?? this.appliedCouponCode,
-      discountAmount: discountAmount ?? this.discountAmount,
+      appliedCouponCode: clearCoupon ? null : (appliedCouponCode ?? this.appliedCouponCode),
+      discountAmount: clearCoupon ? 0.0 : (discountAmount ?? this.discountAmount),
     );
   }
 

@@ -641,7 +641,7 @@ $header_theme_class = 'header-theme-reports';
                 <div class="live-badge"><span class="live-dot"></span>متصل لحظياً (Live)</div>
                 <div class="card-icon">🔮</div>
                 <div class="card-title">تحليلات الجيل القادم (Next-Gen)</div>
-                <div class="card-desc">رسوم بيانية تفاعلية متقدمة ومخططات هجينة ومقاييس الأمان وحماية الأصول من التعثر.</div>
+                <div class="card-desc">رسوم بيانية تفاعلية متقدمة ومخططات هجينة والسيطرة الأمان وحماية الأصول من التعثر.</div>
                 <div class="ai-badge">● تحليلات ومخططات بيانية تفاعلية</div>
             </a>
 

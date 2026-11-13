@@ -41,7 +41,7 @@ if ($reqSubdomain !== '' && !isset($_GET['landing'])) {
     exit;
 }
 
-$page_title = 'مقاييس (MAGAIEES) - المنظومة السحابية العالمية لإدارة موارد المؤسسات والذكاء المحاسبي';
+$page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية العالمية لإدارة موارد المؤسسات والذكاء المحاسبي';
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -1362,20 +1362,12 @@ $page_title = 'مقاييس (MAGAIEES) - المنظومة السحابية ال�
     <!-- Navbar -->
     <nav class="glass-panel" id="navbar">
         <a href="#" class="logo">
-            <div class="logo-3d-cube">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                    <path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z" fill="url(#boltGrad)" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/>
-                    <defs>
-                        <linearGradient id="boltGrad" x1="4" y1="2" x2="20" y2="22" gradientUnits="userSpaceOnUse">
-                            <stop stop-color="#fde047"/>
-                            <stop offset="1" stop-color="#f97316"/>
-                        </linearGradient>
-                    </defs>
-                </svg>
+            <div class="logo-3d-cube" style="background:transparent !important; box-shadow:none !important; padding:0;">
+                <img src="assets/logo.png?v=saytara_shield_v3" alt="شعار السيطرة" style="width:42px; height:42px; object-fit:contain; filter:drop-shadow(0 4px 10px rgba(0,0,0,0.6));">
             </div>
             <div>
-                مقاييس
-                <span class="logo-sub">MAGAIEES CLOUD ERP</span>
+                السيطرة
+                <span class="logo-sub">AL-SAYTARA CLOUD ERP</span>
             </div>
         </a>
 
@@ -1406,7 +1398,7 @@ $page_title = 'مقاييس (MAGAIEES) - المنظومة السحابية ال�
                 وسرعة تفوق التوقعات.
             </h1>
             <p>
-                منظومة <strong>مقاييس (MAGAIEES ERP)</strong> تجمع لك المحاسبة المالية المعتمدة، المخازن المتعددة، المبيعات ونقاط البيع (POS)، الموارد البشرية، ومطابقة الإشعارات البنكية عبر الواتساب في سحابة واحدة فائقة الأمان — صُممت خصيصاً للشركات والمؤسسات التي تطلب القمة.
+                منظومة <strong>السيطرة (MAGAIEES ERP)</strong> تجمع لك المحاسبة المالية المعتمدة، المخازن المتعددة، المبيعات ونقاط البيع (POS)، الموارد البشرية، ومطابقة الإشعارات البنكية عبر الواتساب في سحابة واحدة فائقة الأمان — صُممت خصيصاً للشركات والمؤسسات التي تطلب القمة.
             </p>
 
             <div class="hero-cta-group">
@@ -1590,14 +1582,14 @@ $page_title = 'مقاييس (MAGAIEES) - المنظومة السحابية ال�
 
     <!-- Partners Marquee -->
     <section class="partners">
-        <p>🏆 يثق بمنظومة مقاييس نخبة الشركات والمصانع والمؤسسات المالية</p>
+        <p>🏆 يثق بمنظومة السيطرة نخبة الشركات والمصانع والمؤسسات المالية</p>
         <div class="marquee-wrapper" id="partners-marquee">
-            <a href="#" class="partner-logo"><img src="assets/logo_maqayis.png" alt="مقاييس" loading="lazy"> مقاييس</a>
+            <a href="#" class="partner-logo"><img src="assets/logo_maqayis.png?v=saytara_shield_v3" alt="السيطرة" loading="lazy"> السيطرة</a>
             <a href="#" class="partner-logo"><img src="assets/logo_alasaad.png" alt="مصنع الأسعد" loading="lazy"> مصنع الأسعد</a>
             <a href="#" class="partner-logo"><img src="assets/logo_omega.png" alt="أوميغا" loading="lazy"> أوميغا</a>
             <a href="#" class="partner-logo"><img src="assets/logo_bok.png" alt="بنك الخرطوم" loading="lazy"> بنك الخرطوم</a>
             <a href="#" class="partner-logo"><img src="assets/logo_fcb.png" alt="بنك المزارع" loading="lazy"> بنك المزارع</a>
-            <a href="#" class="partner-logo"><img src="assets/logo_maqayis.png" alt="مقاييس" loading="lazy"> مقاييس</a>
+            <a href="#" class="partner-logo"><img src="assets/logo_maqayis.png?v=saytara_shield_v3" alt="السيطرة" loading="lazy"> السيطرة</a>
             <a href="#" class="partner-logo"><img src="assets/logo_alasaad.png" alt="مصنع الأسعد" loading="lazy"> مصنع الأسعد</a>
             <a href="#" class="partner-logo"><img src="assets/logo_omega.png" alt="أوميغا" loading="lazy"> أوميغا</a>
             <a href="#" class="partner-logo"><img src="assets/logo_bok.png" alt="بنك الخرطوم" loading="lazy"> بنك الخرطوم</a>
@@ -1611,7 +1603,7 @@ $page_title = 'مقاييس (MAGAIEES) - المنظومة السحابية ال�
 
         <span class="section-eyebrow">🌟 هندسة برمجية بمواصفات عالمية</span>
         <h2 class="section-title">إمكانيات جبارة تغنيك عن عشرات البرامج</h2>
-        <p class="section-subtitle">صممنا كل وحدة في نظام مقاييس بأيقونات وواجهات ثلاثية الأبعاد فائقة الوضوح، لتنجز أعقد العمليات المالية والمخزنية والرقابية في أجزاء من الثانية.</p>
+        <p class="section-subtitle">صممنا كل وحدة في نظام السيطرة بأيقونات وواجهات ثلاثية الأبعاد فائقة الوضوح، لتنجز أعقد العمليات المالية والمخزنية والرقابية في أجزاء من الثانية.</p>
 
         <div class="features-grid">
             <!-- Feature 1: 3D Financial Ledger Cube -->
@@ -1653,7 +1645,7 @@ $page_title = 'مقاييس (MAGAIEES) - المنظومة السحابية ال�
                 </div>
                 <h3 style="background: linear-gradient(135deg, #fff, #d8b4fe); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">المدقق الذكي وفحص الإشعارات بالـ AI</h3>
                 <p>يقرأ الإشعارات البنكية المرسلة بالواتساب، يتحقق من رقم العملية والمبلغ، يكتشف التزوير أو التكرار، ويقيد السند المالي في حساب العميل تلقائياً.</p>
-                <span class="feature-tag" style="color:#d8b4fe; border-color:rgba(168,85,247,0.35);">🤖 حصرياً في مقاييس AI</span>
+                <span class="feature-tag" style="color:#d8b4fe; border-color:rgba(168,85,247,0.35);">🤖 حصرياً في السيطرة AI</span>
             </div>
 
             <!-- Feature 3: 3D Isometric Smart Warehouse -->
@@ -1763,7 +1755,7 @@ $page_title = 'مقاييس (MAGAIEES) - المنظومة السحابية ال�
 
     <!-- Why Enterprises Choose Magaiees Section (Antigravity 3D Icons) -->
     <section class="capabilities-showcase" id="capabilities">
-        <span class="section-eyebrow">💎 لماذا تختار الشركات الكبرى منظومة مقاييس؟</span>
+        <span class="section-eyebrow">💎 لماذا تختار الشركات الكبرى منظومة السيطرة؟</span>
         <h2 class="section-title" style="font-size: 2.5rem; margin-bottom: 50px;">مصمم ليمنح مؤسستك التفوق التنافسي المطلق</h2>
         <div class="cap-grid">
             <!-- Antigravity 3D Icon 1: Dedicated Cloud Subdomain & SSL Shield -->
@@ -1927,9 +1919,9 @@ $page_title = 'مقاييس (MAGAIEES) - المنظومة السحابية ال�
             <div class="footer-col">
                 <a href="#" class="logo" style="margin-bottom: 20px;">
                     <div class="logo-3d-cube" style="width:40px; height:40px;">⚡</div>
-                    مقاييس
+                    السيطرة
                 </a>
-                <p>نظام مقاييس (MAGAIEES) هو منصة سحابية عالمية متكاملة لإدارة موارد المؤسسات (ERP)، صُمم خصيصاً لتمكين الشركات من أتمتة حساباتها، مخازنها، ومبيعاتها بالذكاء الاصطناعي لتحقيق نمو ذكي ومستدام.</p>
+                <p>نظام السيطرة (MAGAIEES) هو منصة سحابية عالمية متكاملة لإدارة موارد المؤسسات (ERP)، صُمم خصيصاً لتمكين الشركات من أتمتة حساباتها، مخازنها، ومبيعاتها بالذكاء الاصطناعي لتحقيق نمو ذكي ومستدام.</p>
             </div>
 
             <!-- Column 2: Our Company -->
@@ -1975,7 +1967,7 @@ $page_title = 'مقاييس (MAGAIEES) - المنظومة السحابية ال�
         </div>
 
         <div class="footer-bottom">
-            <p>&copy; 2026 مؤسسة مقاييس التجارية. جميع الحقوق محفوظة.</p>
+            <p>&copy; 2026 مؤسسة السيطرة التجارية. جميع الحقوق محفوظة.</p>
             <div class="footer-bottom-links">
                 <a href="#" id="open-privacy">سياسة الخصوصية</a>
                 <a href="magaiees-privacy.html" target="_blank">وثيقة الخصوصية الكاملة</a>
@@ -1990,7 +1982,7 @@ $page_title = 'مقاييس (MAGAIEES) - المنظومة السحابية ال�
             <span class="close-modal" id="close-privacy">&times;</span>
             <h3>قانون حماية الخصوصية</h3>
             <div class="modal-body">
-                <p>مرحباً بكم في منصة <strong>مقاييس (MAGAIEES)</strong>. نحن نولي أقصى درجات الأهمية لحماية خصوصية بياناتكم وأمن معلوماتكم الشخصية والمالية.</p>
+                <p>مرحباً بكم في منصة <strong>السيطرة (MAGAIEES)</strong>. نحن نولي أقصى درجات الأهمية لحماية خصوصية بياناتكم وأمن معلوماتكم الشخصية والمالية.</p>
                 <h4>1. جمع المعلومات واستخدامها</h4>
                 <p>نقوم بجمع البيانات اللازمة لتقديم وإدارة الخدمات السحابية بفعالية، ويشمل ذلك معلومات الاتصال، بيانات الحساب الشخصي، وتفضيلات النظام. نضمن استخدام هذه البيانات فقط للأغراض التشغيلية وتحسين تجربة المستخدم.</p>
                 <h4>2. حماية البيانات وأمنها</h4>
@@ -2009,18 +2001,18 @@ $page_title = 'مقاييس (MAGAIEES) - المنظومة السحابية ال�
     <div class="modal" id="about-modal">
         <div class="modal-content">
             <span class="close-modal" id="close-about">&times;</span>
-            <h3>من نحن وابتكارات مقاييس</h3>
+            <h3>من نحن وابتكارات السيطرة</h3>
             <div class="modal-body">
-                <p>تأسست <strong>مؤسسة مقاييس التجارية</strong> برؤية طموحة تهدف لتمكين قطاع الأعمال في سلطنة عُمان والوطن العربي من خلال ابتكار حلول برمجية سحابية ذكية وموثوقة بالكامل. نحن لا نقدم مجرد برمجيات، بل نبني بيئات عمل متكاملة تقود المستقبل.</p>
+                <p>تأسست <strong>مؤسسة السيطرة التجارية</strong> برؤية طموحة تهدف لتمكين قطاع الأعمال في سلطنة عُمان والوطن العربي من خلال ابتكار حلول برمجية سحابية ذكية وموثوقة بالكامل. نحن لا نقدم مجرد برمجيات، بل نبني بيئات عمل متكاملة تقود المستقبل.</p>
                 <h4>⚡ المحاسب الآلي (Automated Accountant)</h4>
-                <p>يمثل المحاسب الآلي في مقاييس ثورة في طريقة إدارة الدفاتر المحاسبية. يقوم النظام تلقائياً وبشكل مستقل بـ:</p>
+                <p>يمثل المحاسب الآلي في السيطرة ثورة في طريقة إدارة الدفاتر المحاسبية. يقوم النظام تلقائياً وبشكل مستقل بـ:</p>
                 <ul style="margin-right:20px; color:var(--text-secondary); margin-bottom:15px; list-style-type:square; line-height:1.7;">
                     <li>تحليل الفواتير والمستندات واستخراج البيانات آلياً دون تدخل بشري.</li>
                     <li>توليد قيود اليومية المتوازنة فورياً وترحيلها لدفاتر الأستاذ والميزانية.</li>
                     <li>اكتشاف وتصحيح الأخطاء الحسابية وتطابق ميزان المراجعة بنسبة دقة تصل إلى 99.9%.</li>
                 </ul>
                 <h4>🧠 تقنيات الذكاء الاصطناعي (AI Core)</h4>
-                <p>تم دمج الذكاء الاصطناعي في صميم نظام مقاييس ليقدم للشركات تحليلات تنبؤية فائقة الذكاء:</p>
+                <p>تم دمج الذكاء الاصطناعي في صميم نظام السيطرة ليقدم للشركات تحليلات تنبؤية فائقة الذكاء:</p>
                 <ul style="margin-right:20px; color:var(--text-secondary); margin-bottom:15px; list-style-type:square; line-height:1.7;">
                     <li><strong>التنبؤ بالتدفقات النقدية:</strong> تحليل سلوك الإيرادات والمصروفات للتنبؤ بالفترات المالية القادمة.</li>
                     <li><strong>توصيات خفض التكاليف:</strong> خوارزميات ذكية تقارن المصروفات وتقترح حلولاً ذكية لزيادة الهوامش الربحية.</li>
@@ -2043,7 +2035,7 @@ $page_title = 'مقاييس (MAGAIEES) - المنظومة السحابية ال�
     <div class="modal" id="vision-modal">
         <div class="modal-content">
             <span class="close-modal" id="close-vision">&times;</span>
-            <h3>رؤيتنا وقيمنا ومميزات مقاييس</h3>
+            <h3>رؤيتنا وقيمنا ومميزات السيطرة</h3>
             <div class="modal-body">
                 <h4>🎯 رؤيتنا</h4>
                 <p>أن نصبح الشريك الرقمي السحابي الأول والأكثر وثوقاً لكافة الشركات والمؤسسات في الشرق الأوسط، والمحرك الأساسي الذي يقود الأعمال التجارية نحو الكفاءة والنمو الذكي باستخدام الذكاء الاصطناعي دون تعقيد.</p>
@@ -2055,7 +2047,7 @@ $page_title = 'مقاييس (MAGAIEES) - المنظومة السحابية ال�
                     <li><strong>الشفافية وسهولة الاستخدام:</strong> نظام محاسبي قوي بواجهات تفاعلية يفهمها الجميع.</li>
                 </ul>
                 <div style="text-align:center; margin-top:25px; padding:15px; background:rgba(59,130,246,0.1); border-radius:12px; border:1px solid rgba(59,130,246,0.2);">
-                    <p style="color:#fff; font-weight:700; margin-bottom:10px;">انضم إلى مئات الشركات التي تدير أعمالها بذكاء مع مقاييس!</p>
+                    <p style="color:#fff; font-weight:700; margin-bottom:10px;">انضم إلى مئات الشركات التي تدير أعمالها بذكاء مع السيطرة!</p>
                     <a href="#pricing" class="btn-primary" style="padding:8px 20px; font-size:1rem; border-radius:8px;" onclick="document.getElementById('vision-modal').classList.remove('show'); document.body.style.overflow='auto';">ابدأ تجربتك المجانية الآن</a>
                 </div>
             </div>
@@ -2068,7 +2060,7 @@ $page_title = 'مقاييس (MAGAIEES) - المنظومة السحابية ال�
             <span class="close-modal" id="close-brand">&times;</span>
             <h3>الهوية البصرية وأصول العلامة التجارية</h3>
             <div class="modal-body">
-                <p>تعبّر الهوية البصرية لنظام <strong>مقاييس (MAGAIEES)</strong> عن الاحترافية، السرعة، والابتكار التقني.</p>
+                <p>تعبّر الهوية البصرية لنظام <strong>السيطرة (MAGAIEES)</strong> عن الاحترافية، السرعة، والابتكار التقني.</p>
                 <h4>⚡ الشعار الرسمي ودلالاته</h4>
                 <p>يمثل شعار الصاعقة ⚡ الكفاءة والذكاء في معالجة البيانات، ويعبر عن السرعة الفائقة والربط التقني المتكامل.</p>
                 <h4>🎨 الألوان المعتمدة (Brand Colors)</h4>
@@ -2146,7 +2138,7 @@ $page_title = 'مقاييس (MAGAIEES) - المنظومة السحابية ال�
                             {id: 3, name: "باقة الشركات (VIP)", price: "100", status: "active", isTrial: false, storage: "200", duration: "360", maxUsers: "100"}
                         ],
                         partners: [
-                            {id: 1, name: "مقاييس", logo: "https://ui-avatars.com/api/?name=%D9%85%D9%82%D8%A7%D9%8A%D9%8A%D8%B3&background=38bdf8&color=fff&size=100", link: "#"},
+                            {id: 1, name: "السيطرة", logo: "https://ui-avatars.com/api/?name=%D8%A7%D9%84%D8%B3%D9%8A%D8%B7%D8%B1%D8%A9&background=38bdf8&color=fff&size=100", link: "#"},
                             {id: 2, name: "مصنع الأسعد", logo: "https://ui-avatars.com/api/?name=%D9%85%D8%B5%D9%86%D8%B9+%D8%A7%D9%84%D8%A3%D8%B3%D8%B9%D8%AF&background=818cf8&color=fff&size=100", link: "#"},
                             {id: 3, name: "أوميغا", logo: "https://ui-avatars.com/api/?name=%D8%A3%D9%88%D9%85%D9%8A%D8%BA%D8%A7&background=10b981&color=fff&size=100", link: "#"},
                             {id: 4, name: "بنك الخرطوم", logo: "https://ui-avatars.com/api/?name=%D8%A8%D9%86%D9%83+%D8%A7%D9%84%D8%AE%D8%B1%D8%B7%D9%88%D9%85&background=f59e0b&color=fff&size=100", link: "#"},

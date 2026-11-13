@@ -377,8 +377,8 @@ String? _redirect(Ref ref, GoRouterState state) {
     return isAuthRoute ? null : RouteNames.login;
   }
 
-  // 2. Logged in but on auth route → redirect to appropriate dashboard/home
-  if (isLoggedIn && isAuthRoute) {
+  // 2. Logged in (non-guest) on auth route → redirect to appropriate dashboard/home
+  if (isLoggedIn && !user.role.isGuest && isAuthRoute) {
     if (user.role.isAdmin) {
       return RouteNames.adminDashboard;
     }
@@ -388,10 +388,19 @@ String? _redirect(Ref ref, GoRouterState state) {
     if (user.role == UserRole.employee) {
       return RouteNames.employeeDashboard;
     }
-    if (user.role.isMerchant || currentMode == AppMode.merchant) {
+    if ((user.role.isMerchant || currentMode == AppMode.merchant) && user.hasStore) {
       return RouteNames.merchantDashboard;
     }
     return RouteNames.buyerHome;
+  }
+
+  // 2b. Ensure dedicated roles (Admin / Platform Employee / Store Staff) land on their workspace on cold start
+  if (currentPath == RouteNames.buyerHome) {
+    if (user.role.isAdmin) return RouteNames.adminDashboard;
+    if (user.role == UserRole.employee) return RouteNames.employeeDashboard;
+    if (user.isStoreStaff) {
+      return user.canManageStoreOrders ? RouteNames.merchantOrders : RouteNames.merchantInventory;
+    }
   }
 
   // 3. Guard admin routes — require admin role

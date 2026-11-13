@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:magaiees_marketplace/core/utils/image_picker_helper.dart';
 import 'package:go_router/go_router.dart';
 import 'package:magaiees_marketplace/core/providers/global_settings_provider.dart';
@@ -76,7 +75,7 @@ final merchantStoreInfoProvider = StreamProvider.autoDispose<Map<String, dynamic
       final res = Map<String, dynamic>.from(storeRes);
 
       if (userRes != null && userRes['permissions'] is Map) {
-        final perms = userRes['permissions'] as Map<String, dynamic>;
+        final perms = Map<String, dynamic>.from(userRes['permissions'] as Map);
         if (perms['usd_rate_source'] != null) {
           res['usd_rate_source'] = perms['usd_rate_source'];
         }
@@ -654,7 +653,10 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
     Uint8List? newImageBytes;
     String? newImageExt;
     bool isUploading = false;
-    String? currentImageUrl = (product['images'] != null && (product['images'] as List).isNotEmpty) ? product['images'][0] : null;
+    final rawImages = product['images'];
+    String? currentImageUrl = (rawImages is List && rawImages.isNotEmpty)
+        ? rawImages.first?.toString()
+        : null;
     final editImageBoxController = ProductImagePreviewBoxController();
     bool hasPreloaded = false;
 
@@ -708,15 +710,19 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
                         if (pickedFile != null) {
                           final bytes = await pickedFile.readAsBytes();
                           final ext = pickedFile.name.split('.').last;
-                          setState(() {
-                            newImageBytes = bytes;
-                            newImageExt = ext;
-                          });
+                          if (ctx.mounted) {
+                            setState(() {
+                              newImageBytes = bytes;
+                              newImageExt = ext;
+                            });
+                          }
                         }
                       } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(isRtl ? 'فشل اختيار الصورة: $e' : 'Failed to pick image')),
-                        );
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(isRtl ? 'فشل اختيار الصورة: $e' : 'Failed to pick image')),
+                          );
+                        }
                       }
                     },
                     onRemoveImage: (newImageBytes != null || currentImageUrl != null)
@@ -866,7 +872,7 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
                           if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isRtl ? (isActive ? 'تم إخفاء المنتج' : 'تم إظهار المنتج') : (isActive ? 'Product hidden' : 'Product shown'))));
                         } catch (e) {
                           if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-                          setState(() => isUploading = false);
+                          if (ctx.mounted) setState(() => isUploading = false);
                         }
                       }
                     },
@@ -887,7 +893,7 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
                       );
                       
                       if (confirm == true) {
-                        setState(() => isUploading = true);
+                        if (ctx.mounted) setState(() => isUploading = true);
                         try {
                           await Supabase.instance.client.from('products').delete().eq('id', product['id']).eq('store_id', product['store_id']);
                           try { ref.invalidate(productsProvider); } catch (_) {}
@@ -895,7 +901,7 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
                           if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isRtl ? 'تم الحذف بنجاح' : 'Deleted successfully')));
                         } catch (e) {
                           if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-                          setState(() => isUploading = false);
+                          if (ctx.mounted) setState(() => isUploading = false);
                         }
                       }
                     },
@@ -985,7 +991,9 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
                           );
                         }
                       } finally {
-                        setState(() => isUploading = false);
+                        if (ctx.mounted && dialogContext.mounted) {
+                          setState(() => isUploading = false);
+                        }
                       }
                     }, 
                     child: isUploading
@@ -1083,54 +1091,52 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
                   boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 4, offset: const Offset(0, 2))],
                 ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        Row(
-                          children: [
-                            Text(isRtl ? 'نظام التسعير الذكي' : 'Smart Pricing System', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: isPlatformSource ? const Color(0xFF16A34A).withOpacity(0.3) : const Color(0xFF2563EB).withOpacity(0.3),
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(
-                                  color: isPlatformSource ? const Color(0xFF22C55E) : const Color(0xFF60A5FA),
-                                  width: 0.8,
-                                ),
-                              ),
-                              child: Text(
-                                isPlatformSource ? (isRtl ? 'سعر منصة مقاييس المعتمد 🌐' : 'Platform Rate 🌐') : (isRtl ? 'سعر مخصص لمتجرك ⚙️' : 'Custom Store Rate ⚙️'),
-                                style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
-                              ),
+                        Text(isRtl ? 'نظام التسعير الذكي' : 'Smart Pricing System', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: isPlatformSource ? const Color(0xFF16A34A).withValues(alpha: 0.3) : const Color(0xFF2563EB).withValues(alpha: 0.3),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: isPlatformSource ? const Color(0xFF22C55E) : const Color(0xFF60A5FA),
+                              width: 0.8,
                             ),
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(color: Colors.white.withOpacity(0.2), borderRadius: BorderRadius.circular(4)),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.visibility, color: Colors.white, size: 14),
-                                  const SizedBox(width: 4),
-                                  Text(activeCount.toString(), style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(color: Colors.red.withOpacity(0.8), borderRadius: BorderRadius.circular(4)),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.visibility_off, color: Colors.white, size: 14),
-                                  const SizedBox(width: 4),
-                                  Text(hiddenCount.toString(), style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-                                ],
-                              ),
-                            ),
-                          ],
+                          ),
+                          child: Text(
+                            isPlatformSource ? (isRtl ? 'سعر منصة مقاييس المعتمد 🌐' : 'Platform Rate 🌐') : (isRtl ? 'سعر مخصص لمتجرك ⚙️' : 'Custom Store Rate ⚙️'),
+                            style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(4)),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.visibility, color: Colors.white, size: 14),
+                              const SizedBox(width: 4),
+                              Text(activeCount.toString(), style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.8), borderRadius: BorderRadius.circular(4)),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.visibility_off, color: Colors.white, size: 14),
+                              const SizedBox(width: 4),
+                              Text(hiddenCount.toString(), style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                            ],
+                          ),
                         ),
                       ],
                     ),

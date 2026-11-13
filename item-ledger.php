@@ -1,4 +1,4 @@
-<?php $page_title = 'مقاييس (MAGAIEES) - كارت الصنف (حركة الأصناف)'; ?>
+<?php $page_title = 'السيطرة (MAGAIEES) - كارت الصنف (حركة الأصناف)'; ?>
 <!-- c:\mynewapp\frontend-pwa\item-ledger.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مقاييس (MAGAIEES) - كارت الصنف (حركة الأصناف)</title>
+    <title>السيطرة (MAGAIEES) - كارت الصنف (حركة الأصناف)</title>
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -2102,7 +2102,7 @@
             // Company info
             const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
             const user = JSON.parse(localStorage.getItem('user') || '{}');
-            const companyName = cfg.companyName || user.company_name || localStorage.getItem('companyName') || 'مؤسسة مقاييس للأعمال';
+            const companyName = cfg.companyName || user.company_name || localStorage.getItem('companyName') || 'مؤسسة السيطرة للأعمال';
             const companyPhone = cfg.phone || cfg.whatsapp || user.phone || '—';
             const companyAddress = cfg.address || user.address || '—';
             const companyReg = cfg.regNumber || user.reg_number || '';
@@ -2342,7 +2342,7 @@
 
                 <!-- 6. Footer Disclaimer -->
                 <div style="margin-top:25px; border-top:1px solid #e2e8f0; padding-top:8px; display:flex; justify-content:space-between; font-size:0.72rem; color:#94a3b8; direction:rtl;">
-                    <div>تم استخراج وطباعة هذا التقرير تلقائياً عبر نظام مقاييس ERP المتكامل · MAGAIEES CLOUD</div>
+                    <div>تم استخراج وطباعة هذا التقرير تلقائياً عبر نظام السيطرة ERP المتكامل · MAGAIEES CLOUD</div>
                     <div>صفحة 1 من 1</div>
                 </div>
             `;

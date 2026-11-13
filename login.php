@@ -12,7 +12,7 @@ if ($detectedSubdomain === '') {
     }
 }
 $detectedSubdomain = preg_replace('/[^a-z0-9\-]/', '', $detectedSubdomain);
-$detectedCompanyName = 'مؤسسة المقاييس للتجارة والخدمات';
+$detectedCompanyName = 'مؤسسة اللسيطرة للتجارة والخدمات';
 $detectedTenantId = null;
 if ($detectedSubdomain !== '') {
     try {
@@ -36,7 +36,7 @@ if ($detectedSubdomain !== '') {
         }
     } catch (Throwable $e) {}
 }
-$page_title = 'مقاييس 2026 - ' . $detectedCompanyName . ' - تسجيل الدخول';
+$page_title = 'السيطرة 2026 - ' . $detectedCompanyName . ' - تسجيل الدخول';
 ?>
 <!-- c:\mynewapp\frontend-pwa\login.html -->
 <!DOCTYPE html>
@@ -92,13 +92,13 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="preload" as="image" href="assets/user_bg_fast.jpg">
-    <title>مقاييس 2026 - تسجيل الدخول</title>
+    <title>السيطرة 2026 - تسجيل الدخول</title>
     <!-- PWA & Favicon Configuration -->
     <link rel="manifest" href="manifest.json?v=2026_m_v5">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="مقاييس ERP">
+    <meta name="apple-mobile-web-app-title" content="السيطرة ERP">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2026_m_v5">
     <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=2026_m_v5">
     <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=2026_m_v5">
@@ -109,77 +109,61 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
     <link rel="shortcut icon" href="assets/favicon.ico?v=2026_m_v5">
     <meta name="theme-color" content="#0F172A">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/design-system.css?v=20260723_v14"><link rel="stylesheet" href="css/theme.css?v=20261110_login_fix">
-    <link rel="stylesheet" href="css/components.css?v=20260723_v14">
-    <link rel="stylesheet" href="css/magaiees-royal-buttons.css?v=2026_royal_v2">
-    <script src="js/magaiees-royal-buttons.js?v=2026_royal_v2" defer></script>
-    <script src="js/magaiees_back.js?v=2026_back_universal" defer></script>
-        <style>
-        body, body.has-sidebar, body.has-sidebar.sidebar-open {
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            font-family: 'Tajawal', 'Inter', sans-serif;
+        }
+        html, body, body.magaiees-login-body {
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
             min-height: 100dvh;
             height: 100dvh;
-            background-color: #0c101b !important;
-            background: #0c101b url('assets/user_bg_fast.jpg') no-repeat center center fixed !important;
+            background-color: #060b16 !important;
+            background: #060b16 url('assets/user_bg_fast.jpg') no-repeat center center fixed !important;
             background-size: cover !important;
-            background-image: url('assets/user_bg_fast.jpg') !important;
+            color: #ffffff !important;
             overflow-x: hidden;
             overflow-y: auto !important;
             position: relative;
-            animation: none !important;
-            transition: none !important;
-            transform: none !important;
-            padding: max(10px, env(safe-area-inset-top, 10px)) max(12px, env(safe-area-inset-right, 12px)) max(10px, env(safe-area-inset-bottom, 10px)) max(12px, env(safe-area-inset-left, 12px)) !important;
+            padding: max(14px, env(safe-area-inset-top, 14px)) max(14px, env(safe-area-inset-right, 14px)) max(14px, env(safe-area-inset-bottom, 14px)) max(14px, env(safe-area-inset-left, 14px)) !important;
             margin: 0 !important;
-            box-sizing: border-box;
         }
 
         .login-card {
-            width: 92%;
-            max-width: 400px;
-            padding: clamp(16px, 2.8vh, 26px) clamp(16px, 4vw, 28px) !important;
+            width: 94%;
+            max-width: 420px;
+            padding: 34px 30px 28px 30px !important;
             display: flex;
             flex-direction: column;
             gap: 0 !important;
             text-align: center;
-            /* Glassmorphism */
-            backdrop-filter: blur(25px) saturate(190%);
-            -webkit-backdrop-filter: blur(25px) saturate(190%);
-            border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.16) !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.55), 
-                        inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
-            background: rgba(15, 22, 38, 0.68) !important;
+            backdrop-filter: blur(28px) saturate(180%);
+            -webkit-backdrop-filter: blur(28px) saturate(180%);
+            border-radius: 26px;
+            border: 1.5px solid rgba(56, 189, 248, 0.28) !important;
+            box-shadow: 0 28px 65px rgba(0, 0, 0, 0.78),
+                        0 0 40px rgba(14, 165, 233, 0.14),
+                        inset 0 1px 1px rgba(255, 255, 255, 0.18) !important;
+            background: linear-gradient(165deg, rgba(15, 23, 42, 0.92) 0%, rgba(7, 11, 22, 0.96) 100%) !important;
             z-index: 10;
             position: relative;
             margin: auto !important;
-            box-sizing: border-box;
-            animation: none !important;
-            transition: none !important;
-            transform: none !important;
+            overflow: hidden;
         }
 
-        /* 📱 معايرة الشاشات المنحنية (Honor Magic, Huawei Mate, Samsung Edge/Ultra) */
-        html[data-device-brand="honor"] .login-card,
-        html[data-device-brand="huawei"] .login-card {
-            margin-inline: max(8px, env(safe-area-inset-left, 8px)) !important;
-            border-color: rgba(129, 140, 248, 0.35) !important;
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #38bdf8, #6366f1, #0ea5e9);
         }
-        html[data-device-brand="samsung"] .login-card {
-            border-color: rgba(56, 189, 248, 0.35) !important;
-        }
-        html[data-device-brand="iphone"] .login-card {
-            border-color: rgba(255, 255, 255, 0.25) !important;
-        }
-        @media (min-width: 1024px) {
-            .login-card {
-                max-width: 420px;
-                padding: 30px 32px 24px 32px !important;
-            }
-        }
+
         .logo {
             font-size: 3rem;
             margin-bottom: 10px;
@@ -187,100 +171,115 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
         .title {
             font-weight: 900;
             font-size: 1.5rem;
-            color: var(--primary-accent);
+            color: #38bdf8;
         }
-        .input-group,
-        html body.magaiees-login-body .login-card .input-group,
-        :root.light-theme body.magaiees-login-body .login-card .input-group,
-        html[data-theme] body.magaiees-login-body .login-card .input-group {
+        .login-field-group,
+        .input-group {
             text-align: right;
-            margin-bottom: 15px;
+            margin-bottom: 18px;
             background: transparent !important;
             background-color: transparent !important;
             border: none !important;
             box-shadow: none !important;
             padding: 0 !important;
         }
-        .input-group label,
-        html body.magaiees-login-body .login-card .input-group label,
-        :root.light-theme body.magaiees-login-body .login-card .input-group label {
-            display: block;
+        .login-field-group label,
+        .input-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             margin-bottom: 8px;
-            color: rgba(255, 255, 255, 0.95) !important;
-            -webkit-text-fill-color: rgba(255, 255, 255, 0.95) !important;
-            font-size: 0.95rem;
-            font-weight: 700;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.4) !important;
+            color: #f8fafc !important;
+            -webkit-text-fill-color: #f8fafc !important;
+            font-size: 0.94rem;
+            font-weight: 800;
             background: transparent !important;
+            border: none !important;
+        }
+        .login-input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+        .login-input-icon {
+            position: absolute;
+            right: 15px;
+            color: #38bdf8;
+            font-size: 0.98rem;
+            pointer-events: none;
+            z-index: 3;
         }
         .input-field,
-        html body.magaiees-login-body .login-card input.input-field,
-        :root.light-theme body.magaiees-login-body .login-card input.input-field,
-        html[data-theme] body.magaiees-login-body .login-card input.input-field {
+        #username,
+        #password {
             width: 100%;
-            padding: 15px 18px;
+            padding: 14px 44px 14px 16px;
             border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.18) !important;
-            background: rgba(15, 23, 42, 0.62) !important;
-            background-color: rgba(15, 23, 42, 0.62) !important;
+            border: 1.5px solid rgba(56, 189, 248, 0.32) !important;
+            background: #091020 !important;
+            background-color: #091020 !important;
             color: #ffffff !important;
             -webkit-text-fill-color: #ffffff !important;
-            caret-color: #ffffff !important;
-            font-size: 1.05rem;
-            font-weight: 500;
+            caret-color: #38bdf8 !important;
+            font-size: 1.02rem;
+            font-weight: 700;
             outline: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.25s ease;
             box-sizing: border-box;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25), 
-                        0 4px 6px rgba(0, 0, 0, 0.08) !important;
+            box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.55) !important;
+        }
+        #password {
+            padding-left: 46px;
         }
         .input-field::placeholder,
-        html body.magaiees-login-body .login-card input.input-field::placeholder,
-        :root.light-theme body.magaiees-login-body .login-card input.input-field::placeholder {
-            color: rgba(255, 255, 255, 0.55) !important;
-            -webkit-text-fill-color: rgba(255, 255, 255, 0.55) !important;
-            font-weight: 400;
+        #username::placeholder,
+        #password::placeholder {
+            color: #94a3b8 !important;
+            -webkit-text-fill-color: #94a3b8 !important;
+            font-weight: 500;
         }
         .input-field:focus,
-        html body.magaiees-login-body .login-card input.input-field:focus,
-        :root.light-theme body.magaiees-login-body .login-card input.input-field:focus,
-        html[data-theme] body.magaiees-login-body .login-card input.input-field:focus {
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.25), 
-                        inset 0 2px 4px rgba(0, 0, 0, 0.15) !important;
-            border-color: rgba(56, 189, 248, 0.65) !important;
-            background: rgba(15, 23, 42, 0.82) !important;
-            background-color: rgba(15, 23, 42, 0.82) !important;
+        #username:focus,
+        #password:focus {
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.22),
+                        inset 0 2px 6px rgba(0, 0, 0, 0.65) !important;
+            border-color: #38bdf8 !important;
+            background: #060b16 !important;
+            background-color: #060b16 !important;
             color: #ffffff !important;
             -webkit-text-fill-color: #ffffff !important;
         }
         input.input-field:-webkit-autofill,
         input.input-field:-webkit-autofill:hover,
         input.input-field:-webkit-autofill:focus,
-        input.input-field:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0 1000px #111a2e inset !important;
-            box-shadow: 0 0 0 1000px #111a2e inset !important;
+        input.input-field:-webkit-autofill:active,
+        #username:-webkit-autofill,
+        #password:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0 1000px #091020 inset !important;
+            box-shadow: 0 0 0 1000px #091020 inset !important;
             -webkit-text-fill-color: #ffffff !important;
             color: #ffffff !important;
-            caret-color: #ffffff !important;
-            border: 1px solid rgba(56, 189, 248, 0.45) !important;
+            caret-color: #38bdf8 !important;
+            border: 1.5px solid rgba(56, 189, 248, 0.45) !important;
             transition: background-color 9999s ease-in-out 0s;
         }
         .toggle-pwd-btn {
             position: absolute;
-            left: 15px;
-            top: 38px;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
             background: none;
             border: none;
-            color: rgba(255, 255, 255, 0.6) !important;
+            color: #94a3b8 !important;
             cursor: pointer;
-            font-size: 1.2rem;
+            font-size: 1.08rem;
             transition: color 0.2s;
-            padding: 5px;
+            padding: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 3;
         }
         .toggle-pwd-btn:hover {
             color: #38bdf8 !important;
@@ -462,49 +461,67 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
         }
     </style>
 </head>
-<body class="magaiees-login-body">
+<body class="magaiees-login-body" style="background-color: #060b16 !important; color: #ffffff !important;">
+    <script>
+        (function() {
+            try {
+                document.documentElement.classList.remove('light-theme');
+                document.body.classList.remove('light-theme');
+                document.documentElement.setAttribute('data-theme', 'dark');
+                if ('caches' in window) {
+                    caches.keys().then(function(names) {
+                        names.forEach(function(n) {
+                            if (n.indexOf('login-v2') === -1) caches.delete(n);
+                        });
+                    });
+                }
+            } catch (e) {}
+        })();
+    </script>
     <div class="login-card">
-        <!-- 🌟 شعار مقاييس والكتابة الواضحة الرسمية -->
-        <div class="logo-container" style="margin-bottom: 6px;">
-            <img src="assets/logo.png" alt="MAGAIEES Logo" loading="eager" style="width: 82px; max-width: 24vw; height: auto; filter: drop-shadow(0 8px 18px rgba(0,0,0,0.5));">
+        <!-- 🌟 شعار السيطرة والكتابة الواضحة الرسمية -->
+        <div class="logo-container" style="margin-bottom: 8px;">
+            <img src="assets/logo.png?v=saytara_shield_v3" alt="AL-SAYTARA Logo" loading="eager" style="width: 88px; max-width: 24vw; height: auto; filter: drop-shadow(0 10px 22px rgba(0,0,0,0.65));">
         </div>
-        <div class="title" style="background: linear-gradient(135deg, #ffffff 25%, #38bdf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; font-weight: 900; font-size: 1.42rem; letter-spacing: 0.5px;">
-            مقاييس MAGAIEES ERP
+        <div class="title" style="background: linear-gradient(135deg, #ffffff 25%, #38bdf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; font-weight: 900; font-size: 1.45rem; letter-spacing: 0.5px;">
+            السيطرة ERP
         </div>
-        <p id="login-company-subtitle" style="color: rgba(255, 255, 255, 0.88); font-size: 0.9rem; margin: 0 0 <?php echo $detectedSubdomain !== '' ? '8px' : '22px'; ?> 0; font-weight: 700;">
+        <p id="login-company-subtitle" style="color: #cbd5e1; font-size: 0.92rem; margin: 0 0 <?php echo $detectedSubdomain !== '' ? '8px' : '24px'; ?> 0; font-weight: 700;">
             <?php echo htmlspecialchars($detectedCompanyName, ENT_QUOTES, 'UTF-8'); ?>
         </p>
         <?php if ($detectedSubdomain !== ''): ?>
-        <div style="margin: 0 auto 20px auto; display: inline-flex; align-items: center; gap: 6px; padding: 4px 14px; border-radius: 999px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; font-size: 0.78rem; font-weight: 700; direction: ltr;">
+        <div style="margin: 0 auto 22px auto; display: inline-flex; align-items: center; gap: 6px; padding: 5px 15px; border-radius: 999px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.32); color: #38bdf8; font-size: 0.8rem; font-weight: 700; direction: ltr;">
             <span>🌐</span>
             <span><?php echo htmlspecialchars($detectedSubdomain . '.elsajana.com', ENT_QUOTES, 'UTF-8'); ?></span>
         </div>
         <?php endif; ?>
 
         <!-- 👤 اسم المستخدم -->
-        <div class="input-group" style="text-align: right; margin-bottom: 18px;">
-            <label for="username" style="display: flex; align-items: center; gap: 7px; margin-bottom: 7px; color: rgba(255, 255, 255, 0.95); font-size: 0.92rem; font-weight: 800;">
-                <i class="fa-solid fa-user" style="color: #38bdf8; font-size: 0.85rem;"></i>
+        <div class="login-field-group" style="text-align: right; margin-bottom: 18px; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important;">
+            <label for="username" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: #f8fafc !important; font-size: 0.93rem; font-weight: 800;">
+                <i class="fa-solid fa-user" style="color: #38bdf8; font-size: 0.88rem;"></i>
                 <span>اسم المستخدم</span>
             </label>
-            <input type="text" class="input-field" id="username" placeholder="أدخل اسم المستخدم" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" style="padding: 13px 16px; font-size: 1rem; border-radius: 14px;">
+            <input type="text" class="input-field" id="username" placeholder="أدخل اسم المستخدم" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" style="width: 100%; padding: 14px 16px; font-size: 1.02rem; font-weight: 700; border-radius: 14px; background: #091020 !important; background-color: #091020 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; border: 1.5px solid rgba(56, 189, 248, 0.35) !important; box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.55) !important;">
         </div>
         
         <!-- 🔑 كلمة المرور -->
-        <div class="input-group" style="position: relative; text-align: right; margin-bottom: 10px;">
-            <label for="password" style="display: flex; align-items: center; gap: 7px; margin-bottom: 7px; color: rgba(255, 255, 255, 0.95); font-size: 0.92rem; font-weight: 800;">
-                <i class="fa-solid fa-lock" style="color: #38bdf8; font-size: 0.85rem;"></i>
+        <div class="login-field-group" style="position: relative; text-align: right; margin-bottom: 12px; background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important;">
+            <label for="password" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; color: #f8fafc !important; font-size: 0.93rem; font-weight: 800;">
+                <i class="fa-solid fa-lock" style="color: #38bdf8; font-size: 0.88rem;"></i>
                 <span>كلمة المرور</span>
             </label>
-            <input type="password" class="input-field" id="password" placeholder="أدخل كلمة المرور" autocomplete="current-password" autocapitalize="none" autocorrect="off" style="padding: 13px 46px 13px 16px; font-size: 1rem; border-radius: 14px;">
-            <button type="button" class="toggle-pwd-btn" onclick="togglePassword()" title="إظهار/إخفاء كلمة المرور" id="toggle-pwd-icon" style="top: 36px; left: 12px; font-size: 1.05rem;">
-                <i class="fa-regular fa-eye"></i>
-            </button>
+            <div style="position: relative; width: 100%;">
+                <input type="password" class="input-field" id="password" placeholder="أدخل كلمة المرور" autocomplete="current-password" autocapitalize="none" autocorrect="off" style="width: 100%; padding: 14px 46px 14px 16px; font-size: 1.02rem; font-weight: 700; border-radius: 14px; background: #091020 !important; background-color: #091020 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; border: 1.5px solid rgba(56, 189, 248, 0.35) !important; box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.55) !important;">
+                <button type="button" class="toggle-pwd-btn" onclick="togglePassword()" title="إظهار/إخفاء كلمة المرور" id="toggle-pwd-icon" style="position: absolute; top: 50%; left: 12px; transform: translateY(-50%); font-size: 1.05rem; background: transparent !important; border: none !important; color: #94a3b8;">
+                    <i class="fa-regular fa-eye"></i>
+                </button>
+            </div>
         </div>
 
         <!-- سطر نسيت كلمة المرور -->
-        <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 20px; padding: 0 4px;">
-            <a href="javascript:void(0)" onclick="openResetModal('identity')" style="color: #94a3b8; text-decoration: none; font-size: 0.84rem; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.color='#38bdf8';" onmouseout="this.style.color='#94a3b8';">نسيت كلمة المرور؟</a>
+        <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 22px; padding: 0 4px;">
+            <a href="javascript:void(0)" onclick="openResetModal('identity')" style="color: #94a3b8; text-decoration: none; font-size: 0.85rem; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.color='#38bdf8';" onmouseout="this.style.color='#94a3b8';">نسيت كلمة المرور؟</a>
         </div>
         
         <script>
@@ -522,8 +539,8 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
         </script>
 
         <!-- 🛡️ زر دخول آمن -->
-        <button class="btn-login" onclick="handleLogin()" style="width: 100%; padding: 14px; border-radius: 14px; background: linear-gradient(135deg, #0284c7, #2563eb 50%, #4f46e5); box-shadow: 0 8px 24px rgba(2, 132, 199, 0.45); color: white; font-size: 1.08rem; font-weight: 800; border: 1px solid rgba(255,255,255,0.22); cursor: pointer; transition: all 0.25s; display: flex; align-items: center; justify-content: center; gap: 9px;">
-            <i class="fa-solid fa-shield-halved" style="font-size: 1.05rem; color: #7dd3fc;"></i>
+        <button class="btn-login" onclick="handleLogin()" style="width: 100%; padding: 15px; border-radius: 14px; background: linear-gradient(135deg, #0284c7 0%, #2563eb 55%, #4f46e5 100%); box-shadow: 0 10px 26px rgba(2, 132, 199, 0.45); color: #ffffff !important; font-size: 1.08rem; font-weight: 800; border: 1px solid rgba(125, 211, 252, 0.35); cursor: pointer; transition: all 0.25s; display: flex; align-items: center; justify-content: center; gap: 10px;">
+            <i class="fa-solid fa-shield-halved" style="font-size: 1.08rem; color: #7dd3fc;"></i>
             <span>تسجيل الدخول الآمن</span>
         </button>
         
@@ -1823,7 +1840,7 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
                     subdomain: matchedUser.subdomain || tenantSubdomain || '',
                     valid_until: matchedUser.valid_until || '2035-12-31 23:59:59',
                     status: matchedUser.status || 'active',
-                    company_name: matchedUser.company_name || localStorage.getItem('companyName') || 'مؤسسة مقاييس المعتمدة',
+                    company_name: matchedUser.company_name || localStorage.getItem('companyName') || 'مؤسسة السيطرة المعتمدة',
                     allowedScreens: matchedUser.allowedScreens || {},
                     screenButtons: matchedUser.screenButtons || {},
                     allowedReports: matchedUser.allowedReports || {},
@@ -1846,7 +1863,7 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
                     subdomain: (username === 'c' ? 'c' : ''),
                     valid_until: '2035-12-31 23:59:59',
                     status: 'active',
-                    company_name: 'مؤسسة مقاييس المعتمدة'
+                    company_name: 'مؤسسة السيطرة المعتمدة'
                 };
 
                 const offlineToken = 'offline_token_' + Date.now();

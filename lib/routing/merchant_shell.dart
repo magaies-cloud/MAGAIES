@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:magaiees_marketplace/core/constants/app_colors.dart';
+import 'package:magaiees_marketplace/core/theme/app_theme.dart';
 import 'package:magaiees_marketplace/core/extensions/context_extensions.dart';
 import 'package:magaiees_marketplace/core/utils/app_notification.dart';
 import 'package:magaiees_marketplace/core/utils/notification_sound_service.dart';
@@ -99,6 +100,8 @@ class _MerchantShellState extends ConsumerState<MerchantShell> {
                   rowStoreId = lookup?['store_id']?.toString();
                 } catch (_) {}
               }
+
+              if (!mounted) return;
 
               // Only trigger if the order belongs to one of this merchant's stores
               if (rowStoreId != null && _myStoreIds.contains(rowStoreId)) {
@@ -396,53 +399,61 @@ class _MerchantShellState extends ConsumerState<MerchantShell> {
           }
         }
       },
-      child: Scaffold(
-        appBar: isStaff
-            ? PreferredSize(
-                preferredSize: const Size.fromHeight(36),
-                child: Container(
-                  color: AppColors.merchantAccent.withOpacity(0.08),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  alignment: Alignment.center,
-                  child: Row(
-                    children: [
-                      const Icon(Icons.badge, size: 16, color: AppColors.merchantAccent),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          '${isRtl ? 'الموظف:' : 'Staff:'} ${currentUser?.nameAr ?? currentUser?.name ?? ''} (${currentUser?.staffJobTitle ?? (isRtl ? 'فريق العمل' : 'Staff')}) • ${currentUser?.storeNameAr ?? currentUser?.storeName ?? (isRtl ? 'المتجر' : 'Store')}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.merchantAccent,
-                          ),
-                          overflow: TextOverflow.ellipsis,
+      child: Theme(
+        data: AppTheme.merchantTheme,
+        child: Scaffold(
+          appBar: isStaff
+              ? PreferredSize(
+                  preferredSize: const Size.fromHeight(38),
+                  child: Container(
+                    color: AppColors.merchantAccent.withValues(alpha: 0.08),
+                    child: SafeArea(
+                      bottom: false,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.badge, size: 16, color: AppColors.merchantAccent),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                '${isRtl ? 'الموظف:' : 'Staff:'} ${currentUser?.nameAr ?? currentUser?.name ?? ''} (${currentUser?.staffJobTitle ?? (isRtl ? 'فريق العمل' : 'Staff')}) • ${currentUser?.storeNameAr ?? currentUser?.storeName ?? (isRtl ? 'المتجر' : 'Store')}',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.merchantAccent,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              )
-            : null,
-        body: widget.navigationShell,
-        bottomNavigationBar: MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            textScaler: MediaQuery.of(context).textScaler.clamp(
-              minScaleFactor: 0.85,
-              maxScaleFactor: 1.05,
+                )
+              : null,
+          body: widget.navigationShell,
+          bottomNavigationBar: MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: MediaQuery.of(context).textScaler.clamp(
+                minScaleFactor: 0.85,
+                maxScaleFactor: 1.0,
+              ),
             ),
-          ),
-          child: NavigationBar(
-            selectedIndex: selectedBarIndex,
-            onDestinationSelected: (barIndex) {
-              final targetBranch = visibleTabs[barIndex].branchIndex;
-              widget.navigationShell.goBranch(
-                targetBranch,
-                initialLocation: targetBranch == widget.navigationShell.currentIndex,
-              );
-            },
-            indicatorColor: AppColors.merchantAccent.withValues(alpha: 0.15),
-            destinations: visibleTabs.map((t) => t.destination).toList(),
+            child: NavigationBar(
+              height: 54,
+              selectedIndex: selectedBarIndex,
+              onDestinationSelected: (barIndex) {
+                final targetBranch = visibleTabs[barIndex].branchIndex;
+                widget.navigationShell.goBranch(
+                  targetBranch,
+                  initialLocation: targetBranch == widget.navigationShell.currentIndex,
+                );
+              },
+              indicatorColor: AppColors.merchantAccent.withValues(alpha: 0.15),
+              destinations: visibleTabs.map((t) => t.destination).toList(),
+            ),
           ),
         ),
       ),

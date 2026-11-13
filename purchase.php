@@ -8527,7 +8527,7 @@ document.addEventListener('DOMContentLoaded', () => {
             filter: brightness(1.08) !important;
         }
 
-        /* F. المنطقة الأعلى للمقاييس (توضيح كلمة الدولار وسعر الصرف والتاريخ والوقت) + الشريط السفلي الأسود (المستخدم متصل الآن باللون الفاتح الواضح) */
+        /* F. المنطقة الأعلى للسيطرة (توضيح كلمة الدولار وسعر الصرف والتاريخ والوقت) + الشريط السفلي الأسود (المستخدم متصل الآن باللون الفاتح الواضح) */
         html body .header-flagship-identity-suite #global-exchange-rate-box,
         :root.light-theme body .header-flagship-identity-suite #global-exchange-rate-box,
         :root.light-theme #global-exchange-rate-box {

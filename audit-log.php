@@ -17,7 +17,7 @@ $header_theme_class = 'header-theme-settings';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>السجل الرقابي - مقاييس ERP</title>
+    <title>السجل الرقابي - السيطرة ERP</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -526,7 +526,7 @@ $header_theme_class = 'header-theme-settings';
     <!-- Print Header -->
     <div class="print-only-header">
         <div>
-            <h2 style="margin:0; font-size:1.3rem;">السجل الرقابي — مقاييس ERP</h2>
+            <h2 style="margin:0; font-size:1.3rem;">السجل الرقابي — السيطرة ERP</h2>
         </div>
         <div id="print-date-stamp" style="font-weight:800; font-size:0.9rem;"></div>
     </div>

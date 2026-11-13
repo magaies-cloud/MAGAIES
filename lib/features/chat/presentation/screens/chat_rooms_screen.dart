@@ -30,7 +30,7 @@ class _ChatRoomsScreenState extends ConsumerState<ChatRoomsScreen> {
 
   void _setupUserCallListener() {
     final user = ref.read(authNotifierProvider).valueOrNull;
-    if (user == null || _userCallChannel != null) return;
+    if (user == null || user.role.isGuest || user.id == 'guest_user' || _userCallChannel != null) return;
 
     _userCallChannel = Supabase.instance.client.channel('user_call_${user.id}');
     _userCallChannel?.onBroadcast(
@@ -80,7 +80,8 @@ class _ChatRoomsScreenState extends ConsumerState<ChatRoomsScreen> {
   Widget build(BuildContext context) {
     // Re-verify call listener if user logs in or changes
     final user = ref.watch(authNotifierProvider).valueOrNull;
-    if (user != null && _userCallChannel == null) {
+    final isGuest = user == null || user.role.isGuest || user.id == 'guest_user';
+    if (!isGuest && _userCallChannel == null) {
       _setupUserCallListener();
     }
     final isRtl = Directionality.of(context) == TextDirection.rtl;
@@ -97,14 +98,47 @@ class _ChatRoomsScreenState extends ConsumerState<ChatRoomsScreen> {
           ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => ref.invalidate(chatRoomsProvider),
-            tooltip: isRtl ? 'تحديث' : 'Refresh',
-          ),
+          if (!isGuest)
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: () => ref.invalidate(chatRoomsProvider),
+              tooltip: isRtl ? 'تحديث' : 'Refresh',
+            ),
         ],
       ),
-      body: roomsAsync.when(
+      body: isGuest
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.chat_bubble_outline_rounded, size: 64, color: Colors.grey.shade400),
+                    const SizedBox(height: 16),
+                    Text(
+                      isRtl ? 'سجّل الدخول للتواصل مع التجار' : 'Sign in to chat with sellers',
+                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      isRtl
+                          ? 'المحادثات المباشرة والمكالمات الصوتية متاحة للأعضاء المسجلين.'
+                          : 'Direct messaging and voice calls are available for registered members.',
+                      style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    FilledButton.icon(
+                      onPressed: () => context.push('/login'),
+                      icon: const Icon(Icons.login_rounded),
+                      label: Text(isRtl ? 'تسجيل الدخول' : 'Sign In'),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : roomsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(
           child: Column(
@@ -157,7 +191,7 @@ class _ChatRoomsScreenState extends ConsumerState<ChatRoomsScreen> {
             separatorBuilder: (_, _) => const Divider(height: 1, indent: 72),
             itemBuilder: (context, index) {
               final room = rooms[index];
-              return _ChatRoomTile(room: room, currentUserId: user?.id ?? '', isRtl: isRtl);
+              return _ChatRoomTile(room: room, currentUserId: user.id, isRtl: isRtl);
             },
           );
         },

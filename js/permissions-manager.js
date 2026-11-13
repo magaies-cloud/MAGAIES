@@ -653,7 +653,7 @@
                 {
                     id: 'engineering_tools',
                     file: 'engineering_tools.php',
-                    title: 'الأدوات المساعدة والمقاييس والحاسبات',
+                    title: 'الأدوات المساعدة واللسيطرة والحاسبات',
                     icon: 'fa-toolbox',
                     desc: 'حاسبات التحويل، الأدوات الهندسية، والمساعدات الحسابية',
                     supportedActions: ['preview', 'print']

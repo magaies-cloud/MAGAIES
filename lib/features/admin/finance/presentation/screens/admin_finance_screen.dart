@@ -940,7 +940,7 @@ class _AdminFinanceScreenState extends ConsumerState<AdminFinanceScreen>
                 Expanded(
                   flex: 3,
                   child: DropdownButtonFormField<String>(
-                    value: _bankFilter.isEmpty ? '' : _bankFilter,
+                    value: (_bankFilter.isEmpty || !availableBanks.contains(_bankFilter)) ? '' : _bankFilter,
                     decoration: inputDecoration.copyWith(
                       labelText: isRtl ? 'تصفية حسب الحساب البنكي' : 'Filter by Bank',
                       labelStyle: const TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF475569), fontSize: 13),
@@ -1117,10 +1117,10 @@ class _AdminFinanceScreenState extends ConsumerState<AdminFinanceScreen>
                         style: const TextStyle(color: Color(0xFF0F172A), fontWeight: FontWeight.w900, fontSize: 14),
                       ),
                       Text(
-                        '${isRtl ? "المبيعات" : "Sales"}: ${_fmt(selectedMerchantStats["grossSales"] ?? 0)} | ' +
-                        '${isRtl ? "العمولة" : "Comm"}: ${_fmt(selectedMerchantStats["platformCommission"] ?? 0)} | ' +
-                        '${isRtl ? "المستحق" : "Due"}: ${_fmt(selectedMerchantStats["merchantShare"] ?? 0)} | ' +
-                        '${isRtl ? "المتبقي للسحب" : "Available"}: ${_fmt(selectedMerchantStats["netDueBalance"] ?? 0)}',
+                        '${isRtl ? "المبيعات" : "Sales"}: ${_fmt(selectedMerchantStats["income"] ?? 0)} | ' +
+                        '${isRtl ? "العمولة" : "Comm"}: ${_fmt(selectedMerchantStats["commission"] ?? 0)} | ' +
+                        '${isRtl ? "المستحق" : "Due"}: ${_fmt(selectedMerchantStats["merchant_share"] ?? 0)} | ' +
+                        '${isRtl ? "المتبقي للسحب" : "Available"}: ${_fmt(((selectedMerchantStats["merchant_share"] as num?)?.toDouble() ?? 0.0) - ((selectedMerchantStats["expense"] as num?)?.toDouble() ?? 0.0))}',
                         style: const TextStyle(color: Color(0xFFB45309), fontSize: 12.5, fontWeight: FontWeight.bold),
                       ),
                     ],

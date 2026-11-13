@@ -13,6 +13,7 @@ import 'package:magaiees_marketplace/core/extensions/context_extensions.dart';
 import 'package:magaiees_marketplace/core/utils/image_picker_helper.dart';
 import 'package:magaiees_marketplace/routing/route_names.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -135,7 +136,7 @@ class BuyerProfileScreen extends ConsumerWidget {
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
-                        ref.read(authNotifierProvider.notifier).logout(); // Logs out guest and redirects to login
+                        context.push('/login');
                       },
                       child: Text(context.isRtl ? 'تسجيل الدخول / إنشاء حساب' : 'Log In / Register'),
                     ),
@@ -518,7 +519,7 @@ class BuyerProfileScreen extends ConsumerWidget {
                 ListTile(
                   leading: const Icon(Icons.info_outline, color: Colors.blue),
                   title: Text(context.isRtl ? 'عن منصة مقاييس' : 'About Magaiees Platform'),
-                  subtitle: const Text('Version 1.0.9 (Build 11)'),
+                  subtitle: const Text('Version 1.0.10 (Build 13)'),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () => _showAboutDialog(context),
                 ),
@@ -895,6 +896,8 @@ class BuyerProfileScreen extends ConsumerWidget {
                             'permissions': updatedPerms,
                           }).eq('id', currentUser.id);
                         }
+                        const secureStorage = FlutterSecureStorage();
+                        await secureStorage.deleteAll();
                       } catch (_) {}
                       if (ctx.mounted) {
                         Navigator.pop(ctx);
@@ -1029,7 +1032,7 @@ class BuyerProfileScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Version 1.0.9 (Build 11)',
+              'Version 1.0.10 (Build 13)',
               style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
             ),
             const SizedBox(height: 16),

@@ -8,7 +8,7 @@ $pdo = getDBConnection();
 
 global $GLOBAL_TENANT_ID;
 $tenantId = $_GET['tenant_id'] ?? $_GET['t'] ?? (!empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '12');
-$companyName = 'مقاييس لإدارة الأعمال والحلول الذكية';
+$companyName = 'السيطرة لإدارة الأعمال والحلول الذكية';
 try {
     if ($pdo) {
         $stmt = $pdo->prepare("SELECT name FROM tenants WHERE id = ?");

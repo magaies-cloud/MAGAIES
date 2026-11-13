@@ -3607,7 +3607,7 @@ window.SuiteSalesPOS = {
           `💰 *الإجمالي النهائي المطلوب: ${total} ${currency}*\n` +
           (notes ? `📝 *ملحوظة:* ${notes}\n` : '') +
           `━━━━━━━━━━━━━━━━━━━━\n` +
-          `✨ *نظام المقاييس لإدارة المبيعات والمخازن*`;
+          `✨ *نظام اللسيطرة لإدارة المبيعات والمخازن*`;
 
         if (navigator.share) {
           navigator.share({
@@ -5638,7 +5638,7 @@ window.SuiteSalesPOS = {
             <div class="header">
               <div>
                 <h2 style="margin:0 0 4px 0; color:#0f172a;">مؤسسة السجانة لمواد البناء والتجارة</h2>
-                <p style="margin:2px 0; color:#475569; font-size:12px;">فاتورة مبيعات إلكترونية معتمدة • نظام مقاييس ERP</p>
+                <p style="margin:2px 0; color:#475569; font-size:12px;">فاتورة مبيعات إلكترونية معتمدة • نظام السيطرة ERP</p>
                 <div style="font-size:12px; margin-top:8px;">
                   <div><strong>رقم الفاتورة:</strong> #${invNo} &nbsp;&nbsp;|&nbsp;&nbsp; <strong>التاريخ:</strong> ${date}</div>
                   <div style="margin-top:4px;"><strong>العميل:</strong> ${cust} &nbsp;&nbsp;|&nbsp;&nbsp; <strong>طريقة السداد:</strong> ${payMethod}</div>
@@ -7306,7 +7306,7 @@ window.SuiteSalesPOS = {
             text += `${i + 1}. ${it.name} | كمية: ${it.qty} ${it.unit} | سعر: ${it.price} | إجمالي: ${it.subtotal.toLocaleString()}\n`;
           });
         }
-        text += `------------------------\n💰 الإجمالي الصافي: ${gt}\nنظام مقاييس ERP السحابي`;
+        text += `------------------------\n💰 الإجمالي الصافي: ${gt}\nنظام السيطرة ERP السحابي`;
 
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(text).then(() => {
@@ -13383,7 +13383,7 @@ async function commitOpSales(andPay = false) {
           brandText.style.color = '#34d399';
           brandText.style.textShadow = '0 0 10px rgba(16,185,129,0.7)';
         }
-        brandBadge.title = 'مقاييس ERP - متصل بالإنترنت وقاعدة البيانات (اضغط للرئيسية)';
+        brandBadge.title = 'السيطرة ERP - متصل بالإنترنت وقاعدة البيانات (اضغط للرئيسية)';
       } else {
         brandBadge.classList.add('is-offline');
         brandBadge.classList.remove('is-online');
@@ -13394,7 +13394,7 @@ async function commitOpSales(andPay = false) {
           brandText.style.color = '#f87171';
           brandText.style.textShadow = '0 0 10px rgba(239,68,68,0.8)';
         }
-        brandBadge.title = 'مقاييس ERP - تم انقطاع اتصال الإنترنت (وضع العمل دون اتصال)';
+        brandBadge.title = 'السيطرة ERP - تم انقطاع اتصال الإنترنت (وضع العمل دون اتصال)';
       }
     }
     window.syncMagaieesNetUI = syncMagaieesNetUI;
@@ -14853,7 +14853,7 @@ async function commitOpSales(andPay = false) {
         const actCash = parseFloat(document.getElementById('zReportActualCashInput')?.value || 0).toLocaleString('en-US');
         const actBank = parseFloat(document.getElementById('zReportActualBankInput')?.value || 0).toLocaleString('en-US');
         const status = document.getElementById('zReportVarianceStatusText')?.innerText || '';
-        const msg = `🧾 *تقرير تقفيل الوردية (${ref}) - مقاييس ERP*\n💵 النقدية بالدرج: ${actCash} ج.س\n🏦 البنك المطابق: ${actBank} ج.س\n📊 النتيجة: ${status}\n💱 سعر الصرف المعتمد: ${Math.round(this.getRate()).toLocaleString('en-US')} ج.س`;
+        const msg = `🧾 *تقرير تقفيل الوردية (${ref}) - السيطرة ERP*\n💵 النقدية بالدرج: ${actCash} ج.س\n🏦 البنك المطابق: ${actBank} ج.س\n📊 النتيجة: ${status}\n💱 سعر الصرف المعتمد: ${Math.round(this.getRate()).toLocaleString('en-US')} ج.س`;
         window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
       },
 

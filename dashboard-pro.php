@@ -42,7 +42,7 @@
         .btn-prime:hover { filter: brightness(1.2); transform: translateY(-1px); }
 
         /* =============================================================
-           👑 الانبثاق الدائري العضوي (المرحلة الثانية: شعار مقاييس المتداخل ذرياً)
+           👑 الانبثاق الدائري العضوي (المرحلة الثانية: شعار السيطرة المتداخل ذرياً)
            ============================================================= */
         .organic-circle-viewport { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; justify-content: center; align-items: center; z-index: 9999; pointer-events: none; }
         
@@ -106,7 +106,7 @@
 
     <div class="auth-container" id="authWrapper">
         <div class="glass-login-card" id="loginCard">
-            <h2>لوحة تمكين مقاييس</h2>
+            <h2>لوحة تمكين السيطرة</h2>
             <p>MAGAIEES ERP — SECURE GATEWAY</p>
             
             <form onsubmit="initiateProfessionalAccess(event)">
@@ -128,7 +128,7 @@
     <div class="organic-circle-viewport" id="organicSplash">
         <div class="luminous-neon-ring"></div>
         <div class="organic-brand-block">
-            <h1 class="brand-text-epic">مقاييس ERP</h1>
+            <h1 class="brand-text-epic">السيطرة ERP</h1>
             <div class="brand-sub-epic">ENTERPRISE SYSTEM</div>
         </div>
     </div>
@@ -167,7 +167,7 @@
                     const splashViewport = document.getElementById('organicSplash');
                     splashViewport.style.display = 'flex';
                     
-                    // 3. يظل شعار مقاييس يلمع ويمتص حركة ألوان السوائل في دائرة نيونية، ثم يفتح السيستم
+                    // 3. يظل شعار السيطرة يلمع ويمتص حركة ألوان السوائل في دائرة نيونية، ثم يفتح السيستم
                     setTimeout(() => {
                         splashViewport.classList.add('global-fade-out');
                         setTimeout(() => {

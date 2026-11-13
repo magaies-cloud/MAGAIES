@@ -29,7 +29,7 @@
         'sidebar.settings': { ar: 'الإعدادات', en: 'Settings' },
         'sidebar.auditLog': { ar: 'الصندوق الأسود', en: 'Audit Log' },
         'sidebar.logout': { ar: 'خروج', en: 'Logout' },
-        'sidebar.brand': { ar: 'مقاييس (MAGAIEES)', en: 'MAGAIEES (ERP)' },
+        'sidebar.brand': { ar: 'السيطرة (MAGAIEES)', en: 'MAGAIEES (ERP)' },
 
         // ══════════════════════════════════════════════
         //  HEADER (الترويسة)
@@ -485,7 +485,7 @@
             'أدوات مساعدة': 'Helper Tools',
             'الصندوق الأسود': 'Audit Log',
             'خروج': 'Logout',
-            'مقاييس (MAGAIEES)': 'MAGAIEES (ERP)',
+            'السيطرة (MAGAIEES)': 'MAGAIEES (ERP)',
             'نظام إدارة الأعمال': 'Business Management System',
             'متصل الآن:': 'Online Now:',
             'سعر الصرف:': 'Exchange Rate:',

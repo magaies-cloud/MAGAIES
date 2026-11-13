@@ -3,7 +3,7 @@
  * ═════════════════════════════════════════════════════════════════════
  * 📱 MAGAIEES ERP 2026 - UNIFIED REAL-TIME MOBILE DATA ENGINE (100% DB)
  * ═════════════════════════════════════════════════════════════════════
- * Official Mobile API Driver for Magaiees ERP (مقاييس):
+ * Official Mobile API Driver for Magaiees ERP (السيطرة):
  * - 100% Unified Database with Laptop ERP (magaees, active tenant_id = 12)
  * - Zero fake/demo data: All customers, suppliers, banks, safes, items,
  *   warehouses, sales, purchases, receipts, payments, bankak OCR receipts,

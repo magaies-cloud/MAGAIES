@@ -260,8 +260,10 @@ class AdminFinanceNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>
         if (price <= 0) continue; // تخطي الإعلانات المجانية
         totalCollected += price;
 
+        final rawAdId = a['id']?.toString() ?? '';
+        final shortAdId = rawAdId.length >= 8 ? rawAdId.substring(0, 8) : rawAdId;
         ledger.add({
-          'id': 'AD-${a['id']?.toString().substring(0, 8) ?? ''}',
+          'id': 'AD-$shortAdId',
           'type': 'ad',
           'source': 'إعلانات',
           'category': 'income',

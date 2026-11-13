@@ -84,7 +84,7 @@ if (!window.SYSTEM_APPROVED_ADS || window.SYSTEM_APPROVED_ADS.length === 0) {
     <!-- Rectangle 1: Top-Left Floating Capsule -->
     <div class="ocr-ad-float-rect ocr-ad-rect-1" style="position:absolute; top:8%; left:5%; background:linear-gradient(135deg, rgba(14,165,233,0.18), rgba(15,23,42,0.92)); border:1.2px solid rgba(56,189,248,0.45); border-radius:30px; padding:6px 16px; display:flex; align-items:center; gap:8px; backdrop-filter:blur(12px); box-shadow:0 8px 25px rgba(0,0,0,0.6); animation:ocrAdFloatSine3 4.5s ease-in-out infinite alternate; z-index:10; pointer-events:none;">
         <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#38bdf8; box-shadow:0 0 12px #38bdf8; animation:pulseScale 1.2s infinite alternate;"></span>
-        <span style="font-size:0.82rem; font-weight:900; color:#e0f2fe;">إعلانات وشركاء مقاييس المعتمدين ✨</span>
+        <span style="font-size:0.82rem; font-weight:900; color:#e0f2fe;">إعلانات وشركاء السيطرة المعتمدين ✨</span>
     </div>
 
     <!-- Rectangle 2: Bottom-Right Floating Glass Badge -->
@@ -93,10 +93,10 @@ if (!window.SYSTEM_APPROVED_ADS || window.SYSTEM_APPROVED_ADS.length === 0) {
         <span style="font-size:0.82rem; font-weight:900; color:#f5d0fe;">رؤية حاسوبية فائقة السرعة (Ultra-Fast)</span>
     </div>
 
-    <!-- SECTION 1: High-Speed Scanning Header Indicator (مع تكبير دائرة شعار مقاييس بشكل مميز وملفت) -->
+    <!-- SECTION 1: High-Speed Scanning Header Indicator (مع تكبير دائرة شعار السيطرة بشكل مميز وملفت) -->
     <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; margin-bottom:12px; z-index:20;">
         
-        <!-- Magnified MAGAIEES Logo Circle (دائرة شعار مقاييس المكبرة والفخمة مع هالة ضوئية وحلقات نيون مزدوجة) -->
+        <!-- Magnified MAGAIEES Logo Circle (دائرة شعار السيطرة المكبرة والفخمة مع هالة ضوئية وحلقات نيون مزدوجة) -->
         <div style="position:relative; width:106px; height:106px; margin-bottom:10px; display:flex; align-items:center; justify-content:center;">
             <!-- Outer Glow Aura -->
             <div style="position:absolute; inset:-8px; border-radius:50%; background:radial-gradient(circle, rgba(56,189,248,0.32) 0%, rgba(16,185,129,0.18) 50%, transparent 70%); filter:blur(10px); animation:pulseScale 2s infinite ease-in-out; pointer-events:none;"></div>
@@ -106,13 +106,13 @@ if (!window.SYSTEM_APPROVED_ADS || window.SYSTEM_APPROVED_ADS.length === 0) {
             <div style="position:absolute; inset:9px; border:3px dashed rgba(16,185,129,0.5); border-bottom-color:#10b981; border-radius:50%; animation:ocrSpinRingReverse 1.5s linear infinite;"></div>
             <!-- Center Glass Badge -->
             <div style="position:absolute; inset:18px; border-radius:50%; background:linear-gradient(135deg, rgba(15,23,42,0.96) 0%, rgba(30,41,59,0.92) 100%); border:2px solid rgba(56,189,248,0.5); box-shadow:inset 0 2px 10px rgba(0,0,0,0.8), 0 0 20px rgba(56,189,248,0.35); display:flex; align-items:center; justify-content:center;">
-                <img src="assets/logo.png" style="width:54px; height:54px; object-fit:contain; border-radius:50%; filter:drop-shadow(0 2px 8px rgba(0,0,0,0.7)); animation:pulseScale 1.8s ease-in-out infinite;">
+                <img src="assets/logo.png?v=saytara_shield_v3" style="width:54px; height:54px; object-fit:contain; border-radius:50%; filter:drop-shadow(0 2px 8px rgba(0,0,0,0.7)); animation:pulseScale 1.8s ease-in-out infinite;">
             </div>
         </div>
         
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
             <span style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#7dd3fc; padding:3px 12px; border-radius:20px; font-size:0.80rem; font-weight:900;">
-                <img src="assets/logo.png" style="width:14px; height:14px; vertical-align:middle; margin-left:4px; display:inline-block; border-radius:50%;">فحص فائق السرعة (Ultra-Fast)
+                <img src="assets/logo.png?v=saytara_shield_v3" style="width:14px; height:14px; vertical-align:middle; margin-left:4px; display:inline-block; border-radius:50%;">فحص فائق السرعة (Ultra-Fast)
             </span>
             <span id="financial-ocr-loading-timer" style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; padding:3px 12px; border-radius:20px; font-size:0.82rem; font-weight:800; font-family:'Consolas',monospace;">0.0s</span>
         </div>
@@ -121,7 +121,7 @@ if (!window.SYSTEM_APPROVED_ADS || window.SYSTEM_APPROVED_ADS.length === 0) {
 
         <!-- Disclaimer Text (Shown ONLY on forensic fraud check) -->
         <div id="financial-ocr-loading-disclaimer" style="display:none; margin-bottom:8px; text-align:center; max-width:80%; padding:8px 14px; background:rgba(220, 38, 38, 0.1); border:1px solid rgba(220, 38, 38, 0.3); border-radius:8px;">
-            <p style="color:#ef4444; font-size:0.95rem; font-weight:bold; margin:0; line-height:1.4;">مقاييس غير مسؤولة عن كشف التزوير، وإنما هو اجتهاد بالذكاء الاصطناعي لمساعدة المحاسب.</p>
+            <p style="color:#ef4444; font-size:0.95rem; font-weight:bold; margin:0; line-height:1.4;">السيطرة غير مسؤولة عن كشف التزوير، وإنما هو اجتهاد بالذكاء الاصطناعي لمساعدة المحاسب.</p>
         </div>
         
         <!-- Batch Progress Bar -->
@@ -223,7 +223,7 @@ if (!window.SYSTEM_APPROVED_ADS || window.SYSTEM_APPROVED_ADS.length === 0) {
                 <!-- Injected dynamically via JS -->
             </div>
             <div style="font-size:0.76rem; color:#94a3b8; font-weight:700; display:flex; align-items:center; gap:5px;">
-                <span>💡</span> <span>إعلانات الشركاء المعتمدة في مقاييس ERP - شاشة انتظار المعالجة الذكية</span>
+                <span>💡</span> <span>إعلانات الشركاء المعتمدة في السيطرة ERP - شاشة انتظار المعالجة الذكية</span>
             </div>
         </div>
     </div>
@@ -266,7 +266,7 @@ if (!window.SYSTEM_APPROVED_ADS || window.SYSTEM_APPROVED_ADS.length === 0) {
                 <div style="display:flex; align-items:flex-start; gap:12px;">
                     <span style="font-size:1.6rem; line-height:1; flex-shrink:0; filter:drop-shadow(0 0 8px rgba(251,191,36,0.8));">⚖️</span>
                     <div style="font-size:1.14rem; font-weight:900; color:#ffffff; line-height:1.65;">
-                        <span style="color:#fbbf24; text-shadow:0 0 14px rgba(251,191,36,0.7); font-size:1.24rem;">مقاييس</span> غير مسؤولة عن النتيجة، إنما هو <span style="color:#f5d0fe; background:rgba(168,85,247,0.25); border:1px solid rgba(192,132,252,0.4); padding:1px 8px; border-radius:6px; text-decoration:none;">اجتهاد بالذكاء الاصطناعي</span>.
+                        <span style="color:#fbbf24; text-shadow:0 0 14px rgba(251,191,36,0.7); font-size:1.24rem;">السيطرة</span> غير مسؤولة عن النتيجة، إنما هو <span style="color:#f5d0fe; background:rgba(168,85,247,0.25); border:1px solid rgba(192,132,252,0.4); padding:1px 8px; border-radius:6px; text-decoration:none;">اجتهاد بالذكاء الاصطناعي</span>.
                     </div>
                 </div>
                 <div style="color:#cbd5e1; font-size:0.86rem; font-weight:700; line-height:1.6; border-top:1px dashed rgba(255,255,255,0.15); padding-top:10px; display:flex; flex-direction:column; gap:6px;">
@@ -381,7 +381,7 @@ if (!window.SYSTEM_APPROVED_ADS || window.SYSTEM_APPROVED_ADS.length === 0) {
                         <div id="ocr-streaming-indicator" style="display:none; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(135deg, rgba(14,165,233,0.2), rgba(2,132,199,0.3)); border:1.5px solid #38bdf8; border-radius:8px; padding:5px 10px; margin-bottom:6px; flex-shrink:0; box-shadow:0 0 15px rgba(56,189,248,0.35);">
                             <div style="display:flex; align-items:center; gap:6px;">
                                 <span style="display:inline-block; animation:pulseScale 1s ease-in-out infinite;">
-                                    <img src="assets/logo.png" style="width:16px; height:16px; object-fit:contain; border-radius:50%; vertical-align:middle;">
+                                    <img src="assets/logo.png?v=saytara_shield_v3" style="width:16px; height:16px; object-fit:contain; border-radius:50%; vertical-align:middle;">
                                 </span>
                                 <span id="ocr-streaming-text" style="font-size:0.83rem; font-weight:900; color:#e0f2fe;">جاري استكمال مسح بقية المستندات في الخلفية...</span>
                             </div>
@@ -500,7 +500,7 @@ if (!window.SYSTEM_APPROVED_ADS || window.SYSTEM_APPROVED_ADS.length === 0) {
 
                             <!-- 4. حفظ هذا السند (أو محظور من الاعتماد) -->
                             <button type="button" id="btn-apply-single-financial-ocr" onclick="FinancialOCR.applyCurrentItemOnly()" style="flex:1.15; height:38px; background:linear-gradient(135deg, rgba(14,165,233,0.35), rgba(2,132,199,0.5)); border:1.5px solid #38bdf8; color:#ffffff; padding:0 8px; border-radius:8px; font-size:0.82rem; font-weight:900; cursor:pointer; text-align:center; box-shadow:0 2px 10px rgba(56,189,248,0.25); display:flex; align-items:center; justify-content:center; gap:4px; transition:all 0.2s ease; white-space:nowrap;" title="حفظ واعتماد هذا المستند المعروض حالياً فقط">
-                                <span><img src="assets/logo.png" style="width:13px; height:13px; object-fit:contain; border-radius:50%; vertical-align:middle; display:inline-block;"></span> <span id="btn-apply-single-text">حفظ هذا السند</span>
+                                <span><img src="assets/logo.png?v=saytara_shield_v3" style="width:13px; height:13px; object-fit:contain; border-radius:50%; vertical-align:middle; display:inline-block;"></span> <span id="btn-apply-single-text">حفظ هذا السند</span>
                             </button>
                         </div>
 
@@ -523,7 +523,7 @@ if (!window.SYSTEM_APPROVED_ADS || window.SYSTEM_APPROVED_ADS.length === 0) {
                         <span>🔄</span> تدوير
                     </button>
                     <button type="button" onclick="FinancialOCR.rescanCurrentItem(false)" style="background:linear-gradient(135deg, rgba(56,189,248,0.35), rgba(14,165,233,0.45)); border:1.5px solid #38bdf8; color:#e0f2fe; font-size:0.78rem; padding:4px 9px; border-radius:6px; cursor:pointer; font-weight:900; backdrop-filter:blur(10px); display:flex; align-items:center; gap:3px; box-shadow:0 0 12px rgba(56,189,248,0.4);" title="إعادة قراءة المستند بدون فحص جنائي">
-                        <span><img src="assets/logo.png" style="width:14px; height:14px; object-fit:contain; border-radius:50%; vertical-align:middle; display:inline-block;"></span> إعادة قراءة
+                        <span><img src="assets/logo.png?v=saytara_shield_v3" style="width:14px; height:14px; object-fit:contain; border-radius:50%; vertical-align:middle; display:inline-block;"></span> إعادة قراءة
                     </button>
                     <!-- زر الحجم الكامل / تركيز البيانات -->
                     <button type="button" id="btn-full-size-preview" onclick="FinancialOCR.toggleFullSizeView()" style="background:rgba(15,23,42,0.88); border:1.2px solid #10b981; color:#a7f3d0; font-size:0.78rem; padding:4px 9px; border-radius:6px; cursor:pointer; font-weight:800; backdrop-filter:blur(10px); display:flex; align-items:center; gap:3px; box-shadow:0 4px 15px rgba(0,0,0,0.6);" title="عرض الإشعار بالحجم الكامل أو تركيز البيانات">
@@ -812,7 +812,7 @@ if (!window.SYSTEM_APPROVED_ADS || window.SYSTEM_APPROVED_ADS.length === 0) {
 
                     <!-- Quick Bank Presets -->
                     <div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center; background:rgba(0,0,0,0.25); padding:8px 12px; border-radius:10px;">
-                        <span style="font-size:0.8rem; color:#d8b4fe; font-weight:800;"><img src="assets/logo.png" style="width:14px; height:14px; object-fit:contain; border-radius:50%; vertical-align:middle; display:inline-block;"> اقتراحات بنكية جاهزة:</span>
+                        <span style="font-size:0.8rem; color:#d8b4fe; font-weight:800;"><img src="assets/logo.png?v=saytara_shield_v3" style="width:14px; height:14px; object-fit:contain; border-radius:50%; vertical-align:middle; display:inline-block;"> اقتراحات بنكية جاهزة:</span>
                         <button type="button" onclick="FinancialOCR.applyBankSuggestion('مصرف السلام', 'bank_transfer', 'إشعار تحويل مصرف السلام، شعار البنك أعلى الإشعار، كود المعاملة المرجعي يتكون من 10 أرقام، المبلغ بالجنيه السوداني SDG، اسم المستفيد ورقم حسابه.')" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; border-radius:15px; padding:3px 10px; font-size:0.8rem; cursor:pointer;">مصرف السلام</button>
                         <button type="button" onclick="FinancialOCR.applyBankSuggestion('بنك النيل للتجارة والتنمية', 'bank_transfer', 'إشعار تطبيق بنك النيل، كود المعاملة المرجعي، المبلغ، اسم المحول، وتاريخ التحويل.')" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; border-radius:15px; padding:3px 10px; font-size:0.8rem; cursor:pointer;">بنك النيل</button>
                         <button type="button" onclick="FinancialOCR.applyBankSuggestion('بنك العمال الوطني', 'cheque', 'شيك مصرفي بنك العمال الوطني، رقم الشيك في شريط MICR السفلي بين علامتي ⑈، اسم المستفيد بعد (ادفعوا لأمر)، المبلغ بالأرقام والحروف، تاريخ الاستحقاق.')" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; border-radius:15px; padding:3px 10px; font-size:0.8rem; cursor:pointer;">شيك بنك العمال</button>

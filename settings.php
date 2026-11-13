@@ -225,7 +225,7 @@ try {
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مقاييس 2026 - الإعدادات</title>
+    <title>السيطرة 2026 - الإعدادات</title>
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -796,7 +796,7 @@ try {
                     <!-- Row 2: Company Name -->
                     <div class="form-group" style="grid-column: span 2; margin: 0;">
                         <label class="form-label">اسم الشركة الرسمي المطبوع على الفواتير والتقارير</label>
-                        <input type="text" class="form-input" id="cfg-company-name" placeholder="مثال: مؤسسة مقاييس للتجارة والخدمات">
+                        <input type="text" class="form-input" id="cfg-company-name" placeholder="مثال: مؤسسة السيطرة للتجارة والخدمات">
                     </div>
 
                     <!-- Row 3: Commercial Reg & Tax Number -->
@@ -1633,7 +1633,7 @@ try {
                     <div style="padding: 10px; border-radius: 10px; background: rgba(15,23,42,0.9); border-right: 3px solid #a855f7;"><div style="font-size:0.72rem;color:#64748b;">🚀 معاينة المنبثق الجانبي:</div><div data-mg-sim-zone="flyout" style="color:#e9d5ff;">⚡ اختصار سريع: كشف الموردين</div></div>
                     <div style="padding: 10px; border-radius: 10px; background: rgba(15,23,42,0.9); border-right: 3px solid #f59e0b;"><div style="font-size:0.72rem;color:#64748b;">👑 معاينة عنوان الشاشة:</div><div data-mg-sim-zone="titles" style="color:#fde68a;">🏢 إدارة المخازن والموردين</div></div>
                     <div style="padding: 10px; border-radius: 10px; background: rgba(15,23,42,0.9); border-right: 3px solid #ec4899;"><div style="font-size:0.72rem;color:#64748b;">🪟 معاينة النافذة المنبثقة:</div><div data-mg-sim-zone="modals" style="color:#fbcfe8;">➕ نافذة إضافة مخزن / مورد</div></div>
-                    <div style="padding: 10px; border-radius: 10px; background: rgba(15,23,42,0.9); border-right: 3px solid #10b981;"><div style="font-size:0.72rem;color:#64748b;">📝 معاينة التفاصيل والحقول:</div><div data-mg-sim-zone="details" style="color:#a7f3d0;">اسم المخزن: مستودع مقاييس الرئيسي</div></div>
+                    <div style="padding: 10px; border-radius: 10px; background: rgba(15,23,42,0.9); border-right: 3px solid #10b981;"><div style="font-size:0.72rem;color:#64748b;">📝 معاينة التفاصيل والحقول:</div><div data-mg-sim-zone="details" style="color:#a7f3d0;">اسم المخزن: مستودع السيطرة الرئيسي</div></div>
                 </div>
             </div>
             <!-- 3. Live Optical & Financial Statement Preview (معاينة حية للأوزان والأرقام المحاسبية) -->
