@@ -925,7 +925,10 @@
     --sb-expanded:  240px;
     --sb-bg:        rgba(5, 7, 16, 0.97);
     --sb-border:    rgba(56, 189, 248, 0.15);
-    --sb-item-h:    52px;
+    --sb-item-h:    44px;
+}
+@media (max-height: 740px) {
+    :root { --sb-item-h: 38px; }
 }
 
 html.has-sidebar body,
@@ -1033,6 +1036,10 @@ body.has-sidebar > *:not(.global-sidebar) {
 }
 
 /* ── Items ── */
+@media (max-height: 780px) {
+    .global-sidebar { --sb-item-h: 39px; }
+    .sidebar-nav { padding: 2px 0; }
+}
 .sidebar-item {
     position: relative;   /* anchor for absolute icon */
     display: block;

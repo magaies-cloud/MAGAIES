@@ -854,6 +854,12 @@
             // 1. Get Purchases & Adjustments
             let purchases = getStorageList('erp_purchase_invoices_v1');
             purchases = purchases.filter(x => !x.deleted);
+            const grnParentIds = new Set();
+            purchases.forEach(p => {
+                if (p && p.isGRN && p.originalInvoiceId) {
+                    grnParentIds.add(String(p.originalInvoiceId).trim());
+                }
+            });
             let pReturns = getStorageList('erp_purchase_returns_v1').filter(x => x && !x.deleted && !x.reversed);
             const seenPIds = new Set(purchases.map(p => String(p.id || p.invoiceNo || '')));
             pReturns.forEach(pr => {
@@ -863,6 +869,13 @@
                 }
             });
             purchases.forEach(inv => {
+                if (!inv.isGRN && !inv.isReturn && !inv.isAdjustment) {
+                    const invKey1 = String(inv.invoiceNo || '').trim();
+                    const invKey2 = String(inv.id || '').trim();
+                    if (inv.receiptStatus === 'pending_receipt' || inv.receiptStatus === 'partial_received' || (invKey1 && grnParentIds.has(invKey1)) || (invKey2 && grnParentIds.has(invKey2))) {
+                        return;
+                    }
+                }
                 (inv.items || inv.lines || []).forEach(line => {
                     let wh = getWarehouseId(line.warehouseId || inv.warehouseId || inv.warehouse);
                     if (wh === 'PENDING_RECEIPT') return;
@@ -929,25 +942,32 @@
                 let hdrWh = inv.warehouse;
                 
                 (inv.items || []).forEach(line => {
-                    let lineWh = getWarehouseId(inv.deliveryWarehouse || line.warehouseId || hdrWh);
+                    let lineWh = getWarehouseId(line.deliveredWarehouseId || inv.deliveredWarehouse || inv.deliveryWarehouse || line.warehouseId || hdrWh);
                     if (lineWh === 'PENDING_RECEIPT') return;
                     
                     if (isWarehouseMatch(warehouseId, lineWh)) {
-                        if (inv.saleType === 'reserved' && inv.deliveryStatus !== 'delivered') {
+                        const isFullDelivered = inv.isDelivered === true || inv.deliveryStatus === 'delivered' || inv.deliveryStatus === 'Delivered_Pending_Admin' || inv.deliveryStatus === 'Admin_Closed';
+                        const rawDelQty = parseFloat(line.deliveredQty) || 0;
+                        const isReservedOrPending = (inv.saleType === 'reserved' || inv.deliveryStatus === 'pending' || inv.deliveryStatus === 'partial' || String(hdrWh || '').includes('حجز'));
+                        if (isReservedOrPending && !isFullDelivered && rawDelQty <= 0.0001) {
                             return;
                         }
 
                         let itemId = line.itemId;
                         let itemObj = getItem(itemId);
-                        const origQty = parseFloat(line.quantity) || 0;
+                        const origQty = parseFloat(line.quantity ?? line.qty) || 0;
+                        const effQty = (!isFullDelivered && isReservedOrPending && rawDelQty > 0) ? Math.min(origQty, rawDelQty) : origQty;
                         const origFactor = resolveWarehouseUnitFactor(line, itemObj);
-                        let baseQty = (line.customBaseQty !== undefined) ? (parseFloat(line.customBaseQty) || 0) : (origQty * origFactor);
+                        let baseQty = (!isFullDelivered && isReservedOrPending && rawDelQty > 0)
+                            ? (effQty * origFactor)
+                            : ((line.customBaseQty !== undefined) ? (parseFloat(line.customBaseQty) || 0) : (origQty * origFactor));
 
                         let permitNo = inv.orderNo || inv.soNumber || inv.quotationNo || inv.dispatchOrderNo || inv.permitNo || inv.invoiceNo || '-';
                         let docTarget = inv.isReturn ? `sales-invoice.php?id=${inv.id || inv.invoiceNo}` : `direct-sales.php?id=${inv.id || inv.invoiceNo}`;
 
                         let typeCode = 'out';
                         let typeName = inv.isSplit ? `فاتورة مبيعات مقسمة (أصل #${inv.rootInvoice || inv.parentInvoice} • تقسيم #${inv.splitBatchNo || 1})` : 'فاتورة مبيعات';
+                        if (!isFullDelivered && isReservedOrPending && rawDelQty > 0) typeName += ' (تسليم جزئي)';
                         let valIn = 0;
                         let valOut = baseQty;
 

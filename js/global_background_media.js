@@ -417,21 +417,16 @@
     // ════════════════════════════════════════════════════════════════════════
     // 💾 Storage State Synchronization (Multi-Tenant & Mutex-Aware)
     // ════════════════════════════════════════════════════════════════════════
+    function getScopedMediaKey() {
+        return (typeof window.getTenantKey === 'function') ? window.getTenantKey(STORAGE_KEY) : STORAGE_KEY;
+    }
+
     function getStoredMediaState() {
         try {
             if (!isTopWindow && window.top && window.top.getStoredMediaState) {
                 try { return window.top.getStoredMediaState(); } catch(e) {}
             }
-            let raw = localStorage.getItem(STORAGE_KEY);
-            if (!raw) {
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && k.endsWith(STORAGE_KEY)) {
-                        raw = localStorage.getItem(k);
-                        if (raw) break;
-                    }
-                }
-            }
+            const raw = localStorage.getItem(getScopedMediaKey());
             return raw ? JSON.parse(raw) : null;
         } catch (e) {
             return null;
@@ -441,16 +436,7 @@
     function saveMediaState(state) {
         try {
             const json = JSON.stringify(state);
-            localStorage.setItem(STORAGE_KEY, json);
-            try {
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && k.endsWith(STORAGE_KEY) && k !== STORAGE_KEY) {
-                        localStorage.setItem(k, json);
-                    }
-                }
-            } catch(e2) {}
-
+            localStorage.setItem(getScopedMediaKey(), json);
             if (broadcastChannel) {
                 broadcastChannel.postMessage({ type: 'STATE_CHANGED', state: state });
             }
@@ -459,16 +445,7 @@
 
     function clearMediaState() {
         try {
-            localStorage.removeItem(STORAGE_KEY);
-            try {
-                for (let i = 0; i < localStorage.length; i++) {
-                    const k = localStorage.key(i);
-                    if (k && k.endsWith(STORAGE_KEY)) {
-                        localStorage.removeItem(k);
-                    }
-                }
-            } catch(e2) {}
-
+            localStorage.removeItem(getScopedMediaKey());
             if (broadcastChannel) {
                 broadcastChannel.postMessage({ type: 'STOP_ALL' });
             }

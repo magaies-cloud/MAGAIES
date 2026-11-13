@@ -575,29 +575,24 @@ function calculateLedgerTxns() {
 document.addEventListener('DOMContentLoaded', async () => {
     loadCompanyHeader();
     if (typeof buildAccountsList === 'function') buildAccountsList();
-    
-    let attempts = 0;
-    const pollTimer = setInterval(() => {
-        attempts++;
-        loadCompanyHeader();
-        if (attempts > 15) clearInterval(pollTimer);
-    }, 300);
 
     window.addEventListener('DBReady', () => {
         loadCompanyHeader();
-        if (typeof buildAccountsList === 'function') buildAccountsList();
     });
 
-    // Always recalculate live transactions from current source tables first so preview-ledger is never stuck on a stale snapshot
-    if (typeof calculateLedgerTxns === 'function') {
+    // Fast-path: use pre-built preview_ledger_data first, fallback to calculateLedgerTxns
+    const rawData = localStorage.getItem('preview_ledger_data') || localStorage.getItem('preview_table_data');
+    if (rawData) {
+        try {
+            const parsed = JSON.parse(rawData);
+            if (Array.isArray(parsed) && parsed.length > 0) currentData = parsed;
+        } catch(e) {}
+    }
+    if ((!currentData || currentData.length === 0) && typeof calculateLedgerTxns === 'function') {
         try {
             const liveCalculated = calculateLedgerTxns();
-            if (Array.isArray(liveCalculated) && liveCalculated.length > 0) {
-                currentData = liveCalculated;
-            }
-        } catch (e) {
-            console.warn('Live calculateLedgerTxns warning:', e);
-        }
+            if (Array.isArray(liveCalculated) && liveCalculated.length > 0) currentData = liveCalculated;
+        } catch (e) {}
     }
 
     if (!currentData || currentData.length === 0) {

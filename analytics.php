@@ -826,6 +826,60 @@
         </div>
     </div>
 
+    <!-- ═══ لوحة الأزرار المباشرة الشاملة لكافة التقارير المحاسبية والتوزيعية والتجارية والجرد (38 زراً مباشراً في الواجهة) ═══ -->
+    <div class="glass-panel" style="margin-bottom:20px; padding:18px 20px; border:2px solid rgba(16,185,129,0.5); border-radius:18px; background:linear-gradient(135deg,rgba(15,23,42,0.92),rgba(30,41,59,0.88));">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px; border-bottom:1px solid rgba(148,163,184,0.25); padding-bottom:10px;">
+            <h3 style="margin:0; font-size:1.12rem; font-weight:900; color:#34d399;">🏛️ التقارير المحاسبية والمالية حسب الأهمية</h3>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                <a href="distributive-reports.php?type=generator" style="text-decoration:none; padding:6px 12px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#2563eb); color:#fff; font-weight:900; font-size:0.84rem;">🛠️ مولد التقارير</a>
+                <a href="visual-analytics.php" style="text-decoration:none; padding:6px 12px; border-radius:10px; background:rgba(56,189,248,0.18); border:1.5px solid #38bdf8; color:#38bdf8; font-weight:900; font-size:0.84rem;">📊 التحليل البصري</a>
+                <button type="button" id="an-direct-more-btn" onclick="stepAnalyticsDirectLayer()" style="padding:6px 14px; border-radius:10px; background:rgba(16,185,129,0.22); border:1.5px solid #10b981; color:#fff; font-weight:900; font-size:0.84rem; cursor:pointer;">➕ المزيد ▾</button>
+            </div>
+        </div>
+        <div id="an-direct-reports-grid" style="display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px;">
+            <a href="general-ledger.php" style="text-decoration:none; padding:9px 12px; border-radius:10px; background:rgba(251,191,36,0.18); border:1.5px solid #fbbf24; color:#fff; font-weight:900; font-size:0.88rem;">📓 دفتر الأستاذ العام (GL)</a>
+            <a href="mainbalances-report.php" style="text-decoration:none; padding:9px 12px; border-radius:10px; background:rgba(56,189,248,0.16); border:1.5px solid #38bdf8; color:#fff; font-weight:900; font-size:0.88rem;">📊 أرصدة الحسابات</a>
+            <a href="journal.php" style="text-decoration:none; padding:9px 12px; border-radius:10px; background:rgba(168,85,247,0.16); border:1.5px solid #a855f7; color:#fff; font-weight:900; font-size:0.88rem;">📒 دفتر اليومية العامة</a>
+            <a href="trial-balance.php" style="text-decoration:none; padding:9px 12px; border-radius:10px; background:rgba(52,211,153,0.16); border:1.5px solid #34d399; color:#fff; font-weight:900; font-size:0.88rem;">⚖️ ميزان المراجعة</a>
+            <a href="balance-sheet.php" style="text-decoration:none; padding:9px 12px; border-radius:10px; background:rgba(16,185,129,0.16); border:1.5px solid #10b981; color:#fff; font-weight:900; font-size:0.88rem;">🏛️ الميزانية العمومية</a>
+            <a href="pl-statement.php" style="text-decoration:none; padding:9px 12px; border-radius:10px; background:rgba(56,189,248,0.14); border:1px solid #38bdf8; color:#fff; font-weight:800; font-size:0.86rem;">📈 قائمة الدخل والأرباح</a>
+            <a href="account-statement.php" style="display:none !important; text-decoration:none; padding:9px 12px; border-radius:10px; background:rgba(96,165,250,0.14); border:1px solid #60a5fa; color:#fff; font-weight:800; font-size:0.86rem;">📅 كشف حساب تاريخي</a>
+            <a href="cashflow_modern.php" style="text-decoration:none; padding:9px 12px; border-radius:10px; background:rgba(20,184,166,0.16); border:1px solid #14b8a6; color:#fff; font-weight:800; font-size:0.86rem;">💧 التدفقات النقدية</a>
+            <a href="balance-sheet.php?tab=operating_stats" style="text-decoration:none; padding:8px 11px; border-radius:10px; background:rgba(34,211,238,0.14); border:1px solid #22d3ee; color:#fff; font-weight:800; font-size:0.85rem;">⚡ قائمة الدخل التشغيلي</a>
+            <a href="balance-sheet.php?tab=cost_centers" style="text-decoration:none; padding:8px 11px; border-radius:10px; background:rgba(251,191,36,0.14); border:1px solid #fbbf24; color:#fff; font-weight:800; font-size:0.85rem;">🎯 تقرير مركز الكلفة</a>
+            <a href="balance-sheet.php?tab=statements" style="display:none !important; text-decoration:none; padding:8px 11px; border-radius:10px; background:rgba(96,165,250,0.14); border:1px solid #60a5fa; color:#fff; font-weight:800; font-size:0.85rem;">📑 كشف حساب مختصر</a>
+            <a href="aging-report.php" style="text-decoration:none; padding:8px 11px; border-radius:10px; background:rgba(248,113,113,0.16); border:1px solid #f87171; color:#fff; font-weight:800; font-size:0.85rem;">⏳ أعمار الديون وسقوف الائتمان</a>
+            <a href="distributive-reports.php?type=income" style="text-decoration:none; padding:8px 11px; border-radius:10px; background:rgba(192,132,252,0.16); border:1px solid #c084fc; color:#fff; font-weight:800; font-size:0.85rem;">📊 التقارير التوزيعية والربحية</a>
+            <a href="commercial-reports-suite.php?rep=sales_commercial_movement" style="text-decoration:none; padding:8px 11px; border-radius:10px; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#fff; font-weight:800; font-size:0.85rem;">🛒 الحركة التجارية للمبيعات</a>
+            <a href="commercial-reports-suite.php?rep=customer_statement" style="display:none !important; text-decoration:none; padding:8px 11px; border-radius:10px; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#fff; font-weight:800; font-size:0.85rem;">👤 كشف حساب عميل</a>
+            <a href="commercial-reports-suite.php?rep=customers_balances" style="text-decoration:none; padding:8px 11px; border-radius:10px; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#fff; font-weight:800; font-size:0.85rem;">💳 أرصدة العملاء</a>
+            <a href="commercial-reports-suite.php?rep=sales_invoices_aging" style="text-decoration:none; padding:8px 11px; border-radius:10px; background:rgba(248,113,113,0.15); border:1px solid #f87171; color:#fff; font-weight:800; font-size:0.85rem;">📅 أعمار فواتير المبيعات</a>
+            <a href="commercial-reports-suite.php?rep=customers_payments" style="text-decoration:none; padding:8px 11px; border-radius:10px; background:rgba(52,211,153,0.15); border:1px solid #34d399; color:#fff; font-weight:800; font-size:0.85rem;">💵 تسديدات العملاء</a>
+            <a href="commercial-reports-suite.php?rep=customers_installments" style="text-decoration:none; padding:8px 11px; border-radius:10px; background:rgba(52,211,153,0.15); border:1px solid #34d399; color:#fff; font-weight:800; font-size:0.85rem;">🗓️ تسديدات أقساط فواتير العملاء</a>
+            <a href="commercial-reports-suite.php?rep=purchases_commercial_movement" style="text-decoration:none; padding:8px 11px; border-radius:10px; background:rgba(251,146,60,0.15); border:1px solid #fb923c; color:#fff; font-weight:800; font-size:0.85rem;">🚚 الحركة التجارية للمشتريات</a>
+            <a href="commercial-reports-suite.php?rep=purchases_invoices_aging" style="text-decoration:none; padding:8px 11px; border-radius:10px; background:rgba(248,113,113,0.15); border:1px solid #f87171; color:#fff; font-weight:800; font-size:0.85rem;">📆 أعمار فواتير المشتريات</a>
+            <a href="commercial-reports-suite.php?rep=supplier_statement" style="display:none !important; text-decoration:none; padding:8px 11px; border-radius:10px; background:rgba(251,146,60,0.15); border:1px solid #fb923c; color:#fff; font-weight:800; font-size:0.85rem;">🏭 كشف حساب المورد</a>
+            <a href="commercial-reports-suite.php?rep=suppliers_balances" style="text-decoration:none; padding:8px 11px; border-radius:10px; background:rgba(251,146,60,0.15); border:1px solid #fb923c; color:#fff; font-weight:800; font-size:0.85rem;">🏦 أرصدة الموردين</a>
+            <a href="commercial-reports-suite.php?rep=suppliers_payments" style="text-decoration:none; padding:8px 11px; border-radius:10px; background:rgba(251,146,60,0.15); border:1px solid #fb923c; color:#fff; font-weight:800; font-size:0.85rem;">💸 تسديدات الموردين</a>
+            <a href="commercial-reports-suite.php?rep=suppliers_installments" style="text-decoration:none; padding:8px 11px; border-radius:10px; background:rgba(251,146,60,0.15); border:1px solid #fb923c; color:#fff; font-weight:800; font-size:0.85rem;">🧾 تسديدات أقساط فواتير الموردين</a>
+        </div>
+        <script>
+        (function(){
+            var step = 1;
+            window.stepAnalyticsDirectLayer = function(initOnly) {
+                var g = document.getElementById('an-direct-reports-grid'), b = document.getElementById('an-direct-more-btn');
+                if (!g || !b) return;
+                var items = Array.from(g.children), n = items.length;
+                if (!initOnly) step = (step === 1) ? 2 : (step === 2 ? 3 : 1);
+                var lim = step === 1 ? 8 : (step === 2 ? 16 : n);
+                items.forEach(function(el, i){ el.style.display = i < lim ? '' : 'none'; });
+                b.textContent = step === 1 ? ('➕ المزيد (' + (n - 8) + ') ▾') : (step === 2 ? ('➕ عرض الكل (' + (n - 16) + ') ▾') : 'طي القائمة ▴');
+            };
+            window.stepAnalyticsDirectLayer(true);
+        })();
+        </script>
+    </div>
+
     <!-- مصفوفة الـ 12 تقريراً مالياً وتحليلياً (مفلترة بالكامل بدون أي تكرار ومطابقة للقائمة الجانبية) -->
     <div class="quick-reports-grid" id="main-12-reports-grid" style="animation: slideDown 0.5s cubic-bezier(0.16, 1, 0.3, 1); display: grid; grid-template-columns: repeat(auto-fit, minmax(275px, 1fr)); gap: 16px;">
         <!-- 1. دفتر الأستاذ العام -->
@@ -849,7 +903,7 @@
         </a>
 
         <!-- 3. كشف حساب تفصيلي للشركاء -->
-        <a href="account-statement.php" class="quick-report-card" data-cat="ledger" style="--glow-color: rgba(244, 114, 182, 0.75); --glow-bg: rgba(244, 114, 182, 0.15); border: 1.5px solid rgba(244, 114, 182, 0.45);">
+        <a href="account-statement.php" class="quick-report-card" data-cat="ledger" style="display:none !important; --glow-color: rgba(244, 114, 182, 0.75); --glow-bg: rgba(244, 114, 182, 0.15); border: 1.5px solid rgba(244, 114, 182, 0.45);">
             <div class="icon-wrap">📑</div>
             <div class="card-info">
                 <div class="rep-card-top"><span class="rep-num-badge">#03</span><span class="rep-tag-badge" style="color:#f472b6;">مطابقة فورية</span></div>
@@ -888,13 +942,37 @@
             </div>
         </a>
 
-        <!-- 7. القوائم الختامية والزكاة الشرعية -->
+        <!-- 7. القوائم الختامية والميزانية العمومية والزكاة الشرعية -->
         <a href="financial-reports.php" class="quick-report-card" data-cat="statements" style="--glow-color: rgba(52, 211, 153, 0.75); --glow-bg: rgba(52, 211, 153, 0.15); border: 1.5px solid rgba(52, 211, 153, 0.45);">
             <div class="icon-wrap">🏛️</div>
             <div class="card-info">
-                <div class="rep-card-top"><span class="rep-num-badge">#07</span><span class="rep-tag-badge" style="color:#34d399;">القوائم والزكاة</span></div>
-                <h4>القوائم الختامية والزكاة الشرعية</h4>
-                <p>ميزان المراجعة، قائمة الأرباح والخسائر، التدفقات النقدية، قيود اليومية، والجرد العام والزكاة 2.5%.</p>
+                <div class="rep-card-top"><span class="rep-num-badge">#07</span><span class="rep-tag-badge" style="color:#34d399;">الميزانية والقوائم</span></div>
+                <h4>الميزانية العمومية والقوائم الختامية والتوزيعية</h4>
+                <p>الميزانية العمومية، ميزان المراجعة، قائمة الدخل والدخل التشغيلي، مراكز الكلفة، الدفاتر التوزيعية، ومولد التقارير.</p>
+            </div>
+        </a>
+        <a href="balance-sheet.php" class="quick-report-card" data-cat="statements" style="--glow-color: rgba(56, 189, 248, 0.75); --glow-bg: rgba(56, 189, 248, 0.15); border: 1.5px solid rgba(56, 189, 248, 0.45);">
+            <div class="icon-wrap">⚖️</div>
+            <div class="card-info">
+                <div class="rep-card-top"><span class="rep-num-badge">#07B</span><span class="rep-tag-badge" style="color:#38bdf8;">IAS 1 & CFO</span></div>
+                <h4>الميزانية العمومية ومراكز الكلفة والنسب المالية</h4>
+                <p>الأصول والخصوم وحقوق الملكية، التغير في الملكية، الإقرار الضريبي، الدخل التشغيلي، وكشوفات الحساب.</p>
+            </div>
+        </a>
+        <a href="distributive-reports.php" class="quick-report-card" data-cat="statements" style="--glow-color: rgba(192, 132, 252, 0.75); --glow-bg: rgba(192, 132, 252, 0.15); border: 1.5px solid rgba(192, 132, 252, 0.45);">
+            <div class="icon-wrap">🛠️</div>
+            <div class="card-info">
+                <div class="rep-card-top"><span class="rep-num-badge">#07C</span><span class="rep-tag-badge" style="color:#c084fc;">توزيعي ومولد</span></div>
+                <h4>الدفاتر والقوائم التوزيعية ومولد التقارير الحر</h4>
+                <p>اليومية والأستاذ وميزان المراجعة والدخل والميزانية ومراكز الكلفة التوزيعية + مولد التقارير الحر.</p>
+            </div>
+        </a>
+        <a href="commercial-reports-suite.php" class="quick-report-card" data-cat="inventory" style="--glow-color: rgba(16, 185, 129, 0.8); --glow-bg: rgba(16, 185, 129, 0.15); border: 1.5px solid rgba(16, 185, 129, 0.5);">
+            <div class="icon-wrap">📦</div>
+            <div class="card-info">
+                <div class="rep-card-top"><span class="rep-num-badge">#07D</span><span class="rep-tag-badge" style="color:#10b981;">21 تقريراً تجارياً</span></div>
+                <h4>الحركة التجارية للأصناف وأعمار الفواتير والأقساط والصلاحية</h4>
+                <p>قائمة وأرباح وحركة الأصناف، المراجع المرتبطة، أعمار فواتير البيع والشراء، تسديدات وأقساط العملاء والموردين، وجرد الصلاحية.</p>
             </div>
         </a>
 

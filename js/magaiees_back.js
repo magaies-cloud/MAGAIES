@@ -445,7 +445,7 @@
         }
     };
     mountScriptIfMissing('global_background_media', 'js/global_background_media.js?v=20261022_v23');
-    mountScriptIfMissing('magaies-smart-guide', 'js/magaies-smart-guide.js?v=20261102_cinema_v2');
+    mountScriptIfMissing('magaies-smart-guide', 'js/magaies-smart-guide.js?v=20261112_rc_v4');
 })();
 
 // 🧭 UNIVERSAL LIFO NAVIGATION STACK & STATE PRESERVATION ENGINE (تسلسل زر رجوع خطوة بخطوة + زر خروج للرئيسية + حفظ الحالة 0ms)

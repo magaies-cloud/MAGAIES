@@ -653,14 +653,36 @@
                 }
             });
 
-            // 1. ADD Purchases (Inward) — SUBTRACT if Return
+            // 1. ADD Purchases (Inward) — SUBTRACT if Return (prevent parent+GRN double counting)
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
             purchases = purchases.filter(x => !x.deleted);
+            const grnByParentItem = {};
+            const grnParentSet = new Set();
+            purchases.forEach(p => {
+                if (p && p.isGRN && p.originalInvoiceId) {
+                    const pKey = String(p.originalInvoiceId).trim();
+                    grnParentSet.add(pKey);
+                    (p.items || p.lines || []).forEach(gl => {
+                        const ik = pKey + '|' + String(gl.itemId || gl.productId || '');
+                        grnByParentItem[ik] = (grnByParentItem[ik] || 0) + (parseFloat(gl.quantity ?? gl.qty) || 0);
+                    });
+                }
+            });
             purchases.forEach(inv => {
-                let hdrWhName = getWarehouseName(inv.warehouseId || inv.warehouse);
+                const invNoKey = String(inv.invoiceNo || inv.id || '').trim();
+                const hasChildGrn = !inv.isGRN && !inv.isReturn && !inv.isAdjustment && (grnParentSet.has(invNoKey) || grnParentSet.has(String(inv.id || '').trim()));
+                const isPendingParent = !inv.isGRN && !inv.isReturn && !inv.isAdjustment && (inv.receiptStatus === 'pending_receipt' || inv.receiptStatus === 'partial_received' || String(inv.warehouseId || inv.warehouse || '') === 'PENDING_RECEIPT');
+                if (hasChildGrn && !isPendingParent) return;
+                let hdrWhName = isPendingParent ? getWarehouseName('PENDING_RECEIPT') : getWarehouseName(inv.warehouseId || inv.warehouse);
                 const isReturn = inv.isReturn === true;
                 (inv.items || inv.lines || []).forEach(line => {
-                    let lineWhName = line.warehouseId ? getWarehouseName(line.warehouseId) : hdrWhName;
+                    let lineWhName = isPendingParent ? getWarehouseName('PENDING_RECEIPT') : (line.warehouseId ? getWarehouseName(line.warehouseId) : hdrWhName);
+                    if (isPendingParent && hasChildGrn) {
+                        const recSoFar = grnByParentItem[invNoKey + '|' + String(line.itemId || line.productId || '')] || 0;
+                        const remPending = Math.max(0, (parseFloat(line.quantity ?? line.qty) || 0) - recSoFar);
+                        if (remPending <= 0.0001) return;
+                        line = { ...line, quantity: remPending, customBaseQty: undefined };
+                    }
                     let key = String(line.itemId || line.productId) + '|' + lineWhName;
                     let item = items.find(i => String(i.id) === String(line.itemId || line.productId));
                     let baseQty;
@@ -700,38 +722,34 @@
             sales = sales.filter(x => !x.deleted && !x.wasSplit && x.saleType !== 'preliminary' && x.status !== 'preliminary' && x.status !== 'draft');
             sales.forEach(inv => {
                 let hdrWhName = getWarehouseName(inv.warehouse);
+                const isFullDelivered = inv.isDelivered === true || inv.deliveryStatus === 'delivered' || inv.deliveryStatus === 'Delivered_Pending_Admin' || inv.deliveryStatus === 'Admin_Closed';
+                const isReservedOrPending = (inv.saleType === 'reserved' || inv.deliveryStatus === 'pending' || inv.deliveryStatus === 'partial' || String(inv.warehouse || '').includes('حجز'));
                 (inv.items || []).forEach(line => {
-                    let lineWhName = line.warehouseId ? getWarehouseName(line.warehouseId) : hdrWhName;
-                    let key = String(line.itemId) + '|' + lineWhName;
+                    let delWhName = getWarehouseName(line.deliveredWarehouseId || inv.deliveredWarehouse || inv.deliveryWarehouse || line.warehouseId || inv.warehouse);
+                    let resWhName = line.warehouseId ? getWarehouseName(line.warehouseId) : hdrWhName;
+                    let key = String(line.itemId) + '|' + delWhName;
+                    let resKey = String(line.itemId) + '|' + resWhName;
                     let item = items.find(i => String(i.id) === String(line.itemId));
-                    let baseQty;
-                    if (line.customBaseQty !== undefined) {
-                        baseQty = parseFloat(line.customBaseQty) || 0;
-                    } else {
-                        let resolvedFactor = line.customFactor || 1;
-                        if (resolvedFactor === 1 && item) {
-                            const uName = String(line.unitName || line.unit || '').trim();
-                            const unitsList = [];
-                            if (Array.isArray(item.units)) unitsList.push(...item.units);
-                            if (Array.isArray(item.unitsArray)) unitsList.push(...item.unitsArray);
-                            const matchedUnit = unitsList.find(u => { const n = (u.unitName || u.name || '').trim(); return n && n === uName; });
-                            if (matchedUnit && parseFloat(matchedUnit.factor || matchedUnit.equiv) > 0) {
-                                resolvedFactor = parseFloat(matchedUnit.factor || matchedUnit.equiv);
-                            } else {
-                                resolvedFactor = item.conversionFactor || 1;
-                            }
-                        }
-                        baseQty = (parseFloat(line.quantity) || 0) * resolvedFactor;
+                    let resolvedFactor = line.customFactor || 1;
+                    if (resolvedFactor === 1 && item) {
+                        const uName = String(line.unitName || line.unit || '').trim();
+                        const unitsList = [...(Array.isArray(item.units) ? item.units : []), ...(Array.isArray(item.unitsArray) ? item.unitsArray : [])];
+                        const matchedUnit = unitsList.find(u => { const n = (u.unitName || u.name || '').trim(); return n && n === uName; });
+                        resolvedFactor = (matchedUnit && parseFloat(matchedUnit.factor || matchedUnit.equiv) > 0) ? parseFloat(matchedUnit.factor || matchedUnit.equiv) : (item.conversionFactor || 1);
                     }
+                    const origQty = parseFloat(line.quantity ?? line.qty) || 0;
+                    let baseQty = (line.customBaseQty !== undefined) ? (parseFloat(line.customBaseQty) || 0) : (origQty * resolvedFactor);
 
                     if (inv.isReturn === true) {
-                        // Sales return: add back to stock
                         actualStockMap[key] = (actualStockMap[key] || 0) + baseQty;
-                    } else if (inv.saleType === 'reserved') {
-                        if (inv.deliveryStatus === 'delivered') {
+                    } else if (isReservedOrPending) {
+                        if (isFullDelivered) {
                             actualStockMap[key] = (actualStockMap[key] || 0) - baseQty;
                         } else {
-                            reservedStockMap[key] = (reservedStockMap[key] || 0) + baseQty;
+                            const delBase = Math.min(baseQty, (parseFloat(line.deliveredQty) || 0) * resolvedFactor);
+                            if (delBase > 0) actualStockMap[key] = (actualStockMap[key] || 0) - delBase;
+                            const remBase = Math.max(0, baseQty - delBase);
+                            if (remBase > 0) reservedStockMap[resKey] = (reservedStockMap[resKey] || 0) + remBase;
                         }
                     } else {
                         actualStockMap[key] = (actualStockMap[key] || 0) - baseQty;
@@ -1208,9 +1226,15 @@
                 }
             });
 
-            // 2. Purchases, Purchase Returns, Stocktake Adjustments
+            // 2. Purchases, Purchase Returns, Stocktake Adjustments (exclude parent invoice once GRNs exist or while pending_receipt)
             let purchases = (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []).filter(x => !x.deleted);
+            const cardGrnParents = new Set();
+            purchases.forEach(p => { if (p && p.isGRN && p.originalInvoiceId) cardGrnParents.add(String(p.originalInvoiceId).trim()); });
             purchases.forEach(inv => {
+                if (!inv.isGRN && !inv.isReturn && !inv.isAdjustment) {
+                    const ik1 = String(inv.invoiceNo || '').trim(), ik2 = String(inv.id || '').trim();
+                    if (inv.receiptStatus === 'pending_receipt' || inv.receiptStatus === 'partial_received' || String(inv.warehouseId || inv.warehouse || '') === 'PENDING_RECEIPT' || (ik1 && cardGrnParents.has(ik1)) || (ik2 && cardGrnParents.has(ik2))) return;
+                }
                 let hdrWh = getWarehouseName(inv.warehouseId || inv.warehouse);
                 let dStr = (inv.date || inv.receiveDate || inv.createdAt || '').toString().slice(0,10);
                 (inv.items || inv.lines || []).forEach(line => {

@@ -167,10 +167,12 @@ if ($manual_fixed > 0) {
                 if ($date_to && $payDate && $payDate > $date_to) continue;
 
                 // استبعاد المدفوعات للعملاء والموردين (هذه ليست مصاريف تشغيلية)
-                $toAccount = isset($pay['toAccount']) ? $pay['toAccount'] : '';
+                $rawToAcc = $pay['toAccount'] ?? '';
+                $toAccount = is_array($rawToAcc) ? (string)($rawToAcc['name'] ?? $rawToAcc['accountName'] ?? json_encode($rawToAcc, JSON_UNESCAPED_UNICODE)) : (string)$rawToAcc;
                 $isOperational = true;
                 foreach ($excludeAccounts as $excl) {
-                    if (!empty($excl) && strpos($toAccount, $excl) !== false) {
+                    $exclStr = is_array($excl) ? (string)($excl['name'] ?? '') : (string)$excl;
+                    if ($exclStr !== '' && strpos($toAccount, $exclStr) !== false) {
                         $isOperational = false;
                         break;
                     }

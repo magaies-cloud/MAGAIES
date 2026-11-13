@@ -231,7 +231,7 @@
         },
 
         'inventory-report.php': {
-            title: 'المخازن',
+            title: 'تقارير المخازن',
             icon: '📦',
             accent: '#a78bfa',
             accentRgb: '167, 139, 250',
@@ -278,48 +278,48 @@
                     rgb: '248, 113, 113',
                     href: 'inventory-stocktake.php'
                 },
-                {
-                    title: 'تسوية جردية',
-                    icon: '⚖️',
-                    color: '#fb923c',
-                    rgb: '251, 146, 60',
-                    href: 'inventory-adjustment.php'
-                },
-                {
-                    title: 'تقارير المخزن الذكية',
-                    icon: '🤖',
-                    color: '#22d3ee',
-                    rgb: '34, 211, 238',
-                    href: 'smart_inventory_report.php'
-                },
-                {
-                    title: 'مستشار AI للبضائع والمخازن',
-                    icon: '📦',
-                    color: '#34d399',
-                    rgb: '52, 211, 153',
-                    href: 'ai_goods_advisor.php'
-                }
+                { title: 'تسوية جردية', icon: '⚖️', color: '#fb923c', rgb: '251, 146, 60', href: 'inventory-adjustment.php' },
+                { title: 'قائمة الأصناف الشاملة', icon: '📋', color: '#10b981', rgb: '16, 185, 129', href: 'commercial-reports-suite.php?rep=items_catalog' },
+                { title: 'أرباح الأصناف وهوامشها', icon: '💰', color: '#fbbf24', rgb: '251, 191, 36', href: 'commercial-reports-suite.php?rep=items_profitability' },
+                { title: 'الحركة التفصيلية للصنف', icon: '🔍', color: '#38bdf8', rgb: '56, 189, 248', href: 'commercial-reports-suite.php?rep=items_detailed_movement' },
+                { title: 'الحركة التجارية للصنف', icon: '📊', color: '#34d399', rgb: '52, 211, 153', href: 'commercial-reports-suite.php?rep=items_commercial_movement' },
+                { title: 'حركة الأصناف (تجميعي)', icon: '📦', color: '#a78bfa', rgb: '167, 139, 250', href: 'commercial-reports-suite.php?rep=items_summary_movement' },
+                { title: 'جرد وتقييم المخزون الفعلي', icon: '⚖️', color: '#22d3ee', rgb: '34, 211, 238', href: 'inv_rep15_valuation.php' },
+                { title: 'فروقات وعجز الجرد', icon: '📉', color: '#fb923c', rgb: '251, 146, 60', href: 'inv_rep17_shrinkage.php' },
+                { title: 'جرد تاريخي للصلاحية', icon: '⏳', color: '#f87171', rgb: '248, 113, 113', href: 'commercial-reports-suite.php?rep=historical_expiry_inventory' },
+                { title: 'حركة المراجع المرتبطة', icon: '🔗', color: '#c084fc', rgb: '192, 132, 252', href: 'commercial-reports-suite.php?rep=linked_references_audit' },
+                { title: 'تقارير المخزن الذكية', icon: '🤖', color: '#22d3ee', rgb: '34, 211, 238', href: 'smart_inventory_report.php' },
+                { title: 'مستشار AI للبضائع والمخازن', icon: '📦', color: '#34d399', rgb: '52, 211, 153', href: 'ai_goods_advisor.php' }
             ]
         },
 
         'analytics.php': {
-            title: 'التقارير المالية والتحليلات',
+            title: 'التقارير المالية والمحاسبية',
             icon: '📊',
-            accent: '#38bdf8',
-            accentRgb: '56, 189, 248',
+            accent: '#fb923c',
+            accentRgb: '251, 146, 60',
             items: [
-                { title: 'دفتر الأستاذ العام (GL)', icon: '📓', color: '#fbbf24', rgb: '251, 191, 36', href: 'general-ledger.php' },
-                { title: 'حساب الأرصدة الأساسية', icon: '🧮', color: '#10b981', rgb: '16, 185, 129', href: 'mainbalances-report.php' },
-                { title: 'التقرير اليومي الشامل', icon: '📅', color: '#fb923c', rgb: '251, 146, 60', href: 'daily_master_report.php' },
-                { title: 'حساب مديونية الأرصدة الشامل', icon: '⚖️', color: '#38bdf8', rgb: '56, 189, 248', href: 'combined_receivables.php' },
-                { title: 'كشف حساب تفصيلي للشركاء', icon: '📑', color: '#f472b6', rgb: '244, 114, 182', href: 'account-statement.php' },
-                { title: 'أعمار الديون وسقوف الائتمان', icon: '⏳', color: '#f87171', rgb: '248, 113, 113', href: 'aging-report.php' },
-                { title: 'مركز الأرصدة ومقاصة الحسابات', icon: '🔄', color: '#22d3ee', rgb: '34, 211, 238', href: 'balances_modern_hub.php' },
-                { title: 'القوائم الختامية والزكاة', icon: '🏛️', color: '#34d399', rgb: '52, 211, 153', href: 'financial-reports.php' },
-                { title: 'تقارير ومحفظة العملاء والموردين', icon: '🤝', color: '#a78bfa', rgb: '167, 139, 250', href: 'partners_reports_hub.php' },
-                { title: 'بوابة التقارير الذكية (IAS 7)', icon: '🚀', color: '#60a5fa', rgb: '96, 165, 250', href: 'smart_reports_hub.php' },
-                { title: 'التحليل المرئي الشامل و ABC', icon: '📈', color: '#ec4899', rgb: '236, 72, 153', href: 'inventory-analytics.php' },
-                { title: 'الجرد الشامل وملخص الحركات', icon: '🔍', color: '#c084fc', rgb: '192, 132, 252', href: 'inventory-stocktake.php' }
+                { title: 'دفتر الأستاذ العام', icon: '📓', color: '#fbbf24', rgb: '251, 191, 36', href: 'general-ledger.php' },
+                { title: 'أرصدة الحسابات', icon: '🏦', color: '#10b981', rgb: '16, 185, 129', href: 'mainbalances-report.php' },
+                { title: 'دفتر اليومية العامة', icon: '📒', color: '#a78bfa', rgb: '167, 139, 250', href: 'journal.php' },
+                { title: 'ميزان المراجعة العام', icon: '⚖️', color: '#34d399', rgb: '52, 211, 153', href: 'trial-balance.php' },
+                { title: 'الميزانية العمومية', icon: '🏛️', color: '#10b981', rgb: '16, 185, 129', href: 'balance-sheet.php' },
+                { title: 'قائمة الدخل والأرباح', icon: '📈', color: '#38bdf8', rgb: '56, 189, 248', href: 'pl-statement.php' },
+                { title: 'قائمة الدخل التشغيلي', icon: '⚡', color: '#22d3ee', rgb: '34, 211, 238', href: 'balance-sheet.php?tab=operating_stats' },
+                { title: 'التدفقات النقدية والتنبؤ', icon: '💸', color: '#10b981', rgb: '16, 185, 129', href: 'cashflow_modern.php' },
+                { title: 'تقرير مركز الكلفة', icon: '🎯', color: '#fbbf24', rgb: '251, 191, 36', href: 'balance-sheet.php?tab=cost_centers' },
+                { title: 'أعمار الديون وسقوف الائتمان', icon: '⏳', color: '#ef4444', rgb: '239, 68, 68', href: 'aging-report.php' },
+                { title: 'أرصدة العملاء', icon: '💳', color: '#38bdf8', rgb: '56, 189, 248', href: 'commercial-reports-suite.php?rep=customers_balances' },
+                { title: 'أرصدة الموردين', icon: '🏦', color: '#fb923c', rgb: '251, 146, 60', href: 'commercial-reports-suite.php?rep=suppliers_balances' },
+                { title: 'تسديدات وأقساط العملاء', icon: '💵', color: '#10b981', rgb: '16, 185, 129', href: 'commercial-reports-suite.php?rep=customers_payments' },
+                { title: 'تسديدات وأقساط الموردين', icon: '💸', color: '#fbbf24', rgb: '251, 191, 36', href: 'commercial-reports-suite.php?rep=suppliers_payments' },
+                { title: 'الحركة التجارية للمبيعات', icon: '🛒', color: '#34d399', rgb: '52, 211, 153', href: 'commercial-reports-suite.php?rep=sales_commercial_movement' },
+                { title: 'الحركة التجارية للمشتريات', icon: '🚚', color: '#fb923c', rgb: '251, 146, 60', href: 'commercial-reports-suite.php?rep=purchases_commercial_movement' },
+                { title: 'التقارير التوزيعية والربحية', icon: '📊', color: '#c084fc', rgb: '192, 139, 252', href: 'distributive-reports.php?type=income' },
+                { title: 'مولد التقارير الحر', icon: '🛠️', color: '#a855f7', rgb: '168, 85, 247', href: 'distributive-reports.php?type=generator' },
+                { title: 'التحليل البصري الشامل', icon: '📊', color: '#ec4899', rgb: '236, 72, 153', href: 'visual-analytics.php' },
+                { title: 'رادار المخاطر وتمركز الائتمان', icon: '🛡️', color: '#f43f5e', rgb: '244, 63, 94', href: 'credit_concentration.php' },
+                { title: 'بوابة القوائم الختامية والزكاة', icon: '🚀', color: '#60a5fa', rgb: '96, 165, 250', href: 'financial-reports.php' }
             ]
         },
         'master-data.php': {
@@ -645,11 +645,26 @@
         const style = document.createElement('style');
         style.id = 'magaiees-panoramic-sidebar-css';
         style.textContent = `
-            /* ── Keep Sidebar Expanded While Flyout is Open ── */
+            /* ── Rock-Solid Sidebar & Zero Oscillation (Unified 240px Width) ── */
+            :root { --sb-expanded: 240px !important; }
+            .global-sidebar {
+                z-index: 1000000 !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                box-shadow: -3px 0 14px rgba(0, 0, 0, 0.35) !important;
+                transition: width 0.14s ease-out !important;
+            }
+            .global-sidebar:hover,
             .global-sidebar.panoramic-flyout-open {
-                width: var(--sb-expanded, 240px) !important;
+                width: 240px !important;
                 border-left-color: rgba(56, 189, 248, 0.55) !important;
             }
+            .global-sidebar .sidebar-logo-text,
+            .global-sidebar .sidebar-text {
+                transition: opacity 0.1s ease-out !important;
+            }
+            .global-sidebar:hover .sidebar-logo-text,
+            .global-sidebar:hover .sidebar-text,
             .global-sidebar.panoramic-flyout-open .sidebar-logo-text,
             .global-sidebar.panoramic-flyout-open .sidebar-text {
                 max-width: 180px !important;
@@ -725,33 +740,23 @@
                ═══════════════════════════════════════════════════════════════════ */
             #magaiees-panoramic-flyout {
                 position: fixed;
-                right: calc(var(--sb-expanded, 240px) + 10px);
+                right: 246px;
                 top: 18px;
-                width: min(565px, calc(100vw - 255px));
+                width: min(470px, calc(100vw - 258px));
                 z-index: 999998;
                 direction: rtl;
                 font-family: 'Tajawal', 'Cairo', sans-serif;
-                border-radius: 18px;
-                padding: 12px 14px;
+                border-radius: 16px;
+                padding: 10px 12px;
                 box-sizing: border-box;
                 background: var(--bg-color, #0f172a) !important;
-                border: 1.8px solid var(--pf-accent, #38bdf8) !important;
+                border: 1.5px solid var(--pf-accent, #38bdf8) !important;
                 border-right: 4px solid var(--pf-accent, #38bdf8) !important;
-                box-shadow:
-                    -18px 20px 55px rgba(0, 0, 0, 0.38),
-                    0 0 25px rgba(var(--pf-accent-rgb, 56, 189, 248), 0.16) !important;
+                box-shadow: -8px 10px 26px rgba(0, 0, 0, 0.32) !important;
                 opacity: 0;
                 visibility: hidden;
                 pointer-events: none;
-                transform: translateX(14px) scale(0.97);
-                transform-origin: right center;
-                transition:
-                    opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-                    transform 0.26s cubic-bezier(0.16, 1, 0.3, 1),
-                    top 0.26s cubic-bezier(0.16, 1, 0.3, 1),
-                    background 0.2s ease,
-                    border-color 0.2s ease,
-                    visibility 0.2s;
+                transition: opacity 0.1s ease-out;
             }
 
             /* Explicit Light Theme Surfaces (Beige, White, Gray) */
@@ -781,17 +786,16 @@
                 opacity: 1;
                 visibility: visible;
                 pointer-events: auto;
-                transform: translateX(0) scale(1);
             }
 
-            /* Invisible Safe-Hover Bridge between Sidebar and Flyout */
+            /* Narrow Gap-Only Bridge (240px..246px) — NEVER overlaps .global-sidebar */
             #magaiees-panoramic-flyout::before {
                 content: '';
                 position: absolute;
-                top: -20px;
-                bottom: -20px;
-                right: -24px;
-                width: 28px;
+                top: -24px;
+                bottom: -24px;
+                right: -12px;
+                width: 14px;
                 background: transparent;
                 pointer-events: auto;
             }
@@ -806,15 +810,16 @@
                 background: var(--pf-accent, #38bdf8);
                 border-radius: 3px;
                 transform: translateY(-50%) rotate(45deg);
-                transition: top 0.24s ease, background 0.2s ease;
+                transition: none;
                 pointer-events: none;
                 z-index: 2;
             }
 
-            /* ── Compact Top Header (Small Icon + Short Title Only) ── */
+            /* ── Compact Top Header (Icon + Title + Corner Expand Toggle) ── */
             .pf-header {
                 display: flex;
                 align-items: center;
+                justify-content: space-between;
                 gap: 8px;
                 padding: 6px 10px;
                 margin-bottom: 10px;
@@ -822,6 +827,22 @@
                 background: var(--bg-secondary, rgba(255, 255, 255, 0.05)) !important;
                 border: 1px solid var(--border, rgba(255, 255, 255, 0.12)) !important;
             }
+            .pf-header-main { display: flex; align-items: center; gap: 8px; min-width: 0; }
+            .pf-more-btn {
+                border: 1.5px solid var(--pf-accent, #38bdf8);
+                background: rgba(var(--pf-accent-rgb, 56, 189, 248), 0.16);
+                color: var(--text-primary, #ffffff);
+                border-radius: 8px;
+                padding: 3px 10px;
+                font-size: 0.78rem;
+                font-weight: 900;
+                font-family: inherit;
+                cursor: pointer;
+                white-space: nowrap;
+                transition: transform 0.15s ease, background 0.15s ease;
+            }
+            .pf-more-btn:hover { background: rgba(var(--pf-accent-rgb, 56, 189, 248), 0.3); transform: scale(1.03); }
+            html.light-theme .pf-more-btn { color: #0f172a !important; }
             html[data-theme="warm_cream"] .pf-header,
             html[data-theme="warm-alabaster"] .pf-header,
             html[data-theme="beige"] .pf-header {
@@ -862,15 +883,17 @@
                 text-shadow: none !important;
             }
 
-            /* ── Compact 2-Column Shortcuts Grid ── */
+            /* ── Compact 2-Column × 5-Row Shortcuts Grid (10 initial items, Featherlight) ── */
             .pf-bento-grid {
                 display: grid;
                 grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 8px;
-                max-height: calc(100vh - 110px);
+                gap: 6px;
+                max-height: calc(100vh - 96px);
                 overflow-y: auto;
                 padding: 2px;
             }
+            .pf-bento-card.pf-hidden-layer { display: none !important; }
+            .pf-bento-grid { overscroll-behavior: contain; will-change: scroll-position; }
             .pf-bento-grid::-webkit-scrollbar {
                 width: 4px;
             }
@@ -885,21 +908,16 @@
                 display: flex;
                 align-items: center;
                 gap: 9px;
-                padding: 8px 11px;
-                min-height: 44px;
-                border-radius: 11px;
+                padding: 7px 10px;
+                min-height: 42px;
+                border-radius: 10px;
                 text-decoration: none !important;
-                background: var(--surface, rgba(20, 29, 52, 0.94)) !important;
+                background: var(--surface, rgba(20, 29, 52, 0.96)) !important;
                 border: 1.5px solid var(--border, rgba(var(--card-rgb, 56, 189, 248), 0.32)) !important;
                 border-bottom: 2.5px solid var(--card-color, #38bdf8) !important;
-                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
                 cursor: pointer;
                 overflow: hidden;
-                transition:
-                    transform 0.16s ease,
-                    border-color 0.16s ease,
-                    background 0.16s ease,
-                    box-shadow 0.16s ease !important;
+                transition: background 0.1s ease, border-color 0.1s ease !important;
             }
             html[data-theme="warm_cream"] .pf-bento-card,
             html[data-theme="warm-alabaster"] .pf-bento-card,
@@ -1079,8 +1097,11 @@
         flyoutEl.innerHTML = `
             <div class="pf-laser-pointer"></div>
             <div class="pf-header">
-                <div class="pf-header-emblem" id="pf-emblem">🎛️</div>
-                <h3 class="pf-header-title" id="pf-title">لوحة التحكم</h3>
+                <div class="pf-header-main">
+                    <div class="pf-header-emblem" id="pf-emblem">🎛️</div>
+                    <h3 class="pf-header-title" id="pf-title">لوحة التحكم</h3>
+                </div>
+                <button type="button" class="pf-more-btn" id="pf-more-btn" style="display:none;">➕ المزيد ▾</button>
             </div>
             <div class="pf-bento-grid" id="pf-grid"></div>
         `;
@@ -1164,8 +1185,34 @@
                 `;
 
                 card.addEventListener('click', (ev) => handleSubItemClick(ev, item, rawHref));
+                if (idx >= 10) card.classList.add('pf-hidden-layer');
                 grid.appendChild(card);
             });
+
+            const moreBtn = document.getElementById('pf-more-btn');
+            if (moreBtn) {
+                const total = menuConfig.items.length;
+                if (total <= 10) {
+                    moreBtn.style.display = 'none';
+                } else {
+                    let layerStep = 1; // 1 = 10 items (2 cols × 5 rows), 2 = 20 items, 3 = all
+                    const syncLayerUI = () => {
+                        const limit = layerStep === 1 ? 10 : (layerStep === 2 ? 20 : total);
+                        Array.from(grid.children).forEach((c, i) => c.classList.toggle('pf-hidden-layer', i >= limit));
+                        if (layerStep === 1) moreBtn.textContent = `➕ المزيد (${total - 10}) ▾`;
+                        else if (layerStep === 2 && total > 20) moreBtn.textContent = `➕ باقي القائمة (${total - 20}) ▾`;
+                        else moreBtn.textContent = 'طي القائمة ▴';
+                        if (activeSidebarLink) positionFlyoutNextToItem(activeSidebarLink, panel);
+                    };
+                    moreBtn.style.display = 'inline-flex';
+                    syncLayerUI();
+                    moreBtn.onclick = (ev) => {
+                        ev.preventDefault(); ev.stopPropagation();
+                        layerStep = (layerStep === 1) ? (total > 20 ? 2 : 3) : (layerStep === 2 ? 3 : 1);
+                        syncLayerUI();
+                    };
+                }
+            }
         }
 
         // Show & Position smoothly relative to the hovered sidebar item
@@ -1173,10 +1220,34 @@
         positionFlyoutNextToItem(linkEl, panel);
     }
 
+    let lastPtrX = -999, lastPtrY = -999;
+    document.addEventListener('mousemove', (ev) => {
+        lastPtrX = ev.clientX;
+        lastPtrY = ev.clientY;
+    }, { passive: true });
+
+    function isCursorInSafeZone() {
+        if (lastPtrX < 0 || lastPtrY < 0) return false;
+        const sb = document.querySelector('.global-sidebar');
+        if (sb) {
+            const sr = sb.getBoundingClientRect();
+            if (lastPtrX >= sr.left - 16 && lastPtrX <= sr.right + 4 && lastPtrY >= sr.top && lastPtrY <= sr.bottom) {
+                return true;
+            }
+        }
+        if (flyoutEl && flyoutEl.classList.contains('is-visible')) {
+            const fr = flyoutEl.getBoundingClientRect();
+            if (lastPtrX >= fr.left - 8 && lastPtrX <= fr.right + 20 && lastPtrY >= fr.top - 24 && lastPtrY <= fr.bottom + 24) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     function positionFlyoutNextToItem(linkEl, panel) {
         const itemRect = linkEl.getBoundingClientRect();
         const itemCenterY = itemRect.top + itemRect.height / 2;
-        const panelHeight = panel.offsetHeight || 280;
+        const panelHeight = panel.offsetHeight || 310;
         const viewportH = window.innerHeight;
 
         let targetTop = itemCenterY - (panelHeight * 0.35);
@@ -1190,9 +1261,13 @@
         panel.style.setProperty('--pf-pointer-y', `${Math.round(pointerY)}px`);
     }
 
-    function scheduleCloseFlyout(delayMs = 150) {
+    function scheduleCloseFlyout(delayMs = 220) {
         clearTimeout(closeTimer);
         closeTimer = setTimeout(() => {
+            if (isCursorInSafeZone()) {
+                scheduleCloseFlyout(180);
+                return;
+            }
             hidePanoramicFlyout(false);
         }, delayMs);
     }
@@ -1235,7 +1310,13 @@
 
             item.addEventListener('mouseenter', () => {
                 clearTimeout(closeTimer);
-                renderFlyoutForLink(item);
+                clearTimeout(window.__pfHoverIntentTimer);
+                window.__pfHoverIntentTimer = setTimeout(() => {
+                    requestAnimationFrame(() => renderFlyoutForLink(item));
+                }, 32);
+            });
+            item.addEventListener('mouseleave', () => {
+                clearTimeout(window.__pfHoverIntentTimer);
             });
         });
 

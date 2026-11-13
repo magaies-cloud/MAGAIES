@@ -199,6 +199,15 @@ $header_theme_class = "header-theme-inventory";
                 <div class="title">مستشار AI للبضائع والمخازن</div>
                 <div class="desc">توقعات النواقص والركود</div>
             </a>
+            <a href="commercial-reports-suite.php?rep=items_catalog" class="hub-btn" style="--btn-color: #34d399;"><div class="icon">📋</div><div class="title">قائمة الأصناف</div><div class="desc">دليل الأصناف والأسعار</div></a>
+            <a href="commercial-reports-suite.php?rep=items_detailed_movement" class="hub-btn" style="--btn-color: #38bdf8;"><div class="icon">🔎</div><div class="title">الحركة التفصيلية للصنف</div><div class="desc">وارد ومنصرف كل فاتورة</div></a>
+            <a href="commercial-reports-suite.php?rep=items_commercial_movement" class="hub-btn" style="--btn-color: #22d3ee;"><div class="icon">📊</div><div class="title">الحركة التجارية للصنف</div><div class="desc">تداول المشتريات والمبيعات</div></a>
+            <a href="commercial-reports-suite.php?rep=items_summary_movement" class="hub-btn" style="--btn-color: #a78bfa;"><div class="icon">📦</div><div class="title">حركة الأصناف (تجميعي)</div><div class="desc">أول المدة والوارد والختامي</div></a>
+            <a href="commercial-reports-suite.php?rep=items_profitability" class="hub-btn" style="--btn-color: #fbbf24;"><div class="icon">💰</div><div class="title">أرباح الأصناف</div><div class="desc">مجمل الربح ونسب الهامش</div></a>
+            <a href="commercial-reports-suite.php?rep=historical_expiry_inventory" class="hub-btn" style="--btn-color: #f43f5e;"><div class="icon">⏳</div><div class="title">جرد تاريخي للصلاحية</div><div class="desc">تواريخ الانتهاء والصلاحية</div></a>
+            <a href="commercial-reports-suite.php?rep=linked_references_audit" class="hub-btn" style="--btn-color: #c084fc;"><div class="icon">🔗</div><div class="title">حركة المراجع المرتبطة</div><div class="desc">الفاتورة ⇄ الإذن ⇄ السند</div></a>
+            <a href="inv_rep15_valuation.php" class="hub-btn" style="--btn-color: #10b981;"><div class="icon">💎</div><div class="title">تقييم المخزون الفعلي</div><div class="desc">بالتكلفة وسعر السوق</div></a>
+            <a href="inv_rep17_shrinkage.php" class="hub-btn" style="--btn-color: #fb923c;"><div class="icon">📉</div><div class="title">فروقات الجرد والانحرافات</div><div class="desc">العجز وتغير أسعار الشراء</div></a>
         </div>
 
         <!-- شريط الربط المحاسبي واللوجستي الشامل 360° -->
@@ -215,6 +224,19 @@ $header_theme_class = "header-theme-inventory";
                 <a href="inventory-adjustment.php?tab=transfer" style="text-decoration:none; padding:5px 12px; border-radius:8px; background:linear-gradient(135deg,#f97316,#ea580c); color:#fff; font-size:0.78rem; font-weight:900;">🔄 مناقلة بضاعة بين المستودعات</a>
                 <a href="ai_goods_advisor.php" style="text-decoration:none; padding:5px 12px; border-radius:8px; background:linear-gradient(135deg,#059669,#10b981); color:#fff; font-size:0.78rem; font-weight:900;">🤖 فحص المخزون بالذكاء الاصطناعي</a>
             </div>
+        </div>
+
+        <!-- أزرار تقارير الأصناف والحركة التجارية وأرباح الأصناف والصلاحية المباشرة -->
+        <div style="display:flex; flex-wrap:wrap; gap:7px; margin-top:10px; margin-bottom:10px; padding:10px 14px; background:rgba(15,23,42,0.82); border:1.5px solid rgba(16,185,129,0.4); border-radius:14px;">
+            <a href="commercial-reports-suite.php?rep=items_catalog" style="text-decoration:none; padding:6px 12px; border-radius:9px; background:rgba(16,185,129,0.18); border:1px solid #10b981; color:#34d399; font-weight:900; font-size:0.82rem;">📦 قائمة الأصناف</a>
+            <a href="commercial-reports-suite.php?rep=items_detailed_movement" style="text-decoration:none; padding:6px 12px; border-radius:9px; background:rgba(56,189,248,0.18); border:1px solid #38bdf8; color:#38bdf8; font-weight:900; font-size:0.82rem;">🔍 الحركة التفصيلية للصنف</a>
+            <a href="commercial-reports-suite.php?rep=items_commercial_movement" style="text-decoration:none; padding:6px 12px; border-radius:9px; background:rgba(52,211,153,0.18); border:1px solid #34d399; color:#34d399; font-weight:900; font-size:0.82rem;">📊 الحركة التجارية للصنف</a>
+            <a href="commercial-reports-suite.php?rep=items_summary_movement" style="text-decoration:none; padding:6px 12px; border-radius:9px; background:rgba(167,139,250,0.18); border:1px solid #a78bfa; color:#c084fc; font-weight:900; font-size:0.82rem;">📋 حركة الأصناف</a>
+            <a href="commercial-reports-suite.php?rep=items_profitability" style="text-decoration:none; padding:6px 12px; border-radius:9px; background:rgba(251,191,36,0.18); border:1px solid #fbbf24; color:#fbbf24; font-weight:900; font-size:0.82rem;">💰 أرباح الأصناف</a>
+            <a href="commercial-reports-suite.php?rep=historical_expiry_inventory" style="text-decoration:none; padding:6px 12px; border-radius:9px; background:rgba(244,63,94,0.18); border:1px solid #fb7185; color:#fb7185; font-weight:900; font-size:0.82rem;">⏳ جرد تاريخي للصلاحية</a>
+            <a href="commercial-reports-suite.php?rep=linked_references_audit" style="text-decoration:none; padding:6px 12px; border-radius:9px; background:rgba(192,132,252,0.18); border:1px solid #c084fc; color:#e879f9; font-weight:900; font-size:0.82rem;">🔗 حركة المراجع المرتبطة</a>
+            <a href="balance-sheet.php" style="text-decoration:none; padding:6px 12px; border-radius:9px; background:linear-gradient(135deg,#059669,#0284c7); color:#fff; font-weight:900; font-size:0.82rem;">🏛️ الميزانية العمومية</a>
+            <a href="distributive-reports.php?type=generator" style="text-decoration:none; padding:6px 12px; border-radius:9px; background:linear-gradient(135deg,#7c3aed,#2563eb); color:#fff; font-weight:900; font-size:0.82rem;">🛠️ مولد التقارير</a>
         </div>
 
         <!-- ── Massive Comprehensive Visual Analytical Chart Hub ── -->

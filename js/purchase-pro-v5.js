@@ -347,7 +347,8 @@ function initPurchaseApp() {
             }
         } catch(e) { supps = []; }
 
-        if (!supps || supps.length === 0) {
+        const isTenant12Demo = (typeof window.getTenantPrefix === 'function' && window.getTenantPrefix() === 'tenant_12_');
+        if ((!supps || supps.length === 0) && isTenant12Demo) {
             supps = [
                 { id: 'SUP-001', code: 'SUP-001', name: 'شركة مصنع الأسعد للحديد والصلب', phone: '0123456789', currentBalance: 0, creditLimit: 50000000 },
                 { id: 'SUP-002', code: 'SUP-002', name: 'شركة أوميغا للصناعات والصلب', phone: '0912345678', currentBalance: 0, creditLimit: 30000000 },
@@ -1302,7 +1303,7 @@ async function renderCustomerDropdown(filter = '') {
             supps = [];
         }
 
-        if (supps.length === 0) {
+        if (supps.length === 0 && typeof window.getTenantPrefix === 'function' && window.getTenantPrefix() === 'tenant_12_') {
             supps = [
                 { id: 'SUP-001', code: 'SUP-001', name: 'شركة مصنع الأسعد للحديد والصلب', phone: '0123456789', currentBalance: 0, creditLimit: 50000000 },
                 { id: 'SUP-002', code: 'SUP-002', name: 'شركة أوميغا للصناعات والصلب', phone: '0912345678', currentBalance: 0, creditLimit: 30000000 },
@@ -3090,7 +3091,7 @@ function submitInvoice(ignoreWarnings = false) {
         items: enrichedItems,
         notes: invNotesStr,
         status: 'confirmed',
-        receiptStatus: (!rawMainWh || rawMainWh === 'PENDING_RECEIPT') ? 'pending_receipt' : 'received',
+        receiptStatus: (!rawMainWh || rawMainWh === 'PENDING_RECEIPT' || /(حجز|قيد الاستلام|بالطريق|تحت الاستلام)/.test(String(resolvedMainWhName || ''))) ? 'pending_receipt' : 'received',
         total: grandAmount,
         netTotal: grandAmount,
         subtotal: grandAmount,
@@ -3370,18 +3371,19 @@ function submitInvoice(ignoreWarnings = false) {
             let baseQty = row.customBaseQty !== undefined ? row.customBaseQty : (item ? row.quantity * selectedUnitFactor * item.conversionFactor : 0);
             const whId = row.warehouseId || mainWh;
             const whName = WAREHOUSES.find(w => w.id === whId)?.name || 'المخزن الرئيسي';
-            
-            let itemInv = currentInvData.find(iv => String(iv.itemId) === String(row.itemId) && iv.warehouse === whName);
-            if (itemInv) {
-                itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) + baseQty;
-            } else {
-                currentInvData.push({ itemId: row.itemId, warehouse: whName, qty: baseQty, minQty: 10 });
-            }
+            const isReserveOrPendingWh = (!whId || whId === 'PENDING_RECEIPT' || /(حجز|قيد الاستلام|بالطريق|تحت الاستلام)/.test(String(whName || '')));
             
             let oldQty = parseFloat(item.stock ? Object.values(item.stock).reduce((a,b)=>a+b,0) : 0) || 0;
-            
-            if (item.stock && item.stock[whId] !== undefined) item.stock[whId] += baseQty;
-            else if (item.stock) item.stock[whId] = baseQty;
+            if (!isReserveOrPendingWh) {
+                let itemInv = currentInvData.find(iv => String(iv.itemId) === String(row.itemId) && iv.warehouse === whName);
+                if (itemInv) {
+                    itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) + baseQty;
+                } else {
+                    currentInvData.push({ itemId: row.itemId, warehouse: whName, qty: baseQty, minQty: 10 });
+                }
+                if (item.stock && item.stock[whId] !== undefined) item.stock[whId] += baseQty;
+                else if (item.stock) item.stock[whId] = baseQty;
+            }
             
             // Costing Updates
             let itemTotalLocal = (parseFloat(row.price)||0) * (parseFloat(row.quantity)||0);

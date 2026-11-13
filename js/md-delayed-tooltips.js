@@ -828,19 +828,45 @@
         const anchor = pickAnchor(rawEl);
         if (!txt || !anchor || !document.body.contains(anchor)) return false;
 
-        ['msg-smart-hover-tooltip', 'md-rightclick-def-panel'].forEach(id => {
+        ['msg-smart-hover-tooltip', 'md-rightclick-def-panel', 'erp-rc-explain-menu'].forEach(id => {
             const oldBox = document.getElementById(id);
             if (oldBox) oldBox.style.display = 'none';
         });
         if (typeof window.stopMdExplanationPanelAudio === 'function') {
             window.stopMdExplanationPanelAudio();
         }
+        if ('speechSynthesis' in window) {
+            try { window.speechSynthesis.cancel(); } catch (_) {}
+        }
 
         const t = ensureTip();
-        t.textContent = txt;
+        t.style.pointerEvents = 'auto';
+        t.style.maxWidth = '440px';
+        t.innerHTML = '';
+
+        const hdr = document.createElement('div');
+        hdr.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;padding-bottom:5px;border-bottom:1px solid rgba(253,224,71,0.3);';
+        const badge = document.createElement('span');
+        badge.style.cssText = 'font-size:12.5px;font-weight:900;color:#fde047;';
+        badge.textContent = speakAloud ? '🔊 الشرح الصوتي' : '📖 الشرح الكتابي';
+        const closeBtn = document.createElement('button');
+        closeBtn.type = 'button';
+        closeBtn.textContent = '✕';
+        closeBtn.style.cssText = 'background:rgba(239,68,68,0.2);border:1px solid rgba(248,113,113,0.5);color:#fca5a5;border-radius:7px;width:24px;height:24px;cursor:pointer;font-weight:900;line-height:1;';
+        closeBtn.onclick = () => hide(true);
+        hdr.appendChild(badge);
+        hdr.appendChild(closeBtn);
+
+        const body = document.createElement('div');
+        body.style.cssText = 'font-size:14px;font-weight:800;line-height:1.8;color:#ffffff;';
+        body.textContent = txt;
+
+        t.appendChild(hdr);
+        t.appendChild(body);
         t.style.display = 'block';
+
         const r = anchor.getBoundingClientRect();
-        const tw = t.offsetWidth, th = t.offsetHeight;
+        const tw = t.offsetWidth || 360, th = t.offsetHeight || 110;
         let top = r.bottom + 8;
         if (top + th > window.innerHeight - 10) top = Math.max(10, r.top - th - 8);
         let left = r.left + r.width / 2 - tw / 2;
@@ -849,10 +875,19 @@
         t.style.left = Math.round(left) + 'px';
         requestAnimationFrame(() => { t.style.opacity = '1'; });
 
-        // عند الكليك يمين أو الدبل كليك: يُنطق نفس النص حرفياً ليتطابق الصوت مع المكتوب 100%
-        if (speakAloud && typeof window.speakMdExplanationPanelText === 'function') {
+        if (speakAloud) {
             const speech = cleanForSpeech(txt);
-            if (speech) window.speakMdExplanationPanelText(speech);
+            if (speech) {
+                if (typeof window.speakMdExplanationPanelText === 'function') {
+                    window.speakMdExplanationPanelText(speech);
+                } else if ('speechSynthesis' in window) {
+                    try {
+                        const u = new SpeechSynthesisUtterance(speech);
+                        u.lang = 'ar-SA';
+                        window.speechSynthesis.speak(u);
+                    } catch (_) {}
+                }
+            }
         }
         return true;
     }
@@ -866,7 +901,6 @@
         return { title, desc, directHuman: true };
     }
 
-    // توحيد جميع دوال الشرح القديمة في النظام لترجع نفس النص الموحّد تماماً
     window.explainMasterDataDomElement = asGuideObj;
     window.explainUnifiedDashboardDomElement = asGuideObj;
     window.explainPurchaseDomElement = asGuideObj;
@@ -875,60 +909,150 @@
     window.explainGeneralLedgerDomElement = asGuideObj;
     window.explainSettingsDomElement = asGuideObj;
 
-    window.__mdHandleUnifiedHumanExplain = function (e, forcedTarget) {
+    window.__mdHandleUnifiedHumanExplain = function (e, forcedTarget, speakMode) {
         const raw = forcedTarget || (e && e.target);
         if (!raw || !raw.closest) return false;
-        if (e && e.type === 'contextmenu') {
-            if ((raw.tagName === 'INPUT' || raw.tagName === 'TEXTAREA') && typeof raw.selectionStart === 'number' && raw.selectionStart !== raw.selectionEnd) {
-                return false;
-            }
-            const selTxt = (window.getSelection && String(window.getSelection() || '').trim()) || '';
-            if (selTxt) return false;
-        }
         const txt = resolveTipForElement(raw);
         if (!txt) return false;
-        if (e) {
-            if (e.type === 'contextmenu' && typeof e.preventDefault === 'function') e.preventDefault();
-            if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
-            if (typeof e.stopPropagation === 'function') e.stopPropagation();
-        }
-        hide(false);
-        return show(raw, true);
+        hide(true);
+        return show(raw, speakMode === 'audio');
     };
 
-    // 1) الوقوف بالماوس لمدة 3 ثوانٍ يعرض الشرح بهدوء بدون مقاطعة صوتية
-    document.addEventListener('mouseover', (e) => {
+    // ── قائمة الخيارات الموحدة عند النقر بزر الفأرة الأيمن في كل البرنامج (بدون نطق تلقائي أبداً) ──
+    let rcMenu = null;
+    let rcTargetEl = null;
+
+    function hideRcMenu() {
+        if (rcMenu) rcMenu.style.display = 'none';
+    }
+
+    function ensureRcMenu() {
+        if (rcMenu && document.body.contains(rcMenu)) return rcMenu;
+        rcMenu = document.createElement('div');
+        rcMenu.id = 'erp-rc-explain-menu';
+        rcMenu.style.cssText = 'position:fixed;z-index:2147483647;min-width:215px;padding:7px;border-radius:14px;background:linear-gradient(165deg,#0f1d3a 0%,#060c1d 100%);border:1.8px solid rgba(56,189,248,0.65);box-shadow:0 18px 42px rgba(0,0,0,0.82),0 0 0 1px rgba(255,255,255,0.06);direction:rtl;font-family:Cairo,Tajawal,sans-serif;display:none;user-select:none;';
+        document.body.appendChild(rcMenu);
+        return rcMenu;
+    }
+
+    function triggerExplanationChoice(target, mode) {
+        hideRcMenu();
+        if (!target) return;
+        const handled = window.__mdHandleUnifiedHumanExplain(null, target, mode);
+        if (!handled && typeof window.showUnifiedDoubleRightClickCard === 'function') {
+            window.showUnifiedDoubleRightClickCard({ type: 'manual_choice', target }, target, mode);
+        }
+    }
+
+    window.__openErpRightClickChoiceMenu = function (e) {
+        if (!e || e.ctrlKey || e.shiftKey) return;
         const raw = e.target;
         if (!raw || !raw.closest) return;
-        const txt = resolveTipForElement(raw);
-        if (!txt) return;
-        stripNativeTitles(raw);
-        const anchor = pickAnchor(raw);
-        if (anchor === currentAnchor) return;
+        if (raw.closest('#erp-rc-explain-menu, #md-delayed-tip, #msg-smart-hover-tooltip, #gl-context-menu, #custom-num-menu, #num-context-menu')) return;
+
+        // الحفاظ على نسخ/لصق المتصفح عند تضليل نص داخل حقل أو في الصفحة
+        if ((raw.tagName === 'INPUT' || raw.tagName === 'TEXTAREA') && typeof raw.selectionStart === 'number' && raw.selectionStart !== raw.selectionEnd) {
+            return;
+        }
+        const selTxt = (window.getSelection && String(window.getSelection() || '').trim()) || '';
+        if (selTxt) return;
+
+        // ترك قوائم عمليات خلايا الجداول تعمل بشكل طبيعي عند النقر على خلية بيانات td
+        const inDataTd = raw.closest('#statement-table tbody td, #journal-table tbody td, #recent-table tbody td, #hub-transactions-body td');
+        if (inDataTd && !raw.closest('button, a, input, select')) {
+            return;
+        }
+
+        // إيقاف أي صوت سابق فوراً — ممنوع التحدث التلقائي عند كليك يمين
+        if (typeof window.stopMdExplanationPanelAudio === 'function') window.stopMdExplanationPanelAudio();
+        if ('speechSynthesis' in window) { try { window.speechSynthesis.cancel(); } catch (_) {} }
+
+        const hasDirectTip = !!resolveTipForElement(raw);
+        const explainableTarget = hasDirectTip
+            ? raw
+            : raw.closest('button, a, input, select, textarea, th, label, .filter-group, .pro-field-card, .input-group, .form-group, .kpi-card, .stat-card, .fin-metric-pill, .gl-summary-strip > div, [onclick], [data-md-tip], [data-col-id]');
+
+        if (!explainableTarget) return;
+
+        e.preventDefault();
+        if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+        if (typeof e.stopPropagation === 'function') e.stopPropagation();
+
         hide(false);
-        currentAnchor = anchor;
-        timer = setTimeout(() => show(raw, false), DELAY);
-        const leave = () => {
-            if (currentAnchor === anchor) hide(false);
-            anchor.removeEventListener('mouseleave', leave);
-        };
-        anchor.addEventListener('mouseleave', leave);
-    });
+        rcTargetEl = explainableTarget;
+        stripNativeTitles(explainableTarget);
 
-    // 2) الدبل كليك يعرض وينطق نفس الشرح فوراً
-    window.addEventListener('dblclick', (e) => {
-        if (e.target && e.target.closest && e.target.closest('.md-table tbody tr, #hub-transactions-body tr, #invoices-tbody tr') && !e.target.closest('button, a, input, select')) return;
-        window.__mdHandleUnifiedHumanExplain(e, e.target);
-    }, true);
+        const m = ensureRcMenu();
+        const thEl = raw.closest('th[data-col-id]');
+        const colId = thEl ? thEl.getAttribute('data-col-id') : '';
+        const canColCfg = typeof window.openGLColumnModal === 'function' && (colId || raw.closest('#statement-table, #journal-table'));
 
-    // 3) الكليك يمين يعرض وينطق نفس الشرح الموحّد فوراً
-    window.addEventListener('contextmenu', (e) => {
-        window.__mdHandleUnifiedHumanExplain(e, e.target);
-    }, true);
+        m.innerHTML =
+            '<div style="padding:4px 10px 6px;font-size:11.5px;font-weight:900;color:#94a3b8;border-bottom:1px solid rgba(148,163,184,0.18);margin-bottom:5px;display:flex;align-items:center;justify-content:space-between;">' +
+                '<span>💡 دليل الشرح الذكي</span>' +
+                '<span style="font-size:10px;color:#38bdf8;">اختر النوع</span>' +
+            '</div>' +
+            '<button type="button" data-rc-act="audio" style="width:100%;display:flex;align-items:center;gap:9px;padding:9px 11px;border:none;border-radius:9px;background:transparent;color:#ffffff;font-family:inherit;font-size:13.5px;font-weight:900;cursor:pointer;text-align:right;transition:background 0.14s;">' +
+                '<span style="font-size:16px;">🔊</span><span>الشرح الصوتي</span>' +
+            '</button>' +
+            '<button type="button" data-rc-act="text" style="width:100%;display:flex;align-items:center;gap:9px;padding:9px 11px;border:none;border-radius:9px;background:transparent;color:#fde047;font-family:inherit;font-size:13.5px;font-weight:900;cursor:pointer;text-align:right;transition:background 0.14s;margin-top:2px;">' +
+                '<span style="font-size:16px;">📖</span><span>الشرح الكتابي</span>' +
+            '</button>' +
+            (canColCfg
+                ? '<div style="height:1px;background:rgba(148,163,184,0.18);margin:5px 0;"></div>' +
+                  '<button type="button" data-rc-act="colcfg" style="width:100%;display:flex;align-items:center;gap:9px;padding:8px 11px;border:none;border-radius:9px;background:transparent;color:#38bdf8;font-family:inherit;font-size:13px;font-weight:900;cursor:pointer;text-align:right;transition:background 0.14s;">' +
+                      '<span style="font-size:15px;">⚙️</span><span>تخصيص وتنسيق الأعمدة</span>' +
+                  '</button>'
+                : '');
+
+        m.querySelectorAll('button[data-rc-act]').forEach(btn => {
+            btn.onmouseenter = () => { btn.style.background = 'rgba(56,189,248,0.18)'; };
+            btn.onmouseleave = () => { btn.style.background = 'transparent'; };
+            btn.onclick = (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
+                const act = btn.getAttribute('data-rc-act');
+                if (act === 'colcfg') {
+                    hideRcMenu();
+                    if (typeof window.openGLColumnModal === 'function') window.openGLColumnModal(colId || 'date');
+                    return;
+                }
+                triggerExplanationChoice(rcTargetEl, act);
+            };
+        });
+
+        m.style.display = 'block';
+        const mw = m.offsetWidth || 220, mh = m.offsetHeight || 120;
+        let left = e.clientX;
+        let top = e.clientY;
+        if (left + mw > window.innerWidth - 8) left = Math.max(8, window.innerWidth - mw - 8);
+        if (top + mh > window.innerHeight - 8) top = Math.max(8, window.innerHeight - mh - 8);
+        m.style.left = Math.round(left) + 'px';
+        m.style.top = Math.round(top) + 'px';
+    };
+
+    if (!window.__erpRcChoiceListenerBound) {
+        window.__erpRcChoiceListenerBound = true;
+        window.addEventListener('contextmenu', (e) => {
+            window.__openErpRightClickChoiceMenu(e);
+        }, true);
+    }
 
     document.addEventListener('mousedown', (e) => {
-        if (e.button === 0 && tip && tip.style.display === 'block') hide(true);
+        if (rcMenu && rcMenu.style.display === 'block' && !rcMenu.contains(e.target)) {
+            hideRcMenu();
+        }
+        if (e.button === 0 && tip && tip.style.display === 'block' && !tip.contains(e.target)) {
+            hide(true);
+        }
     }, true);
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') hide(true); });
-    window.addEventListener('scroll', () => hide(false), true);
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            hideRcMenu();
+            hide(true);
+        }
+    });
+    window.addEventListener('scroll', () => {
+        hideRcMenu();
+    }, true);
 })();

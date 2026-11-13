@@ -303,7 +303,7 @@ onDBReady(() => {
     let localCusts = [], localSups = [], localBanks = [], localSafes = [], localExp = [], localJobs = [];
     try { localCusts = (JSON.parse(localStorage.getItem(getTenantKey('erp_customers_v1')) || localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted); } catch(e) {}
     try { localSups = (JSON.parse(localStorage.getItem(getTenantKey('erp_suppliers_v1')) || localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted); } catch(e) {}
-    if (!localSups || localSups.length === 0) {
+    if ((!localSups || localSups.length === 0) && typeof window.getTenantPrefix === 'function' && window.getTenantPrefix() === 'tenant_12_') {
         localSups = [
         { id: 'SUP-001', code: 'SUP-001', name: 'شركة مصنع الأسعد للحديد والصلب', phone: '0123456789', currentBalance: 0, creditLimit: 50000000 },
         { id: 'SUP-002', code: 'SUP-002', name: 'شركة أوميغا للصناعات والصلب', phone: '0912345678', currentBalance: 0, creditLimit: 30000000 },
@@ -3048,7 +3048,7 @@ window.buildAccountsArray = function() {
     let localCusts = [], localSups = [], localBanks = [], localSafes = [], localExp = [], localJobs = [];
     try { localCusts = (JSON.parse(localStorage.getItem(getTenantKey('erp_customers_v1')) || localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted); } catch(e) {}
     try { localSups = (JSON.parse(localStorage.getItem(getTenantKey('erp_suppliers_v1')) || localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted); } catch(e) {}
-    if (!localSups || localSups.length === 0) {
+    if ((!localSups || localSups.length === 0) && typeof window.getTenantPrefix === 'function' && window.getTenantPrefix() === 'tenant_12_') {
         localSups = [
         { id: 'SUP-001', code: 'SUP-001', name: 'شركة مصنع الأسعد للحديد والصلب', phone: '0123456789', currentBalance: 0, creditLimit: 50000000 },
         { id: 'SUP-002', code: 'SUP-002', name: 'شركة أوميغا للصناعات والصلب', phone: '0912345678', currentBalance: 0, creditLimit: 30000000 },

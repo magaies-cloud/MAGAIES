@@ -80,9 +80,9 @@ try {
 } catch (Exception $e) {}
 
 include 'includes/header.php';
-include 'includes/sidebar.php';
+if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes/sidebar.php';
 ?>
-<link rel="stylesheet" href="css/ unified-design-tokens.css">
+<link rel="stylesheet" href="css/unified-design-tokens.css">
 
 <style>
     .pf-master-wrap {
@@ -1455,4 +1455,4 @@ include 'includes/sidebar.php';
     });
 </script>
 
-<?php include 'includes/footer.php'; ?>
+<?php if (file_exists(__DIR__ . '/includes/footer.php')) include __DIR__ . '/includes/footer.php'; ?>

@@ -6,58 +6,50 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
 
 getDBConnection();
 global $GLOBAL_TENANT_ID;
-$tenant_id = !empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 12;
-
-$reqHeaderTid = $_SERVER['HTTP_X_TENANT_ID'] ?? '';
-$reqGetTid = $_GET['tenant_id'] ?? '';
-$reqCookieTid = $_COOKIE['currentTenantId'] ?? '';
-
-if (is_numeric($reqHeaderTid) && (int)$reqHeaderTid >= 1) {
-    $tenant_id = (int)$reqHeaderTid;
-} elseif (is_numeric($reqGetTid) && (int)$reqGetTid >= 1) {
-    $tenant_id = (int)$reqGetTid;
-} elseif (is_numeric($reqCookieTid) && (int)$reqCookieTid >= 1) {
-    $tenant_id = (int)$reqCookieTid;
-}
-
-$authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-$token = trim(str_replace('Bearer', '', $authHeader));
-if (empty($token)) {
-    $token = $_COOKIE['saas_token'] ?? $_COOKIE['authToken'] ?? '';
-}
-if (!empty($token)) {
-    $stmtAuth = $pdo->prepare('SELECT tenant_id FROM users WHERE token = ? LIMIT 1');
-    $stmtAuth->execute([$token]);
-    $t = $stmtAuth->fetchColumn();
-    if ($t) { $tenant_id = (int)$t; }
+$resolvedAuthTid = function_exists('resolveCurrentTenantId') ? (int)resolveCurrentTenantId($pdo) : 0;
+$tenant_id = $resolvedAuthTid > 0 ? $resolvedAuthTid : (!empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 0);
+if ($tenant_id <= 0) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'error' => 'Unauthorized: Tenant session required'], JSON_UNESCAPED_UNICODE);
+    exit;
 }
 
 try {
     $stmtVerifyTenant = $pdo->prepare('SELECT id FROM tenants WHERE id = ? LIMIT 1');
     $stmtVerifyTenant->execute([$tenant_id]);
     if (!$stmtVerifyTenant->fetchColumn()) {
-        $tenant_id = !empty($GLOBAL_TENANT_ID) && (int)$GLOBAL_TENANT_ID >= 1 ? (int)$GLOBAL_TENANT_ID : 12;
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Invalid tenant scope'], JSON_UNESCAPED_UNICODE);
+        exit;
     }
-} catch (Exception $e) {
-    if ($tenant_id < 1) $tenant_id = 12;
-}
+} catch (Exception $e) {}
 
 try {
     $response = [];
 
-    // 1. Units (Tenant-scoped with fallback to default)
-    $stmtUnits = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_global_units_v1') ORDER BY (setting_key = ?) DESC LIMIT 1");
+    // 1. Units (Strictly tenant-scoped; legacy key only for Tenant 12)
     $tUnitsKey = 'tenant_' . $tenant_id . '_erp_global_units_v1';
-    $stmtUnits->execute([$tUnitsKey, $tUnitsKey]);
+    if ((int)$tenant_id === 12) {
+        $stmtUnits = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_global_units_v1') ORDER BY (setting_key = ?) DESC LIMIT 1");
+        $stmtUnits->execute([$tUnitsKey, $tUnitsKey]);
+    } else {
+        $stmtUnits = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ? LIMIT 1");
+        $stmtUnits->execute([$tUnitsKey]);
+    }
     $unitsVal = $stmtUnits->fetchColumn();
-    $response['units'] = $unitsVal ? json_decode($unitsVal, true) : [];
+    $response['units'] = $unitsVal ? json_decode($unitsVal, true) : ['قطعة', 'كرتونة', 'طن', 'متر'];
 
-    // 2. Categories (Tenant-scoped with fallback to default)
-    $stmtCats = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_categories_v1') ORDER BY (setting_key = ?) DESC LIMIT 1");
+    // 2. Categories (Strictly tenant-scoped; legacy key only for Tenant 12)
     $tCatsKey = 'tenant_' . $tenant_id . '_erp_categories_v1';
-    $stmtCats->execute([$tCatsKey, $tCatsKey]);
+    if ((int)$tenant_id === 12) {
+        $stmtCats = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_categories_v1') ORDER BY (setting_key = ?) DESC LIMIT 1");
+        $stmtCats->execute([$tCatsKey, $tCatsKey]);
+    } else {
+        $stmtCats = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ? LIMIT 1");
+        $stmtCats->execute([$tCatsKey]);
+    }
     $catsVal = $stmtCats->fetchColumn();
-    $response['categories'] = $catsVal ? json_decode($catsVal, true) : ['مواد بناء', 'أدوات صحية', 'كهرباء'];
+    $response['categories'] = $catsVal ? json_decode($catsVal, true) : ['عام'];
 
     // 3. Items (Strictly isolated by tenant_id)
     $stmtItems = $pdo->prepare("SELECT data FROM items WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
@@ -296,10 +288,15 @@ try {
     $ccVal = $stmtCc->fetchColumn();
     $response['cost_centers'] = $ccVal ? json_decode($ccVal, true) : [];
 
-    // 10. Currency Rates (Tenant-scoped with fallback)
+    // 10. Currency Rates (Strictly tenant-scoped; legacy key only for Tenant 12)
     $tCrKey = 'tenant_' . $tenant_id . '_erp_currency_rates_v1';
-    $stmtCr = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_currency_rates_v1') ORDER BY (setting_key = ?) DESC LIMIT 1");
-    $stmtCr->execute([$tCrKey, $tCrKey]);
+    if ((int)$tenant_id === 12) {
+        $stmtCr = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_currency_rates_v1') ORDER BY (setting_key = ?) DESC LIMIT 1");
+        $stmtCr->execute([$tCrKey, $tCrKey]);
+    } else {
+        $stmtCr = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ? LIMIT 1");
+        $stmtCr->execute([$tCrKey]);
+    }
     $crVal = $stmtCr->fetchColumn();
     $response['currency_rates'] = $crVal ? json_decode($crVal, true) : [];
 

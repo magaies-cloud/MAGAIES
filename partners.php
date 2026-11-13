@@ -231,7 +231,7 @@
         function loadFromStorage() {
             const customers = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => !x.deleted);
             let suppliers = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
-            if (!suppliers || suppliers.length === 0) {
+            if ((!suppliers || suppliers.length === 0) && typeof window.getTenantPrefix === 'function' && window.getTenantPrefix() === 'tenant_12_') {
                 suppliers = [
     { id: 'SUP-001', code: 'SUP-001', name: 'شركة مصنع الأسعد للحديد والصلب', phone: '0123456789', currentBalance: 0, creditLimit: 50000000, status: 'active', securityLevel: 1 },
     { id: 'SUP-002', code: 'SUP-002', name: 'شركة أوميغا للصناعات والصلب', phone: '0912345678', currentBalance: 0, creditLimit: 30000000, status: 'active', securityLevel: 1 },

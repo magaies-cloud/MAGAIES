@@ -120,23 +120,18 @@
             this.timer = setTimeout(() => {
                 this.timer = null;
                 // الانتقال المباشر فقط إذا كان المستخدم ما زال في أعلى الصفحة (لم يقم بتمرير يدوي)
-                if (window.pageYOffset < 35) {
-                    this.scrollToTarget();
-                }
+                /* Auto-jump disabled for smooth user wheel control */
             }, ms);
         },
 
+        _cachedTargetY: 0,
         getTargetY: function() {
+            if (this._cachedTargetY > 30) return this._cachedTargetY;
             const header = document.querySelector('.premium-header');
             if (header) {
-                const rect = header.getBoundingClientRect();
-                // الصعود في حدود الترويسة فقط:
-                // ينتهي التمرير عند الحافة السفلية للترويسة تماماً، مما يضمن بقاء جميع أزرار العمليات
-                // ظاهرة وكاملة الوضوح في قمة الصفحة
-                const y = Math.round(rect.bottom + window.pageYOffset);
-                if (y > 30) return y;
+                const y = (header.offsetTop || 0) + (header.offsetHeight || 110);
+                if (y > 30) { this._cachedTargetY = y; return y; }
             }
-
             return 130;
         },
 
@@ -233,9 +228,7 @@
     window.addEventListener('load', () => {
         if (!isDashboardPage()) {
             AutoHeaderScroll.ensureScrollableSpace();
-            if (!AutoHeaderScroll.hasAutoScrolled && !AutoHeaderScroll.timer && window.pageYOffset < 35) {
-                AutoHeaderScroll.scrollToTarget();
-            }
+            /* Auto-jump on load disabled for 120fps smooth wheel */
         }
     });
 })();

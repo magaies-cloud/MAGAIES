@@ -178,7 +178,7 @@ JSON.parse = function(val) {
     window.getTenantKey = function(baseKey) {
         const strKey = String(baseKey || '');
         // Keys that are NOT tenant-specific (global session settings only)
-        const globalKeys = ['authToken', 'user', 'tenant_id', 'erp_theme', 'ui_theme', 'pur_light_tone_palette', 'magaies_light_tone', 'erp_lang', 'currentTenantId', 'session_active', 'deviceUuid', 'elsajana_global_media_state', 'magaies_dirty_keys_v1'];
+        const globalKeys = ['authToken', 'user', 'tenant_id', 'erp_theme', 'ui_theme', 'pur_light_tone_palette', 'magaies_light_tone', 'erp_lang', 'currentTenantId', 'session_active', 'deviceUuid', 'magaies_dirty_keys_v1'];
         if (globalKeys.includes(strKey) || strKey.startsWith('magaies_') || strKey.startsWith('magaiees_')) return strKey;
         // If already prefixed, return as-is
         if (strKey.startsWith('tenant_')) return strKey;
@@ -5594,7 +5594,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Fetch immediately on page load (no delay)
     window.syncHeaderExchangeRate();
     // Then refresh every 10 seconds
-    setInterval(window.syncHeaderExchangeRate, 10000);
+    setInterval(() => { if (!document.hidden && navigator.onLine !== false) window.syncHeaderExchangeRate(); }, 180000);
 });
 
 

@@ -311,8 +311,8 @@
         document.querySelectorAll('.auto-chart-dashboard').forEach(el => el.remove());
 
         // Theme-Reactive Palette & Surface Tokens (Follows active Light Tone --lt-* or Royal Dark)
-        const inkMain = isLt ? 'var(--lt-ink, #120500)' : '#ffffff';
-        const inkSub = isLt ? '#431407' : '#cbd5e1';
+        const inkMain = isLt ? '#090d16' : '#ffffff';
+        const inkSub = isLt ? '#1e293b' : '#cbd5e1';
         const inkAccent = isLt ? '#9a3412' : '#fde047';
         const inkEmerald = isLt ? '#065f46' : '#00f5d4';
         const inkSky = isLt ? '#0c4a6e' : '#38bdf8';
@@ -648,6 +648,67 @@
         `;
 
         dashboard.innerHTML = `
+            <style id="g7-modern-glass-2027">
+                .auto-chart-dashboard {
+                    position: relative;
+                    overflow: hidden;
+                    border-width: 3px !important;
+                }
+                .auto-chart-dashboard [data-g7-panel],
+                .auto-chart-dashboard .g7-glass-card,
+                .auto-chart-dashboard [data-g7-panel] > div {
+                    position: relative;
+                    overflow: hidden;
+                    transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.22s ease, border-color 0.22s ease !important;
+                }
+                .auto-chart-dashboard [data-g7-panel]:not([data-g7-panel="sparkline"]):not([data-g7-panel="funnel"])::before,
+                .auto-chart-dashboard .g7-glass-card::before {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    background: linear-gradient(135deg, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0.04) 45%, transparent 65%);
+                    pointer-events: none;
+                    z-index: 0;
+                }
+                .auto-chart-dashboard [data-g7-panel]:not([data-g7-panel="sparkline"]):not([data-g7-panel="funnel"])::after,
+                .auto-chart-dashboard .g7-glass-card::after {
+                    content: '';
+                    position: absolute;
+                    top: -50%;
+                    left: -130%;
+                    width: 60%;
+                    height: 200%;
+                    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.42), transparent);
+                    transform: rotate(25deg);
+                    transition: left 0.6s ease;
+                    pointer-events: none;
+                    z-index: 1;
+                }
+                .auto-chart-dashboard [data-g7-panel]:hover::after,
+                .auto-chart-dashboard .g7-glass-card:hover::after {
+                    left: 140%;
+                }
+                .auto-chart-dashboard [data-g7-panel]:not([data-g7-panel="sparkline"]):not([data-g7-panel="funnel"]):hover,
+                .auto-chart-dashboard .g7-glass-card:hover {
+                    transform: translateY(-4px);
+                    border-color: #0284c7 !important;
+                    box-shadow: 0 18px 38px rgba(2, 132, 199, 0.24), 0 0 24px rgba(56, 189, 248, 0.32), inset 0 2px 4px rgba(255, 255, 255, 0.65) !important;
+                }
+                html.light-theme .auto-chart-dashboard {
+                    background: linear-gradient(155deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%) !important;
+                    border: 3.2px solid #0f172a !important;
+                    box-shadow: 0 22px 50px rgba(15, 23, 42, 0.16), inset 0 2px 0 #ffffff !important;
+                }
+                html.light-theme .auto-chart-dashboard [data-g7-panel]:not([data-g7-panel="sparkline"]):not([data-g7-panel="funnel"]) {
+                    border-width: 2.8px !important;
+                    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1), inset 0 2px 4px rgba(255, 255, 255, 0.9) !important;
+                }
+                html.light-theme .auto-chart-dashboard .g7-glass-card {
+                    border-width: 2.6px !important;
+                    border-bottom-width: 4.5px !important;
+                    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12), inset 0 2px 3px #ffffff !important;
+                }
+            </style>
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid ${isLt ? 'var(--lt-border, #5c2808)' : 'rgba(56, 189, 248, 0.28)'}; padding-bottom: 10px; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <span style="width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #059669, #0284c7); color: #ffffff; display: inline-flex; align-items: center; justify-content: center; font-size: 18px;">📊</span>

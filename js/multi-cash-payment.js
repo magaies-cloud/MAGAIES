@@ -2499,7 +2499,7 @@ function buildAccountsArray() {
         const tKey = getTenantKey(store.key);
         let data = JSON.parse(localStorage.getItem(tKey) || localStorage.getItem(store.key) || '[]');
         if (!Array.isArray(data)) data = Object.values(data);
-        if (store.key === 'erp_suppliers_v1' && (!data || data.length === 0)) {
+        if (store.key === 'erp_suppliers_v1' && (!data || data.length === 0) && typeof window.getTenantPrefix === 'function' && window.getTenantPrefix() === 'tenant_12_') {
             data = [
         { id: 'SUP-001', code: 'SUP-001', name: 'شركة مصنع الأسعد للحديد والصلب', phone: '0123456789', currentBalance: 0, creditLimit: 50000000 },
         { id: 'SUP-002', code: 'SUP-002', name: 'شركة أوميغا للصناعات والصلب', phone: '0912345678', currentBalance: 0, creditLimit: 30000000 },

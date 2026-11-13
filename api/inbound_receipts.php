@@ -33,12 +33,20 @@ if ($method === 'POST') {
 }
 
 global $GLOBAL_TENANT_ID;
-$activeTenantId = !empty($_GET['tenant_id']) ? (string)$_GET['tenant_id'] 
-    : (!empty($_POST['tenant_id']) ? (string)$_POST['tenant_id'] 
-    : (!empty($jsonData['tenant_id']) ? (string)$jsonData['tenant_id'] 
-    : (!empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '12')));
-if ($activeTenantId === 'default' || $activeTenantId === '0' || $activeTenantId === '1' || !is_numeric($activeTenantId)) {
-    $activeTenantId = (!empty($GLOBAL_TENANT_ID) && is_numeric($GLOBAL_TENANT_ID) && (int)$GLOBAL_TENANT_ID > 1) ? (string)$GLOBAL_TENANT_ID : '12';
+$__resolvedAuthTid = function_exists('resolveCurrentTenantId') ? (int)resolveCurrentTenantId($pdo, $jsonData) : 0;
+$__explicitReqTid = !empty($_GET['tenant_id']) ? (int)$_GET['tenant_id']
+    : (!empty($_POST['tenant_id']) ? (int)$_POST['tenant_id']
+    : (!empty($jsonData['tenant_id']) ? (int)$jsonData['tenant_id'] : 0));
+if ($__resolvedAuthTid > 0) {
+    $activeTenantId = (string)$__resolvedAuthTid;
+} elseif ($__explicitReqTid > 0) {
+    $activeTenantId = (string)$__explicitReqTid;
+} elseif (!empty($GLOBAL_TENANT_ID) && is_numeric($GLOBAL_TENANT_ID) && (int)$GLOBAL_TENANT_ID > 0) {
+    $activeTenantId = (string)(int)$GLOBAL_TENANT_ID;
+} else {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'error' => 'Unauthorized: Tenant context required'], JSON_UNESCAPED_UNICODE);
+    exit;
 }
 if (session_status() === PHP_SESSION_ACTIVE) {
     @session_write_close();
@@ -3147,8 +3155,13 @@ function loadWhatsAppStatementPolicy($pdo, $tenantId) {
     ];
     try {
         $tPolKey = 'tenant_' . (int)$tenantId . '_erp_whatsapp_statement_policy_v1';
-        $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_whatsapp_statement_policy_v1') ORDER BY (setting_key = ?) DESC LIMIT 1");
-        $stmt->execute([$tPolKey, $tPolKey]);
+        if ((int)$tenantId === 12) {
+            $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (?, 'erp_whatsapp_statement_policy_v1') ORDER BY (setting_key = ?) DESC LIMIT 1");
+            $stmt->execute([$tPolKey, $tPolKey]);
+        } else {
+            $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ? LIMIT 1");
+            $stmt->execute([$tPolKey]);
+        }
         $polVal = $stmt->fetchColumn();
         if (!empty($polVal)) {
             $decoded = json_decode($polVal, true);
@@ -3161,6 +3174,12 @@ function loadWhatsAppStatementPolicy($pdo, $tenantId) {
                     $policy['voucherLogoImage'] = '';
                 }
             }
+        }
+        if (empty($policy['voucherCompanyName'])) {
+            $tNameStmt = $pdo->prepare("SELECT company_name FROM tenants WHERE id = ? LIMIT 1");
+            $tNameStmt->execute([(int)$tenantId]);
+            $tCompName = trim((string)$tNameStmt->fetchColumn());
+            if ($tCompName !== '') $policy['voucherCompanyName'] = $tCompName;
         }
     } catch (Exception $e) {
         // Fallback to default policy

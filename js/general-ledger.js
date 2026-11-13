@@ -1010,9 +1010,6 @@ document.addEventListener('DOMContentLoaded', () => {
         input.addEventListener('focus', onAccountSearch);
         input.addEventListener('click', onAccountSearch);
         input.addEventListener('input', onAccountSearch);
-        input.addEventListener('keyup', (e) => {
-            if (!['Escape', 'Enter', 'ArrowUp', 'ArrowDown'].includes(e.key)) onAccountSearch();
-        });
         input.addEventListener('keydown', onAccountSearchKey);
     }
     const smartInput = document.getElementById('filter-smart');
@@ -1281,6 +1278,7 @@ window.syncLiveMasterAndReceiptsForGL = syncLiveMasterAndReceiptsForGL;
 /* ─── Initialization ─── */
 let choicesInstances = [];
 function initGeneralLedgerApp() {
+    if (window.location.pathname.includes('preview-ledger.php') || !document.getElementById('ledger-tbody')) return;
     buildAccountsList();
     extractFilters(); // Build filters dynamically
     const now = new Date();
@@ -1352,19 +1350,23 @@ function initGeneralLedgerApp() {
         applyUrlAccountSelection();
     });
 
-    // Keep General Ledger live when switching tabs, periodically every 6s, or when new receipts arrive
-    window.addEventListener('focus', () => syncLiveMasterAndReceiptsForGL(false));
+    // Keep General Ledger live when switching tabs or periodically without heavy loop
+    window.addEventListener('focus', () => {
+        const m = document.getElementById('preset-preview-modal');
+        if (!m || m.style.display === 'none') syncLiveMasterAndReceiptsForGL(false);
+    });
     setInterval(() => {
-        if (!document.hidden) {
+        const m = document.getElementById('preset-preview-modal');
+        if (!document.hidden && (!m || m.style.display === 'none')) {
             syncLiveMasterAndReceiptsForGL(false);
         }
-    }, 6000);
+    }, 45000);
     window.addEventListener('storage', (ev) => {
-        if (!ev.key || ev.key.includes('erp_customers_v1') || ev.key.includes('erp_suppliers_v1') || ev.key.includes('erp_receipts_v1') || ev.key.includes('erp_gl_v1')) {
+        if (!ev.key || ev.key.includes('erp_gl_v1')) return;
+        if (ev.key.includes('erp_customers_v1') || ev.key.includes('erp_suppliers_v1') || ev.key.includes('erp_receipts_v1')) {
             buildAccountsList();
             ALL_TXNS = collectAllTransactions();
             if (typeof runReport === 'function') runReport();
-            if (typeof window.refreshPreviewLedgerLive === 'function') window.refreshPreviewLedgerLive();
         }
     });
 }
@@ -3250,6 +3252,7 @@ window.addEventListener('keydown', function(e) {
     }
 }, true);
 window.addEventListener('load', function() {
+    if (window.self !== window.top || window.location.pathname.includes('preview-ledger.php') || !document.getElementById('ledger-tbody')) return;
     try {
         const savedPreset = sessionStorage.getItem('gl_open_preset_idx');
         if (savedPreset !== null && savedPreset !== '') {

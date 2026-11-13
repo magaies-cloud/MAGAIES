@@ -1369,7 +1369,16 @@
                 const rid = String(pr.id || pr.returnNo || '');
                 if (rid && !seenPRet.has(rid)) purchases.push({ ...pr, id: rid, invoiceNo: rid, isReturn: true });
             });
+            const grnParentIds = new Set();
+            purchases.forEach(p => {
+                if (p && p.isGRN && p.originalInvoiceId) grnParentIds.add(String(p.originalInvoiceId).trim());
+            });
             purchases.forEach(inv => {
+                const invKey1 = String(inv.invoiceNo || '').trim();
+                const invKey2 = String(inv.id || '').trim();
+                if (!inv.isGRN && !inv.isReturn && !inv.isAdjustment && (inv.receiptStatus === 'pending_receipt' || inv.receiptStatus === 'partial_received' || (invKey1 && grnParentIds.has(invKey1)) || (invKey2 && grnParentIds.has(invKey2)))) {
+                    return; // Prevent parent + GRN double counting
+                }
                 (inv.items || inv.lines || []).forEach(line => {
                     if (isItemMatch(line)) {
                         let wh = getWarehouseId(line.warehouseId || inv.warehouseId || inv.warehouse);
@@ -1471,20 +1480,26 @@
                 
                 (inv.items || []).forEach(line => {
                     if (isItemMatch(line)) {
-                        if (inv.saleType === 'reserved' && inv.deliveryStatus !== 'delivered') {
-                            return; // Skip if reserved and not delivered
+                        const isFullDelivered = inv.isDelivered === true || inv.deliveryStatus === 'delivered' || inv.deliveryStatus === 'Delivered_Pending_Admin' || inv.deliveryStatus === 'Admin_Closed';
+                        const rawDelQty = parseFloat(line.deliveredQty) || 0;
+                        const isReservedOrPending = (inv.saleType === 'reserved' || inv.deliveryStatus === 'pending' || inv.deliveryStatus === 'partial' || String(hdrWh || '').includes('حجز'));
+                        if (isReservedOrPending && !isFullDelivered && rawDelQty <= 0.0001) {
+                            return; // Skip if reserved and nothing delivered yet
                         }
 
-                        let lineWh = getWarehouseId(inv.deliveryWarehouse || line.warehouseId || hdrWh);
+                        let lineWh = getWarehouseId(line.deliveredWarehouseId || inv.deliveredWarehouse || inv.deliveryWarehouse || line.warehouseId || hdrWh);
                         if (lineWh === 'PENDING_RECEIPT') {
                             return;
                         }
                         
-                        const origQty    = parseFloat(line.quantity) || 0;
+                        const origQty    = parseFloat(line.quantity ?? line.qty) || 0;
+                        const effQty     = (!isFullDelivered && isReservedOrPending && rawDelQty > 0) ? Math.min(origQty, rawDelQty) : origQty;
                         const origUnit   = safeString(line.unitName || line.unit || line.selectedUnit || itemBaseUnit || '');
                         const origFactor = resolveUnitFactor(line, itemObj);
 
-                        let baseQty = (line.customBaseQty !== undefined) ? (parseFloat(line.customBaseQty) || 0) : (origQty * origFactor);
+                        let baseQty = (!isFullDelivered && isReservedOrPending && rawDelQty > 0)
+                            ? (effQty * origFactor)
+                            : ((line.customBaseQty !== undefined) ? (parseFloat(line.customBaseQty) || 0) : (origQty * origFactor));
 
                         let permitNo = inv.orderNo || inv.soNumber || inv.quotationNo || inv.dispatchOrderNo || inv.permitNo || inv.invoiceNo || inv.id || '-';
                         let receiptNo = inv.invoiceNo || inv.receiptNo || inv.id || 'INV';

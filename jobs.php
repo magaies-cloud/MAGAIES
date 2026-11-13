@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/includes/auth_guard.php';
+require_once __DIR__ . '/db_bridge.php';
 $page_title = 'مركز إدارة المهام والأعمال التنفيذية وأوامر الشغل 360°';
 $header_theme_class = 'header-theme-dashboard';
 ?>

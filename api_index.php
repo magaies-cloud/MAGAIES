@@ -146,6 +146,13 @@ if (empty($resource) && isset($_GET['r'])) {
 $method = $_SERVER['REQUEST_METHOD'];
 $rawInput = file_get_contents("php://input");
 $input  = json_decode($rawInput, true);
+if (in_array($method, ['POST', 'PUT'], true) && is_array($input) && file_exists(__DIR__ . '/api/autonomous_immunity_core.php')) {
+    require_once __DIR__ . '/api/autonomous_immunity_core.php';
+    if (isset($pdo) && $pdo instanceof PDO) {
+        $fwBlock = runZeroDefectPreCommitFirewall($pdo, $resource, $method, $input);
+        if (is_array($fwBlock)) jsonResponse($fwBlock, 422);
+    }
+}
 
 // -------------------------------------------------------
 // Utility: Generate secure token

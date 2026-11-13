@@ -202,7 +202,11 @@ try {
                 ? date('Y-m-d H:i:s', strtotime($rawDate)) 
                 : date('Y-m-d H:i:s');
 
-            $tenantId = intval($reqData['tenant_id'] ?? ($GLOBAL_TENANT_ID ?: 1));
+            $authTid = function_exists('resolveCurrentTenantId') ? (int)resolveCurrentTenantId($pdo, $reqData) : 0;
+            $tenantId = $authTid > 0 ? $authTid : intval($reqData['tenant_id'] ?? ($GLOBAL_TENANT_ID ?: 0));
+            if ($tenantId <= 0) {
+                throw new Exception('Unauthorized sync: tenant_id missing');
+            }
             $payloadObj['tenant_id'] = $tenantId;
             $entLower = strtolower($entityName);
 

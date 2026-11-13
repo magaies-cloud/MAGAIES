@@ -3125,7 +3125,8 @@
             if(!tbody) return;
             let suppliers = ensureSupplierReceiptCodes();
             suppliers = suppliers.filter(s => !s.deleted);
-            if (suppliers.length === 0 && !query) {
+            const isTenant12Demo = (typeof window.getTenantPrefix === 'function' && window.getTenantPrefix() === 'tenant_12_');
+            if (suppliers.length === 0 && !query && isTenant12Demo) {
                 suppliers = [
     { id: 'SUP-001', code: 'SUP-001', name: 'شركة مصنع الأسعد للحديد والصلب', phone: '0123456789', currentBalance: 0, creditLimit: 50000000, status: 'active', securityLevel: 1 },
     { id: 'SUP-002', code: 'SUP-002', name: 'شركة أوميغا للصناعات والصلب', phone: '0912345678', currentBalance: 0, creditLimit: 30000000, status: 'active', securityLevel: 1 },

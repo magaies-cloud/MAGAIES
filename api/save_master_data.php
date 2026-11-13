@@ -66,33 +66,12 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
 
 getDBConnection();
 global $GLOBAL_TENANT_ID;
-$tenant_id = !empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 12;
-
-$reqHeaderTid = $_SERVER['HTTP_X_TENANT_ID'] ?? '';
-$reqBodyTid = is_array($__earlyInput) ? ($__earlyInput['tenant_id'] ?? '') : '';
-$reqGetTid = $_GET['tenant_id'] ?? '';
-$reqCookieTid = $_COOKIE['currentTenantId'] ?? '';
-
-if (is_numeric($reqHeaderTid) && (int)$reqHeaderTid >= 1) {
-    $tenant_id = (int)$reqHeaderTid;
-} elseif (is_numeric($reqBodyTid) && (int)$reqBodyTid >= 1) {
-    $tenant_id = (int)$reqBodyTid;
-} elseif (is_numeric($reqGetTid) && (int)$reqGetTid >= 1) {
-    $tenant_id = (int)$reqGetTid;
-} elseif (is_numeric($reqCookieTid) && (int)$reqCookieTid >= 1) {
-    $tenant_id = (int)$reqCookieTid;
-}
-
-$authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-$token = trim(str_replace('Bearer', '', $authHeader));
-if (empty($token)) {
-    $token = $_COOKIE['saas_token'] ?? $_COOKIE['authToken'] ?? '';
-}
-if (!empty($token)) {
-    $stmtAuth = $pdo->prepare('SELECT tenant_id FROM users WHERE token = ? LIMIT 1');
-    $stmtAuth->execute([$token]);
-    $t = $stmtAuth->fetchColumn();
-    if ($t) { $tenant_id = (int)$t; }
+$resolvedAuthTid = function_exists('resolveCurrentTenantId') ? (int)resolveCurrentTenantId($pdo, $__earlyInput) : 0;
+$tenant_id = $resolvedAuthTid > 0 ? $resolvedAuthTid : (!empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 0);
+if ($tenant_id <= 0) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'error' => 'Unauthorized: Tenant session required'], JSON_UNESCAPED_UNICODE);
+    exit;
 }
 
 // Verify tenant_id exists in tenants table to prevent Foreign Key constraint failures
@@ -100,11 +79,11 @@ try {
     $stmtVerifyTenant = $pdo->prepare('SELECT id FROM tenants WHERE id = ? LIMIT 1');
     $stmtVerifyTenant->execute([$tenant_id]);
     if (!$stmtVerifyTenant->fetchColumn()) {
-        $tenant_id = !empty($GLOBAL_TENANT_ID) && (int)$GLOBAL_TENANT_ID >= 1 ? (int)$GLOBAL_TENANT_ID : 12;
+        http_response_code(403);
+        echo json_encode(['success' => false, 'error' => 'Invalid tenant scope'], JSON_UNESCAPED_UNICODE);
+        exit;
     }
-} catch (Exception $e) {
-    if ($tenant_id < 1) $tenant_id = 12;
-}
+} catch (Exception $e) {}
 
 $input = $__earlyInput;
 $type = $__earlyType;
@@ -179,8 +158,12 @@ try {
         case 'master_audit_log':
             if (is_array($data)) {
                 $auditJson = json_encode(array_slice($data, 0, 500), JSON_UNESCAPED_UNICODE);
-                $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('erp_master_audit_log_v1', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
-                $stmt->execute([$auditJson]);
+                $tAudKey = 'tenant_' . $tenant_id . '_erp_master_audit_log_v1';
+                $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+                $stmt->execute([$tAudKey, $auditJson]);
+                if ((int)$tenant_id === 12) {
+                    $stmt->execute(['erp_master_audit_log_v1', $auditJson]);
+                }
             }
             break;
 

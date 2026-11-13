@@ -1585,6 +1585,10 @@
                 const rowWhObj = warehouses.find(w => String(w.id) === String(rowWhId) || w.name === String(rowWhId)) || { id: selectedWhId, name: selectedWhName };
 
                 item.deliveredQty = prevDel + deliverNow;
+                if (deliverNow > 0 && rowWhObj && rowWhObj.id) {
+                    item.deliveredWarehouseId = rowWhObj.id;
+                    item.deliveredWarehouseName = rowWhObj.name;
+                }
                 if (item.deliveredQty < origQty - 0.0001) {
                     isPartialDelivery = true;
                 }
@@ -1629,6 +1633,7 @@
             inv.status = isPartialDelivery ? 'partial' : 'delivered';
             inv.deliveryNo = gdnNo;
             inv.deliveredWarehouse = selectedWhId;
+            inv.deliveryWarehouse = selectedWhId;
             inv.deliveredWarehouseName = selectedWhName;
             inv.deliveredAt = nowIso;
             inv.deliveryDate = todayDate;

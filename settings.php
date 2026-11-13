@@ -689,7 +689,7 @@ try {
         <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.12); font-size: 0.78rem;">
             <span style="color: #94a3b8; font-weight: 800; margin-left: 4px;">🔗 الربط الشامل بالشاشات والتقارير:</span>
             <a href="users-roles.php" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); padding:4px 10px; border-radius:8px; text-decoration:none; font-weight:700;">👥 المستخدمين والأدوار</a>
-            <a href="system-self-audit.php" style="background:rgba(5,150,105,0.2); color:#10b981; border:1.5px solid #059669; padding:4px 10px; border-radius:8px; text-decoration:none; font-weight:900;">🛡️ محرك الفحص الذاتي الفوري</a>
+            <a href="system-self-audit.php" style="background:rgba(5,150,105,0.2); color:#10b981; border:1.5px solid #059669; padding:4px 10px; border-radius:8px; text-decoration:none; font-weight:900;">🛡️ درع السيادة</a>
             <a href="audit-log.php" style="background:rgba(16,185,129,0.12); color:#34d399; border:1px solid rgba(16,185,129,0.3); padding:4px 10px; border-radius:8px; text-decoration:none; font-weight:700;">🕵️ سجل الرقابة الجنائي</a>
             <a href="alerts_manager.php" style="background:rgba(244,63,94,0.12); color:#fb7185; border:1px solid rgba(244,63,94,0.3); padding:4px 10px; border-radius:8px; text-decoration:none; font-weight:700;">🔔 الحارس الأمين والتنبيهات</a>
             <a href="pos.php" style="background:rgba(255,255,255,0.06); color:#e2e8f0; border:1px solid rgba(255,255,255,0.15); padding:4px 10px; border-radius:8px; text-decoration:none; font-weight:700;">🛒 المبيعات والكاشير</a>
