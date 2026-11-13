@@ -265,18 +265,19 @@
             font-family: 'Tajawal', 'Cairo', sans-serif; font-weight: 900;
             white-space: nowrap; word-break: keep-all; box-sizing: border-box;
         }
-        table.excel-table thead th {
+        #preview-table.excel-table thead th, table.excel-table thead th {
             background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%) !important;
+            background-color: #b0c0d4 !important;
             color: #000000 !important; -webkit-text-fill-color: #000000 !important;
             font-family: 'Tajawal', 'Cairo', sans-serif !important;
             font-weight: 900 !important; font-size: 1.04rem !important;
             letter-spacing: -0.2px !important; word-spacing: -0.5px !important;
             line-height: 1.2 !important; text-align: center !important; vertical-align: middle !important;
             padding: 7px 4px !important; border: 1.5px solid #1e293b !important;
-            border-bottom: 5.2px solid #000000 !important; cursor: pointer; position: relative; user-select: none;
+            border-bottom: 5.5px solid #000000 !important; cursor: pointer; position: relative; user-select: none;
         }
-        table.excel-table tbody tr:first-child td { border-top: 5.2px solid #000000 !important; }
-        table.excel-table tbody tr:last-child td { border-bottom: 5.2px solid #000000 !important; }
+        #preview-table.excel-table tbody tr:first-child td { border-top: 5.5px solid #000000 !important; }
+        #preview-table.excel-table tbody tr:last-child td { border-bottom: 5.5px solid #000000 !important; }
         table.excel-table th[data-col-idx="0"], table.excel-table td[data-col-idx="0"] {
             border-left: 2.8px solid #000000 !important;
         }
@@ -322,10 +323,13 @@
         table.excel-table tbody td[data-col-idx="10"], table.excel-table tbody td[data-col-idx="11"] {
             background-color: #fef7d6 !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 900 !important; font-size: 1.36rem;
         }
-        table.excel-table tfoot td {
-            font-size: 1.34rem !important; font-weight: 900 !important; background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%) !important;
+        #preview-table.excel-table tfoot, table.excel-table tfoot { display: table-footer-group !important; }
+        #preview-table.excel-table tfoot td, table.excel-table tfoot td {
+            font-size: 1.34rem !important; font-weight: 900 !important;
+            background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%) !important;
+            background-color: #b0c0d4 !important;
             color: #000000 !important; -webkit-text-fill-color: #000000 !important;
-            border: 2px solid #000000 !important; border-top: 5.2px solid #000000 !important; padding: 7px 4px !important;
+            border: 2px solid #000000 !important; border-top: 5.5px solid #000000 !important; padding: 7px 4px !important;
         }
         table.excel-table tfoot td:first-child {
             font-size: 0.78rem !important; letter-spacing: -0.4px !important; font-weight: 900 !important; padding: 4px 3px !important;
@@ -701,8 +705,8 @@ try {
 </script>
 <script src="js/localforage.min.js"></script>
 <script src="js/app.js?v=20261113_v36"></script>
-<script src="js/general-ledger.js?v=20261113_v55"></script>
-<script src="js/preview-ledger.js?v=20261113_v55"></script>
+<script src="js/general-ledger.js?v=20261113_v60"></script>
+<script src="js/preview-ledger.js?v=20261113_v60"></script>
 <script defer src="js/erp-whatsapp-suite.js?v=20261113_v36"></script>
 
 <script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>

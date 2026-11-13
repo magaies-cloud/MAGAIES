@@ -1544,6 +1544,9 @@ function renderTable() {
         th.style.setProperty('font-size', hdrFs + 'rem', 'important');
         th.style.setProperty('text-align', 'center', 'important');
         th.style.setProperty('vertical-align', 'middle', 'important');
+        th.style.setProperty('background', 'linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%)', 'important');
+        th.style.setProperty('color', '#000000', 'important');
+        th.style.setProperty('border-bottom', '5.5px solid #000000', 'important');
         th.style.fontWeight = '900';
         if (conf.fontFamily && conf.fontFamily !== 'inherit') th.style.fontFamily = conf.fontFamily;
         if (conf.width) {
@@ -1642,9 +1645,9 @@ function renderTable() {
             const unifiedSoftBgMap = { 5: '#e6f2ff', 7: '#e6f2ff', 6: '#ffeef0', 8: '#ffeef0', 9: '#e8fbf0', 10: '#fef7d6', 11: '#fef7d6', 13: '#ede9fe' };
             const validCustomBg = (conf.bgColor && conf.bgColor !== '#ffffff' && conf.bgColor !== '#fcfdff') ? conf.bgColor : '#f1f5f9';
             const rowBg = unifiedSoftBgMap[idx] || validCustomBg;
-            const defFs = (idx === 0 || idx === 13) ? 1.16 : ((idx === 10 || idx === 11) ? 1.36 : (c.isNum ? 1.32 : ((idx === 2 || idx === 12) ? 0.80 : 1.16)));
-            const oldFsList = [0.84, 0.86, 0.9, 0.96, 1.0, 1.02, 1.04, 1.06, 1.08, 1.12, 1.14, 1.20, 1.22, 1.24, 1.28];
-            let finalFs = (conf.fs && !oldFsList.includes(Number(conf.fs))) ? Number(conf.fs) : defFs;
+            const defFs = (idx === 0 || idx === 13) ? 1.16 : ((idx === 10 || idx === 11) ? 1.36 : (c.isNum ? 1.32 : ((idx === 2 || idx === 12) ? 0.78 : 1.16)));
+            const oldFsList = [0.80, 0.84, 0.86, 0.9, 0.96, 1.0, 1.02, 1.04, 1.06, 1.08, 1.12, 1.14, 1.20, 1.22, 1.24, 1.28];
+            let finalFs = (idx === 2 || idx === 12) ? ((conf.fs && Number(conf.fs) <= 0.80) ? Number(conf.fs) : 0.78) : ((conf.fs && !oldFsList.includes(Number(conf.fs))) ? Number(conf.fs) : defFs);
             const textLen = String(td.innerText || '').trim().length;
             if (idx !== 2 && idx !== 12 && textLen > 12) {
                 finalFs = Math.max(0.92, +(finalFs - Math.min(0.28, (textLen - 12) * 0.032)).toFixed(2));
@@ -1652,7 +1655,7 @@ function renderTable() {
             td.style.setProperty('font-size', finalFs + 'rem', 'important');
             td.style.textAlign = conf.align || 'center';
             td.style.setProperty('font-weight', (idx === 2 || idx === 12) ? '700' : '900', 'important');
-            if (idx === 2 || idx === 12) { td.style.letterSpacing = '-0.45px'; td.style.wordSpacing = '-1.4px'; td.style.lineHeight = '1.15'; }
+            if (idx === 2 || idx === 12) { td.style.setProperty('letter-spacing', '-0.45px', 'important'); td.style.setProperty('word-spacing', '-1.5px', 'important'); td.style.setProperty('line-height', '1.14', 'important'); }
             if (conf.fontFamily && conf.fontFamily !== 'inherit') td.style.fontFamily = conf.fontFamily;
             td.style.setProperty('color', '#000000', 'important');
             td.style.setProperty('background-color', rowBg, 'important');
@@ -1710,6 +1713,9 @@ function renderTable() {
             
             let td = document.createElement('td');
             td.setAttribute('data-col-idx', idx);
+            td.style.setProperty('background', 'linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%)', 'important');
+            td.style.setProperty('color', '#000000', 'important');
+            td.style.setProperty('border-top', '5.5px solid #000000', 'important');
             td.style.fontSize = (conf.fs || 1.18) + 'rem';
             if (conf.width) {
                 td.style.setProperty('width', conf.width, 'important');
