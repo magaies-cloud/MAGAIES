@@ -2258,8 +2258,8 @@ window.renderBalancesPresets = function() {
     let presets = [];
     try { presets = JSON.parse(localStorage.getItem(PRESETS_STORAGE_KEY) || '[]'); } catch(e){}
 
-    const fixedDefaults = ['متعدد العملات 1', 'متعدد العملات 2', 'الأجنبي', 'المحلي', 'نمط 1', 'نمط 2', 'نمط 3', 'نمط 4'];
-    const palette = ['#0284c7', '#059669', '#d97706', '#7e22ce', '#0ea5e9', '#10b981', '#f59e0b', '#a855f7'];
+    const fixedDefaults = ['متعدد العملات 1', 'متعدد العملات 2', 'الأجنبي', 'المحلي', 'نمط 1', 'نمط 2'];
+    const palette = ['#0284c7', '#059669', '#d97706', '#7e22ce', '#0ea5e9', '#10b981'];
     const stripIcons = (s) => String(s || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F]/gu, '').trim();
 
     fixedDefaults.forEach((defName, idx) => {
@@ -2312,9 +2312,9 @@ window.addEventListener('storage', function(e) {
 });
 
 async function openPresetModal(presetIndex, presetName) {
-    if (!window.lastResults || !Array.isArray(window.lastResults)) {
+    if (!window.lastResults || !Array.isArray(window.lastResults) || window.lastResults.length === 0) {
         if (typeof window.runReport === 'function') {
-            window.runReport();
+            await window.runReport();
         }
     }
 
@@ -2392,9 +2392,9 @@ window.openNewPreviewPage = async function() {
         showToast('جاري تحضير شاشة المعاينة...', 'info');
     }
 
-    if (!window.lastResults || !Array.isArray(window.lastResults)) {
+    if (!window.lastResults || !Array.isArray(window.lastResults) || window.lastResults.length === 0) {
         if (typeof window.runReport === 'function') {
-            window.runReport();
+            await window.runReport();
         }
     }
 

@@ -1,7 +1,7 @@
 // js/preview-balances.js - Pro Studio Edition
 
 const PRESETS_STORAGE_KEY = 'balances_preview_presets_v20';
-const MAX_PRESETS_LIMIT = 8;
+const MAX_PRESETS_LIMIT = 6;
 let currentData = [];
 let filteredData = [];
 let currentPresetIndex = 0;
@@ -209,13 +209,53 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch(e) { console.error('Error getting localforage data', e); }
     }
     
-    if (Array.isArray(parsedData) && parsedData.length > 0) {
+    const isDemoData = (arr) => !Array.isArray(arr) || arr.length === 0 || (arr.length <= 2 && arr.some(r => String(r?.name || '').includes('شركة تجريبية')));
+    if (!isDemoData(parsedData)) {
         currentData = parsedData;
     } else {
-        currentData = [
-            { name: 'شركة تجريبية 1', phone: '0123456789', taxNumber: '100200300', currency: 'SDG', endingDebitForeign: 100, endingCreditForeign: 0, endingDebitLocal: 5000, endingCreditLocal: 0, notes: 'نشط' },
-            { name: 'مؤسسة السلام', phone: '0987654321', taxNumber: '300400500', currency: 'USD', endingDebitForeign: 0, endingCreditForeign: 1250.75, endingDebitLocal: 0, endingCreditLocal: 1250.75, notes: 'نشط' }
-        ];
+        const buildRealParties = (custs, supps) => {
+            const rate = parseFloat(window.SYSTEM_USD_RATE || localStorage.getItem('erp_usd_rate') || 600) || 600;
+            const mapParty = (x, role) => {
+                if (!x || x.deleted || !x.name) return null;
+                const bal = parseFloat(x.currentBalance ?? x.balance ?? x.openingBalance ?? 0) || 0;
+                const cur = String(x.currency || 'SDG').toUpperCase();
+                const isUsd = cur !== 'SDG';
+                const balLocal = isUsd ? (bal * rate) : bal;
+                const balForeign = isUsd ? bal : (rate > 1 ? bal / rate : 0);
+                return {
+                    id: x.id,
+                    type: role,
+                    name: x.name,
+                    phone: x.phone || x.whatsapp || x.mobile || '',
+                    taxNumber: x.taxNumber || x.taxNo || '',
+                    currency: cur,
+                    exchangeRate: rate,
+                    endingDebitLocal: balLocal > 0 ? balLocal : 0,
+                    endingCreditLocal: balLocal < 0 ? Math.abs(balLocal) : 0,
+                    endingDebitForeign: balForeign > 0 ? balForeign : 0,
+                    endingCreditForeign: balForeign < 0 ? Math.abs(balForeign) : 0,
+                    notes: role === 'SUPP' ? 'مورد' : 'عميل'
+                };
+            };
+            return [...(custs || []).map(c => mapParty(c, 'CUST')), ...(supps || []).map(s => mapParty(s, 'SUPP'))].filter(Boolean);
+        };
+        let locCusts = [], locSupps = [];
+        try { locCusts = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]'); } catch(e){}
+        try { locSupps = JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]'); } catch(e){}
+        currentData = buildRealParties(locCusts, locSupps);
+        if (currentData.length === 0) {
+            try {
+                const token = localStorage.getItem('erp_token') || '';
+                const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+                const [cRes, sRes] = await Promise.all([
+                    fetch('api_index.php/customers', { headers }).then(r => r.json()).catch(() => []),
+                    fetch('api_index.php/suppliers', { headers }).then(r => r.json()).catch(() => [])
+                ]);
+                const cArr = Array.isArray(cRes) ? cRes : (cRes?.data || cRes?.customers || []);
+                const sArr = Array.isArray(sRes) ? sRes : (sRes?.data || sRes?.suppliers || []);
+                currentData = buildRealParties(cArr, sArr);
+            } catch(e) {}
+        }
     }
 
     filteredData = [...currentData];
@@ -322,35 +362,45 @@ function lightenHex3ShadesBal(hex) {
     return '#' + [r, g, b].map(v => Math.round(v + (255 - v) * f).toString(16).padStart(2, '0')).join('');
 }
 
-const BAL_MC_MASTER_ORDER = [0, 10, 1, 6, 7, 8, 11, 4, 5, 9, 2, 3];
-const BAL_MC_LOCK_STAMP = 'bal_gl_mc_unified_2027_v2';
+function lightenHex2ShadesBal(hex) {
+    if (!hex || typeof hex !== 'string' || !hex.startsWith('#') || hex.length < 7) return hex;
+    const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+    if (isNaN(r) || isNaN(g) || isNaN(b)) return hex;
+    const f = 0.52;
+    return '#' + [r, g, b].map(v => Math.round(v + (255 - v) * f).toString(16).padStart(2, '0')).join('');
+}
+
+const BAL_MC_MASTER_ORDER = [0, 1, 6, 7, 4, 5, 8, 11, 9, 10, 2, 3];
+const BAL_MC_LOCK_STAMP = 'bal_gl_mc_unified_2027_v11';
 
 function getFactoryPreset1Configs() {
     let conf = getDefaultConfigs();
-    conf[0]  = { ...conf[0],  label: "اسم الحساب",          visible: true,  fs: 0.95, fontWeight: '900', color: '',        bgColor: '#edfafd', align: 'right' };
-    conf[1]  = { ...conf[1],  label: "رقم الهاتف",          visible: true,  fs: 0.9,  fontWeight: '900', color: '',        bgColor: '#fff0ff', align: 'center' };
-    conf[2]  = { ...conf[2],  label: "الرقم الضريبي",        visible: false, fs: 0.9,  fontWeight: '',    color: '',        bgColor: '',        align: 'center' };
-    conf[3]  = { ...conf[3],  label: "العملة",              visible: false, fs: 0.9,  fontWeight: '',    color: '',        bgColor: '',        align: 'center' };
-    conf[6]  = { ...conf[6],  label: "مدين محلي (عليه)",    visible: true,  fs: 0.92, fontWeight: '900', color: '#0516ff', bgColor: '#f0ffff', align: 'center', decimals: 0 };
-    conf[7]  = { ...conf[7],  label: "دائن محلي (له)",      visible: true,  fs: 0.92, fontWeight: '900', color: '#fb0404', bgColor: '#fcf2f2', align: 'center', decimals: 0 };
-    conf[8]  = { ...conf[8],  label: "الإجمالي المحلي",      visible: false, fs: 0.92, fontWeight: '900', color: '',        bgColor: '#fefff0', align: 'center', decimals: 0 };
-    conf[11] = { ...(conf[11] || conf[0]), label: "سعر الصرف", visible: true, fs: 0.9, fontWeight: '', color: '',          bgColor: '#e0fff1', align: 'center', decimals: 2 };
-    conf[4]  = { ...conf[4],  label: "مدين أجنبي (عليه)",   visible: true,  fs: 0.92, fontWeight: '900', color: '#0703fc', bgColor: '#f0ffff', align: 'center', decimals: 2 };
-    conf[5]  = { ...conf[5],  label: "دائن أجنبي (له)",     visible: true,  fs: 0.92, fontWeight: '900', color: '#fa0000', bgColor: '#fcf2f2', align: 'center', decimals: 2 };
-    conf[9]  = { ...conf[9],  label: "الإجمالي الأجنبي",     visible: false, fs: 0.92, fontWeight: '',    color: '',        bgColor: '#fefff0', align: 'center', decimals: 2 };
-    conf[10] = { ...conf[10], label: "ملاحظات",             visible: true,  fs: 0.9,  fontWeight: '900', color: '',        bgColor: '#e9fbee', align: 'center' };
+    const slimNameFont = "'Tajawal', sans-serif";
+    const compactArFont = "'Cairo', 'Tajawal', sans-serif";
+    conf[0]  = { ...conf[0],  label: "اسم الحساب",          visible: true,  fs: 0.86, fontWeight: '800', fontFamily: slimNameFont,  color: '#1c1208', bgColor: '#fbf7ef', align: 'right',  width: '' };
+    conf[1]  = { ...conf[1],  label: "رقم الهاتف",          visible: true,  fs: 0.84, fontWeight: '900', fontFamily: compactArFont, color: '#4a2c0a', bgColor: '#efe3cc', align: 'center', width: '' };
+    conf[2]  = { ...conf[2],  label: "الرقم الضريبي",        visible: false, fs: 0.85, fontWeight: '',    fontFamily: compactArFont, color: '',        bgColor: '',        align: 'center', width: '' };
+    conf[3]  = { ...conf[3],  label: "العملة",              visible: false, fs: 0.85, fontWeight: '',    fontFamily: compactArFont, color: '',        bgColor: '',        align: 'center', width: '' };
+    conf[6]  = { ...conf[6],  label: "مدين محلي (عليه)",    visible: true,  fs: 0.98, fontWeight: '900', fontFamily: compactArFont, color: '#14532d', bgColor: '#eef6ee', align: 'center', decimals: 0, width: '' };
+    conf[7]  = { ...conf[7],  label: "دائن محلي (له)",      visible: true,  fs: 0.98, fontWeight: '900', fontFamily: compactArFont, color: '#991b1b', bgColor: '#fbf0ec', align: 'center', decimals: 0, width: '' };
+    conf[8]  = { ...conf[8],  label: "الإجمالي المحلي",      visible: false, fs: 1.00, fontWeight: '900', fontFamily: compactArFont, color: '#1c1208', bgColor: '#f5ecd9', align: 'center', decimals: 0, width: '' };
+    conf[11] = { ...(conf[11] || conf[0]), label: "سعر الصرف", visible: false, fs: 0.90, fontWeight: '', fontFamily: compactArFont, color: '#3b2612', bgColor: '#f3ebdc', align: 'center', decimals: 2, width: '' };
+    conf[4]  = { ...conf[4],  label: "مدين أجنبي (عليه)",   visible: true,  fs: 0.98, fontWeight: '900', fontFamily: compactArFont, color: '#14532d', bgColor: '#eef6ee', align: 'center', decimals: 2, width: '' };
+    conf[5]  = { ...conf[5],  label: "دائن أجنبي (له)",     visible: true,  fs: 0.98, fontWeight: '900', fontFamily: compactArFont, color: '#991b1b', bgColor: '#fbf0ec', align: 'center', decimals: 2, width: '' };
+    conf[9]  = { ...conf[9],  label: "الإجمالي الأجنبي",     visible: false, fs: 1.00, fontWeight: '900', fontFamily: compactArFont, color: '#1c1208', bgColor: '#f5ecd9', align: 'center', decimals: 2, width: '' };
+    conf[10] = { ...conf[10], label: "ملاحظات",             visible: false, fs: 0.85, fontWeight: '900', fontFamily: compactArFont, color: '#3b2612', bgColor: '#f4ede0', align: 'center', width: '' };
     return conf;
 }
 
 function getFactoryPreset2Configs() {
     let conf = getFactoryPreset1Configs();
-    conf[8].visible = true;
-    conf[9].visible = true;
     Object.keys(conf).forEach(k => {
         conf[k] = {
             ...conf[k],
-            color: conf[k].color ? lightenHex3ShadesBal(conf[k].color) : conf[k].color,
-            bgColor: conf[k].bgColor ? lightenHex3ShadesBal(conf[k].bgColor) : ''
+            color: '#000000',
+            headerBgColor: '#f5ede0',
+            headerColor: '#000000',
+            bgColor: conf[k].bgColor ? lightenHex2ShadesBal(conf[k].bgColor) : ''
         };
     });
     return conf;
@@ -358,28 +408,27 @@ function getFactoryPreset2Configs() {
 
 function getBalancesForeignConfigs() {
     let conf = getFactoryPreset2Configs();
-    Object.keys(conf).forEach(k => { conf[k].fs = (k === '9') ? 1.2 : 1.1; });
-    [6, 7, 8, 10, 2, 3].forEach(i => { if (conf[i]) conf[i].visible = false; });
+    Object.keys(conf).forEach(k => { conf[k].fs = (k === '0') ? 0.88 : ((k === '1') ? 0.86 : 1.02); });
+    [6, 7, 8, 10, 11, 2, 3].forEach(i => { if (conf[i]) conf[i].visible = false; });
+    [0, 1, 4, 5, 9].forEach(i => { if (conf[i]) conf[i].visible = true; });
     return conf;
 }
 
 function getBalancesLocalConfigs() {
     let conf = getFactoryPreset2Configs();
-    Object.keys(conf).forEach(k => { conf[k].fs = (k === '8') ? 1.35 : 1.25; });
-    [4, 5, 9, 10, 2, 3].forEach(i => { if (conf[i]) conf[i].visible = false; });
-    [0, 1, 11, 6, 7, 8].forEach(i => { if (conf[i]) conf[i].visible = true; });
+    Object.keys(conf).forEach(k => { conf[k].fs = (k === '0') ? 0.88 : ((k === '1') ? 0.86 : 1.02); });
+    [4, 5, 9, 10, 11, 2, 3].forEach(i => { if (conf[i]) conf[i].visible = false; });
+    [0, 1, 6, 7, 8].forEach(i => { if (conf[i]) conf[i].visible = true; });
     return conf;
 }
 
 const FACTORY_PRESETS_BALANCES = [
-    { name: 'متعدد العملات 1', configs: getFactoryPreset1Configs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-newsons', paperSize: 'A4', orientation: 'landscape', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
-    { name: 'متعدد العملات 2', configs: getFactoryPreset2Configs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-newsons', paperSize: 'A4', orientation: 'landscape', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
-    { name: 'الأجنبي',         configs: getBalancesForeignConfigs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-newsons', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
-    { name: 'المحلي',          configs: getBalancesLocalConfigs(),   order: [0, 1, 11, 6, 7, 8, 10, 2, 3, 4, 5, 9], theme: '', font: 'font-newsons', paperSize: 'A4', orientation: 'portrait', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
-    { name: 'نمط 1',           configs: getFactoryPreset1Configs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-newsons', paperSize: 'A4', orientation: 'landscape', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: false },
-    { name: 'نمط 2',           configs: getFactoryPreset2Configs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-newsons', paperSize: 'A4', orientation: 'landscape', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: false },
-    { name: 'نمط 3',           configs: getBalancesForeignConfigs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-newsons', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: false },
-    { name: 'نمط 4',           configs: getBalancesLocalConfigs(),   order: [0, 1, 11, 6, 7, 8, 10, 2, 3, 4, 5, 9], theme: '', font: 'font-newsons', paperSize: 'A4', orientation: 'portrait', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: false }
+    { name: 'متعدد العملات 1', configs: getFactoryPreset1Configs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-cairo', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
+    { name: 'متعدد العملات 2', configs: getFactoryPreset2Configs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-cairo', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
+    { name: 'الأجنبي',         configs: getBalancesForeignConfigs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-cairo', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
+    { name: 'المحلي',          configs: getBalancesLocalConfigs(),   order: [0, 1, 6, 7, 8, 11, 10, 2, 3, 4, 5, 9], theme: '', font: 'font-cairo', paperSize: 'A4', orientation: 'portrait', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
+    { name: 'نمط 1',           configs: getFactoryPreset1Configs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-cairo', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: false },
+    { name: 'نمط 2',           configs: getFactoryPreset2Configs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-cairo', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: false }
 ];
 
 function getSavedPresets() {
@@ -390,16 +439,19 @@ function getSavedPresets() {
         return JSON.parse(JSON.stringify(FACTORY_PRESETS_BALANCES));
     }
     const out = [];
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 6; i++) {
         if (i < 4) {
             out.push(JSON.parse(JSON.stringify(FACTORY_PRESETS_BALANCES[i])));
-        } else if (list[i] && list[i].configs) {
-            const p = { ...FACTORY_PRESETS_BALANCES[i], ...list[i], isLocked: false };
-            const cn = String(p.name || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F]/gu, '').trim();
-            p.name = (!cn || cn.includes('افتراضي') || cn.includes('المستخدم')) ? ('نمط ' + (i - 3)) : cn;
-            out.push(p);
         } else {
-            out.push(JSON.parse(JSON.stringify(FACTORY_PRESETS_BALANCES[i])));
+            const src = (list[i] && list[i].configs) ? list[i] : ((list[i + 2] && list[i + 2].configs) ? list[i + 2] : null);
+            if (src) {
+                const p = { ...FACTORY_PRESETS_BALANCES[i], ...src, isLocked: false, showInRibbon: src.showInRibbon !== false };
+                const cn = String(p.name || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F]/gu, '').trim();
+                p.name = (!cn || /^(?:نمط|افتراضي|تخطيط|قالب)\s*\d*$/u.test(cn) || cn.includes('المستخدم')) ? ('نمط ' + (i - 3)) : cn;
+                out.push(p);
+            } else {
+                out.push(JSON.parse(JSON.stringify(FACTORY_PRESETS_BALANCES[i])));
+            }
         }
     }
     return out;
@@ -439,7 +491,9 @@ function loadPresetsFromDB(reportKey, localKey, onComplete) {
             .then(data => {
                 if (data && data.success && Array.isArray(data.layout) && data.layout.length > 0) {
                     localStorage.setItem(localKey, JSON.stringify(data.layout));
-                    if (typeof onComplete === 'function') onComplete(data.layout);
+                    const normalized = getSavedPresets();
+                    localStorage.setItem(localKey, JSON.stringify(normalized));
+                    if (typeof onComplete === 'function') onComplete(normalized);
                 } else {
                     let rawLocal = localStorage.getItem(localKey);
                     if (rawLocal) {
@@ -929,17 +983,19 @@ function renderTable() {
         
         let th = document.createElement('th');
         th.setAttribute('data-col-idx', idx);
-        th.innerText = conf.label || c.defaultLabel;
+        const lblTxt = conf.label || c.defaultLabel;
+        th.innerText = lblTxt;
         if (selectedColIndex === idx) {
             th.classList.add('selected-col');
         }
         
-        th.style.fontSize = (conf.fs || 0.9) + 'rem';
+        const hdrFs = lblTxt.length >= 14 ? 0.76 : (lblTxt.length >= 10 ? 0.80 : 0.85);
+        th.style.fontSize = (conf.headerFs || hdrFs) + 'rem';
         th.style.textAlign = conf.align || 'center';
-        if (conf.fontWeight) th.style.fontWeight = conf.fontWeight;
+        th.style.fontWeight = '900';
         if (conf.fontFamily && conf.fontFamily !== 'inherit') th.style.fontFamily = conf.fontFamily;
-        if (conf.color) th.style.color = conf.color;
-        if (conf.bgColor) th.style.backgroundColor = conf.bgColor;
+        if (conf.headerColor) th.style.color = conf.headerColor;
+        if (conf.headerBgColor) th.style.backgroundColor = conf.headerBgColor;
         if (conf.width) {
             const wNum = parseInt(conf.width, 10);
             th.style.width = conf.width;
@@ -993,9 +1049,21 @@ function renderTable() {
                 colTotals[idx] += parseFloat(rawVal);
             }
 
-            td.innerText = c.isNum ? formatCustomNumber(rawVal, conf) : (rawVal || '-');
+            const cellTxt = c.isNum ? formatCustomNumber(rawVal, conf) : (rawVal || '-');
+            td.innerText = cellTxt;
             
-            td.style.fontSize = (conf.fs || 0.9) + 'rem';
+            let dynFs = parseFloat(conf.fs || 0.9) || 0.9;
+            if (idx === 1) {
+                const pLen = String(cellTxt).length;
+                dynFs = pLen >= 13 ? 0.70 : (pLen >= 11 ? 0.75 : 0.81);
+            } else if (c.isNum) {
+                const nLen = String(cellTxt).length;
+                if (nLen >= 14) dynFs = Math.min(dynFs, 0.72);
+                else if (nLen >= 12) dynFs = Math.min(dynFs, 0.78);
+                else if (nLen >= 10) dynFs = Math.min(dynFs, 0.85);
+                else if (nLen >= 8) dynFs = Math.min(dynFs, 0.92);
+            }
+            td.style.fontSize = dynFs + 'rem';
             td.style.textAlign = conf.align || 'center';
             if (conf.fontWeight) td.style.fontWeight = conf.fontWeight;
             if (conf.fontFamily && conf.fontFamily !== 'inherit') td.style.fontFamily = conf.fontFamily;

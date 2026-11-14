@@ -31,10 +31,10 @@ const baseColumns = [
     { idx: 13, defaultLabel: "رقم التحويلة", field: "transferNo", isNum: false },
     { idx: 15, defaultLabel: "اسم البنك", field: "bankName", isNum: false },
     { idx: 14, defaultLabel: "رقم الشيك", field: "checkNo", isNum: false },
-    { idx: 5, defaultLabel: "مدين (محلي)", field: "debit", isNum: true },
-    { idx: 6, defaultLabel: "دائن (محلي)", field: "credit", isNum: true },
-    { idx: 7, defaultLabel: "مدين (أجنبي)", field: "debitForeign", isNum: true },
-    { idx: 8, defaultLabel: "دائن (أجنبي)", field: "creditForeign", isNum: true },
+    { idx: 5, defaultLabel: "مدين محلي (عليه)", field: "debit", isNum: true },
+    { idx: 6, defaultLabel: "دائن محلي (له)", field: "credit", isNum: true },
+    { idx: 7, defaultLabel: "مدين أجنبي (عليه)", field: "debitForeign", isNum: true },
+    { idx: 8, defaultLabel: "دائن أجنبي (له)", field: "creditForeign", isNum: true },
     { idx: 9, defaultLabel: "سعر الصرف", field: "exchangeRate", isNum: true },
     { idx: 10, defaultLabel: "الإجمالي المحلي", field: "balance", isNum: true },
     { idx: 11, defaultLabel: "الإجمالي الأجنبي", field: "balanceForeign", isNum: true },
@@ -769,10 +769,10 @@ function getDefaultConfigs() {
 
 
 
-const MASTER_DEF1_LOCK_STAMP = 'gl_def1_locked_20261114_v2';
-const MASTER_DEF2_LOCK_STAMP = 'gl_def2_locked_20261114_v2';
-const MASTER_DEF3_LOCK_STAMP = 'gl_def3_locked_20261114_v2';
-const MASTER_DEF4_STAMP = 'gl_def4_init_20261114_v4';
+const MASTER_DEF1_LOCK_STAMP = 'gl_def1_locked_20261114_v3';
+const MASTER_DEF2_LOCK_STAMP = 'gl_def2_locked_20261114_v3';
+const MASTER_DEF3_LOCK_STAMP = 'gl_def3_locked_20261114_v3';
+const MASTER_DEF4_STAMP = 'gl_def4_init_20261114_v5';
 const MASTER_DEF1_ORDER = [0, 12, 1, 2, 3, 4, 13, 15, 14, 5, 6, 10, 9, 7, 8, 11];
 
 function lightenHex3Shades(hex) {
@@ -805,10 +805,10 @@ function getFactoryPreset1LedgerConfigs() {
         { label: "البيان / الوصف", visible: false, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest" },
         { label: "الحساب المقابل", visible: false, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest" },
         { label: "نوع الحركة", visible: false, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest" },
-        { label: "مدين (محلي)", visible: true, fs: 0.9, fontWeight: "900", fontFamily: "inherit", color: "#0516ff", bgColor: "#f0ffff", align: "center", thousandSep: ",", decimals: 0, showDecSep: true, rounding: "nearest", width: "138px" },
-        { label: "دائن (محلي)", visible: true, fs: 0.9, fontWeight: "900", fontFamily: "inherit", color: "#fb0404", bgColor: "#fcf2f2", align: "center", thousandSep: ",", decimals: 0, showDecSep: true, rounding: "nearest", width: "138px" },
-        { label: "مدين (أجنبي)", visible: true, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "#0703fc", bgColor: "#f0ffff", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "134px" },
-        { label: "دائن (أجنبي)", visible: true, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "#fa0000", bgColor: "#fcf2f2", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "134px" },
+        { label: "مدين محلي (عليه)", visible: true, fs: 0.9, headerFs: 0.78, fontWeight: "900", fontFamily: "inherit", color: "#0516ff", bgColor: "#f0ffff", align: "center", thousandSep: ",", decimals: 0, showDecSep: true, rounding: "nearest", width: "138px" },
+        { label: "دائن محلي (له)", visible: true, fs: 0.9, headerFs: 0.78, fontWeight: "900", fontFamily: "inherit", color: "#fb0404", bgColor: "#fcf2f2", align: "center", thousandSep: ",", decimals: 0, showDecSep: true, rounding: "nearest", width: "138px" },
+        { label: "مدين أجنبي (عليه)", visible: true, fs: 0.9, headerFs: 0.78, fontWeight: "", fontFamily: "inherit", color: "#0703fc", bgColor: "#f0ffff", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "134px" },
+        { label: "دائن أجنبي (له)", visible: true, fs: 0.9, headerFs: 0.78, fontWeight: "", fontFamily: "inherit", color: "#fa0000", bgColor: "#fcf2f2", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "134px" },
         { label: "سعر الصرف", visible: true, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "#e0fff1", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "100px" },
         { label: "الإجمالي المحلي", visible: true, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "#fefff0", align: "center", thousandSep: ",", decimals: 0, showDecSep: true, rounding: "nearest", width: "152px" },
         { label: "الإجمالي الأجنبي", visible: true, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "#fefff0", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "140px" },
@@ -1749,11 +1749,11 @@ function renderTable() {
         
         const hdrTxtLen = String(conf.label || c.defaultLabel || '').trim().length;
         const wParsed = conf.width ? parseInt(conf.width, 10) : 0;
-        let hdrFs = hdrTxtLen > 12 ? 0.94 : 1.06;
+        let hdrFs = conf.headerFs ? Number(conf.headerFs) : (hdrTxtLen >= 14 ? 0.78 : (hdrTxtLen > 11 ? 0.86 : 1.04));
         if (wParsed > 10 && wParsed < 95) {
-            hdrFs = Math.max(0.76, Math.min(1.06, +(wParsed / Math.max(6.5, hdrTxtLen * 0.82) / 14).toFixed(2)));
-        } else if (wParsed >= 135) {
-            hdrFs = 1.12;
+            hdrFs = Math.max(0.70, Math.min(hdrFs, +(wParsed / Math.max(6.5, hdrTxtLen * 0.82) / 14).toFixed(2)));
+        } else if (wParsed >= 135 && !conf.headerFs) {
+            hdrFs = 1.10;
         }
         const isPreset2Lighter = (currentPresetIndex === 1);
         const hdrFootGrad = isPreset2Lighter

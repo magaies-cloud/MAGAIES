@@ -202,8 +202,8 @@
 
         /* Printable Area - Realistic Solid Paper Sheet Boundary */
         .print-area {
-            padding: 35px 40px;
-            margin: 25px auto 50px auto;
+            padding: 18px 14px;
+            margin: 18px auto 40px auto;
             background: var(--table-bg);
             color: var(--text-color);
             border: 1px solid var(--table-border);
@@ -212,6 +212,7 @@
             transition: all 0.3s ease;
             box-sizing: border-box;
             position: relative;
+            overflow-x: hidden;
         }
 
         body.dark-mode .print-area {
@@ -219,8 +220,8 @@
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
         }
 
-        .print-area.paper-portrait { max-width: 1000px; width: 94%; }
-        .print-area.paper-landscape { max-width: 98%; width: 98%; }
+        .print-area.paper-portrait { width: 210mm; max-width: 96vw; }
+        .print-area.paper-landscape { width: 297mm; max-width: 98vw; }
 
         /* Paper sheet indicator badge */
         .print-area::before {
@@ -247,45 +248,50 @@
         .company-logo-wrap { width: 3.5cm; height: 100%; border: 1px solid var(--table-border); display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 8px; }
         .company-logo-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; }
 
-        /* Excel-like Flat Table */
+        /* Royal Beige & Sculpted Frame Table (Outer +4 = 4px, Inner +3 = 2.2px, Distinct Header Row) */
         table.excel-table {
             width: 100%; border-collapse: collapse; table-layout: auto;
-            background: var(--table-bg); color: inherit;
+            background: #fdfaf5; color: #1c1208;
+            border: 4px solid #2b1d0e !important;
+            font-family: 'Cairo', 'Tajawal', sans-serif !important;
+            letter-spacing: -0.2px;
         }
         table.excel-table th, table.excel-table td {
-            border: 1px solid var(--table-border);
-            padding: 7px 10px; text-align: center; font-size: 0.9rem; color: inherit;
+            border: 2.2px solid #6b533b !important;
+            padding: 7px 10px; text-align: center; font-size: 0.94rem; color: #1c1208;
+            font-family: 'Cairo', 'Tajawal', sans-serif !important;
+            letter-spacing: -0.18px;
             white-space: nowrap !important; word-break: keep-all !important;
         }
-        table.excel-table th {
-            background: var(--table-header-bg); font-weight: 800; cursor: pointer; position: relative; user-select: none;
+        table.excel-table thead tr {
+            border-bottom: 3.5px solid #2b1d0e !important;
+        }
+        table.excel-table thead th {
+            background: linear-gradient(180deg, #eadbc4 0%, #dcc7a6 100%);
+            color: #1c1208;
+            font-weight: 900 !important;
+            font-size: clamp(0.68rem, 0.9vw, 0.76rem) !important;
+            letter-spacing: -0.3px !important;
+            padding: 6px 4px !important;
+            width: 1%;
+            cursor: pointer; position: relative; user-select: none;
             white-space: nowrap !important; word-break: keep-all !important;
         }
-        table.excel-table th:hover { background: rgba(56,189,248,0.25); }
-        table.excel-table th.selected-col { background: #bae6fd !important; color: #0369a1 !important; border-bottom: 3px solid #0284c7 !important; }
-        body.dark-mode table.excel-table th.selected-col { background: #0369a1 !important; color: #ffffff !important; border-bottom-color: #38bdf8 !important; }
+        table.excel-table thead th[data-col-idx="0"], table.excel-table td[data-col-idx="0"] { width: auto !important; }
+        table.excel-table thead th:hover { background: #d4bc94 !important; }
+        table.excel-table thead th.selected-col { background: #fef3c7 !important; color: #78350f !important; border-bottom: 3.5px solid #b45309 !important; }
+        body.dark-mode table.excel-table thead th.selected-col { background: #78532a !important; color: #fde68a !important; border-bottom-color: #fbbf24 !important; }
         
-        table.excel-table td.num-cell { font-family: var(--num-font-family); font-weight: 600; direction: ltr; }
+        table.excel-table td.num-cell { font-family: 'Cairo', 'Inter', sans-serif !important; font-weight: 900 !important; direction: ltr; letter-spacing: -0.25px; width: 1%; white-space: nowrap !important; overflow: hidden !important; padding: 4px 4px !important; }
+        table.excel-table td[data-col-idx="1"] { font-family: 'Cairo', 'Inter', sans-serif !important; font-weight: 900 !important; direction: ltr; letter-spacing: -0.35px !important; width: 1% !important; white-space: nowrap !important; padding: 4px 3px !important; }
+        table.excel-table td[data-col-idx="0"] { font-family: 'Tajawal', sans-serif !important; letter-spacing: -0.3px !important; white-space: normal !important; line-height: 1.22 !important; padding: 4px 6px !important; }
 
-        /* Default Column Background & Font Colors for Balances */
-        table.excel-table td[data-col-idx="4"], table.excel-table td[data-col-idx="6"] {
-            background-color: #e0f2fe !important;
-            color: #0044cc !important;
-            font-weight: 700 !important;
-        }
-        table.excel-table td[data-col-idx="5"], table.excel-table td[data-col-idx="7"] {
-            background-color: #fee2e2 !important;
-            color: #dc2626 !important;
-            font-weight: 700 !important;
-        }
-        table.excel-table td[data-col-idx="1"] {
-            background-color: #dcfce7 !important;
-            color: #008000 !important;
-            font-weight: 700 !important;
-        }
-
-        table.excel-table tfoot td { font-weight: 900; background: var(--table-header-bg); }
+        /* Elegant Warm Beige Palette (No Harsh Blue Overrides) */
+        table.excel-table tbody tr:nth-child(even) td { filter: brightness(0.985); }
+        table.excel-table tfoot tr { border-top: 3.5px solid #2b1d0e !important; }
+        table.excel-table tfoot td { font-weight: 900 !important; background: #e8dcc8 !important; color: #1c1208 !important; font-size: 0.86rem !important; padding: 5px 4px !important; }
         
+        @page { size: A4 portrait; margin: 6mm; }
         @media print {
             * {
                 -webkit-print-color-adjust: exact !important;
@@ -314,13 +320,16 @@
             table.excel-table {
                 width: 100% !important;
                 table-layout: auto !important;
+                border: 4px solid #2b1d0e !important;
             }
             table.excel-table th, table.excel-table td {
-                border: 1px solid var(--table-border) !important;
+                border: 2.2px solid #6b533b !important;
                 white-space: nowrap !important;
                 word-break: keep-all !important;
                 padding: 6px 8px !important;
             }
+            table.excel-table thead tr { border-bottom: 3.5px solid #2b1d0e !important; }
+            table.excel-table tfoot tr { border-top: 3.5px solid #2b1d0e !important; }
         }
 
         /* Toasts container & animations */
@@ -513,7 +522,7 @@
                 if (presets[activeIdx]) {
                     presets[activeIdx].isLocked = false;
                     savePresets(presets);
-                    syncPresetsToDB('balances_preview_presets_v7', presets);
+                    syncPresetsToDB(typeof PRESETS_STORAGE_KEY !== 'undefined' ? PRESETS_STORAGE_KEY : 'balances_preview_presets_v20', presets);
                 }
             }
         }
@@ -529,21 +538,21 @@
         </div>
         <button class="ribbon-btn" onclick="executePrintWithPermission()" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); border:none;">🖨️ طباعة</button>
         <button class="ribbon-btn" onclick="toggleDarkMode()">🌙 عكس الألوان</button>
-        <button class="ribbon-btn" onclick="if(window.parent && window.parent !== window && window.parent.document.getElementById('preset-preview-modal')){window.parent.document.getElementById('preset-preview-modal').style.display='none';}else{window.history.back();}" style="color:#f87171; border-color:rgba(239,68,68,0.5);">⬅ رجوع</button>
+        <button class="ribbon-btn" onclick="if(window.parent && window.parent !== window && window.parent.document.getElementById('preset-preview-modal')){window.parent.document.getElementById('preset-preview-modal').style.display='none';}else{window.location.href='mainbalances-report.php';}" style="color:#f87171; border-color:rgba(239,68,68,0.5);">⬅ رجوع</button>
     </div>
 </div>
 
 <!-- Pro Studio Dropdown Panel with Slide Animation -->
 <?php include 'includes/studio-settings-panel.php'; ?>
 <!-- Print Area - Paper Sheet Layout View -->
-<div class="print-area paper-landscape" id="print-area-wrapper">
+<div class="print-area paper-portrait" id="print-area-wrapper">
     <div id="print-top-bar" class="print-meta-bar" style="display:none;"></div>
     
     <!-- Company Header Area -->
     <div class="company-header report-header" id="main-company-header">
         <!-- Right Side: Company Details -->
         <div id="company-info-block" style="flex: 1; text-align: right; color: var(--text-color);">
-            <h2 id="hdr-c-name" style="margin: 0 0 4px 0; font-size: 1.5rem; font-weight: 900;"></h2>
+            <h2 id="hdr-c-name" style="margin: 0 0 4px 0; font-size: 1.18rem; font-weight: 900;"></h2>
             <p id="hdr-c-reg" style="margin: 0 0 2px 0; font-size: 0.9rem; font-weight: 600;"></p>
             <p id="hdr-c-vat" style="margin: 0 0 2px 0; font-size: 0.9rem; font-weight: 600;"></p>
             <p id="hdr-c-phone" style="margin: 0 0 2px 0; font-size: 0.9rem; font-weight: 600;"></p>
@@ -600,7 +609,7 @@
 <?php include 'includes/studio-modals.php'; ?>
 <script src="js/localforage.min.js"></script>
 <script src="js/app.js?v=20261016_v28"></script>
-<script src="js/preview-balances.js?v=2027_gl_mc_unified_v3"></script>
+<script src="js/preview-balances.js?v=2027_gl_mc_unified_v11"></script>
 
 <script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
 <script src="js/magaiees_back.js?v=2026_back_v2" defer></script>
