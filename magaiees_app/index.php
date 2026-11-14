@@ -3,6 +3,25 @@ header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
 header('Cache-Control: post-check=0, pre-check=0', false);
 header('Pragma: no-cache');
 header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
+
+$host = strtolower($_SERVER['HTTP_HOST'] ?? '');
+if ($host === 'c.elsajana.com' || $host === 'elsajana.com' || $host === 'www.elsajana.com') {
+    ?>
+    <!DOCTYPE html>
+    <html dir="rtl" lang="ar">
+    <head>
+      <meta charset="UTF-8">
+      <title>جاري التحويل إلى منصة مقاييس...</title>
+      <script>
+        window.location.replace('https://magaiees.elsajana.com/' + (window.location.hash || ''));
+      </script>
+      <meta http-equiv="refresh" content="0;url=https://magaiees.elsajana.com/">
+    </head>
+    <body></body>
+    </html>
+    <?php
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
