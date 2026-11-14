@@ -1761,7 +1761,7 @@ JSON.parse = function(val) {
                     currentDirty.forEach(k => dirtyKeys.add(k));
                     persistDirtyKeys();
                     console.warn("Cloud Sync Push Notice:", data.error || "Save failed");
-                    reject(new Error(data.error || "Save failed"));
+                    resolve({ success: false, deferred: true, error: data.error || "Save failed" });
                 } else {
                     persistDirtyKeys();
                     console.log("Cloud Sync: Strict Backup Successful");
@@ -1802,10 +1802,10 @@ JSON.parse = function(val) {
 
     // فحص تلقائي نشط كل 4 ثوانٍ على اللابتوب والجوال لرفع أي بيانات أوفلاين فور توفر الإنترنت دون الحاجة لأي إجراء يدوي
     setInterval(() => {
-        if (dirtyKeys.size > 0 && !isPushing && navigator.onLine !== false) {
+        if (!document.hidden && dirtyKeys.size > 0 && !isPushing && navigator.onLine !== false) {
             pushToCloud();
         }
-    }, 4000);
+    }, 10000);
 
     // تسجيل Service Worker وتفعيل محرك الأوفلاين الموحد تلقائياً في كافة شاشات اللابتوب والجوال
     if ('serviceWorker' in navigator) {
@@ -2674,20 +2674,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const badge = bell.querySelector('#print-badge');
             
-            setInterval(() => {
+            const refreshPrintBell = () => {
+                if (document.hidden) return;
                 const reqs = JSON.parse(localStorage.getItem('erp_print_requests') || '[]');
                 const pendingCount = reqs.filter(r => r.status === 'pending').length;
                 if (pendingCount > 0) {
                     bell.style.display = 'flex';
                     badge.style.display = 'block';
                     badge.innerText = pendingCount;
-                    bell.style.transform = 'scale(1.1)';
-                    setTimeout(() => bell.style.transform = 'scale(1)', 300);
                 } else {
                     bell.style.display = 'none';
                     badge.style.display = 'none';
                 }
-            }, 3000);
+            };
+            refreshPrintBell();
+            window.addEventListener('storage', (e) => { if (e.key === 'erp_print_requests') refreshPrintBell(); });
+            setInterval(refreshPrintBell, 15000);
 
             bell.onclick = function() {
                 const reqs = JSON.parse(localStorage.getItem('erp_print_requests') || '[]').filter(r => r.status === 'pending');

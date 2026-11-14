@@ -75,6 +75,22 @@ if (file_exists($storageFile)) {
 if (empty($items)) {
     $items = $defaultItems;
     @file_put_contents($storageFile, json_encode($items, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+} else {
+    $hasRecent24h = false;
+    foreach ($items as $chkIt) {
+        $chkTs = isset($chkIt['ts']) ? (int)$chkIt['ts'] : $nowTs;
+        if (($nowTs - $chkTs) < 82800) { $hasRecent24h = true; break; }
+    }
+    if (!$hasRecent24h) {
+        $onlyDefaults = true;
+        foreach ($items as $chkIt) {
+            if (strpos((string)($chkIt['id'] ?? ''), 'mk_10') !== 0) { $onlyDefaults = false; break; }
+        }
+        if ($onlyDefaults) {
+            $items = $defaultItems;
+            @file_put_contents($storageFile, json_encode($items, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+        }
+    }
 }
 
 $action = $_REQUEST['action'] ?? 'list';
@@ -199,14 +215,14 @@ if ($action === 'add' || $_SERVER['REQUEST_METHOD'] === 'POST') {
         // 1. استعلام عن عروض الأسعار (ع / أسعار / تسعيرة / 1)
         if (in_array($cleanCmd, ['ع', 'اسعار', 'أسعار', 'عروض', 'الاسعار', 'الأسعار', 'تسعيرة', 'التسعيرة', 'تسعيره', 'التسعيره', '1'], true)) {
             $offers = array_values(array_filter($items, fn($x) => ($x['type'] ?? 'offer') === 'offer'));
-            $lines = ["📊 *بورصة عروض الأسعار اليومية بالسوق (" . count($offers) . " عروض):*"];
+            $lines = ["🏛️ *بورصة السيطرة التجارية — عروض الأسعار اليومية (" . count($offers) . " عروض):*"];
             foreach ($offers as $idx => $o) {
                 $isMasked = ($o['privacy'] ?? 'public') === 'masked';
                 $code = $o['deal_code'] ?? ($idx + 101);
                 $contactInfo = $isMasked ? "🔒 كود الدلالة: *#{$code}* (أرسل *تواصل {$code}* للشراء)" : "📞 " . ($o['phone'] ?: 'مباشر');
                 $lines[] = ($idx + 1) . ". 🟢 *" . $o['sender_name'] . "* [{$contactInfo}]:\n   " . $o['text'] . " ⏱️ " . $o['time'];
             }
-            $lines[] = "\n💡 *طريقة النشر بالبورصة:*\n• لنشر عرض باسمك: *عرض اسمك: أسعارك*\n• لنشر عرض سري بدون اسمك ورقمك: *عرض سري: أسعارك*\n• لعرض طلبات الشراء أرسل الرمز: *ط*";
+            $lines[] = "\n💡 *طريقة النشر في بورصة السيطرة التجارية:*\n• لنشر عرض باسمك: *عرض اسمك: أسعارك*\n• لنشر عرض سري بدون اسمك ورقمك: *عرض سري: أسعارك*\n• لعرض طلبات الشراء أرسل الرمز: *ط*";
             echo json_encode(['success' => true, 'mode' => 'query_offers', 'reply' => implode("\n\n", $lines), 'items' => $offers], JSON_UNESCAPED_UNICODE);
             exit;
         }
@@ -214,7 +230,7 @@ if ($action === 'add' || $_SERVER['REQUEST_METHOD'] === 'POST') {
         // 2. استعلام عن طلبات الشراء (ط / طلبات / 2)
         if (in_array($cleanCmd, ['ط', 'طلبات', 'طلبيات', 'الطلبات', 'مشتريات', '2'], true)) {
             $orders = array_values(array_filter($items, fn($x) => ($x['type'] ?? '') === 'order'));
-            $lines = ["🛒 *بورصة طلبات الشراء المفتوحة اليوم (" . count($orders) . " طلبات):*"];
+            $lines = ["🏛️ *بورصة السيطرة التجارية — طلبات الشراء المفتوحة اليوم (" . count($orders) . " طلبات):*"];
             foreach ($orders as $idx => $o) {
                 $isMasked = ($o['privacy'] ?? 'public') === 'masked';
                 $code = $o['deal_code'] ?? ($idx + 101);
@@ -237,15 +253,15 @@ if ($action === 'add' || $_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
             if ($found) {
-                $reply = "🤝 *تم استلام طلبك للصفقة رقم (#{$targetCode}):*\n"
+                $reply = "🏛️ *بورصة السيطرة التجارية — تأكيد استلام طلب الصفقة (#{$targetCode}):*\n"
                     . "📋 التفاصيل: {$found['text']}\n"
-                    . "✅ تم إشعار صاحب الصفقة برقمك فوراً عبر دلالة المنصة لترتيب البيع والتسليم.";
+                    . "✅ تم إشعار صاحب الصفقة برقمك فوراً عبر دلالة بورصة السيطرة التجارية لترتيب البيع والتسليم.";
                 echo json_encode([
                     'success' => true,
                     'mode' => 'deal_match',
                     'reply' => $reply,
                     'owner_phone' => $found['phone'] ?? '',
-                    'owner_notify' => "🔔 *إشعار صفقة من بورصة السجانة (#{$targetCode}):*\nلديك عميل جاد يرغب في تنفيذ عرضك/طلبك:\n({$found['text']})\n📞 رقم العميل للتواصل المباشر: +" . ($phone ?: 'عبر المنصة')
+                    'owner_notify' => "🔔 *إشعار صفقة من بورصة السيطرة التجارية (#{$targetCode}):*\nلديك عميل جاد يرغب في تنفيذ عرضك/طلبك:\n({$found['text']})\n📞 رقم العميل للتواصل المباشر: +" . ($phone ?: 'عبر المنصة')
                 ], JSON_UNESCAPED_UNICODE);
                 exit;
             }
@@ -347,7 +363,7 @@ if ($action === 'add' || $_SERVER['REQUEST_METHOD'] === 'POST') {
             ? "🔒 *حماية الخصوصية مفعلة:* تم إخفاء اسمك ورقمك ونشر الصفقة بالكود السري (*#{$dealCode}*). عندما يطلبها مشتري بـ (*تواصل {$dealCode}*) سنرسل لك رقمه فوراً!"
             : "🌐 تم النشر بالاسم والرقم المباشر (*{$displaySender}*) ليظهر للجميع في الشريط والواتساب.";
 
-        $replyMsg = ($type === 'order' ? "✅ *تم نشر طلب الشراء في بورصة السوق!*\n" : "✅ *تم نشر عرض الأسعار في بورصة السوق!*\n")
+        $replyMsg = ($type === 'order' ? "🏛️ *بورصة السيطرة التجارية — تم اعتماد ونشر طلب الشراء بنجاح!*\n" : "🏛️ *بورصة السيطرة التجارية — تم اعتماد ونشر عرض الأسعار بنجاح!*\n")
             . $privacyNote . "\n📊 للأسعار أرسل: *ع* | 🛒 للطلبات أرسل: *ط*";
 
         echo json_encode(['success' => true, 'mode' => 'added', 'item' => $newItem, 'reply' => $replyMsg, 'items' => $items], JSON_UNESCAPED_UNICODE);

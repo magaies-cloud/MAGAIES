@@ -107,11 +107,10 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
     } catch(e) {}
 })();
 </script>
-<script src="js/hls.light.min.js"></script>
-<script src="js/bban_auto_helper.js"></script>
-<script src="js/master-banks-helper.js?v=20260924_v1"></script>
-<script src="js/permissions-manager.js?v=<?= file_exists(__DIR__ . '/../js/permissions-manager.js') ? filemtime(__DIR__ . '/../js/permissions-manager.js') : '20261016_v28' ?>"></script>
-<script src="js/audit-tracker.js?v=20260927"></script>
+<script defer src="js/bban_auto_helper.js"></script>
+<script defer src="js/master-banks-helper.js?v=20260924_v1"></script>
+<script defer src="js/permissions-manager.js?v=<?= file_exists(__DIR__ . '/../js/permissions-manager.js') ? filemtime(__DIR__ . '/../js/permissions-manager.js') : '20261016_v28' ?>"></script>
+<script defer src="js/audit-tracker.js?v=20260927"></script>
 <script>
     // ═══════════════════════════════════════════════════════════════════
     // 🛡️ الحماية المطلقة الشاملة لمنع ظهور رسالة المتصفح (Leave Site) نهائياً
@@ -302,7 +301,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
         var clk = (it[0] === 'mobile-dashboard.php') ? "try{localStorage.setItem('magaiees_view_preference','mobile');document.cookie='magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax';}catch(e){}; window.location.href='mobile-dashboard.php?force_mobile=1';" : "window.location.href='"+it[0]+"';";
         nav+='<a href="'+it[0]+'" style="cursor:pointer" data-href="'+it[0]+'" onclick="'+clk+'" class="sidebar-item'+ac+'"><span class="sidebar-icon" style="color:'+it[2]+'">'+mk(it[3],it[2])+'</span><span class="sidebar-text">'+it[1]+'</span></a>';
     }
-    nav+='<a href="#" data-href="system-self-audit.php" onclick="if(window.openMagaiesGuardianVault)window.openMagaiesGuardianVault();return false;" class="sidebar-item mgv-sidebar-slot magaiees-guardian-red-box" title="درع السيادة المحمي"><span class="sidebar-icon mgv-shield-icon" style="color:#10b981"><span style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;">'+mk('shd','#10b981')+'<span class="mgv-num" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:Cairo,Tajawal,sans-serif;font-weight:900;font-size:8.5px;line-height:1;padding-top:1px;color:currentColor;">0</span></span></span><span class="sidebar-text">درع السيادة</span></a>';
+    nav+='<a href="#" data-href="system-self-audit.php" onclick="if(window.openMagaiesGuardianVault)window.openMagaiesGuardianVault();return false;" class="sidebar-item mgv-sidebar-slot magaiees-guardian-red-box" title="درع السيادة — غرفة القيادة والسيطرة"><span class="sidebar-icon mgv-shield-icon" style="color:#10b981"><span style="position:relative;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;">'+mk('shd','#10b981')+'<span class="mgv-num" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:inherit;font-weight:900;font-size:8.5px;line-height:1;padding-top:1px;color:currentColor;">0</span></span></span><span class="sidebar-text" style="font-family:inherit !important;font-weight:900 !important;letter-spacing:0;">درع السيادة</span></a>';
     var html='<aside class="global-sidebar"><div class="sidebar-header"><span class="sidebar-logo-icon"><svg width="26" height="26" fill="none" stroke="#38bdf8" viewBox="0 0 24 24">'+icons.brand+'</svg></span><span class="sidebar-logo-text">مقاييس (MAGAIEES)</span></div><nav class="sidebar-nav">'+nav+'</nav><div class="sidebar-footer"><a href="#" onclick="logout();return false;" class="sidebar-item sidebar-logout"><span class="sidebar-icon" style="color:#f87171"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">'+icons.out+'</svg></span><span class="sidebar-text">خروج</span></a></div></aside>';
     
     function inject(){
@@ -1100,9 +1099,27 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 <script src="js/auto-charts-domains-2027.js?v=<?php echo file_exists(__DIR__ . '/../js/auto-charts-domains-2027.js') ? filemtime(__DIR__ . '/../js/auto-charts-domains-2027.js') : '2027'; ?>" defer></script>
 <script src="js/auto-charts.js?v=<?php echo file_exists(__DIR__ . '/../js/auto-charts.js') ? filemtime(__DIR__ . '/../js/auto-charts.js') : '2027'; ?>" defer></script>
+<?php if (basename($_SERVER['PHP_SELF'] ?? '') === 'engineering_tools.php'): ?>
 <script src="js/quran_reciters_data.js?v=<?php echo file_exists(__DIR__ . '/../js/quran_reciters_data.js') ? filemtime(__DIR__ . '/../js/quran_reciters_data.js') : '2027'; ?>" defer></script>
+<?php endif; ?>
 <script src="js/global_background_media.js?v=<?php echo file_exists(__DIR__ . '/../js/global_background_media.js') ? filemtime(__DIR__ . '/../js/global_background_media.js') : time(); ?>" defer></script>
-<script src="js/magaiees_back.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees_back.js') ? filemtime(__DIR__ . '/../js/magaiees_back.js') : time(); ?>" defer></script><script src="js/magaies-smart-guide.js?v=<?php echo file_exists(__DIR__ . '/../js/magaies-smart-guide.js') ? filemtime(__DIR__ . '/../js/magaies-smart-guide.js') : time(); ?>" defer></script><script src="js/md-delayed-tooltips.js?v=<?php echo file_exists(__DIR__ . '/../js/md-delayed-tooltips.js') ? filemtime(__DIR__ . '/../js/md-delayed-tooltips.js') : time(); ?>" defer></script>
+<script src="js/magaiees_back.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees_back.js') ? filemtime(__DIR__ . '/../js/magaiees_back.js') : time(); ?>" defer></script>
+<script src="js/md-delayed-tooltips.js?v=<?php echo file_exists(__DIR__ . '/../js/md-delayed-tooltips.js') ? filemtime(__DIR__ . '/../js/md-delayed-tooltips.js') : time(); ?>" defer></script>
+<script>
+(function(){
+    var guideLoaded = false, guideVer = "<?php echo file_exists(__DIR__ . '/../js/magaies-smart-guide.js') ? filemtime(__DIR__ . '/../js/magaies-smart-guide.js') : '2027'; ?>";
+    window.loadMagaiesSmartGuide = function(cb) {
+        if (guideLoaded) { if (cb) cb(); return; }
+        guideLoaded = true;
+        var s = document.createElement('script');
+        s.src = 'js/magaies-smart-guide.js?v=' + guideVer;
+        s.onload = function() { if (cb) cb(); };
+        document.body.appendChild(s);
+    };
+    window.addEventListener('keydown', function(e) { if (e.key === 'F1') { e.preventDefault(); window.loadMagaiesSmartGuide(); } });
+    window.addEventListener('contextmenu', function() { window.loadMagaiesSmartGuide(); }, { once: true, passive: true });
+})();
+</script>
 <script src="js/magaiees-royal-buttons.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees-royal-buttons.js') ? filemtime(__DIR__ . '/../js/magaiees-royal-buttons.js') : time(); ?>" defer></script>
 <script src="js/auto-header-scroll.js?v=<?php echo file_exists(__DIR__ . '/../js/auto-header-scroll.js') ? filemtime(__DIR__ . '/../js/auto-header-scroll.js') : time(); ?>" defer></script>
 <script src="js/magaies-guardian-vault.js?v=<?php echo file_exists(__DIR__ . '/../js/magaies-guardian-vault.js') ? filemtime(__DIR__ . '/../js/magaies-guardian-vault.js') : '2027'; ?>" defer></script>
@@ -2515,10 +2532,15 @@ html.light-theme input[type="date"]::-webkit-datetime-edit-year-field {
 }
 /* توحيد القائمة الجانبية ولوحة البيانات الأساسية ومربعات البحث الذكي وإخفاء كبسولة المرشد في الجوال */
 @media (max-width: 960px) { #msg-universal-fixed-launcher { display: none !important; } }
+.global-sidebar:not(:hover) { width: var(--sb-collapsed, 62px) !important; }
+.global-sidebar:not(:hover) .sidebar-logo-text, .global-sidebar:not(:hover) .sidebar-text { opacity: 0 !important; max-width: 0 !important; pointer-events: none !important; }
+.global-sidebar .sidebar-item, .global-sidebar .sidebar-text { font-family: var(--magaiees-active-font, 'Tajawal', 'Cairo', sans-serif) !important; font-weight: 900 !important; }
 html.light-theme .global-sidebar .sidebar-item, html.light-theme .global-sidebar .sidebar-label,
-html.light-theme #magaiees-panoramic-flyout .pf-card-title, html.light-theme #magaiees-panoramic-flyout .pf-header-title {
+html.light-theme #magaiees-panoramic-flyout .pf-card-title, html.light-theme #magaiees-panoramic-flyout .pf-card-sub, html.light-theme #magaiees-panoramic-flyout .pf-header-title {
     color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 900 !important;
 }
+html.light-theme #magaiees-panoramic-flyout { border: 3px solid #0f172a !important; }
+html.light-theme #magaiees-panoramic-flyout .pf-bento-card { background: #ffffff !important; border: 2.2px solid #0f172a !important; box-shadow: 0 3px 10px rgba(15,23,42,0.12) !important; }
 html.light-theme .global-sidebar .sidebar-icon, html.light-theme #magaiees-panoramic-flyout .pf-card-icon-box {
     border: 2px solid #0f172a !important; background: #ffffff !important; box-shadow: 0 3px 8px rgba(15,23,42,0.16) !important;
     filter: contrast(1.35) saturate(1.35) !important;
@@ -2534,6 +2556,9 @@ html.light-theme .autocomplete-item:hover, html.light-theme .autocomplete-item.s
 html.light-theme .custom-dropdown-item:hover, html.light-theme .custom-dropdown-item.selected {
     background: #ffffff !important; color: #000000 !important; border: 2.5px solid #ea580c !important;
 }
+/* ⚡ 120fps GPU Compositor & Zero-Jank Scroll Optimization across all screens & browsers */
+.royal-crystal-btn:not(:hover):not(:focus-visible)::after, .crystal-btn:not(:hover):not(:focus-visible)::after { animation: none !important; }
+.dash-main *, #purchase-editor-view .section-block-card, #purchase-hub-view .section-block-card, .pos-container .glass-panel, .vouchers-container .glass-card, .report-header, .filters-wrapper { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
 </style>
 
 <script>
@@ -2753,38 +2778,45 @@ $_hdrSyncCustomers = [];
 $_hdrSyncBanks = [];
 $_hdrSyncReceipts = [];
 $_hdrTid = 0;
+$_hdrSyncSig = '0';
+$_hdrNeedInlineDump = (basename($_SERVER['PHP_SELF'] ?? '') === 'account-statement.php');
 try {
     if (function_exists('getDBConnection') && (!isset($pdo) || !$pdo || empty($GLOBAL_TENANT_ID))) {
         $pdo = getDBConnection();
     }
     $_hdrTid = function_exists('resolveCurrentTenantId') ? resolveCurrentTenantId($pdo ?? null) : (!empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 0);
     if (isset($pdo) && $pdo && $_hdrTid > 0) {
-        $stmtC = $pdo->prepare("SELECT data FROM customers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
-        $stmtC->execute([$_hdrTid]);
-        while ($rc = $stmtC->fetch(PDO::FETCH_ASSOC)) {
-            $dc = json_decode($rc['data'] ?? '', true);
-            if ($dc && !empty($dc['id']) && empty($dc['deleted'])) $_hdrSyncCustomers[$dc['id']] = $dc;
-        }
-
-        $stmtB = $pdo->prepare("SELECT data FROM banks WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
-        $stmtB->execute([$_hdrTid]);
-        while ($rb = $stmtB->fetch(PDO::FETCH_ASSOC)) {
-            $db = json_decode($rb['data'] ?? '', true);
-            if ($db && !empty($db['id']) && empty($db['deleted'])) $_hdrSyncBanks[$db['id']] = $db;
-        }
-
-        $stmtR = $pdo->prepare("SELECT data FROM receipts WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
-        $stmtR->execute([$_hdrTid]);
-        while ($rr = $stmtR->fetch(PDO::FETCH_ASSOC)) {
-            $dr = json_decode($rr['data'] ?? '', true);
-            if ($dr && empty($dr['deleted']) && (!empty($dr['voucherNo']) || !empty($dr['id']))) {
-                $k = $dr['voucherNo'] ?? $dr['id'];
-                $_hdrSyncReceipts[$k] = $dr;
+        if ($_hdrNeedInlineDump) {
+            $stmtC = $pdo->prepare("SELECT data FROM customers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
+            $stmtC->execute([$_hdrTid]);
+            while ($rc = $stmtC->fetch(PDO::FETCH_ASSOC)) {
+                $dc = json_decode($rc['data'] ?? '', true);
+                if ($dc && !empty($dc['id']) && empty($dc['deleted'])) $_hdrSyncCustomers[$dc['id']] = $dc;
             }
+            $stmtB = $pdo->prepare("SELECT data FROM banks WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
+            $stmtB->execute([$_hdrTid]);
+            while ($rb = $stmtB->fetch(PDO::FETCH_ASSOC)) {
+                $db = json_decode($rb['data'] ?? '', true);
+                if ($db && !empty($db['id']) && empty($db['deleted'])) $_hdrSyncBanks[$db['id']] = $db;
+            }
+            $stmtR = $pdo->prepare("SELECT data FROM receipts WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+            $stmtR->execute([$_hdrTid]);
+            while ($rr = $stmtR->fetch(PDO::FETCH_ASSOC)) {
+                $dr = json_decode($rr['data'] ?? '', true);
+                if ($dr && empty($dr['deleted']) && (!empty($dr['voucherNo']) || !empty($dr['id']))) {
+                    $k = $dr['voucherNo'] ?? $dr['id'];
+                    $_hdrSyncReceipts[$k] = $dr;
+                }
+            }
+            $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':' . count($_hdrSyncReceipts) . ':' . implode(',', array_keys($_hdrSyncReceipts)));
+        } else {
+            $stmtSig = $pdo->prepare("SELECT (SELECT COUNT(*) FROM customers WHERE tenant_id = ? AND COALESCE(is_deleted,0)=0) AS cc, (SELECT COUNT(*) FROM banks WHERE tenant_id = ? AND COALESCE(is_deleted,0)=0) AS bc, (SELECT COUNT(*) FROM receipts WHERE tenant_id = ? AND COALESCE(is_deleted,0)=0) AS rc, (SELECT COALESCE(MAX(id),0) FROM receipts WHERE tenant_id = ?) AS rmax");
+            $stmtSig->execute([$_hdrTid, $_hdrTid, $_hdrTid, $_hdrTid]);
+            $sigRow = $stmtSig->fetch(PDO::FETCH_ASSOC) ?: [];
+            $_hdrSyncSig = md5(($sigRow['cc'] ?? 0) . ':' . ($sigRow['bc'] ?? 0) . ':' . ($sigRow['rc'] ?? 0) . ':' . ($sigRow['rmax'] ?? 0));
         }
     }
 } catch (Throwable $_eSync) {}
-$_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':' . count($_hdrSyncReceipts) . ':' . implode(',', array_keys($_hdrSyncReceipts)));
 ?>
 <script id="erp-live-whatsapp-receipts-sync">
 (function() {
@@ -3055,7 +3087,7 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
                     var lbl = it.type === 'order' ? '<span style="color:#fde047;">🟠 طلب:</span> ' : '<span style="color:#fde047;">🟢 عرض:</span> ';
                     return '<span style="color:' + clr + ';">' + lbl + (it.text || '') + '</span>';
                 }).join(' <span style="color:#fb923c;">❖</span> ');
-                bar.innerHTML = '<div style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1;color:#fb923c;"><span style="color:#fde047;">📢 بورصة مقاييس:</span> ' + txt + '</div>'
+                bar.innerHTML = '<div style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1;color:#fb923c;"><span style="color:#fde047;">🏛️ بورصة السيطرة التجارية:</span> ' + txt + '</div>'
                     + '<div style="display:flex;gap:4px;flex-shrink:0;">'
                     + '<button type="button" onclick="var d=localStorage.getItem(\'magaiees_broker_dock_mode\')===\'bottom\'?\'top\':\'bottom\';localStorage.setItem(\'magaiees_broker_dock_mode\',d);window.renderGlobalScreensBrokerBar();" style="padding:1px 6px;border-radius:5px;background:#1e293b;color:#fde047;border:1px solid #f59e0b;font-size:10.5px;font-weight:900;cursor:pointer;" title="تبديل الموقع أعلى/أسفل">📍 أعلى/أسفل</button>'
                     + '<button type="button" onclick="window.toggleMagaieesBourseGlobal();" style="padding:1px 6px;border-radius:5px;background:#881337;color:#fecdd3;border:1px solid #f43f5e;font-size:10.5px;font-weight:900;cursor:pointer;" title="إخفاء البورصة">🙈 إخفاء</button>'
@@ -3065,30 +3097,26 @@ $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':'
                 else document.body.appendChild(bar);
             }).catch(function(){});
         };
-        window.toggleMagaieesBourseGlobal = function() {
-            var dashWrap = document.getElementById('market-broker-ticker-wrap');
-            if (dashWrap && typeof window.toggleMarketBrokerTicker === 'function') {
-                var isHidden = dashWrap.classList.contains('is-broker-hidden') || dashWrap.style.display === 'none' || window.getComputedStyle(dashWrap).display === 'none';
-                window.toggleMarketBrokerTicker(isHidden);
-                return;
-            }
-            var gBar = document.getElementById('global-screens-broker-ticker');
-            if (gBar) {
-                localStorage.setItem('magaiees_hide_broker_ticker', '1');
-                gBar.remove();
-            } else {
-                localStorage.setItem('magaiees_hide_broker_ticker', '0');
-                window.renderGlobalScreensBrokerBar();
-            }
-        };
+        if (!window.toggleMagaieesBourseGlobal) {
+            window.toggleMagaieesBourseGlobal = function() {
+                var gBar = document.getElementById('global-screens-broker-ticker');
+                if (gBar) {
+                    localStorage.setItem('magaiees_hide_broker_ticker', '1');
+                    gBar.remove();
+                } else {
+                    localStorage.setItem('magaiees_hide_broker_ticker', '0');
+                    window.renderGlobalScreensBrokerBar();
+                }
+            };
+        }
         if (!document.getElementById('market-broker-ticker-wrap') && localStorage.getItem('magaiees_broker_all_screens') !== '0' && localStorage.getItem('magaiees_hide_broker_ticker') !== '1') {
             window.renderGlobalScreensBrokerBar();
         }
     });
 })();
 
-        try { if (!localStorage.getItem('magaies_purge_sw_20261112_v4')) { localStorage.setItem('magaies_purge_sw_20261112_v4', '1'); if ('caches' in window) { caches.keys().then(ks => ks.forEach(k => caches.delete(k))); } if ('serviceWorker' in navigator) { navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.update())); } } } catch(e) {}
+        try { if (!localStorage.getItem('magaies_purge_sw_20261114_v2')) { localStorage.setItem('magaies_purge_sw_20261114_v2', '1'); if ('caches' in window) { caches.keys().then(ks => ks.forEach(k => caches.delete(k))); } if ('serviceWorker' in navigator) { navigator.serviceWorker.getRegistrations().then(rs => rs.forEach(r => r.update())); } } } catch(e) {}
 </script>
-<script src="js/global-professor-ai-chat.js?v=<?= @filemtime(__DIR__ . '/../js/global-professor-ai-chat.js') ?: '2027.300' ?>"></script>
+<script defer src="js/global-professor-ai-chat.js?v=<?= @filemtime(__DIR__ . '/../js/global-professor-ai-chat.js') ?: '2027.300' ?>"></script>
 
 

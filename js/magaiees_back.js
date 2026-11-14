@@ -515,13 +515,17 @@
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', window.magaiesRestoreScreenState);
     else setTimeout(window.magaiesRestoreScreenState, 20);
 
-    // 1-Step Sequential Back (LIFO: Open Modal -> Editor-to-Hub -> Previous Screen in Stack)
+    // 1-Step Sequential Back (LIFO: Open Modal/Preview -> Editor-to-Hub -> Previous Screen in Stack / History)
     window.magaiesGoBackStepLIFO = function() {
-        const openModals = Array.from(document.querySelectorAll('.modal-overlay, #grid-settings-modal, #purchase-ai-audit-modal, #ocr-review-modal, #price-history-overlay')).filter(m => window.getComputedStyle(m).display !== 'none' && window.getComputedStyle(m).visibility !== 'hidden');
+        const openModals = Array.from(document.querySelectorAll('#preset-preview-modal, #mgv-owner-modal, .modal-overlay, .modal, [id$="-modal"], [id$="-overlay"]')).filter(m => {
+            const cs = window.getComputedStyle(m);
+            return cs.display !== 'none' && cs.visibility !== 'hidden' && parseFloat(cs.opacity || '1') > 0 && m.offsetWidth > 0;
+        });
         if (openModals.length > 0) {
             const topModal = openModals[openModals.length - 1];
             topModal.style.display = 'none';
-            topModal.classList.remove('active');
+            topModal.classList.remove('active', 'show', 'open');
+            try { if (topModal.id === 'preset-preview-modal') sessionStorage.removeItem('gl_open_preset_idx'); } catch (_) {}
             return false;
         }
         const purEd = document.getElementById('purchase-editor-view');
@@ -532,11 +536,18 @@
             else { purEd.style.display = 'none'; purHub.style.display = 'flex'; }
             return false;
         }
+        const salEd = document.getElementById('sales-editor-view');
+        const salHub = document.getElementById('sales-hub-view');
+        if (salEd && salHub && window.getComputedStyle(salEd).display !== 'none') {
+            window.magaiesSaveCurrentScreenState();
+            salEd.style.display = 'none'; salHub.style.display = 'block';
+            return false;
+        }
         window.magaiesSaveCurrentScreenState();
         try {
             let stack = JSON.parse(sessionStorage.getItem(STACK_KEY) || '[]');
             if (stack.length > 1) {
-                stack.pop(); // remove current
+                stack.pop();
                 const prev = stack[stack.length - 1];
                 sessionStorage.setItem(STACK_KEY, JSON.stringify(stack));
                 sessionStorage.setItem('magaies_lifo_returning', '1');
@@ -546,6 +557,10 @@
                 }
             }
         } catch (_) {}
+        if (window.history.length > 1 && document.referrer && document.referrer.indexOf(window.location.origin) === 0 && !document.referrer.includes('login.php')) {
+            window.history.back();
+            return false;
+        }
         if (typeof window.magaieesGoBack === 'function') return window.magaieesGoBack();
         window.location.href = 'magaiees_unified_dashboard.php';
         return false;

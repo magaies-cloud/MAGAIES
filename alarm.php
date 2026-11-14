@@ -33,7 +33,9 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
             PRIMARY KEY (tenant_id, rule_key)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
-        $cols = $pdo->query("DESCRIBE alert_settings")->fetchAll(PDO::FETCH_COLUMN);
+        $colsStmt = $pdo->query("SELECT * FROM alert_settings LIMIT 0");
+        $cols = [];
+        for ($ci = 0; $ci < $colsStmt->columnCount(); $ci++) { $cols[] = $colsStmt->getColumnMeta($ci)['name']; }
         if (!in_array('tenant_id', $cols)) {
             $defaultTid = (int)($tenant_id ?: 12);
             $pdo->exec("ALTER TABLE alert_settings ADD COLUMN tenant_id INT(11) NOT NULL DEFAULT {$defaultTid} FIRST");
@@ -66,7 +68,9 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
-        $logCols = $pdo->query("DESCRIBE alert_logs")->fetchAll(PDO::FETCH_COLUMN);
+        $lcStmt = $pdo->query("SELECT * FROM alert_logs LIMIT 0");
+        $logCols = [];
+        for ($ci = 0; $ci < $lcStmt->columnCount(); $ci++) { $logCols[] = $lcStmt->getColumnMeta($ci)['name']; }
         if (!in_array('tenant_id', $logCols)) {
             $defaultTid = (int)($tenant_id ?: 12);
             $pdo->exec("ALTER TABLE alert_logs ADD COLUMN tenant_id INT(11) NOT NULL DEFAULT {$defaultTid} AFTER id");

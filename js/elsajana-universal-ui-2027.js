@@ -71,7 +71,12 @@
         ['magaies_active_theme', 'magaiees_global_theme', 'magaiees_mobile_theme', 'ui_theme'].forEach(k => _s(k, targetTheme));
         _s('erp_theme', t.isDark ? 'dark' : 'light');
 
-        if (!t.isDark) runStrictDaylightGuardScan();
+        if (!t.isDark) {
+            if (rootChangedTone(t.id)) {
+                document.querySelectorAll('[data-daylight-scanned]').forEach(el => el.removeAttribute('data-daylight-scanned'));
+            }
+            runStrictDaylightGuardScan();
+        }
         if (notify) {
             playToneClickBeep();
             window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: targetTheme, tone: t.id, isLight: !t.isDark } }));
@@ -123,20 +128,22 @@
         return m ? [parseInt(m[1], 10), parseInt(m[2], 10), parseInt(m[3], 10)] : null;
     };
 
+    let _lastScannedTone = '';
+    const rootChangedTone = (tid) => { if (_lastScannedTone === tid) return false; _lastScannedTone = tid; return true; };
+
     const runStrictDaylightGuardScan = (root = document.body) => {
         if (!root || !document.documentElement.classList.contains('light-theme')) return;
-        const candidates = root.querySelectorAll('[style*="color"], h1, h2, h3, h4, label, th, td, select, input');
+        const candidates = root.querySelectorAll ? root.querySelectorAll('[style*="color"]:not([data-daylight-scanned])') : [];
         for (let i = 0; i < candidates.length; i++) {
             const el = candidates[i];
+            el.setAttribute('data-daylight-scanned', '1');
             if (isProtectedDarkBadge(el)) continue;
             const cs = window.getComputedStyle(el);
             const rgb = parseRgb(cs.color);
             if (!rgb) continue;
             const lum = 0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2];
-            // If text luminance is pale/light (>155: white, pale yellow, light sky, light gray), check if ancestor surface is light
             if (lum > 155) {
-                let bgLum = 235;
-                let p = el;
+                let bgLum = 235, p = el;
                 while (p && p !== document.documentElement) {
                     const bgc = window.getComputedStyle(p).backgroundColor;
                     if (bgc && bgc !== 'rgba(0, 0, 0, 0)' && bgc !== 'transparent') {
@@ -538,12 +545,18 @@
             }
         }, { passive: false });
 
-        // Live MutationObserver for Strict Daylight Guard on dynamic table rows & modals
         let _dlTimer = 0;
         if (typeof MutationObserver !== 'undefined') {
-            new MutationObserver(() => {
+            new MutationObserver((mutations) => {
                 if (!document.documentElement.classList.contains('light-theme') || _dlTimer) return;
-                _dlTimer = requestAnimationFrame(() => { _dlTimer = 0; runStrictDaylightGuardScan(); });
+                let hasElem = false;
+                for (let i = 0; i < mutations.length; i++) {
+                    const an = mutations[i].addedNodes;
+                    for (let j = 0; j < an.length; j++) { if (an[j].nodeType === 1) { hasElem = true; break; } }
+                    if (hasElem) break;
+                }
+                if (!hasElem) return;
+                _dlTimer = setTimeout(() => { _dlTimer = 0; runStrictDaylightGuardScan(); }, 180);
             }).observe(document.body, { childList: true, subtree: true });
         }
         runStrictDaylightGuardScan();

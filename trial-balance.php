@@ -337,6 +337,11 @@
                 indicator.innerHTML = `❌ يوجد خلل في التطابق! الفرق: ${diff.toLocaleString(undefined, {minimumFractionDigits:2})}`;
             }
         }
+        window.previewReport = function() {
+            const w = document.getElementById('report-table-wrap') || document.querySelector('.report-container');
+            if (w) w.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            window.print();
+        };
     </script>
 
 <script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>

@@ -166,22 +166,20 @@
         .preset-btn {
             position: relative;
             overflow: hidden;
-            background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(15,23,42,0.85)) !important;
-            border: 1.5px solid rgba(255,255,255,0.25) !important;
-            color: #f1f5f9 !important;
-            padding: 5px 14px !important;
-            border-radius: 20px !important;
+            background: linear-gradient(135deg, rgba(30,41,59,0.95), rgba(15,23,42,0.98)) !important;
+            border: 1.5px solid rgba(148,163,184,0.42) !important;
+            color: #ffffff !important;
+            padding: 4px 10px !important;
+            border-radius: 10px !important;
             font-family: inherit;
-            font-size: 0.85rem !important;
+            font-size: 0.79rem !important;
+            height: 31px !important;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            font-weight: 800;
+            transition: transform 0.1s ease, border-color 0.1s ease !important;
+            font-weight: 900;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.25);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            gap: 4px;
             white-space: nowrap;
         }
         .preset-btn:hover:not(.active) {
@@ -325,17 +323,52 @@
         }
         #preview-table.excel-table tfoot, table.excel-table tfoot { display: table-footer-group !important; }
         #preview-table.excel-table tfoot td, table.excel-table tfoot td {
-            font-size: 1.34rem !important; font-weight: 900 !important;
+            font-size: 1.32rem; font-weight: 900 !important;
             background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%) !important;
             background-color: #b0c0d4 !important;
             color: #000000 !important; -webkit-text-fill-color: #000000 !important;
-            border: 2px solid #000000 !important; border-top: 5.5px solid #000000 !important; padding: 7px 4px !important;
+            border: 2px solid #000000 !important; border-top: 5.5px solid #000000 !important; padding: 7px 3px !important;
         }
         table.excel-table tfoot td:first-child {
             font-size: 0.78rem !important; letter-spacing: -0.4px !important; font-weight: 900 !important; padding: 4px 3px !important;
         }
         #report-main-title { background: #eff6ff !important; color: #000000 !important; border: 2px solid #1e3a8a !important; }
         #report-subheader-row { background: #f8fafc !important; border: 1.5px solid #475569 !important; color: #000000 !important; }
+        /* ⭐ افتراضي 2: تخفيف الألوان 3 درجات + زيادة سمك الفواصل والخطوط درجة واحدة خاصة في المنطقة العلوية */
+        body.preset-2-mode #report-main-title { background: #f8fbff !important; border: 3px solid #000000 !important; font-weight: 900 !important; -webkit-text-stroke: 0.35px #000000; }
+        body.preset-2-mode #report-subheader-row { background: #fcfdff !important; border: 2.6px solid #000000 !important; font-weight: 900 !important; -webkit-text-stroke: 0.3px #000000; }
+        body.preset-2-mode table.excel-table { border: 5.5px solid #000000 !important; outline: 2px solid #000000 !important; }
+        body.preset-2-mode #preview-table.excel-table thead th, body.preset-2-mode table.excel-table thead th {
+            background: linear-gradient(180deg, #f3f6fa 0%, #e4ebf3 100%) !important;
+            border-left: 2.6px solid #000000 !important; border-right: 2.6px solid #000000 !important;
+            border-top: 5.5px solid #000000 !important; border-bottom: 6.5px solid #000000 !important;
+            font-weight: 900 !important; -webkit-text-stroke: 0.35px #000000;
+            text-align: center !important; vertical-align: middle !important;
+        }
+        body.preset-2-mode #preview-table.excel-table thead th[data-col-idx="9"], body.preset-2-mode table.excel-table thead th[data-col-idx="9"] span:last-child {
+            font-size: 0.86rem !important; white-space: nowrap !important; text-align: center !important;
+        }
+        body.preset-2-mode table.excel-table tbody td {
+            border-left: 2px solid #1e293b !important; border-right: 2px solid #1e293b !important;
+            border-top: 2.7px solid #0f172a !important; border-bottom: 2.7px solid #0f172a !important;
+            font-weight: 900 !important; padding-left: 3px !important; padding-right: 3px !important;
+            text-align: center !important; vertical-align: middle !important;
+        }
+        body.preset-2-mode #preview-table.excel-table tbody tr:first-child td { border-top: 6.5px solid #000000 !important; }
+        body.preset-2-mode #preview-table.excel-table tbody tr:last-child td { border-bottom: 6.5px solid #000000 !important; }
+        body.preset-2-mode table.excel-table th[data-col-idx="0"], body.preset-2-mode table.excel-table td[data-col-idx="0"],
+        body.preset-2-mode table.excel-table th[data-col-idx="13"], body.preset-2-mode table.excel-table td[data-col-idx="13"],
+        body.preset-2-mode table.excel-table th[data-col-idx="9"], body.preset-2-mode table.excel-table td[data-col-idx="9"],
+        body.preset-2-mode table.excel-table th[data-col-idx="12"], body.preset-2-mode table.excel-table td[data-col-idx="12"],
+        body.preset-2-mode table.excel-table th[data-col-idx="10"], body.preset-2-mode table.excel-table td[data-col-idx="10"],
+        body.preset-2-mode table.excel-table th[data-col-idx="11"], body.preset-2-mode table.excel-table td[data-col-idx="11"] {
+            border-left: 3.4px solid #000000 !important; border-right: 3.4px solid #000000 !important;
+        }
+        body.preset-2-mode #preview-table.excel-table tfoot td, body.preset-2-mode table.excel-table tfoot td {
+            background: linear-gradient(180deg, #f3f6fa 0%, #e4ebf3 100%) !important;
+            border: 2.6px solid #000000 !important; border-top: 6.5px solid #000000 !important; padding-left: 3px !important; padding-right: 3px !important;
+            text-align: center !important; vertical-align: middle !important;
+        }
         
         @media print {
             * {
@@ -541,29 +574,27 @@
 
 <!-- Luxury Ribbon Toolbar -->
 <div class="ribbon no-print">
-    <!-- Right Side: 6 Presets -->
-    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-        <div id="presets-container" style="display:flex; gap:8px; flex-wrap: wrap;">
+    <!-- Right Side: 8 Presets (افتراضي 1..4 + نمط 1..4) -->
+    <div style="display: flex; gap: 5px; align-items: center; flex-wrap: nowrap; flex-shrink: 0;">
+        <div id="presets-container" style="display:flex; gap:5px; flex-wrap: nowrap;">
             <!-- Preset buttons rendered via JS -->
         </div>
     </div>
 
     <!-- Center/Left Side: Controls & Live Search -->
-        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <div style="display: flex; gap: 5px; align-items: center; flex-wrap: nowrap; flex-shrink: 0;">
         <!-- Live Quick Search Box -->
         <input type="text" id="live-search-input" placeholder="🔍 بحث سريع..." oninput="filterTableRows(this.value)" style="padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.3); color: #fff; font-family: inherit; font-size: 0.8rem; outline: none; width: 120px; height: 30px; box-sizing: border-box;">
 
         <script>
         function saveCurrentPresetAndLock() {
             const activeIdx = (typeof currentPresetIndex === 'number') ? currentPresetIndex : (window.currentPresetIndex || 0);
+            if (activeIdx < 4) {
+                if (typeof showToast === 'function') showToast('🔒 القوالب (افتراضي 1 إلى افتراضي 4) مثبتة نهائياً — خصص واحفظ في (نمط 1 إلى نمط 4)', 'info');
+                return;
+            }
             if (typeof saveCurrentPreset === 'function') {
                 saveCurrentPreset(activeIdx);
-                let presets = getSavedPresets();
-                if (presets[activeIdx]) {
-                    presets[activeIdx].isLocked = false;
-                    savePresets(presets);
-                    syncPresetsToDB('ledger_preview_presets_v20', presets);
-                }
             }
         }
         function shareCurrentLedgerReportFromPreview() {
@@ -612,8 +643,8 @@
         <button class="ribbon-btn" onclick="window.location.reload()" style="--btn-color: #10b981;">
             <span style="font-size: 1.05rem;">🔄</span> تحديث التقرير
         </button>
-        <button class="ribbon-btn" onclick="try{sessionStorage.removeItem('gl_open_preset_idx');}catch(e){} if(window.parent && window.parent !== window && window.parent.document.getElementById('preset-preview-modal')){window.parent.document.getElementById('preset-preview-modal').style.display='none';}else{window.history.back();}" style="--btn-color: #ef4444;">
-            <span style="font-size: 1.15rem; font-weight: 900; line-height: 1;">⬅</span> عودة
+        <button class="ribbon-btn" onclick="try{sessionStorage.removeItem('gl_open_preset_idx');}catch(e){} if(window.parent && window.parent !== window && window.parent.document.getElementById('preset-preview-modal')){window.parent.document.getElementById('preset-preview-modal').style.display='none';}else if(typeof window.magaiesGoBackStepLIFO==='function'){window.magaiesGoBackStepLIFO();}else{window.history.back();}" style="--btn-color: #ef4444;">
+            <span style="font-size: 1.15rem; font-weight: 900; line-height: 1;">⬅</span> رجوع
         </button>
     </div>
 </div>
@@ -705,8 +736,8 @@ try {
 </script>
 <script src="js/localforage.min.js"></script>
 <script src="js/app.js?v=20261113_v36"></script>
-<script src="js/general-ledger.js?v=20261113_v60"></script>
-<script src="js/preview-ledger.js?v=20261113_v60"></script>
+<script src="js/general-ledger.js?v=<?= file_exists(__DIR__ . '/js/general-ledger.js') ? filemtime(__DIR__ . '/js/general-ledger.js') : time() ?>"></script>
+<script src="js/preview-ledger.js?v=<?= file_exists(__DIR__ . '/js/preview-ledger.js') ? filemtime(__DIR__ . '/js/preview-ledger.js') : time() ?>"></script>
 <script defer src="js/erp-whatsapp-suite.js?v=20261113_v36"></script>
 
 <script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>

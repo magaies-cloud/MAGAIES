@@ -1350,17 +1350,27 @@ function initGeneralLedgerApp() {
         applyUrlAccountSelection();
     });
 
-    // Keep General Ledger live when switching tabs or periodically without heavy loop
+    // Keep General Ledger live with 3-minute cooldown (no focus-jitter or 2G drain)
+    let _lastGlLiveSyncTs = Date.now();
+    const _canBgSyncGL = () => {
+        if (document.hidden || navigator.onLine === false) return false;
+        const conn = navigator.connection || {};
+        if (conn.saveData || /2g/.test(conn.effectiveType || '')) return false;
+        const m = document.getElementById('preset-preview-modal');
+        return (!m || m.style.display === 'none');
+    };
     window.addEventListener('focus', () => {
-        const m = document.getElementById('preset-preview-modal');
-        if (!m || m.style.display === 'none') syncLiveMasterAndReceiptsForGL(false);
-    });
-    setInterval(() => {
-        const m = document.getElementById('preset-preview-modal');
-        if (!document.hidden && (!m || m.style.display === 'none')) {
+        if (_canBgSyncGL() && (Date.now() - _lastGlLiveSyncTs > 180000)) {
+            _lastGlLiveSyncTs = Date.now();
             syncLiveMasterAndReceiptsForGL(false);
         }
-    }, 45000);
+    });
+    setInterval(() => {
+        if (_canBgSyncGL()) {
+            _lastGlLiveSyncTs = Date.now();
+            syncLiveMasterAndReceiptsForGL(false);
+        }
+    }, 180000);
     window.addEventListener('storage', (ev) => {
         if (!ev.key || ev.key.includes('erp_gl_v1')) return;
         if (ev.key.includes('erp_customers_v1') || ev.key.includes('erp_suppliers_v1') || ev.key.includes('erp_receipts_v1')) {
@@ -3161,40 +3171,39 @@ function renderLedgerPresets() {
     try { presets = JSON.parse(localStorage.getItem(PRESETS_STORAGE_KEY) || '[]'); } catch(e){}
 
     const defaultPresets = [
-        { name: '💎 افتراضي 1', showInRibbon: true, isLocked: false },
-        { name: '⭐ افتراضي 2', showInRibbon: true, isLocked: false },
-        { name: '🎨 افتراضي 3', showInRibbon: true, isLocked: false },
-        { name: '🔥 افتراضي 4', showInRibbon: true, isLocked: false },
-        { name: '✨ افتراضي 5', showInRibbon: true, isLocked: false },
-        { name: '🚀 افتراضي 6', showInRibbon: true, isLocked: false }
+        { name: '💎 افتراضي 1', showInRibbon: true, isLocked: true },
+        { name: '⭐ افتراضي 2', showInRibbon: true, isLocked: true },
+        { name: '🎨 افتراضي 3', showInRibbon: true, isLocked: true },
+        { name: '🔥 افتراضي 4', showInRibbon: true, isLocked: true },
+        { name: '💠 نمط 1', showInRibbon: true, isLocked: false },
+        { name: '🌟 نمط 2', showInRibbon: true, isLocked: false },
+        { name: '🎭 نمط 3', showInRibbon: true, isLocked: false },
+        { name: '⚡ نمط 4', showInRibbon: true, isLocked: false }
     ];
 
-    if (!Array.isArray(presets) || presets.length === 0) {
-        presets = defaultPresets;
+    if (!Array.isArray(presets) || presets.length < 8) {
+        const merged = defaultPresets.map((dp, idx) => (presets && presets[idx]) ? Object.assign({}, dp, presets[idx]) : dp);
+        merged.slice(0, 4).forEach((p, idx) => { p.name = defaultPresets[idx].name; p.isLocked = true; });
+        merged.slice(4, 8).forEach((p, idx) => { if (!p.name || p.name.includes('افتراضي')) p.name = defaultPresets[idx + 4].name; p.isLocked = false; });
+        presets = merged;
+    } else {
+        presets.forEach((p, idx) => {
+            p.isLocked = (idx < 4);
+            if (idx < 4) p.name = defaultPresets[idx].name;
+            else if (idx < 8 && (!p.name || p.name.includes('افتراضي'))) p.name = defaultPresets[idx].name;
+        });
     }
 
-    // Unlock all presets for design customization
-    presets.forEach(p => { p.isLocked = false; });
-    try { localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets)); } catch(e){}
-
-    presets.slice(0, 6).forEach((p, idx) => {
+    const palette = ['#0284c7', '#059669', '#d97706', '#7e22ce', '#0ea5e9', '#10b981', '#f59e0b', '#a855f7'];
+    presets.slice(0, 8).forEach((p, idx) => {
         if (p.showInRibbon === false) return;
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'luxury-action-btn';
-        
-        let color = '#38bdf8';
-        if (idx === 0) color = '#ca8a04';
-        else if (idx === 1) color = '#10b981';
-        else if (idx === 2) color = '#0284c7';
-        else if (idx === 3) color = '#f97316';
-        else if (idx === 4) color = '#a855f7';
-        else if (idx === 5) color = '#64748b';
-        
-        btn.style.cssText = `--btn-color: ${color};`;
-        const cleanName = (p.name || ('نموذج ' + (idx + 1))).replace(/\s*[🔒🔓]\s*$/g, '');
+        btn.className = 'luxury-action-btn ' + (idx < 4 ? 'gl-preset-locked-btn' : 'gl-pattern-custom-btn');
+        btn.style.cssText = `--btn-color: ${palette[idx] || '#38bdf8'};`;
+        const cleanName = (p.name || defaultPresets[idx].name).replace(/\s*[🔒🔓]\s*$/g, '');
         btn.innerHTML = cleanName;
-        btn.title = 'اضغط لفتح وتصميم ' + cleanName + ' (الأعمدة، الألوان، الخطوط، الأحجام، وتعميمه كافتراضي للكل)';
+        btn.title = idx < 4 ? (cleanName + ' — نموذج قياسي مثبت نهائياً') : ('اضغط لتخصيص وحفظ ' + cleanName + ' بحرية كاملة');
         
         btn.onclick = (e) => {
             if (e) e.preventDefault();
@@ -3229,9 +3238,17 @@ async function openPresetModal(presetIndex, presetName, isLocked = false) {
     }
 
     try { sessionStorage.setItem('gl_open_preset_idx', String(presetIndex)); } catch(e){}
+    const existingIframe = modal.querySelector('#preset-modal-iframe');
+    if (existingIframe && existingIframe.contentWindow && typeof existingIframe.contentWindow.loadPreset === 'function') {
+        modal.style.display = 'flex';
+        if (typeof existingIframe.contentWindow.reloadPreviewDataFromStorage === 'function') {
+            existingIframe.contentWindow.reloadPreviewDataFromStorage();
+        }
+        existingIframe.contentWindow.loadPreset(presetIndex);
+        return;
+    }
     modal.innerHTML = `
         <div style="background: #0f172a; border: 2px solid #38bdf8; border-radius: 14px; width: 99.5%; max-width: 100%; height: 98.5vh; display: flex; flex-direction: column; box-shadow: 0 25px 60px rgba(0,0,0,0.65); overflow: hidden;">
-            <!-- Iframe Container (100% Full Report Area — Single Unified Top Bar inside Preview) -->
             <div style="flex: 1; background: #fff; position: relative; width: 100%; height: 100%;">
                 <iframe id="preset-modal-iframe" src="preview-ledger.php?presetIndex=${presetIndex}&inModal=1&_t=${Date.now()}" style="width: 100%; height: 100%; border: none;"></iframe>
             </div>
@@ -3254,9 +3271,13 @@ window.addEventListener('keydown', function(e) {
 window.addEventListener('load', function() {
     if (window.self !== window.top || window.location.pathname.includes('preview-ledger.php') || !document.getElementById('recent-table')) return;
     try {
+        const navEntry = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || null;
+        const isPageReload = navEntry ? (navEntry.type === 'reload') : (performance.navigation && performance.navigation.type === 1);
         const savedPreset = sessionStorage.getItem('gl_open_preset_idx');
-        if (savedPreset !== null && savedPreset !== '') {
+        if (isPageReload && savedPreset !== null && savedPreset !== '') {
             setTimeout(function() { openPresetModal(parseInt(savedPreset, 10) || 0, 'افتراضي', false); }, 250);
+        } else {
+            sessionStorage.removeItem('gl_open_preset_idx');
         }
     } catch(e){}
 });

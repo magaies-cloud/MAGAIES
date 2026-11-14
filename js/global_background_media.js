@@ -945,7 +945,25 @@
         });
     }
 
+    let _hlsLoadPromise = null;
+    function ensureHlsReady(cb) {
+        if (typeof Hls !== 'undefined') { cb(); return; }
+        if (!_hlsLoadPromise) {
+            _hlsLoadPromise = new Promise((resolve) => {
+                const s = document.createElement('script');
+                s.src = 'js/hls.light.min.js';
+                s.onload = s.onerror = () => resolve();
+                (document.head || document.documentElement).appendChild(s);
+            });
+        }
+        _hlsLoadPromise.then(cb);
+    }
+
     function playPersistentMedia(type, sourceUrl, title, extraMeta) {
+        if (typeof sourceUrl === 'string' && sourceUrl.indexOf('.m3u8') !== -1 && typeof Hls === 'undefined') {
+            ensureHlsReady(() => playPersistentMedia(type, sourceUrl, title, extraMeta));
+            return;
+        }
         if (!isTopWindow && window.top && window.top.playPersistentMedia) {
             try { window.top.playPersistentMedia(type, sourceUrl, title, extraMeta); return; } catch(e) {}
         }
@@ -1085,6 +1103,10 @@
 
         if (audioPlayer) {
             const isHls = (typeof state.sourceUrl === 'string' && state.sourceUrl.indexOf('.m3u8') !== -1);
+            if (isHls && typeof Hls === 'undefined' && !audioPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                ensureHlsReady(() => applySavedMediaState(allowAutoplayPrompt));
+                return;
+            }
             const isSameTrack = (audioPlayer.src === state.sourceUrl);
             const isLive = isLiveStreamState(state);
             // 🛡️ Live radio/TV stations must NEVER seek — only seek recorded Quran MP3 tracks!

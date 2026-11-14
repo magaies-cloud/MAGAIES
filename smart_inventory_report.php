@@ -506,6 +506,27 @@ try {
     </div> <!-- Close .dashboard-container -->
 
     <!-- Scripts -->
+    <script>
+    window.filter20Reports = window.filter20Reports || function(q) {
+        var term = String(q || '').trim().toLowerCase();
+        document.querySelectorAll('a.modern-btn').forEach(function(card) {
+            var txt = (card.textContent || '').toLowerCase();
+            card.style.display = (!term || txt.indexOf(term) !== -1) ? '' : 'none';
+        });
+    };
+    window.exportSmartInvSummaryCSV = function() {
+        var rows = [['رقم التقرير', 'اسم التقرير', 'الرابط']];
+        document.querySelectorAll('a.modern-btn').forEach(function(a, i) {
+            rows.push([String(i + 1), (a.textContent || '').replace(/\s+/g, ' ').trim(), a.getAttribute('href') || '']);
+        });
+        var csv = '\uFEFF' + rows.map(function(r) { return r.map(function(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }).join(','); }).join('\r\n');
+        var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        var link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'smart_inventory_reports_' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(link); link.click(); link.remove();
+    };
+    </script>
     <script defer src="js/localforage.min.js?v=20260723_v14"></script>
     <script defer src="js/app.js?v=20261016_v28"></script>
 </body>

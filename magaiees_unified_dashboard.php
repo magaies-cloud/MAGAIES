@@ -1276,15 +1276,18 @@ function switchToMobileEdition() {
                 html.light-theme[data-light-tone="crystal_silver"] body, html.light-theme[data-light-tone="crystal_silver"] .dash-main, html.light-theme[data-light-tone="platinum_gray"] body, html.light-theme[data-light-tone="platinum_gray"] .dash-main { background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 50%, #f8fafc 100%) !important; color: #000000 !important; }
                 html.light-theme[data-light-tone="sage_pearl"] body, html.light-theme[data-light-tone="sage_pearl"] .dash-main { background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 50%, #f0fdf4 100%) !important; color: #000000 !important; }
                 #market-broker-ticker-wrap .brk-pill-hdr-off, html.light-theme #market-broker-ticker-wrap .brk-pill-hdr-off { color: #fde047 !important; -webkit-text-fill-color: #fde047 !important; font-weight: 900 !important; }
-                #market-broker-ticker-wrap .brk-off-txt-0, html.light-theme #market-broker-ticker-wrap .brk-off-txt-0 { color: #fb923c !important; -webkit-text-fill-color: #fb923c !important; }
+                #market-broker-ticker-wrap .brk-off-txt-0, html.light-theme #market-broker-ticker-wrap .brk-off-txt-0 { color: #fdba74 !important; -webkit-text-fill-color: #fdba74 !important; }
                 #market-broker-ticker-wrap .brk-off-txt-1, html.light-theme #market-broker-ticker-wrap .brk-off-txt-1 { color: #fde047 !important; -webkit-text-fill-color: #fde047 !important; }
-                #market-broker-ticker-wrap .brk-off-txt-2, html.light-theme #market-broker-ticker-wrap .brk-off-txt-2 { color: #38bdf8 !important; -webkit-text-fill-color: #38bdf8 !important; }
-                #market-broker-ticker-wrap .brk-off-time, html.light-theme #market-broker-ticker-wrap .brk-off-time { color: #67e8f9 !important; -webkit-text-fill-color: #67e8f9 !important; }
-                #market-broker-ticker-wrap .brk-pill-hdr-ord, html.light-theme #market-broker-ticker-wrap .brk-pill-hdr-ord { color: #86efac !important; -webkit-text-fill-color: #86efac !important; font-weight: 800 !important; }
-                #market-broker-ticker-wrap .brk-ord-txt-0, html.light-theme #market-broker-ticker-wrap .brk-ord-txt-0 { color: #f8fafc !important; -webkit-text-fill-color: #f8fafc !important; }
-                #market-broker-ticker-wrap .brk-ord-txt-1, html.light-theme #market-broker-ticker-wrap .brk-ord-txt-1 { color: #a7f3d0 !important; -webkit-text-fill-color: #a7f3d0 !important; }
-                #market-broker-ticker-wrap .brk-ord-txt-2, html.light-theme #market-broker-ticker-wrap .brk-ord-txt-2 { color: #f8fafc !important; -webkit-text-fill-color: #f8fafc !important; }
-                #market-broker-ticker-wrap .brk-ord-time, html.light-theme #market-broker-ticker-wrap .brk-ord-time { color: #bbf7d0 !important; -webkit-text-fill-color: #bbf7d0 !important; }
+                #market-broker-ticker-wrap .brk-off-txt-2, html.light-theme #market-broker-ticker-wrap .brk-off-txt-2 { color: #fb923c !important; -webkit-text-fill-color: #fb923c !important; }
+                #market-broker-ticker-wrap .brk-off-time, html.light-theme #market-broker-ticker-wrap .brk-off-time { color: #fef08a !important; -webkit-text-fill-color: #fef08a !important; }
+                #market-broker-ticker-wrap .brk-pill-hdr-ord, html.light-theme #market-broker-ticker-wrap .brk-pill-hdr-ord { color: #bbf7d0 !important; -webkit-text-fill-color: #bbf7d0 !important; font-weight: 900 !important; }
+                #market-broker-ticker-wrap .brk-ord-txt-0, html.light-theme #market-broker-ticker-wrap .brk-ord-txt-0 { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+                #market-broker-ticker-wrap .brk-ord-txt-1, html.light-theme #market-broker-ticker-wrap .brk-ord-txt-1 { color: #dcfce7 !important; -webkit-text-fill-color: #dcfce7 !important; }
+                #market-broker-ticker-wrap .brk-ord-txt-2, html.light-theme #market-broker-ticker-wrap .brk-ord-txt-2 { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+                #market-broker-ticker-wrap .brk-ord-time, html.light-theme #market-broker-ticker-wrap .brk-ord-time { color: #bbf7d0 !important; -webkit-text-fill-color: #bbf7d0 !important; font-weight: 900 !important; }
+                html.light-theme #dash-today-harvest-strip .exec-jewel-btn { border: 2.5px solid #0f172a !important; background: #ffffff !important; box-shadow: 0 6px 16px rgba(15,23,42,0.12) !important; }
+                html.light-theme #dash-today-harvest-strip .exec-jewel-lbl, html.light-theme #dash-today-harvest-strip .exec-jewel-lbl *, html.light-theme #dash-today-harvest-strip .exec-jewel-lbl-ap, html.light-theme #dash-today-harvest-strip .exec-jewel-lbl-ap * { color: #0f172a !important; -webkit-text-fill-color: #0f172a !important; font-weight: 900 !important; }
+                html.light-theme #dash-today-harvest-strip .exec-jewel-val { color: #120500 !important; -webkit-text-fill-color: #120500 !important; font-weight: 900 !important; text-shadow: none !important; }
                 #exec-sticky-command-bar > div { display: flex !important; align-items: center !important; flex-shrink: 0 !important; gap: 5px !important; }
                 #market-broker-ticker-track, #market-broker-orders-track { display: inline-flex !important; width: max-content !important; align-items: center !important; gap: 18px !important; white-space: nowrap !important; direction: rtl !important; will-change: transform; backface-visibility: hidden; -webkit-font-smoothing: antialiased; animation: mktBrokerMarquee var(--brk-dur, 82s) linear infinite !important; }
                 #market-broker-offers-row:hover #market-broker-ticker-track, #market-broker-orders-row:hover #market-broker-orders-track { animation-play-state: paused !important; }
@@ -2360,7 +2363,10 @@ function switchToMobileEdition() {
                             if (it.ts && Number(it.ts) > 1000000000) return (nowMs - Number(it.ts) * 1000) <= maxAgeMs;
                             return true;
                         };
-                        const rawItems = Array.from(mergedMap.values()).filter(x => !window._hiddenBrokerIds.includes(x.id) && isWithinMaxAge(x));
+                        let rawItems = Array.from(mergedMap.values()).filter(x => !window._hiddenBrokerIds.includes(x.id) && isWithinMaxAge(x));
+                        if (!rawItems.length && mergedMap.size > 0) {
+                            rawItems = Array.from(mergedMap.values()).filter(x => !window._hiddenBrokerIds.includes(x.id));
+                        }
                         if (window._brokerMyItemsFilter === undefined) window._brokerMyItemsFilter = localStorage.getItem('magaiees_broker_my_items_only') !== '0';
                         const isMyItemMatch = (txt) => {
                             if (!window._brokerMyItemsFilter) return true;

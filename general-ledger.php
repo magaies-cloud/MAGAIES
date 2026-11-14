@@ -765,7 +765,8 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         }
         html:not(.light-theme) .pos-grid tbody tr:nth-child(even) td { background: #101c36 !important; }
         html:not(.light-theme) .pos-grid tbody tr:hover td { background: #1b3159 !important; }
-        .luxury-action-btn::after, .preset-slot-btn.has-data { animation: none !important; }
+        .luxury-action-btn, .luxury-action-btn::after, .preset-slot-btn.has-data, .btn-transfer-live { animation: none !important; }
+        .sgl-master-container *, .report-header, .preset-slots-container, .gl-modal, .gl-modal-content, .gl-ctx-menu, .filter-row { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
 
         html.light-theme, html.light-theme body, html.light-theme .sgl-master-container {
             background: linear-gradient(180deg, var(--lt-canvas-1, #dfd0b4) 0%, var(--lt-canvas-2, #d2be9a) 100%) !important;
@@ -1347,30 +1348,15 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.35) !important;
             transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.18s ease, filter 0.18s ease !important;
         }
-        #presets-container.gl-presets-row-rtl > button:nth-child(1) {
-            background: linear-gradient(135deg, #1e40af 0%, #0284c7 100%) !important;
-            border-color: #38bdf8 !important;
-        }
-        #presets-container.gl-presets-row-rtl > button:nth-child(2) {
-            background: linear-gradient(135deg, #065f46 0%, #059669 100%) !important;
-            border-color: #34d399 !important;
-        }
-        #presets-container.gl-presets-row-rtl > button:nth-child(3) {
-            background: linear-gradient(135deg, #9a3412 0%, #d97706 100%) !important;
-            border-color: #fbbf24 !important;
-        }
-        #presets-container.gl-presets-row-rtl > button:nth-child(4) {
-            background: linear-gradient(135deg, #581c87 0%, #7e22ce 100%) !important;
-            border-color: #c084fc !important;
-        }
-        #presets-container.gl-presets-row-rtl > button:nth-child(5) {
-            background: linear-gradient(135deg, #9f1239 0%, #e11d48 100%) !important;
-            border-color: #fb7185 !important;
-        }
-        #presets-container.gl-presets-row-rtl > button:nth-child(6) {
-            background: linear-gradient(135deg, #115e59 0%, #0d9488 100%) !important;
-            border-color: #2dd4bf !important;
-        }
+        #presets-container.gl-presets-row-rtl { display: grid !important; grid-template-columns: repeat(8, minmax(0, 1fr)) !important; gap: 8px !important; width: 100% !important; }
+        #presets-container.gl-presets-row-rtl > button:nth-child(1) { background: linear-gradient(135deg, #1e40af 0%, #0284c7 100%) !important; border-color: #38bdf8 !important; }
+        #presets-container.gl-presets-row-rtl > button:nth-child(2) { background: linear-gradient(135deg, #065f46 0%, #059669 100%) !important; border-color: #34d399 !important; }
+        #presets-container.gl-presets-row-rtl > button:nth-child(3) { background: linear-gradient(135deg, #9a3412 0%, #d97706 100%) !important; border-color: #fbbf24 !important; }
+        #presets-container.gl-presets-row-rtl > button:nth-child(4) { background: linear-gradient(135deg, #581c87 0%, #7e22ce 100%) !important; border-color: #c084fc !important; }
+        #presets-container.gl-presets-row-rtl > button:nth-child(5) { background: linear-gradient(135deg, #0c4a6e 0%, #0369a1 100%) !important; border-color: #7dd3fc !important; border-style: double !important; }
+        #presets-container.gl-presets-row-rtl > button:nth-child(6) { background: linear-gradient(135deg, #14532d 0%, #15803d 100%) !important; border-color: #86efac !important; border-style: double !important; }
+        #presets-container.gl-presets-row-rtl > button:nth-child(7) { background: linear-gradient(135deg, #7c2d12 0%, #c2410c 100%) !important; border-color: #fdba74 !important; border-style: double !important; }
+        #presets-container.gl-presets-row-rtl > button:nth-child(8) { background: linear-gradient(135deg, #4c1d95 0%, #6d28d9 100%) !important; border-color: #d8b4fe !important; border-style: double !important; }
         #presets-container.gl-presets-row-rtl > button:hover,
         .gl-compact-act-btn:hover,
         #btn-gl-columns-cfg:hover {
@@ -1541,9 +1527,9 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             </div>
         </div>
 
-        <!-- السطر الثاني: نوع السند داخل كشف الحساب + حالة الترحيل + البحث -->
-        <div class="gl-top-row-2" style="display: grid; grid-template-columns: 1fr 1fr 1.6fr; gap: 10px; direction: rtl; padding-top: 9px; border-top: 1px solid rgba(148, 163, 184, 0.16);">
-            <div class="filter-group">
+        <!-- السطر الثاني: نوع السند (مقلص 40%) + حالة الترحيل (مقلص 40%) + البحث الموسع + طباعة + مشاركة + واتساب في نفس المستوى -->
+        <div class="gl-top-row-2" style="display: grid; grid-template-columns: 0.6fr 0.6fr 1.85fr auto; gap: 10px; align-items: end; direction: rtl; padding-top: 9px; border-top: 1px solid rgba(148, 163, 184, 0.16);">
+            <div class="filter-group" style="min-width: 0;">
                 <label>نوع السند داخل كشف الحساب</label>
                 <select class="filter-input" id="filter-type">
                     <option value="ALL">كل السندات والفواتير</option>
@@ -1554,7 +1540,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
                     <option value="journal">قيود اليومية</option>
                 </select>
             </div>
-            <div class="filter-group">
+            <div class="filter-group" style="min-width: 0;">
                 <label>حالة الترحيل</label>
                 <select class="filter-input" id="filter-posted">
                     <option value="ALL">الكل (مرحل ومسودة)</option>
@@ -1562,9 +1548,17 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
                     <option value="UNPOSTED">غير المرحلة</option>
                 </select>
             </div>
-            <div class="filter-group">
+            <div class="filter-group" style="min-width: 0;">
                 <label>البحث</label>
                 <input type="text" class="filter-input" id="filter-smart" placeholder="ابحث في البيان، رقم السند، الشيك أو التحويلة...">
+            </div>
+            <div class="gl-ribbon-actions-left no-print" style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+                <button type="button" class="royal-crystal-btn royal-btn-print luxury-action-btn gl-compact-act-btn" onclick="window.print()" title="طباعة كشف الحساب الحالي"><span>🖨️</span><span>طباعة</span></button>
+                <button type="button" class="royal-crystal-btn royal-btn-new luxury-action-btn luxury-btn-primary gl-compact-act-btn" onclick="shareCurrentLedgerReport()" title="مشاركة كشف الحساب" style="--btn-color: #0ea5e9;"><span>🔗</span><span>مشاركة</span></button>
+                <button type="button" class="luxury-action-btn gl-compact-act-btn gl-wa-harmonized-btn" id="btn-whatsapp-master-ledger" onclick="openLedgerWhatsAppModal()" title="إرسال كشف الحساب عبر واتساب">
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 0C5.373 0 0 5.373 0 12c0 2.115.552 4.103 1.516 5.832L.057 24l6.34-1.662A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z" fill="#25D366"/><path fill-rule="evenodd" clip-rule="evenodd" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" fill="#ffffff"/></svg>
+                    <span>واتساب</span>
+                </button>
             </div>
         </div>
     </div>
@@ -1572,26 +1566,9 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
     <!-- ── Bank Transfer Inspection & Inquiry Result Container ── -->
     <div id="transfer-search-result-container" style="display:none; margin-bottom: 12px;"></div>
 
-    <!-- المنطقة السفلية للأزرار: افتراضي 1 إلى افتراضي 6 أفقياً من اليمين إلى الشمال + طباعة + مشاركة + واتساب متناسق (بدون زر الخروج) -->
+    <!-- شريط النماذج الثمانية: افتراضي 1..4 (مثبتة) + نمط 1..4 (قابلة للتخصيص والحفظ) -->
     <div class="gl-presets-horizontal-ribbon no-print">
-        <div id="presets-container" class="gl-presets-row-rtl">
-            <!-- Dynamic preset buttons 1..6 rendered horizontally RTL via JS -->
-        </div>
-        <div class="gl-ribbon-actions-left">
-            <button type="button" class="royal-crystal-btn royal-btn-print luxury-action-btn gl-compact-act-btn" onclick="window.print()" title="طباعة كشف الحساب الحالي">
-                <span>🖨️</span><span>طباعة</span>
-            </button>
-            <button type="button" class="royal-crystal-btn royal-btn-new luxury-action-btn luxury-btn-primary gl-compact-act-btn" onclick="shareCurrentLedgerReport()" title="مشاركة كشف الحساب" style="--btn-color: #0ea5e9;">
-                <span>🔗</span><span>مشاركة</span>
-            </button>
-            <button type="button" class="luxury-action-btn gl-compact-act-btn gl-wa-harmonized-btn" id="btn-whatsapp-master-ledger" onclick="openLedgerWhatsAppModal()" title="إرسال كشف الحساب عبر واتساب">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;">
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M12 0C5.373 0 0 5.373 0 12c0 2.115.552 4.103 1.516 5.832L.057 24l6.34-1.662A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z" fill="#25D366"/>
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" fill="#ffffff"/>
-                </svg>
-                <span>واتساب</span>
-            </button>
-        </div>
+        <div id="presets-container" class="gl-presets-row-rtl" style="width:100%;"></div>
     </div>
 
     <!-- شريط الأرصدة الثلاثي الأبعاد (إجمالي المدين | إجمالي الدائن | صافي الرصيد التراكمي) -->
@@ -1870,7 +1847,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
 <script defer src="js/html2pdf.bundle.min.js"></script>
 <script defer src="js/whatsapp-integration.js?v=20261029_fast"></script>
 <script defer src="js/erp-whatsapp-suite.js?v=20261029_fast"></script>
-<script src="js/general-ledger.js?v=20261113_v50"></script>
+<script src="js/general-ledger.js?v=<?= file_exists(__DIR__ . '/js/general-ledger.js') ? filemtime(__DIR__ . '/js/general-ledger.js') : time() ?>"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof window.renderLedgerPresets === 'function') {
@@ -2087,7 +2064,8 @@ document.addEventListener('DOMContentLoaded', function() {
 <style>
 /* توسيع الخانات والأزرار وتوحيد ألوان أعمدة الجدول بالخط الأسود الفاحم */
 .filter-input, #account-search-input, .selected-account-chip { height: 58px !important; min-height: 58px !important; font-size: 1.18rem !important; font-weight: 900 !important; }
-#presets-container.gl-presets-row-rtl > button, .gl-compact-act-btn { height: 52px !important; min-height: 52px !important; min-width: 118px !important; padding: 0 20px !important; font-size: 1.06rem !important; font-weight: 900 !important; }
+#presets-container.gl-presets-row-rtl > button { height: 50px !important; min-height: 50px !important; min-width: 0 !important; padding: 0 10px !important; font-size: 1.02rem !important; font-weight: 900 !important; }
+.gl-compact-act-btn { height: 58px !important; min-height: 58px !important; min-width: 112px !important; padding: 0 16px !important; font-size: 1.04rem !important; font-weight: 900 !important; }
 #btn-gl-columns-cfg, #btn-gl-custom-cols { height: 48px !important; min-height: 48px !important; min-width: 190px !important; padding: 0 24px !important; font-size: 1.05rem !important; font-weight: 900 !important; }
 html.light-theme .pos-grid tbody tr td, html.light-theme .pos-grid tbody tr td *:not(.badge) { color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 900 !important; background-color: transparent !important; }
 html.light-theme .pos-grid tbody tr:nth-child(odd) td { background-color: #ffffff !important; }

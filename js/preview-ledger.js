@@ -7,7 +7,7 @@ function toEasternArabicNumerals(str) {
 // js/preview-ledger.js - General Ledger Pro Studio Edition
 
 const PRESETS_STORAGE_KEY = 'ledger_preview_presets_v20';
-const MAX_PRESETS_LIMIT = 6;
+const MAX_PRESETS_LIMIT = 8;
 let currentData = [];
 let filteredData = [];
 let currentPresetIndex = 0;
@@ -769,25 +769,54 @@ function getDefaultConfigs() {
 
 
 
+const MASTER_DEF1_LOCK_STAMP = 'gl_def1_locked_20261113_v1';
+const MASTER_DEF2_LOCK_STAMP = 'gl_def2_locked_20261113_v5';
+const MASTER_DEF3_LOCK_STAMP = 'gl_def3_locked_20261114_v1';
+const MASTER_DEF4_STAMP = 'gl_def4_init_20261114_v3';
+const MASTER_DEF1_ORDER = [0, 12, 1, 2, 3, 4, 13, 15, 14, 5, 6, 10, 9, 7, 8, 11];
+
+function lightenHex3Shades(hex) {
+    if (!hex || typeof hex !== 'string' || !hex.startsWith('#') || hex.length < 7) return hex;
+    const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+    if (isNaN(r) || isNaN(g) || isNaN(b)) return hex;
+    const f = 0.65; // 3 shades lighter toward pure white
+    return '#' + [r, g, b].map(v => Math.round(v + (255 - v) * f).toString(16).padStart(2, '0')).join('');
+}
+
+function getFactoryPreset2LedgerConfigs() {
+    const baseSoftMap = { 0: '#edfafd', 5: '#e6f2ff', 7: '#e6f2ff', 6: '#ffeef0', 8: '#ffeef0', 9: '#e8fbf0', 10: '#fef7d6', 11: '#fef7d6', 12: '#e9fbee', 13: '#ede9fe' };
+    return getFactoryPreset1LedgerConfigs().map((c, idx) => ({
+        ...c,
+        color: c.color ? lightenHex3Shades(c.color) : c.color,
+        bgColor: lightenHex3Shades(baseSoftMap[idx] || c.bgColor || '#f1f5f9')
+    }));
+}
+
+const NO_CLIP_AUTO_FIT_COLS = [0, 5, 6, 7, 8, 9, 10, 11, 13];
+
+function calcAutoFitNumberRem(textStr, baseRem, colWidthPx) {
+    return baseRem;
+}
+
 function getFactoryPreset1LedgerConfigs() {
-    let conf = getDefaultConfigs();
-    conf[0] = { ...conf[0], label: "التاريخ", visible: true, align: 'center', fs: 1.02, fontWeight: '900', color: '#000000', bgColor: '#ffffff' };
-    conf[1] = { ...conf[1], label: "الرقم المرجعي", visible: true, align: 'center', fs: 1.04, fontWeight: '900', color: '#000000', bgColor: '#ffffff' };
-    conf[2] = { ...conf[2], label: "البيان / الوصف", visible: true, align: 'right', fs: 0.86, fontWeight: '800', color: '#000000', bgColor: '#ffffff', wrapText: true };
-    conf[3] = { ...conf[3], label: "الحساب المقابل", visible: true, align: 'right', fs: 1.04, fontWeight: '900', color: '#000000', bgColor: '#ffffff' };
-    conf[4] = { ...conf[4], label: "نوع الحركة", visible: true, align: 'center', fs: 1.04, fontWeight: '900', color: '#000000', bgColor: '#ffffff' };
-    conf[5] = { ...conf[5], label: "مدين (محلي)", visible: true, align: 'center', fs: 1.22, fontWeight: '900', color: '#000000', bgColor: '#f5faff' };
-    conf[6] = { ...conf[6], label: "دائن (محلي)", visible: true, align: 'center', fs: 1.22, fontWeight: '900', color: '#000000', bgColor: '#fff7f8' };
-    conf[7] = { ...conf[7], label: "مدين (أجنبي)", visible: true, align: 'center', fs: 1.22, fontWeight: '900', color: '#000000', bgColor: '#f5faff' };
-    conf[8] = { ...conf[8], label: "دائن (أجنبي)", visible: true, align: 'center', fs: 1.22, fontWeight: '900', color: '#000000', bgColor: '#fff7f8' };
-    conf[9] = { ...conf[9], label: "سعر الصرف", visible: true, align: 'center', fs: 1.14, fontWeight: '900', color: '#000000', bgColor: '#f6fef9' };
-    conf[10] = { ...conf[10], label: "الإجمالي المحلي", visible: true, align: 'center', fs: 1.28, fontWeight: '900', color: '#000000', bgColor: '#fffdf2' };
-    conf[11] = { ...conf[11], label: "الإجمالي الأجنبي", visible: true, align: 'center', fs: 1.28, fontWeight: '900', color: '#000000', bgColor: '#fffdf2' };
-    conf[12] = { ...conf[12], label: "ملاحظات", visible: true, align: 'right', fs: 0.86, fontWeight: '800', color: '#000000', bgColor: '#ffffff', wrapText: true };
-    conf[13] = { ...conf[13], label: "رقم التحويلة", visible: true, align: 'center', fs: 1.04, fontWeight: '900', color: '#000000', bgColor: '#ffffff' };
-    conf[14] = { ...conf[14], visible: false };
-    conf[15] = { ...conf[15], label: "اسم البنك", visible: false, color: '#000000', bgColor: '#ffffff' };
-    return conf;
+    return [
+        { label: "التاريخ", visible: true, fs: 0.9, fontWeight: "900", fontFamily: "inherit", color: "", bgColor: "#edfafd", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest" },
+        { label: "الرقم المرجعي", visible: false, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest" },
+        { label: "البيان / الوصف", visible: false, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest" },
+        { label: "الحساب المقابل", visible: false, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest" },
+        { label: "نوع الحركة", visible: false, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest" },
+        { label: "مدين (محلي)", visible: true, fs: 0.9, fontWeight: "900", fontFamily: "inherit", color: "#0516ff", bgColor: "#f0ffff", align: "center", thousandSep: ",", decimals: 0, showDecSep: true, rounding: "nearest", width: "138px" },
+        { label: "دائن (محلي)", visible: true, fs: 0.9, fontWeight: "900", fontFamily: "inherit", color: "#fb0404", bgColor: "#fcf2f2", align: "center", thousandSep: ",", decimals: 0, showDecSep: true, rounding: "nearest", width: "138px" },
+        { label: "مدين (أجنبي)", visible: true, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "#0703fc", bgColor: "#f0ffff", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "134px" },
+        { label: "دائن (أجنبي)", visible: true, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "#fa0000", bgColor: "#fcf2f2", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "134px" },
+        { label: "سعر الصرف", visible: true, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "#e0fff1", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "100px" },
+        { label: "الإجمالي المحلي", visible: true, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "#fefff0", align: "center", thousandSep: ",", decimals: 0, showDecSep: true, rounding: "nearest", width: "152px" },
+        { label: "الإجمالي الأجنبي", visible: true, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "#fefff0", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "140px" },
+        { label: "ملاحظات", visible: true, fs: 0.9, fontWeight: "900", fontFamily: "inherit", color: "", bgColor: "#e9fbee", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "192px" },
+        { label: "رقم التحويلة", visible: true, fs: 0.9, fontWeight: "900", fontFamily: "inherit", color: "", bgColor: "#fff0ff", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "162px" },
+        { label: "رقم الشيك", visible: false, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest" },
+        { label: "اسم البنك", visible: false, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest" }
+    ];
 }
 
 function getForeignOnlyConfigs() {
@@ -807,110 +836,281 @@ function getLocalOnlyConfigs() {
     return conf;
 }
 
+function getFactoryPreset3LedgerConfigs() {
+    const conf = getFactoryPreset2LedgerConfigs();
+    conf.forEach((c, idx) => { c.fs = (idx === 10 || idx === 11) ? 1.2 : 1.1; });
+    [5, 6, 10, 12].forEach(i => { if (conf[i]) conf[i].visible = false; });
+    if (conf[0]) conf[0].visible = true;
+    return conf;
+}
+
+function getFactoryPreset4LedgerConfigs() {
+    const conf = getFactoryPreset3LedgerConfigs();
+    conf.forEach(c => { c.fs = 1.3; });
+    [5, 6].forEach(i => { if (conf[i]) { conf[i].visible = true; conf[i].fs = 1.3; } });
+    if (conf[10]) { conf[10].visible = true; conf[10].fs = 1.4; }
+    if (conf[0]) { conf[0].visible = true; conf[0].fs = 1.3; conf[0].width = '115px'; }
+    if (conf[13]) { conf[13].visible = true; conf[13].fs = 1.3; conf[13].width = '145px'; }
+    if (conf[9]) { conf[9].visible = true; conf[9].fs = 1.3; conf[9].width = '95px'; }
+    [7, 8, 11, 12, 1, 2, 3, 4, 14, 15].forEach(i => { if (conf[i]) conf[i].visible = false; });
+    return conf;
+}
+
 const FACTORY_PRESETS_LEDGER = [
     {
         name: '💎 افتراضي 1',
         configs: getFactoryPreset1LedgerConfigs(),
-        order: [0, 1, 2, 3, 4, 13, 15, 14, 5, 6, 7, 8, 9, 10, 11, 12],
-        theme: 'theme-gold',
-        font: 'font-ultra',
-        paperSize: 'A4',
-        orientation: 'landscape',
-        margins: 'normal',
-        showLogo: true,
-        showInfo: true,
-        showInRibbon: true
-    },
-    {
-        name: '⭐ افتراضي 2',
-        configs: getForeignOnlyConfigs(),
-        order: [0, 1, 2, 3, 4, 13, 15, 14, 7, 8, 9, 11, 12],
-        theme: 'theme-classic-navy',
+        order: [...MASTER_DEF1_ORDER],
+        theme: '',
         font: 'font-newsons',
         paperSize: 'A4',
         orientation: 'landscape',
-        margins: 'compact',
+        margins: 'normal',
+        tableWidth: 100,
+        rowHeight: 'normal',
+        darkMode: false,
         showLogo: true,
         showInfo: true,
-        showInRibbon: true
+        showUser: true,
+        userPos: 'bottom-right',
+        showDateTime: true,
+        showPageNums: true,
+        showInRibbon: true,
+        isLocked: true,
+        _masterLock: MASTER_DEF1_LOCK_STAMP
+    },
+    {
+        name: '⭐ افتراضي 2',
+        configs: getFactoryPreset2LedgerConfigs(),
+        order: [...MASTER_DEF1_ORDER],
+        theme: '',
+        font: 'font-newsons',
+        paperSize: 'A4',
+        orientation: 'landscape',
+        margins: 'normal',
+        tableWidth: 100,
+        rowHeight: 'normal',
+        darkMode: false,
+        showLogo: true,
+        showInfo: true,
+        showUser: true,
+        userPos: 'bottom-right',
+        showDateTime: true,
+        showPageNums: true,
+        showInRibbon: true,
+        isLocked: true,
+        _masterLock: MASTER_DEF2_LOCK_STAMP
     },
     {
         name: '🎨 افتراضي 3',
-        configs: getLocalOnlyConfigs(),
-        order: [0, 1, 2, 3, 4, 13, 15, 14, 5, 6, 10, 12],
-        theme: 'theme-emerald-pro',
-        font: 'font-tajawal',
+        configs: getFactoryPreset3LedgerConfigs(),
+        order: [...MASTER_DEF1_ORDER],
+        theme: '',
+        font: 'font-newsons',
         paperSize: 'A4',
-        orientation: 'landscape',
+        orientation: 'portrait',
         margins: 'normal',
+        tableWidth: 100,
+        rowHeight: 'normal',
+        darkMode: false,
         showLogo: true,
         showInfo: true,
-        showInRibbon: true
+        showUser: true,
+        userPos: 'bottom-right',
+        showDateTime: true,
+        showPageNums: true,
+        showInRibbon: true,
+        isLocked: true,
+        _masterLock: MASTER_DEF3_LOCK_STAMP
     },
     {
         name: '🔥 افتراضي 4',
-        configs: getFactoryPreset1LedgerConfigs(),
-        order: [0, 1, 2, 3, 4, 13, 15, 14, 5, 6, 7, 8, 9, 10, 11, 12],
-        theme: 'theme-modern-slate',
-        font: 'font-cairo',
-        paperSize: 'A4',
-        orientation: 'landscape',
-        margins: 'compact',
-        showLogo: true,
-        showInfo: true,
-        showInRibbon: true
-    },
-    {
-        name: '✨ افتراضي 5',
-        configs: getFactoryPreset1LedgerConfigs(),
-        order: [0, 1, 2, 3, 4, 13, 15, 14, 5, 6, 7, 8, 9, 10, 11, 12],
-        theme: 'theme-luxury-gold',
-        font: 'font-ultra',
-        paperSize: 'A4',
-        orientation: 'landscape',
-        margins: 'normal',
-        showLogo: true,
-        showInfo: true,
-        showInRibbon: true
-    },
-    {
-        name: '🚀 افتراضي 6',
-        configs: getFactoryPreset1LedgerConfigs(),
-        order: [0, 1, 2, 3, 4, 13, 15, 14, 5, 6, 7, 8, 9, 10, 11, 12],
+        configs: getFactoryPreset4LedgerConfigs(),
+        order: [0, 13, 9, 5, 6, 10, 12, 1, 2, 3, 4, 15, 14, 7, 8, 11],
         theme: '',
-        font: 'font-ultra',
+        font: 'font-newsons',
+        paperSize: 'A4',
+        orientation: 'portrait',
+        margins: 'normal',
+        tableWidth: 100,
+        rowHeight: 'normal',
+        darkMode: false,
+        showLogo: true,
+        showInfo: true,
+        showUser: true,
+        userPos: 'bottom-right',
+        showDateTime: true,
+        showPageNums: true,
+        showInRibbon: true,
+        isLocked: true,
+        _initStamp: MASTER_DEF4_STAMP
+    },
+    {
+        name: '💠 نمط 1',
+        configs: getFactoryPreset1LedgerConfigs(),
+        order: [...MASTER_DEF1_ORDER],
+        theme: '',
+        font: 'font-newsons',
         paperSize: 'A4',
         orientation: 'landscape',
         margins: 'normal',
+        tableWidth: 100,
+        rowHeight: 'normal',
+        darkMode: false,
         showLogo: true,
         showInfo: true,
-        showInRibbon: true
+        showUser: true,
+        userPos: 'bottom-right',
+        showDateTime: true,
+        showPageNums: true,
+        showInRibbon: true,
+        isLocked: false
+    },
+    {
+        name: '🌟 نمط 2',
+        configs: getFactoryPreset2LedgerConfigs(),
+        order: [...MASTER_DEF1_ORDER],
+        theme: '',
+        font: 'font-newsons',
+        paperSize: 'A4',
+        orientation: 'landscape',
+        margins: 'normal',
+        tableWidth: 100,
+        rowHeight: 'normal',
+        darkMode: false,
+        showLogo: true,
+        showInfo: true,
+        showUser: true,
+        userPos: 'bottom-right',
+        showDateTime: true,
+        showPageNums: true,
+        showInRibbon: true,
+        isLocked: false
+    },
+    {
+        name: '🎭 نمط 3',
+        configs: getFactoryPreset3LedgerConfigs(),
+        order: [...MASTER_DEF1_ORDER],
+        theme: '',
+        font: 'font-newsons',
+        paperSize: 'A4',
+        orientation: 'portrait',
+        margins: 'normal',
+        tableWidth: 100,
+        rowHeight: 'normal',
+        darkMode: false,
+        showLogo: true,
+        showInfo: true,
+        showUser: true,
+        userPos: 'bottom-right',
+        showDateTime: true,
+        showPageNums: true,
+        showInRibbon: true,
+        isLocked: false
+    },
+    {
+        name: '⚡ نمط 4',
+        configs: getFactoryPreset4LedgerConfigs(),
+        order: [0, 13, 9, 5, 6, 10, 12, 1, 2, 3, 4, 15, 14, 7, 8, 11],
+        theme: '',
+        font: 'font-newsons',
+        paperSize: 'A4',
+        orientation: 'portrait',
+        margins: 'normal',
+        tableWidth: 100,
+        rowHeight: 'normal',
+        darkMode: false,
+        showLogo: true,
+        showInfo: true,
+        showUser: true,
+        userPos: 'bottom-right',
+        showDateTime: true,
+        showPageNums: true,
+        showInRibbon: true,
+        isLocked: false
     }
 ];
 
+function enforceMasterPresetsPolicy(list) {
+    if (!Array.isArray(list) || list.length === 0) {
+        return JSON.parse(JSON.stringify(FACTORY_PRESETS_LEDGER));
+    }
+    let changed = false;
+    // 1. Always lock Default 1 (idx 0) permanently to exact master specification across all companies/devices/browsers
+    if (!list[0] || list[0]._masterLock !== MASTER_DEF1_LOCK_STAMP) {
+        list[0] = JSON.parse(JSON.stringify(FACTORY_PRESETS_LEDGER[0]));
+        changed = true;
+    } else {
+        list[0].configs = getFactoryPreset1LedgerConfigs();
+        list[0].order = [...MASTER_DEF1_ORDER];
+        list[0].theme = '';
+        list[0].font = 'font-newsons';
+        list[0].isLocked = true;
+    }
+    // 2. Always lock Default 2 (idx 1) permanently across all companies/devices/browsers
+    if (!list[1] || list[1]._masterLock !== MASTER_DEF2_LOCK_STAMP) {
+        list[1] = JSON.parse(JSON.stringify(FACTORY_PRESETS_LEDGER[1]));
+        changed = true;
+    } else {
+        list[1].configs = getFactoryPreset2LedgerConfigs();
+        list[1].order = [...MASTER_DEF1_ORDER];
+        list[1].theme = '';
+        list[1].font = 'font-newsons';
+        list[1].isLocked = true;
+    }
+    // 3. Always lock Default 3 (idx 2) permanently across all companies/devices/browsers
+    if (!list[2] || list[2]._masterLock !== MASTER_DEF3_LOCK_STAMP) {
+        list[2] = JSON.parse(JSON.stringify(FACTORY_PRESETS_LEDGER[2]));
+        changed = true;
+    } else {
+        list[2].configs = getFactoryPreset3LedgerConfigs();
+        list[2].order = [...MASTER_DEF1_ORDER];
+        list[2].theme = '';
+        list[2].font = 'font-newsons';
+        list[2].orientation = 'portrait';
+        list[2].isLocked = true;
+    }
+    if (!list[3] || list[3]._initStamp !== MASTER_DEF4_STAMP || !list[3].isLocked) {
+        list[3] = JSON.parse(JSON.stringify(FACTORY_PRESETS_LEDGER[3]));
+        changed = true;
+    } else {
+        list[3].configs = getFactoryPreset4LedgerConfigs();
+        list[3].order = [...FACTORY_PRESETS_LEDGER[3].order];
+        list[3].theme = '';
+        list[3].font = 'font-newsons';
+        list[3].orientation = 'portrait';
+        list[3].isLocked = true;
+    }
+    for (let i = 4; i < FACTORY_PRESETS_LEDGER.length; i++) {
+        if (!list[i] || !Array.isArray(list[i].configs) || !list[i]._patternV2) {
+            const keepCustom = list[i] && list[i].isCustomized && Array.isArray(list[i].configs);
+            list[i] = keepCustom ? Object.assign({}, FACTORY_PRESETS_LEDGER[i], list[i], { name: FACTORY_PRESETS_LEDGER[i].name, isLocked: false, _patternV2: true }) : Object.assign(JSON.parse(JSON.stringify(FACTORY_PRESETS_LEDGER[i])), { _patternV2: true });
+            changed = true;
+        }
+    }
+    list._wasNormalized = changed;
+    return list;
+}
+
 function getSavedPresets() {
     let raw = localStorage.getItem(PRESETS_STORAGE_KEY);
-    if (!raw) return [];
+    if (!raw) return enforceMasterPresetsPolicy([]);
     try {
         let list = JSON.parse(raw);
         if (Array.isArray(list)) {
-            if (list.length > MAX_PRESETS_LIMIT) {
-                list = list.slice(0, MAX_PRESETS_LIMIT);
-                localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(list));
-            }
-            return list;
+            if (list.length > MAX_PRESETS_LIMIT) list = list.slice(0, MAX_PRESETS_LIMIT);
+            return enforceMasterPresetsPolicy(list);
         }
-        return [];
+        return enforceMasterPresetsPolicy([]);
     } catch(e) {
-        return [];
+        return enforceMasterPresetsPolicy([]);
     }
 }
 
 function savePresets(presets) {
     if (Array.isArray(presets)) {
-        if (presets.length > MAX_PRESETS_LIMIT) {
-            presets = presets.slice(0, MAX_PRESETS_LIMIT);
-        }
+        if (presets.length > MAX_PRESETS_LIMIT) presets = presets.slice(0, MAX_PRESETS_LIMIT);
+        for (let k = 0; k < 4; k++) presets[k] = JSON.parse(JSON.stringify(FACTORY_PRESETS_LEDGER[k]));
         localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
         syncPresetsToDB(PRESETS_STORAGE_KEY, presets);
     }
@@ -958,19 +1158,11 @@ function loadPresetsFromDB(reportKey, localKey, onComplete) {
 }
 
 function initPresets() {
-    let raw = localStorage.getItem(PRESETS_STORAGE_KEY);
-    let list = [];
-    if (raw) {
-        try {
-            list = JSON.parse(raw);
-        } catch(e) {}
-    }
-    if (!Array.isArray(list) || list.length === 0) {
-        list = JSON.parse(JSON.stringify(FACTORY_PRESETS_LEDGER));
-        list.forEach(p => { p.isLocked = false; });
+    let list = getSavedPresets();
+    if (list._wasNormalized) {
+        delete list._wasNormalized;
         savePresets(list);
     } else {
-        list.forEach(p => { p.isLocked = false; });
         localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(list));
     }
     
@@ -982,11 +1174,18 @@ function initPresets() {
 
     loadPresetsFromDB(PRESETS_STORAGE_KEY, PRESETS_STORAGE_KEY, function(dbLayout) {
         if (Array.isArray(dbLayout) && dbLayout.length > 0) {
-            dbLayout.forEach(p => { p.isLocked = false; });
-            localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(dbLayout));
-            renderPresetButtons();
-            renderPresetsManagementList();
-            if (typeof currentPresetIndex !== 'undefined') loadPreset(currentPresetIndex);
+            const prevJson = localStorage.getItem(PRESETS_STORAGE_KEY);
+            dbLayout = enforceMasterPresetsPolicy(dbLayout);
+            const needResync = !!dbLayout._wasNormalized;
+            delete dbLayout._wasNormalized;
+            const nextJson = JSON.stringify(dbLayout);
+            localStorage.setItem(PRESETS_STORAGE_KEY, nextJson);
+            if (needResync) syncPresetsToDB(PRESETS_STORAGE_KEY, dbLayout);
+            if (prevJson !== nextJson) {
+                renderPresetButtons();
+                renderPresetsManagementList();
+                if (typeof currentPresetIndex !== 'undefined') loadPreset(currentPresetIndex);
+            }
         }
     });
 }
@@ -995,22 +1194,24 @@ function loadPreset(idx) {
     const presets = getSavedPresets();
     if (!presets || !presets[idx]) return;
     currentPresetIndex = idx;
+    try {
+        sessionStorage.setItem('gl_open_preset_idx', String(idx));
+        const u = new URL(window.location.href);
+        u.searchParams.set('presetIndex', String(idx));
+        window.history.replaceState(null, '', u.toString());
+    } catch (_) {}
     const p = presets[idx];
-    p.isLocked = false; // Unlocked for design customization
+    const locked = (idx < 4);
+    p.isLocked = locked;
     
     applyDesignState(p);
     renderPresetButtons();
     renderPresetsManagementList();
     
     const saveBtn = document.getElementById('mega-save-btn');
-    if (saveBtn) {
-        saveBtn.style.display = '';
-    }
-
+    if (saveBtn) saveBtn.style.display = locked ? 'none' : '';
     const panelSaveBtn = document.querySelector('.sr-save-panel-btn');
-    if (panelSaveBtn) {
-        panelSaveBtn.style.display = '';
-    }
+    if (panelSaveBtn) panelSaveBtn.style.display = locked ? 'none' : '';
 }
 
 function applyPreset(idx) {
@@ -1024,6 +1225,12 @@ function applyPreset(idx) {
 
 function saveCurrentPreset(targetIdx) {
     const idx = (typeof targetIdx === 'number') ? targetIdx : currentPresetIndex;
+    if (idx < 4) {
+        const lbl = 'افتراضي ' + (idx + 1);
+        if (typeof showToast === 'function') showToast('🔒 "' + lbl + '" مثبت نهائياً — خصص واحفظ بحرية في (نمط 1 إلى نمط 4)', 'info');
+        loadPreset(idx);
+        return;
+    }
     const presets = getSavedPresets();
     if (!presets || !presets[idx]) return;
     const p = presets[idx];
@@ -1129,13 +1336,14 @@ function renderPresetButtons() {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'preset-btn' + (idx === currentPresetIndex ? ' active' : '');
-        btn.innerHTML = p.name + (idx === currentPresetIndex ? ' 🎯' : ' 🔓');
-        btn.title = 'تطبيق وتصميم ' + p.name;
+        const lockIcon = (idx < 4) ? ' 🔒' : (idx === currentPresetIndex ? ' 🎯' : ' 🔓');
+        btn.innerHTML = p.name + lockIcon;
+        btn.title = (idx < 4) ? (p.name + ' (مثبت نهائياً)') : ('تخصيص وحفظ ' + p.name + ' بحرية تامة');
         
         btn.onclick = function(e) {
             if (e) e.preventDefault();
+            if (idx === currentPresetIndex) return;
             loadPreset(idx);
-            if (typeof showToast === 'function') showToast('تم فتح [' + p.name + '] للتصميم والمعاينة', 'info');
         };
         container.appendChild(btn);
     });
@@ -1177,14 +1385,14 @@ function renderPresetsManagementList() {
                 <button type="button" class="sr-preset-btn sr-preset-btn-apply" onclick="loadPreset(${idx}); switchStudioTab('cols');" title="تطبيق هذا القالب" style="font-size:10px; padding:2px 4px;">
                     ✨ تطبيق
                 </button>
-                <button type="button" class="sr-preset-btn sr-preset-btn-save" onclick="saveCurrentPreset(${idx})" title="حفظ التصميم الحالي في هذا القالب وتعميمه للكل" style="font-size:10px; padding:2px 6px; background:#10b981; color:#fff; font-weight:900;">💾 حفظ للكل</button>
-                ${hasFactory ? `
+                ${(idx < 4) ? `<span style="font-size:10px; padding:2px 6px; background:#fef3c7; color:#92400e; border:1px solid #f59e0b; border-radius:4px; font-weight:900;">🔒 مثبت نهائياً</span>` : `<button type="button" class="sr-preset-btn sr-preset-btn-save" onclick="saveCurrentPreset(${idx})" title="حفظ التصميم الحالي في هذا القالب وتعميمه للكل" style="font-size:10px; padding:2px 6px; background:#10b981; color:#fff; font-weight:900;">💾 حفظ للكل</button>`}
+                ${(idx < 4) ? '' : (hasFactory ? `
                 <button type="button" class="sr-preset-btn sr-preset-btn-reset" onclick="resetPresetToFactory(${idx})" title="استرجاع ضبط المصنع الأصلي لهذا القالب" style="font-size:10px; padding:2px 4px;">
                     🔄 مصنع
                 </button>` : `
                 <button type="button" class="sr-preset-btn sr-preset-btn-del" onclick="deletePreset(${idx})" title="حذف هذا القالب" style="font-size:10px; padding:2px 4px;">
                     🗑️ حذف
-                </button>`}
+                </button>`)}
             </div>
         `;
         list.appendChild(card);
@@ -1192,6 +1400,7 @@ function renderPresetsManagementList() {
 }
 
 function renamePreset(idx, newName) {
+    if (idx < 4) return;
     const presets = getSavedPresets();
     if (!presets[idx]) return;
     if (newName && newName.trim()) {
@@ -1460,6 +1669,7 @@ function moveSelectedCol(direction) {
 }
 
 function renderTable() {
+    if (document.body) document.body.classList.toggle('preset-2-mode', [0, 1, 2, 3].includes(currentPresetIndex));
     updateSubheaderLabels();
     const thead = document.getElementById('preview-thead');
     const tbody = document.getElementById('preview-tbody');
@@ -1476,7 +1686,7 @@ function renderTable() {
         
         let th = document.createElement('th');
         th.setAttribute('data-col-idx', idx);
-        th.innerHTML = `<div style="position:absolute; top:2px; left:0; right:0; display:flex; justify-content:space-between; padding:0 5px; font-size:11px; opacity:0.6; z-index:10;"><span style="cursor:pointer; padding:2px;" onclick="event.stopPropagation(); window.plHandleArrowMove(event, ${idx}, 1)" title="����� ������">?</span><span style="cursor:pointer; padding:2px;" onclick="event.stopPropagation(); window.plHandleArrowMove(event, ${idx}, -1)" title="����� ������">?</span></div>` + `<span style="position:relative; top:6px; display:inline-block;">` + (conf.label || c.defaultLabel) + `</span>`;
+        th.innerHTML = `<div class="no-print" style="position:absolute; top:2px; left:0; right:0; display:flex; justify-content:space-between; padding:0 5px; font-size:10px; opacity:0.55; z-index:10;"><span style="cursor:pointer; padding:2px;" onclick="event.stopPropagation(); window.plHandleArrowMove(event, ${idx}, 1)" title="تحريك لليمين">▶</span><span style="cursor:pointer; padding:2px;" onclick="event.stopPropagation(); window.plHandleArrowMove(event, ${idx}, -1)" title="تحريك لليسار">◀</span></div>` + `<span style="position:relative; top:6px; display:inline-block;">` + (conf.label || c.defaultLabel) + `</span>`;
         
         th.setAttribute("draggable", "true");
         th.style.cursor = "grab";
@@ -1541,10 +1751,14 @@ function renderTable() {
         } else if (wParsed >= 135) {
             hdrFs = 1.12;
         }
+        const isPreset2Lighter = (currentPresetIndex === 1);
+        const hdrFootGrad = isPreset2Lighter
+            ? 'linear-gradient(180deg, #f1f5f9 0%, #dde6f0 100%)'
+            : 'linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%)';
         th.style.setProperty('font-size', hdrFs + 'rem', 'important');
         th.style.setProperty('text-align', 'center', 'important');
         th.style.setProperty('vertical-align', 'middle', 'important');
-        th.style.setProperty('background', 'linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%)', 'important');
+        th.style.setProperty('background', hdrFootGrad, 'important');
         th.style.setProperty('color', '#000000', 'important');
         th.style.setProperty('border-bottom', '5.5px solid #000000', 'important');
         th.style.fontWeight = '900';
@@ -1588,21 +1802,33 @@ function renderTable() {
     thead.innerHTML = '';
     thead.appendChild(trHead);
     
-    // Track Column Totals
+    // Track Column Totals across ALL filteredData (pure memory, zero DOM cost)
     let colTotals = {};
+    const numColsMeta = columnOrder.map(idx => baseColumns.find(x => x.idx === idx)).filter(c => c && c.isNum && (!columnConfigs[c.idx] || columnConfigs[c.idx].visible !== false));
     columnOrder.forEach(idx => { colTotals[idx] = 0; });
+    filteredData.forEach(row => {
+        for (let k = 0; k < numColsMeta.length; k++) {
+            const c = numColsMeta[k];
+            const v = getRawFieldValue(row, c.field);
+            const n = typeof v === 'number' ? v : parseFloat(v);
+            if (!isNaN(n)) colTotals[c.idx] += n;
+        }
+    });
+
+    // 3-Page Rolling Window (pages p, p+1, p+2 => 1..3, 2..4, 3..5)
+    const PL_PAGE_SIZE = 50;
+    const totalPages = Math.max(1, Math.ceil(filteredData.length / PL_PAGE_SIZE));
+    if (!window.__plCurrentPage || window.__plCurrentPage < 1) window.__plCurrentPage = 1;
+    if (window.__plCurrentPage > totalPages) window.__plCurrentPage = totalPages;
+    const winStartPage = window.__plCurrentPage;
+    const winEndPage = Math.min(totalPages, winStartPage + 2);
+    const sliceRows = window.__plPrintAll ? filteredData : filteredData.slice((winStartPage - 1) * PL_PAGE_SIZE, winEndPage * PL_PAGE_SIZE);
 
     // Build Body (Fast DocumentFragment batching)
     tbody.innerHTML = '';
     const bodyFrag = document.createDocumentFragment();
-    const lightenHex2Shades = (hex, fallback) => {
-        if (!hex || typeof hex !== 'string' || !hex.startsWith('#') || hex.length < 7) return fallback;
-        const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
-        if (isNaN(r) || isNaN(g) || isNaN(b)) return fallback;
-        const nr = Math.round(r + (255 - r) * 0.72), ng = Math.round(g + (255 - g) * 0.72), nb = Math.round(b + (255 - b) * 0.72);
-        return '#' + [nr, ng, nb].map(x => x.toString(16).padStart(2, '0')).join('');
-    };
-    filteredData.forEach(row => {
+    const isPatternMode = currentPresetIndex >= 4;
+    sliceRows.forEach(row => {
         let tr = document.createElement('tr');
         if (row.ref) {
             tr.dataset.ref = row.ref;
@@ -1626,11 +1852,6 @@ function renderTable() {
             if (c.isNum) td.classList.add('num-cell');
             
             const rawVal = getRawFieldValue(row, c.field);
-            if (c.isNum && typeof rawVal === 'number') {
-                colTotals[idx] += rawVal;
-            } else if (c.isNum && !isNaN(parseFloat(rawVal))) {
-                colTotals[idx] += parseFloat(rawVal);
-            }
 
             td.innerText = c.isNum ? formatCustomNumber(rawVal, conf) : (rawVal || '-');
             if (c.isNum && conf.numFont && conf.numFont !== 'inherit' && conf.numFont !== 'arabic_indic') {
@@ -1644,20 +1865,32 @@ function renderTable() {
             
             const unifiedSoftBgMap = { 5: '#e6f2ff', 7: '#e6f2ff', 6: '#ffeef0', 8: '#ffeef0', 9: '#e8fbf0', 10: '#fef7d6', 11: '#fef7d6', 13: '#ede9fe' };
             const validCustomBg = (conf.bgColor && conf.bgColor !== '#ffffff' && conf.bgColor !== '#fcfdff') ? conf.bgColor : '#f1f5f9';
-            const rowBg = unifiedSoftBgMap[idx] || validCustomBg;
+            let rowBg = isPatternMode
+                ? (conf.bgColor || unifiedSoftBgMap[idx] || '#ffffff')
+                : ((currentPresetIndex === 0) ? (unifiedSoftBgMap[idx] || validCustomBg) : ((conf.bgColor && conf.bgColor !== '#ffffff' && conf.bgColor !== '#fcfdff') ? conf.bgColor : lightenHex3Shades(unifiedSoftBgMap[idx] || '#f1f5f9')));
             const defFs = (idx === 0 || idx === 13) ? 1.16 : ((idx === 10 || idx === 11) ? 1.36 : (c.isNum ? 1.32 : ((idx === 2 || idx === 12) ? 0.78 : 1.16)));
             const oldFsList = [0.80, 0.84, 0.86, 0.9, 0.96, 1.0, 1.02, 1.04, 1.06, 1.08, 1.12, 1.14, 1.20, 1.22, 1.24, 1.28];
-            let finalFs = (idx === 2 || idx === 12) ? ((conf.fs && Number(conf.fs) <= 0.80) ? Number(conf.fs) : 0.78) : ((conf.fs && !oldFsList.includes(Number(conf.fs))) ? Number(conf.fs) : defFs);
-            const textLen = String(td.innerText || '').trim().length;
-            if (idx !== 2 && idx !== 12 && textLen > 12) {
-                finalFs = Math.max(0.92, +(finalFs - Math.min(0.28, (textLen - 12) * 0.032)).toFixed(2));
+            let finalFs = (isPatternMode && conf.fs)
+                ? Number(conf.fs)
+                : ((idx === 2 || idx === 12) ? ((conf.fs && Number(conf.fs) <= 0.80) ? Number(conf.fs) : 0.78) : ((conf.fs && !oldFsList.includes(Number(conf.fs))) ? Number(conf.fs) : defFs));
+            const isAutoFitCol = c.isNum || NO_CLIP_AUTO_FIT_COLS.includes(idx);
+            if (isAutoFitCol) {
+                td.style.setProperty('padding-left', '0.5mm', 'important');
+                td.style.setProperty('padding-right', '0.5mm', 'important');
+            } else if (!isPatternMode) {
+                const textLen = String(td.innerText || '').trim().length;
+                if (idx !== 2 && idx !== 12 && textLen > 11) {
+                    finalFs = Math.max(0.84, +(finalFs - Math.min(0.36, (textLen - 11) * 0.035)).toFixed(2));
+                }
             }
             td.style.setProperty('font-size', finalFs + 'rem', 'important');
-            td.style.textAlign = conf.align || 'center';
-            td.style.setProperty('font-weight', (idx === 2 || idx === 12) ? '700' : '900', 'important');
+            td.style.setProperty('text-align', (!isPatternMode) ? 'center' : (conf.align || 'center'), 'important');
+            td.style.setProperty('vertical-align', 'middle', 'important');
+            td.style.setProperty('font-weight', (isPatternMode && conf.fontWeight) ? String(conf.fontWeight) : ((idx === 2 || idx === 12) ? '700' : '900'), 'important');
             if (idx === 2 || idx === 12) { td.style.setProperty('letter-spacing', '-0.45px', 'important'); td.style.setProperty('word-spacing', '-1.5px', 'important'); td.style.setProperty('line-height', '1.14', 'important'); }
-            if (conf.fontFamily && conf.fontFamily !== 'inherit') td.style.fontFamily = conf.fontFamily;
-            td.style.setProperty('color', '#000000', 'important');
+            if (conf.fontFamily && conf.fontFamily !== 'inherit') td.style.setProperty('font-family', conf.fontFamily, 'important');
+            const cellColor = (isPatternMode && conf.color) ? conf.color : ((c.isNum && typeof rawVal === 'number' && rawVal < 0 && (conf.negFormat === 'red' || conf.negFormat === 'paren_red')) ? '#dc2626' : '#000000');
+            td.style.setProperty('color', cellColor, 'important');
             td.style.setProperty('background-color', rowBg, 'important');
         if (conf.width) {
             const wNum = parseInt(conf.width, 10);
@@ -1665,7 +1898,7 @@ function renderTable() {
             td.style.setProperty('min-width', conf.width, 'important');
             td.style.setProperty('max-width', conf.width, 'important');
             td.style.overflow = 'hidden';
-            td.style.textOverflow = 'ellipsis';
+            if (!isAutoFitCol) td.style.textOverflow = 'ellipsis';
             if (!isNaN(wNum)) {
                 if (wNum <= 10) {
                     td.style.padding = '0px';
@@ -1713,7 +1946,10 @@ function renderTable() {
             
             let td = document.createElement('td');
             td.setAttribute('data-col-idx', idx);
-            td.style.setProperty('background', 'linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%)', 'important');
+            const footGrad = (currentPresetIndex === 1)
+                ? 'linear-gradient(180deg, #f1f5f9 0%, #dde6f0 100%)'
+                : 'linear-gradient(180deg, #cbd5e1 0%, #94a3b8 100%)';
+            td.style.setProperty('background', footGrad, 'important');
             td.style.setProperty('color', '#000000', 'important');
             td.style.setProperty('border-top', '5.5px solid #000000', 'important');
             td.style.fontSize = (conf.fs || 1.18) + 'rem';
@@ -1754,6 +1990,9 @@ function renderTable() {
                     footerVal = filteredData.length > 0 ? parseFloat(getRawFieldValue(filteredData[filteredData.length - 1], 'balanceForeign') || 0) : 0;
                 }
                 td.innerText = formatCustomNumber(footerVal, conf);
+                td.style.setProperty('font-size', (conf.fs && Number(conf.fs) > 1.0 ? Number(conf.fs) : 1.32) + 'rem', 'important');
+                td.style.setProperty('padding-left', '0.5mm', 'important');
+                td.style.setProperty('padding-right', '0.5mm', 'important');
                 td.style.fontWeight = '900';
             } else {
                 td.innerText = '-';
@@ -1766,6 +2005,57 @@ function renderTable() {
     if (typeof updateHiddenColumnsDropdown === 'function') {
         updateHiddenColumnsDropdown();
     }
+
+    // Render 3-page rolling window navigation bar (.no-print)
+    let pager = document.getElementById('pl-rolling-pager');
+    if (totalPages > 3 && tbody.parentElement && tbody.parentElement.parentElement) {
+        if (!pager) {
+            pager = document.createElement('div');
+            pager.id = 'pl-rolling-pager';
+            pager.className = 'no-print';
+            pager.style.cssText = 'display:flex;align-items:center;justify-content:center;gap:10px;padding:6px 12px;margin:6px 0;background:#f1f5f9;border:1.5px solid #94a3b8;border-radius:8px;font-weight:900;font-size:13px;color:#0f172a;direction:rtl;';
+            tbody.parentElement.parentElement.insertBefore(pager, tbody.parentElement);
+        }
+        pager.style.display = 'flex';
+        pager.innerHTML = `<button type="button" onclick="window.__plStepPage(-1)" ${winStartPage<=1?'disabled':''} style="padding:3px 10px;border-radius:6px;border:1px solid #64748b;background:#fff;font-weight:900;cursor:pointer;">▶ السابق</button>`
+            + `<span>نافذة التصفح السريع: الصفحات <b>${winStartPage} – ${winEndPage}</b> من <b>${totalPages}</b> (إجمالي السجلات: ${filteredData.length})</span>`
+            + `<button type="button" onclick="window.__plStepPage(1)" ${winEndPage>=totalPages?'disabled':''} style="padding:3px 10px;border-radius:6px;border:1px solid #64748b;background:#fff;font-weight:900;cursor:pointer;">التالي ◀</button>`
+            + `<button type="button" onclick="window.__plPrintAll=!window.__plPrintAll;renderTable();" style="padding:3px 10px;border-radius:6px;border:1px solid #0284c7;background:${window.__plPrintAll?'#0284c7':'#fff'};color:${window.__plPrintAll?'#fff':'#0284c7'};font-weight:900;cursor:pointer;">${window.__plPrintAll?'العودة لـ 3 صفحات':'عرض الكل'}</button>`;
+    } else if (pager) {
+        pager.style.display = 'none';
+    }
+
+    requestAnimationFrame(() => {
+        const ctx = (window.__plFitCanvas || (window.__plFitCanvas = document.createElement('canvas'))).getContext('2d');
+        const cells = document.querySelectorAll('#preview-tbody td:not([data-col-idx="2"]):not([data-col-idx="12"]), #preview-tfoot td:not([data-col-idx="2"]):not([data-col-idx="12"])');
+        const updates = [];
+        cells.forEach(cell => {
+            const txt = (cell.innerText || '').trim();
+            if (!txt || txt === '-') return;
+            const cw = cell.clientWidth;
+            if (!cw) return;
+            const cs = window.getComputedStyle(cell);
+            const compPx = parseFloat(cs.fontSize) || 19;
+            ctx.font = `${cs.fontWeight || '900'} ${compPx}px ${cs.fontFamily || 'monospace'}`;
+            const textW = ctx.measureText(txt).width;
+            const availW = Math.max(24, cw - 3.8); // 0.5mm right + 0.5mm left (~1.9px + 1.9px)
+            if (textW > availW) {
+                const fittedPx = Math.max(8, +(compPx * (availW / textW) * 0.985).toFixed(2));
+                updates.push([cell, fittedPx + 'px']);
+            }
+        });
+        for (let i = 0; i < updates.length; i++) updates[i][0].style.setProperty('font-size', updates[i][1], 'important');
+    });
+}
+window.__plStepPage = function(delta) {
+    window.__plPrintAll = false;
+    window.__plCurrentPage = Math.max(1, (window.__plCurrentPage || 1) + delta);
+    renderTable();
+};
+if (!window.__plPrintHooksBound) {
+    window.__plPrintHooksBound = true;
+    window.addEventListener('beforeprint', () => { if (!window.__plPrintAll && typeof filteredData !== 'undefined' && filteredData.length > 150) { window.__plWasWindowed = true; window.__plPrintAll = true; renderTable(); } });
+    window.addEventListener('afterprint', () => { if (window.__plWasWindowed) { window.__plWasWindowed = false; window.__plPrintAll = false; renderTable(); } });
 }
 
 function formatCustomNumber(val, conf) {

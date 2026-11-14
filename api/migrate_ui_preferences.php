@@ -159,14 +159,18 @@ try {
     $orphanedReceiptsCleaned = 0;
     $orphanedGlCleaned = 0;
     try {
-        $alertCols = $pdo->query("DESCRIBE alert_settings")->fetchAll(PDO::FETCH_COLUMN);
+        $acStmt = $pdo->query("SELECT * FROM alert_settings LIMIT 0");
+        $alertCols = [];
+        for ($ci = 0; $ci < $acStmt->columnCount(); $ci++) { $alertCols[] = $acStmt->getColumnMeta($ci)['name']; }
         if (!in_array('tenant_id', $alertCols)) {
             $pdo->exec("ALTER TABLE alert_settings ADD COLUMN tenant_id INT(11) NOT NULL DEFAULT 12 FIRST");
             try {
                 $pdo->exec("ALTER TABLE alert_settings DROP PRIMARY KEY, ADD PRIMARY KEY (tenant_id, rule_key)");
             } catch (\Throwable $pkEx) {}
         }
-        $logCols = $pdo->query("DESCRIBE alert_logs")->fetchAll(PDO::FETCH_COLUMN);
+        $lcStmt = $pdo->query("SELECT * FROM alert_logs LIMIT 0");
+        $logCols = [];
+        for ($ci = 0; $ci < $lcStmt->columnCount(); $ci++) { $logCols[] = $lcStmt->getColumnMeta($ci)['name']; }
         if (!in_array('tenant_id', $logCols)) {
             $pdo->exec("ALTER TABLE alert_logs ADD COLUMN tenant_id INT(11) NOT NULL DEFAULT 12 AFTER id");
         }

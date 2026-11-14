@@ -394,6 +394,11 @@
         </div>
 
     <script>
+    window.previewReport = function() {
+        const w = document.getElementById('report-table-wrap') || document.querySelector('.report-container');
+        if (w) w.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        window.print();
+    };
     function runAIPL() {
         document.getElementById('aiPL-modal').style.display = 'flex';
         document.getElementById('aiPL-content').innerHTML = 'جاري قراءة التقرير وتحليله... يرجى الانتظار ⏳';

@@ -4944,6 +4944,13 @@ $currenciesData = [
         if (!t || !/^(INPUT|TEXTAREA)$/.test(t.tagName)) return;
         t.value = String(t.value || '').replace(/<\s*script[^>]*>[\s\S]*?<\s*\/\s*script\s*>/gi, '');
       }, true);
+      window.cancelBatchQueue = window.cancelBatchQueue || function() {
+        window._batchReceiptQueue = [];
+        window._batchQueueIndex = 0;
+        var strip = document.getElementById('batchProgressStrip');
+        if (strip) { strip.classList.add('hidden'); strip.style.display = 'none'; }
+        if (typeof window.showGlobalToast === 'function') window.showGlobalToast('تم إنهاء دفعة الإشعارات بنجاح');
+      };
     })();
   </script>
 <script src="js/magaies-smart-guide.js" defer></script>

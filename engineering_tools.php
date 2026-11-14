@@ -28231,6 +28231,21 @@ $pdo = getDBConnection();
 
 <!-- Reconciliation Functions Diagnostic -->
 <script>
+window.copyBBANCode = window.copyBBANCode || function(code, btn) {
+    var txt = String(code || '').trim();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).catch(function() {});
+    } else {
+        var ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        ta.remove();
+    }
+    if (btn && !btn.dataset.origHtml) btn.dataset.origHtml = btn.innerHTML;
+    if (btn) {
+        btn.innerHTML = '✅ تم النسخ: ' + txt;
+        setTimeout(function() { if (btn.dataset.origHtml) btn.innerHTML = btn.dataset.origHtml; }, 1600);
+    }
+};
 window.addEventListener('DOMContentLoaded', function(){
     if (typeof window.initReconciliationSuite === 'function') {
         try { window.initReconciliationSuite(); } catch (e) {}

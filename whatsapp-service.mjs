@@ -541,7 +541,7 @@ class WhatsAppClient {
                                     this.pendingBrokerModeByJid.set(jid, { type: bType, ts: Date.now() });
                                     const bMsgId0 = msg.key?.id || '';
                                     if (bMsgId0) this.processedWaMsgIds.add(bMsgId0);
-                                    sock.sendMessage(jid, { text: '🟢 *بوابة البورصة جاهزة:* أرسل الآن تفاصيل العرض أو الأسعار أو الصور (صورة مفردة أو مجموعة صور) وسيتم تفنيدها ونشرها فوراً في الشريط.' }, { quoted: msg }).catch(() => {});
+                                    sock.sendMessage(jid, { text: '🏛️ *بورصة السيطرة التجارية:* أرسل الآن تفاصيل العرض أو الأسعار أو الصور (صورة مفردة أو مجموعة صور) وسيتم تفنيدها ونشرها فوراً في شريط البورصة.' }, { quoted: msg }).catch(() => {});
                                     continue;
                                 }
 

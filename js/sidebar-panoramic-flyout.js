@@ -743,7 +743,7 @@
                 right: 246px;
                 top: 18px;
                 width: min(470px, calc(100vw - 258px));
-                z-index: 999998;
+                z-index: 2147483600 !important;
                 direction: rtl;
                 font-family: 'Tajawal', 'Cairo', sans-serif;
                 border-radius: 16px;
@@ -756,7 +756,9 @@
                 opacity: 0;
                 visibility: hidden;
                 pointer-events: none;
-                transition: opacity 0.1s ease-out;
+                will-change: top, opacity;
+                contain: layout style;
+                transition: opacity 0.05s linear;
             }
 
             /* Explicit Light Theme Surfaces (Beige, White, Gray) */
@@ -1147,47 +1149,37 @@
         linkEl.classList.add('panoramic-hovered');
         activeSidebarLink = linkEl;
 
-        // Rebuild shortcut buttons when switching to a different sidebar category
+        // Rebuild shortcut buttons ONCE per category and cache DOM nodes for 0ms switching
         if (activeHrefKey !== rawHref) {
             activeHrefKey = rawHref;
-
             panel.style.setProperty('--pf-accent', menuConfig.accent);
             panel.style.setProperty('--pf-accent-rgb', menuConfig.accentRgb);
-
             document.getElementById('pf-emblem').textContent = menuConfig.icon;
             document.getElementById('pf-title').textContent = menuConfig.title;
 
             const grid = document.getElementById('pf-grid');
-            grid.innerHTML = '';
-
-            menuConfig.items.forEach((item, idx) => {
-                const card = document.createElement('a');
-                card.href = item.href;
-                card.className = 'pf-bento-card';
-                card.style.setProperty('--card-color', item.color || menuConfig.accent);
-                card.style.setProperty('--card-rgb', item.rgb || menuConfig.accentRgb);
-                card.style.setProperty('--card-idx', idx);
-
-                const cleanTitle = String(item.title || '').replace(/^\d+[\.\-\)]\s*/, '').trim();
-                const words = cleanTitle.split(/\s+/);
-                const maxFirstLineWords = 3;
-                const mainLine = words.slice(0, maxFirstLineWords).join(' ');
-                const subLine = words.length > maxFirstLineWords ? words.slice(maxFirstLineWords).join(' ') : (item.sub || '');
-
-                card.innerHTML = `
-                    <div class="pf-card-icon-wrap">
-                        <div class="pf-card-icon-box">${item.icon}</div>
-                    </div>
-                    <div class="pf-card-body">
-                        <span class="pf-card-title">${mainLine}</span>
-                        ${subLine ? `<span class="pf-card-sub">${subLine}</span>` : ''}
-                    </div>
-                `;
-
-                card.addEventListener('click', (ev) => handleSubItemClick(ev, item, rawHref));
-                if (idx >= 10) card.classList.add('pf-hidden-layer');
-                grid.appendChild(card);
-            });
+            window.__pfDomCache = window.__pfDomCache || {};
+            if (!window.__pfDomCache[rawHref]) {
+                const cards = menuConfig.items.map((item, idx) => {
+                    const card = document.createElement('a');
+                    card.href = item.href;
+                    card.className = 'pf-bento-card' + (idx >= 10 ? ' pf-hidden-layer' : '');
+                    card.style.setProperty('--card-color', item.color || menuConfig.accent);
+                    card.style.setProperty('--card-rgb', item.rgb || menuConfig.accentRgb);
+                    card.style.setProperty('--card-idx', idx);
+                    const cleanTitle = String(item.title || '').replace(/^\d+[\.\-\)]\s*/, '').trim();
+                    const words = cleanTitle.split(/\s+/);
+                    const mainLine = words.slice(0, 3).join(' ');
+                    const subLine = words.length > 3 ? words.slice(3).join(' ') : (item.sub || '');
+                    card.innerHTML = `<div class="pf-card-icon-wrap"><div class="pf-card-icon-box">${item.icon}</div></div><div class="pf-card-body"><span class="pf-card-title">${mainLine}</span>${subLine ? `<span class="pf-card-sub">${subLine}</span>` : ''}</div>`;
+                    card.addEventListener('click', (ev) => handleSubItemClick(ev, item, rawHref));
+                    return card;
+                });
+                window.__pfDomCache[rawHref] = cards;
+            }
+            const cachedCards = window.__pfDomCache[rawHref];
+            cachedCards.forEach((c, i) => c.classList.toggle('pf-hidden-layer', i >= 10));
+            grid.replaceChildren(...cachedCards);
 
             const moreBtn = document.getElementById('pf-more-btn');
             if (moreBtn) {
@@ -1290,16 +1282,10 @@
         activeSidebarLink = null;
     }
 
-    // ── Bind Events to Sidebar ──
-    function attachSidebarListeners() {
-        const sb = document.querySelector('.global-sidebar');
-        if (!sb || sb.dataset.panoramicBound === '1') return;
-        sb.dataset.panoramicBound = '1';
-
-        injectPanoramicStyles();
-
-        const items = sb.querySelectorAll('.sidebar-nav .sidebar-item');
-        items.forEach(item => {
+    // ── Bind Delegated 0ms Events (survives app.js sidebar re-renders & instant up/down glide) ──
+    function decorateSidebarChevrons(sb) {
+        if (!sb) return;
+        sb.querySelectorAll('.sidebar-nav .sidebar-item').forEach(item => {
             const rawHref = (item.getAttribute('data-href') || item.getAttribute('href') || '').split('?')[0].trim();
             if (PANORAMIC_MENUS[rawHref] && !item.querySelector('.sb-panoramic-chevron')) {
                 const chev = document.createElement('span');
@@ -1307,33 +1293,41 @@
                 chev.innerHTML = '❮';
                 item.appendChild(chev);
             }
-
-            item.addEventListener('mouseenter', () => {
-                clearTimeout(closeTimer);
-                clearTimeout(window.__pfHoverIntentTimer);
-                window.__pfHoverIntentTimer = setTimeout(() => {
-                    requestAnimationFrame(() => renderFlyoutForLink(item));
-                }, 32);
-            });
-            item.addEventListener('mouseleave', () => {
-                clearTimeout(window.__pfHoverIntentTimer);
-            });
         });
+    }
 
-        sb.addEventListener('mouseleave', (e) => {
-            if (flyoutEl && e.relatedTarget && flyoutEl.contains(e.relatedTarget)) {
-                return;
+    function attachSidebarListeners() {
+        injectPanoramicStyles();
+        const sb = document.querySelector('.global-sidebar');
+        if (sb) decorateSidebarChevrons(sb);
+        if (window.__pfGlobalDelegatedBound) return;
+        window.__pfGlobalDelegatedBound = true;
+
+        document.addEventListener('mouseover', (e) => {
+            const item = e.target && e.target.closest ? e.target.closest('.global-sidebar .sidebar-nav .sidebar-item') : null;
+            if (!item) return;
+            clearTimeout(closeTimer);
+            if (!item.querySelector('.sb-panoramic-chevron')) decorateSidebarChevrons(item.closest('.global-sidebar'));
+            if (activeSidebarLink !== item || !flyoutEl || !flyoutEl.classList.contains('is-visible')) {
+                renderFlyoutForLink(item);
             }
-            scheduleCloseFlyout(160);
-        });
+        }, { passive: true });
 
-        // Close on Escape or outside click
+        document.addEventListener('mouseout', (e) => {
+            const sbEl = e.target && e.target.closest ? e.target.closest('.global-sidebar') : null;
+            if (!sbEl) return;
+            const rel = e.relatedTarget;
+            if (rel && (sbEl.contains(rel) || (flyoutEl && flyoutEl.contains(rel)))) return;
+            scheduleCloseFlyout(140);
+        }, { passive: true });
+
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') hidePanoramicFlyout(true);
         });
         document.addEventListener('click', (e) => {
             if (!flyoutEl || !flyoutEl.classList.contains('is-visible')) return;
-            if (!flyoutEl.contains(e.target) && !sb.contains(e.target)) {
+            const sbNow = document.querySelector('.global-sidebar');
+            if (!flyoutEl.contains(e.target) && (!sbNow || !sbNow.contains(e.target))) {
                 hidePanoramicFlyout(true);
             }
         });

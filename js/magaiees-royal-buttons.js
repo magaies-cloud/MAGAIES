@@ -33,17 +33,20 @@
         '#btnBackVoucher'
     ].join(', ');
 
+    const UNENHANCED_BTN_SEL = 'button:not([data-royal-enhanced]), a.btn:not([data-royal-enhanced]), .crystal-btn:not([data-royal-enhanced]), .btn-action:not([data-royal-enhanced]), .btn-add:not([data-royal-enhanced])';
+
     function classifyAndEnhanceButtons(root) {
         const scope = root || document;
-        const allButtons = scope.querySelectorAll('button, a.btn, .crystal-btn, .btn-action, .btn-add');
+        if (!scope.querySelectorAll) return;
+        const allButtons = scope.querySelectorAll(UNENHANCED_BTN_SEL);
         let idx = 0;
 
         allButtons.forEach((btn) => {
             if (btn.dataset.royalEnhanced === '1') return;
 
             const id = (btn.id || '').toLowerCase();
-            const cls = (btn.className || '').toLowerCase();
-            const txt = (btn.innerText || btn.textContent || '').trim();
+            const cls = (typeof btn.className === 'string' ? btn.className : '').toLowerCase();
+            const txt = (btn.textContent || '').trim();
             const onclickAttr = (btn.getAttribute('onclick') || '');
 
             // Top modal close X buttons
@@ -160,15 +163,20 @@
         });
     }
 
-    // Track pointer position for interactive glass spotlight & ripple wave
+    // Zero-reflow pointer spotlight (throttled via rAF without getBoundingClientRect)
+    let _pmRaf = 0, _pmBtn = null, _pmX = 0, _pmY = 0;
     document.addEventListener('pointermove', function (e) {
         const btn = e.target && e.target.closest ? e.target.closest('.royal-crystal-btn') : null;
         if (!btn) return;
-        const rect = btn.getBoundingClientRect();
-        const x = ((e.clientX - rect.left) / Math.max(rect.width, 1)) * 100;
-        const y = ((e.clientY - rect.top) / Math.max(rect.height, 1)) * 100;
-        btn.style.setProperty('--royal-mx', x.toFixed(1) + '%');
-        btn.style.setProperty('--royal-my', y.toFixed(1) + '%');
+        _pmBtn = btn; _pmX = e.offsetX; _pmY = e.offsetY;
+        if (_pmRaf) return;
+        _pmRaf = requestAnimationFrame(() => {
+            _pmRaf = 0;
+            if (!_pmBtn) return;
+            const w = _pmBtn.offsetWidth || 1, h = _pmBtn.offsetHeight || 1;
+            _pmBtn.style.setProperty('--royal-mx', Math.max(0, Math.min(100, (_pmX / w) * 100)).toFixed(1) + '%');
+            _pmBtn.style.setProperty('--royal-my', Math.max(0, Math.min(100, (_pmY / h) * 100)).toFixed(1) + '%');
+        });
     }, { passive: true });
 
     document.addEventListener('pointerdown', function (e) {
@@ -310,9 +318,10 @@
     function init() {
         classifyAndEnhanceButtons(document);
         updateDesktopShieldBadge();
-        setInterval(updateDesktopShieldBadge, 4000);
+        window.addEventListener('storage', updateDesktopShieldBadge);
+        window.addEventListener('online', updateDesktopShieldBadge);
+        window.addEventListener('offline', updateDesktopShieldBadge);
 
-        // Long-press on Desktop Sync Shield
         const shieldBtn = document.getElementById('desktop-sync-shield-btn');
         if (shieldBtn && !shieldBtn.dataset.lpBound) {
             shieldBtn.dataset.lpBound = '1';
@@ -330,15 +339,18 @@
             });
         }
 
-        // Observe DOM mutations so dynamically rendered buttons also get Royal Crystal enhancements
         if (window.MutationObserver && document.body) {
+            let _btnObsTimer = 0;
             const obs = new MutationObserver((mutations) => {
+                if (_btnObsTimer) return;
+                let hasElem = false;
                 for (let i = 0; i < mutations.length; i++) {
-                    if (mutations[i].addedNodes && mutations[i].addedNodes.length > 0) {
-                        classifyAndEnhanceButtons(document);
-                        break;
-                    }
+                    const an = mutations[i].addedNodes;
+                    for (let j = 0; j < an.length; j++) { if (an[j].nodeType === 1) { hasElem = true; break; } }
+                    if (hasElem) break;
                 }
+                if (!hasElem) return;
+                _btnObsTimer = setTimeout(() => { _btnObsTimer = 0; classifyAndEnhanceButtons(document); }, 120);
             });
             obs.observe(document.body, { childList: true, subtree: true });
         }

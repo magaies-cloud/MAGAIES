@@ -3590,6 +3590,16 @@
             if (typeof upgradeNumericInputsForInlineMath === 'function') upgradeNumericInputsForInlineMath(overlay);
             return overlay;
         }
+        function closeMdConstitutionalModal(modalId) {
+            if (modalId) {
+                var el = document.getElementById(modalId);
+                if (el) el.remove();
+            } else {
+                document.querySelectorAll('.md-child-modal').forEach(function(m) { m.remove(); });
+            }
+        }
+        window.openMdConstitutionalModal = openMdConstitutionalModal;
+        window.closeMdConstitutionalModal = closeMdConstitutionalModal;
 
         // 4. الإضافة العالمية المعتمدة (البند 5 و 7 من الدستور الثاني): زر الإضافة السريعة (+) الشامل من داخل الشاشة (عميل / مورد / صنف / مخزن / بنك)
         window.openUniversalQuickEntityModal = function(defaultKind) {
