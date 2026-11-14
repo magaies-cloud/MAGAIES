@@ -28,7 +28,9 @@ window.InboundBankakManager = {
             if (document.hidden) return;
             const ov = document.getElementById('inbound-bankak-drawer-overlay');
             const isOpen = ov && ov.style.display && ov.style.display !== 'none';
-            if (isOpen || !this._lastBgPoll || (Date.now() - this._lastBgPoll > 9000)) {
+            const conn = navigator.connection || {}; const slow = Boolean(conn.saveData || /2g/i.test(conn.effectiveType || ''));
+            const bgWait = slow ? 120000 : 45000;
+            if (navigator.onLine !== false && (isOpen || !this._lastBgPoll || (Date.now() - this._lastBgPoll > bgWait))) {
                 this._lastBgPoll = Date.now();
                 this.refreshReceipts(true);
             }

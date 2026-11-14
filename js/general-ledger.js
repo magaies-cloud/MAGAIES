@@ -1993,11 +1993,18 @@ function runReport() {
             const safes = (JSON.parse(localStorage.getItem('erp_safes_v1')) || []).filter(x => x && !x.deleted);
             const accounts = (JSON.parse(localStorage.getItem('erp_accounts_v1')) || []).filter(x => x && !x.deleted);
             
-            let masterRec = custs.find(x => x && (x.id === accVal || x.id === cleanId || x.name === accVal)) 
-                         || sups.find(x => x && (x.id === accVal || x.id === cleanId || x.name === accVal)) 
-                         || banks.find(x => x && (x.id === accVal || x.id === cleanId || x.name === accVal)) 
-                         || safes.find(x => x && (x.id === accVal || x.id === cleanId || x.name === accVal))
-                         || accounts.find(x => x && (x.id === accVal || x.id === cleanId || x.code === cleanId || x.name === accVal));
+            const pickBestMaster = (arr) => {
+                const active = (arr || []).filter(x => x && !x.deleted);
+                return active.find(x => String(x.id) === String(accVal) || String(x.id) === String(cleanId))
+                    || active.filter(x => x.name === accVal).sort((a, b) => (Math.abs(parseNum(b.openingBalance || b.openingDebit || b.balance || 0)) - Math.abs(parseNum(a.openingBalance || a.openingDebit || a.balance || 0))) || ((b._crdtTs || 0) - (a._crdtTs || 0)))[0]
+                    || active.find(x => x.code === cleanId);
+            };
+            const matchedSupp = pickBestMaster(sups);
+            let masterRec = pickBestMaster(custs)
+                         || matchedSupp
+                         || pickBestMaster(banks)
+                         || pickBestMaster(safes)
+                         || pickBestMaster(accounts);
             
             if (masterRec) {
                 let rawDate = String(masterRec.date || masterRec.createdAt || masterRec.created_at || masterRec.timestamp || masterRec.addedDate || '').trim();
@@ -2012,11 +2019,8 @@ function runReport() {
                 if (opDebit > 0 || opCredit > 0) {
                     intrinsicBal = opDebit - opCredit;
                 } else if (rawBal !== 0) {
-                    if (masterRec.balance_type === 'credit' || masterRec.balanceType === 'credit') {
-                        intrinsicBal = -Math.abs(rawBal);
-                    } else {
-                        intrinsicBal = Math.abs(rawBal);
-                    }
+                    const isCreditNature = (masterRec === matchedSupp) || masterRec.balance_type === 'credit' || masterRec.balanceType === 'credit';
+                    intrinsicBal = isCreditNature ? -rawBal : rawBal;
                 }
                 entityCurrency = masterRec.currency || 'SDG';
                 // Read account-specific rate (only meaningful for foreign currency accounts)

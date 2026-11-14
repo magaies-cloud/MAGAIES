@@ -655,7 +655,12 @@
 
             // 1. ADD Purchases (Inward) — SUBTRACT if Return (prevent parent+GRN double counting)
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
-            purchases = purchases.filter(x => !x.deleted);
+            purchases = purchases.filter(x => x && !x.deleted && x.status !== 'draft' && x.status !== 'preliminary');
+            const seenPurRetIds = new Set(purchases.map(p => String(p.id || p.invoiceNo || '')));
+            (JSON.parse(localStorage.getItem('erp_purchase_returns_v1') || '[]') || []).filter(r => r && !r.deleted && !r.reversed).forEach(pr => {
+                const rid = String(pr.id || pr.returnNo || '');
+                if (rid && !seenPurRetIds.has(rid)) purchases.push({ ...pr, id: rid, invoiceNo: rid, isReturn: true });
+            });
             const grnByParentItem = {};
             const grnParentSet = new Set();
             purchases.forEach(p => {

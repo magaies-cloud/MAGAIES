@@ -2316,7 +2316,8 @@ function switchToMobileEdition() {
                     window._lastBrokerSig = '';
                     loadMarketBrokerTicker();
                 }
-                async function loadMarketBrokerTicker() {
+                async function loadMarketBrokerTicker(forceNow) {
+                    if (!forceNow && (document.hidden || navigator.onLine === false || window._brokerFetchInFlight || window._userManuallyClosedBroker)) return;
                     const track = document.getElementById('market-broker-ticker-track');
                     const ordTrack = document.getElementById('market-broker-orders-track');
                     const wrap = document.getElementById('market-broker-ticker-wrap');
@@ -2325,9 +2326,11 @@ function switchToMobileEdition() {
                     }
                     if (!track) return;
                     applyMarketBrokerSpeed();
+                    window._brokerFetchInFlight = true;
                     try {
                         const reqs = [fetch('api/market_broker_ticker.php?action=list&_t=' + Date.now()).then(r => r.json())];
-                        if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+                        if ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') && (!window._lastCloudBrokerPull || (Date.now() - window._lastCloudBrokerPull > 90000))) {
+                            window._lastCloudBrokerPull = Date.now();
                             reqs.push(fetch('https://c.elsajana.com/api/market_broker_ticker.php?action=list&_t=' + Date.now()).then(r => r.json()));
                         }
                         const settled = await Promise.allSettled(reqs);
@@ -2447,7 +2450,9 @@ function switchToMobileEdition() {
                         if (ordTrack) ordTrack.innerHTML = buildSeamlessHalves(orders);
                         requestAnimationFrame(() => applyMarketBrokerSpeed());
                         if (document.getElementById('broker-post-modal')?.style.display === 'flex') renderBrokerModalTable();
-                    } catch (e) {}
+                    } catch (e) {} finally {
+                        window._brokerFetchInFlight = false;
+                    }
                 }
                 function toggleBrokerMyItemsFilter() {
                     window._brokerMyItemsFilter = !window._brokerMyItemsFilter;
@@ -2706,10 +2711,10 @@ function switchToMobileEdition() {
                     document.getElementById('brk-text').value = '';
                     document.getElementById('broker-post-modal').style.display = 'none';
                     window._lastBrokerSig = '';
-                    loadMarketBrokerTicker();
+                    loadMarketBrokerTicker(true);
                 }
-                loadMarketBrokerTicker();
-                setInterval(loadMarketBrokerTicker, 900);
+                loadMarketBrokerTicker(true);
+                setInterval(() => loadMarketBrokerTicker(false), 25000);
                 window._execSumPeriodIdx = 0;
                 function cycleExecutiveSummaryPeriod(targetIdx, skipScopeSync) {
                     const periods = [

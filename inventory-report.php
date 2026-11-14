@@ -402,7 +402,19 @@ $header_theme_class = "header-theme-inventory";
 
             const items = (getStorageData('erp_items_v1') || []).filter(i => i && !i.deleted);
             const warehouses = (getStorageData('erp_warehouses_v1') || []).filter(w => w && !w.deleted);
-            const purchases = (getStorageData('erp_purchase_invoices_v1') || []).filter(p => p && !p.deleted);
+            const purchases = (getStorageData('erp_purchase_invoices_v1') || []).filter(p => p && !p.deleted && p.status !== 'draft' && p.status !== 'preliminary');
+            const seenPR = new Set(purchases.map(p => String(p.id || p.invoiceNo || '')));
+            (getStorageData('erp_purchase_returns_v1') || []).filter(r => r && !r.deleted && !r.reversed).forEach(pr => {
+                const rid = String(pr.id || pr.returnNo || '');
+                if (rid && !seenPR.has(rid)) purchases.push({ ...pr, id: rid, invoiceNo: rid, isReturn: true });
+            });
+            const grnParents = new Set();
+            purchases.forEach(p => { if (p && p.isGRN && p.originalInvoiceId) grnParents.add(String(p.originalInvoiceId).trim()); });
+            const resolveBaseLineQty = (line, it) => {
+                if (line.customBaseQty !== undefined) return parseFloat(line.customBaseQty) || 0;
+                const f = parseFloat(line.customFactor || line.factor || 0) || 1;
+                return (parseFloat(line.quantity ?? line.qty) || 0) * f;
+            };
             const sales = (getStorageData('erp_sales_invoices_v1') || []).filter(s => s && !s.deleted && !s.wasSplit && s.status !== 'draft' && s.status !== 'preliminary');
             const transfers = (getStorageData('erp_warehouse_transfers_v1') || []).filter(t => t && !t.deleted && t.status !== 'cancelled');
 
@@ -443,6 +455,8 @@ $header_theme_class = "header-theme-inventory";
 
             // Process Purchases & Adjustments
             purchases.forEach(inv => {
+                const invK = String(inv.invoiceNo || inv.id || '').trim();
+                if (!inv.isGRN && !inv.isReturn && !inv.isAdjustment && (inv.receiptStatus === 'pending_receipt' || inv.receiptStatus === 'partial_received' || (invK && grnParents.has(invK)))) return;
                 const invDate = new Date(inv.date || inv.receiveDate || inv.createdAt || Date.now());
                 const dStr = !isNaN(invDate.getTime()) ? invDate.toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10);
                 (inv.items || inv.lines || []).forEach(line => {
@@ -452,7 +466,7 @@ $header_theme_class = "header-theme-inventory";
 
                     const it = itemMap[String(line.itemId || line.productId || line.id)] || {};
                     const cost = parseFloat(line.price || it.costPrice || it.buyPrice || 0) || 0;
-                    const qty = parseFloat(line.customBaseQty !== undefined ? line.customBaseQty : line.quantity) || 0;
+                    const qty = resolveBaseLineQty(line, it);
                     const isOut = inv.isReturn === true || (inv.isAdjustment === true && qty < 0);
                     const absQty = Math.abs(qty);
                     const signedQty = isOut ? -absQty : absQty;
@@ -493,7 +507,7 @@ $header_theme_class = "header-theme-inventory";
 
                     const it = itemMap[String(line.itemId || line.id)] || {};
                     const cost = parseFloat(it.costPrice || it.buyPrice || line.price || 0) || 0;
-                    const qty = Math.abs(parseFloat(line.customBaseQty !== undefined ? line.customBaseQty : line.quantity) || 0);
+                    const qty = Math.abs(resolveBaseLineQty(line, it));
                     const isRet = inv.isReturn === true;
                     const signedQty = isRet ? qty : -qty;
 

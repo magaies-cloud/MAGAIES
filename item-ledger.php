@@ -1271,6 +1271,10 @@
             initItemLedger();
         }
         document.addEventListener('DBReady', () => {
+            itemsDb = getAllItemsFromStorage();
+            populateItemDropdown();
+            checkUrlSelection();
+        });
         window.addEventListener('cloudDataRestored', () => {
             itemsDb = getAllItemsFromStorage();
             populateItemDropdown();
@@ -1280,10 +1284,6 @@
             itemsDb = getAllItemsFromStorage();
             populateItemDropdown();
             initItemLedger();
-        });
-            itemsDb = getAllItemsFromStorage();
-            populateItemDropdown();
-            checkUrlSelection();
         });
         window.addEventListener('load', () => {
             if (itemsDb.length === 0) {
@@ -1362,7 +1362,7 @@
             }
             
             // 1. Get Purchases & Adjustments
-            let purchases = getStorageList('erp_purchase_invoices_v1').filter(x => !x.deleted);
+            let purchases = getStorageList('erp_purchase_invoices_v1').filter(x => x && !x.deleted && x.status !== 'draft' && x.status !== 'preliminary');
             let pReturns = getStorageList('erp_purchase_returns_v1').filter(x => x && !x.deleted && !x.reversed);
             const seenPRet = new Set(purchases.map(p => String(p.id || p.invoiceNo || '')));
             pReturns.forEach(pr => {

@@ -865,10 +865,15 @@ $header_theme_class = "header-theme-inventory";
 
                 const dbIt = allItemsMaster.find(i => i && String(i.id) === String(ch.itemId));
                 if (dbIt) {
-                    if (!dbIt.stock || typeof dbIt.stock !== 'object') dbIt.stock = {};
-                    dbIt.stock[targetWh] = ch.actualQty;
-                    dbIt.qty = (parseFloat(dbIt.qty || dbIt.stockQty || 0) || 0) + diff;
-                    dbIt.stockQty = dbIt.qty;
+                    const prevTotal = parseFloat(dbIt.currentStock ?? dbIt.quantity ?? dbIt.qty ?? dbIt.stockQty ?? (typeof dbIt.stock === 'number' ? dbIt.stock : 0)) || 0;
+                    const newTotal = Math.max(0, prevTotal + diff);
+                    if (dbIt.stock && typeof dbIt.stock === 'object' && !Array.isArray(dbIt.stock)) {
+                        dbIt.stock[targetWh] = ch.actualQty;
+                    } else {
+                        dbIt.stock = newTotal;
+                    }
+                    dbIt.currentStock = newTotal; dbIt.quantity = newTotal; dbIt.qty = newTotal; dbIt.stockQty = newTotal;
+                    if (Array.isArray(dbIt.units) && dbIt.units[0]) dbIt.units[0].stock = newTotal;
                 }
             });
             setStorageData('erp_inventory_v1', currentInvData);

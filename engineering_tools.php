@@ -3245,7 +3245,7 @@ $pdo = getDBConnection();
                             <span class="text-2xl font-black text-amber-400 mt-1 block font-mono" id="res_overhead_pct">%0</span>
                         </div>
                         <div class="flex flex-wrap gap-2 pt-1">
-                            <a href="import-shipment.php" class="flex-1 text-center py-2 px-3 rounded-xl bg-sky-600/20 hover:bg-sky-600/35 text-sky-200 border border-sky-500/40 text-xs font-black">🚢 شاشة استيراد بضائع ↗</a>
+                            <a href="smart-logistics.php" class="flex-1 text-center py-2 px-3 rounded-xl bg-sky-600/20 hover:bg-sky-600/35 text-sky-200 border border-sky-500/40 text-xs font-black">🚢 شاشة استيراد بضائع ↗</a>
                             <a href="purchase.php" class="flex-1 text-center py-2 px-3 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-200 border border-emerald-500/40 text-xs font-black">🛒 فاتورة مشتريات ↗</a>
                         </div>
                     </div>

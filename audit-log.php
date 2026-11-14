@@ -887,7 +887,7 @@ $header_theme_class = 'header-theme-settings';
             const party = inv.customerName || inv.clientName || 'عميل نقدي';
             const cur = inv.currency || 'SDG';
             const isReturn = (inv.type === 'return' || inv.isReturn || String(docNo).includes('RET'));
-            const url = isReturn ? `sales-return.php?id=${encodeURIComponent(docNo)}` : `sales.php?invoice=${encodeURIComponent(docNo)}`;
+            const url = isReturn ? `sales-return.php?id=${encodeURIComponent(docNo)}` : `direct-sales.php?inv=${encodeURIComponent(docNo)}`;
 
             docs.push({
                 docNo: String(docNo),
@@ -1163,7 +1163,7 @@ $header_theme_class = 'header-theme-settings';
                 currency: chk.currency || 'SDG',
                 dateStr: chk.dueDate || chk.date || new Date(ts).toISOString().slice(0, 10),
                 timestamp: ts,
-                url: 'checks.php'
+                url: 'checks-cycle.php'
             });
 
             syntheticLogs.push({
@@ -1174,7 +1174,7 @@ $header_theme_class = 'header-theme-settings';
                 docId: docNo,
                 description: `شيك رقم (${docNo}) — ${party}`,
                 timestamp: ts,
-                url: 'checks.php',
+                url: 'checks-cycle.php',
                 party: party,
                 amount: amt,
                 currency: chk.currency || 'SDG'
@@ -1228,12 +1228,12 @@ $header_theme_class = 'header-theme-settings';
 
             let url = item.url || '';
             if (!url) {
-                if (mod.includes('المبيعات')) url = docId ? `sales.php?invoice=${encodeURIComponent(docId)}` : 'sales.php';
+                if (mod.includes('المبيعات')) url = docId ? `direct-sales.php?inv=${encodeURIComponent(docId)}` : 'direct-sales.php';
                 else if (mod.includes('المشتريات')) url = docId ? `purchase.php?invoice=${encodeURIComponent(docId)}` : 'purchase.php';
                 else if (mod.includes('السندات')) url = docId ? `single-cash-payment.php?voucher=${encodeURIComponent(docId)}` : 'single-cash-payment.php';
                 else if (mod.includes('المخازن')) url = 'inventory.php';
                 else if (mod.includes('القيود')) url = 'general-ledger.php';
-                else if (mod.includes('الشيكات')) url = 'checks.php';
+                else if (mod.includes('الشيكات')) url = 'checks-cycle.php';
                 else if (mod.includes('الأمان')) url = 'users-roles.php';
             }
 

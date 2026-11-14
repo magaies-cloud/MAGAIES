@@ -9271,15 +9271,15 @@
 
             var totalReceivables = 0, highRiskCustomers = [];
             customers.forEach(function(c) {
-                var b = parseFloat(c.balance || c.opening_balance || 0) || 0;
+                var b = parseFloat(c.currentBalance ?? c.balance ?? c.openingBalance ?? c.opening_balance ?? 0) || 0;
                 totalReceivables += b;
-                var limit = parseFloat(c.credit_limit || 5000000) || 5000000;
+                var limit = parseFloat(c.creditLimit ?? c.credit_limit ?? 5000000) || 5000000;
                 if (b > limit * 0.85) highRiskCustomers.push({ name: c.name || 'عميل', balance: b, limit: limit });
             });
 
             var totalPayables = 0;
             suppliers.forEach(function(s) {
-                totalPayables += (parseFloat(s.balance || s.opening_balance || 0) || 0);
+                totalPayables += (parseFloat(s.currentBalance ?? s.balance ?? s.openingBalance ?? s.opening_balance ?? 0) || 0);
             });
 
             var totalInventoryCost = 0, totalInventoryRetail = 0, lowStockItems = [], marginAlertItems = [];

@@ -756,7 +756,7 @@ if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes
                 <div style="font-weight:900; color:#fbbf24; font-size:0.95rem;">
                     🛡️ رادار سقوف الائتمان، نسبة الاستهلاك، وتصنيف ولاء العملاء (مدمج مع مراقب الائتمان)
                 </div>
-                <a href="customers.php" class="ag-btn ag-btn-sky" style="padding:6px 12px; font-size:0.78rem;">⚙️ تعديل السقوف الائتمانية للعملاء ↗</a>
+                <a href="master-data.php?tab=customers" class="ag-btn ag-btn-sky" style="padding:6px 12px; font-size:0.78rem;">⚙️ تعديل السقوف الائتمانية للعملاء ↗</a>
             </div>
             <div style="overflow-x:auto;">
                 <table class="ag-table">
@@ -935,9 +935,9 @@ if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes
         };
 
         customers.forEach(c => {
-            const bal = parseFloat(c.currentBalance ?? c.balance ?? c.total_debt ?? c.openingBalance ?? 0) || 0;
-            const lim = parseFloat(c.creditLimit ?? c.limit ?? 0) || 0;
-            getOrCreateCust(c.id || c._db_id, c.name, c.phone || c.mobile, lim, bal);
+            const bal = parseFloat(c.currentBalance ?? c.balance ?? c.total_debt ?? c.openingBalance ?? c.opening_balance ?? 0) || 0;
+            const lim = parseFloat(c.creditLimit ?? c.credit_limit ?? c.limit ?? 0) || 0;
+            getOrCreateCust(c.id || c._db_id, c.name, c.phone || c.mobile || c.whatsapp, lim, bal);
         });
 
         // Map Pending Checks
@@ -1056,16 +1056,19 @@ if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes
         // 2. SUPPLIERS PAYABLES AGING (أعمار ديون الموردين علينا)
         // ====================================================
         const supplierMap = new Map();
-        const getOrCreateSup = (id, name, phone = '', ledgerBal = 0) => {
+        const getOrCreateSup = (id, name, phone = '', ledgerBal = 0, limit = 0) => {
             const cleanName = String(name || 'مورد عام').trim();
             const key = cleanName.toLowerCase();
             if (!supplierMap.has(key)) {
                 supplierMap.set(key, {
                     id: id || cleanName,
                     name: cleanName,
+                    entityType: 'supplier',
                     phone: phone || '-',
+                    creditLimit: Number(limit || 0),
                     ledgerBal: Math.abs(Number(ledgerBal || 0)),
                     pendingChecks: 0,
+                    invoiceCount: 0,
                     total: 0,
                     notDue: 0,
                     days30: 0,
@@ -1074,13 +1077,19 @@ if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes
                     over90: 0,
                     maxDaysOverdue: 0
                 });
+            } else {
+                const s = supplierMap.get(key);
+                if (phone && (s.phone === '-' || !s.phone)) s.phone = phone;
+                if (limit > s.creditLimit) s.creditLimit = Number(limit);
+                if (Math.abs(ledgerBal) > Math.abs(s.ledgerBal)) s.ledgerBal = Math.abs(Number(ledgerBal));
             }
             return supplierMap.get(key);
         };
 
         suppliers.forEach(s => {
-            const bal = Math.abs(parseFloat(s.currentBalance ?? s.balance ?? s.openingBalance ?? 0) || 0);
-            getOrCreateSup(s.id || s._db_id, s.name, s.phone || s.mobile, bal);
+            const bal = parseFloat(s.currentBalance ?? s.balance ?? s.openingBalance ?? s.opening_balance ?? 0) || 0;
+            const lim = parseFloat(s.creditLimit ?? s.credit_limit ?? s.limit ?? 0) || 0;
+            getOrCreateSup(s.id || s._db_id, s.name, s.phone || s.mobile || s.whatsapp, bal > 0 ? bal : 0, lim);
         });
 
         checks.forEach(chk => {
@@ -1110,6 +1119,7 @@ if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes
                 }
             }
             if (diffDays > s.maxDaysOverdue) s.maxDaysOverdue = diffDays;
+            s.invoiceCount = (s.invoiceCount || 0) + 1;
             s.total += rem;
             if (diffDays <= 0) s.notDue += rem;
             else if (diffDays <= 30) s.days30 += rem;
@@ -1118,14 +1128,35 @@ if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes
             else s.over90 += rem;
         });
 
+        const applySupplierPaymentFIFO = (supName, amt) => {
+            if (!supName || amt <= 0) return;
+            const s = supplierMap.get(String(supName).trim().toLowerCase());
+            if (!s || s.total <= 0) return;
+            let remPay = amt;
+            ['over90', 'days90', 'days60', 'days30', 'notDue'].forEach(bucket => {
+                if (remPay > 0 && s[bucket] > 0) {
+                    const deduct = Math.min(s[bucket], remPay);
+                    s[bucket] -= deduct;
+                    s.total -= deduct;
+                    remPay -= deduct;
+                }
+            });
+        };
+        singlePayments.filter(p => (p.voucherType || p.type || 'payment') !== 'receipt').forEach(p => applySupplierPaymentFIFO(p.accountName || p.supplierName || p.partyName || p.toAccountName, parseFloat(p.amount || p.totalAmount || 0)));
+        multiPayments.forEach(p => {
+            if (Array.isArray(p.items)) p.items.forEach(it => applySupplierPaymentFIFO(it.accountName || it.partyName, parseFloat(it.amount || 0)));
+        });
+
         supplierMap.forEach(s => {
             if (s.total <= 0 && s.ledgerBal > 0) {
                 s.total = s.ledgerBal;
                 s.days30 = s.ledgerBal;
             }
+            ['notDue', 'days30', 'days60', 'days90', 'over90'].forEach(b => { if (s[b] < 0) s[b] = 0; });
+            s.total = s.notDue + s.days30 + s.days60 + s.days90 + s.over90;
         });
 
-        AP_AGING_LIST = Array.from(supplierMap.values()).filter(s => s.total > 0 || s.pendingChecks > 0);
+        AP_AGING_LIST = Array.from(supplierMap.values()).filter(s => s.total > 0 || s.creditLimit > 0 || s.pendingChecks > 0);
 
         renderAllAgingViews();
     }
@@ -1313,7 +1344,8 @@ if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes
         const tbody = document.getElementById('credit-limits-tbody');
         const banner = document.getElementById('credit-alert-banner');
 
-        const list = [...AR_AGING_LIST].sort((a, b) => {
+        const supWithLimits = AP_AGING_LIST.filter(s => s.creditLimit > 0);
+        const list = [...AR_AGING_LIST.map(c => Object.assign({ entityType: 'customer' }, c)), ...supWithLimits].sort((a, b) => {
             const ua = a.creditLimit > 0 ? (a.total / a.creditLimit) : 0.5;
             const ub = b.creditLimit > 0 ? (b.total / b.creditLimit) : 0.5;
             return ub - ua;
@@ -1327,12 +1359,12 @@ if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes
                 <div style="display:flex; align-items:center; gap:12px; color:#fda4af; font-weight:800;">
                     <span style="font-size:1.5rem;">🚨</span>
                     <div>
-                        <strong>تنبيه ائتماني حرج:</strong> يوجد (<strong>${exceeded.length}</strong>) عميل تجاوزوا السقف الائتماني المسموح به (وعلى رأسهم: <strong>${exceeded.slice(0, 3).map(x => x.name).join('، ')}</strong>) و(${near.length}) عميل اقتربوا من السقف الحرج (80%+). يُوصى بتفعيل الحظر الآلي للبيع الآجل لحين سداد 30% من المديونية.
+                        <strong>تنبيه ائتماني حرج:</strong> يوجد (<strong>${exceeded.length}</strong>) حساب تجاوز السقف الائتماني المسموح به (وعلى رأسهم: <strong>${exceeded.slice(0, 3).map(x => x.name).join('، ')}</strong>) و(${near.length}) حساب اقترب من السقف الحرج (80%+).
                     </div>
                 </div>
             `;
         } else {
-            banner.innerHTML = `<div style="color:#34d399; font-weight:800;">✅ جميع العملاء ضمن حدود السقوف الائتمانية الآمنة حالياً.</div>`;
+            banner.innerHTML = `<div style="color:#34d399; font-weight:800;">✅ جميع العملاء والموردين ضمن حدود السقوف الائتمانية الآمنة حالياً.</div>`;
         }
 
         if (list.length === 0) {
@@ -1341,18 +1373,22 @@ if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes
         }
 
         tbody.innerHTML = list.map(c => {
+            const isSup = c.entityType === 'supplier';
             const effLimit = c.creditLimit > 0 ? c.creditLimit : Math.max(c.total * 1.5, 100000);
             const usagePct = Math.round((c.total / effLimit) * 100);
             const avail = Math.max(0, effLimit - c.total);
             const barColor = usagePct >= 100 ? '#ef4444' : (usagePct >= 80 ? '#f59e0b' : '#10b981');
-            const tier = c.invoiceCount >= 12 ? '🌟 VIP (نشط جداً)' : (c.invoiceCount >= 4 ? '✅ REGULAR (منتظم)' : '🔹 موسمي / جديد');
-            const decision = usagePct >= 100 ? '<span class="risk-badge risk-crit">⛔ إيقاف البيع الآجل فوراً</span>'
-                : (usagePct >= 80 ? '<span class="risk-badge risk-warn">⚠️ اشتراط دفعة نقدية 50%</span>' : '<span class="risk-badge risk-safe">✅ مسموح بالائتمان</span>');
+            const tier = isSup ? '🏢 مورد معتمد' : (c.invoiceCount >= 12 ? '🌟 VIP (نشط جداً)' : (c.invoiceCount >= 4 ? '✅ REGULAR (منتظم)' : '🔹 موسمي / جديد'));
+            const decision = usagePct >= 100 ? (isSup ? '<span class="risk-badge risk-crit">⛔ تجاوز سقف المورد</span>' : '<span class="risk-badge risk-crit">⛔ إيقاف البيع الآجل فوراً</span>')
+                : (usagePct >= 80 ? '<span class="risk-badge risk-warn">⚠️ قرب السقف الأعلى</span>' : '<span class="risk-badge risk-safe">✅ مسموح بالائتمان</span>');
+            const actHref = isSup
+                ? `single-cash-payment.php?party=${encodeURIComponent(c.name)}&amount=${Math.round(c.total * 0.3)}`
+                : `single-cash-payment.php?mode=receipt&party=${encodeURIComponent(c.name)}&amount=${Math.round(c.total * 0.3)}`;
 
             return `
                 <tr>
-                    <td style="font-weight:900; color:#38bdf8;">👤 ${c.name}</td>
-                    <td><span class="risk-badge risk-safe">${tier} (${c.invoiceCount} فاتورة)</span></td>
+                    <td style="font-weight:900; color:${isSup ? '#f59e0b' : '#38bdf8'};">${isSup ? '🏢' : '👤'} ${c.name}</td>
+                    <td><span class="risk-badge risk-safe">${tier} (${c.invoiceCount || 0} فاتورة)</span></td>
                     <td style="font-weight:900; color:#f8fafc;">${fmtAmt(c.total)} ${AGING_CURRENCY}</td>
                     <td style="font-weight:800; color:#cbd5e1;">${fmtAmt(effLimit)} ${c.creditLimit > 0 ? '' : '<small style="color:#64748b;">(تقديري)</small>'}</td>
                     <td style="font-weight:800; color:#34d399;">${fmtAmt(avail)} ${AGING_CURRENCY}</td>
@@ -1366,7 +1402,7 @@ if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes
                     <td>${c.maxDaysOverdue} يوم</td>
                     <td>${decision}</td>
                     <td class="no-print">
-                        <a href="single-cash-payment.php?mode=receipt&party=${encodeURIComponent(c.name)}&amount=${Math.round(c.total * 0.3)}" class="ag-btn ag-btn-emerald" style="padding:4px 9px; font-size:0.74rem;">تحصيل 30%</a>
+                        <a href="${actHref}" class="ag-btn ag-btn-emerald" style="padding:4px 9px; font-size:0.74rem;">${isSup ? 'سداد 30%' : 'تحصيل 30%'}</a>
                     </td>
                 </tr>
             `;

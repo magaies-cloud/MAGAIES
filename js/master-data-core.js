@@ -2661,7 +2661,10 @@
                 currency, exRate, exchangeRate: exRate, taxNumber, accountNo,
                 currentBalance: (openingDebit - openingCredit),
                 balance: (openingDebit - openingCredit),
+                balance_type: 'debit',
+                balanceType: 'debit',
                 creditLimit: limit,
+                credit_limit: limit,
                 priceTier, paymentTermsDays,
                 securityLevel: security, status: status, notes,
                 bankAccounts: bankAccounts,
@@ -3084,18 +3087,24 @@
                 currency, exRate, exchangeRate: exRate, taxNumber, accountNo,
                 currentBalance: (openingCredit - openingDebit),
                 balance: (openingCredit - openingDebit),
+                balance_type: 'credit',
+                balanceType: 'credit',
                 creditLimit: limit,
+                credit_limit: limit,
                 paymentTermsDays,
                 securityLevel: security, status: status, notes,
                 date: existingIdx > -1 ? (suppliers[existingIdx].date || todayStr) : todayStr,
                 createdAt: existingIdx > -1 ? (suppliers[existingIdx].createdAt || nowIso) : nowIso
             };
 
+            const prevSuppliersSnapshot = JSON.parse(JSON.stringify(suppliers));
             if (existingIdx > -1) {
                 const oldOp = (parseFloat(suppliers[existingIdx].openingCredit) || 0) - (parseFloat(suppliers[existingIdx].openingDebit) || 0);
                 const newOp = (openingCredit - openingDebit);
                 supData.currentBalance = (parseFloat(suppliers[existingIdx].currentBalance) || 0) + (newOp - oldOp);
                 supData.balance = supData.currentBalance;
+                if (suppliers[existingIdx].whatsappLid && !supData.whatsappLid) supData.whatsappLid = suppliers[existingIdx].whatsappLid;
+                if (suppliers[existingIdx].bankAccounts && !supData.bankAccounts) supData.bankAccounts = suppliers[existingIdx].bankAccounts;
                 suppliers[existingIdx] = supData;
             } else {
                 suppliers.push(supData);
@@ -3109,6 +3118,11 @@
             if (typeof showToast === 'function') showToast(`✅ تم حفظ المورد "${name}" (🔐 ${statementPin})`, 'success', 2000);
 
             const backendRes = await syncToBackend('save_supplier', supData);
+            if (backendRes && backendRes.success === false && !backendRes.networkOffline) {
+                setMasterLocalData('erp_suppliers_v1', prevSuppliersSnapshot, true);
+                renderSuppliers();
+                return;
+            }
             if (backendRes && backendRes.success && backendRes.data) {
                 const srvSup = backendRes.data;
                 const sIdx = suppliers.findIndex(s => s.id === id);

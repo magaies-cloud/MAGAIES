@@ -114,11 +114,11 @@
                 </div>
                 <div class="mgv-imp-decree" data-dark-capsule="1" style="margin:0 0 18px;padding:14px 16px;border-radius:15px;font-size:0.98rem;font-weight:900;line-height:1.8;">
                     <div style="color:#fb7185 !important;-webkit-text-fill-color:#fb7185 !important;font-size:0.86rem;margin-bottom:4px;">⛔ منطقة سيادية محظورة — تصريح من المستوى الأعلى فقط</div>
-                    <div style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;">هذه المقصورة مخصصة حصرياً <span style="color:#fde047 !important;-webkit-text-fill-color:#fde047 !important;">للكيان المؤسسي المالك ومجلس إدارته والشركات المساهمة</span>؛ حيث تُدار الشفرات السيادية العليا، ومفاتيح الحوكمة، والسيطرة المركزية الشاملة للنظام.</div>
+                    <div style="color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;">هذه المقصورة مخصصة حصرياً <span style="color:#fde047 !important;-webkit-text-fill-color:#fde047 !important;">للكيان المؤسسي المالك ومجلس إدارته والشركات المساهمة والشركات المطورة</span>؛ حيث تُدار الشفرات السيادية العليا، ومفاتيح الحوكمة، والسيطرة المركزية الشاملة للنظام.</div>
                 </div>
                 ${errMsg ? `<div style="margin-bottom:14px;padding:10px 14px;border-radius:12px;background:rgba(225,29,72,0.28);border:2px solid #fb7185;color:#fecdd3 !important;-webkit-text-fill-color:#fecdd3 !important;font-size:0.92rem;font-weight:900;">⚠️ ${errMsg}</div>` : ''}
                 <div style="display:flex;flex-direction:column;gap:12px;">
-                    <input id="mgv-rep-name" class="mgv-imp-inp" type="text" value="${savedRep}" placeholder="👤 اسم المفوض المعتمد / عضو مجلس الإدارة أو الشركة المساهمة..." oninput="try{localStorage.setItem('mgv_owner_rep_name',this.value)}catch(e){}" style="width:100%;box-sizing:border-box;padding:13px 15px;border-radius:13px;font-family:inherit;font-size:1rem;font-weight:900;">
+                    <input id="mgv-rep-name" class="mgv-imp-inp" type="text" value="${savedRep}" placeholder="👤 اسم المفوض المعتمد / مجلس الإدارة أو الشركات المساهمة والمطورة..." oninput="try{localStorage.setItem('mgv_owner_rep_name',this.value)}catch(e){}" style="width:100%;box-sizing:border-box;padding:13px 15px;border-radius:13px;font-family:inherit;font-size:1rem;font-weight:900;">
                     <div style="position:relative;display:flex;align-items:center;">
                         <input id="mgv-pass-input" class="mgv-imp-inp" type="password" placeholder="${isFirstSetup ? '🔑 عيّن الشفرة السيادية العليا (4 خانات فأكثر)' : '🔑 أدخل الشفرة السيادية لغرفة القيادة والسيطرة'}" style="width:100%;box-sizing:border-box;padding:13px 15px 13px 46px;border-radius:13px;font-family:inherit;font-size:1.04rem;font-weight:900;" onkeydown="if(event.key==='Enter')window.submitGuardianPass(${isFirstSetup})">
                         <button type="button" onclick="window.toggleMgvEye('mgv-pass-input', this)" title="إظهار / إخفاء الشفرة" style="position:absolute;left:10px;background:transparent;border:none;font-size:19px;cursor:pointer;padding:4px;">👁️</button>
@@ -353,7 +353,7 @@
                     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
                         <span style="background:#e11d48;color:#fff;padding:4px 12px;border-radius:999px;font-weight:900;font-size:0.9rem;">🔴 معلق: ${d.pending_count}</span>
                         <span style="background:#059669;color:#fff;padding:4px 12px;border-radius:999px;font-weight:900;font-size:0.85rem;">📜 بالأرشيف: ${archiveItems.length}</span>
-                        <h3 style="margin:0;font-size:1.18rem;font-weight:900;color:${ink};">🏛️ غرفة القيادة والسيطرة — درع السيادة للمجموعة المالكة</h3>
+                        <h3 style="margin:0;font-size:1.12rem;font-weight:900;color:${ink};">🏛️ غرفة القيادة والسيطرة — الكيان المؤسسي المالك ومجلس إدارته والشركات المساهمة والشركات المطورة</h3>
                     </div>
                     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                         <button type="button" onclick="window.runGuardianLiveScan()" style="padding:8px 13px;border-radius:10px;border:none;background:#7c3aed;color:#fff;font-family:inherit;font-size:0.84rem;font-weight:900;cursor:pointer;">⚡ فحص وشفاء الآن</button>

@@ -337,10 +337,38 @@ if ($action === 'add' || $_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
+        $registeredPartyName = '';
+        if (strlen($phone) >= 9 && file_exists(__DIR__ . '/db.php')) {
+            try {
+                require_once __DIR__ . '/db.php';
+                $pdoB = getDBConnection();
+                $last9B = substr($phone, -9);
+                foreach (['customers' => 'عميل معتمد', 'suppliers' => 'مورد معتمد'] as $bTbl => $bRole) {
+                    $stB = $pdoB->query("SELECT data FROM {$bTbl} WHERE (is_deleted = 0 OR is_deleted IS NULL)");
+                    while ($rB = $stB->fetch(PDO::FETCH_ASSOC)) {
+                        $oB = json_decode($rB['data'] ?? '{}', true) ?: [];
+                        if (!empty($oB['deleted']) || empty($oB['name'])) continue;
+                        $pCands = [$oB['whatsapp'] ?? '', $oB['phone'] ?? '', $oB['mobile'] ?? ''];
+                        if (!empty($oB['subPhones']) && is_array($oB['subPhones'])) {
+                            foreach ($oB['subPhones'] as $spB) $pCands[] = is_array($spB) ? ($spB['phone'] ?? '') : (string)$spB;
+                        }
+                        foreach ($pCands as $pcB) {
+                            $dB = preg_replace('/\D/', '', (string)$pcB);
+                            if (strlen($dB) >= 9 && substr($dB, -9) === $last9B) {
+                                $registeredPartyName = trim($oB['name']) . ' ✔️';
+                                break 3;
+                            }
+                        }
+                    }
+                }
+            } catch (Throwable $eB) {}
+        }
+
         $finalPrivacy = $wantsMasked ? 'masked' : ($privacy ?: 'public');
+        $effectiveRealName = $explicitName ?: ($registeredPartyName ?: ($senderName ?: 'تاجر بالسوق'));
         $displaySender = $finalPrivacy === 'masked'
             ? ($type === 'order' ? 'مشتري معتمد' : 'مورد معتمد')
-            : ($explicitName ?: ($senderName ?: 'تاجر بالسوق'));
+            : $effectiveRealName;
 
         $newItem = [
             'id' => 'mk_' . time() . '_' . rand(100, 999),
@@ -348,7 +376,7 @@ if ($action === 'add' || $_SERVER['REQUEST_METHOD'] === 'POST') {
             'type' => $type,
             'privacy' => $finalPrivacy,
             'sender_name' => $displaySender,
-            'real_name' => $explicitName ?: ($senderName ?: 'تاجر بالسوق'),
+            'real_name' => $effectiveRealName,
             'phone' => $phone ?: '249123005622',
             'text' => $rawText,
             'time' => date('H:i'),

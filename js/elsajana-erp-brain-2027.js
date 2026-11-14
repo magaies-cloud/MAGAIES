@@ -1123,7 +1123,7 @@
         const ref = encodeURIComponent(item.id || item.invoiceNo || item.voucherNo || '');
         const mk = String(item._metaKey || '');
         if (mk.includes('purchase')) return `purchase.php?action=direct&inv=${ref}`;
-        if (mk.includes('sales')) return `sales.php?inv=${ref}`;
+        if (mk.includes('sales')) return `direct-sales.php?inv=${ref}`;
         if (mk.includes('single_payment')) return `single-cash-payment.php?voucher=${ref}`;
         if (mk === 'erp_payments_v1') return `multi-cash-payment.php?voucher=${ref}&type=payment`;
         if (mk === 'erp_receipts_v1') return `multi-cash-payment.php?voucher=${ref}&type=receipt`;
@@ -1409,7 +1409,7 @@
                 const pur = readDualArray('erp_purchase_invoices_v1').find(matchP);
                 if (pur) { window.location.href = `purchase.php?action=direct&inv=${encodeURIComponent(pur.invoiceNo || pur.id)}`; return; }
                 const sal = readDualArray('erp_sales_invoices_v1').find(matchP);
-                if (sal) { window.location.href = `sales.php?inv=${encodeURIComponent(sal.invoiceNo || sal.id)}`; return; }
+                if (sal) { window.location.href = `direct-sales.php?inv=${encodeURIComponent(sal.invoiceNo || sal.id)}`; return; }
                 const spv = readDualArray('erp_single_payments_v1').find(matchP);
                 if (spv) { window.location.href = `single-cash-payment.php?voucher=${encodeURIComponent(spv.voucherNo || spv.id)}`; return; }
                 if (typeof window.goToPartnerLedger === 'function') window.goToPartnerLedger();
@@ -1454,14 +1454,14 @@
                     else window.location.href = `single-cash-payment.php?voucher=${encodeURIComponent(c1)}`;
                 } else if (tbId === 'invoices-tbody') {
                     if (/مشتريات/.test(c0)) window.location.href = `purchase.php?action=direct&inv=${encodeURIComponent(c1)}`;
-                    else window.location.href = `sales.php?inv=${encodeURIComponent(c1)}`;
+                    else window.location.href = `direct-sales.php?inv=${encodeURIComponent(c1)}`;
                 } else if (tbId === 'checks-tbody') {
                     openChecksLifecycleModal();
                 } else if (tbId === 'stock-tbody') {
                     const m = c4.match(/#([\w\-]+)/);
                     const ref = m ? m[1] : '';
                     if (/مشتريات/.test(c4)) window.location.href = `purchase.php?action=direct&inv=${encodeURIComponent(ref)}`;
-                    else if (/مبيعات/.test(c4)) window.location.href = `sales.php?inv=${encodeURIComponent(ref)}`;
+                    else if (/مبيعات/.test(c4)) window.location.href = `direct-sales.php?inv=${encodeURIComponent(ref)}`;
                     else if (ref) window.location.href = `smart-logistics.php?mode=purchases&inv=${encodeURIComponent(ref)}`;
                 }
             });

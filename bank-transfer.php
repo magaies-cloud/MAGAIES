@@ -134,7 +134,7 @@
                     <span style="color:var(--text-dim); font-size:0.85rem;">نقل الأموال بين الحسابات البنكية</span>
                 </div>
             </div>
-            <button onclick="window.location.href='vouchers-hub.php'" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:10px 20px; border-radius:10px; cursor:pointer; font-family:inherit; font-weight:700; transition:0.3s;">العودة</button>
+            <button onclick="if(window.magaiesGoBackStepLIFO){window.magaiesGoBackStepLIFO('vouchers-hub.php');}else{window.location.href='vouchers-hub.php';}" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#fff; padding:10px 20px; border-radius:10px; cursor:pointer; font-family:inherit; font-weight:700; transition:0.3s;">⬅ رجوع</button>
         </div>
 
         <div class="form-grid">

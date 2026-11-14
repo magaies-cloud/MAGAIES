@@ -6143,7 +6143,7 @@ try {
                 const token = localStorage.getItem('authToken') || localStorage.getItem('token') || '';
                 // Since this system uses save_sales_invoice.php or generic save APIs, let's just mark it soft deleted or hard deleted
                 // The current code just deletes it from localStorage. Let's do that + DB if possible.
-                await fetch('api/save_sales_invoice.php', {
+                await fetch('api_index.php?route=sales', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': token ? ('Bearer ' + token) : '' },
                     body: JSON.stringify({ action: 'delete', invoiceNo: invNo })
@@ -18175,7 +18175,7 @@ try {
                     '<div style="display:flex;gap:4px;flex-wrap:wrap;">' +
                         '<button type="button" onclick="window.setSalesFc1SplitTarget(\'account-statement.php\')" style="padding:3px 8px;border-radius:6px;background:#0284c7;color:#fff;border:none;font-size:0.72rem;font-weight:800;cursor:pointer;">📑 كشف حساب العميل</button>' +
                         '<button type="button" onclick="window.setSalesFc1SplitTarget(\'inventory-report.php\')" style="padding:3px 8px;border-radius:6px;background:#059669;color:#fff;border:none;font-size:0.72rem;font-weight:800;cursor:pointer;">📦 أرصدة المخازن</button>' +
-                        '<button type="button" onclick="window.setSalesFc1SplitTarget(\'treasury-vouchers.php\')" style="padding:3px 8px;border-radius:6px;background:#7c3aed;color:#fff;border:none;font-size:0.72rem;font-weight:800;cursor:pointer;">💵 سندات الخزينة</button>' +
+                        '<button type="button" onclick="window.setSalesFc1SplitTarget(\'vouchers-hub.php\')" style="padding:3px 8px;border-radius:6px;background:#7c3aed;color:#fff;border:none;font-size:0.72rem;font-weight:800;cursor:pointer;">💵 سندات الخزينة</button>' +
                         '<button type="button" onclick="window.setSalesFc1SplitTarget(\'FREE_ZONE\')" style="padding:3px 8px;border-radius:6px;background:#d97706;color:#fff;border:none;font-size:0.72rem;font-weight:800;cursor:pointer;">📱 منطقة الجوال الحرة</button>' +
                         '<button type="button" onclick="document.body.classList.remove(\'sales-fc1-split-active\')" style="padding:3px 8px;border-radius:6px;background:#dc2626;color:#fff;border:none;font-size:0.72rem;font-weight:800;cursor:pointer;">✕</button>' +
                     '</div>' +
@@ -18972,7 +18972,7 @@ try {
             targets: [
                 'account-statement.php',
                 'inventory-report.php',
-                'treasury-vouchers.php',
+                'vouchers-hub.php',
                 'balances_modern_hub.php',
                 'journal.php',
                 'trial-balance.php',
@@ -18992,7 +18992,7 @@ try {
         var links = [
             { title: 'كشف حساب العميل (' + s.customer + ')', url: 'account-statement.php', impact: 'مدين بقيمة الفاتورة وتحديث الرصيد اللحظي (' + fmt(s.grandTotal) + ')', icon: '📑' },
             { title: 'أرصدة وكروت الصنف في المخازن', url: 'inventory-report.php', impact: 'خصم فوري للكميات المباعة أو حجزها للتقسيم والتسليم (' + s.rowCount + ' أصناف)', icon: '📦' },
-            { title: 'الخزينة النقدية وسندات القبض', url: 'treasury-vouchers.php', impact: 'توريد الجزء النقدي المحصل وتوليد سند قبض آلي', icon: '💵' },
+            { title: 'الخزينة النقدية وسندات القبض', url: 'vouchers-hub.php', impact: 'توريد الجزء النقدي المحصل وتوليد سند قبض آلي', icon: '💵' },
             { title: 'حسابات البنوك وإشعارات بنكك وحافظة الشيكات الواردة', url: 'balances_modern_hub.php', impact: 'تسميع التحويلات البنكية والشيكات المستلمة من العميل', icon: '🏦' },
             { title: 'اليومية العامة (قيد المبيعات وتكلفة البضاعة المباعة COGS)', url: 'journal.php', impact: 'من ح/ الخزينة والعملاء إلى ح/ المبيعات + قيد التكلفة الآلي', icon: '📒' },
             { title: 'ميزان المراجعة (Trial Balance)', url: 'trial-balance.php', impact: 'توازن ذري لحظي 100% (المدين = الدائن — زيرو فروقات)', icon: '⚖️' },

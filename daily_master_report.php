@@ -2453,19 +2453,19 @@ body.dmr-landscape-zero-header .report-master-container { min-height: 100dvh !im
             '<div id="dmr-dual-split-workspace"></div>' +
             '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-top:4px;border-top:1px dashed rgba(255,255,255,0.22);" class="dmr-internal-divider">' +
                 '<a href="#dmr-world-visual-analytics-suite" class="dmr-btn active-pill" style="background:linear-gradient(135deg,#7c3aed,#0284c7)!important;">📊 التحليل البصري ⬇️</a>' +
-                '<a href="sales.php" class="dmr-btn">🛒 المبيعات</a>' +
+                '<a href="direct-sales.php" class="dmr-btn">🛒 المبيعات</a>' +
                 '<a href="purchase.php" class="dmr-btn">📦 المشتريات</a>' +
-                '<a href="vouchers.php" class="dmr-btn">🧾 السندات</a>' +
+                '<a href="vouchers-hub.php" class="dmr-btn">🧾 السندات</a>' +
                 '<a href="inventory.php" class="dmr-btn">🏬 المخازن</a>' +
                 '<a href="general-ledger.php" class="dmr-btn">📘 الأستاذ العام</a>' +
                 '<a href="trial-balance.php" class="dmr-btn">⚖️ ميزان المراجعة</a>' +
-                '<a href="income-statement.php" class="dmr-btn">📈 الأرباح والخسائر</a>' +
+                '<a href="pl-statement.php" class="dmr-btn">📈 الأرباح والخسائر</a>' +
                 '<select id="dmr-global-branch-filter" class="dmr-select" style="padding:3px 8px!important;font-size:11.5px!important;" onchange="window.DailyMasterSupremeEngine.filterAllDailyTablesInstant(this.value)"><option value="">🏢 كل الفروع</option><option value="الفرع الرئيسي">الفرع الرئيسي</option><option value="فرع المعرض">فرع المعرض</option></select>' +
                 '<select id="dmr-global-shift-filter" class="dmr-select" style="padding:3px 8px!important;font-size:11.5px!important;" onchange="window.DailyMasterSupremeEngine.filterAllDailyTablesInstant(this.value)"><option value="">⏰ كل الورديات</option><option value="صباحية">الوردية الصباحية</option><option value="مسائية">الوردية المسائية</option></select>' +
                 '<select id="dmr-global-cc-filter" class="dmr-select" style="padding:3px 8px!important;font-size:11.5px!important;" onchange="window.DailyMasterSupremeEngine.filterAllDailyTablesInstant(this.value)"><option value="">🎯 كل مراكز التكلفة</option><option value="المقر الرئيسي">المقر الرئيسي</option><option value="المخازن واللوجستيات">المخازن واللوجستيات</option></select>' +
                 '<select id="dmr-global-vault-filter" class="dmr-select" style="padding:3px 8px!important;font-size:11.5px!important;" onchange="window.DailyMasterSupremeEngine.filterAllDailyTablesInstant(this.value)"><option value="">🏦 كل الخزائن والبنوك</option><option value="الخزينة الرئيسية">الخزينة الرئيسية</option><option value="بنك الخرطوم">بنك الخرطوم (بنكك)</option></select>' +
                 '<a href="balance-sheet.php" class="dmr-btn">🏛️ الميزانية</a>' +
-                '<a href="sales.php" class="dmr-btn">🛒 المبيعات</a>' +
+                '<a href="direct-sales.php" class="dmr-btn">🛒 المبيعات</a>' +
                 '<a href="purchase.php" class="dmr-btn">🛍️ المشتريات</a>' +
                 '<a href="smart-logistics.php" class="dmr-btn">📦 المخازن</a>' +
                 '<a href="analytics.php" class="dmr-btn">📊 التقارير</a>' +

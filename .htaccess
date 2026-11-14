@@ -19,8 +19,8 @@ RewriteRule ^(.*)$ https://c.elsajana.com/$1 [R=301,L]
 
 # ============================================
 
-# Protect sensitive files & internal diagnostic/debug scripts from public web access
-<FilesMatch "^\.(env|git)|^(check_db|check_db2|test_balances_api|debug|debug_output|debug-settings|diagnostic|test|test_push_payload|alter_alerts|add_cache_buster|check_actions|check_actions_detail|check_billing|check_checks|check_customers|check_cust_data|check_generator|check_ghost_usage|check_ids|check_ids2|check_jobs|check_json|check_match|check_mock_context|check_mock_context2|check_mock_data|check_mock_lines|check_real_mocks|check_schema|check_single_payments|check_structure|check_syntax_20|check_tables|check_tenant|check_tenant2_customer|check_tenant2_invoice|check_tenants)\.php$">
+# Protect sensitive files & internal diagnostic/debug/maintenance scripts from public web access
+<FilesMatch "^\.(env|git)|^(check_db|check_db2|test_balances_api|debug|debug_output|debug-settings|diagnostic|test|test_push_payload|alter_alerts|add_cache_buster|clean_mock|clean_passwords|patch|create_default_admin|upgrade_db|migrate_browser_to_mysql|do_reset|do_push|push_changes|fetch_from_github|fetch_github_api|recover_db|check_actions|check_actions_detail|check_billing|check_checks|check_customers|check_cust_data|check_generator|check_ghost_usage|check_ids|check_ids2|check_jobs|check_json|check_match|check_mock_context|check_mock_context2|check_mock_data|check_mock_lines|check_real_mocks|check_schema|check_single_payments|check_structure|check_syntax_20|check_tables|check_tenant|check_tenant2_customer|check_tenant2_invoice|check_tenants)\.php$">
     Require all denied
 </FilesMatch>
 
@@ -30,11 +30,11 @@ RewriteRule ^(.*)$ https://c.elsajana.com/$1 [R=301,L]
     Header always set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
 
-# Cache static assets (instant revalidation for code files so updates appear immediately)
+# Cache static assets (fast low-bandwidth cache with instant ?v= busting & background revalidation)
 <IfModule mod_expires.c>
     ExpiresActive On
-    ExpiresByType text/css "access plus 0 seconds"
-    ExpiresByType application/javascript "access plus 0 seconds"
+    ExpiresByType text/css "access plus 5 minutes"
+    ExpiresByType application/javascript "access plus 5 minutes"
     ExpiresByType image/jpeg "access plus 1 year"
     ExpiresByType image/png "access plus 1 year"
     ExpiresByType image/gif "access plus 1 year"
@@ -48,7 +48,7 @@ RewriteRule ^(.*)$ https://c.elsajana.com/$1 [R=301,L]
         Header set Cache-Control "no-cache, no-store, must-revalidate, max-age=0"
     </FilesMatch>
     <FilesMatch "\.(css|js)$">
-        Header set Cache-Control "public, max-age=0, must-revalidate"
+        Header set Cache-Control "public, max-age=300, stale-while-revalidate=86400"
     </FilesMatch>
     <FilesMatch "\.(jpg|jpeg|png|gif|webp|svg|woff2)$">
         Header set Cache-Control "public, max-age=31536000, immutable"

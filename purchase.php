@@ -2461,6 +2461,10 @@ try {
                     <input type="tel" class="v-input ctrl-input" id="new-cust-phone" placeholder="09XXXXXXXX">
                 </div>
                 <div class="v-form-group">
+                    <label class="v-label">الرصيد الافتتاحي (له علينا + / لنا عليه -)</label>
+                    <input type="text" inputmode="decimal" class="v-input ctrl-input" id="new-cust-opening" placeholder="0" onfocus="this.select()" onblur="this.value=fmtNum(parseNum(this.value))">
+                </div>
+                <div class="v-form-group">
                     <label class="v-label">حد الائتمان</label>
                     <input type="text" inputmode="decimal" class="v-input ctrl-input" id="new-cust-credit" placeholder="0" onfocus="this.select()" onblur="this.value=fmtNum(parseNum(this.value))">
                 </div>

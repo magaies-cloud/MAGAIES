@@ -629,7 +629,7 @@ if (!function_exists('convertReportAmount')) {
     <div class="glass-panel">
         <div class="header">
             
-            <a href="smart_reports_hub.php?currency=<?php echo htmlspecialchars($selected_currency); ?>" class="btn-back">⬅️ العودة للبوابة</a>
+            <a href="smart_reports_hub.php?currency=<?php echo htmlspecialchars($selected_currency); ?>" class="btn-back" onclick="if(window.magaiesGoBackStepLIFO){event.preventDefault();window.magaiesGoBackStepLIFO(this.href);}">⬅ رجوع</a>
         </div>
 
         <!-- === فلتر التاريخ (من - إلى) === -->

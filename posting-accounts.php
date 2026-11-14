@@ -2801,7 +2801,7 @@
                             '<a href="journal-voucher.php" style="padding:7px;border-radius:8px;border:2px solid #c4b5fd;text-align:center;color:inherit;text-decoration:none;font-weight:900;">📓 القيد اليومي</a>' +
                             '<a href="general-ledger.php" style="padding:7px;border-radius:8px;border:2px solid #6ee7b7;text-align:center;color:inherit;text-decoration:none;font-weight:900;">📚 دفتر الأستاذ العام</a>' +
                             '<a href="daily_master_report.php" style="padding:7px;border-radius:8px;border:2px solid #fde047;text-align:center;color:inherit;text-decoration:none;font-weight:900;">📊 التقرير اليومي الشامل</a>' +
-                            '<a href="core-balances-report.php" style="padding:7px;border-radius:8px;border:2px solid #93c5fd;text-align:center;color:inherit;text-decoration:none;font-weight:900;">⚖️ الأرصدة الأساسية</a>' +
+                            '<a href="balances_modern_hub.php" style="padding:7px;border-radius:8px;border:2px solid #93c5fd;text-align:center;color:inherit;text-decoration:none;font-weight:900;">⚖️ الأرصدة الأساسية</a>' +
                             '<a href="magaiees_unified_dashboard.php" style="padding:7px;border-radius:8px;border:2px solid #fda4af;text-align:center;color:inherit;text-decoration:none;font-weight:900;">🏛️ البوابة الموحدة</a>' +
                         '</div>' +
                     '</div>' +

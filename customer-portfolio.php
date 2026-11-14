@@ -462,7 +462,7 @@ if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes
                 <button type="button" class="pf-btn" id="pf-cur-USD" onclick="setPortfolioCurrency('USD')" style="padding:5px 10px; border:none; background:transparent;">USD ($)</button>
             </div>
 
-            <a href="customers.php" class="pf-btn pf-btn-sky" title="إدارة بيانات العملاء والموردين">
+            <a href="master-data.php?tab=customers" class="pf-btn pf-btn-sky" title="إدارة بيانات العملاء والموردين">
                 👥 سجل الشركاء
             </a>
             <a href="aging-report.php" class="pf-btn pf-btn-rose" title="تقرير أعمار الديون وسقوف الائتمان">
@@ -642,7 +642,7 @@ if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes
                 </select>
             </div>
             <div class="pf-field">
-                <a href="purchases.php" class="pf-btn pf-btn-purple" style="height:38px;">📦 فاتورة مشتريات جديدة</a>
+                <a href="purchase.php" class="pf-btn pf-btn-purple" style="height:38px;">📦 فاتورة مشتريات جديدة</a>
             </div>
         </div>
 
@@ -887,7 +887,7 @@ if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes
                 date: invDate,
                 amount: total,
                 description: isReturn ? `مرتجع مبيعات #${inv.invoiceNo || inv.id}` : `فاتورة مبيعات #${inv.invoiceNo || inv.id}`,
-                url: isReturn ? `sales-return.php?id=${encodeURIComponent(inv.invoiceNo || inv.id || '')}` : `sales.php?invoice=${encodeURIComponent(inv.invoiceNo || inv.id || '')}`
+                url: isReturn ? `sales-return.php?id=${encodeURIComponent(inv.invoiceNo || inv.id || '')}` : `direct-sales.php?inv=${encodeURIComponent(inv.invoiceNo || inv.id || '')}`
             });
         });
 
@@ -1241,7 +1241,7 @@ if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes
                     <p style="font-size:0.78rem; color:#94a3b8; margin-top:0;">انتقل مباشرة لأي عملية محاسبية أو رقابية تخص هذا العميل:</p>
                 </div>
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
-                    <a href="sales.php?customer=${encodeURIComponent(c.name)}" class="pf-btn pf-btn-emerald" style="justify-content:center; font-size:0.76rem;">🧾 فاتورة بيع جديدة</a>
+                    <a href="direct-sales.php?customer=${encodeURIComponent(c.name)}" class="pf-btn pf-btn-emerald" style="justify-content:center; font-size:0.76rem;">🧾 فاتورة بيع جديدة</a>
                     <a href="single-cash-payment.php?mode=receipt&party=${encodeURIComponent(c.name)}&amount=${Math.round(c.balance)}" class="pf-btn pf-btn-amber" style="justify-content:center; font-size:0.76rem;">💵 سند قبض فوري</a>
                     <a href="account-statement.php?id=${encodeURIComponent(c.id)}&name=${encodeURIComponent(c.name)}" class="pf-btn pf-btn-sky" style="justify-content:center; font-size:0.76rem;">📑 كشف الحساب</a>
                     <a href="aging-report.php?search=${encodeURIComponent(c.name)}" class="pf-btn pf-btn-rose" style="justify-content:center; font-size:0.76rem;">⏳ أعمار ديونه</a>

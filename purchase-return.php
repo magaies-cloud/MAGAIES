@@ -1086,7 +1086,8 @@
                 if (custId && custId !== 'walk-in') {
                     const sIdx = suppliers.findIndex(s => String(s.id) === String(custId));
                     if (sIdx > -1) {
-                        suppliers[sIdx].currentBalance = (parseFloat(suppliers[sIdx].currentBalance) || 0) - grandLocal; 
+                        suppliers[sIdx].currentBalance = (parseFloat(suppliers[sIdx].currentBalance ?? suppliers[sIdx].balance) || 0) - grandLocal;
+                        suppliers[sIdx].balance = suppliers[sIdx].currentBalance;
                         localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
                     }
                 }

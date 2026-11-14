@@ -3068,6 +3068,23 @@ try {
                 setTimeout(runRebuild, 80);
             }
         }
+                if (!window.__magaiesUniversalPermGuard) {
+            window.__magaiesUniversalPermGuard = true;
+            try {
+                var _curPg = (window.location.pathname.split('/').pop() || '').trim();
+                if (_curPg && _curPg !== 'login.php' && _curPg !== 'index.php' && _curPg !== 'magaiees_unified_dashboard.php' && window.MagaieesPermissions && typeof window.MagaieesPermissions.getCurrentUser === 'function') {
+                    var _uPerm = window.MagaieesPermissions.getCurrentUser();
+                    if (_uPerm && typeof window.MagaieesPermissions.canUserAccessScreen === 'function' && !window.MagaieesPermissions.canUserAccessScreen(_curPg, _uPerm)) {
+                        alert('⛔ عفواً، ليس لديك صلاحية معتمدة للدخول إلى هذه الشاشة أو التقرير (' + _curPg + ').');
+                        window.location.replace('magaiees_unified_dashboard.php');
+                        return;
+                    }
+                    if (_uPerm && typeof window.MagaieesPermissions.enforceScreenSecurity === 'function') {
+                        window.MagaieesPermissions.enforceScreenSecurity(_uPerm);
+                    }
+                }
+            } catch (_ep) {}
+        }
         // Global Magaiees Bourse Ticker across all screens (when enabled)
         window.renderGlobalScreensBrokerBar = function() {
             var existing = document.getElementById('global-screens-broker-ticker');

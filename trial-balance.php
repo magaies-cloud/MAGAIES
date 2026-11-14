@@ -246,10 +246,18 @@
                 const tk = (typeof window.getTenantKey === 'function') ? window.getTenantKey(k) : k;
                 try { return (JSON.parse(localStorage.getItem(tk) || localStorage.getItem(k) || '[]') || []).filter(x => x && !x.deleted); } catch (e) { return []; }
             };
-            readMaster('erp_safes_v1').forEach(s => { const op = Number(s.openingBalance) || 0; if (op !== 0) addAcc(s.name || s.id, op > 0 ? op : 0, op < 0 ? Math.abs(op) : 0); });
-            readMaster('erp_banks_v1').forEach(b => { const op = Number(b.openingBalance) || 0; if (op !== 0) addAcc(b.name || b.id, op > 0 ? op : 0, op < 0 ? Math.abs(op) : 0); });
-            readMaster('erp_customers_v1').forEach(c => { const op = Number(c.openingBalance) || 0; if (op !== 0) addAcc(c.name || c.id, op > 0 ? op : 0, op < 0 ? Math.abs(op) : 0); });
-            readMaster('erp_suppliers_v1').forEach(s => { const op = Number(s.openingBalance) || 0; if (op !== 0) addAcc(s.name || s.id, op < 0 ? Math.abs(op) : 0, op > 0 ? op : 0); });
+            readMaster('erp_safes_v1').forEach(s => { const op = Number(s.openingBalance ?? s.opening_balance ?? 0) || 0; if (op !== 0) addAcc(s.name || s.id, op > 0 ? op : 0, op < 0 ? Math.abs(op) : 0); });
+            readMaster('erp_banks_v1').forEach(b => { const op = Number(b.openingBalance ?? b.opening_balance ?? 0) || 0; if (op !== 0) addAcc(b.name || b.id, op > 0 ? op : 0, op < 0 ? Math.abs(op) : 0); });
+            readMaster('erp_customers_v1').forEach(c => {
+                const dr = Number(c.openingDebit) || 0, cr = Number(c.openingCredit) || 0;
+                const op = (dr > 0 || cr > 0) ? (dr - cr) : (Number(c.openingBalance ?? c.opening_balance ?? 0) || 0);
+                if (op !== 0) addAcc(c.name || c.id, op > 0 ? op : 0, op < 0 ? Math.abs(op) : 0);
+            });
+            readMaster('erp_suppliers_v1').forEach(s => {
+                const dr = Number(s.openingDebit) || 0, cr = Number(s.openingCredit) || 0;
+                const op = (dr > 0 || cr > 0) ? (cr - dr) : (Number(s.openingBalance ?? s.opening_balance ?? 0) || 0);
+                if (op !== 0) addAcc(s.name || s.id, op < 0 ? Math.abs(op) : 0, op > 0 ? op : 0);
+            });
 
             // Aggregate GL Data (supports both debit/credit fields and legacy type/amount)
             glEntries.forEach(entry => {

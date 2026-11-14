@@ -3358,7 +3358,8 @@ function applyGroupedVoucherEffect(voucher, isRevert = false) {
             let custs = loadEntityList('erp_customers_v1');
             let idx = custs.findIndex(c => c && String(c.id) === String(id));
             if (idx > -1) {
-                custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amtEffect;
+                custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance ?? custs[idx].balance ?? custs[idx].openingBalance) || 0) + amtEffect;
+                custs[idx].balance = custs[idx].currentBalance;
                 saveEntityList('erp_customers_v1', custs);
             }
         } else if (accId.startsWith('supp-')) {
@@ -3366,7 +3367,8 @@ function applyGroupedVoucherEffect(voucher, isRevert = false) {
             let sups = loadEntityList('erp_suppliers_v1');
             let idx = sups.findIndex(s => s && String(s.id) === String(id));
             if (idx > -1) {
-                sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amtEffect;
+                sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance ?? sups[idx].balance ?? sups[idx].openingBalance) || 0) + amtEffect;
+                sups[idx].balance = sups[idx].currentBalance;
                 saveEntityList('erp_suppliers_v1', sups);
             }
         } else if (accId.startsWith('exp-')) {
@@ -9297,7 +9299,16 @@ window.saveQuickAddAccountModal = function() {
     const rawId = Date.now().toString().slice(-7);
     let storageKey = 'erp_customers_v1';
     let prefix = 'cust-';
-    let newRecord = { id: rawId, name: name, phone: phone, whatsapp: phone, balance: 0, openingBalance: 0, createdAt: new Date().toISOString() };
+    const nowIso = new Date().toISOString();
+    let newRecord = {
+        id: rawId, name: name, phone: phone, whatsapp: phone,
+        openingDebit: 0, openingCredit: 0, openingBalance: 0, opening_balance: 0,
+        currentBalance: 0, balance: 0, creditLimit: 0, credit_limit: 0,
+        balance_type: type === 'supplier' ? 'credit' : 'debit',
+        balanceType: type === 'supplier' ? 'credit' : 'debit',
+        statementAccessMode: 'detailed', allowStatementRequest: true, receiptApprovalMode: 'auto_post',
+        status: 'active', date: nowIso.split('T')[0], createdAt: nowIso
+    };
 
     if (type === 'supplier') {
         storageKey = 'erp_suppliers_v1';
@@ -9334,7 +9345,22 @@ window.saveQuickAddAccountModal = function() {
     if (typeof window.selectAccount === 'function') {
         window.selectAccount(targetPrefix, finalId, name);
     }
-    if (typeof window.pushToCloud === 'function') {
+    if (type === 'customer' || type === 'supplier') {
+        fetch('api/save_master_data.php', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: type === 'supplier' ? 'save_supplier' : 'save_customer', data: newRecord })
+        }).then(r => r.json()).then(res => {
+            if (res && res.success && res.data) {
+                const curList = JSON.parse(localStorage.getItem(tKey) || localStorage.getItem(storageKey) || '[]');
+                const idx = curList.findIndex(x => x && String(x.id) === String(rawId));
+                if (idx > -1) {
+                    curList[idx] = Object.assign({}, curList[idx], res.data);
+                    localStorage.setItem(tKey, JSON.stringify(curList));
+                    localStorage.setItem(storageKey, JSON.stringify(curList));
+                }
+            }
+        }).catch(() => {});
+    } else if (typeof window.pushToCloud === 'function') {
         try { window.pushToCloud(true); } catch(e) {}
     }
     showToast(`✔️ تم إنشاء واختيار الحساب "${name}" فوراً`, 'success');

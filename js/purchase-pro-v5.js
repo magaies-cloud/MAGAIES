@@ -427,31 +427,45 @@ function initPurchaseApp() {
         }
 
         ITEMS = rawItems.map(item => {
-            let stockMap = {};
-            let itemInv = invData.filter(inv => inv.itemId === item.id);
-            itemInv.forEach(inv => {
-                let whId = WAREHOUSES.find(w => w.name === inv.warehouse)?.id || 'w-001';
-                stockMap[whId] = (stockMap[whId] || 0) + (parseFloat(inv.qty) || parseFloat(inv.quantity) || 0);
-            });
+            let stockMap = (item.stock && typeof item.stock === 'object' && !Array.isArray(item.stock)) ? Object.assign({}, item.stock) : {};
+            let itemInv = invData.filter(inv => String(inv.itemId) === String(item.id));
+            if (itemInv.length > 0) {
+                stockMap = {};
+                itemInv.forEach(inv => {
+                    let whId = WAREHOUSES.find(w => w.name === inv.warehouse || String(w.id) === String(inv.warehouse))?.id || 'w-001';
+                    stockMap[whId] = (stockMap[whId] || 0) + (parseFloat(inv.qty) || parseFloat(inv.quantity) || 0);
+                });
+            } else if (Object.keys(stockMap).length === 0) {
+                const seedStock = parseFloat(item.currentStock ?? item.quantity ?? item.stock ?? item.openingBalance ?? item.openingQty ?? 0) || 0;
+                if (seedStock !== 0) {
+                    const defWhId = WAREHOUSES[0]?.id || 'w-001';
+                    stockMap[defWhId] = seedStock;
+                }
+            }
 
             let sp = item.sellingPrice || item.salePrice || item.price || 0;
             sp = sp.toString().replace(/,/g, '');
-
             const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
             const unitsArray = extractItemUnits(item);
+            const totalCalcStock = Object.entries(stockMap).filter(([k]) => k !== 'PENDING_RECEIPT').reduce((a, [, b]) => a + (parseFloat(b) || 0), 0);
 
             return {
+                ...item,
                 id: item.id,
                 name: item.name,
                 unit: baseUnit,
                 baseUnit: baseUnit,
-                conversionFactor: 1, 
-                bundleFactor: 1,
+                conversionFactor: parseFloat(item.conversionFactor) || 1,
+                bundleFactor: parseFloat(item.bundleFactor) || 1,
                 price: parseFloat(sp) || 0,
+                sellingPrice: parseFloat(sp) || 0,
+                salePrice: parseFloat(sp) || 0,
                 stock: stockMap,
+                currentStock: totalCalcStock,
+                quantity: totalCalcStock,
                 unitsArray: unitsArray,
                 barcode: item.barcode || '',
-                image: item.image || item.photo || item.img || item.thumbnail || ''
+                image: item.image || item.imageUrl || item.photo || item.img || item.thumbnail || ''
             };
         });
 
@@ -872,48 +886,67 @@ window.focusRequiredPurchaseField = function(selectorOrEl, message) {
 function addNewCustomer() {
     const name = document.getElementById('new-cust-name').value.trim();
     const phone = document.getElementById('new-cust-phone').value.trim();
+    const opEl = document.getElementById('new-cust-opening');
+    const openingBal = opEl ? parseNum(opEl.value) : 0;
     const credit = parseNum(document.getElementById('new-cust-credit').value);
     if (!name) { window.focusRequiredPurchaseField('#new-cust-name', '⚠️ يرجى إدخال اسم المورد'); return; }
 
-    const newId = 'v-' + String(Date.now()).slice(-6);
-    const newCust = { id:newId, name, phone, ledger:0, checks:0, creditLimit:credit };
-    VENDORS.push(newCust);
-
-    // Save to localStorage so it persists
     let supps = [];
     try {
         supps = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
         if (!Array.isArray(supps)) supps = [];
     } catch(e) { supps = []; }
-    
+    if (supps.some(s => s && !s.deleted && String(s.name || '').trim() === name)) {
+        showToast('⚠️ اسم المورد موجود مسبقاً', 'warning');
+        return;
+    }
+
+    const newId = 'v-' + String(Date.now()).slice(-6);
+    const openingCredit = openingBal >= 0 ? openingBal : 0;
+    const openingDebit = openingBal < 0 ? Math.abs(openingBal) : 0;
+    const todayIso = new Date().toISOString();
+    const newCust = { id:newId, name, phone, ledger:openingBal, checks:0, creditLimit:credit };
+    VENDORS.push(newCust);
+
     const newSuppRecord = {
-        id: newId,
-        name: name,
-        phone: phone,
-        creditLimit: credit,
-        currentBalance: 0,
-        status: 'active'
+        id: newId, name, phone, whatsapp: phone,
+        openingDebit, openingCredit, openingBalance: openingBal, opening_balance: openingBal,
+        currentBalance: openingBal, balance: openingBal, balance_type: 'credit', balanceType: 'credit',
+        creditLimit: credit, credit_limit: credit,
+        statementAccessMode: 'detailed', allowStatementRequest: true, receiptApprovalMode: 'auto_post',
+        status: 'active', date: todayIso.split('T')[0], createdAt: todayIso
     };
     supps.push(newSuppRecord);
     localStorage.setItem('erp_suppliers_v1', JSON.stringify(supps));
+    if (typeof window.getTenantKey === 'function') localStorage.setItem(window.getTenantKey('erp_suppliers_v1'), JSON.stringify(supps));
     try {
         if (typeof BroadcastChannel !== 'undefined') {
             const bc = new BroadcastChannel('magaiees_sync_channel');
             bc.postMessage({ type: 'master_data_saved', module: 'master_data', entity: 'suppliers', ts: Date.now() });
             bc.close();
         }
-        fetch('api/master_data.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ entity: 'suppliers', data: newSuppRecord })
+        fetch('api/save_master_data.php', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'save_supplier', data: newSuppRecord })
+        }).then(r => r.json()).then(res => {
+            if (res && res.success && res.data) {
+                const list = JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]');
+                const idx = list.findIndex(x => x && x.id === newId);
+                if (idx > -1) {
+                    list[idx] = Object.assign({}, list[idx], res.data);
+                    localStorage.setItem('erp_suppliers_v1', JSON.stringify(list));
+                    if (typeof window.getTenantKey === 'function') localStorage.setItem(window.getTenantKey('erp_suppliers_v1'), JSON.stringify(list));
+                }
+                if (res.data.statementPin) showToast(`✅ تم حفظ المورد "${name}" (🔐 باسورد واتساب: ${res.data.statementPin})`, 'success');
+            }
         }).catch(() => {});
     } catch (_eSync) {}
 
     selectCustomer(newId, name);
-
     closeModal('add-customer-modal');
     document.getElementById('new-cust-name').value = '';
     document.getElementById('new-cust-phone').value = '';
+    if (opEl) opEl.value = '';
     document.getElementById('new-cust-credit').value = '';
     showToast(`✅ تم إضافة المورد: ${name}`);
 }
@@ -6305,8 +6338,17 @@ window.applyPurchaseSellingPricesAI = function() {
     if (updatedCount > 0) {
         localStorage.setItem('erp_items_v1', JSON.stringify(itemsPool));
         if (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) {
-            ITEMS.splice(0, ITEMS.length, ...itemsPool);
+            inputs.forEach(inp => {
+                const id = inp.getAttribute('data-item-id');
+                const newSell = parseFloat(inp.value) || 0;
+                const memIt = ITEMS.find(x => String(x.id) === String(id));
+                if (memIt && newSell > 0) {
+                    memIt.salePrice = newSell; memIt.sellingPrice = newSell; memIt.price = newSell;
+                    if (Array.isArray(memIt.units) && memIt.units[0]) { memIt.units[0].salePrice = newSell; memIt.units[0].price = newSell; }
+                }
+            });
         }
+        fetch('api/save_master_data.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'items_bulk', data: itemsPool }) }).catch(() => {});
         if (typeof window.logSystemAction === 'function') {
             window.logSystemAction('تحديث أسعار البيع بالذكاء الاصطناعي', 'المشتريات / التسعير الذكي', 'AI-MARGIN', `تم تحديث أسعار البيع لعدد ${updatedCount} صنف بناءً على تكلفة الشراء الجديدة`);
         }

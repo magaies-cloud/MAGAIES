@@ -804,24 +804,26 @@ function getLiveCashFlowForecastData($pdo, $current_cash_on_hand) {
             }
         } catch (Exception $e) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $e->getMessage()); }
 
+        $cashFloat = (float)str_replace(',', '', (string)$current_cash_on_hand);
         return [
-            'cash_now' => $current_cash_on_hand,
-            'upcoming_cheques_collection' => $inflow,
-            'upcoming_payable_obligations' => $outflow,
-            'projected_liquidity_30_days' => $current_cash_on_hand + $inflow - $outflow
+            'cash_now' => $cashFloat,
+            'upcoming_cheques_collection' => (float)$inflow,
+            'upcoming_payable_obligations' => (float)$outflow,
+            'projected_liquidity_30_days' => $cashFloat + (float)$inflow - (float)$outflow
         ];
     } catch (Exception $e) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $e->getMessage());
+        $cashFloat = (float)str_replace(',', '', (string)$current_cash_on_hand);
         return [
-            'cash_now' => $current_cash_on_hand,
-            'upcoming_cheques_collection' => 0,
-            'upcoming_payable_obligations' => 0,
-            'projected_liquidity_30_days' => $current_cash_on_hand
+            'cash_now' => $cashFloat,
+            'upcoming_cheques_collection' => 0.0,
+            'upcoming_payable_obligations' => 0.0,
+            'projected_liquidity_30_days' => $cashFloat
         ];
     }
 }
-function getLiveCashFlowForecast($pdo, $current_cash_on_hand) {
+function getLiveCashFlowForecast($pdo = null, $current_cash_on_hand = 0) {
     global $GLOBAL_TENANT_ID;
-    return getLiveCashFlowForecastData($pdo, $current_cash_on_hand);
+    return getLiveCashFlowForecastData($pdo, (float)str_replace(',', '', (string)$current_cash_on_hand));
 }
 
 // -------------------------------------------------------------

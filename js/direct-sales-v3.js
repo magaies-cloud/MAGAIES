@@ -485,13 +485,18 @@ function initSalesApp() {
                 let reservedStockMap = {};
                 
                 const itemInv = invByItemId.get(item.id);
-                if (itemInv) {
+                if (itemInv && itemInv.length > 0) {
                     for (let j = 0; j < itemInv.length; j++) {
                         const inv = itemInv[j];
                         const whId = whByName.get(inv.warehouse) || 'w-main';
                         actualStockMap[whId] = (actualStockMap[whId] || 0) + (parseFloat(inv.qty) || parseFloat(inv.quantity) || 0);
                         reservedStockMap[whId] = (reservedStockMap[whId] || 0) + (parseFloat(inv.reservedQuantity) || 0);
                     }
+                } else if (item.stock && typeof item.stock === 'object' && !Array.isArray(item.stock)) {
+                    Object.assign(actualStockMap, item.stock);
+                } else {
+                    const seedQty = parseFloat(item.currentStock ?? item.quantity ?? item.stock ?? item.openingBalance ?? item.openingQty ?? 0) || 0;
+                    if (seedQty !== 0) actualStockMap[WAREHOUSES[0]?.id || 'w-main'] = seedQty;
                 }
 
                 // Clean price
@@ -829,37 +834,48 @@ function addNewCustomer() {
     const credit = document.getElementById('new-cust-credit') ? parseNum(document.getElementById('new-cust-credit').value) : 0;
 
     if (!name) { showToast('❌ يرجى إدخال اسم العميل', 'error'); return; }
+    let allCustomers = [];
+    try { allCustomers = JSON.parse(localStorage.getItem('erp_customers_v1')) || []; } catch(e) {}
+    if (allCustomers.some(c => c && !c.deleted && String(c.name || '').trim() === name)) {
+        showToast('⚠️ اسم العميل موجود مسبقاً', 'warning');
+        return;
+    }
 
     const newId = 'C-' + String(Date.now()).slice(-6);
     const openingDebit = openingBalance >= 0 ? openingBalance : 0;
     const openingCredit = openingBalance < 0 ? Math.abs(openingBalance) : 0;
+    const todayIso = new Date().toISOString();
     const newCust = { 
-        id: newId, 
-        name: name, 
-        phone: phone,
-        whatsapp: whatsapp,
-        email: email,
-        address: address,
-        securityLevel: securityLevel,
-        openingDebit: openingDebit,
-        openingCredit: openingCredit,
-        currentBalance: openingBalance,
-        creditLimit: credit,
-        status: 'active',
-        bankAccounts: [],
-        timestamp: new Date().toISOString()
+        id: newId, name, phone, whatsapp: whatsapp || phone, email, address, securityLevel,
+        openingDebit, openingCredit, openingBalance, opening_balance: openingBalance,
+        currentBalance: openingBalance, balance: openingBalance, balance_type: 'debit', balanceType: 'debit',
+        creditLimit: credit, credit_limit: credit,
+        statementAccessMode: 'detailed', allowStatementRequest: true, receiptApprovalMode: 'auto_post',
+        status: 'active', bankAccounts: [], date: todayIso.split('T')[0], createdAt: todayIso, timestamp: todayIso
     };
     
     if (typeof CUSTOMERS !== 'undefined') {
-        CUSTOMERS.push(newCust);
+        CUSTOMERS.push(Object.assign({ ledger: openingBalance, checks: 0 }, newCust));
     }
-
-    let allCustomers = [];
-    try {
-        allCustomers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-    } catch(e) {}
     allCustomers.push(newCust);
     localStorage.setItem('erp_customers_v1', JSON.stringify(allCustomers));
+    if (typeof window.getTenantKey === 'function') localStorage.setItem(window.getTenantKey('erp_customers_v1'), JSON.stringify(allCustomers));
+
+    fetch('api/save_master_data.php', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'save_customer', data: newCust })
+    }).then(r => r.json()).then(res => {
+        if (res && res.success && res.data) {
+            const list = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
+            const idx = list.findIndex(x => x && x.id === newId);
+            if (idx > -1) {
+                list[idx] = Object.assign({}, list[idx], res.data);
+                localStorage.setItem('erp_customers_v1', JSON.stringify(list));
+                if (typeof window.getTenantKey === 'function') localStorage.setItem(window.getTenantKey('erp_customers_v1'), JSON.stringify(list));
+            }
+            if (res.data.statementPin) showToast(`✅ تم حفظ العميل "${name}" (🔐 باسورد واتساب: ${res.data.statementPin})`, 'success');
+        }
+    }).catch(() => {});
 
     selectCustomer(newId, name);
     closeModal('add-customer-modal');
@@ -5499,6 +5515,7 @@ function confirmExecuteDeliveryAction() {
 
     // Deduct Inventory
     let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+    let erpItemsMaster = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
     
     if (inv.items) {
         for (const row of inv.items) {
@@ -5527,10 +5544,24 @@ function confirmExecuteDeliveryAction() {
                     item.actualStock[selectedWhId] = -qtyToDeduct;
                 }
             }
+            const dbItIdx = erpItemsMaster.findIndex(x => x && String(x.id) === String(row.itemId));
+            if (dbItIdx > -1) {
+                const dbIt = erpItemsMaster[dbItIdx];
+                if (dbIt.stock && typeof dbIt.stock === 'object' && !Array.isArray(dbIt.stock)) {
+                    dbIt.stock[selectedWhId] = (parseFloat(dbIt.stock[selectedWhId]) || 0) - qtyToDeduct;
+                    dbIt.currentStock = Object.entries(dbIt.stock).filter(([k]) => k !== 'PENDING_RECEIPT').reduce((a, [, b]) => a + (parseFloat(b) || 0), 0);
+                } else {
+                    dbIt.currentStock = (parseFloat(dbIt.currentStock ?? dbIt.quantity ?? dbIt.stock ?? 0) || 0) - qtyToDeduct;
+                    dbIt.stock = dbIt.currentStock;
+                }
+                dbIt.quantity = dbIt.currentStock; dbIt.qty = dbIt.currentStock; dbIt.stockQty = dbIt.currentStock;
+                if (Array.isArray(dbIt.units) && dbIt.units[0]) dbIt.units[0].stock = dbIt.currentStock;
+            }
         }
     }
     
     localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
+    localStorage.setItem('erp_items_v1', JSON.stringify(erpItemsMaster));
     
     // Update Invoice Status
     inv.isDelivered = true;
@@ -7898,6 +7929,7 @@ function revertSalesInvoiceEffects(invNo, revertInventory = true) {
     if (revertInventory) {
         // 3. Revert Inventory (Only for backwards compatibility if needed, or if deleting entirely)
         let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
+        let erpItemsMaster = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
         const mainWh = oldInv.warehouse || 'wh-001';
         if (oldInv.items && Array.isArray(oldInv.items)) {
             for (const row of oldInv.items) {
@@ -7925,9 +7957,22 @@ function revertSalesInvoiceEffects(invNo, revertInventory = true) {
                 if (item.actualStock && item.actualStock[whId] !== undefined) {
                     item.actualStock[whId] += baseQty;
                 }
+                const dbIt = erpItemsMaster.find(x => x && String(x.id) === String(row.itemId));
+                if (dbIt) {
+                    if (dbIt.stock && typeof dbIt.stock === 'object' && !Array.isArray(dbIt.stock)) {
+                        dbIt.stock[whId] = (parseFloat(dbIt.stock[whId]) || 0) + baseQty;
+                        dbIt.currentStock = Object.entries(dbIt.stock).filter(([k]) => k !== 'PENDING_RECEIPT').reduce((a, [, b]) => a + (parseFloat(b) || 0), 0);
+                    } else {
+                        dbIt.currentStock = (parseFloat(dbIt.currentStock ?? dbIt.quantity ?? dbIt.stock ?? 0) || 0) + baseQty;
+                        dbIt.stock = dbIt.currentStock;
+                    }
+                    dbIt.quantity = dbIt.currentStock; dbIt.qty = dbIt.currentStock; dbIt.stockQty = dbIt.currentStock;
+                    if (Array.isArray(dbIt.units) && dbIt.units[0]) dbIt.units[0].stock = dbIt.currentStock;
+                }
             }
         }
         localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
+        localStorage.setItem('erp_items_v1', JSON.stringify(erpItemsMaster));
     }
 }
 

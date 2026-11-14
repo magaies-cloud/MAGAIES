@@ -1115,7 +1115,9 @@ switch ($action) {
 
             $targetCustRow = $resolved['row'];
             $targetCustObj = json_decode($targetCustRow['data'], true) ?: [];
-            $targetCustId = $resolved['id'];
+            $targetCustId = (($resolved['row']['_entity_type'] ?? '') === 'supplier')
+                ? ('supp-' . preg_replace('/^(cust|supp)-/', '', (string)$resolved['id']))
+                : $resolved['id'];
             $targetCustName = $resolved['name'];
 
             // If user provided/updated customer's WhatsApp phone number, save it immediately to customer's record in DB
@@ -1259,7 +1261,9 @@ switch ($action) {
                 exit;
             }
 
-            $targetCustId = $resolved['id'];
+            $targetCustId = (($resolved['row']['_entity_type'] ?? '') === 'supplier')
+                ? ('supp-' . preg_replace('/^(cust|supp)-/', '', (string)$resolved['id']))
+                : $resolved['id'];
             $targetCustName = $resolved['name'];
             $codeBadge = $resolved['matched_code'] ?? $codeOrName;
             $updatedCount = 0;
@@ -1285,15 +1289,19 @@ switch ($action) {
                     if ($oldVJson) {
                         $oldVObj = json_decode($oldVJson, true) ?: [];
                         if (!empty($oldVObj['isPosted']) && $oldAmt > 0) {
-                            // Reverse old customer balance and old bank balance before re-posting
-                            if (!empty($oldCustId)) {
-                                $cRowsStmt = $pdo->prepare("SELECT id, data FROM customers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
+                            // Reverse old party (customer or supplier) balance and old bank balance before re-posting
+                            $wasOldSupplier = str_starts_with((string)($recRow['customer_id'] ?? ''), 'supp-');
+                            $oldPartyCleanId = preg_replace('/^(cust|supp)-/', '', (string)($recRow['customer_id'] ?? ''));
+                            if (!empty($oldPartyCleanId)) {
+                                $pTbl = $wasOldSupplier ? 'suppliers' : 'customers';
+                                $cRowsStmt = $pdo->prepare("SELECT id, data FROM {$pTbl} WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
                                 $cRowsStmt->execute([$activeTenantId]);
                                 while ($cr = $cRowsStmt->fetch(PDO::FETCH_ASSOC)) {
                                     $cObj = json_decode($cr['data'], true) ?: [];
-                                    if (($cObj['id'] ?? '') === $oldCustId) {
-                                        $cObj['currentBalance'] = (float)($cObj['currentBalance'] ?? 0) + $oldAmt;
-                                        $pdo->prepare("UPDATE customers SET data = ? WHERE id = ?")->execute([json_encode($cObj, JSON_UNESCAPED_UNICODE), $cr['id']]);
+                                    if (($cObj['id'] ?? '') === $oldPartyCleanId) {
+                                        $cObj['currentBalance'] = (float)($cObj['currentBalance'] ?? 0) + ($wasOldSupplier ? -$oldAmt : $oldAmt);
+                                        $cObj['balance'] = $cObj['currentBalance'];
+                                        $pdo->prepare("UPDATE {$pTbl} SET data = ? WHERE id = ?")->execute([json_encode($cObj, JSON_UNESCAPED_UNICODE), $cr['id']]);
                                         break;
                                     }
                                 }
@@ -1502,13 +1510,27 @@ function fetchAndEnsureCustomerCodes($pdo, $tenantId) {
 // Legacy Code, WhatsApp Primary Phone / Delegate SubPhones / LID, or Arabic & English Name
 // -------------------------------------------------------------
 function resolveInboundCustomer($pdo, $tenantId, $custId = '', $custName = '', $custPhone = '', $routingHint = '') {
-    $cleanCustId = preg_replace('/^cust-/', '', trim((string)$custId));
+    $rawIdTrim = trim((string)$custId);
+    $forcedEntityType = str_starts_with($rawIdTrim, 'supp-') ? 'supplier' : (str_starts_with($rawIdTrim, 'cust-') ? 'customer' : '');
+    $cleanCustId = preg_replace('/^(cust|supp)-/', '', $rawIdTrim);
     $custName = trim((string)$custName);
     $custPhone = trim((string)$custPhone);
     $cleanPhone = preg_replace('/\D/', '', normalizeInboundDigits($custPhone));
     $routingHint = trim((string)$routingHint);
 
-    $allCusts = fetchAndEnsureCustomerCodes($pdo, $tenantId);
+    $custRows = ($forcedEntityType === 'supplier') ? [] : fetchAndEnsureCustomerCodes($pdo, $tenantId);
+    foreach ($custRows as &$crRef) { $crRef['_entity_type'] = 'customer'; }
+    unset($crRef);
+    $suppRows = ($forcedEntityType === 'customer') ? [] : (function_exists('fetchAndEnsureSupplierCodes') ? fetchAndEnsureSupplierCodes($pdo, $tenantId) : []);
+    foreach ($suppRows as &$srRef) {
+        $srRef['_entity_type'] = 'supplier';
+        if (empty($srRef['frontend_id']) && !empty($srRef['supplier_id'])) $srRef['frontend_id'] = $srRef['supplier_id'];
+        $sParsed = $srRef['_parsed'] ?? (json_decode($srRef['data'] ?? '{}', true) ?: []);
+        if (empty($srRef['search_name'])) $srRef['search_name'] = $sParsed['name'] ?? '';
+        if (empty($srRef['search_phone'])) $srRef['search_phone'] = $sParsed['whatsapp'] ?? $sParsed['phone'] ?? '';
+    }
+    unset($srRef);
+    $allCusts = array_merge($custRows, $suppRows);
     if (empty($allCusts)) {
         return ['row' => null, 'id' => $cleanCustId, 'name' => $custName, 'phone' => $custPhone];
     }
@@ -1753,6 +1775,7 @@ function resolveInboundCustomer($pdo, $tenantId, $custId = '', $custName = '', $
     // 2. Match by WhatsApp Phone Number (Primary phone/whatsapp/LID OR Delegate subPhones!)
     if (strlen($cleanPhone) >= 7) {
         $last9 = substr($cleanPhone, -9);
+        $matchedPhoneRows = [];
         foreach ($allCusts as $cRow) {
             $cObj = $cRow['_parsed'] ?? (json_decode($cRow['data'], true) ?: []);
             if (!empty($cObj['deleted'])) continue;
@@ -1767,17 +1790,34 @@ function resolveInboundCustomer($pdo, $tenantId, $custId = '', $custName = '', $
                 $cpDigits = preg_replace('/\D/', '', normalizeInboundDigits((string)$cp));
                 if (empty($cpDigits)) continue;
                 if ($cpDigits === $cleanPhone || (strlen($cpDigits) >= 9 && substr($cpDigits, -9) === $last9)) {
-                    $fId = $cRow['frontend_id'] ?: ($cObj['id'] ?? '');
-                    return [
-                        'row' => $cRow,
-                        'id' => $fId,
-                        'name' => $cObj['name'] ?? $cRow['search_name'] ?? $custName,
-                        'phone' => $cObj['whatsapp'] ?: ($cObj['phone'] ?: $custPhone),
-                        'matched_by' => 'primary_phone',
-                        'sender_phone' => $custPhone
-                    ];
+                    $matchedPhoneRows[] = ['row' => $cRow, 'obj' => $cObj];
+                    break;
                 }
             }
+        }
+        if (!empty($matchedPhoneRows)) {
+            usort($matchedPhoneRows, function($a, $b) {
+                $balA = abs((float)($a['obj']['openingBalance'] ?? $a['obj']['openingDebit'] ?? $a['obj']['balance'] ?? $a['obj']['currentBalance'] ?? 0));
+                $balB = abs((float)($b['obj']['openingBalance'] ?? $b['obj']['openingDebit'] ?? $b['obj']['balance'] ?? $b['obj']['currentBalance'] ?? 0));
+                if (($balA > 0) !== ($balB > 0)) return ($balB > 0) <=> ($balA > 0);
+                return ((int)($b['obj']['_crdtTs'] ?? 0)) <=> ((int)($a['obj']['_crdtTs'] ?? 0));
+            });
+            $best = $matchedPhoneRows[0];
+            $cRow = $best['row'];
+            $cObj = $best['obj'];
+            $fId = $cRow['frontend_id'] ?: ($cObj['id'] ?? '');
+            return [
+                'row' => $cRow,
+                'id' => $fId,
+                'name' => $cObj['name'] ?? $cRow['search_name'] ?? $custName,
+                'phone' => $cObj['whatsapp'] ?: ($cObj['phone'] ?: $custPhone),
+                'matched_by' => 'primary_phone',
+                'sender_phone' => $custPhone
+            ];
+        }
+        foreach ($allCusts as $cRow) {
+            $cObj = $cRow['_parsed'] ?? (json_decode($cRow['data'], true) ?: []);
+            if (!empty($cObj['deleted'])) continue;
 
             // Also check Delegate / Sub-Sender Phones (`subPhones`)
             if (!empty($cObj['subPhones']) && is_array($cObj['subPhones'])) {
@@ -2228,11 +2268,14 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
         } catch (Exception $e) {}
     }
 
-    // 1. Resolve or Auto-Create Customer in `customers` table
+    // 1. Resolve or Auto-Create Party in `customers` or `suppliers` table
     $originalSenderPhone = $custPhone;
     $resolvedCust = resolveInboundCustomer($pdo, $tenantId, $custId, $custName, $custPhone, $receipt['notes'] ?? '');
     $matchedCustomerRow = $resolvedCust['row'] ?? null;
-    $cleanCustId = $resolvedCust['id'] ?: preg_replace('/^cust-/', '', $custId);
+    $isSupplierParty = (($matchedCustomerRow['_entity_type'] ?? '') === 'supplier') || str_starts_with(trim((string)$custId), 'supp-');
+    $partyPrefix = $isSupplierParty ? 'supp-' : 'cust-';
+    $partyLabelAr = $isSupplierParty ? 'المورد' : 'العميل';
+    $cleanCustId = $resolvedCust['id'] ?: preg_replace('/^(cust|supp)-/', '', $custId);
     if (!empty($resolvedCust['name'])) {
         $custName = $resolvedCust['name'];
     }
@@ -2318,16 +2361,18 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
     }
     $shouldPostNow = ($effectiveApprovalMode === 'auto_post');
 
-    // Update or insert Customer (only deduct balance if $shouldPostNow is true!)
+    // Update or insert Party (Customer: deduct receivable; Supplier: increase payable credit)
     if ($shouldPostNow) {
-        $custObj['currentBalance'] = (float)($custObj['currentBalance'] ?? 0) - $amount;
+        $custObj['currentBalance'] = (float)($custObj['currentBalance'] ?? 0) + ($isSupplierParty ? $amount : -$amount);
+        $custObj['balance'] = $custObj['currentBalance'];
     }
     if ($matchedCustomerRow) {
-        $updCust = $pdo->prepare("UPDATE customers SET data = ? WHERE id = ?");
+        $targetPartyTbl = $isSupplierParty ? 'suppliers' : 'customers';
+        $updCust = $pdo->prepare("UPDATE {$targetPartyTbl} SET data = ? WHERE id = ?");
         $updCust->execute([json_encode($custObj, JSON_UNESCAPED_UNICODE), $matchedCustomerRow['id']]);
     } else {
-        $insCust = $pdo->prepare("INSERT INTO customers (tenant_id, customer_id, data) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)");
-        $insCust->execute([$tenantId, $custFrontendId, json_encode($custObj, JSON_UNESCAPED_UNICODE)]);
+        $insCust = $pdo->prepare("INSERT INTO customers (tenant_id, customer_id, frontend_id, data) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE data = VALUES(data)");
+        $insCust->execute([$tenantId, $custFrontendId, $custFrontendId, json_encode($custObj, JSON_UNESCAPED_UNICODE)]);
     }
 
     // 2. Resolve Target Receiving Bank (`تحديد البنك المستلم للإشعارات`)
@@ -2437,7 +2482,7 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
     } elseif (!empty($originalSenderPhone) && $originalSenderPhone !== $custPhone) {
         $routingAuditSuffix .= ' [مرسل: ' . $originalSenderPhone . ']';
     }
-    $voucherDesc = 'سداد إشعار تحويل بنكي (' . $resolvedBankName . ') رقم العملية: ' . $transferNo . ' - العميل: ' . $custName . $routingAuditSuffix . ' إلى ' . $resolvedBankName;
+    $voucherDesc = 'سداد إشعار تحويل بنكي (' . $resolvedBankName . ') رقم العملية: ' . $transferNo . ' - ' . $partyLabelAr . ': ' . $custName . $routingAuditSuffix . ' إلى ' . $resolvedBankName;
     $itemStatement = 'إشعار تحويل ' . $resolvedBankName . ' رقم ' . $transferNo . $routingAuditSuffix;
 
     $voucherObj = [
@@ -2473,8 +2518,8 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
         'cheques' => [],
         'items' => [
             [
-                'account' => 'cust-' . $custFrontendId,
-                'accountId' => 'cust-' . $custFrontendId,
+                'account' => $partyPrefix . $custFrontendId,
+                'accountId' => $partyPrefix . $custFrontendId,
                 'accountName' => $custName,
                 'amount' => $amount,
                 'statement' => $itemStatement,
@@ -2542,8 +2587,8 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
                 'voucherNo' => $vNo,
                 'voucherId' => $vNo,
                 'date' => $today,
-                'account' => 'cust-' . $custFrontendId,
-                'accountId' => 'cust-' . $custFrontendId,
+                'account' => $partyPrefix . $custFrontendId,
+                'accountId' => $partyPrefix . $custFrontendId,
                 'accountName' => $custName,
                 'debit' => 0,
                 'credit' => $amount,
@@ -2586,7 +2631,8 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
     $updInb = $pdo->prepare("UPDATE inbound_bank_receipts 
         SET customer_id = ?, customer_name = ?, customer_phone = ?, bank_name = ?, bank_code = ?, voucher_no = ?, status = ?, issue_reason = ?, notes = ?, updated_at = NOW() 
         WHERE id = ?");
-    $updInb->execute([$custFrontendId, $custName, $custPhone, $resolvedBankName, $bankFrontendId, $vNo, $newInbStatus, $newIssueReason, $updatedNotes, $receiptId]);
+    $storedInbPartyId = $isSupplierParty ? ('supp-' . $custFrontendId) : $custFrontendId;
+    $updInb->execute([$storedInbPartyId, $custName, $custPhone, $resolvedBankName, $bankFrontendId, $vNo, $newInbStatus, $newIssueReason, $updatedNotes, $receiptId]);
 
     $adminNotificationText = $shouldPostNow
         ? ("🔔 إشعار لمدير النظام: تم فحص وإضافة إشعار بنكي بمبلغ (" . number_format($amount, 2) . " SDG) رقم العملية (" . $transferNo . ") في حساب (" . $custName . ") إلى حساب (" . $resolvedBankName . ") وحفظه تلقائياً بالسند رقم (" . $vNo . ").")
@@ -3574,12 +3620,21 @@ function handleWhatsAppStatementRequest($pdo, $tenantId, $messageText, $senderPh
 
     // 1. PRIORITY 1: If user wrote ONLY "كشف" or "رصيد" (no password token), match by their Registered WhatsApp Phone!
     if (!$matchedEntity && empty($compactDigitsToken) && $hasStatementKeyword && !empty($senderPhone)) {
+        $phoneCandidates = [];
         foreach ($entities as $ent) {
             $phoneCheck = $checkSenderMatchesEntityPhones($ent, $senderPhone);
             if ($phoneCheck['is_matched']) {
-                $matchedEntity = $ent;
-                break;
+                $phoneCandidates[] = $ent;
             }
+        }
+        if (!empty($phoneCandidates)) {
+            usort($phoneCandidates, function($a, $b) {
+                $balA = abs((float)($a['obj']['openingBalance'] ?? $a['obj']['openingDebit'] ?? $a['obj']['balance'] ?? $a['obj']['currentBalance'] ?? 0));
+                $balB = abs((float)($b['obj']['openingBalance'] ?? $b['obj']['openingDebit'] ?? $b['obj']['balance'] ?? $b['obj']['currentBalance'] ?? 0));
+                if (($balA > 0) !== ($balB > 0)) return ($balB > 0) <=> ($balA > 0);
+                return ((int)($b['obj']['_crdtTs'] ?? 0)) <=> ((int)($a['obj']['_crdtTs'] ?? 0));
+            });
+            $matchedEntity = $phoneCandidates[0];
         }
 
         // 1b. Fallback: Check if sender's WhatsApp pushName matches an existing Customer/Supplier name
@@ -5147,16 +5202,13 @@ function buildDetailedAccountStatementForWhatsApp($pdo, $tenantId, $entityType, 
     if ($opDebit > 0 || $opCredit > 0) {
         $intrinsicBal = $opDebit - $opCredit;
     } elseif ($rawOpBal != 0) {
-        $bType = strtolower((string)($entityObj['balance_type'] ?? $entityObj['balanceType'] ?? 'debit'));
-        if ($bType === 'credit') {
-            $intrinsicBal = -abs($rawOpBal);
-        } else {
-            $intrinsicBal = abs($rawOpBal);
-        }
+        $defaultBType = $isCustomer ? 'debit' : 'credit';
+        $bType = strtolower((string)($entityObj['balance_type'] ?? $entityObj['balanceType'] ?? $defaultBType));
+        $intrinsicBal = ($bType === 'credit') ? -$rawOpBal : $rawOpBal;
     } elseif (empty($filtered)) {
         $fallbackCurBal = $parseNum($entityObj['currentBalance'] ?? 0);
         if ($fallbackCurBal != 0) {
-            $intrinsicBal = $fallbackCurBal;
+            $intrinsicBal = $isCustomer ? $fallbackCurBal : -$fallbackCurBal;
         }
     }
 

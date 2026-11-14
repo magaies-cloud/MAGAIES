@@ -2069,6 +2069,7 @@ function submitVoucherInner() {
             let idx = custs.findIndex(c => matchAcc(c, fromAccId, id));
             if (idx > -1) {
                 custs[idx].currentBalance = curBal(custs[idx]) + amtFrom;
+                custs[idx].balance = custs[idx].currentBalance;
                 saveEntity('erp_customers_v1', custs);
             }
         } else if (fromAccId.startsWith('supp-')) {
@@ -2076,7 +2077,9 @@ function submitVoucherInner() {
             let sups = loadEntity('erp_suppliers_v1');
             let idx = sups.findIndex(s => matchAcc(s, fromAccId, id));
             if (idx > -1) {
-                sups[idx].currentBalance = curBal(sups[idx]) + amtFrom;
+                // Receiving cash from supplier credits supplier account => payable liability increases (-amtFrom)
+                sups[idx].currentBalance = curBal(sups[idx]) - amtFrom;
+                sups[idx].balance = sups[idx].currentBalance;
                 saveEntity('erp_suppliers_v1', sups);
             }
         } else if (fromAccId.startsWith('exp-')) {
@@ -2096,6 +2099,7 @@ function submitVoucherInner() {
             let idx = custs.findIndex(c => matchAcc(c, toAccId, id));
             if (idx > -1) {
                 custs[idx].currentBalance = curBal(custs[idx]) + amtToPositive;
+                custs[idx].balance = custs[idx].currentBalance;
                 saveEntity('erp_customers_v1', custs);
             }
         } else if (toAccId.startsWith('supp-')) {
@@ -2105,6 +2109,7 @@ function submitVoucherInner() {
             if (idx > -1) {
                 // Paying a supplier reduces supplier payable balance
                 sups[idx].currentBalance = curBal(sups[idx]) - amtToPositive;
+                sups[idx].balance = sups[idx].currentBalance;
                 saveEntity('erp_suppliers_v1', sups);
             }
         } else if (toAccId.startsWith('emp-')) {
@@ -2948,12 +2953,12 @@ function confirmDelete() {
                 let id = fromAccId.substring(5);
                 let custs = loadEntity('erp_customers_v1');
                 let idx = custs.findIndex(c => String(c.id) === String(id));
-                if (idx > -1) { custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amtFrom; saveEntity('erp_customers_v1', custs); }
+                if (idx > -1) { custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amtFrom; custs[idx].balance = custs[idx].currentBalance; saveEntity('erp_customers_v1', custs); }
             } else if (fromAccId.startsWith('supp-')) {
                 let id = fromAccId.substring(5);
                 let sups = loadEntity('erp_suppliers_v1');
                 let idx = sups.findIndex(s => String(s.id) === String(id));
-                if (idx > -1) { sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amtFrom; saveEntity('erp_suppliers_v1', sups); }
+                if (idx > -1) { sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) - amtFrom; sups[idx].balance = sups[idx].currentBalance; saveEntity('erp_suppliers_v1', sups); }
             } else if (fromAccId.startsWith('exp-')) {
                 let id = fromAccId.substring(4);
                 let accounts = loadEntity('erp_accounts_v1');
@@ -2966,12 +2971,12 @@ function confirmDelete() {
                 let id = toAccId.substring(5);
                 let custs = loadEntity('erp_customers_v1');
                 let idx = custs.findIndex(c => String(c.id) === String(id));
-                if (idx > -1) { custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amtToPositive; saveEntity('erp_customers_v1', custs); }
+                if (idx > -1) { custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amtToPositive; custs[idx].balance = custs[idx].currentBalance; saveEntity('erp_customers_v1', custs); }
             } else if (toAccId.startsWith('supp-')) {
                 let id = toAccId.substring(5);
                 let sups = loadEntity('erp_suppliers_v1');
                 let idx = sups.findIndex(s => String(s.id) === String(id));
-                if (idx > -1) { sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amtToPositive; saveEntity('erp_suppliers_v1', sups); }
+                if (idx > -1) { sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) - amtToPositive; sups[idx].balance = sups[idx].currentBalance; saveEntity('erp_suppliers_v1', sups); }
             } else if (toAccId.startsWith('bank-')) {
                 let id = toAccId.substring(5);
                 let banks = loadEntity('erp_banks_v1');
@@ -7384,8 +7389,8 @@ window.addEventListener('focus', () => {
     if (typeof window.syncMirrorData === 'function') window.syncMirrorData();
 });
 setInterval(() => {
-    if (typeof window.syncMirrorData === 'function') window.syncMirrorData();
-}, 5000);
+    if (!document.hidden && navigator.onLine !== false && typeof window.syncMirrorData === 'function') window.syncMirrorData();
+}, 30000);
 
 // Auto-trigger sync on script ready
 setTimeout(() => {

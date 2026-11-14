@@ -4069,7 +4069,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(pingOnlineUsers, 3000);
     
     // Ping every 2 minutes (reduced from 30s to improve performance)
-    setInterval(pingOnlineUsers, 120000);
+    setInterval(() => { if (!document.hidden && navigator.onLine !== false) pingOnlineUsers(); }, 180000);
 });
 
 
@@ -6401,8 +6401,8 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
     });
 
     
-    // 4. Sales Invoices
-    const sales = loadSourceTable('erp_sales_invoices_v1').filter(x => !x.isGDN);
+    // 4. Sales Invoices (exclude GDN, archived split parents, drafts, and preliminary quotes)
+    const sales = loadSourceTable('erp_sales_invoices_v1').filter(x => !x.isGDN && !x.wasSplit && x.saleType !== 'preliminary' && x.status !== 'draft' && x.status !== 'preliminary');
     sales.forEach(inv => {
         let total = parseNum(inv.totalAmount || inv.total || inv.grandTotal);
         let subtotal = 0;
@@ -6426,7 +6426,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         const currency = inv.currency || 'SDG';
         const time = inv.time || timeNow;
         const refNo = inv.invoiceNo || inv.id;
-        const customerAcct = inv.customerId || inv.customer;
+        const customerAcct = resolveAccount(inv.customerId || inv.customer || inv.customerName || 'walk-in', 'walk-in');
         const isPosted = inv.isPosted !== false;
 
         const rate = parseNum(inv.exchangeRate || 1);
@@ -6757,8 +6757,17 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
     });
 
     
-    // 5. Purchase Invoices
-    const purchases = loadSourceTable('erp_purchase_invoices_v1').filter(x => !x.isGRN);
+    // 5. Purchase Invoices & Standalone Purchase Returns
+    const purchases = loadSourceTable('erp_purchase_invoices_v1').filter(x => !x.isGRN && x.status !== 'draft' && x.status !== 'preliminary');
+    const seenPurIds = new Set(purchases.map(p => String(p.invoiceNo || p.id || '')));
+    loadSourceTable('erp_purchase_returns_v1').forEach(pr => {
+        if (!pr || pr.reversed) return;
+        const rid = String(pr.id || pr.returnNo || '');
+        if (rid && !seenPurIds.has(rid)) {
+            seenPurIds.add(rid);
+            purchases.push({ ...pr, id: rid, invoiceNo: rid, isReturn: true });
+        }
+    });
     purchases.forEach(inv => {
         let total = parseNum(inv.totalAmount || inv.total || inv.grandTotal);
         let subtotal = 0;
@@ -6804,6 +6813,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         const addAmt = calcAmt(additions);
 
         if (inv.isAdjustment) {
+            if (jvs.some(j => String(j.id || j.voucherNo || '') === 'JV-' + String(refNo))) return;
             const absAmtLoc = Math.abs(totalAmt.loc);
             const absAmtFc = Math.abs(totalAmt.fc);
             const isSurplus = (totalAmt.loc >= 0);

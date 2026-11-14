@@ -736,10 +736,12 @@
         let runningBalance = 0;
         const allMaster = [...(JSON.parse(localStorage.getItem('erp_customers_v1')||'[]')), ...(JSON.parse(localStorage.getItem('erp_suppliers_v1')||'[]')), ...(JSON.parse(localStorage.getItem('erp_banks_v1')||'[]')), ...(JSON.parse(localStorage.getItem('erp_safes_v1')||'[]'))];
         const cleanAcc = String(accountId).replace(/^(cust|supp|bank|safe|exp)-/i, '');
-        const mEnt = allMaster.find(x => x && !x.deleted && (String(x.id) === String(accountId) || String(x.id) === cleanAcc));
+        const activeMaster = allMaster.filter(x => x && !x.deleted);
+        const mEnt = activeMaster.find(x => String(x.id) === String(accountId) || String(x.id) === cleanAcc)
+            || activeMaster.filter(x => x.name === accountId).sort((a, b) => Math.abs(parseFloat(b.openingBalance ?? b.openingDebit ?? b.balance ?? 0) || 0) - Math.abs(parseFloat(a.openingBalance ?? a.openingDebit ?? a.balance ?? 0) || 0))[0];
         if (mEnt) {
-            const rawOp = parseFloat(mEnt.openingBalance ?? mEnt.opening_balance ?? 0) || 0;
-            const isSup = (JSON.parse(localStorage.getItem('erp_suppliers_v1')||'[]')).some(s => s && !s.deleted && (String(s.id) === String(accountId) || String(s.id) === cleanAcc));
+            const rawOp = parseFloat(mEnt.openingBalance ?? mEnt.opening_balance ?? ((parseFloat(mEnt.openingDebit || 0) - parseFloat(mEnt.openingCredit || 0)) || 0)) || 0;
+            const isSup = (JSON.parse(localStorage.getItem('erp_suppliers_v1')||'[]')).some(s => s && !s.deleted && (String(s.id) === String(mEnt.id) || String(s.id) === cleanAcc));
             const opDr = isSup ? (rawOp < 0 ? Math.abs(rawOp) : 0) : (rawOp >= 0 ? rawOp : 0);
             const opCr = isSup ? (rawOp >= 0 ? rawOp : 0) : (rawOp < 0 ? Math.abs(rawOp) : 0);
             if (opDr > 0 || opCr > 0) {

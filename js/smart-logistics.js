@@ -2446,7 +2446,7 @@ window.saveSlCustomConfigPermanently = function() {
         localStorage.setItem('sl_custom_grid_config_v1', JSON.stringify(cfg));
         localStorage.setItem('sl_custom_font_size', String(cfg.fontSize));
         localStorage.setItem('sl_custom_font_color', cfg.fontColor);
-        fetch('api/settings.php', {
+        fetch('api/save_user_settings.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ key: 'sl_custom_grid_config_v1', value: cfg })

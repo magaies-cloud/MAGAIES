@@ -608,10 +608,10 @@ function calculateAccountLedgerBalance(p, allTxns, systemUsdRate, ccFilter = 'AL
     if (opDebit > 0 || opCredit > 0) {
         intrinsicBal = opDebit - opCredit;
     } else if (rawBal !== 0) {
-        if (p.balance_type === 'credit' || p.balanceType === 'credit') {
-            intrinsicBal = -Math.abs(rawBal);
+        if (p.balance_type === 'credit' || p.balanceType === 'credit' || p.type === 'SUPP') {
+            intrinsicBal = -rawBal;
         } else {
-            intrinsicBal = Math.abs(rawBal);
+            intrinsicBal = rawBal;
         }
     }
 

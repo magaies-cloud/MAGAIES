@@ -75,13 +75,13 @@ foreach ($checks as $ch) {
 $custReceivables = 0.0;
 $custAdvances = 0.0;
 foreach ($customers as $c) {
-    $b = (float)($c['currentBalance'] ?? $c['balance'] ?? 0);
+    $b = (float)($c['currentBalance'] ?? $c['balance'] ?? $c['openingBalance'] ?? $c['opening_balance'] ?? 0);
     if ($b >= 0) $custReceivables += $b; else $custAdvances += abs($b);
 }
 $suppPayables = 0.0;
 $suppAdvances = 0.0;
 foreach ($suppliers as $s) {
-    $b = (float)($s['currentBalance'] ?? $s['balance'] ?? 0);
+    $b = (float)($s['currentBalance'] ?? $s['balance'] ?? $s['openingBalance'] ?? $s['opening_balance'] ?? 0);
     if ($b >= 0) $suppPayables += $b; else $suppAdvances += abs($b);
 }
 
@@ -92,13 +92,21 @@ foreach ($items as $it) {
     $sell = (float)($it['sellingPrice'] ?? 0);
     $cost = (float)($it['costPrice'] ?? $it['buyPrice'] ?? $it['purchasePrice'] ?? $it['openingValue'] ?? ($sell * 0.8));
     $qty = 0.0;
-    if (!empty($it['units']) && is_array($it['units'])) {
+    if (isset($it['currentStock']) && is_numeric($it['currentStock'])) {
+        $qty = (float)$it['currentStock'];
+    } elseif (isset($it['quantity']) && is_numeric($it['quantity'])) {
+        $qty = (float)$it['quantity'];
+    } elseif (isset($it['stock']) && is_array($it['stock'])) {
+        foreach ($it['stock'] as $whKey => $whQty) {
+            if ($whKey !== 'PENDING_RECEIPT') $qty += (float)$whQty;
+        }
+    } elseif (!empty($it['units']) && is_array($it['units'])) {
         foreach ($it['units'] as $u) {
             $f = max(1.0, (float)($u['factor'] ?? 1));
             $qty += ((float)($u['stock'] ?? 0)) * $f;
         }
     } else {
-        $qty = (float)($it['stock'] ?? $it['currentStock'] ?? $it['openingQty'] ?? 0);
+        $qty = (float)(is_scalar($it['stock'] ?? null) ? $it['stock'] : ($it['openingQty'] ?? $it['openingBalance'] ?? 0));
     }
     if ($qty > 0) {
         $inventoryValue += ($qty * $cost);

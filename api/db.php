@@ -1,4 +1,7 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() === 0) {
+    @ob_start('ob_gzhandler');
+}
 // -------------------------------------------------------
 // توافقية دوال mbstring للخوادم التي لا تفعل إضافة mbstring افتراضياً
 // -------------------------------------------------------
@@ -146,13 +149,7 @@ if (!class_exists('MagaieesNullSafePDO')) {
 }
 
 try {
-    if ((PHP_OS_FAMILY === 'Windows' || stripos(PHP_OS, 'WIN') === 0) && ($host === '127.0.0.1' || $host === 'localhost')) {
-        $fp = @fsockopen('127.0.0.1', (int)$port, $errno, $errstr, 0.05);
-        if (!$fp) {
-            throw new \PDOException("Local MySQL port $port is not listening");
-        }
-        @fclose($fp);
-    }
+    $options[PDO::ATTR_TIMEOUT] = 1;
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (\PDOException $e) {
     error_log('DB Connection Error: ' . $e->getMessage());

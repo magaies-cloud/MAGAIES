@@ -25,12 +25,16 @@ if ($__isLocalMasterEnv && empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL']) && $__
             } elseif (function_exists('fastcgi_finish_request')) {
                 @fastcgi_finish_request();
             }
+            $fwdSecret = getenv('MAGAIEES_AUTH_HMAC_KEY') ?: 'ELSAJANA_MAGAIEES_PERSISTENT_MOBILE_SYNC_KEY_2026';
+            $fwdB64 = rtrim(strtr(base64_encode(json_encode(['t' => $fwdTid, 'u' => 1, 'exp' => time() + 300])), '+/', '-_'), '=');
+            $fwdTok = 'MGD1.' . $fwdB64 . '.' . hash_hmac('sha256', $fwdB64, $fwdSecret);
             $ch = curl_init('https://c.elsajana.com/api/save_master_data.php?tenant_id=' . $fwdTid);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $rawBodyMaster);
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
                 'Content-Type: application/json',
+                'Authorization: Bearer ' . $fwdTok,
                 'X-Forwarded-From-Local: 1',
                 'X-Tenant-Id: ' . $fwdTid
             ]);
@@ -269,11 +273,11 @@ try {
                 $existingId = $stmtCheck->fetchColumn();
 
                 if ($existingId) {
-                    $stmtUp = $pdo->prepare("UPDATE items SET item_id = ?, data = ?, updated_at = NOW() WHERE id = ?");
-                    $stmtUp->execute([$itemId, $jsonData, $existingId]);
+                    $stmtUp = $pdo->prepare("UPDATE items SET item_id = ?, frontend_id = ?, data = ?, updated_at = NOW() WHERE id = ?");
+                    $stmtUp->execute([$itemId, $itemId, $jsonData, $existingId]);
                 } else {
-                    $stmtIns = $pdo->prepare("INSERT INTO items (tenant_id, item_id, data) VALUES (?, ?, ?)");
-                    $stmtIns->execute([$tenant_id, $itemId, $jsonData]);
+                    $stmtIns = $pdo->prepare("INSERT INTO items (tenant_id, item_id, frontend_id, data) VALUES (?, ?, ?, ?)");
+                    $stmtIns->execute([$tenant_id, $itemId, $itemId, $jsonData]);
                 }
             }
             break;
@@ -522,17 +526,27 @@ try {
                 $data['statementAccessMode'] = $mode;
                 $data['allowStatementRequest'] = ($mode !== 'disabled');
 
+                foreach (['phone', 'whatsapp'] as $pf) {
+                    if (!empty($data[$pf])) {
+                        $data[$pf] = preg_replace('/^(00|\+)?2449([19]\d{8})$/', '${1}249$2', trim((string)$data[$pf]));
+                    }
+                }
+                if (empty($data['whatsapp']) && !empty($data['phone'])) $data['whatsapp'] = $data['phone'];
+                if (isset($data['creditLimit']) && !isset($data['credit_limit'])) $data['credit_limit'] = (float)$data['creditLimit'];
+                if (isset($data['credit_limit']) && !isset($data['creditLimit'])) $data['creditLimit'] = (float)$data['credit_limit'];
+                if (isset($data['openingBalance']) && !isset($data['opening_balance'])) $data['opening_balance'] = (float)$data['openingBalance'];
+                if (!isset($data['balance_type'])) $data['balance_type'] = 'debit';
                 $data['deleted'] = 0;
                 $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE);
                 $stmtCheck = $pdo->prepare("SELECT id FROM customers WHERE tenant_id = ? AND (frontend_id = ? OR customer_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
                 $stmtCheck->execute([$tenant_id, $cId, $cId, $cId]);
                 $existingId = $stmtCheck->fetchColumn();
                 if ($existingId) {
-                    $stmtUp = $pdo->prepare("UPDATE customers SET customer_id = ?, data = ?, updated_at = NOW() WHERE id = ?");
-                    $stmtUp->execute([$cId, $jsonData, $existingId]);
+                    $stmtUp = $pdo->prepare("UPDATE customers SET customer_id = ?, frontend_id = ?, data = ?, updated_at = NOW() WHERE id = ?");
+                    $stmtUp->execute([$cId, $cId, $jsonData, $existingId]);
                 } else {
-                    $stmtIns = $pdo->prepare("INSERT INTO customers (tenant_id, customer_id, data) VALUES (?, ?, ?)");
-                    $stmtIns->execute([$tenant_id, $cId, $jsonData]);
+                    $stmtIns = $pdo->prepare("INSERT INTO customers (tenant_id, customer_id, frontend_id, data) VALUES (?, ?, ?, ?)");
+                    $stmtIns->execute([$tenant_id, $cId, $cId, $jsonData]);
                 }
             }
             break;
@@ -707,6 +721,16 @@ try {
                 }
                 $data['statementAccessMode'] = $mode;
                 $data['allowStatementRequest'] = ($mode !== 'disabled');
+                foreach (['phone', 'whatsapp'] as $pf) {
+                    if (!empty($data[$pf])) {
+                        $data[$pf] = preg_replace('/^(00|\+)?2449([19]\d{8})$/', '${1}249$2', trim((string)$data[$pf]));
+                    }
+                }
+                if (empty($data['whatsapp']) && !empty($data['phone'])) $data['whatsapp'] = $data['phone'];
+                if (isset($data['creditLimit']) && !isset($data['credit_limit'])) $data['credit_limit'] = (float)$data['creditLimit'];
+                if (isset($data['credit_limit']) && !isset($data['creditLimit'])) $data['creditLimit'] = (float)$data['credit_limit'];
+                if (isset($data['openingBalance']) && !isset($data['opening_balance'])) $data['opening_balance'] = (float)$data['openingBalance'];
+                if (!isset($data['balance_type'])) $data['balance_type'] = 'credit';
                 $data['deleted'] = 0;
                 $sPhoneVal = trim((string)($data['phone'] ?? $data['whatsapp'] ?? ''));
                 $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE);
@@ -714,11 +738,11 @@ try {
                 $stmtCheck->execute([$tenant_id, $sId, $sId, $sId]);
                 $existingId = $stmtCheck->fetchColumn();
                 if ($existingId) {
-                    $stmtUp = $pdo->prepare("UPDATE suppliers SET supplier_id = ?, data = ?, updated_at = NOW() WHERE id = ? AND tenant_id = ?");
-                    $stmtUp->execute([$sId, $jsonData, $existingId, $tenant_id]);
+                    $stmtUp = $pdo->prepare("UPDATE suppliers SET supplier_id = ?, frontend_id = ?, data = ?, updated_at = NOW() WHERE id = ? AND tenant_id = ?");
+                    $stmtUp->execute([$sId, $sId, $jsonData, $existingId, $tenant_id]);
                 } else {
-                    $stmtIns = $pdo->prepare("INSERT INTO suppliers (tenant_id, supplier_id, data) VALUES (?, ?, ?)");
-                    $stmtIns->execute([$tenant_id, $sId, $jsonData]);
+                    $stmtIns = $pdo->prepare("INSERT INTO suppliers (tenant_id, supplier_id, frontend_id, data) VALUES (?, ?, ?, ?)");
+                    $stmtIns->execute([$tenant_id, $sId, $sId, $jsonData]);
                 }
             }
             break;
