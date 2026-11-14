@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>معاينة وتصميم الأرصدة | Al-Sajana ERP</title>
     <!-- Professional Arabic & Number Fonts Suite -->
-    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;600;800&family=Almarai:wght@400;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;800;900&family=Changa:wght@400;600;800&family=Tajawal:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600;800&family=Roboto+Mono:wght@400;600;800&family=Fira+Code:wght@400;600;800&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;600;800&family=Almarai:wght@400;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;800;900&family=Changa:wght@400;600;800&family=Tajawal:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600;800&family=Roboto+Mono:wght@400;600;800&family=Fira+Code:wght@400;600;800&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     
     <style id="dynamic-paper-style">
         @page { size: A4 landscape; margin: 10mm; }
@@ -570,7 +570,8 @@
         }
     </style>
 </head>
-<body>
+<body<?= empty($_GET['inModal']) ? ' class="has-sidebar"' : '' ?>>
+<?php if (empty($_GET['inModal']) && file_exists(__DIR__ . '/includes/header.php')) { $header_theme_class = 'header-theme-reports'; include __DIR__ . '/includes/header.php'; } ?>
 
 <!-- Luxury Ribbon Toolbar -->
 <div class="ribbon no-print">

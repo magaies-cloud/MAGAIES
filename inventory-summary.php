@@ -10,7 +10,7 @@ $header_theme_class = "header-theme-inventory";
     <title><?php echo $page_title; ?> - نظام السيطرة</title>
     
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     
     <!-- Base CSS -->
     <link rel="stylesheet" href="css/theme.css?v=20261029_fast">
@@ -141,15 +141,13 @@ $header_theme_class = "header-theme-inventory";
             </div>
 
             <div class="ribbon-actions-group">
-                <button class="ribbon-btn" onclick="openStudioPreviewPage()" style="--btn-color: #eab308; background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(202, 138, 4, 0.3)); border-color: rgba(234, 179, 8, 0.5); color: #fef08a;">
-                    <span>⚙️</span> <span>إعدادات الأعمدة</span>
-                </button>
                 <button class="ribbon-btn" onclick="openStudioPreviewPage()" style="--btn-color: #0d9488;">
                     <span>👁️</span> <span>معاينة</span>
                 </button>
                 <button class="ribbon-btn" onclick="printReportDirectly('تقرير ملخص حركات المخزون', '#report-table-wrap')" style="--btn-color: #38bdf8;">
                     <span>🖨️</span> <span>طباعة</span>
                 </button>
+                <button type="button" class="ribbon-btn unified-col-props-btn" onclick="openStudioPreviewPage()" style="display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; height:43px !important; padding:0 18px !important; border-radius:10px !important; background:linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%) !important; border:1.8px solid #38bdf8 !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; font-family:'Cairo','Tajawal',sans-serif !important; font-size:0.92rem !important; font-weight:900 !important; cursor:pointer !important; box-shadow:0 4px 12px rgba(14,165,233,0.25) !important; white-space:nowrap !important; flex-shrink:0 !important;"><span>⚙️</span><span>خصائص الأعمدة</span></button>
             </div>
         </div>
 

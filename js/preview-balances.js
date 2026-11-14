@@ -1,7 +1,7 @@
 // js/preview-balances.js - Pro Studio Edition
 
 const PRESETS_STORAGE_KEY = 'balances_preview_presets_v20';
-const MAX_PRESETS_LIMIT = 6;
+const MAX_PRESETS_LIMIT = 8;
 let currentData = [];
 let filteredData = [];
 let currentPresetIndex = 0;
@@ -57,7 +57,8 @@ const baseColumns = [
     { idx: 7, defaultLabel: "دائن (محلي)", field: "endingCreditLocal", isNum: true },
     { idx: 8, defaultLabel: "رصيد (محلي)", field: "balanceLocal", isNum: true },
     { idx: 9, defaultLabel: "رصيد (أجنبي)", field: "balanceForeign", isNum: true },
-    { idx: 10, defaultLabel: "ملاحظات / حالة", field: "notes", isNum: false }
+    { idx: 10, defaultLabel: "ملاحظات / حالة", field: "notes", isNum: false },
+    { idx: 11, defaultLabel: "سعر الصرف", field: "exchangeRate", isNum: true }
 ];
 
 function getRawFieldValue(row, field) {
@@ -82,12 +83,13 @@ function getRawFieldValue(row, field) {
         const crF = (row.endingCreditForeign !== undefined ? row.endingCreditForeign : row.total_cr_foreign) || 0;
         return drF - crF;
     }
+    if (field === 'exchangeRate') { const r = parseFloat(row.exchangeRate || window.SYSTEM_USD_RATE || localStorage.getItem('erp_usd_rate') || 600) || 600; return r > 0 ? r : '-'; }
     if (field === 'notes') return row.notes || row.status || (row.type === 'CUST' ? 'عميل' : (row.type === 'SUPP' ? 'مورد' : ''));
     
     return row[field] !== undefined ? row[field] : '';
 }
 
-let columnOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+let columnOrder = [0, 10, 1, 6, 7, 8, 11, 4, 5, 9, 2, 3];
 let columnConfigs = {};
 
 function loadCompanyHeader() {
@@ -312,146 +314,95 @@ function getDefaultConfigs() {
     return conf;
 }
 
+function lightenHex3ShadesBal(hex) {
+    if (!hex || typeof hex !== 'string' || !hex.startsWith('#') || hex.length < 7) return hex;
+    const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+    if (isNaN(r) || isNaN(g) || isNaN(b)) return hex;
+    const f = 0.65;
+    return '#' + [r, g, b].map(v => Math.round(v + (255 - v) * f).toString(16).padStart(2, '0')).join('');
+}
+
+const BAL_MC_MASTER_ORDER = [0, 10, 1, 6, 7, 8, 11, 4, 5, 9, 2, 3];
+const BAL_MC_LOCK_STAMP = 'bal_gl_mc_unified_2027_v2';
+
 function getFactoryPreset1Configs() {
     let conf = getDefaultConfigs();
-    conf[0] = { ...conf[0], label: "اسم الحساب", visible: true, align: 'center', fontWeight: 'bold', color: '#000000', bgColor: '' };
-    conf[1] = { ...conf[1], label: "رقم الهاتف", visible: true, align: 'center', fontWeight: 'bold', color: '#008000', bgColor: '#dcfce7' };
-    conf[2] = { ...conf[2], visible: false };
-    conf[3] = { ...conf[3], visible: false };
-    conf[4] = { ...conf[4], label: "عليه (أجنبي)", visible: true, align: 'center', fontWeight: 'bold', color: '#0044cc', bgColor: '#e0f2fe' };
-    conf[5] = { ...conf[5], label: "له (أجنبي)", visible: true, align: 'center', fontWeight: 'bold', color: '#dc2626', bgColor: '#fee2e2' };
-    conf[6] = { ...conf[6], label: "عليه (محلي)", visible: true, align: 'center', fontWeight: 'bold', color: '#0044cc', bgColor: '#e0f2fe' };
-    conf[7] = { ...conf[7], label: "له (محلي)", visible: true, align: 'center', fontWeight: 'bold', color: '#dc2626', bgColor: '#fee2e2' };
-    conf[8] = { ...conf[8], visible: false };
-    conf[9] = { ...conf[9], visible: false };
-    conf[10] = { ...conf[10], visible: false };
+    conf[0]  = { ...conf[0],  label: "اسم الحساب",          visible: true,  fs: 0.95, fontWeight: '900', color: '',        bgColor: '#edfafd', align: 'right' };
+    conf[1]  = { ...conf[1],  label: "رقم الهاتف",          visible: true,  fs: 0.9,  fontWeight: '900', color: '',        bgColor: '#fff0ff', align: 'center' };
+    conf[2]  = { ...conf[2],  label: "الرقم الضريبي",        visible: false, fs: 0.9,  fontWeight: '',    color: '',        bgColor: '',        align: 'center' };
+    conf[3]  = { ...conf[3],  label: "العملة",              visible: false, fs: 0.9,  fontWeight: '',    color: '',        bgColor: '',        align: 'center' };
+    conf[6]  = { ...conf[6],  label: "مدين محلي (عليه)",    visible: true,  fs: 0.92, fontWeight: '900', color: '#0516ff', bgColor: '#f0ffff', align: 'center', decimals: 0 };
+    conf[7]  = { ...conf[7],  label: "دائن محلي (له)",      visible: true,  fs: 0.92, fontWeight: '900', color: '#fb0404', bgColor: '#fcf2f2', align: 'center', decimals: 0 };
+    conf[8]  = { ...conf[8],  label: "الإجمالي المحلي",      visible: false, fs: 0.92, fontWeight: '900', color: '',        bgColor: '#fefff0', align: 'center', decimals: 0 };
+    conf[11] = { ...(conf[11] || conf[0]), label: "سعر الصرف", visible: true, fs: 0.9, fontWeight: '', color: '',          bgColor: '#e0fff1', align: 'center', decimals: 2 };
+    conf[4]  = { ...conf[4],  label: "مدين أجنبي (عليه)",   visible: true,  fs: 0.92, fontWeight: '900', color: '#0703fc', bgColor: '#f0ffff', align: 'center', decimals: 2 };
+    conf[5]  = { ...conf[5],  label: "دائن أجنبي (له)",     visible: true,  fs: 0.92, fontWeight: '900', color: '#fa0000', bgColor: '#fcf2f2', align: 'center', decimals: 2 };
+    conf[9]  = { ...conf[9],  label: "الإجمالي الأجنبي",     visible: false, fs: 0.92, fontWeight: '',    color: '',        bgColor: '#fefff0', align: 'center', decimals: 2 };
+    conf[10] = { ...conf[10], label: "ملاحظات",             visible: true,  fs: 0.9,  fontWeight: '900', color: '',        bgColor: '#e9fbee', align: 'center' };
     return conf;
 }
 
+function getFactoryPreset2Configs() {
+    let conf = getFactoryPreset1Configs();
+    conf[8].visible = true;
+    conf[9].visible = true;
+    Object.keys(conf).forEach(k => {
+        conf[k] = {
+            ...conf[k],
+            color: conf[k].color ? lightenHex3ShadesBal(conf[k].color) : conf[k].color,
+            bgColor: conf[k].bgColor ? lightenHex3ShadesBal(conf[k].bgColor) : ''
+        };
+    });
+    return conf;
+}
 
-// ════════════════ TWO-TIER PRESET & FACTORY DEFAULTS ENGINE ════════════════
+function getBalancesForeignConfigs() {
+    let conf = getFactoryPreset2Configs();
+    Object.keys(conf).forEach(k => { conf[k].fs = (k === '9') ? 1.2 : 1.1; });
+    [6, 7, 8, 10, 2, 3].forEach(i => { if (conf[i]) conf[i].visible = false; });
+    return conf;
+}
+
+function getBalancesLocalConfigs() {
+    let conf = getFactoryPreset2Configs();
+    Object.keys(conf).forEach(k => { conf[k].fs = (k === '8') ? 1.35 : 1.25; });
+    [4, 5, 9, 10, 2, 3].forEach(i => { if (conf[i]) conf[i].visible = false; });
+    [0, 1, 11, 6, 7, 8].forEach(i => { if (conf[i]) conf[i].visible = true; });
+    return conf;
+}
 
 const FACTORY_PRESETS_BALANCES = [
-    {
-        name: '💎 افتراضي 1',
-        configs: getFactoryPreset1Configs(),
-        order: [0, 6, 7, 4, 5, 1, 2, 3, 8, 9, 10],
-        theme: 'theme-gold',
-        font: 'font-ultra',
-        paperSize: 'A4',
-        orientation: 'landscape',
-        margins: 'normal',
-        showLogo: true,
-        showInfo: true,
-        showUser: true,
-        userPos: 'bottom-right',
-        showDateTime: true,
-        showPageNums: true,
-        showInRibbon: true
-    },
-    {
-        name: '⭐ افتراضي 2',
-        configs: getDefaultConfigs(),
-        order: [0, 1, 2, 3, 6, 7, 8, 9, 4, 5, 10],
-        theme: 'theme-classic-navy',
-        font: 'font-newsons',
-        paperSize: 'A4',
-        orientation: 'landscape',
-        margins: 'compact',
-        showLogo: true,
-        showInfo: true,
-        showUser: true,
-        userPos: 'bottom-right',
-        showDateTime: true,
-        showPageNums: true,
-        showInRibbon: true
-    },
-    {
-        name: '🎨 افتراضي 3',
-        configs: getDefaultConfigs(),
-        order: [0, 3, 4, 5, 6, 7, 8, 9, 1, 2, 10],
-        theme: 'theme-emerald-pro',
-        font: 'font-tajawal',
-        paperSize: 'A4',
-        orientation: 'landscape',
-        margins: 'normal',
-        showLogo: true,
-        showInfo: true,
-        showUser: true,
-        userPos: 'bottom-right',
-        showDateTime: true,
-        showPageNums: true,
-        showInRibbon: true
-    },
-    {
-        name: '🔥 افتراضي 4',
-        configs: getDefaultConfigs(),
-        order: [0, 1, 3, 6, 7, 8, 9, 2, 4, 5, 10],
-        theme: 'theme-modern-slate',
-        font: 'font-cairo',
-        paperSize: 'A4',
-        orientation: 'landscape',
-        margins: 'compact',
-        showLogo: true,
-        showInfo: true,
-        showUser: true,
-        userPos: 'bottom-right',
-        showDateTime: true,
-        showPageNums: true,
-        showInRibbon: true
-    },
-    {
-        name: '✨ افتراضي 5',
-        configs: getDefaultConfigs(),
-        order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-        theme: 'theme-luxury-gold',
-        font: 'font-ultra',
-        paperSize: 'A4',
-        orientation: 'landscape',
-        margins: 'normal',
-        showLogo: true,
-        showInfo: true,
-        showUser: true,
-        userPos: 'bottom-right',
-        showDateTime: true,
-        showPageNums: true,
-        showInRibbon: true
-    },
-    {
-        name: '🚀 افتراضي 6',
-        configs: getDefaultConfigs(),
-        order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-        theme: '',
-        font: 'font-ultra',
-        paperSize: 'A4',
-        orientation: 'landscape',
-        margins: 'normal',
-        showLogo: true,
-        showInfo: true,
-        showUser: true,
-        userPos: 'bottom-right',
-        showDateTime: true,
-        showPageNums: true,
-        showInRibbon: true
-    }
+    { name: 'متعدد العملات 1', configs: getFactoryPreset1Configs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-newsons', paperSize: 'A4', orientation: 'landscape', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
+    { name: 'متعدد العملات 2', configs: getFactoryPreset2Configs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-newsons', paperSize: 'A4', orientation: 'landscape', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
+    { name: 'الأجنبي',         configs: getBalancesForeignConfigs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-newsons', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
+    { name: 'المحلي',          configs: getBalancesLocalConfigs(),   order: [0, 1, 11, 6, 7, 8, 10, 2, 3, 4, 5, 9], theme: '', font: 'font-newsons', paperSize: 'A4', orientation: 'portrait', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
+    { name: 'نمط 1',           configs: getFactoryPreset1Configs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-newsons', paperSize: 'A4', orientation: 'landscape', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: false },
+    { name: 'نمط 2',           configs: getFactoryPreset2Configs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-newsons', paperSize: 'A4', orientation: 'landscape', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: false },
+    { name: 'نمط 3',           configs: getBalancesForeignConfigs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-newsons', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: false },
+    { name: 'نمط 4',           configs: getBalancesLocalConfigs(),   order: [0, 1, 11, 6, 7, 8, 10, 2, 3, 4, 5, 9], theme: '', font: 'font-newsons', paperSize: 'A4', orientation: 'portrait', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: false }
 ];
 
 function getSavedPresets() {
     let raw = localStorage.getItem(PRESETS_STORAGE_KEY);
-    if (!raw) return [];
-    try {
-        let list = JSON.parse(raw);
-        if (Array.isArray(list)) {
-            if (list.length > MAX_PRESETS_LIMIT) {
-                list = list.slice(0, MAX_PRESETS_LIMIT);
-                localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(list));
-            }
-            return list;
-        }
-        return [];
-    } catch(e) {
-        return [];
+    let list = [];
+    if (raw) { try { list = JSON.parse(raw); } catch(e) { list = []; } }
+    if (!Array.isArray(list) || list.length === 0) {
+        return JSON.parse(JSON.stringify(FACTORY_PRESETS_BALANCES));
     }
+    const out = [];
+    for (let i = 0; i < 8; i++) {
+        if (i < 4) {
+            out.push(JSON.parse(JSON.stringify(FACTORY_PRESETS_BALANCES[i])));
+        } else if (list[i] && list[i].configs) {
+            const p = { ...FACTORY_PRESETS_BALANCES[i], ...list[i], isLocked: false };
+            const cn = String(p.name || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F]/gu, '').trim();
+            p.name = (!cn || cn.includes('افتراضي') || cn.includes('المستخدم')) ? ('نمط ' + (i - 3)) : cn;
+            out.push(p);
+        } else {
+            out.push(JSON.parse(JSON.stringify(FACTORY_PRESETS_BALANCES[i])));
+        }
+    }
+    return out;
 }
 
 function savePresets(presets) {
@@ -651,12 +602,13 @@ function renderPresetButtons() {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'preset-btn' + (idx === currentPresetIndex ? ' active' : '');
-        btn.innerHTML = p.name + (idx === currentPresetIndex ? ' 🟢' : ' 🔓');
-        btn.title = 'تطبيق وتصميم ' + p.name;
+        const cleanLabel = String(p.name || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F]/gu, '').trim();
+        btn.textContent = cleanLabel || p.name;
+        btn.title = 'تطبيق ' + cleanLabel;
         btn.onclick = function(e) {
             if (e) e.preventDefault();
+            if (idx === currentPresetIndex) return;
             loadPreset(idx);
-            if (typeof showToast === 'function') showToast('✨ تم تطبيق [' + p.name + ']', 'info');
         };
         container.appendChild(btn);
     });

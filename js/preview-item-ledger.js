@@ -3356,12 +3356,13 @@ function renderPresetButtons() {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'preset-btn' + (idx === currentPresetIndex ? ' active' : '');
-        btn.innerHTML = p.name + (idx === currentPresetIndex ? ' 🟢' : '');
-        btn.title = 'تطبيق ' + p.name;
+        const cleanLabel = String(p.name || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F]/gu, '').trim();
+        btn.textContent = cleanLabel || p.name;
+        btn.title = 'تطبيق ' + cleanLabel;
         btn.onclick = function(e) {
             if (e) e.preventDefault();
+            if (idx === currentPresetIndex) return;
             loadPreset(idx);
-            if (typeof showToast === 'function') showToast('✨ تم تطبيق [' + p.name + ']', 'info');
         };
         container.appendChild(btn);
     });

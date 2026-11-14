@@ -62,54 +62,38 @@
     };
 })();
 
-// 📡 AUTO-BOOTSTRAP GLOBAL BACKGROUND MEDIA & LIVE TV ACROSS ALL SCREENS
+// 📡 AUTO-BOOTSTRAP GLOBAL BACKGROUND MEDIA ONLY WHEN ACTIVE (Zero bandwidth on weak internet)
 (function() {
-    if (typeof window.playPersistentMedia !== 'function') {
-        const existing = document.querySelector('script[src*="global_background_media"]');
-        if (!existing) {
-            const ms = document.createElement('script');
-            ms.src = 'js/global_background_media.js?v=2026_seamless_v5';
-            ms.defer = true;
-            if (document.head) {
-                document.head.appendChild(ms);
-            } else {
-                document.addEventListener('DOMContentLoaded', () => document.head.appendChild(ms));
-            }
-        }
+    let mediaActive = false;
+    try { mediaActive = !!(localStorage.getItem('erp_bg_media_playing') === '1' || localStorage.getItem('magaies_live_tv_active') === '1'); } catch(e) {}
+    if (mediaActive && typeof window.playPersistentMedia !== 'function' && !document.querySelector('script[src*="global_background_media"]')) {
+        const ms = document.createElement('script');
+        ms.src = 'js/global_background_media.js?v=2026_seamless_v5';
+        ms.defer = true;
+        if (document.head) document.head.appendChild(ms);
+        else document.addEventListener('DOMContentLoaded', () => document.head.appendChild(ms));
     }
 })();
 
-// 🛡️ AUTO-BOOTSTRAP ENTERPRISE PERMISSIONS MANAGER ACROSS ALL SCREENS
+// 🛡️ AUTO-BOOTSTRAP ENTERPRISE PERMISSIONS MANAGER ACROSS ALL SCREENS (Non-blocking defer)
 (function() {
-    if (typeof window.MagaieesPermissions === 'undefined') {
-        const existing = document.querySelector('script[src*="permissions-manager"]');
-        if (!existing) {
-            const ps = document.createElement('script');
-            ps.src = 'js/permissions-manager.js?v=' + (window.MAGAIEES_VERSION || '2026_enterprise_v2');
-            ps.defer = false;
-            if (document.head) {
-                document.head.appendChild(ps);
-            } else {
-                document.addEventListener('DOMContentLoaded', () => document.head.appendChild(ps));
-            }
-        }
+    if (typeof window.MagaieesPermissions === 'undefined' && !document.querySelector('script[src*="permissions-manager"]')) {
+        const ps = document.createElement('script');
+        ps.src = 'js/permissions-manager.js?v=' + (window.MAGAIEES_VERSION || '2026_enterprise_v2');
+        ps.defer = true;
+        if (document.head) document.head.appendChild(ps);
+        else document.addEventListener('DOMContentLoaded', () => document.head.appendChild(ps));
     }
 })();
 
-// 🔔 AUTO-BOOTSTRAP MODERN ALERTS & TOASTS ACROSS ALL SCREENS
+// 🔔 AUTO-BOOTSTRAP MODERN ALERTS & TOASTS ACROSS ALL SCREENS (Non-blocking defer)
 (function() {
-    if (typeof window.MagaieesAlerts === 'undefined') {
-        const existing = document.querySelector('script[src*="modern-alerts"]');
-        if (!existing) {
-            const mas = document.createElement('script');
-            mas.src = 'js/modern-alerts.js?v=' + (window.MAGAIEES_VERSION || '2026_enterprise_v2');
-            mas.defer = false;
-            if (document.head) {
-                document.head.appendChild(mas);
-            } else {
-                document.addEventListener('DOMContentLoaded', () => document.head.appendChild(mas));
-            }
-        }
+    if (typeof window.MagaieesAlerts === 'undefined' && !document.querySelector('script[src*="modern-alerts"]')) {
+        const mas = document.createElement('script');
+        mas.src = 'js/modern-alerts.js?v=' + (window.MAGAIEES_VERSION || '2026_enterprise_v2');
+        mas.defer = true;
+        if (document.head) document.head.appendChild(mas);
+        else document.addEventListener('DOMContentLoaded', () => document.head.appendChild(mas));
     }
 })();
 
@@ -1972,15 +1956,19 @@ JSON.parse = function(val) {
                     console.warn("Cloud Sync Pull: using local offline cache.");
                 }
 
-                // When running on Local Laptop (localhost / 127.0.0.1) for Tenant 12 (Company C), also pull & smart-merge from 24/7 Cloud Server (https://c.elsajana.com)
-                if (isLocal && navigator.onLine && (!currentTid || currentTid === '12')) {
+                // Throttle remote cloud pull on localhost to once every 5 minutes with 6s timeout for weak internet
+                const lastCloudPullTs = parseInt(sessionStorage.getItem('last_remote_cloud_pull_ts') || '0', 10);
+                if (isLocal && navigator.onLine && (!currentTid || currentTid === '12') && (Date.now() - lastCloudPullTs > 300000)) {
+                    sessionStorage.setItem('last_remote_cloud_pull_ts', String(Date.now()));
+                    const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+                    const tId = ctrl ? setTimeout(() => ctrl.abort(), 6000) : null;
                     const cloudHeaders = Object.assign({}, getAuthHeaders(), {
                         "Authorization": "Bearer offline_token_fallback",
                         "X-Tenant-Id": "12",
                         "X-Forwarded-From-Local": "1"
                     });
-                    fetch('https://c.elsajana.com/api_index.php/sync/pull', { headers: cloudHeaders })
-                        .then(rCloud => rCloud.ok ? rCloud.json() : null)
+                    fetch('https://c.elsajana.com/api_index.php/sync/pull', { headers: cloudHeaders, signal: ctrl ? ctrl.signal : undefined })
+                        .then(rCloud => { if (tId) clearTimeout(tId); return rCloud.ok ? rCloud.json() : null; })
                         .then(cloudData => {
                             if (cloudData && cloudData.success && cloudData.data) {
                                 if (cloudData.tenant_id && String(cloudData.tenant_id) !== '12') return;
@@ -1992,7 +1980,7 @@ JSON.parse = function(val) {
                                 }
                             }
                         })
-                        .catch(() => {});
+                        .catch(() => { if (tId) clearTimeout(tId); });
                 }
             }).catch(err => {
                 console.warn("Cloud Sync Pull Deferred (Working Offline):", err);
@@ -2001,16 +1989,19 @@ JSON.parse = function(val) {
             });
     };
 
-    // Run pull once on load if needed (deferred to not block instant UI render)
+    // Throttle auto-pull across screen navigations (once per 3 min instead of re-downloading full DB on every click)
     document.addEventListener("DOMContentLoaded", () => {
         if (window.location.pathname.includes('login')) return;
         const isLocalEnv = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1');
-        if (localStorage.getItem('authToken') || isLocalEnv) {
-            setTimeout(() => {
+        const lastPullTs = parseInt(sessionStorage.getItem('last_local_sync_pull_ts') || '0', 10);
+        if ((localStorage.getItem('authToken') || isLocalEnv) && (Date.now() - lastPullTs > 180000)) {
+            sessionStorage.setItem('last_local_sync_pull_ts', String(Date.now()));
+            const runIdle = window.requestIdleCallback || ((fn) => setTimeout(fn, 600));
+            runIdle(() => {
                 window.pullFromCloud(isLocalEnv).then(() => {
                     window.dispatchEvent(new Event('strictDataReady'));
                 }).catch(() => {});
-            }, isLocalEnv ? 150 : 2000);
+            });
         }
     });
 

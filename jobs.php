@@ -11,7 +11,7 @@ $header_theme_class = 'header-theme-dashboard';
     <title>مركز إدارة المهام والأعمال التنفيذية 360° | Magaiees ERP</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=<?php echo file_exists('css/theme.css') ? filemtime('css/theme.css') : '12'; ?>">
@@ -1279,7 +1279,7 @@ $header_theme_class = 'header-theme-dashboard';
             w.document.write(`
                 <!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">
                 <title>أمر تكليف رسمي #${j.id}</title>
-                <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet">
+                <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
                 <style>
                     body { font-family:'Tajawal',sans-serif; padding:30px; color:#0f172a; }
                     .box { border:2px solid #0f172a; border-radius:14px; padding:24px; }

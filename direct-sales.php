@@ -116,7 +116,7 @@ try {
   });
 })();
 </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>المبيعات | Al-Sajana Protocol</title>
@@ -3495,43 +3495,36 @@ try {
         <!-- Action Cards -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(195px, 1fr)); gap: 14px;">
             <button onclick="openInvoiceEditor('pending_delivery')" class="hub-action-card card-blue animate-scale stagger-1">
-                <div class="icon">➕</div>
                 <div class="text-content">
                     <div class="title">فاتورة مبيعات</div>
                 </div>
             </button>
             <button onclick="window.location.href='sales-delivery.php'" class="hub-action-card card-green animate-scale stagger-2">
-                <div class="icon">📤</div>
                 <div class="text-content">
                     <div class="title">بوابة تسليم المبيعات</div>
                 </div>
             </button>
             <button onclick="if(typeof window.openDeliveryHub === 'function') window.openDeliveryHub();" class="hub-action-card card-teal animate-scale stagger-2" style="background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(5,150,105,0.35)); border: 1px solid rgba(52,211,153,0.5);">
-                <div class="icon">✂️</div>
                 <div class="text-content">
                     <div class="title">فاتورة تقسيم وتسليم المبيعات</div>
                 </div>
             </button>
             <button onclick="window.location.href='sales-invoice.php'" class="hub-action-card card-orange animate-scale stagger-3">
-                <div class="icon">↩️</div>
                 <div class="text-content">
                     <div class="title">مرتجع مبيعات</div>
                 </div>
             </button>
             <button onclick="openInvoiceEditor('preliminary')" class="hub-action-card card-purple animate-scale stagger-4">
-                <div class="icon">📋</div>
                 <div class="text-content">
                     <div class="title">فاتورة مبدئية</div>
                 </div>
             </button>
             <button onclick="window.location.href='reserved-sales.php'" class="hub-action-card card-purple animate-scale stagger-4">
-                <div class="icon">🔖</div>
                 <div class="text-content">
                     <div class="title">حجوزات المبيعات</div>
                 </div>
             </button>
             <button onclick="if(window.openSalesAIAuditModal) window.openSalesAIAuditModal();" class="hub-action-card animate-scale stagger-4" style="background: linear-gradient(135deg, rgba(99,102,241,0.22), rgba(168,85,247,0.38)); border: 1px solid rgba(168,85,247,0.55); cursor: pointer;">
-                <div class="icon">🤖</div>
                 <div class="text-content">
                     <div class="title" style="color: #e9d5ff; font-weight: 800;">رادار ربحية المبيعات والائتمان AI</div>
                 </div>
@@ -3886,6 +3879,55 @@ try {
 
         <!-- ROW 0 WRAPPER (Unified Slim Level: Title Badge, Invoice No, Date, Financial Strip with SDG/USD Toggle) -->
     <style id="sales-worldclass-ux-styles">
+
+        /* ═══ +20% ROW HEIGHT HARMONY FOR SALES HEADER ROWS 1, 2, 3 + ZERO BLURRED RIGHT SEMICIRCLE ═══ */
+        #sales-row0-bar { min-height: 48px !important; }
+        #invoice-info-box { min-height: 48px !important; max-height: 50px !important; padding: 4px 12px !important; }
+        #invoice-info-box .group-invoice,
+        #invoice-info-box .pro-serial-container { height: 44px !important; min-height: 44px !important; max-height: 44px !important; }
+        #hdr-date,
+        #hdr-customer-search,
+        #hdr-currency,
+        #hdr-exchange-rate,
+        #hdr-warehouse,
+        #hdr-description,
+        #hdr-cost-center,
+        #fin-strip-currency-btn,
+        #pay-credit-amount,
+        #pay-credit-due-date {
+            height: 46px !important;
+            min-height: 46px !important;
+        }
+        .pur-fin-capsule,
+        .fin-stat-capsule {
+            min-height: 46px !important;
+            padding-top: 6px !important;
+            padding-bottom: 6px !important;
+        }
+        #hdr-customer-ledger-btn {
+            height: 38px !important;
+            top: 50% !important;
+            transform: translateY(-50%) !important;
+            animation: none !important;
+        }
+        #hdr-customer-ledger-btn::before,
+        .pos-lemon-title::before,
+        #payment-panel::before, #payment-panel::after,
+        #payment-layout::before, #payment-layout::after,
+        .payment-details-card::before, .payment-details-card::after,
+        #pay-credit-section::before, #pay-credit-section::after,
+        .neo-card::before, .neo-card::after,
+        .panel::before, .panel::after,
+        #auto-scroll-return-pill, .auto-scroll-return-pill,
+        [class*="orb"] {
+            display: none !important;
+            content: none !important;
+            background: none !important;
+            filter: none !important;
+            box-shadow: none !important;
+            animation: none !important;
+        }
+  
         #sales-top-container #form-fields-card {
             padding: 12px 16px !important;
             border-radius: 16px !important;
@@ -4281,10 +4323,7 @@ try {
                             <span>💰</span>
                             <span>الأسعار</span>
                         </button>
-                        <button type="button" onclick="openGridSettingsModal()" style="background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(37,99,235,0.28)); border: 1px solid rgba(56,189,248,0.55); color: #38bdf8; border-radius: 9px; height: 36px; padding: 0 14px; display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-weight: 800; font-size: 0.9rem; white-space: nowrap; transition: all 0.2s; box-shadow: 0 2px 10px rgba(56,189,248,0.2);" title="تخصيص الجدول">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                            <span>تخصيص الجدول</span>
-                        </button>
+                        <button type="button" class="unified-col-props-btn" onclick="openGridSettingsModal()" style="display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; height:43px !important; padding:0 18px !important; border-radius:10px !important; background:linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%) !important; border:1.8px solid #38bdf8 !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; font-family:'Cairo','Tajawal',sans-serif !important; font-size:0.92rem !important; font-weight:900 !important; cursor:pointer !important; box-shadow:0 4px 12px rgba(14,165,233,0.25) !important; white-space:nowrap !important; flex-shrink:0 !important;" title="خصائص الأعمدة"><span>⚙️</span><span>خصائص الأعمدة</span></button>
                     </div>
                 </div>
 
@@ -20254,6 +20293,6 @@ try {
     setInterval(function() { if (!document.hidden) { bindSalesFc2DrillDownAndSubmitHooks(); window.refreshSalesFc2LiveResultSummary(); if (typeof window.updateSalesFc1LiveTafqeet === 'function') window.updateSalesFc1LiveTafqeet(); } }, 6000);
 })();
 </script>
-<script src="js/split-purchase-constitution-2027.js?v=2027_final_3of3_v5"></script>
+<script src="js/split-purchase-constitution-2027.js?v=2027_clean_v2"></script>
 </body>
 </html>

@@ -126,7 +126,7 @@ try {
   });
 })();
 </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مشتريات | Al-Sajana ERP</title>
@@ -867,6 +867,35 @@ try {
         text-shadow: none !important;
     }
     
+
+    /* ═══ +20% ROW HEIGHT HARMONY FOR PURCHASE HEADER ROWS 1, 2, 3 (HEIGHT ONLY) ═══ */
+    #purchase-editor-view #purchase-row0-bar { min-height: 48px !important; }
+    #purchase-editor-view #invoice-info-box { min-height: 48px !important; max-height: 50px !important; padding: 4px 12px !important; }
+    #purchase-editor-view #invoice-info-box .group-invoice,
+    #purchase-editor-view #invoice-info-box .pro-serial-container { height: 44px !important; min-height: 44px !important; max-height: 44px !important; }
+    #purchase-editor-view #hdr-date,
+    #purchase-editor-view #hdr-supplier-search,
+    #purchase-editor-view #hdr-currency,
+    #purchase-editor-view #hdr-exchange-rate,
+    #purchase-editor-view #hdr-warehouse,
+    #purchase-editor-view #hdr-description,
+    #purchase-editor-view #hdr-cost-center,
+    #purchase-editor-view #fin-strip-currency-btn {
+        height: 46px !important;
+        min-height: 46px !important;
+    }
+    #purchase-editor-view .pur-fin-capsule,
+    #purchase-editor-view .fin-stat-capsule {
+        min-height: 46px !important;
+        padding-top: 6px !important;
+        padding-bottom: 6px !important;
+    }
+    #purchase-editor-view #hdr-supplier-ledger-btn {
+        height: 38px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+    }
+  
 </style>
 
     <style>
@@ -2491,7 +2520,6 @@ try {
 
             <!-- Direct Purchase Invoice -->
             <button onclick="openPurchaseEditor('direct')" class="hub-action-card card-orange">
-                <div class="icon">💵</div>
                 <div class="text-content">
                     <div class="title">فاتورة مشتريات</div>
                 </div>
@@ -2499,7 +2527,6 @@ try {
 
             <!-- Goods Receipt Note -->
             <button onclick="window.location.href='purchase-receipt.php'" class="hub-action-card card-blue">
-                <div class="icon">🚛</div>
                 <div class="text-content">
                     <div class="title">استلام بضاعة</div>
                 </div>
@@ -2507,7 +2534,6 @@ try {
 
             <!-- Unified Smart Logistics Portal -->
             <button onclick="window.location.href='smart-logistics.php?mode=purchases'" class="hub-action-card card-teal" style="border-color: rgba(56,189,248,0.55); box-shadow: 0 0 22px rgba(14,165,233,0.3);">
-                <div class="icon">📥</div>
                 <div class="text-content">
                     <div class="title">بوابة استلام المشتريات</div>
                 </div>
@@ -2517,7 +2543,6 @@ try {
 
             <!-- Purchase Return -->
             <button onclick="window.location.href='purchase-return.php'" class="hub-action-card card-pink">
-                <div class="icon">↩️</div>
                 <div class="text-content">
                     <div class="title">استرداد بضاعة</div>
                 </div>
@@ -2525,7 +2550,6 @@ try {
 
             <!-- Proforma Invoice -->
             <button onclick="openPurchaseEditor('proforma')" class="hub-action-card card-purple">
-                <div class="icon">📋</div>
                 <div class="text-content">
                     <div class="title">فاتورة مبدئية</div>
                 </div>
@@ -2533,7 +2557,6 @@ try {
 
             <!-- Supplier Reliability 360 Card -->
             <button onclick="window.location.href='supplier_reliability.php'" class="hub-action-card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.35)); border: 1px solid rgba(251, 191, 36, 0.5); cursor: pointer;">
-                <div class="icon" style="filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));">🤝</div>
                 <div class="text-content">
                     <div class="title" style="color: #fbbf24; font-weight: 800;">اعتمادية الموردين 360°</div>
                 </div>
@@ -2541,7 +2564,6 @@ try {
 
             <!-- OCR Scanner Card -->
             <button onclick="triggerInvoiceOCR()" class="hub-action-card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.35)); border: 1px solid rgba(52, 211, 153, 0.5); cursor: pointer;">
-                <div class="icon" style="filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.6));">📷</div>
                 <div class="text-content">
                     <div class="title" style="color: #34d399; font-weight: 800;">مسح فاتورة</div>
                 </div>
@@ -2549,7 +2571,6 @@ try {
 
             <!-- AI Price Spike & Selling Margin Radar -->
             <button onclick="if(window.openPurchaseAIAuditModal) window.openPurchaseAIAuditModal();" class="hub-action-card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.22), rgba(168, 85, 247, 0.38)); border: 1px solid rgba(168, 85, 247, 0.55); cursor: pointer;">
-                <div class="icon" style="filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.6));">💰</div>
                 <div class="text-content">
                     <div class="title" style="color: #d8b4fe; font-weight: 800;">الأسعار</div>
                 </div>
@@ -2620,9 +2641,12 @@ try {
                 <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
                     <span style="font-size: 1.22rem; font-weight: 900;">📦 سجل فواتير المشتريات</span>
                     <button type="button" onclick="if(window.openPurchaseAIAuditModal) window.openPurchaseAIAuditModal();" style="height: 34px; padding: 0 13px; border-radius: 9px; background: linear-gradient(135deg, #7c3aed, #4f46e5); border: 2px solid #c4b5fd; color: #ffffff !important; font-size: 0.85rem; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(124,58,237,0.35);">🤖 الذكاء الاصطناعي للأسعار</button>
-                    <button type="button" onclick="if(typeof openGridSettingsModal==='function') openGridSettingsModal();" style="height: 34px; padding: 0 13px; border-radius: 9px; background: linear-gradient(135deg, #0284c7, #0369a1); border: 2px solid #7dd3fc; color: #ffffff !important; font-size: 0.85rem; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">⚙️ التخصيص</button>
+                    
                 </div>
-                <div id="hub-summary-bar" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 0.9rem; font-weight: 900;"></div>
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-right:auto;">
+                    <div id="hub-summary-bar" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 0.9rem; font-weight: 900;"></div>
+                    <button type="button" class="unified-col-props-btn" onclick="if(typeof openGridSettingsModal==='function') openGridSettingsModal();" style="display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; height:43px !important; padding:0 18px !important; border-radius:10px !important; background:linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%) !important; border:1.8px solid #38bdf8 !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; font-family:'Cairo','Tajawal',sans-serif !important; font-size:0.92rem !important; font-weight:900 !important; cursor:pointer !important; box-shadow:0 4px 12px rgba(14,165,233,0.25) !important; white-space:nowrap !important; flex-shrink:0 !important;"><span>⚙️</span><span>خصائص الأعمدة</span></button>
+                </div>
             </div>
             
             <div class="grid-scroll-wrap" style="flex: 1; margin-top: 10px;">
@@ -3090,10 +3114,7 @@ try {
                     <span>💰</span>
                     <span>الأسعار</span>
                 </button>
-                <button type="button" onclick="openGridSettingsModal()" style="background: linear-gradient(135deg, rgba(56,189,248,0.18), rgba(37,99,235,0.28)); border: 1px solid rgba(56,189,248,0.55); color: #38bdf8; border-radius: 9px; height: 36px; padding: 0 14px; display: inline-flex; align-items: center; gap: 7px; cursor: pointer; font-weight: 800; font-size: 0.9rem; white-space: nowrap; transition: all 0.2s; box-shadow: 0 2px 10px rgba(56,189,248,0.2);" title="تخصيص الجدول">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                    <span>تخصيص الجدول</span>
-                </button>
+                <button type="button" class="unified-col-props-btn" onclick="openGridSettingsModal()" style="display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; height:43px !important; padding:0 18px !important; border-radius:10px !important; background:linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%) !important; border:1.8px solid #38bdf8 !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; font-family:'Cairo','Tajawal',sans-serif !important; font-size:0.92rem !important; font-weight:900 !important; cursor:pointer !important; box-shadow:0 4px 12px rgba(14,165,233,0.25) !important; white-space:nowrap !important; flex-shrink:0 !important;" title="خصائص الأعمدة"><span>⚙️</span><span>خصائص الأعمدة</span></button>
             </div>
         </div>
         
@@ -6597,8 +6618,6 @@ document.addEventListener('DOMContentLoaded', () => {
     <?php include 'includes/financial-ocr-modal.php'; ?>
     <script src="js/magaies-offline-sync.js?v=20261014"></script>
     <script src="js/financial-ocr.js?v=<?php echo file_exists('js/financial-ocr.js') ? filemtime('js/financial-ocr.js') : 1; ?>"></script>
-    <script src="js/elsajana-erp-brain-2027.js?v=<?php echo file_exists('js/elsajana-erp-brain-2027.js') ? filemtime('js/elsajana-erp-brain-2027.js') : 1; ?>"></script>
-    <script src="js/elsajana-charts-forensic-2027.js?v=<?php echo file_exists('js/elsajana-charts-forensic-2027.js') ? filemtime('js/elsajana-charts-forensic-2027.js') : 1; ?>"></script>
     <script>
     (function initDesktopPurchaseMirrorSync() {
         let isSyncing = false;
@@ -10815,18 +10834,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }, true);
             // Interactive Kinetic Light Gestures (Cursor Specular Spotlight & Tactile Light Wave Burst)
             let _rafLight = 0;
-            document.addEventListener('pointermove', function(e) {
-                if (_rafLight) return;
-                _rafLight = requestAnimationFrame(() => {
-                    _rafLight = 0;
-                    const card = e.target && e.target.closest && e.target.closest('#form-fields-card, header.magical-glass-header, .h-form-group, .table-container, .items-toolbar');
-                    if (card) {
-                        const r = card.getBoundingClientRect();
-                        card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
-                        card.style.setProperty('--my', (e.clientY - r.top) + 'px');
-                    }
-                });
-            }, { passive: true });
+            /* pointermove spotlight disabled */
             const triggerKineticPulse = (el) => {
                 if (!el) return;
                 el.classList.remove('pur-kinetic-pulse');
@@ -11064,14 +11072,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (typeof window.speakMdExplanationPanelText === 'function') window.speakMdExplanationPanelText(msg);
         };
         document.addEventListener('DOMContentLoaded', function() {
-            const hubTitleRow = document.querySelector('#purchase-hub-view .neo-card-title > div:first-child');
-            if (hubTitleRow && !document.getElementById('pur-hub-sovereign-tools')) {
-                const wrap = document.createElement('span');
-                wrap.id = 'pur-hub-sovereign-tools';
-                wrap.style.cssText = 'display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;';
-                wrap.innerHTML = `<button type="button" onclick="window.runPurchaseAiExecutiveSummary()" style="height:34px;padding:0 11px;border-radius:9px;background:linear-gradient(135deg,#059669,#047857);border:2px solid #6ee7b7;color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;font-size:0.82rem;font-weight:900;cursor:pointer;">🧠 تحليل السجل AI</button><button type="button" onclick="window.togglePurchaseSplitScreen()" style="height:34px;padding:0 10px;border-radius:9px;background:linear-gradient(135deg,#0284c7,#0369a1);border:2px solid #7dd3fc;color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;font-size:0.82rem;font-weight:900;cursor:pointer;" title="فتح شاشة ثانية بجانب المشتريات">◫ شاشة مزدوجة</button><button type="button" onclick="window.togglePurchasePrivacyMask()" style="height:34px;padding:0 10px;border-radius:9px;background:linear-gradient(135deg,#334155,#0f172a);border:2px solid #94a3b8;color:#ffffff!important;-webkit-text-fill-color:#ffffff!important;font-size:0.82rem;font-weight:900;cursor:pointer;" title="عين الخصوصية لإخفاء الأرقام (****)">👁️ ****</button>`;
-                hubTitleRow.appendChild(wrap);
-            }
+            /* pur-hub-sovereign-tools removed for clean layout */
         });
     })();
     </script>

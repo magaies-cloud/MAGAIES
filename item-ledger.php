@@ -13,7 +13,7 @@
 })();
 </script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>السيطرة (MAGAIEES) - كارت الصنف (حركة الأصناف)</title>
@@ -365,9 +365,6 @@
 
             <!-- Action Controls -->
             <div class="ribbon-actions-group">
-                <button class="ribbon-btn" onclick="openStudioPreviewPage()" style="--btn-color: #eab308; background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(202, 138, 4, 0.3)); border-color: rgba(234, 179, 8, 0.5); color: #fef08a;">
-                    <span>⚙️</span> <span>إعدادات الأعمدة</span>
-                </button>
                 <button id="btn-preview-report" class="ribbon-btn" onclick="openItemLedgerPreview()" style="--btn-color: #0d9488;">
                     <span>👁️</span> <span>معاينة التقرير</span>
                 </button>
@@ -377,6 +374,7 @@
                 <button class="ribbon-btn" onclick="history.back()" style="--btn-color: #ef4444;" title="رجوع">
                     <span>↩</span>
                 </button>
+                <button type="button" class="ribbon-btn unified-col-props-btn" onclick="openStudioPreviewPage()" style="display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; height:43px !important; padding:0 18px !important; border-radius:10px !important; background:linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%) !important; border:1.8px solid #38bdf8 !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; font-family:'Cairo','Tajawal',sans-serif !important; font-size:0.92rem !important; font-weight:900 !important; cursor:pointer !important; box-shadow:0 4px 12px rgba(14,165,233,0.25) !important; white-space:nowrap !important; flex-shrink:0 !important;"><span>⚙️</span><span>خصائص الأعمدة</span></button>
             </div>
         </div>
 
@@ -2576,30 +2574,13 @@ function applyAndOpenPreview(index, btn) {
     if (typeof window.applyReportPreset === 'function') {
         window.applyReportPreset(index, btn);
     }
-    setTimeout(function() {
-        if (typeof window.openStudioPreviewPage === 'function') {
-            window.openStudioPreviewPage();
-        } else {
-            try {
-                var table = document.querySelector('#report-table-wrap table') || document.querySelector('.dash-table') || document.querySelector('#item-ledger-table') || document.querySelector('.table-wrapper table');
-                if (table) {
-                    var clone = table.cloneNode(true);
-                    clone.querySelectorAll('input, select, button, .btn-action').forEach(function(el) {
-                        if (el.tagName === 'INPUT' || el.tagName === 'SELECT') {
-                            var span = document.createElement('span');
-                            span.textContent = el.value || '';
-                            el.replaceWith(span);
-                        } else { el.remove(); }
-                    });
-                    sessionStorage.setItem('urs_preview_table_html', clone.outerHTML);
-                }
-                sessionStorage.setItem('urs_preview_source', 'item-ledger');
-                var titleEl = document.querySelector('.content-title h2') || document.querySelector('h2');
-                sessionStorage.setItem('urs_preview_title', titleEl ? titleEl.textContent.trim() : 'دفتر أستاذ الصنف');
-                window.open('preview-inventory-report.php?source=item-ledger&presetIndex=' + index, '_blank');
-            } catch(e) { window.open('preview-inventory-report.php', '_blank'); }
+    var modal = document.getElementById('preset-preview-modal');
+    if (modal && modal.style.display !== 'none') {
+        var ifr = modal.querySelector('#preset-modal-iframe');
+        if (ifr && ifr.contentWindow && typeof ifr.contentWindow.applyPresetByIndex === 'function') {
+            ifr.contentWindow.applyPresetByIndex(index);
         }
-    }, 150);
+    }
 }
 </script>
 </body>

@@ -108,8 +108,9 @@
     function applyPreset(index) {
         ursCurrentPreset = index;
         const preset = ursPresets[index];
+        const factoryThemes = ['theme-classic-navy', 'theme-emerald-pro', 'theme-modern-slate', 'theme-gold'];
+        const factoryFonts = ['font-newsons', 'font-tajawal', 'font-cairo', 'font-ultra'];
         if (preset && preset.settings) {
-            // Apply column settings
             if (preset.settings.columnSettings) {
                 ursColumnSettings = JSON.parse(JSON.stringify(preset.settings.columnSettings));
                 ursColumns.forEach(function(col) {
@@ -121,6 +122,16 @@
             if (preset.settings.columnOrder) {
                 ursColumnOrder = preset.settings.columnOrder.slice();
             }
+            setTheme(preset.settings.theme || factoryThemes[index] || '');
+            setNumFont(preset.settings.font || factoryFonts[index] || '');
+        } else {
+            ursColumns.forEach(function(col) {
+                col.label = col.defaultLabel;
+                col.visible = true;
+                col.fs = (index === 1) ? 0.96 : ((index === 2) ? 1.02 : 0.9);
+            });
+            setTheme(factoryThemes[index] || '');
+            setNumFont(factoryFonts[index] || '');
         }
         applyColumnVisibility();
         updatePresetButtons();
@@ -434,10 +445,28 @@
             sessionStorage.setItem('urs_preview_source', pageName);
             var titleEl = document.querySelector('.content-title h2') || document.querySelector('h2') || document.querySelector('h3');
             sessionStorage.setItem('urs_preview_title', titleEl ? titleEl.textContent.trim() : document.title);
-            window.open('preview-inventory-report.php?source=' + pageName, '_blank');
+            if (!document.getElementById('docked-preset-view-style')) {
+                var st = document.createElement('style');
+                st.id = 'docked-preset-view-style';
+                st.textContent = '#preset-preview-modal{position:fixed;top:0;left:0;bottom:0;right:0;z-index:99990;background:#f1f5f9;display:flex;flex-direction:column;padding:0;margin:0;transition:right .3s ease;}body.has-sidebar #preset-preview-modal,html.has-sidebar #preset-preview-modal{right:var(--sb-collapsed,62px);}body.has-sidebar.sidebar-open #preset-preview-modal,html.has-sidebar.sidebar-open #preset-preview-modal{right:var(--sb-expanded,240px);}';
+                document.head.appendChild(st);
+            }
+            var modal = document.getElementById('preset-preview-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'preset-preview-modal';
+                document.body.appendChild(modal);
+            }
+            var existingIframe = modal.querySelector('#preset-modal-iframe');
+            if (existingIframe && existingIframe.contentWindow && typeof existingIframe.contentWindow.applyPresetByIndex === 'function') {
+                modal.style.display = 'flex';
+                existingIframe.contentWindow.applyPresetByIndex(ursCurrentPreset || 0);
+                return;
+            }
+            modal.innerHTML = '<iframe id="preset-modal-iframe" src="preview-inventory-report.php?source=' + encodeURIComponent(pageName) + '&presetIndex=' + (ursCurrentPreset || 0) + '&inModal=1&_t=' + Date.now() + '" style="width:100%;height:100%;border:none;flex:1;background:#fff;"></iframe>';
+            modal.style.display = 'flex';
         } catch(e) {
             console.error('openStudioPreviewPage error:', e);
-            window.open('preview-inventory-report.php', '_blank');
         }
     }
 
@@ -608,10 +637,10 @@
     function resetAllPresetsToFactory() {
         if (!confirm('هل أنت متأكد من استرجاع كافة القوالب لضبط المصنع؟')) return;
         ursPresets = [
-            { name: '💎 افتراضي 1', settings: null },
-            { name: '⭐ افتراضي 2', settings: null },
-            { name: '🎨 افتراضي 3', settings: null },
-            { name: '🔥 افتراضي 4', settings: null }
+            { name: 'افتراضي 1', settings: null },
+            { name: 'افتراضي 2', settings: null },
+            { name: 'افتراضي 3', settings: null },
+            { name: 'افتراضي 4', settings: null }
         ];
         savePresets();
         applyPreset(0);

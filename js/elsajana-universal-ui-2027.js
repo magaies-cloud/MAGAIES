@@ -423,64 +423,7 @@
             while (topBar.nextSibling) stage.appendChild(topBar.nextSibling);
             wrap.appendChild(stage);
         }
-        const grnRoot = document.getElementById('grn-proportional-root');
-        const grnHub = document.getElementById('view-hub');
-        const grnEd = document.getElementById('view-editor');
-        if (grnRoot && grnHub && !document.getElementById('grn-zoom-stage')) {
-            const gStage = document.createElement('div');
-            gStage.id = 'grn-zoom-stage';
-            gStage.style.cssText = 'display:flex;flex-direction:column;width:100%;transform-origin:top center;';
-            grnHub.parentNode.insertBefore(gStage, grnHub);
-            gStage.appendChild(grnHub);
-            if (grnEd) gStage.appendChild(grnEd);
-        }
-
-        const scpRoot = document.getElementById('scp-proportional-root');
-        const scpMainWrap = document.getElementById('main-layout-wrapper');
-        if (scpRoot && scpMainWrap && !document.getElementById('scp-zoom-stage')) {
-            const sStage = document.createElement('div');
-            sStage.id = 'scp-zoom-stage';
-            sStage.style.cssText = 'display:flex;flex-direction:column;width:100%;transform-origin:top center;';
-            scpMainWrap.parentNode.insertBefore(sStage, scpMainWrap);
-            sStage.appendChild(scpMainWrap);
-        }
-        const mcpRoot = document.getElementById('mcp-proportional-root');
-        if (mcpRoot && scpMainWrap && !document.getElementById('mcp-zoom-stage')) {
-            const mStage = document.createElement('div');
-            mStage.id = 'mcp-zoom-stage';
-            mStage.style.cssText = 'display:flex;flex-direction:column;width:100%;transform-origin:top center;';
-            scpMainWrap.parentNode.insertBefore(mStage, scpMainWrap);
-            mStage.appendChild(scpMainWrap);
-        }
-        const paRoot = document.getElementById('pa-proportional-root');
-        const paFlt = paRoot ? paRoot.querySelector('.filters-wrapper') : null;
-        const paSplit = paRoot ? paRoot.querySelector('.split-layout') : null;
-        if (paRoot && paFlt && paSplit && !document.getElementById('pa-zoom-stage')) {
-            const pStage = document.createElement('div');
-            pStage.id = 'pa-zoom-stage';
-            pStage.style.cssText = 'display:flex;flex-direction:column;flex:1;min-height:0;width:100%;transform-origin:top center;';
-            paFlt.parentNode.insertBefore(pStage, paFlt);
-            pStage.appendChild(paFlt);
-            pStage.appendChild(paSplit);
-        }
-        const mbRoot = document.getElementById('mb-proportional-root');
-        const mbHdr = mbRoot ? mbRoot.querySelector('.report-header') : null;
-        if (mbRoot && mbHdr && !document.getElementById('mb-zoom-stage')) {
-            const bStage = document.createElement('div');
-            bStage.id = 'mb-zoom-stage';
-            bStage.style.cssText = 'display:flex;flex-direction:column;width:100%;transform-origin:top center;';
-            mbHdr.parentNode.insertBefore(bStage, mbHdr);
-            while (bStage.nextSibling) bStage.appendChild(bStage.nextSibling);
-        }
-        const dmrRoot = document.getElementById('dmr-proportional-root');
-        const dmrTopBar = document.getElementById('dmr-top-nav-bar');
-        if (dmrRoot && dmrTopBar && !document.getElementById('dmr-zoom-stage')) {
-            const dStage = document.createElement('div');
-            dStage.id = 'dmr-zoom-stage';
-            dStage.style.cssText = 'display:flex;flex-direction:column;gap:14px;width:100%;transform-origin:top center;';
-            dmrTopBar.parentNode.insertBefore(dStage, dmrTopBar);
-            while (dStage.nextSibling) dStage.appendChild(dStage.nextSibling);
-        }
+        /* zero-flicker: skip DOM rewrap on page load to prevent screen jump */
 
         // Universal Auto-Select on Focus + Inline Math Calculator (12*24) + Arabic Digit Normalization (0ms)
         const _arMap = {'٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9','۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9'};
@@ -517,18 +460,7 @@
         const hasGlobalHdrStack = !!document.getElementById('magaiees-master-themes-btn');
         const curPage = (window.location.pathname.split('/').pop() || '').toLowerCase();
         const isMainDash = (curPage === '' || curPage === 'index.php' || curPage === 'magaiees_unified_dashboard.php');
-        if (slot && !document.getElementById('sl-sovereign-law1-bar')) {
-            const bar = document.createElement('div');
-            bar.id = 'sl-sovereign-law1-bar';
-            bar.style.cssText = 'display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;';
-            const btnsHtml = `
-                ${hasGlobalHdrStack ? '' : `<button type="button" id="sl-master-theme-btn" onclick="window.ElsajanaUniversalUI2027.openUniversalErpTonePopover(this)" style="height:35px;padding:0 12px;border-radius:9px;background:linear-gradient(135deg,#d97706,#b45309)!important;border:2px solid #fde047!important;color:#fff!important;-webkit-text-fill-color:#fff!important;font-weight:900;font-size:0.84rem;cursor:pointer;">🎨 المظهر (13 لوناً)</button>`}
-                ${(hasGlobalHdrStack || isMainDash) ? '' : `<button type="button" onclick="window.ElsajanaUniversalUI2027.sequentialGoBack()" title="رجوع متسلسل خطوة للخلف (LIFO)" style="height:34px;padding:0 11px;border-radius:9px;background:linear-gradient(135deg,#b45309,#78350f)!important;border:2px solid #fde047!important;color:#fff!important;-webkit-text-fill-color:#fff!important;font-weight:900;font-size:0.82rem;cursor:pointer;">↩️ رجوع</button>`}`.trim();
-            if (btnsHtml) {
-                bar.innerHTML = btnsHtml;
-                slot.prepend(bar);
-            }
-        }
+        const oldLawBar = document.getElementById('sl-sovereign-law1-bar'); if (oldLawBar) oldLawBar.remove();
 
         let _pinchDist = 0, _pinchStartZoom = 1;
         window.addEventListener('touchstart', (e) => {

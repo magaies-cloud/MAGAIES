@@ -966,7 +966,11 @@
             }
 
             /* Small Icon Box */
-            .pf-card-icon-wrap {
+            /* PF_CLEAN_CENTER_NO_ICONS_2027 */
+            .pf-card-icon-wrap, .pf-header-icon { display: none !important; }
+            .pf-card { justify-content: center !important; align-items: center !important; text-align: center !important; min-height: 52px !important; padding: 12px 14px !important; }
+            .pf-card-title { text-align: center !important; justify-content: center !important; width: 100% !important; font-size: 0.98rem !important; font-weight: 900 !important; }
+            .pf-card-icon-wrap-unused {
                 flex-shrink: 0;
                 display: flex;
                 align-items: center;

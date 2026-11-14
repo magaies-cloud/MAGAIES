@@ -34,8 +34,7 @@ $page_title = 'حساب الأرصدة الأساسية';
         } catch (e) {}
     })();
     </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@400;500;700;800;900&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;800;900&family=Tajawal:wght@500;700;900&display=swap" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="css/design-system.css?v=<?php echo file_exists('css/design-system.css') ? filemtime('css/design-system.css') : 1; ?>">
     <link rel="stylesheet" href="css/theme.css?v=<?php echo file_exists('css/theme.css') ? filemtime('css/theme.css') : 1; ?>">
     <link rel="stylesheet" href="css/components.css?v=<?php echo file_exists('css/components.css') ? filemtime('css/components.css') : 1; ?>">
@@ -824,22 +823,11 @@ $page_title = 'حساب الأرصدة الأساسية';
             filter: brightness(1.25);
         }
 
-        /* Hero Action Icons: +50% Width, +10% Height */
-        .btn-action-hero span:first-child,
-        .btn-action span:first-child,
-        .badge-sgl span:first-child {
-            display: inline-block;
-            transform: scale(1.5, 1.1) !important;
-            transform-origin: center center;
-            filter: drop-shadow(0 0 8px currentColor);
-            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease !important;
+        /* Clean crisp icon alignment without stretching button text */
+        .btn-action-hero .btn-ico {
+            display: inline-flex;
+            align-items: center;
             margin-left: 4px;
-        }
-
-        .btn-action-hero:hover span:first-child,
-        .btn-action:hover span:first-child {
-            transform: scale(1.75, 1.25) rotate(12deg) !important;
-            filter: drop-shadow(0 0 15px currentColor) !important;
         }
 
         .btn-hero-print {
@@ -922,26 +910,23 @@ $page_title = 'حساب الأرصدة الأساسية';
             padding-right: 0 !important;
         }
         .sgl-master-container {
-            width: 100% !important;
-            max-width: 100% !important;
-            margin: 0 !important;
-            padding-top: 10px !important;
-            padding-right: 8px !important;
-            padding-bottom: 60px !important;
-            padding-left: 8px !important;
-            box-sizing: border-box !important;
-            position: relative;
+            width: 100% !important; max-width: 100% !important; margin: 0 !important;
+            padding: 10px 8px 40px 8px !important; box-sizing: border-box !important; position: relative;
         }
+        /* Fast Zero-Lag Mode: Remove glass shines, blurs, orbs & jittery hover animations */
+        .ambient-bg, .preset-ribbon-btn::after, .preset-btn::after, .btn-action-hero::after, .btn-run::after { display: none !important; content: none !important; }
+        *, *::before, *::after { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; animation-duration: 0s !important; }
+        #main-presets-container { display: flex !important; align-items: center !important; gap: 6px !important; flex-wrap: wrap !important; padding: 6px 8px !important; border-radius: 10px !important; }
+        #main-presets-container .preset-ribbon-btn, #main-presets-container .btn-action-hero {
+            height: 36px !important; min-height: 36px !important; padding: 0 14px !important; border-radius: 8px !important;
+            font-size: 0.86rem !important; font-weight: 800 !important; line-height: 1 !important; white-space: nowrap !important;
+            display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 6px !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2) !important; transform: none !important; transition: opacity 0.12s ease !important;
+        }
+        #main-presets-container .preset-ribbon-btn:hover, #main-presets-container .btn-action-hero:hover { transform: none !important; filter: brightness(1.08) !important; box-shadow: 0 2px 6px rgba(0,0,0,0.25) !important; }
 </style>
 </head>
 <body class="has-sidebar">
-
-    <!-- Ambient Animated Background -->
-    <div class="ambient-bg">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
-    </div>
 
 <div class="toast-container" id="toast-container"></div>
 
@@ -1166,80 +1151,65 @@ $page_title = 'حساب الأرصدة الأساسية';
         </div>
         <div class="filter-row" style="margin-top: 10px; margin-bottom: 15px; display: flex; gap: 6px; flex-wrap: nowrap; width: 100%; align-items: center;">
 
-            <div class="preset-slots-container no-print" id="main-presets-container" style="flex:1; display:flex; gap:6px; align-items:center; flex-wrap:nowrap; padding:2px 6px; border-radius:8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); min-height: 36px; overflow-x: auto;">
-                <!-- Column & Colors Control Button (زر التحكم) -->
-                <button type="button" class="preset-ribbon-btn" onclick="openColumnContextMenu(event)" style="background: linear-gradient(135deg, #f59e0b, #d97706) !important; color: #ffffff !important; border: 1px solid rgba(251, 191, 36, 0.8) !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4) !important;">⚙️ التحكم</button>
-                <!-- Visual Intelligence Hub Toggle Button -->
-                <button type="button" class="preset-ribbon-btn" onclick="window.toggleVisualHub()" style="background: linear-gradient(135deg, #0ea5e9, #6366f1) !important; color: #ffffff !important; border: 1px solid rgba(56, 189, 248, 0.6) !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4) !important;">📊 الشاشات والتقارير البصرية 📈</button>
-                <!-- Static fallback buttons matching General Ledger style -->
-                <button type="button" class="preset-ribbon-btn preset-slot-0" onclick="window.openPresetModal(0, 'افتراضي 1')">💎 افتراضي 1 🔒</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-1" onclick="window.openPresetModal(1, 'افتراضي 2')">⭐ افتراضي 2 🔒</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-2" onclick="window.openPresetModal(2, 'افتراضي 3')">🎨 افتراضي 3 🔒</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-3" onclick="window.openPresetModal(3, 'افتراضي 4')">🔥 افتراضي 4 🔒</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-4" onclick="window.openPresetModal(4, 'نموذج 1')">✨ نموذج 1 🔄</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-5" onclick="window.openPresetModal(5, 'نموذج 2')">🚀 نموذج 2 🔄</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-6" onclick="window.openPresetModal(6, 'نموذج 3')">🌟 نموذج 3 🔄</button>
+            <div class="preset-slots-container no-print" id="main-presets-container" style="flex:1; display:flex; gap:6px; align-items:center; flex-wrap:nowrap; padding:4px 8px; border-radius:10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); min-height: 48px; overflow-x: auto;">
+                <button type="button" class="preset-ribbon-btn preset-slot-0" onclick="window.openPresetModal(0, 'متعدد العملات 1')">متعدد العملات 1</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-1" onclick="window.openPresetModal(1, 'متعدد العملات 2')">متعدد العملات 2</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-2" onclick="window.openPresetModal(2, 'الأجنبي')">الأجنبي</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-3" onclick="window.openPresetModal(3, 'المحلي')">المحلي</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-4" onclick="window.openPresetModal(4, 'نمط 1')">نمط 1</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-5" onclick="window.openPresetModal(5, 'نمط 2')">نمط 2</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-6" onclick="window.openPresetModal(6, 'نمط 3')">نمط 3</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-7" onclick="window.openPresetModal(7, 'نمط 4')">نمط 4</button>
+                <button type="button" class="preset-ribbon-btn" onclick="window.toggleVisualHub()" style="background:#0284c7 !important; color:#ffffff !important; border:1px solid #38bdf8 !important; font-weight:900 !important;">📊 التقارير البصرية</button>
+                <button type="button" class="preset-ribbon-btn btn-hero-preview" onclick="if(typeof window.openNewPreviewPage==='function') window.openNewPreviewPage();" style="background:#059669 !important; color:#ffffff !important; border:1px solid #34d399 !important; font-weight:900 !important;">🖨️ شاشة العرض للطباعة</button>
+                <button type="button" class="preset-ribbon-btn unified-col-props-btn unified-col-props-far-left" onclick="openColumnContextMenu(event)" style="display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; height:43px !important; padding:0 18px !important; border-radius:10px !important; background:linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%) !important; border:1.8px solid #38bdf8 !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; font-family:'Cairo','Tajawal',sans-serif !important; font-size:0.92rem !important; font-weight:900 !important; cursor:pointer !important; box-shadow:0 4px 12px rgba(14,165,233,0.25) !important; white-space:nowrap !important; flex-shrink:0 !important; margin-right:auto !important;"><span>⚙️</span><span>خصائص الأعمدة</span></button>
             </div>
 
         </div>
     </div>
 
-    <!-- HIGH CONTRAST COMPACT KPI DASHBOARD -->
-    <div id="analytics-dashboard" class="no-print" style="display:block; margin-bottom: 6px; padding: 4px 8px; background: rgba(15, 23, 42, 0.65); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;">
-            <!-- KPI 1: Customers -->
-            <div style="background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(15,23,42,0.9)); border-radius: 6px; padding: 4px 8px; border: 1px solid rgba(16,185,129,0.45); box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
-                <div style="color: #ffffff; font-size: 0.85rem; font-weight: 900; text-align: center; margin-bottom: 2px; text-shadow: 0 1px 3px rgba(0,0,0,0.9);">إجمالي رصيد العملاء (عليه)</div>
-                <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 2px; gap: 4px;">
-                    <!-- Right: Foreign Currency / USD -->
-                    <div style="flex: 1; text-align: right;">
-                        <span style="color:#e2e8f0; font-size:0.68rem; font-weight:bold; display:block;">بالدولار / أجنبي</span>
-                        <div id="kpi-dr-foreign" class="num" style="color: #34d399; font-size: 1.55rem; font-weight: 900; line-height: 1.05; text-shadow: 0 2px 4px rgba(0,0,0,0.9);">0.00 USD</div>
+    <!-- CLEAN HIGH-CLARITY 3 KPI SUMMARY CARDS -->
+    <div id="analytics-dashboard" class="no-print" style="display:block; margin-bottom: 10px; padding: 8px; background: rgba(15, 23, 42, 0.9); border-radius: 10px; border: 1px solid rgba(255,255,255,0.12);">
+        <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;">
+            <div style="background: rgba(16,185,129,0.12); border-radius: 8px; padding: 8px 12px; border: 1px solid rgba(16,185,129,0.4);">
+                <div style="color: #f8fafc; font-size: 0.9rem; font-weight: 900; text-align: center; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">إجمالي الأرصدة المدينة / العملاء (عليه)</div>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                    <div style="flex: 1; min-width: 0; text-align: center;">
+                        <span style="color:#cbd5e1; font-size:0.72rem; font-weight:800; display:block; margin-bottom:2px;">بالجنيه السوداني (SDG)</span>
+                        <div id="kpi-dr" class="num" dir="ltr" style="color: #34d399; font-size: clamp(1rem, 1.3vw, 1.32rem); font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums;">0</div>
                     </div>
-                    <!-- Divider line -->
-                    <div style="width: 2px; height: 30px; background: rgba(255,255,255,0.25);"></div>
-                    <!-- Left: Local Currency / SDG -->
-                    <div style="flex: 1; text-align: left;">
-                        <span style="color:#e2e8f0; font-size:0.68rem; font-weight:bold; display:block;">بالجنيه السوداني</span>
-                        <div id="kpi-dr" class="num" style="color: #10b981; font-size: 1.55rem; font-weight: 900; line-height: 1.05; text-shadow: 0 2px 4px rgba(0,0,0,0.9);">0.00 SDG</div>
+                    <div style="width: 1px; height: 34px; background: rgba(255,255,255,0.18);"></div>
+                    <div style="flex: 1; min-width: 0; text-align: center;">
+                        <span style="color:#cbd5e1; font-size:0.72rem; font-weight:800; display:block; margin-bottom:2px;">بالدولار / أجنبي (USD)</span>
+                        <div id="kpi-dr-foreign" class="num" dir="ltr" style="color: #6ee7b7; font-size: clamp(1rem, 1.3vw, 1.32rem); font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums;">0.00</div>
                     </div>
                 </div>
             </div>
-
-            <!-- KPI 2: Suppliers -->
-            <div style="background: linear-gradient(135deg, rgba(244,63,94,0.25), rgba(15,23,42,0.9)); border-radius: 6px; padding: 4px 8px; border: 1px solid rgba(244,63,94,0.45); box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
-                <div style="color: #ffffff; font-size: 0.85rem; font-weight: 900; text-align: center; margin-bottom: 2px; text-shadow: 0 1px 3px rgba(0,0,0,0.9);">إجمالي رصيد الموردين (له)</div>
-                <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 2px; gap: 4px;">
-                    <!-- Right: Foreign Currency / USD -->
-                    <div style="flex: 1; text-align: right;">
-                        <span style="color:#e2e8f0; font-size:0.68rem; font-weight:bold; display:block;">بالدولار / أجنبي</span>
-                        <div id="kpi-cr-foreign" class="num" style="color: #fb7185; font-size: 1.55rem; font-weight: 900; line-height: 1.05; text-shadow: 0 2px 4px rgba(0,0,0,0.9);">0.00 USD</div>
+            <div style="background: rgba(244,63,94,0.12); border-radius: 8px; padding: 8px 12px; border: 1px solid rgba(244,63,94,0.4);">
+                <div style="color: #f8fafc; font-size: 0.9rem; font-weight: 900; text-align: center; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">إجمالي الأرصدة الدائنة / الموردين (له)</div>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                    <div style="flex: 1; min-width: 0; text-align: center;">
+                        <span style="color:#cbd5e1; font-size:0.72rem; font-weight:800; display:block; margin-bottom:2px;">بالجنيه السوداني (SDG)</span>
+                        <div id="kpi-cr" class="num" dir="ltr" style="color: #fb7185; font-size: clamp(1rem, 1.3vw, 1.32rem); font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums;">0</div>
                     </div>
-                    <!-- Divider line -->
-                    <div style="width: 2px; height: 30px; background: rgba(255,255,255,0.25);"></div>
-                    <!-- Left: Local Currency / SDG -->
-                    <div style="flex: 1; text-align: left;">
-                        <span style="color:#e2e8f0; font-size:0.68rem; font-weight:bold; display:block;">بالجنيه السوداني</span>
-                        <div id="kpi-cr" class="num" style="color: #f43f5e; font-size: 1.55rem; font-weight: 900; line-height: 1.05; text-shadow: 0 2px 4px rgba(0,0,0,0.9);">0.00 SDG</div>
+                    <div style="width: 1px; height: 34px; background: rgba(255,255,255,0.18);"></div>
+                    <div style="flex: 1; min-width: 0; text-align: center;">
+                        <span style="color:#cbd5e1; font-size:0.72rem; font-weight:800; display:block; margin-bottom:2px;">بالدولار / أجنبي (USD)</span>
+                        <div id="kpi-cr-foreign" class="num" dir="ltr" style="color: #fda4af; font-size: clamp(1rem, 1.3vw, 1.32rem); font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums;">0.00</div>
                     </div>
                 </div>
             </div>
-
-            <!-- KPI 3: Net Balance -->
-            <div style="background: linear-gradient(135deg, rgba(56,189,248,0.25), rgba(15,23,42,0.9)); border-radius: 6px; padding: 4px 8px; border: 1px solid rgba(56,189,248,0.45); box-shadow: 0 2px 8px rgba(0,0,0,0.3);">
-                <div style="color: #ffffff; font-size: 0.85rem; font-weight: 900; text-align: center; margin-bottom: 2px; text-shadow: 0 1px 3px rgba(0,0,0,0.9);">إجمالي الحصيلة الصافية</div>
-                <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 2px; gap: 4px;">
-                    <!-- Right: Foreign Currency / USD -->
-                    <div style="flex: 1; text-align: right;">
-                        <span style="color:#e2e8f0; font-size:0.68rem; font-weight:bold; display:block;">بالدولار / أجنبي</span>
-                        <div id="kpi-bal-foreign" class="num" style="color: #7dd3fc; font-size: 1.55rem; font-weight: 900; line-height: 1.05; text-shadow: 0 2px 4px rgba(0,0,0,0.9);">0.00 USD</div>
+            <div style="background: rgba(56,189,248,0.12); border-radius: 8px; padding: 8px 12px; border: 1px solid rgba(56,189,248,0.4);">
+                <div style="color: #f8fafc; font-size: 0.9rem; font-weight: 900; text-align: center; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">صافي الحصيلة الإجمالية <span id="kpi-net-dir-badge" style="font-size:0.78rem; color:#fde047;"></span></div>
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                    <div style="flex: 1; min-width: 0; text-align: center;">
+                        <span style="color:#cbd5e1; font-size:0.72rem; font-weight:800; display:block; margin-bottom:2px;">بالجنيه السوداني (SDG)</span>
+                        <div id="kpi-bal" class="num" dir="ltr" style="color: #38bdf8; font-size: clamp(1rem, 1.3vw, 1.32rem); font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums;">0</div>
                     </div>
-                    <!-- Divider line -->
-                    <div style="width: 2px; height: 30px; background: rgba(255,255,255,0.25);"></div>
-                    <!-- Left: Local Currency / SDG -->
-                    <div style="flex: 1; text-align: left;">
-                        <span style="color:#e2e8f0; font-size:0.68rem; font-weight:bold; display:block;">بالجنيه السوداني</span>
-                        <div id="kpi-bal" class="num" style="color: #38bdf8; font-size: 1.55rem; font-weight: 900; line-height: 1.05; text-shadow: 0 2px 4px rgba(0,0,0,0.9);">0.00 SDG</div>
+                    <div style="width: 1px; height: 34px; background: rgba(255,255,255,0.18);"></div>
+                    <div style="flex: 1; min-width: 0; text-align: center;">
+                        <span style="color:#cbd5e1; font-size:0.72rem; font-weight:800; display:block; margin-bottom:2px;">بالدولار / أجنبي (USD)</span>
+                        <div id="kpi-bal-foreign" class="num" dir="ltr" style="color: #7dd3fc; font-size: clamp(1rem, 1.3vw, 1.32rem); font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums;">0.00</div>
                     </div>
                 </div>
             </div>
@@ -1924,10 +1894,8 @@ $page_title = 'حساب الأرصدة الأساسية';
 
 <script defer src="js/localforage.min.js"></script>
 <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : 1; ?>"></script>
-<script defer src="js/mainbalances-report.js?v=<?php echo file_exists('js/mainbalances-report.js') ? filemtime('js/mainbalances-report.js') : 1; ?>"></script>
-<script defer src="js/elsajana-universal-ui-2027.js?v=<?php echo file_exists('js/elsajana-universal-ui-2027.js') ? filemtime('js/elsajana-universal-ui-2027.js') : 1; ?>"></script>
-<script defer src="js/elsajana-erp-brain-2027.js?v=<?php echo file_exists('js/elsajana-erp-brain-2027.js') ? filemtime('js/elsajana-erp-brain-2027.js') : 1; ?>"></script>
-<script defer src="js/elsajana-charts-forensic-2027.js?v=<?php echo file_exists('js/elsajana-charts-forensic-2027.js') ? filemtime('js/elsajana-charts-forensic-2027.js') : 1; ?>"></script>
+<script defer src="js/mainbalances-report.js?v=2027_gl_mc_v3_<?php echo file_exists('js/mainbalances-report.js') ? filemtime('js/mainbalances-report.js') : 1; ?>"></script>
+<script defer src="js/elsajana-universal-ui-2027.js?v=2027_clean_v3_<?php echo file_exists('js/elsajana-universal-ui-2027.js') ? filemtime('js/elsajana-universal-ui-2027.js') : 1; ?>"></script>
 <!-- Customization Sidebar Modal (Copied from General Ledger) -->
 <div class="sidebar-overlay" id="settings-overlay" onclick="toggleSettingsSidebar()"></div>
 <div class="settings-sidebar" id="settings-sidebar" style="resize: both; overflow: auto;">

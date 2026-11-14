@@ -101,7 +101,7 @@ $defaultPrefs = [
     'ordersSec' => 200,
     'maxAgeHours' => 24,
     'hideNames' => false,
-    'myItemsFilter' => true,
+    'myItemsFilter' => false,
     'dockMode' => 'top',
     'offersLocked' => false,
     'ordersLocked' => false,
@@ -293,15 +293,16 @@ if ($action === 'add' || $_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // 4. نشر عرض أو طلب جديد مع ذكاء اصطناعي يميز العرض والطلب حتى لو كُتبت الكلمة في الأسفل أو المنتصف أو لم تُكتب إطلاقاً
+        // 4. نشر عرض أو طلب جديد: حرف "ع" / "عرض" (في أي موضع بالرسالة) = عرض، وحرف "م" / "مطلوب" / "ط" / "طلب" (في أي موضع) = طلب، وبدونهما: وجود سعر = عرض وبدون سعر = طلب!
         if ($type === '') {
-            if (preg_match('/(?:^|\s)(?:طلب\s*شراء|طلب|مطلوب\s*شراء|مطلوب|محتاج|نشتري)(?:\s|$)/u', $rawText)) {
+            if (preg_match('/(?:^|[\s:：\-،,|.\r\n()\[\]/]+)(?:مطلوب\s*شراء|طلب\s*شراء|مطلوب|المطلوب|طلبية|الطلبية|طلبيه|الطلبيه|طلب|الطلب|محتاج|نشتري)(?:$|[\s:：\-،,|.\r\n()\[\]/]+)/iu', $rawText) || preg_match('/(?:^|[\r\n]+)\s*(?:م|ط)(?:[\s:：\-،,]+)|(?:[\s:：\-،,]+)(?:م|ط)\s*(?:$|[\r\n]+)/iu', $rawText)) {
                 $type = 'order';
-            } elseif (preg_match('/(?:^|\s)(?:عرض\s*اسعار|عرض\s*أسعار|عروض|عرض|للبيع|متوفر)(?:\s|$)/u', $rawText)) {
+            } elseif (preg_match('/(?:^|[\s:：\-،,|.\r\n()\[\]/]+)(?:عرض\s*اسعار|عرض\s*أسعار|عروض\s*اسعار|عروض\s*أسعار|عروض|عرض|العرض|للبيع|متوفر)(?:$|[\s:：\-،,|.\r\n()\[\]/]+)/iu', $rawText) || preg_match('/^(?:ع)(?:[\s:：\-،,\r\n]+)|(?:[\s:：\-،,\r\n]+)(?:ع)$/iu', $rawText)) {
                 $type = 'offer';
             } else {
-                // إذا لم يكتب كلمة "عرض" ولا "طلب": وجود رقم السعر (=، يساوي، رقم >= 100، ألف، مليون، ج.س، دولار) يعني عرض، وغياب رقم السعر (مثل: "5 طن 3 لينية الأسعد" أو "سعر كيلو البن" بدون مبلغ) يعني طلب شراء/تسعيرة!
-                $hasPriceNumber = preg_match('/(?:\d+\s*(?:ج\.س|جنيه|دولار|\$|ألف|الف|مليون)|(?:=|\bيساوي\b|\bبـ?\s*)\s*\d+|\b\d{1,3}[,\.]\d{3}\b|\b\d{3,9}\b)/u', $rawText);
+                // إزالة الكميات والمقاسات (مثل: 5 طن، 3 لينية، 5 لينية، 50 جوال) لفحص ما إذا كان هنالك سعر حقيقي (مثل 725 أو 725.00 جنيه)
+                $textWithoutQtyAndSize = preg_replace('/\b\d+(?:[.,]\d+)?\s*(?:طن|قنطار|جوال|شوال|كرتونة|كرتونه|باكت|عبوة|عبوات|كيلو|جرام|لينية|لينيه|ملم|مم|متر|قطعة|قطعه|حبة|حبه|ربطة|ربطه|لفة|لفه)\b/iu', ' ', $rawText);
+                $hasPriceNumber = preg_match('/(?:\d+(?:[.,]\d+)?\s*(?:ج\.س|جنيه|دولار|\$|ألف|الف|مليون)|(?:=|\bيساوي\b|\bبـ?\s*)\s*\d+|\b\d{1,3}[,\.]\d{3}\b|\b\d{3,9}(?:\.\d{1,2})?\b)/iu', (string)$textWithoutQtyAndSize);
                 $type = $hasPriceNumber ? 'offer' : 'order';
             }
         }
@@ -309,32 +310,22 @@ if ($action === 'add' || $_SERVER['REQUEST_METHOD'] === 'POST') {
         $wantsMasked = ($privacy === 'masked') || preg_match('/(?:^|\s)(?:سري|خاص|مخفي|بدون\s*اسم|بدون\s*رقم|دلالة|سمسار)(?:\s|$)/u', $rawText);
 
         $explicitName = '';
-        if (preg_match('/^(?:عرض|طلب|مطلوب)?\s*(?:باسم|التاجر|المورد|شركة|مغلق|مؤسسة)\s+([^:：\-]{2,25})\s*[:：\-]\s*(.+)$/u', $rawText, $m)) {
+        if (preg_match('/^(?:ع|عرض|العرض|م|ط|طلب|الطلب|طلبية|الطلبية|مطلوب)?\s*(?:باسم|التاجر|المورد|شركة|مغلق|مؤسسة)\s+([^:：\-]{2,25})\s*[:：\-]\s*(.+)$/su', $rawText, $m)) {
             $explicitName = trim($m[1]);
             $rawText = trim($m[2]);
         } else {
-            // إزالة كلمة عرض/طلب سواء جاءت في البداية أو في نهاية الرسالة
-            $rawText = trim(preg_replace('/^(?:عرض\s*اسعار|عرض\s*أسعار|عروض|عرض|طلب\s*شراء|طلبات|طلب|مطلوب\s*شراء|مطلوب|دلالة|سمسار|بورصة|للبيع)\s*(?:سري|خاص|مخفي|بدون\s*اسم|بدون\s*رقم)?\s*[:：\-]?\s*/u', '', $rawText));
-            $rawText = trim(preg_replace('/[\s\r\n|،,\-]+(?:عرض\s*اسعار|عرض\s*أسعار|عرض|طلب\s*شراء|طلب|مطلوب)(?:\s+سري)?\s*$/u', '', $rawText));
+            // إزالة بادئة أو لاحقة أو سطر مستقل لـ ع / عرض / م / مطلوب / ط / طلب أينما وجدت
+            $rawText = trim(preg_replace('/^(?:ع|عرض\s*اسعار|عرض\s*أسعار|عروض|عرض|العرض|م|ط|طلب\s*شراء|طلبات|طلبية|الطلبية|طلبيه|الطلبيه|طلب|الطلب|مطلوب\s*شراء|مطلوب|المطلوب|دلالة|سمسار|بورصة|للبيع)(?:[\s:：\-،,\r\n]+(?:سري|خاص|مخفي|بدون\s*اسم|بدون\s*رقم))?[\s:：\-،,\r\n]+/iu', '', $rawText));
+            $rawText = trim(preg_replace('/[\s\r\n|،,:：\-]+(?:عرض\s*اسعار|عرض\s*أسعار|عروض|عرض|العرض|طلب\s*شراء|طلبية|الطلبية|طلب|مطلوب|المطلوب|ع|م|ط)(?:\s+سري)?\s*$/iu', '', $rawText));
+            $rawText = trim(preg_replace('/[\r\n]+\s*(?:عرض|العرض|عروض|مطلوب|المطلوب|طلب|طلبية|ع|م|ط)\s*[:：\-]?\s*[\r\n]+/iu', "\n", $rawText));
         }
         if ($rawText === '') {
             $rawText = trim((string)($input['text'] ?? $input['message'] ?? ''));
         }
-        // تفنيد وتنسيق النصوص الطويلة أو المتعددة الأسطر تلقائياً لتناسب شريط البورصة
+        // تفنيد فوري للنصوص المتعددة الأسطر بدون أي استدعاء شبكي بطيء يعلق النظام
         $rawText = trim(preg_replace('/[\r\n]+/u', ' | ', $rawText), " |\t");
-        if (mb_strlen($rawText, 'UTF-8') > 260) {
-            require_once __DIR__ . '/ai-config.php';
-            $sumPrompt = "لخص وفنّد رسالة العرض/الطلب التالية في سطر واحد مرتب ومختصر جداً لشريط البورصة يحتوي فقط على الأصناف والكميات والأسعار مفصولة بعلامة | بدون أي كلام إنشائي:\n" . $rawText;
-            $cPayload = ["model" => "openai", "messages" => [["role" => "user", "content" => $sumPrompt]], "temperature" => 0.2];
-            $chS = curl_init("https://text.pollinations.ai/openai");
-            curl_setopt_array($chS, [CURLOPT_RETURNTRANSFER => true, CURLOPT_HTTPHEADER => ['Content-Type: application/json'], CURLOPT_POST => true, CURLOPT_POSTFIELDS => json_encode($cPayload, JSON_UNESCAPED_UNICODE), CURLOPT_SSL_VERIFYPEER => false, CURLOPT_CONNECTTIMEOUT => 2, CURLOPT_TIMEOUT => 5]);
-            $sResp = curl_exec($chS);
-            curl_close($chS);
-            $sData = @json_decode((string)$sResp, true);
-            $sTxt = trim((string)($sData['choices'][0]['message']['content'] ?? ''));
-            if ($sTxt !== '') {
-                $rawText = trim(preg_replace('/[\r\n*#"`]+/u', ' | ', $sTxt), " |\t");
-            }
+        if (mb_strlen($rawText, 'UTF-8') > 320) {
+            $rawText = mb_substr($rawText, 0, 320, 'UTF-8') . '...';
         }
 
         $registeredPartyName = '';
@@ -361,7 +352,22 @@ if ($action === 'add' || $_SERVER['REQUEST_METHOD'] === 'POST') {
                         }
                     }
                 }
+                if ($registeredPartyName === '') {
+                    $stU = $pdoB->query("SELECT full_name, username, phone FROM users");
+                    while ($rU = $stU->fetch(PDO::FETCH_ASSOC)) {
+                        $dU = preg_replace('/\D/', '', (string)($rU['phone'] ?? ''));
+                        if (strlen($dU) >= 9 && substr($dU, -9) === $last9B) {
+                            $registeredPartyName = trim((string)($rU['full_name'] ?: $rU['username'] ?: 'عضو مسجل')) . ' ✔️';
+                            break;
+                        }
+                    }
+                }
             } catch (Throwable $eB) {}
+        }
+
+        if (!empty($input['require_registered']) && $registeredPartyName === '') {
+            echo json_encode(['success' => false, 'ignored' => true], JSON_UNESCAPED_UNICODE);
+            exit;
         }
 
         $finalPrivacy = $wantsMasked ? 'masked' : ($privacy ?: 'public');

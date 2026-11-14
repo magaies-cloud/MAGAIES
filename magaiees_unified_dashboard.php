@@ -122,7 +122,7 @@ function switchToMobileEdition() {
     <link rel="shortcut icon" href="assets/favicon.ico?v=2026_m_v5">
     <meta name="theme-color" content="#0F172A">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Cairo:wght@500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Cairo:wght@500;600;700;800;900&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <title>Magaiees ERP - التحكم المتكاملة | الشاشة العالمية الموحدة</title>
     <link rel="stylesheet" href="css/tailwind.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -2171,7 +2171,7 @@ function switchToMobileEdition() {
                         ordersSec: window._brokerOrdersSec || 200,
                         maxAgeHours: window._brokerMaxAgeHours || 24,
                         hideNames: !!window._brokerHideNames,
-                        myItemsFilter: window._brokerMyItemsFilter !== false,
+                        myItemsFilter: !!window._brokerMyItemsFilter,
                         dockMode: window._brokerDockMode === 'bottom' ? 'bottom' : 'top',
                         offersLocked: document.getElementById('market-broker-offers-row')?.style.display === 'none',
                         ordersLocked: document.getElementById('market-broker-orders-row')?.style.display === 'none',
@@ -2329,9 +2329,9 @@ function switchToMobileEdition() {
                     window._brokerFetchInFlight = true;
                     try {
                         const reqs = [fetch('api/market_broker_ticker.php?action=list&_t=' + Date.now()).then(r => r.json())];
-                        if ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') && (!window._lastCloudBrokerPull || (Date.now() - window._lastCloudBrokerPull > 90000))) {
+                        if ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') && (!window._lastCloudBrokerPull || (Date.now() - window._lastCloudBrokerPull > 10000))) {
                             window._lastCloudBrokerPull = Date.now();
-                            reqs.push(fetch('https://c.elsajana.com/api/market_broker_ticker.php?action=list&_t=' + Date.now()).then(r => r.json()));
+                            reqs.push(fetch('https://c.elsajana.com/api/market_broker_ticker.php?action=list&_t=' + Date.now(), { signal: AbortSignal.timeout ? AbortSignal.timeout(4000) : undefined }).then(r => r.json()));
                         }
                         const settled = await Promise.allSettled(reqs);
                         const mergedMap = new Map();
@@ -2370,7 +2370,7 @@ function switchToMobileEdition() {
                         if (!rawItems.length && mergedMap.size > 0) {
                             rawItems = Array.from(mergedMap.values()).filter(x => !window._hiddenBrokerIds.includes(x.id));
                         }
-                        if (window._brokerMyItemsFilter === undefined) window._brokerMyItemsFilter = localStorage.getItem('magaiees_broker_my_items_only') !== '0';
+                        if (window._brokerMyItemsFilter === undefined) window._brokerMyItemsFilter = localStorage.getItem('magaiees_broker_my_items_only') === '1';
                         const isMyItemMatch = (txt) => {
                             if (!window._brokerMyItemsFilter) return true;
                             const s = String(txt || '');
@@ -2379,7 +2379,11 @@ function switchToMobileEdition() {
                         };
                         const items = rawItems.filter(x => isMyItemMatch(x.text));
                         window._brokerItemsList = items;
-                        const sig = JSON.stringify(items.map(x => x.id + ':' + x.text)) + ':' + window._brokerMyItemsFilter + ':' + window._brokerHideNames + ':' + window._brokerFontStep + ':' + window._brokerMaxAgeHours;
+                        const ageStageKey = items.map(x => {
+                            const am = (x.ts && Number(x.ts) > 1000000000) ? Math.max(0, (nowMs - Number(x.ts) * 1000) / 60000) : 999;
+                            return x.id + ':' + x.text + ':' + (am <= 90 ? 'R' : (am <= 180 ? 'O' : (am <= 270 ? 'G' : 'N')));
+                        });
+                        const sig = JSON.stringify(ageStageKey) + ':' + window._brokerMyItemsFilter + ':' + window._brokerHideNames + ':' + window._brokerFontStep + ':' + window._brokerMaxAgeHours;
                         if (window._lastBrokerSig === sig && track.innerHTML.trim() !== '') return;
                         window._lastBrokerSig = sig;
                         const offers = items.filter(x => x.type !== 'order');
@@ -2424,13 +2428,13 @@ function switchToMobileEdition() {
                             const fPx = (13.2 + (window._brokerFontStep || 0) * 1.6).toFixed(1);
                             const fFam = window._brokerFontFamily || 'Cairo, Tajawal, sans-serif';
                             let newTag = '';
-                            if (ageMin <= 240) {
+                            if (ageMin <= 270) {
                                 const stageBg = ageMin <= 90
-                                    ? 'background:linear-gradient(135deg,#e11d48,#be123c)!important;box-shadow:0 0 12px rgba(225,29,72,0.9)!important;border:1.5px solid #fde047!important;'
+                                    ? 'background:#dc2626!important;box-shadow:0 0 10px rgba(220,38,38,0.85)!important;border:1.5px solid #fca5a5!important;'
                                     : (ageMin <= 180
-                                        ? 'background:linear-gradient(135deg,#f97316,#d97706)!important;box-shadow:0 0 10px rgba(249,115,22,0.85)!important;border:1.5px solid #fef08a!important;'
-                                        : 'background:linear-gradient(135deg,#059669,#10b981)!important;box-shadow:0 0 10px rgba(16,185,129,0.85)!important;border:1.5px solid #a7f3d0!important;');
-                                newTag = `<span style="display:inline-flex;align-items:center;gap:3px;color:#fff!important;-webkit-text-fill-color:#fff!important;padding:1px 8px;border-radius:999px;font-size:${(parseFloat(fPx)*0.78).toFixed(1)}px;font-weight:900;${stageBg}">🔥 جديد</span>`;
+                                        ? 'background:#f97316!important;box-shadow:0 0 10px rgba(249,115,22,0.85)!important;border:1.5px solid #fdba74!important;'
+                                        : 'background:#16a34a!important;box-shadow:0 0 10px rgba(22,163,74,0.85)!important;border:1.5px solid #86efac!important;');
+                                newTag = `<span style="display:inline-flex;align-items:center;color:#fff!important;-webkit-text-fill-color:#fff!important;padding:1px 8px;border-radius:999px;font-size:${(parseFloat(fPx)*0.78).toFixed(1)}px;font-weight:900;${stageBg}">جديد</span>`;
                             }
                             const hdrTxt = (window._brokerHideNames || isMasked || !cleanSender || /تاجر معتمد|مورد معتمد|مشتري معتمد/.test(cleanSender)) ? `${badge}:` : `${badge} (${cleanSender}):`;
                             const elapsedTxt = formatElapsed(it);
@@ -2577,11 +2581,11 @@ function switchToMobileEdition() {
                     box.innerHTML = list.map((it, idx) => {
                         const isOrd = it.type === 'order';
                         const ageM = (it.id === window._justAddedBrokerId) ? 0 : ((it.ts && Number(it.ts) > 1000000000) ? Math.max(0, (Date.now() - Number(it.ts) * 1000) / 60000) : 999);
-                        const isNew = ageM <= 240;
-                        const newBg = ageM <= 90 ? '#e11d48' : (ageM <= 180 ? '#f97316' : '#059669');
+                        const isNew = ageM <= 270;
+                        const newBg = ageM <= 90 ? '#dc2626' : (ageM <= 180 ? '#f97316' : '#16a34a');
                         const blkBadge = Number(it.black_points || 0) > 0 ? ` <span style="background:#000;color:#fde047!important;-webkit-text-fill-color:#fde047!important;padding:1px 6px;border-radius:6px;font-size:10.5px;border:1px solid #ef4444;">⚫ ${it.black_points}/3</span>` : '';
-                        return `<tr style="border-bottom:1px solid rgba(148,163,184,0.22);background:${isNew ? 'rgba(16,185,129,0.18)' : (idx % 2 ? 'rgba(15,23,42,0.5)' : 'transparent')};">
-                            <td style="padding:8px 10px;font-weight:900;white-space:nowrap;"><span style="padding:2px 8px;border-radius:7px;background:${isOrd?'#d97706':'#059669'};color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:12px;">${isOrd?'🟠 طلب شراء':'🟢 عرض سعر'}</span> ${isNew?`<span style="background:${newBg};color:#fff!important;-webkit-text-fill-color:#fff!important;padding:1px 7px;border-radius:999px;font-size:10.5px;border:1px solid #fde047;">🔥 جديد</span>`:''}</td>
+                        return `<tr style="border-bottom:1px solid rgba(148,163,184,0.22);background:${isNew ? 'rgba(16,185,129,0.14)' : (idx % 2 ? 'rgba(15,23,42,0.5)' : 'transparent')};">
+                            <td style="padding:8px 10px;font-weight:900;white-space:nowrap;"><span style="padding:2px 8px;border-radius:7px;background:${isOrd?'#d97706':'#059669'};color:#fff!important;-webkit-text-fill-color:#fff!important;font-size:12px;">${isOrd?'🟠 طلب شراء':'🟢 عرض سعر'}</span> ${isNew?`<span style="background:${newBg};color:#fff!important;-webkit-text-fill-color:#fff!important;padding:1px 7px;border-radius:999px;font-size:10.5px;">جديد</span>`:''}</td>
                             <td class="text-amber-300" style="padding:8px 10px;font-weight:900;font-size:13.5px;white-space:nowrap;">${it.sender_name}${it.deal_code ? ' (#'+it.deal_code+')' : ''}${blkBadge}</td>
                             <td class="text-white" style="padding:8px 10px;font-weight:900;font-size:14px;">${it.text}</td>
                             <td class="text-sky-300" style="padding:8px 10px;font-size:12px;font-weight:800;white-space:nowrap;">${it.time} ${it.privacy==='masked'?'🔒 سري':'📞 مباشر'}</td>
@@ -2697,24 +2701,30 @@ function switchToMobileEdition() {
                 async function submitBrokerPost() {
                     const txt = (document.getElementById('brk-text')?.value || '').trim();
                     if (!txt) return;
-                    await fetch('api/market_broker_ticker.php?action=add', {
+                    const payload = {
+                        type: document.getElementById('brk-type').value,
+                        privacy: document.getElementById('brk-privacy').value,
+                        sender_name: document.getElementById('brk-name').value,
+                        phone: document.getElementById('brk-phone').value,
+                        text: txt
+                    };
+                    const out = await fetch('api/market_broker_ticker.php?action=add', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            type: document.getElementById('brk-type').value,
-                            privacy: document.getElementById('brk-privacy').value,
-                            sender_name: document.getElementById('brk-name').value,
-                            phone: document.getElementById('brk-phone').value,
-                            text: txt
-                        })
-                    });
+                        body: JSON.stringify(payload)
+                    }).then(r => r.json()).catch(() => null);
+                    if (/^(localhost|127\.0\.0\.1)$/i.test(location.hostname)) {
+                        fetch('https://c.elsajana.com/api/market_broker_ticker.php?action=add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }).catch(() => {});
+                    }
+                    if (out?.item?.id) window._justAddedBrokerId = out.item.id;
                     document.getElementById('brk-text').value = '';
                     document.getElementById('broker-post-modal').style.display = 'none';
                     window._lastBrokerSig = '';
+                    window._lastCloudBrokerPull = 0;
                     loadMarketBrokerTicker(true);
                 }
                 loadMarketBrokerTicker(true);
-                setInterval(() => loadMarketBrokerTicker(false), 25000);
+                setInterval(() => loadMarketBrokerTicker(false), 10000);
                 window._execSumPeriodIdx = 0;
                 function cycleExecutiveSummaryPeriod(targetIdx, skipScopeSync) {
                     const periods = [

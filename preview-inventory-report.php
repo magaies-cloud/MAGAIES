@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>&#x0627;&#x0633;&#x062A;&#x0648;&#x062F;&#x064A;&#x0648; &#x0645;&#x0639;&#x0627;&#x064A;&#x0646;&#x0629; &#x0648;&#x062A;&#x0635;&#x0645;&#x064A;&#x0645; &#x0627;&#x0644;&#x062A;&#x0642;&#x0631;&#x064A;&#x0631; | MAGAIEES ERP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;600;800&family=Almarai:wght@400;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;800;900&family=Changa:wght@400;600;800&family=Tajawal:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600;800&family=Roboto+Mono:wght@400;600;800&family=Fira+Code:wght@400;600;800&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;600;800&family=Almarai:wght@400;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;800;900&family=Changa:wght@400;600;800&family=Tajawal:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600;800&family=Roboto+Mono:wght@400;600;800&family=Fira+Code:wght@400;600;800&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     
     <style id="dynamic-paper-style">
         @page { size: A4 landscape; margin: 10mm; }
@@ -153,7 +153,8 @@ body { padding-top: 0 !important; }
 </style>
 <!-- sticky-ribbon-offset -->
 </head>
-<body>
+<body<?= empty($_GET['inModal']) ? ' class="has-sidebar"' : '' ?>>
+<?php if (empty($_GET['inModal']) && file_exists(__DIR__ . '/includes/header.php')) { $header_theme_class = 'header-theme-reports'; include __DIR__ . '/includes/header.php'; } ?>
 
 <!-- Luxury Ribbon Toolbar -->
 <div class="ribbon no-print">
@@ -175,8 +176,8 @@ body { padding-top: 0 !important; }
         <button class="ribbon-btn" onclick="toggleDarkMode()" style="--btn-color: #a855f7;">
             <span style="font-size: 1.05rem;">&#x1F319;</span> &#x0639;&#x0643;&#x0633; &#x0627;&#x0644;&#x0623;&#x0644;&#x0648;&#x0627;&#x0646;
         </button>
-        <button class="ribbon-btn" onclick="window.close(); window.history.back();" style="--btn-color: #ef4444;">
-            <span style="font-size: 1.05rem;">&#x274C;</span> &#x0625;&#x063A;&#x0644;&#x0627;&#x0642; / &#x0631;&#x062C;&#x0648;&#x0639;
+        <button class="ribbon-btn" onclick="if(window.parent && window.parent !== window && window.parent.document.getElementById('preset-preview-modal')){window.parent.document.getElementById('preset-preview-modal').style.display='none';}else{window.close(); window.history.back();}" style="--btn-color: #ef4444;">
+            <span style="font-size: 1.05rem;">&#x2B05;</span> &#x0631;&#x062C;&#x0648;&#x0639;
         </button>
     </div>
 </div>
@@ -358,7 +359,7 @@ function renderPresets() {
         var btn = document.createElement('button');
         btn.className = 'preset-btn' + (i === currentPresetIndex ? ' active' : '');
         btn.setAttribute('data-preset', i);
-        btn.innerHTML = '<span style="font-size:1rem;">' + (p.settings ? '\ud83d\udd12' : '\ud83d\udccc') + '</span> ' + p.name;
+        btn.textContent = String(p.name || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F]/gu, '').trim() || p.name;
         btn.style.cssText = '--btn-color: ' + (i === currentPresetIndex ? '#10b981' : '#94a3b8') + ';';
         btn.addEventListener('click', function() { applyPresetByIndex(i); });
         container.appendChild(btn);

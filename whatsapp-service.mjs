@@ -495,8 +495,8 @@ class WhatsAppClient {
                                 this.messageCache.delete(oldestKey);
                             }
 
-                            // SaaS Admin WhatsApp (default-saas-admin) is strictly for outbound OTPs & SaaS broadcasts — never process incoming messages, receipts, statements, or broker commands on it
-                            if (!this.isTenantSession || !this.tenantId || this.userId === 'default-saas-admin' || this.userId === 'default') {
+                            // Skip only disconnected/placeholder 'default' session; allow Borsa handler on active sessions before strict accounting gate
+                            if (this.userId === 'default' || this.userId === 'default-saas-admin') {
                                 continue;
                             }
 
@@ -535,31 +535,54 @@ class WhatsAppClient {
                                     return d;
                                 }).trim();
 
-                                // Check if user sent standalone "عرض" / "طلب" header to open a 3-minute follow-up window for consecutive messages/images
-                                if (!isBotReplyTxt && /^(?:عرض|عروض\s*اسعار|عرض\s*اسعار|عرض\s*أسعار|طلب|طلب\s*شراء|مطلوب|بورصة|للبيع)\s*[:：\-]?$/i.test(normBrokerTxt)) {
-                                    const bType = /^(?:طلب|مطلوب)/i.test(normBrokerTxt) ? 'order' : 'offer';
+                                const isStmtBalOrPinMsg = (
+                                    /(?:طلب\s*كشف|كشف\s*حساب|كشف\s*الحساب|كشف|حسابي|استلام\s*رصيد|استلام\s*الرصيد|طلب\s*رصيد|طلب\s*الرصيد|رصيدي|الرصيد|رصيد|معرفة\s*الرصيد|كم\s*رصيدي|الرقم\s*السري|رقم\s*سري|الرمز\s*السري|الباسورد|باسورد|نسيت\s*الباسورد)/i.test(normBrokerTxt) ||
+                                    /^[\s#:\-_.,/()]*(\d{1,10}[\s#:\-_.,/()]*)?(?:ك|كاف|الكاف|حرف\s*ك|ر|راء|الراء|حرف\s*ر)([\s#:\-_.,/()]*\d{1,10})?[\s#:\-_.,/()]*$/i.test(normBrokerTxt) ||
+                                    /^(?:#|كود|الكود|باسورد|الباسورد|حساب|الرقم\s*السري|سري|الرقم|رقم|pin|code|pass|\s)*\d[\d\s\-]{0,9}$/i.test(normBrokerTxt)
+                                );
+                                if (isStmtBalOrPinMsg) {
+                                    this.pendingBrokerModeByJid.delete(jid);
+                                }
+
+                                // Check if user sent standalone "ع" / "عرض" or "م" / "مطلوب" / "ط" / "طلب" header to open a 2-minute follow-up window
+                                if (!isBotReplyTxt && !isBrokerImg && /^(?:ع|عرض|العرض|عروض\s*اسعار|عرض\s*اسعار|عرض\s*أسعار|م|ط|طلب|الطلب|طلبية|الطلبية|طلبيه|الطلبيه|طلب\s*شراء|مطلوب|المطلوب|بورصة|للبيع)\s*[:：\-]?$/iu.test(normBrokerTxt)) {
+                                    const bType = /^(?:م|ط|طلب|الطلب|طلبية|الطلبية|طلبيه|الطلبيه|مطلوب|المطلوب)/iu.test(normBrokerTxt) ? 'order' : 'offer';
                                     this.pendingBrokerModeByJid.set(jid, { type: bType, ts: Date.now() });
                                     const bMsgId0 = msg.key?.id || '';
                                     if (bMsgId0) this.processedWaMsgIds.add(bMsgId0);
-                                    sock.sendMessage(jid, { text: '🏛️ *بورصة السيطرة التجارية:* أرسل الآن تفاصيل العرض أو الأسعار أو الصور (صورة مفردة أو مجموعة صور) وسيتم تفنيدها ونشرها فوراً في شريط البورصة.' }, { quoted: msg }).catch(() => {});
+                                    const modeLabel = bType === 'order' ? 'طلبية الشراء (مطلوب)' : 'العرض والأسعار';
+                                    sock.sendMessage(jid, { text: `🏛️ *بورصة السيطرة التجارية:* أرسل الآن تفاصيل ${modeLabel} أو الصور ليتم نشرها فوراً في شريط البورصة.` }, { quoted: msg }).catch(() => {});
                                     continue;
                                 }
 
                                 const activeBrokerSession = this.pendingBrokerModeByJid.get(jid);
-                                const isFollowUpBroker = Boolean(activeBrokerSession && (Date.now() - activeBrokerSession.ts <= 900000));
-                                const senderNum = (jid.includes('@lid') ? (this.lidToPhoneMap.get(jid) || this.lidToPhoneMap.get(jid.split('@')[0]) || '') : jid.split('@')[0]).replace(/:.*$/, '') || '249123005622';
-                                const hasLocalBroker = fs.existsSync('C:/xampp/htdocs/ELSAJANA2/magaies/api/market_broker_ticker.php');
-                                const primaryBrokerUrl = hasLocalBroker
+                                const isFollowUpBroker = Boolean(!isStmtBalOrPinMsg && activeBrokerSession && (Date.now() - activeBrokerSession.ts <= 120000));
+                                const resolvedBrkPhone = (msg.key?.fromMe && this.phoneNumber)
+                                    ? String(this.phoneNumber).replace(/\D/g, '')
+                                    : (this._resolveSenderPhone(msg, sock) || (jid.includes('@lid') ? (this.lidToPhoneMap.get(jid) || this.lidToPhoneMap.get(jid.split('@')[0]) || '') : jid.split('@')[0]).replace(/:.*$/, ''));
+                                const senderNum = resolvedBrkPhone || String(this.phoneNumber || '249123005622').replace(/\D/g, '');
+                                const hasWinLocalBroker = fs.existsSync('C:/xampp/htdocs/ELSAJANA2/magaies/api/market_broker_ticker.php');
+                                const hasLinuxLocalBroker = fs.existsSync('/var/www/magaees/api/market_broker_ticker.php');
+                                const primaryBrokerUrl = hasWinLocalBroker
                                     ? 'http://127.0.0.1/ELSAJANA2/magaies/api/market_broker_ticker.php?action=add'
-                                    : 'https://c.elsajana.com/api/market_broker_ticker.php?action=add';
+                                    : (hasLinuxLocalBroker ? 'http://127.0.0.1/api/market_broker_ticker.php?action=add' : 'https://c.elsajana.com/api/market_broker_ticker.php?action=add');
+                                const brokerHeaders = hasLinuxLocalBroker
+                                    ? { 'Content-Type': 'application/json', 'Host': 'c.elsajana.com', 'User-Agent': 'MagaieesBrokerInternal/1.0' }
+                                    : { 'Content-Type': 'application/json', 'User-Agent': 'MagaieesBrokerInternal/1.0' };
 
-                                // Handle single image or album/group of images sent to Broker
+                                const hasOfferKwAnywhere = /(?:^|[\s:：\-،,|.\r\n()\[\]/]+)(?:عرض\s*اسعار|عرض\s*أسعار|عروض\s*اسعار|عروض\s*أسعار|عرض|العرض|عروض|للبيع)(?:$|[\s:：\-،,|.\r\n()\[\]/]+)/iu.test(normBrokerTxt) || /^(?:ع)(?:[\s:：\-،,\r\n]+)|(?:[\s:：\-،,\r\n]+)(?:ع)$/iu.test(normBrokerTxt);
+                                const hasOrderKwAnywhere = /(?:^|[\s:：\-،,|.\r\n()\[\]/]+)(?:مطلوب\s*شراء|طلب\s*شراء|مطلوب|المطلوب|طلبية|الطلبية|طلبيه|الطلبيه|طلب|الطلب)(?:$|[\s:：\-،,|.\r\n()\[\]/]+)/iu.test(normBrokerTxt) || /(?:^|[\r\n]+)\s*(?:م|ط)(?:[\s:：\-،,]+)|(?:[\s:：\-،,]+)(?:م|ط)\s*(?:$|[\r\n]+)/iu.test(normBrokerTxt);
+                                const hasExplicitBrokerPrefix = hasOfferKwAnywhere || hasOrderKwAnywhere || /^(?:بورصة|دلالة)(?:[\s:：\-،,\r\n]+|$)/iu.test(normBrokerTxt);
+                                // Handle single image or album/group of images sent to Broker ONLY when explicitly tagged for Borsa or inside active 2-min Borsa header session (NEVER hijack captionless bank receipts!)
                                 const isPinCaptionOnly = /^\d{1,8}$/.test(normBrokerTxt);
-                                if (isBrokerImg && !isBotReplyTxt && !isPinCaptionOnly && (!this.isTenantSession || isFollowUpBroker || !normBrokerTxt || /(?:عرض|عروض|طلب|مطلوب|بورصة|للبيع|سعر|أسعار|اسعار|بن|عبوات|جرام|كيلو|طن|سيخ|اسمنت)/i.test(normBrokerTxt))) {
+                                const isSelfChatMsg = Boolean(this.phoneNumber && senderNum === String(this.phoneNumber).replace(/\D/g, ''));
+                                const allowBrokerMsg = !msg.key?.fromMe || hasExplicitBrokerPrefix || isFollowUpBroker || isSelfChatMsg;
+                                if (isBrokerImg && allowBrokerMsg && !isBotReplyTxt && !isPinCaptionOnly && !isStmtBalOrPinMsg && (!this.isTenantSession || isFollowUpBroker || hasExplicitBrokerPrefix || /(?:عرض|عروض|طلب|طلبية|مطلوب|بورصة|للبيع|أسعار|اسعار|سيخ|اسمنت|أسمنت)/iu.test(normBrokerTxt))) {
                                     const bMsgId = msg.key?.id || '';
                                     if (!bMsgId || !this.processedWaMsgIds.has(bMsgId)) {
                                         if (bMsgId) this.processedWaMsgIds.add(bMsgId);
-                                        this.pendingBrokerModeByJid.set(jid, { type: activeBrokerSession?.type || 'offer', ts: Date.now() });
+                                        const imgBType = hasOrderKwAnywhere ? 'order' : (hasOfferKwAnywhere ? 'offer' : (activeBrokerSession?.type || 'offer'));
+                                        this.pendingBrokerModeByJid.set(jid, { type: imgBType, ts: Date.now() });
                                         (async () => {
                                             try {
                                                 const buf = await downloadMediaMessage({ key: msg.key, message: unwrapped }, 'buffer', {}, { logger: pino({ level: 'silent' }), reuploadRequest: sock.updateMediaMessage });
@@ -567,7 +590,7 @@ class WhatsAppClient {
                                                 const b64 = buf.toString('base64');
                                                 let alb = this.pendingBrokerAlbumByJid.get(jid);
                                                 if (!alb) {
-                                                    alb = { images: [], captions: [], timer: null, lastMsg: msg, type: activeBrokerSession?.type || '' };
+                                                    alb = { images: [], captions: [], timer: null, lastMsg: msg, type: imgBType };
                                                     this.pendingBrokerAlbumByJid.set(jid, alb);
                                                 }
                                                 alb.images.push(b64);
@@ -583,10 +606,10 @@ class WhatsAppClient {
                                                         pushName: msg.pushName || 'تاجر بالسوق',
                                                         phone: senderNum
                                                     });
-                                                    if (hasLocalBroker) {
-                                                        fetch('https://c.elsajana.com/api/market_broker_ticker.php?action=add', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload }).catch(() => {});
+                                                    if (hasWinLocalBroker) {
+                                                        fetch('https://c.elsajana.com/api/market_broker_ticker.php?action=add', { method: 'POST', headers: brokerHeaders, body: payload }).catch(() => {});
                                                     }
-                                                    fetch(primaryBrokerUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload })
+                                                    fetch(primaryBrokerUrl, { method: 'POST', headers: brokerHeaders, body: payload })
                                                         .then(r => r.json())
                                                         .then(d => { if (d && d.reply) sock.sendMessage(jid, { text: d.reply }, { quoted: alb.lastMsg }).catch(() => {}); })
                                                         .catch(() => {});
@@ -597,36 +620,41 @@ class WhatsAppClient {
                                     }
                                 }
 
-                                if (rawBrokerTxt && rawBrokerTxt.length <= 4000 && !isBotReplyTxt) {
-                                    const hasTradeItemOrUnit = /(?:عرض|عروض|مطلوب|طلب|دلالة|سمسار|بورصة|للبيع|متوفر|محتاج|تسعيرة|التسعيرة|تسعيره|سعر|أسعار|اسعار|سيخ|اسمنت|أسمنت|عطبرة|عطبره|الأسعد|الاسعد|لينية|لينيه|طن|قنطار|كيلو|جرام|عبوات|عبوة|باكت|كرتونة|كرتونه|جوال|شوال|بن|قهوة|سكر|دقيق|زيت|حديد|كمر|مواسير|ماسورة|سلك|رباط|صاج|زنك|لمبة|لمبه|كشاف|كيبل|متر|قطعة|قطعه|يساوي|=|ألف|الف|مليون|ج\.س|جنيه)/i.test(normBrokerTxt);
-                                    const isPurePinOrStmt = /^(?:\d{1,10}|ك|ر|كشف|رصيد|رصيدي|كشف\s*حساب|الرقم\s*السري|باسورد|نسيت\s*الباسورد)$/i.test(normBrokerTxt);
-                                    const isBrokerMatch = !isPurePinOrStmt && (
+                                if (rawBrokerTxt && allowBrokerMsg && !isBrokerImg && rawBrokerTxt.length <= 4000 && !isBotReplyTxt && !isStmtBalOrPinMsg) {
+                                    const hasTradeItemOrUnit = /(?:سيخ|اسمنت|أسمنت|عطبرة|عطبره|الأسعد|الاسعد|لينية|لينيه|قنطار|كرتونة|كرتونه|جوال|شوال|بن|قهوة|سكر|دقيق|زيت|حديد|كمر|مواسير|ماسورة|سلك\s*رباط|صاج|زنك|لمبة|لمبه|كشاف|كيبل)/iu.test(normBrokerTxt) || hasOfferKwAnywhere || hasOrderKwAnywhere || (/(?:دلالة|سمسار|بورصة|متوفر|تسعيرة|التسعيرة|تسعيره)/iu.test(normBrokerTxt) && !/كشف|رصيد|إشعار|اشعار/iu.test(normBrokerTxt));
+                                    const hasDirectPriceOffer = /[\u0600-\u06FF]{2,}/u.test(normBrokerTxt) && !/(?:كشف|رصيد|إشعار|اشعار|تحويل|بنكك|حسابي|فاتورة\s*رقم|سند)/iu.test(normBrokerTxt) && /(?:\d+(?:[.,]\d+)?\s*(?:ج\.س|جنيه|سوداني|دولار|\$|ألف|الف|مليون)|(?:=|بـ|بسعر|سعر|السعر)\s*:?\s*\d{2,}|\b\d{1,3}[,،]\d{3}\b|\b[\u0600-\u06FF]{2,}(?:\s+[\u0600-\u06FF0-9]+){0,4}[\s:：\-=]+\d{3,9}\b)/iu.test(normBrokerTxt);
+                                    const isPriceOnlyCandidate = Boolean(this.isTenantSession && !isFollowUpBroker && !hasExplicitBrokerPrefix && !hasTradeItemOrUnit && hasDirectPriceOffer);
+                                    const isBrokerMatch = (
                                         isFollowUpBroker ||
                                         !this.isTenantSession ||
-                                        /^(?:ع|اسعار|أسعار|عروض|الاسعار|الأسعار|تسعيرة|التسعيرة|تسعيره|ط|طلبات|طلبيات|الطلبات|(?:تواصل|شراء|توريد|صفقة|صفقه|كود|بلاغ|ابلاغ|إبلاغ)\s*#?\d{2,5})$/is.test(normBrokerTxt) ||
-                                        (hasTradeItemOrUnit && normBrokerTxt.length >= 3)
+                                        hasExplicitBrokerPrefix ||
+                                        /^(?:اسعار|أسعار|عروض|الاسعار|الأسعار|تسعيرة|التسعيرة|تسعيره|طلبات|طلبيات|الطلبات|(?:تواصل|شراء|توريد|صفقة|صفقه|كود|بلاغ|ابلاغ|إبلاغ)\s*#?\d{2,5})$/isu.test(normBrokerTxt) ||
+                                        (hasTradeItemOrUnit && normBrokerTxt.length >= 3) ||
+                                        hasDirectPriceOffer
                                     );
                                     if (isBrokerMatch) {
                                         const bMsgId = msg.key?.id || '';
                                         if (!bMsgId || !this.processedWaMsgIds.has(bMsgId)) {
                                             if (bMsgId) this.processedWaMsgIds.add(bMsgId);
-                                            this.pendingBrokerModeByJid.set(jid, { type: activeBrokerSession?.type || '', ts: Date.now() });
+                                            this.pendingBrokerModeByJid.delete(jid);
+                                            const explicitBType = (hasOrderKwAnywhere && !hasOfferKwAnywhere) ? 'order' : ((hasOfferKwAnywhere && !hasOrderKwAnywhere) ? 'offer' : '');
                                             const brokerPayload = JSON.stringify({
                                                 text: normBrokerTxt,
-                                                type: activeBrokerSession?.type || '',
+                                                type: explicitBType || activeBrokerSession?.type || (hasDirectPriceOffer ? 'offer' : ''),
+                                                require_registered: isPriceOnlyCandidate ? 1 : 0,
                                                 pushName: msg.pushName || 'تاجر بالسوق',
                                                 phone: senderNum
                                             });
-                                            if (hasLocalBroker) {
+                                            if (hasWinLocalBroker) {
                                                 fetch('https://c.elsajana.com/api/market_broker_ticker.php?action=add', {
                                                     method: 'POST',
-                                                    headers: { 'Content-Type': 'application/json' },
+                                                    headers: brokerHeaders,
                                                     body: brokerPayload
                                                 }).catch(() => {});
                                             }
                                             fetch(primaryBrokerUrl, {
                                                 method: 'POST',
-                                                headers: { 'Content-Type': 'application/json' },
+                                                headers: brokerHeaders,
                                                 body: brokerPayload
                                             }).then(r => r.json()).then(d => {
                                                 if (d && d.reply) sock.sendMessage(jid, { text: d.reply }, { quoted: msg }).catch(() => {});
@@ -1216,20 +1244,9 @@ class WhatsAppClient {
                 caption: finalItemCaption
             });
 
-            // 1. Send immediate acknowledgment reply once per batch right after receiving the first receipt image (non-blocking so OCR starts immediately!)
-            if (!batchState.ackSent) {
-                batchState.ackSent = true;
-                sock.sendMessage(remoteJid, {
-                    text: `✅ مرحباً بك ${pushName}!\nتم استلام إشعار التحويل البنكي بنجاح وجاري تدقيقه الفوري واعتماده في النظام المالي.\nشكراً لتعاملكم معنا. 🏢✨`
-                }, { quoted: msg }).then((ackMsg) => {
-                    if (ackMsg?.key?.id) {
-                        this.processedWaMsgIds.add(ackMsg.key.id);
-                    }
-                    log(this.userId, `📤 Immediate receipt acknowledgment sent to customer ${senderPhone}`);
-                }).catch((ackErr) => {
-                    logErr(this.userId, 'Failed to send immediate acknowledgment:', ackErr.message);
-                });
-            }
+            // Clear any Borsa follow-up state when an actual bank receipt image arrives
+            if (this.pendingBrokerModeByJid) this.pendingBrokerModeByJid.delete(remoteJid);
+            batchState.ackSent = true;
 
             if (batchState.timer) {
                 clearTimeout(batchState.timer);
@@ -1421,7 +1438,7 @@ class WhatsAppClient {
 
                 if (data.status === 'duplicate_rejected') {
                     duplicateReceipts.push(data);
-                } else if (data.approval_mode === 'review_first' && Number(data.amount) > 0) {
+                } else if (data.approval_mode === 'review_first' || data.issue_reason === 'awaiting_posting_approval') {
                     reviewHoldReceipts.push(data);
                 } else if (data.voucher_no && Number(data.amount) > 0) {
                     postedReceipts.push(data);
@@ -1495,16 +1512,16 @@ class WhatsAppClient {
 
             if (reviewHoldReceipts.length === 1) {
                 const r = reviewHoldReceipts[0];
+                const amtLine = Number(r.amount) > 0 ? `\n• المبلغ: ${Number(r.amount).toLocaleString()} SDG` : '';
+                const refLine = r.transfer_no ? `\n• رقم العملية: ${r.transfer_no}` : '';
                 replyParts.push(
-                    `📥 تم استلام وفحص الإشعار البنكي لحساب (${resolvedCustomerName}) بنجاح:\n` +
-                    `• المبلغ: ${Number(r.amount).toLocaleString()} SDG\n` +
-                    `• رقم العملية: ${r.transfer_no || '-'}\n` +
-                    `• الحالة: بانتظار التمرير والاعتماد النهائي من الإدارة المالية (${r.voucher_no || ('#' + r.id)})`
+                    `⏳ تم استلام الإشعار البنكي لحساب (${resolvedCustomerName}) وهو الآن *قيد المراجعة* لدى الإدارة المالية ليتم اعتماده وترحيله للحساب:${amtLine}${refLine}`
                 );
             } else if (reviewHoldReceipts.length > 1) {
                 const totalHold = reviewHoldReceipts.reduce((s, r) => s + (Number(r.amount) || 0), 0);
+                const totTxt = totalHold > 0 ? ` بإجمالي *${totalHold.toLocaleString()} SDG*` : '';
                 replyParts.push(
-                    `📥 تم استلام وفحص (*${reviewHoldReceipts.length}*) إشعارات بنكية لحساب (*${resolvedCustomerName}*) بإجمالي *${totalHold.toLocaleString()} SDG* وهي الآن جاهزة للتمرير والاعتماد النهائي لدى الإدارة المالية.`
+                    `⏳ تم استلام (*${reviewHoldReceipts.length}*) إشعارات بنكية لحساب (*${resolvedCustomerName}*)${totTxt} وهي الآن *قيد المراجعة* لدى الإدارة المالية ليتم اعتمادها وترحيلها للحساب.`
                 );
             }
 

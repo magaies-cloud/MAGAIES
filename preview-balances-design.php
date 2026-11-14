@@ -8,8 +8,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>معاينة وتصميم الأرصدة | Al-Sajana ERP</title>
-    <!-- Professional Arabic & Number Fonts Suite -->
-    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;600;800&family=Almarai:wght@400;700;800&family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@400;600;800;900&family=Changa:wght@400;600;800&family=Tajawal:wght@400;500;700;800;900&family=JetBrains+Mono:wght@400;600;800&family=Roboto+Mono:wght@400;600;800&family=Fira+Code:wght@400;600;800&family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Non-blocking font load for weak/offline internet + instant zero-animation popup render -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;800;900&family=Tajawal:wght@500;700;900&family=Inter:wght@600;800&display=swap" media="print" onload="this.media='all'">
+    <style id="popup-zero-lag">*,*::before,*::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important;}</style>
     
     <style id="dynamic-paper-style">
         @page { size: A4 landscape; margin: 10mm; }
@@ -485,7 +486,8 @@
         }
     </style>
 </head>
-<body>
+<body<?= empty($_GET['inModal']) ? ' class="has-sidebar"' : '' ?>>
+<?php if (empty($_GET['inModal']) && file_exists(__DIR__ . '/includes/header.php')) { $header_theme_class = 'header-theme-reports'; include __DIR__ . '/includes/header.php'; } ?>
 
 <!-- Luxury Ribbon Toolbar -->
 <div class="ribbon no-print">
@@ -525,8 +527,9 @@
                 <span>💾</span> حفظ التصميم وتعميمه للكل
             </button>
         </div>
+        <button class="ribbon-btn" onclick="executePrintWithPermission()" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); border:none;">🖨️ طباعة</button>
         <button class="ribbon-btn" onclick="toggleDarkMode()">🌙 عكس الألوان</button>
-        <button class="ribbon-btn" onclick="window.history.back()" style="color:#f87171; border-color:rgba(239,68,68,0.5);">❌ إغلاق / رجوع</button>
+        <button class="ribbon-btn" onclick="if(window.parent && window.parent !== window && window.parent.document.getElementById('preset-preview-modal')){window.parent.document.getElementById('preset-preview-modal').style.display='none';}else{window.history.back();}" style="color:#f87171; border-color:rgba(239,68,68,0.5);">⬅ رجوع</button>
     </div>
 </div>
 
@@ -561,6 +564,13 @@
         </div>
     </div>
 
+    <!-- Subheader Row matching General Ledger Multi-Currency Design -->
+    <div id="report-subheader-row" style="display: flex; justify-content: space-between; align-items: center; margin: 12px 0 16px 0; padding: 10px 18px; background: rgba(0,0,0,0.02); border-radius: 8px; border: 1px solid rgba(0,0,0,0.12); font-family: 'Tajawal', sans-serif;">
+        <div style="flex: 1; text-align: right;"><span id="report-customer-name-lbl" style="font-size: 1.25rem; font-weight: 900; color: var(--text-color);">الأرصدة التجميعية متعددة العملات</span></div>
+        <div style="flex: 1; text-align: center;"><span id="report-date-sub-lbl" style="font-size: 1.2rem; font-weight: 900; color: var(--text-color);"><?= date('Y-m-d') ?></span></div>
+        <div style="flex: 1; text-align: left;"><span id="report-period-lbl" style="font-size: 1.1rem; font-weight: 800; color: var(--text-color);">محلي (SDG) ⇄ أجنبي (USD)</span></div>
+    </div>
+
     <!-- Table -->
     <table class="excel-table font-newsons" id="preview-table">
         <thead id="preview-thead">
@@ -590,7 +600,7 @@
 <?php include 'includes/studio-modals.php'; ?>
 <script src="js/localforage.min.js"></script>
 <script src="js/app.js?v=20261016_v28"></script>
-<script src="js/preview-balances.js?v=20261029_fast"></script>
+<script src="js/preview-balances.js?v=2027_gl_mc_unified_v3"></script>
 
 <script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
 <script src="js/magaiees_back.js?v=2026_back_v2" defer></script>

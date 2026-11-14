@@ -769,10 +769,10 @@ function getDefaultConfigs() {
 
 
 
-const MASTER_DEF1_LOCK_STAMP = 'gl_def1_locked_20261113_v1';
-const MASTER_DEF2_LOCK_STAMP = 'gl_def2_locked_20261113_v5';
-const MASTER_DEF3_LOCK_STAMP = 'gl_def3_locked_20261114_v1';
-const MASTER_DEF4_STAMP = 'gl_def4_init_20261114_v3';
+const MASTER_DEF1_LOCK_STAMP = 'gl_def1_locked_20261114_v2';
+const MASTER_DEF2_LOCK_STAMP = 'gl_def2_locked_20261114_v2';
+const MASTER_DEF3_LOCK_STAMP = 'gl_def3_locked_20261114_v2';
+const MASTER_DEF4_STAMP = 'gl_def4_init_20261114_v4';
 const MASTER_DEF1_ORDER = [0, 12, 1, 2, 3, 4, 13, 15, 14, 5, 6, 10, 9, 7, 8, 11];
 
 function lightenHex3Shades(hex) {
@@ -858,7 +858,7 @@ function getFactoryPreset4LedgerConfigs() {
 
 const FACTORY_PRESETS_LEDGER = [
     {
-        name: '💎 افتراضي 1',
+        name: 'متعدد العملات 1',
         configs: getFactoryPreset1LedgerConfigs(),
         order: [...MASTER_DEF1_ORDER],
         theme: '',
@@ -880,7 +880,7 @@ const FACTORY_PRESETS_LEDGER = [
         _masterLock: MASTER_DEF1_LOCK_STAMP
     },
     {
-        name: '⭐ افتراضي 2',
+        name: 'متعدد العملات 2',
         configs: getFactoryPreset2LedgerConfigs(),
         order: [...MASTER_DEF1_ORDER],
         theme: '',
@@ -902,7 +902,7 @@ const FACTORY_PRESETS_LEDGER = [
         _masterLock: MASTER_DEF2_LOCK_STAMP
     },
     {
-        name: '🎨 افتراضي 3',
+        name: 'الأجنبي',
         configs: getFactoryPreset3LedgerConfigs(),
         order: [...MASTER_DEF1_ORDER],
         theme: '',
@@ -924,7 +924,7 @@ const FACTORY_PRESETS_LEDGER = [
         _masterLock: MASTER_DEF3_LOCK_STAMP
     },
     {
-        name: '🔥 افتراضي 4',
+        name: 'المحلي',
         configs: getFactoryPreset4LedgerConfigs(),
         order: [0, 13, 9, 5, 6, 10, 12, 1, 2, 3, 4, 15, 14, 7, 8, 11],
         theme: '',
@@ -946,7 +946,7 @@ const FACTORY_PRESETS_LEDGER = [
         _initStamp: MASTER_DEF4_STAMP
     },
     {
-        name: '💠 نمط 1',
+        name: 'نمط 1',
         configs: getFactoryPreset1LedgerConfigs(),
         order: [...MASTER_DEF1_ORDER],
         theme: '',
@@ -967,7 +967,7 @@ const FACTORY_PRESETS_LEDGER = [
         isLocked: false
     },
     {
-        name: '🌟 نمط 2',
+        name: 'نمط 2',
         configs: getFactoryPreset2LedgerConfigs(),
         order: [...MASTER_DEF1_ORDER],
         theme: '',
@@ -988,7 +988,7 @@ const FACTORY_PRESETS_LEDGER = [
         isLocked: false
     },
     {
-        name: '🎭 نمط 3',
+        name: 'نمط 3',
         configs: getFactoryPreset3LedgerConfigs(),
         order: [...MASTER_DEF1_ORDER],
         theme: '',
@@ -1009,7 +1009,7 @@ const FACTORY_PRESETS_LEDGER = [
         isLocked: false
     },
     {
-        name: '⚡ نمط 4',
+        name: 'نمط 4',
         configs: getFactoryPreset4LedgerConfigs(),
         order: [0, 13, 9, 5, 6, 10, 12, 1, 2, 3, 4, 15, 14, 7, 8, 11],
         theme: '',
@@ -1041,6 +1041,7 @@ function enforceMasterPresetsPolicy(list) {
         list[0] = JSON.parse(JSON.stringify(FACTORY_PRESETS_LEDGER[0]));
         changed = true;
     } else {
+        list[0].name = 'متعدد العملات 1';
         list[0].configs = getFactoryPreset1LedgerConfigs();
         list[0].order = [...MASTER_DEF1_ORDER];
         list[0].theme = '';
@@ -1052,6 +1053,7 @@ function enforceMasterPresetsPolicy(list) {
         list[1] = JSON.parse(JSON.stringify(FACTORY_PRESETS_LEDGER[1]));
         changed = true;
     } else {
+        list[1].name = 'متعدد العملات 2';
         list[1].configs = getFactoryPreset2LedgerConfigs();
         list[1].order = [...MASTER_DEF1_ORDER];
         list[1].theme = '';
@@ -1063,6 +1065,7 @@ function enforceMasterPresetsPolicy(list) {
         list[2] = JSON.parse(JSON.stringify(FACTORY_PRESETS_LEDGER[2]));
         changed = true;
     } else {
+        list[2].name = 'الأجنبي';
         list[2].configs = getFactoryPreset3LedgerConfigs();
         list[2].order = [...MASTER_DEF1_ORDER];
         list[2].theme = '';
@@ -1074,6 +1077,7 @@ function enforceMasterPresetsPolicy(list) {
         list[3] = JSON.parse(JSON.stringify(FACTORY_PRESETS_LEDGER[3]));
         changed = true;
     } else {
+        list[3].name = 'المحلي';
         list[3].configs = getFactoryPreset4LedgerConfigs();
         list[3].order = [...FACTORY_PRESETS_LEDGER[3].order];
         list[3].theme = '';
@@ -1336,9 +1340,9 @@ function renderPresetButtons() {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'preset-btn' + (idx === currentPresetIndex ? ' active' : '');
-        const lockIcon = (idx < 4) ? ' 🔒' : (idx === currentPresetIndex ? ' 🎯' : ' 🔓');
-        btn.innerHTML = p.name + lockIcon;
-        btn.title = (idx < 4) ? (p.name + ' (مثبت نهائياً)') : ('تخصيص وحفظ ' + p.name + ' بحرية تامة');
+        const cleanLabel = String(p.name || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F]/gu, '').trim();
+        btn.textContent = cleanLabel || p.name;
+        btn.title = (idx < 4) ? (cleanLabel + ' (قياسي)') : ('تخصيص وحفظ ' + cleanLabel);
         
         btn.onclick = function(e) {
             if (e) e.preventDefault();

@@ -107,6 +107,130 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
     } catch(e) {}
 })();
 </script>
+<style id="global-zero-lag-css">
+.ambient-bg, .ambient-bg .orb, .preset-ribbon-btn::after, .preset-btn::after, .btn-action-hero::after, .btn-run::after, .action-tab.active::before, .sticky-footer::before { display: none !important; content: none !important; }
+*:not(#market-broker-ticker-track):not(#market-broker-orders-track):not(#global-screens-broker-ticker-track):not(#athkar-marquee-track), *::before, *::after { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; animation: none !important; }
+button, .btn, .modern-btn, .preset-ribbon-btn, .preset-btn, .btn-action-hero, .btn-run, .action-tab, .fin-card, .pos-grid tbody tr { transition: background-color 0.08s ease, border-color 0.08s ease, opacity 0.08s ease !important; }
+button:hover, .btn:hover, .modern-btn:hover, .preset-ribbon-btn:hover, .preset-btn:hover, .btn-action-hero:hover, .del-btn:hover, .modal-close:hover { transform: none !important; }
+</style>
+<style id="master-2027-height-and-colprops">
+/* ═══ MASTER 2027 UI HARMONY: +20% HEIGHT ONLY, UNIFIED COL PROPS (FAR LEFT), CENTERED NO-ICON HUBS & ZERO BLUR HALOS ═══ */
+#sales-editor-constitution-1of3-bar, #split-constitution-1of3-bar, #sales-hub-constitution-1of3-bar,
+#sl-sovereign-law1-bar, #pur-hub-sovereign-tools, #split-fc2-sovereign-row,
+.ambient-bg, .ambient-bg .orb, .orb, .pos-lemon-title::before,
+#payment-panel::before, #payment-panel::after, .payment-details-card::before, .payment-details-card::after,
+#pay-credit-section::before, #pay-credit-section::after {
+    display: none !important;
+    background: none !important;
+    filter: none !important;
+    animation: none !important;
+}
+
+/* Remove graphic icons & center text in Purchase / Sales / Receipt Gate Hub Cards */
+.hub-action-card .icon,
+#purchase-hub-view .hub-action-card .icon,
+#sales-hub-view .hub-action-card .icon {
+    display: none !important;
+}
+.hub-action-card,
+#purchase-hub-view .hub-action-card,
+#sales-hub-view .hub-action-card {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    min-height: 60px !important;
+    padding: 12px 16px !important;
+}
+.hub-action-card .text-content,
+.hub-action-card .title {
+    width: 100% !important;
+    text-align: center !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+}
+
+/* Unified Column Properties Button (خصائص الأعمدة — بنفس لون دفتر الأستاذ وفي أقصى اليسار) */
+.unified-col-props-btn,
+#btn-gl-columns-cfg,
+button[onclick*="openGridSettingsModal"],
+button[onclick*="openGridSettings("],
+button[onclick*="openColumnContextMenu"] {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 7px !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 0 18px !important;
+    border-radius: 10px !important;
+    background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%) !important;
+    border: 1.8px solid #38bdf8 !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    font-family: 'Cairo', 'Tajawal', sans-serif !important;
+    font-size: 0.92rem !important;
+    font-weight: 900 !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25) !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+}
+.unified-col-props-far-left {
+    margin-right: auto !important;
+    margin-left: 0 !important;
+}
+
+/* +20% HEIGHT ONLY (الارتفاع فقط بنسبة +20% بدون زيادة العرض — لتناسب الشاشات الطولية وكافة شاشات وتقارير النظام) */
+.filter-input,
+.ctrl-input:not(textarea),
+.v-input:not(textarea),
+.sl-input:not(textarea),
+.report-header select,
+.report-header input:not([type="checkbox"]):not([type="radio"]) {
+    min-height: 46px !important;
+}
+.preset-ribbon-btn,
+.preset-pill-btn,
+.ribbon-btn,
+.luxury-action-btn,
+.sl-btn {
+    min-height: 43px !important;
+}
+table.pos-grid thead th,
+#balances-table thead th,
+#recent-table thead th,
+.report-table thead th,
+.data-table thead th {
+    min-height: 46px !important;
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+}
+table.pos-grid tbody td,
+#balances-table tbody td,
+#recent-table tbody td,
+.report-table tbody td,
+.data-table tbody td {
+    min-height: 46px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+table.pos-grid tbody td input:not([type="checkbox"]):not([type="radio"]),
+table.pos-grid tbody td select {
+    min-height: 43px !important;
+}
+/* Extra vertical harmony on Portrait / Vertical Desktop Monitors (الشاشات الطولية) */
+@media screen and (min-width: 769px) and (orientation: portrait), screen and (min-width: 769px) and (min-height: 1050px) {
+    #purchase-row0-bar, #sales-row0-bar { min-height: 54px !important; }
+    #invoice-info-box { min-height: 52px !important; max-height: 56px !important; }
+    #invoice-info-box .group-invoice, #invoice-info-box .pro-serial-container { height: 46px !important; min-height: 46px !important; max-height: 46px !important; }
+    .filter-input, .ctrl-input:not(textarea), .v-input:not(textarea), .sl-input:not(textarea) { min-height: 50px !important; }
+    table.pos-grid tbody td, #balances-table tbody td, #recent-table tbody td, .report-table tbody td { padding-top: 12px !important; padding-bottom: 12px !important; }
+}
+</style>
 <script defer src="js/bban_auto_helper.js"></script>
 <script defer src="js/master-banks-helper.js?v=20260924_v1"></script>
 <script defer src="js/permissions-manager.js?v=<?= file_exists(__DIR__ . '/../js/permissions-manager.js') ? filemtime(__DIR__ . '/../js/permissions-manager.js') : '20261016_v28' ?>"></script>
@@ -319,7 +443,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
     }
 })();
 </script>
-<script defer src="js/sidebar-panoramic-flyout.js?v=<?= file_exists(__DIR__ . '/../js/sidebar-panoramic-flyout.js') ? filemtime(__DIR__ . '/../js/sidebar-panoramic-flyout.js') : time() ?>"></script>
+<script defer src="js/sidebar-panoramic-flyout.js?v=2027_noicons_center_v2'/../js/sidebar-panoramic-flyout.js?v=2027_noicons_center_v2') ? filemtime(__DIR__ . '/../js/sidebar-panoramic-flyout.js?v=2027_noicons_center_v2') : time() ?>"></script>
 <script defer src="js/erp_alerts_guard.js?v=20260902_v1"></script>
 <style>
 @keyframes neonPulseHeader {
@@ -3025,10 +3149,10 @@ try {
                 }
 
                 // دعم التكبير والتصغير الخارق بـ (Ctrl + رولة الماوس) حتى 10 أضعاف (10x) في جميع شاشات البرنامج
-                if (!window.ElsajanaUniversalUI2027 && !document.querySelector('script[src*="elsajana-universal-ui-2027.js?v=2027_fix5"]')) {
+                if (!window.ElsajanaUniversalUI2027 && !document.querySelector('script[src*="elsajana-universal-ui-2027.js?v=2027_clean_v2"]')) {
                     var _ergoScr = document.createElement('script');
                     _ergoScr.defer = true;
-                    _ergoScr.src = 'js/elsajana-universal-ui-2027.js?v=2027_fix5';
+                    _ergoScr.src = 'js/elsajana-universal-ui-2027.js?v=2027_clean_v2';
                     (document.head || document.documentElement).appendChild(_ergoScr);
                 }
                 (function() {
@@ -3101,8 +3225,13 @@ try {
                     : 'margin:4px auto;width:calc(100% - 28px);background:#0c1d47;border:1px solid rgba(253,224,71,0.55);border-radius:7px;padding:4px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;direction:rtl;color:#fde047;font-size:12.5px;font-weight:900;box-shadow:0 4px 14px rgba(0,0,0,0.55);';
                 var txt = res.items.slice(0, 8).map(function(it, idx){
                     var clr = (idx % 2 === 0) ? '#fb923c' : '#fde047';
-                    var lbl = it.type === 'order' ? '<span style="color:#fde047;">🟠 طلب:</span> ' : '<span style="color:#fde047;">🟢 عرض:</span> ';
-                    return '<span style="color:' + clr + ';">' + lbl + (it.text || '') + '</span>';
+                    var ageM = (it.ts && Number(it.ts) > 1000000000) ? Math.max(0, (Date.now() - Number(it.ts) * 1000) / 60000) : 999;
+                    var nBadgeStyle = ageM <= 90
+                        ? 'background:#dc2626!important;border:1.5px solid #fca5a5!important;'
+                        : (ageM <= 180 ? 'background:#f97316!important;border:1.5px solid #fdba74!important;' : 'background:#16a34a!important;border:1.5px solid #86efac!important;');
+                    var nBadge = ageM <= 270 ? '<span style="' + nBadgeStyle + 'color:#fff!important;-webkit-text-fill-color:#fff!important;padding:1px 8px;border-radius:999px;font-size:11px;font-weight:900;margin-left:5px;display:inline-flex;align-items:center;">جديد</span>' : '';
+                    var lbl = it.type === 'order' ? '<span style="color:#fb923c;">🟠 طلب:</span> ' : '<span style="color:#4ade80;">🟢 عرض:</span> ';
+                    return '<span style="color:' + clr + ';">' + nBadge + lbl + (it.text || '') + '</span>';
                 }).join(' <span style="color:#fb923c;">❖</span> ');
                 bar.innerHTML = '<div style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1;color:#fb923c;"><span style="color:#fde047;">🏛️ بورصة السيطرة التجارية:</span> ' + txt + '</div>'
                     + '<div style="display:flex;gap:4px;flex-shrink:0;">'

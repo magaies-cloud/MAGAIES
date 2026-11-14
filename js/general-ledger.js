@@ -3166,6 +3166,7 @@ async function openPreviewDesign() {
 }
 
 function renderLedgerPresets() {
+    if (document.getElementById('preview-table') || window.location.pathname.includes('preview-')) return;
     const container = document.getElementById('presets-container');
     if (!container) return;
     container.innerHTML = '';
@@ -3175,26 +3176,27 @@ function renderLedgerPresets() {
     try { presets = JSON.parse(localStorage.getItem(PRESETS_STORAGE_KEY) || '[]'); } catch(e){}
 
     const defaultPresets = [
-        { name: '💎 افتراضي 1', showInRibbon: true, isLocked: true },
-        { name: '⭐ افتراضي 2', showInRibbon: true, isLocked: true },
-        { name: '🎨 افتراضي 3', showInRibbon: true, isLocked: true },
-        { name: '🔥 افتراضي 4', showInRibbon: true, isLocked: true },
-        { name: '💠 نمط 1', showInRibbon: true, isLocked: false },
-        { name: '🌟 نمط 2', showInRibbon: true, isLocked: false },
-        { name: '🎭 نمط 3', showInRibbon: true, isLocked: false },
-        { name: '⚡ نمط 4', showInRibbon: true, isLocked: false }
+        { name: 'متعدد العملات 1', showInRibbon: true, isLocked: true },
+        { name: 'متعدد العملات 2', showInRibbon: true, isLocked: true },
+        { name: 'الأجنبي', showInRibbon: true, isLocked: true },
+        { name: 'المحلي', showInRibbon: true, isLocked: true },
+        { name: 'نمط 1', showInRibbon: true, isLocked: false },
+        { name: 'نمط 2', showInRibbon: true, isLocked: false },
+        { name: 'نمط 3', showInRibbon: true, isLocked: false },
+        { name: 'نمط 4', showInRibbon: true, isLocked: false }
     ];
+    const stripIcons = (s) => String(s || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F]/gu, '').trim();
 
     if (!Array.isArray(presets) || presets.length < 8) {
         const merged = defaultPresets.map((dp, idx) => (presets && presets[idx]) ? Object.assign({}, dp, presets[idx]) : dp);
         merged.slice(0, 4).forEach((p, idx) => { p.name = defaultPresets[idx].name; p.isLocked = true; });
-        merged.slice(4, 8).forEach((p, idx) => { if (!p.name || p.name.includes('افتراضي')) p.name = defaultPresets[idx + 4].name; p.isLocked = false; });
+        merged.slice(4, 8).forEach((p, idx) => { const cn = stripIcons(p.name); p.name = (!cn || cn.includes('افتراضي')) ? defaultPresets[idx + 4].name : cn; p.isLocked = false; });
         presets = merged;
     } else {
         presets.forEach((p, idx) => {
             p.isLocked = (idx < 4);
             if (idx < 4) p.name = defaultPresets[idx].name;
-            else if (idx < 8 && (!p.name || p.name.includes('افتراضي'))) p.name = defaultPresets[idx].name;
+            else if (idx < 8) { const cn = stripIcons(p.name); p.name = (!cn || cn.includes('افتراضي')) ? defaultPresets[idx].name : cn; }
         });
     }
 
@@ -3205,9 +3207,9 @@ function renderLedgerPresets() {
         btn.type = 'button';
         btn.className = 'luxury-action-btn ' + (idx < 4 ? 'gl-preset-locked-btn' : 'gl-pattern-custom-btn');
         btn.style.cssText = `--btn-color: ${palette[idx] || '#38bdf8'};`;
-        const cleanName = (p.name || defaultPresets[idx].name).replace(/\s*[🔒🔓]\s*$/g, '');
-        btn.innerHTML = cleanName;
-        btn.title = idx < 4 ? (cleanName + ' — نموذج قياسي مثبت نهائياً') : ('اضغط لتخصيص وحفظ ' + cleanName + ' بحرية كاملة');
+        const cleanName = stripIcons(p.name || defaultPresets[idx].name) || defaultPresets[idx].name;
+        btn.textContent = cleanName;
+        btn.title = idx < 4 ? (cleanName + ' — نموذج قياسي مثبت') : ('تخصيص وحفظ ' + cleanName);
         
         btn.onclick = (e) => {
             if (e) e.preventDefault();
@@ -3219,25 +3221,33 @@ function renderLedgerPresets() {
 window.renderLedgerPresets = renderLedgerPresets;
 
 async function openPresetModal(presetIndex, presetName, isLocked = false) {
+    if (window.self !== window.top && typeof window.loadPreset === 'function') {
+        window.loadPreset(presetIndex);
+        return;
+    }
     try {
         await prepareLedgerPreviewData();
     } catch (e) {
         console.error(e);
-        if (typeof window.glShowStandardToast === 'function') window.glShowStandardToast('❌ حدث خطأ غير متوقع: ' + e.message, 'error'); else if (typeof showToast === 'function') showToast('حدث خطأ غير متوقع: ' + e.message, 'error');
+        if (typeof window.glShowStandardToast === 'function') window.glShowStandardToast('حدث خطأ غير متوقع: ' + e.message, 'error'); else if (typeof showToast === 'function') showToast('حدث خطأ غير متوقع: ' + e.message, 'error');
         return;
     }
 
-    // Create Modal Backdrop if not present
+    if (!document.getElementById('docked-preset-view-style')) {
+        const st = document.createElement('style');
+        st.id = 'docked-preset-view-style';
+        st.textContent = `
+            #preset-preview-modal { position: fixed; top: 0; left: 0; bottom: 0; right: 0; z-index: 99990; background: #f1f5f9; display: flex; flex-direction: column; padding: 0; margin: 0; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+            body.has-sidebar #preset-preview-modal, html.has-sidebar #preset-preview-modal { right: var(--sb-collapsed, 62px); }
+            body.has-sidebar.sidebar-open #preset-preview-modal, html.has-sidebar.sidebar-open #preset-preview-modal { right: var(--sb-expanded, 240px); }
+        `;
+        document.head.appendChild(st);
+    }
+
     let modal = document.getElementById('preset-preview-modal');
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'preset-preview-modal';
-        modal.style.cssText = `
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(12px);
-            z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 10px; animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        `;
         document.body.appendChild(modal);
     }
 
@@ -3251,13 +3261,7 @@ async function openPresetModal(presetIndex, presetName, isLocked = false) {
         existingIframe.contentWindow.loadPreset(presetIndex);
         return;
     }
-    modal.innerHTML = `
-        <div style="background: #0f172a; border: 2px solid #38bdf8; border-radius: 14px; width: 99.5%; max-width: 100%; height: 98.5vh; display: flex; flex-direction: column; box-shadow: 0 25px 60px rgba(0,0,0,0.65); overflow: hidden;">
-            <div style="flex: 1; background: #fff; position: relative; width: 100%; height: 100%;">
-                <iframe id="preset-modal-iframe" src="preview-ledger.php?presetIndex=${presetIndex}&inModal=1&_t=${Date.now()}" style="width: 100%; height: 100%; border: none;"></iframe>
-            </div>
-        </div>
-    `;
+    modal.innerHTML = `<iframe id="preset-modal-iframe" src="preview-ledger.php?presetIndex=${presetIndex}&inModal=1&_t=${Date.now()}" style="width: 100%; height: 100%; border: none; flex: 1; background: #fff;"></iframe>`;
     modal.style.display = 'flex';
 }
 window.openPresetModal = openPresetModal;
@@ -3346,6 +3350,7 @@ window.shareCurrentLedgerReport = async function(presetIndex = 0, presetName = '
 
 // Attach event listeners to filters to auto-run
 document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('preview-table') || window.location.pathname.includes('preview-')) return;
     const inputs = document.querySelectorAll('.filter-input');
     inputs.forEach(inp => {
         inp.addEventListener('change', runReport);
@@ -3363,7 +3368,11 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(res => res.json())
         .then(data => {
             if (data && data.success && Array.isArray(data.layout) && data.layout.length > 0) {
-                data.layout.forEach(p => { p.isLocked = false; });
+                const fixedNames = ['متعدد العملات 1', 'متعدد العملات 2', 'الأجنبي', 'المحلي'];
+                data.layout.forEach((p, idx) => {
+                    p.isLocked = (idx < 4);
+                    if (idx < 4) p.name = fixedNames[idx];
+                });
                 localStorage.setItem('ledger_preview_presets_v20', JSON.stringify(data.layout));
                 renderLedgerPresets();
             }

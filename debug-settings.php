@@ -11,6 +11,7 @@ button { background: #10b981; color: #fff; border: none; padding: 10px 20px; bor
 input { background: #222; color: #fff; border: 1px solid #555; padding: 10px; font-size: 18px; width: 200px; border-radius: 5px; }
 .section { margin: 20px 0; padding: 15px; border: 1px solid #333; border-radius: 10px; }
 </style>
+    <style id="global-zero-lag-css">.ambient-bg,.ambient-bg .orb,.preset-ribbon-btn::after,.preset-btn::after,.btn-action-hero::after,.btn-run::after,.action-tab.active::before,.sticky-footer::before{display:none!important;content:none!important}*,*::before,*::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important}button,a,input,select,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}button,.btn,.modern-btn,.preset-ribbon-btn,.preset-btn,.btn-action-hero,.btn-run,.action-tab,.fin-card,.pos-grid tbody tr{transition:background-color .08s ease,border-color .08s ease,opacity .08s ease!important}button:hover,.btn:hover,.modern-btn:hover,.preset-ribbon-btn:hover,.preset-btn:hover,.btn-action-hero:hover,.del-btn:hover,.modal-close:hover{transform:none!important}</style>
 </head>
 <body>
 <h1>🔍 تشخيص مشكلة حفظ سعر الصرف</h1>

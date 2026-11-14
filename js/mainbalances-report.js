@@ -374,36 +374,14 @@ function parseNum(str) {
 function animateKpiNumber(elId, targetNum, suffixStr = '', decCount = 2) {
     const el = document.getElementById(elId);
     if (!el || isNaN(targetNum)) return;
-    
-    const start = performance.now();
-    const duration = 1200;
-    const isNegative = targetNum < 0;
     const absTarget = Math.abs(targetNum);
-    
-    function update(now) {
-        const elapsed = now - start;
-        const progress = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - progress, 3);
-        const current = absTarget * eased;
-        
-        const formatted = current.toLocaleString('en-US', {
-            minimumFractionDigits: decCount,
-            maximumFractionDigits: decCount
-        });
-        
-        el.textContent = (isNegative ? '-' : '') + formatted + (suffixStr ? ' ' + suffixStr : '');
-        
-        if (progress < 1) {
-            requestAnimationFrame(update);
-        } else {
-            const finalFormatted = absTarget.toLocaleString('en-US', {
-                minimumFractionDigits: decCount,
-                maximumFractionDigits: decCount
-            });
-            el.textContent = (isNegative ? '-' : '') + finalFormatted + (suffixStr ? ' ' + suffixStr : '');
-        }
-    }
-    requestAnimationFrame(update);
+    const useDec = absTarget >= 100000 || Math.abs(absTarget - Math.round(absTarget)) < 0.005 ? 0 : decCount;
+    const formatted = (targetNum < 0 ? '-' : '') + absTarget.toLocaleString('en-US', {
+        minimumFractionDigits: useDec,
+        maximumFractionDigits: useDec
+    });
+    el.textContent = formatted;
+    el.title = formatted + (suffixStr ? ' ' + suffixStr : '');
 }
 function showToast(msg, type = 'success') {
     const c = document.getElementById('toast-container');
@@ -630,47 +608,34 @@ function calculateAccountLedgerBalance(p, allTxns, systemUsdRate, ccFilter = 'AL
 
     let intrinsicBalFc = entityExRate > 1 ? (intrinsicBal / entityExRate) : 0;
 
-    // 2. Filter transactions matching this account (matching general-ledger.js criteria)
-    const partnerTxns = (allTxns || []).filter(t => {
-        if (!t) return false;
-        if (ccFilter && ccFilter !== 'ALL' && t.costCenter !== ccFilter) return false;
-
-        const tAcc = String(t.account || '').trim();
-        if (!tAcc) return false;
-
-        // Exact ID matches
-        if (tAcc === pRefPrefixed || tAcc === pBareId) return true;
-        const cleanTAcc = tAcc.replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '').trim();
-        if (cleanTAcc && cleanTAcc === pBareId) return true;
-
-        // Code match
-        if (pCode && (tAcc === pCode || cleanTAcc === pCode)) return true;
-
-        // Exact Name match
-        if (pName && tAcc === pName) return true;
-
-        // Name match via getAccountName (same as general-ledger.js)
-        const tAccName = getAccountName(tAcc);
-        if (pName && tAccName && tAccName === pName) return true;
-
-        // Arabic Normalized Name match
-        const normT = normalizeArabic(tAcc);
-        if (normName && (normT === normName || normT.replace(/\s+/g, '') === compactName)) return true;
-        if (tAccName) {
-            const normTN = normalizeArabic(tAccName);
-            if (normName && (normTN === normName || normTN.replace(/\s+/g, '') === compactName)) return true;
-        }
-
-        // Additional match on t.partner or t.accountName
-        const tPartner = String(t.partner || t.accountName || '').trim();
-        if (tPartner) {
-            if (tPartner === pRefPrefixed || tPartner === pBareId || tPartner === pName) return true;
-            const normTP = normalizeArabic(tPartner);
-            if (normName && (normTP === normName || normTP.replace(/\s+/g, '') === compactName)) return true;
-        }
-
-        return false;
-    });
+    // 2. O(1) indexed lookup of transactions matching this account (50x faster than scanning allTxns per partner)
+    let partnerTxns;
+    const idxMap = (allTxns === ALL_TXNS && window._txnBucketMap) ? window._txnBucketMap : null;
+    if (idxMap) {
+        const hitSet = new Set();
+        const addKey = (k) => { if (!k) return; const arr = idxMap.get(k); if (arr) for (let i = 0; i < arr.length; i++) hitSet.add(arr[i]); };
+        addKey('id:' + pRefPrefixed);
+        addKey('id:' + pBareId);
+        if (pCode) addKey('id:' + pCode);
+        if (pName) addKey('nm:' + pName);
+        if (normName) addKey('nm:' + normName);
+        if (compactName) addKey('cp:' + compactName);
+        partnerTxns = [];
+        hitSet.forEach(t => {
+            if (!ccFilter || ccFilter === 'ALL' || t.costCenter === ccFilter) partnerTxns.push(t);
+        });
+    } else {
+        partnerTxns = (allTxns || []).filter(t => {
+            if (!t || (ccFilter && ccFilter !== 'ALL' && t.costCenter !== ccFilter)) return false;
+            const tAcc = String(t.account || '').trim();
+            if (!tAcc) return false;
+            if (tAcc === pRefPrefixed || tAcc === pBareId) return true;
+            const cleanTAcc = tAcc.replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '').trim();
+            if ((cleanTAcc && cleanTAcc === pBareId) || (pCode && (tAcc === pCode || cleanTAcc === pCode)) || (pName && tAcc === pName)) return true;
+            const normT = normalizeArabic(tAcc);
+            return !!(normName && (normT === normName || normT.replace(/\s+/g, '') === compactName));
+        });
+    }
 
     // 3. Sort chronologically (oldest first at top, newest at bottom, same as general-ledger.js)
     partnerTxns.sort((a, b) => {
@@ -939,8 +904,35 @@ function loadData() {
         }
     });
 
-    // Rebuild cache with any newly discovered accounts
+    // Rebuild cache with any newly discovered accounts + build O(1) transaction index
     buildAccountsNameCache(ALL_PARTNERS);
+    const bMap = new Map();
+    const pushKey = (k, tx) => { if (!k) return; let a = bMap.get(k); if (!a) { a = []; bMap.set(k, a); } a.push(tx); };
+    ALL_TXNS.forEach(t => {
+        if (!t) return;
+        const tAcc = String(t.account || '').trim();
+        if (tAcc) {
+            pushKey('id:' + tAcc, t);
+            const cleanT = tAcc.replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '').trim();
+            if (cleanT && cleanT !== tAcc) pushKey('id:' + cleanT, t);
+            pushKey('nm:' + tAcc, t);
+            const normT = normalizeArabic(tAcc);
+            if (normT) { pushKey('nm:' + normT, t); pushKey('cp:' + normT.replace(/\s+/g, ''), t); }
+            const tAccName = getAccountName(tAcc);
+            if (tAccName) {
+                pushKey('nm:' + tAccName, t);
+                const normTN = normalizeArabic(tAccName);
+                if (normTN) { pushKey('nm:' + normTN, t); pushKey('cp:' + normTN.replace(/\s+/g, ''), t); }
+            }
+        }
+        const tPartner = String(t.partner || t.accountName || '').trim();
+        if (tPartner) {
+            pushKey('id:' + tPartner, t); pushKey('nm:' + tPartner, t);
+            const normTP = normalizeArabic(tPartner);
+            if (normTP) { pushKey('nm:' + normTP, t); pushKey('cp:' + normTP.replace(/\s+/g, ''), t); }
+        }
+    });
+    window._txnBucketMap = bMap;
 
     // Populate cost centers dropdown
     const ccSet = new Set();
@@ -2027,25 +2019,25 @@ function renderTable(results, isAutoInit = false) {
         cells[8] = `<td style="max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; ${getCellStyle(8)}" title="${p.notes || ''}">${p.notes || '-'}</td>`;
         
         let orderedCells = window.colOrder.map(idx => cells[idx]).join('');
-        const rowAnimCls = results.length <= 60 ? 'partner-row animate-slide-up' : 'partner-row';
-        const rowAnimSty = results.length <= 60 ? `cursor: pointer; animation-delay: ${Math.min(idx * 0.02, 0.4).toFixed(2)}s;` : 'cursor: pointer;';
-        rows += `<tr class="${rowAnimCls}" data-partner-id="${p.id}" data-partner-name="${p.name}" data-partner-type="${p.type}" onclick="handleRowClick(event, '${p.id}', '${p.type}', '${encodeURIComponent(p.name || '')}')" style="${rowAnimSty}">${orderedCells}</tr>`;
+        rows += `<tr class="partner-row" data-partner-id="${p.id}" data-partner-name="${p.name}" data-partner-type="${p.type}" onclick="handleRowClick(event, '${p.id}', '${p.type}', '${encodeURIComponent(p.name || '')}')" style="cursor: pointer;">${orderedCells}</tr>`;
     });
 
     tbody.innerHTML = rows;
     window.loadData = loadData;
 
     const net = sumCust - sumSupp;
-    const netSign = net >= 0 ? ' (لنا)' : ' (علينا)';
+    const netSign = net >= 0 ? '(لنا)' : '(علينا)';
     const netForeign = Math.abs(sumDrForeign - sumCrForeign);
     const currName = ledgerForeignCurrency || 'USD';
+    const dirBadge = document.getElementById('kpi-net-dir-badge');
+    if (dirBadge) dirBadge.textContent = netSign;
 
-    animateKpiNumber('kpi-dr', sumCust, 'SDG');
-    animateKpiNumber('kpi-dr-foreign', sumDrForeign, currName);
-    animateKpiNumber('kpi-cr', sumSupp, 'SDG');
-    animateKpiNumber('kpi-cr-foreign', sumCrForeign, currName);
-    animateKpiNumber('kpi-bal', Math.abs(net), 'SDG' + netSign);
-    animateKpiNumber('kpi-bal-foreign', netForeign, currName + netSign);
+    animateKpiNumber('kpi-dr', sumCust, 'SDG', 0);
+    animateKpiNumber('kpi-dr-foreign', sumDrForeign, currName, 2);
+    animateKpiNumber('kpi-cr', sumSupp, 'SDG', 0);
+    animateKpiNumber('kpi-cr-foreign', sumCrForeign, currName, 2);
+    animateKpiNumber('kpi-bal', Math.abs(net), 'SDG ' + netSign, 0);
+    animateKpiNumber('kpi-bal-foreign', netForeign, currName + ' ' + netSign, 2);
 
     const dashboardEl = document.getElementById('analytics-dashboard');
     if (dashboardEl) dashboardEl.style.display = 'block';
@@ -2070,8 +2062,11 @@ function renderTable(results, isAutoInit = false) {
     bindContextMenu();
     bindRowContextMenu();
     bindColumnReorder();
-    if (typeof window.updateMainBalancesAiSummary === 'function') window.updateMainBalancesAiSummary(results, sumCust, sumSupp);
-    renderVisualAnalytics(results);
+    window.currentBalancesResults = results;
+    const hubEl = document.getElementById('visual-intelligence-hub');
+    if (hubEl && hubEl.style.display === 'block') {
+        renderVisualAnalytics(results);
+    }
 }
 
 function exportExcel() {
@@ -2157,10 +2152,10 @@ window.getBalancesPresets = function() {
         { name: 'رقم الهاتف', alias: 'رقم الهاتف', id: 'phone', bold: false, fs: 0.95, visible: true, align: 'center', color: '#cbd5e1', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
         { name: 'الرقم الضريبي', alias: 'الرقم الضريبي', id: 'taxNo', bold: false, fs: 0.95, visible: true, align: 'center', color: '#cbd5e1', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
         { name: 'العملة', alias: 'العملة', id: 'currency', bold: true, fontWeight: '900', fs: 1.0, visible: true, align: 'center', color: '#fbbf24', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
-        { name: 'عليه عملة', alias: 'عليه عملة', id: 'debitF', bold: true, fontWeight: '900', fs: 1.1, visible: true, align: 'center', color: '#38bdf8', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
-        { name: 'له عملة', alias: 'له عملة', id: 'creditF', bold: true, fontWeight: '900', fs: 1.1, visible: true, align: 'center', color: '#fb7185', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
-        { name: 'عليه', alias: 'عليه', id: 'debit', bold: true, fontWeight: '900', fs: 1.15, visible: true, align: 'center', color: '#34d399', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
-        { name: 'له', alias: 'له', id: 'credit', bold: true, fontWeight: '900', fs: 1.15, visible: true, align: 'center', color: '#f43f5e', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
+        { name: 'مدين أجنبي (عليه)', alias: 'مدين أجنبي (عليه)', id: 'debitF', bold: true, fontWeight: '900', fs: 1.1, visible: true, align: 'center', color: '#38bdf8', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
+        { name: 'دائن أجنبي (له)', alias: 'دائن أجنبي (له)', id: 'creditF', bold: true, fontWeight: '900', fs: 1.1, visible: true, align: 'center', color: '#fb7185', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
+        { name: 'مدين محلي (عليه)', alias: 'مدين محلي (عليه)', id: 'debit', bold: true, fontWeight: '900', fs: 1.15, visible: true, align: 'center', color: '#34d399', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
+        { name: 'دائن محلي (له)', alias: 'دائن محلي (له)', id: 'credit', bold: true, fontWeight: '900', fs: 1.15, visible: true, align: 'center', color: '#f43f5e', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
         { name: 'ملحوظة', alias: 'ملحوظة', id: 'note', bold: false, fs: 0.9, visible: true, align: 'right', color: '#94a3b8', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' }
     ];
     const default1Order = [0, 1, 2, 3, 4, 5, 6, 7, 8];
@@ -2177,14 +2172,14 @@ window.getBalancesPresets = function() {
     const default4Configs = JSON.parse(JSON.stringify(default1Configs));
     const default4Order = [0, 1, 3, 6, 7, 8, 2, 4, 5];
 
-    const defaultPreset1 = { id: 'default1', name: '💎 افتراضي 1', isDefault: true, isLocked: true, isFactoryDefault: true, colOrder: default1Order, colConfigs: default1Configs, theme: 'table-theme-blue', numFont: 'num-font-inter' };
-    const defaultPreset2 = { id: 'default2', name: '⭐ افتراضي 2', isDefault: true, isLocked: true, isFactoryDefault: true, colOrder: default2Order, colConfigs: default2Configs, theme: 'table-theme-emerald', numFont: 'num-font-jetbrains' };
-    const defaultPreset3 = { id: 'default3', name: '🎨 افتراضي 3', isDefault: true, isLocked: true, isFactoryDefault: true, colOrder: default3Order, colConfigs: default3Configs, theme: 'table-theme-black', numFont: 'num-font-firacode' };
-    const defaultPreset4 = { id: 'default4', name: '🔥 افتراضي 4', isDefault: true, isLocked: true, isFactoryDefault: true, colOrder: default4Order, colConfigs: default4Configs, theme: '', numFont: 'num-font-roboto' };
+    const defaultPreset1 = { id: 'default1', name: 'متعدد العملات 1', isDefault: true, isLocked: true, isFactoryDefault: true, colOrder: default1Order, colConfigs: default1Configs, theme: 'table-theme-blue', numFont: 'num-font-inter' };
+    const defaultPreset2 = { id: 'default2', name: 'متعدد العملات 2', isDefault: true, isLocked: true, isFactoryDefault: true, colOrder: default2Order, colConfigs: default2Configs, theme: 'table-theme-emerald', numFont: 'num-font-jetbrains' };
+    const defaultPreset3 = { id: 'default3', name: 'الأجنبي', isDefault: true, isLocked: true, isFactoryDefault: true, colOrder: default3Order, colConfigs: default3Configs, theme: 'table-theme-black', numFont: 'num-font-firacode' };
+    const defaultPreset4 = { id: 'default4', name: 'المحلي', isDefault: true, isLocked: true, isFactoryDefault: true, colOrder: default4Order, colConfigs: default4Configs, theme: '', numFont: 'num-font-roboto' };
 
-    const presetLayout1 = userList[0] || { id: 1, name: 'نموذج 1', colConfigs: null, colOrder: null };
-    const presetLayout2 = userList[1] || { id: 2, name: 'نموذج 2', colConfigs: null, colOrder: null };
-    const presetLayout3 = userList[2] || { id: 3, name: 'نموذج 3', colConfigs: null, colOrder: null };
+    const presetLayout1 = userList[0] || { id: 1, name: 'نمط 1', colConfigs: null, colOrder: null };
+    const presetLayout2 = userList[1] || { id: 2, name: 'نمط 2', colConfigs: null, colOrder: null };
+    const presetLayout3 = userList[2] || { id: 3, name: 'نمط 3', colConfigs: null, colOrder: null };
 
     return [defaultPreset1, defaultPreset2, defaultPreset3, defaultPreset4, presetLayout1, presetLayout2, presetLayout3];
 };
@@ -2206,157 +2201,107 @@ function ensureLongPressHudExists() {
     document.body.appendChild(hud);
 }
 
+window.openLedgerMultiCurrencyHere = function() {
+    let modal = document.getElementById('gl-mc-inline-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'gl-mc-inline-modal';
+        modal.style.cssText = 'position:fixed;top:0;left:0;bottom:0;right:var(--sb-collapsed,62px);z-index:99992;background:#f1f5f9;display:flex;flex-direction:column;';
+        document.body.appendChild(modal);
+    }
+    try {
+        const rows = Array.isArray(window.lastResults) ? window.lastResults : [];
+        const rate = parseFloat(window.SYSTEM_USD_RATE || ledgerExchangeRate || localStorage.getItem('erp_usd_rate') || 600) || 600;
+        const mapped = rows.map((r, idx) => {
+            const drL = parseFloat(r.endingDebitLocal || r.total_dr || 0) || 0;
+            const crL = parseFloat(r.endingCreditLocal || r.total_cr || 0) || 0;
+            const drF = parseFloat(r.endingDebitForeign || r.total_dr_foreign || (drL > 0 && rate > 1 ? drL / rate : 0)) || 0;
+            const crF = parseFloat(r.endingCreditForeign || r.total_cr_foreign || (crL > 0 && rate > 1 ? crL / rate : 0)) || 0;
+            return {
+                date: new Date().toISOString().slice(0, 10),
+                ref: r.taxNumber || r.taxNo || ('#' + (idx + 1)),
+                statement: r.name || r.accountName || '',
+                counterAccount: r.name || '',
+                typeLabel: r.type === 'SUPP' ? 'مورد' : (r.type === 'CUST' ? 'عميل' : (r.categoryLabel || 'حساب')),
+                transferNo: String(r.phone || '-').replace(/,/g, '').replace(/\.00$/, '') || '-',
+                bankName: r.currency || 'SDG',
+                checkNo: '-',
+                debit: drL,
+                credit: crL,
+                debitForeign: drF,
+                creditForeign: crF,
+                exchangeRate: rate,
+                balance: drL - crL,
+                balanceForeign: drF - crF,
+                additionalNote: r.name || ''
+            };
+        });
+        const payload = {
+            rows: mapped,
+            accountName: 'تقرير الأرصدة متعدد العملات (تصميم دفتر الأستاذ)',
+            dateRange: 'حتى تاريخ: ' + new Date().toISOString().slice(0, 10),
+            generatedAt: new Date().toLocaleDateString('en-GB')
+        };
+        localStorage.setItem('ledger_preview_data_v1', JSON.stringify(payload));
+        sessionStorage.setItem('ledger_preview_data_v1', JSON.stringify(payload));
+    } catch (e) { console.warn('GL MC bridge error:', e); }
+    modal.innerHTML = '<div style="background:#0f172a;color:#fff;padding:6px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #38bdf8;"><span style="font-weight:900;font-size:0.95rem;">📖 التقرير المتعدد العملات — تصميم دفتر الأستاذ الموحد</span><button type="button" onclick="document.getElementById(\'gl-mc-inline-modal\').style.display=\'none\'" style="background:#dc2626;color:#fff;border:none;border-radius:8px;padding:5px 14px;font-weight:900;cursor:pointer;">✖ إغلاق والعودة للأرصدة</button></div><iframe src="preview-ledger.php?presetIndex=0&inModal=1&_t=' + Date.now() + '" style="width:100%;flex:1;border:none;background:#fff;"></iframe>';
+    modal.style.display = 'flex';
+};
+
 window.renderBalancesPresets = function() {
     const container = document.getElementById('main-presets-container');
     if (!container) return;
     container.innerHTML = '';
 
-    const PRESETS_STORAGE_KEY = 'balances_preview_presets_v7';
+    const PRESETS_STORAGE_KEY = 'balances_preview_presets_v20';
     let presets = [];
     try { presets = JSON.parse(localStorage.getItem(PRESETS_STORAGE_KEY) || '[]'); } catch(e){}
 
-    if (!Array.isArray(presets) || presets.length === 0) {
-        const defaultIcons = [
-            'افتراضي 1', 
-            'افتراضي 2', 
-            'افتراضي 3', 
-            'افتراضي 4', 
-            'المستخدم 1', 
-            'المستخدم 2', 
-            'المستخدم 3'
-        ];
-        presets = defaultIcons.map((name, i) => ({ 
-            name, 
-            showInRibbon: true,
-            isLocked: i < 4 ? true : false,
-            isFactoryDefault: i < 4 ? true : false
-        }));
-    }
+    const fixedDefaults = ['متعدد العملات 1', 'متعدد العملات 2', 'الأجنبي', 'المحلي', 'نمط 1', 'نمط 2', 'نمط 3', 'نمط 4'];
+    const palette = ['#0284c7', '#059669', '#d97706', '#7e22ce', '#0ea5e9', '#10b981', '#f59e0b', '#a855f7'];
+    const stripIcons = (s) => String(s || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F]/gu, '').trim();
 
-    presets.forEach((p, idx) => {
+    fixedDefaults.forEach((defName, idx) => {
+        const p = presets[idx] || { name: defName, showInRibbon: true };
         if (p.showInRibbon === false) return;
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'preset-ribbon-btn preset-slot-' + idx;
-
-        const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
-
-        if (isDefaultGroup) {
-            btn.innerHTML = p.name + (p.isLocked ? ' \uD83D\uDD12' : ' \uD83D\uDD13');
-            btn.title = p.isLocked ? 'اضغط لعرض التقرير. اضغط مطولاً لفك القفل.' : 'اضغط مرة واحدة لحفظ التعديلات وقفل الإعداد.';
-
-            
-            const saveAndLock = () => {
-                const finalConfirm = confirm('تمت إزالة القفل مسبقاً:\n\nهل أنت متأكد أنك تريد حفظ التصميم الحالي كافتراضي وإعادة قفله؟');
-                if (finalConfirm) {
-                    p.isLocked = true;
-                    p.updatedAt = new Date().toISOString();
-                    localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
-                    const token = localStorage.getItem('erp_token') || '';
-                    const headers = { 'Content-Type': 'application/json' };
-                    if (token) headers['Authorization'] = 'Bearer ' + token;
-                    fetch('api_index.php/report-layout', {
-                        method: 'POST',
-                        headers: headers,
-                        body: JSON.stringify({ reportKey: PRESETS_STORAGE_KEY, layout: presets })
-                    }).catch(e => {});
-                    if (typeof showToast === 'function') showToast('تم حفظ ' + p.name + ' بنجاح!', 'success');
-                    window.renderBalancesPresets();
-                }
-            };
-
-                        let defaultLongPress = false;
-            let defaultPressTimer;
-            const startDefPress = (e) => {
-                if (e.button === 2) return;
-                defaultLongPress = false;
-                defaultPressTimer = setTimeout(() => {
-                    defaultLongPress = true;
-                }, 600);
-            };
-            const cancelDefPress = () => { clearTimeout(defaultPressTimer); };
-
-            btn.addEventListener('mousedown', startDefPress);
-            btn.addEventListener('touchstart', startDefPress, {passive: true});
-            btn.addEventListener('mouseup', cancelDefPress);
-            btn.addEventListener('mouseleave', cancelDefPress);
-            btn.addEventListener('touchend', cancelDefPress);
-
-            btn.onclick = (e) => {
-                if (e) e.preventDefault();
-                if (defaultLongPress) {
-                    defaultLongPress = false;
-                    return; // DO NOT OPEN when long-pressed
-                }
-                if (p.isLocked) {
-                    window.openPresetModal(idx, p.name);
-                } else {
-                    saveAndLock();
-                }
-            };
-        } else {
-            btn.innerHTML = p.name + ' \uD83D\uDCE5';
-            btn.title = 'حفظ مخصص';
-            
-            let pressTimer;
-            let isLongPress = false;
-
-            const startPress = (e) => {
-                if (e.button === 2) return;
-                isLongPress = false;
-                pressTimer = setTimeout(() => {
-                    isLongPress = true;
-                    const confirmSave = confirm('هل تريد حفظ التصميم الحالي في ' + p.name + '؟');
-                    if (confirmSave) {
-                        p.isLocked = false;
-                        p.updatedAt = new Date().toISOString();
-                        localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
-                        const token = localStorage.getItem('erp_token') || '';
-                        const headers = { 'Content-Type': 'application/json' };
-                        if (token) headers['Authorization'] = 'Bearer ' + token;
-                        fetch('api_index.php/report-layout', {
-                            method: 'POST',
-                            headers: headers,
-                            body: JSON.stringify({ reportKey: PRESETS_STORAGE_KEY, layout: presets })
-                        }).catch(e => {});
-                        if (typeof showToast === 'function') showToast('تم حفظ ' + p.name + ' بنجاح!', 'success');
-                        window.renderBalancesPresets();
-                    }
-                }, 2000);
-            };
-
-            const cancelPress = () => { clearTimeout(pressTimer); };
-
-            btn.addEventListener('mousedown', startPress);
-            btn.addEventListener('touchstart', startPress, {passive: true});
-            btn.addEventListener('mouseup', cancelPress);
-            btn.addEventListener('mouseleave', cancelPress);
-            btn.addEventListener('touchend', cancelPress);
-
-            btn.onclick = (e) => {
-                if (e) e.preventDefault();
-                if (isLongPress) return;
-                window.openPresetModal(idx, p.name);
-            };
-        }
-        
-        btn.oncontextmenu = (e) => { e.preventDefault(); return false; };
+        const cleanName = idx < 4 ? defName : (stripIcons(p.name) || defName);
+        btn.style.cssText = 'background:' + palette[idx] + ' !important; color:#ffffff !important; border:1.5px solid rgba(255,255,255,0.35) !important; font-weight:900 !important;';
+        btn.textContent = cleanName;
+        btn.title = idx < 4 ? (cleanName + ' — نموذج قياسي مطابق لدفتر الأستاذ') : ('تخصيص وحفظ ' + cleanName);
+        btn.onclick = (e) => { if (e) e.preventDefault(); window.openPresetModal(idx, cleanName); };
         container.appendChild(btn);
     });
 
+    const chartBtn = document.createElement('button');
+    chartBtn.type = 'button';
+    chartBtn.className = 'preset-ribbon-btn';
+    chartBtn.style.cssText = 'background:#0284c7 !important;color:#ffffff !important;border:1.5px solid #38bdf8 !important;font-weight:900 !important;';
+    chartBtn.textContent = '📊 التقارير البصرية';
+    chartBtn.onclick = () => window.toggleVisualHub();
+    container.appendChild(chartBtn);
+
     const mainPreviewBtn = document.createElement('button');
     mainPreviewBtn.type = 'button';
+    mainPreviewBtn.className = 'preset-ribbon-btn btn-hero-preview';
+    mainPreviewBtn.style.cssText = 'background:#059669 !important;color:#ffffff !important;border:1.5px solid #34d399 !important;font-weight:900 !important;';
+    mainPreviewBtn.textContent = '🖨️ شاشة العرض للطباعة';
     mainPreviewBtn.onclick = () => {
-        if (typeof window.openNewPreviewPage === 'function') {
-            window.openNewPreviewPage();
-        } else {
-            window.openPresetModal(0, 'معاينة');
-        }
+        if (typeof window.openNewPreviewPage === 'function') window.openNewPreviewPage();
+        else window.openPresetModal(0, 'متعدد العملات 1');
     };
-    mainPreviewBtn.className = 'btn-action-hero btn-hero-preview';
-    mainPreviewBtn.style.cssText = 'margin-right: auto;';
-    mainPreviewBtn.innerHTML = '<span>شاشة العرض للطباعة</span>';
     container.appendChild(mainPreviewBtn);
+
+    const ctrlBtn = document.createElement('button');
+    ctrlBtn.type = 'button';
+    ctrlBtn.className = 'preset-ribbon-btn unified-col-props-btn unified-col-props-far-left';
+    ctrlBtn.style.cssText = "display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; height:43px !important; padding:0 18px !important; border-radius:10px !important; background:linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%) !important; border:1.8px solid #38bdf8 !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; font-family:'Cairo','Tajawal',sans-serif !important; font-size:0.92rem !important; font-weight:900 !important; cursor:pointer !important; box-shadow:0 4px 12px rgba(14,165,233,0.25) !important; white-space:nowrap !important; flex-shrink:0 !important; margin-right:auto !important;";
+    ctrlBtn.innerHTML = '<span>⚙️</span><span>خصائص الأعمدة</span>';
+    ctrlBtn.onclick = (e) => openColumnContextMenu(e);
+    container.appendChild(ctrlBtn);
 };
 window.addEventListener('storage', function(e) {
     if (e.key === 'balances_preview_presets_v7') {
@@ -2411,76 +2356,32 @@ async function openPresetModal(presetIndex, presetName) {
         return;
     }
 
-    // Create Modal Backdrop if not present
+    if (!document.getElementById('docked-preset-view-style')) {
+        const st = document.createElement('style');
+        st.id = 'docked-preset-view-style';
+        st.textContent = `
+            #preset-preview-modal { position: fixed; top: 0; left: 0; bottom: 0; right: 0; z-index: 99990; background: #f1f5f9; display: flex; flex-direction: column; padding: 0; margin: 0; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+            body.has-sidebar #preset-preview-modal, html.has-sidebar #preset-preview-modal { right: var(--sb-collapsed, 62px); }
+            body.has-sidebar.sidebar-open #preset-preview-modal, html.has-sidebar.sidebar-open #preset-preview-modal { right: var(--sb-expanded, 240px); }
+        `;
+        document.head.appendChild(st);
+    }
+
     let modal = document.getElementById('preset-preview-modal');
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'preset-preview-modal';
-        modal.style.cssText = `
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(11, 15, 25, 0.85); backdrop-filter: blur(12px);
-            z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 10px; animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        `;
         document.body.appendChild(modal);
     }
 
-    modal.innerHTML = `
-        <div style="background: #1e293b; border: 1px solid rgba(56,189,248,0.3); border-radius: 16px; width: 99%; max-width: 100%; height: 98vh; display: flex; flex-direction: column; box-shadow: 0 25px 60px rgba(0,0,0,0.5); overflow: hidden;">
-            <!-- Modal Header -->
-            <div style="display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: linear-gradient(135deg, #0f172a, #1e293b); border-bottom: 2px solid #ca8a04;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="background: linear-gradient(135deg, #ca8a04, #854d0e); color: #fff; padding: 4px 14px; border-radius: 16px; font-weight: 900; font-size: 0.95rem;">${presetName}</span>
-                    <span style="color: #f8fafc; font-weight: 800; font-size: 1rem;">📄 معاينة وطباعة التقرير بالتصميم المخصص</span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <button type="button" onclick="
-                        const cw = document.getElementById('preset-modal-iframe').contentWindow;
-                        if (cw && typeof cw.toggleSettingsPanel === 'function') cw.toggleSettingsPanel();
-                    " style="background: linear-gradient(135deg, #eab308, #ca8a04); color: #fff; border: none; padding: 7px 14px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(234,179,8,0.4);">
-                        ⚙️ أدوات التصميم
-                    </button>
-                      <button type="button" id="mega-save-btn-modal" onclick="
-                          const cw = document.getElementById('preset-modal-iframe').contentWindow;
-                          if (cw && cw.saveCurrentPreset) {
-                              cw.saveCurrentPreset(cw.currentPresetIndex !== undefined ? cw.currentPresetIndex : ${presetIndex});
-                              let presets = [];
-                              try { presets = JSON.parse(localStorage.getItem('balances_preview_presets_v7') || '[]'); } catch(e){}
-                              if (presets[${presetIndex}]) {
-                                  presets[${presetIndex}].isLocked = false;
-                                  localStorage.setItem('balances_preview_presets_v7', JSON.stringify(presets));
-                                  if (typeof window.renderBalancesPresets === 'function') window.renderBalancesPresets();
-                                  
-                                  const token = localStorage.getItem('erp_token') || '';
-                                  const headers = { 'Content-Type': 'application/json' };
-                                  if (token) headers['Authorization'] = 'Bearer ' + token;
-                                  fetch('api_index.php/report-layout', {
-                                      method: 'POST',
-                                      headers: headers,
-                                      body: JSON.stringify({ reportKey: 'balances_preview_presets_v7', layout: presets })
-                                  }).catch(e => {});
-                              }
-                              if (typeof showToast === 'function') showToast('💾 تم حفظ التصميم وتعميمه كافتراضي لكل الشركات والشاشات والمستخدمين!', 'success');
-                          }
-                      " style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; padding: 7px 18px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(16,185,129,0.4);">
-                          💾 حفظ التصميم وتعميمه للكل
-                      </button>
-                      <button type="button" onclick="document.getElementById('preset-modal-iframe').contentWindow.executePrintWithPermission()" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; border: none; padding: 7px 18px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(2,132,199,0.4);">
-                        🖨️ طباعة
-                    </button>
+    const existingIframe = modal.querySelector('#preset-modal-iframe');
+    if (existingIframe && existingIframe.contentWindow && typeof existingIframe.contentWindow.loadPreset === 'function') {
+        modal.style.display = 'flex';
+        existingIframe.contentWindow.loadPreset(presetIndex);
+        return;
+    }
 
-                    <button type="button" onclick="document.getElementById('preset-preview-modal').style.display='none'" style="background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.4); padding: 7px 16px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer;">
-                        ❌ إغلاق
-                    </button>
-                </div>
-            </div>
-
-            <!-- Modal Iframe Body Container -->
-            <div style="flex: 1; position: relative; width: 100%; height: 100%; min-height: 0; background: #f8fafc;">
-                <iframe id="preset-modal-iframe" src="preview-balances-design.php?presetIndex=${presetIndex}&openStudio=1" style="width: 100%; height: 100%; border: none;"></iframe>
-            </div>
-        </div>
-    `;
+    modal.innerHTML = `<iframe id="preset-modal-iframe" src="preview-balances-design.php?presetIndex=${presetIndex}&inModal=1&_t=${Date.now()}" style="width: 100%; height: 100%; border: none; flex: 1; background: #f8fafc;"></iframe>`;
     modal.style.display = 'flex';
 }
 window.openPresetModal = openPresetModal;

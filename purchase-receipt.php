@@ -55,7 +55,7 @@
 </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>استلام البضاعة (GRN) | Al-Sajana ERP</title>
@@ -1401,7 +1401,7 @@ html.grn-ophthalmic-comfort-active body {
                     <div style="display: flex; align-items: center; gap: 7px; flex-wrap: wrap;">
                         <button type="button" id="grn-hub-curr-btn" onclick="window.toggleGrnHubCurrency && window.toggleGrnHubCurrency()" style="height: 34px; padding: 0 13px; border-radius: 9px; background: linear-gradient(135deg, #7c3aed, #5b21b6); border: 2px solid #c4b5fd; color: #ffffff !important; font-weight: 900; font-size: 0.86rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">💱 <span id="grn-hub-curr-lbl">جنيه ⇄</span></button>
                         <button type="button" onclick="window.openGrnAIAuditModal && window.openGrnAIAuditModal()" style="height: 34px; padding: 0 13px; border-radius: 9px; background: linear-gradient(135deg, #6d28d9, #4f46e5); border: 2px solid #c4b5fd; color: #ffffff !important; font-weight: 900; font-size: 0.84rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">🤖 الذكاء الاصطناعي للأسعار</button>
-                        <button type="button" onclick="openGridSettings()" style="height: 34px; padding: 0 13px; border-radius: 9px; background: linear-gradient(135deg, #0284c7, #0369a1); border: 2px solid #7dd3fc; color: #ffffff !important; font-weight: 900; font-size: 0.84rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">⚙️ التخصيص</button>
+                        <button type="button" class="unified-col-props-btn unified-col-props-far-left" onclick="openGridSettings()" style="display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; height:43px !important; padding:0 18px !important; border-radius:10px !important; background:linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%) !important; border:1.8px solid #38bdf8 !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; font-family:'Cairo','Tajawal',sans-serif !important; font-size:0.92rem !important; font-weight:900 !important; cursor:pointer !important; box-shadow:0 4px 12px rgba(14,165,233,0.25) !important; white-space:nowrap !important; flex-shrink:0 !important; margin-right:auto !important;"><span>⚙️</span><span>خصائص الأعمدة</span></button>
                     </div>
                 </div>
 
@@ -1609,8 +1609,6 @@ html.grn-ophthalmic-comfort-active body {
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=20261016_v28"></script>
     <script defer src="js/magaies-smart-guide.js?v=<?php echo file_exists('js/magaies-smart-guide.js') ? filemtime('js/magaies-smart-guide.js') : '20261030_v35'; ?>"></script>
-    <script defer src="js/elsajana-erp-brain-2027.js?v=<?php echo file_exists('js/elsajana-erp-brain-2027.js') ? filemtime('js/elsajana-erp-brain-2027.js') : 1; ?>"></script>
-    <script defer src="js/elsajana-charts-forensic-2027.js?v=<?php echo file_exists('js/elsajana-charts-forensic-2027.js') ? filemtime('js/elsajana-charts-forensic-2027.js') : 1; ?>"></script>
     <script defer src="js/elsajana-universal-ui-2027.js?v=<?php echo file_exists('js/elsajana-universal-ui-2027.js') ? filemtime('js/elsajana-universal-ui-2027.js') : 1; ?>"></script>
     <script>
         var allPurchases = [];
@@ -5256,7 +5254,7 @@ html.grn-ophthalmic-comfort-active body {
                 return;
             }
             w.document.write(`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>إشعار مطالبة للمورد - ${claimNo}</title>
-            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
             <style>body{font-family:'Tajawal',sans-serif;margin:24px;color:#0f172a;background:#fff}table{width:100%;border-collapse:collapse;margin-top:16px;font-size:13.5px}th{background:#991b1b;color:#fff;padding:10px;text-align:center}td{border:1px solid #cbd5e1;padding:9px;text-align:center}@media print{.no-print{display:none!important}}</style>
             </head><body>
             <div class="no-print" style="margin-bottom:15px;display:flex;gap:10px;flex-wrap:wrap;">
@@ -5427,7 +5425,7 @@ html.grn-ophthalmic-comfort-active body {
             const w = window.open('', '_blank', 'width=920,height=720');
             if (!w) return showToast('يرجى السماح بالنوافذ المنبثقة لطباعة الملصقات', 'error');
             w.document.write(`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><title>ملصقات باركود الدفعة والرف - ${docRef}</title>
-            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@600;700;800;900&display=swap" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
             <style>
                 body{font-family:'Tajawal',sans-serif;margin:18px;background:#f8fafc;color:#0f172a}
                 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
@@ -5539,7 +5537,7 @@ html.grn-ophthalmic-comfort-active body {
 <head>
 <meta charset="UTF-8">
 <title>سند استلام مخزني (GRN) - ${doc.grnNo}</title>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <style>
     body { font-family: 'Tajawal', sans-serif; margin: 24px; color: #0f172a; background: #fff; }
     .hdr { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #0284c7; padding-bottom: 14px; margin-bottom: 18px; }
