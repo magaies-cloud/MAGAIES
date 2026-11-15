@@ -1749,11 +1749,11 @@ function renderTable() {
         
         const hdrTxtLen = String(conf.label || c.defaultLabel || '').trim().length;
         const wParsed = conf.width ? parseInt(conf.width, 10) : 0;
-        let hdrFs = conf.headerFs ? Number(conf.headerFs) : (hdrTxtLen >= 14 ? 0.78 : (hdrTxtLen > 11 ? 0.86 : 1.04));
+        let hdrFs = conf.headerFs ? Number(conf.headerFs) : (hdrTxtLen >= 14 ? 0.70 : (hdrTxtLen > 11 ? 0.80 : 1.00));
         if (wParsed > 10 && wParsed < 95) {
-            hdrFs = Math.max(0.70, Math.min(hdrFs, +(wParsed / Math.max(6.5, hdrTxtLen * 0.82) / 14).toFixed(2)));
+            hdrFs = Math.max(0.64, Math.min(hdrFs, +(wParsed / Math.max(6.5, hdrTxtLen * 0.85) / 14).toFixed(2)));
         } else if (wParsed >= 135 && !conf.headerFs) {
-            hdrFs = 1.10;
+            hdrFs = 1.08;
         }
         const isPreset2Lighter = (currentPresetIndex === 1);
         const hdrFootGrad = isPreset2Lighter

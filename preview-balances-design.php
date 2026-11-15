@@ -13,7 +13,7 @@
     <style id="popup-zero-lag">*,*::before,*::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important;}</style>
     
     <style id="dynamic-paper-style">
-        @page { size: A4 landscape; margin: 10mm; }
+        @page { size: A4 portrait; margin: 6mm; }
     </style>
 
     <style>
@@ -219,7 +219,7 @@
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
         }
 
-        .print-area.paper-portrait { max-width: 96% !important; width: 96% !important; }
+        .print-area.paper-portrait { max-width: 920px !important; width: 92% !important; min-height: 297mm; }
         .print-area.paper-landscape { max-width: 99% !important; width: 99% !important; }
 
         /* Paper sheet indicator badge */
@@ -269,9 +269,9 @@
             background: linear-gradient(180deg, #eadbc4 0%, #dcc7a6 100%);
             color: #1c1208;
             font-weight: 900 !important;
-            font-size: 0.92rem;
-            letter-spacing: -0.15px;
-            padding: 8px 6px;
+            font-size: 0.80rem;
+            letter-spacing: -0.25px;
+            padding: 7px 3px !important;
             text-align: center !important;
             cursor: pointer; position: relative; user-select: none;
             white-space: nowrap !important; word-break: keep-all !important;

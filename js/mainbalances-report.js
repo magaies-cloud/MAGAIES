@@ -2254,7 +2254,7 @@ window.renderBalancesPresets = function() {
     if (!container) return;
     container.innerHTML = '';
 
-    const PRESETS_STORAGE_KEY = 'balances_preview_presets_v27';
+    const PRESETS_STORAGE_KEY = 'balances_preview_presets_v28';
     let presets = [];
     try { presets = JSON.parse(localStorage.getItem(PRESETS_STORAGE_KEY) || '[]'); } catch(e){}
 

@@ -1,6 +1,6 @@
 // js/preview-balances.js - Pro Studio Edition
 
-const PRESETS_STORAGE_KEY = 'balances_preview_presets_v27';
+const PRESETS_STORAGE_KEY = 'balances_preview_presets_v28';
 const MAX_PRESETS_LIMIT = 6;
 let currentData = [];
 let filteredData = [];
@@ -9,7 +9,7 @@ let selectedColIndex = null;
 let currentTheme = '';
 let currentFont = 'font-ultra';
 let currentPaperSize = 'A4';
-let currentOrientation = 'landscape';
+let currentOrientation = 'portrait';
 let showHeaderLogo = true;
 let showHeaderInfo = true;
 let isLongPressTriggered = false;
@@ -371,7 +371,7 @@ function lightenHex2ShadesBal(hex) {
 }
 
 const BAL_MC_MASTER_ORDER = [0, 1, 6, 7, 4, 5, 8, 11, 9, 10, 2, 3];
-const BAL_MC_LOCK_STAMP = 'bal_gl_mc_unified_2027_v27';
+const BAL_MC_LOCK_STAMP = 'bal_gl_mc_unified_2027_v28';
 
 function getFactoryPreset1Configs() {
     let conf = getDefaultConfigs();
@@ -442,11 +442,7 @@ function getSavedPresets() {
     const fixedNames = ['متعدد العملات 1', 'متعدد العملات 2', 'الأجنبي', 'المحلي', 'نمط 1', 'نمط 2'];
     for (let i = 0; i < 6; i++) {
         if (i < 4) {
-            if (list[i] && list[i].configs && list[i]._userSavedV27 === true) {
-                out.push({ ...FACTORY_PRESETS_BALANCES[i], ...list[i], name: fixedNames[i], isLocked: false });
-            } else {
-                out.push(JSON.parse(JSON.stringify(FACTORY_PRESETS_BALANCES[i])));
-            }
+            out.push(JSON.parse(JSON.stringify(FACTORY_PRESETS_BALANCES[i])));
         } else {
             const src = (list[i] && list[i].configs) ? list[i] : ((list[i + 2] && list[i + 2].configs) ? list[i + 2] : null);
             if (src) {
@@ -548,15 +544,16 @@ function loadPreset(idx) {
     if (!presets || !presets[idx]) return;
     currentPresetIndex = idx;
     const p = presets[idx];
-    p.isLocked = false;
+    const locked = (idx < 4);
+    p.isLocked = locked;
     applyDesignState(p);
     renderPresetButtons();
     renderPresetsManagementList();
     
     const saveBtn = document.getElementById('mega-save-btn');
-    if (saveBtn) saveBtn.style.display = '';
+    if (saveBtn) saveBtn.style.display = locked ? 'none' : '';
     const panelSaveBtn = document.querySelector('.sr-save-panel-btn');
-    if (panelSaveBtn) panelSaveBtn.style.display = '';
+    if (panelSaveBtn) panelSaveBtn.style.display = locked ? 'none' : '';
 }
 
 function applyPreset(idx) {
@@ -570,6 +567,12 @@ function applyPreset(idx) {
 
 function saveCurrentPreset(targetIdx) {
     const idx = (typeof targetIdx === 'number') ? targetIdx : currentPresetIndex;
+    if (idx < 4) {
+        const fixedNames = ['متعدد العملات 1', 'متعدد العملات 2', 'الأجنبي', 'المحلي'];
+        if (typeof showToast === 'function') showToast('🔒 "' + (fixedNames[idx] || '') + '" مثبت نهائياً في قاعدة البيانات — يمكنك التخصيص والحفظ بحرية في (نمط 1 أو نمط 2)', 'info');
+        loadPreset(idx);
+        return;
+    }
     const presets = getSavedPresets();
     if (!presets || !presets[idx]) return;
     const p = presets[idx];
@@ -1004,8 +1007,8 @@ function renderTable() {
             th.classList.add('selected-col');
         }
         
-        const hdrFs = lblTxt.length >= 14 ? 0.90 : (lblTxt.length >= 10 ? 0.95 : 1.00);
-        th.style.fontSize = (conf.headerFs || hdrFs) + 'rem';
+        const hdrFs = lblTxt.length >= 14 ? 0.72 : (lblTxt.length >= 10 ? 0.80 : 0.90);
+        th.style.setProperty('font-size', (conf.headerFs || hdrFs) + 'rem', 'important');
         th.style.textAlign = 'center';
         th.style.fontWeight = '900';
         if (conf.fontFamily && conf.fontFamily !== 'inherit') th.style.fontFamily = conf.fontFamily;
@@ -1037,6 +1040,22 @@ function renderTable() {
     });
     thead.innerHTML = '';
     thead.appendChild(trHead);
+    requestAnimationFrame(() => {
+        const ctx = (window.__balHdrCanvas || (window.__balHdrCanvas = document.createElement('canvas'))).getContext('2d');
+        document.querySelectorAll('#preview-thead th').forEach(th => {
+            const txt = (th.innerText || '').trim();
+            const cw = th.clientWidth;
+            if (!txt || !cw) return;
+            const cs = window.getComputedStyle(th);
+            const curPx = parseFloat(cs.fontSize) || 13;
+            ctx.font = `${cs.fontWeight || '900'} ${curPx}px ${cs.fontFamily || 'Cairo, sans-serif'}`;
+            const tw = ctx.measureText(txt).width;
+            if (tw > cw - 8) {
+                const newPx = Math.max(9.5, Math.floor((curPx * (cw - 8)) / tw));
+                th.style.setProperty('font-size', newPx + 'px', 'important');
+            }
+        });
+    });
     
     // Track Column Totals
     let colTotals = {};
