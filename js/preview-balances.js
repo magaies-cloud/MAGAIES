@@ -1,6 +1,6 @@
 // js/preview-balances.js - Pro Studio Edition
 
-const PRESETS_STORAGE_KEY = 'balances_preview_presets_v28';
+const PRESETS_STORAGE_KEY = 'balances_preview_presets_v30';
 const MAX_PRESETS_LIMIT = 6;
 let currentData = [];
 let filteredData = [];
@@ -371,7 +371,7 @@ function lightenHex2ShadesBal(hex) {
 }
 
 const BAL_MC_MASTER_ORDER = [0, 1, 6, 7, 4, 5, 8, 11, 9, 10, 2, 3];
-const BAL_MC_LOCK_STAMP = 'bal_gl_mc_unified_2027_v28';
+const BAL_MC_LOCK_STAMP = 'bal_gl_mc_unified_2027_v30';
 
 function getFactoryPreset1Configs() {
     let conf = getDefaultConfigs();
@@ -394,37 +394,33 @@ function getFactoryPreset1Configs() {
 
 function getFactoryPreset2Configs() {
     let conf = getFactoryPreset1Configs();
-    Object.keys(conf).forEach(k => {
-        conf[k] = {
-            ...conf[k],
-            color: '#000000',
-            headerBgColor: '#f5ede0',
-            headerColor: '#000000',
-            bgColor: conf[k].bgColor ? lightenHex2ShadesBal(conf[k].bgColor) : ''
-        };
-    });
+    conf[0].fs = 1.08;
+    conf[1].fs = 1.10;
+    [6, 7, 4, 5, 8, 9].forEach(k => { if (conf[k]) conf[k].fs = 1.24; });
     return conf;
 }
 
 function getBalancesForeignConfigs() {
-    let conf = getFactoryPreset2Configs();
-    Object.keys(conf).forEach(k => { conf[k].fs = (k === '0') ? 0.88 : ((k === '1') ? 0.86 : 1.02); });
+    let conf = getFactoryPreset1Configs();
+    conf[0].fs = 1.08; conf[0].width = '32%';
+    conf[1].fs = 1.10; conf[1].width = '16%';
+    [4, 5, 9].forEach(i => { if (conf[i]) { conf[i].visible = true; conf[i].fs = 1.24; conf[i].width = '17.3%'; } });
     [6, 7, 8, 10, 11, 2, 3].forEach(i => { if (conf[i]) conf[i].visible = false; });
-    [0, 1, 4, 5, 9].forEach(i => { if (conf[i]) conf[i].visible = true; });
     return conf;
 }
 
 function getBalancesLocalConfigs() {
-    let conf = getFactoryPreset2Configs();
-    Object.keys(conf).forEach(k => { conf[k].fs = (k === '0') ? 0.88 : ((k === '1') ? 0.86 : 1.02); });
+    let conf = getFactoryPreset1Configs();
+    conf[0].fs = 1.08; conf[0].width = '32%';
+    conf[1].fs = 1.10; conf[1].width = '16%';
+    [6, 7, 8].forEach(i => { if (conf[i]) { conf[i].visible = true; conf[i].fs = 1.24; conf[i].width = '17.3%'; } });
     [4, 5, 9, 10, 11, 2, 3].forEach(i => { if (conf[i]) conf[i].visible = false; });
-    [0, 1, 6, 7, 8].forEach(i => { if (conf[i]) conf[i].visible = true; });
     return conf;
 }
 
 const FACTORY_PRESETS_BALANCES = [
     { name: 'متعدد العملات 1', configs: getFactoryPreset1Configs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-cairo', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
-    { name: 'متعدد العملات 2', configs: getFactoryPreset2Configs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-cairo', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
+    { name: 'متعدد العملات 2', configs: getFactoryPreset2Configs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-cairo', paperSize: 'A4', orientation: 'landscape', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
     { name: 'الأجنبي',         configs: getBalancesForeignConfigs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-cairo', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
     { name: 'المحلي',          configs: getBalancesLocalConfigs(),   order: [0, 1, 6, 7, 8, 11, 10, 2, 3, 4, 5, 9], theme: '', font: 'font-cairo', paperSize: 'A4', orientation: 'portrait', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
     { name: 'نمط 1',           configs: getFactoryPreset1Configs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-cairo', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: false },
@@ -512,17 +508,8 @@ function loadPresetsFromDB(reportKey, localKey, onComplete) {
 }
 
 function initPresets() {
-    let raw = localStorage.getItem(PRESETS_STORAGE_KEY);
-    let list = [];
-    if (raw) {
-        try {
-            list = JSON.parse(raw);
-        } catch(e) {}
-    }
-    if (!Array.isArray(list) || list.length === 0) {
-        list = JSON.parse(JSON.stringify(FACTORY_PRESETS_BALANCES));
-        savePresets(list);
-    }
+    let list = getSavedPresets();
+    savePresets(list);
     
     renderPresetButtons();
     renderPresetsManagementList();
@@ -1042,17 +1029,18 @@ function renderTable() {
     thead.appendChild(trHead);
     requestAnimationFrame(() => {
         const ctx = (window.__balHdrCanvas || (window.__balHdrCanvas = document.createElement('canvas'))).getContext('2d');
-        document.querySelectorAll('#preview-thead th').forEach(th => {
-            const txt = (th.innerText || '').trim();
-            const cw = th.clientWidth;
-            if (!txt || !cw) return;
-            const cs = window.getComputedStyle(th);
-            const curPx = parseFloat(cs.fontSize) || 13;
+        document.querySelectorAll('#preview-thead th, #preview-tbody td.num-cell, #preview-tbody td[data-col-idx="1"], #preview-tfoot td').forEach(el => {
+            const txt = (el.innerText || '').trim();
+            const cw = el.clientWidth;
+            if (!txt || txt === '-' || !cw) return;
+            const cs = window.getComputedStyle(el);
+            const curPx = parseFloat(cs.fontSize) || 14;
             ctx.font = `${cs.fontWeight || '900'} ${curPx}px ${cs.fontFamily || 'Cairo, sans-serif'}`;
             const tw = ctx.measureText(txt).width;
-            if (tw > cw - 8) {
-                const newPx = Math.max(9.5, Math.floor((curPx * (cw - 8)) / tw));
-                th.style.setProperty('font-size', newPx + 'px', 'important');
+            const avail = Math.max(24, cw - 8);
+            if (tw > avail) {
+                const newPx = Math.max(9.5, +((curPx * avail) / tw).toFixed(1));
+                el.style.setProperty('font-size', newPx + 'px', 'important');
             }
         });
     });
