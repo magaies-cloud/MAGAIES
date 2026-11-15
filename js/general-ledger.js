@@ -3263,6 +3263,11 @@ async function openPresetModal(presetIndex, presetName, isLocked = false) {
         document.body.appendChild(modal);
     }
 
+    const wasAlreadyOpen = (modal.style.display === 'flex');
+    if (!wasAlreadyOpen) {
+        try { window.history.pushState({ ledgerPresetModal: true }, ''); } catch (_) {}
+    }
+
     try { sessionStorage.setItem('gl_open_preset_idx', String(presetIndex)); } catch(e){}
     const existingIframe = modal.querySelector('#preset-modal-iframe');
     if (existingIframe && existingIframe.contentWindow && typeof existingIframe.contentWindow.loadPreset === 'function') {
@@ -3277,6 +3282,23 @@ async function openPresetModal(presetIndex, presetName, isLocked = false) {
     modal.style.display = 'flex';
 }
 window.openPresetModal = openPresetModal;
+window.closeLedgerPresetModal = function(fromPopState) {
+    try { sessionStorage.removeItem('gl_open_preset_idx'); } catch (_) {}
+    const m = document.getElementById('preset-preview-modal');
+    if (m && m.style.display !== 'none') {
+        m.style.display = 'none';
+        if (!fromPopState && window.history.state && window.history.state.ledgerPresetModal) {
+            try { window.history.back(); } catch (_) {}
+        }
+    }
+};
+window.addEventListener('popstate', function() {
+    const m = document.getElementById('preset-preview-modal');
+    if (m && m.style.display !== 'none') window.closeLedgerPresetModal(true);
+});
+window.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeLedgerPresetModal(false);
+});
 window.addEventListener('keydown', function(e) {
     const m = document.getElementById('preset-preview-modal');
     if (m && m.style.display !== 'none') {

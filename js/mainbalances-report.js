@@ -2405,6 +2405,11 @@ async function openPresetModal(presetIndex, presetName) {
         document.body.appendChild(modal);
     }
 
+    const wasAlreadyOpen = (modal.style.display === 'flex');
+    if (!wasAlreadyOpen) {
+        try { window.history.pushState({ balancesPresetModal: true }, ''); } catch (_) {}
+    }
+
     const existingIframe = modal.querySelector('#preset-modal-iframe');
     if (existingIframe && existingIframe.contentWindow && typeof existingIframe.contentWindow.loadPreset === 'function') {
         modal.style.display = 'flex';
@@ -2416,6 +2421,22 @@ async function openPresetModal(presetIndex, presetName) {
     modal.style.display = 'flex';
 }
 window.openPresetModal = openPresetModal;
+window.closeBalancesPresetModal = function(fromPopState) {
+    const m = document.getElementById('preset-preview-modal');
+    if (m && m.style.display !== 'none') {
+        m.style.display = 'none';
+        if (!fromPopState && window.history.state && window.history.state.balancesPresetModal) {
+            try { window.history.back(); } catch (_) {}
+        }
+    }
+};
+window.addEventListener('popstate', function() {
+    const m = document.getElementById('preset-preview-modal');
+    if (m && m.style.display !== 'none') window.closeBalancesPresetModal(true);
+});
+window.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') window.closeBalancesPresetModal(false);
+});
 
 // --- New Function: Open New Preview Page ---
 window.openNewPreviewPage = async function() {

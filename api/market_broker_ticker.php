@@ -199,21 +199,28 @@ if ($action === 'add' || $_SERVER['REQUEST_METHOD'] === 'POST') {
                 $itemTxt = trim((string)($cData['choices'][0]['message']['content'] ?? ''));
             }
             $itemTxt = trim(preg_replace('/[\r\n*#"`]+/u', ' | ', $itemTxt), " |\t");
-            if ($itemTxt !== '') $extractedParts[] = $itemTxt;
+            if ($itemTxt !== '' && !preg_match('/(?:عفوا|عذرا|أعتذر|اعتذر|لا\s*يوجد|لا\s*توجد|لا\s*يمكن|غير\s*واضح|صورة\s*فارغة|sorry|cannot|unable)/iu', $itemTxt)) {
+                $extractedParts[] = $itemTxt;
+            }
         }
         if (!empty($extractedParts)) {
             $visionCombined = implode(' | ', $extractedParts);
-            $rawText = ($rawText !== '' && !in_array(mb_strtolower($rawText, 'UTF-8'), ['عرض', 'عروض', 'طلب', 'بورصة'], true))
+            $cleanCapLower = trim(mb_strtolower($rawText, 'UTF-8'), " \t\n\r:：-،.");
+            $rawText = ($rawText !== '' && !in_array($cleanCapLower, ['ع', 'عرض', 'العرض', 'عروض', 'م', 'ط', 'طلب', 'الطلب', 'طلبية', 'الطلبية', 'مطلوب', 'المطلوب', 'بورصة', 'للبيع'], true))
                 ? ($rawText . ' — ' . $visionCombined)
                 : $visionCombined;
+        } elseif ($rawText === '' || in_array(trim(mb_strtolower($rawText, 'UTF-8'), " \t\n\r:：-،."), ['ع', 'عرض', 'العرض', 'عروض', 'م', 'ط', 'طلب', 'الطلب', 'طلبية', 'الطلبية', 'مطلوب', 'المطلوب', 'بورصة', 'للبيع'], true)) {
+            $isOrdCap = ($type === 'order') || in_array(trim(mb_strtolower($rawText, 'UTF-8'), " \t\n\r:：-،."), ['م', 'ط', 'طلب', 'الطلب', 'طلبية', 'الطلبية', 'مطلوب', 'المطلوب'], true);
+            if ($type === '') $type = $isOrdCap ? 'order' : 'offer';
+            $rawText = $isOrdCap ? '📸 طلب شراء مصور بالبورصة' : '📸 عرض أسعار مصور بالبورصة';
         }
     }
 
     if ($rawText !== '') {
         $cleanCmd = mb_strtolower($rawText, 'UTF-8');
 
-        // 1. استعلام عن عروض الأسعار (ع / أسعار / تسعيرة / 1)
-        if (in_array($cleanCmd, ['ع', 'اسعار', 'أسعار', 'عروض', 'الاسعار', 'الأسعار', 'تسعيرة', 'التسعيرة', 'تسعيره', 'التسعيره', '1'], true)) {
+        // 1. استعلام عن عروض الأسعار (ع / أسعار / تسعيرة / 1) — للنصوص فقط بدون صور
+        if (empty($imagesList) && in_array($cleanCmd, ['ع', 'اسعار', 'أسعار', 'عروض', 'الاسعار', 'الأسعار', 'تسعيرة', 'التسعيرة', 'تسعيره', 'التسعيره', '1'], true)) {
             $offers = array_values(array_filter($items, fn($x) => ($x['type'] ?? 'offer') === 'offer'));
             $lines = ["🏛️ *بورصة السيطرة التجارية — عروض الأسعار اليومية (" . count($offers) . " عروض):*"];
             foreach ($offers as $idx => $o) {
@@ -227,8 +234,8 @@ if ($action === 'add' || $_SERVER['REQUEST_METHOD'] === 'POST') {
             exit;
         }
 
-        // 2. استعلام عن طلبات الشراء (ط / طلبات / 2)
-        if (in_array($cleanCmd, ['ط', 'طلبات', 'طلبيات', 'الطلبات', 'مشتريات', '2'], true)) {
+        // 2. استعلام عن طلبات الشراء (ط / طلبات / 2) — للنصوص فقط بدون صور
+        if (empty($imagesList) && in_array($cleanCmd, ['ط', 'طلبات', 'طلبيات', 'الطلبات', 'مشتريات', '2'], true)) {
             $orders = array_values(array_filter($items, fn($x) => ($x['type'] ?? '') === 'order'));
             $lines = ["🏛️ *بورصة السيطرة التجارية — طلبات الشراء المفتوحة اليوم (" . count($orders) . " طلبات):*"];
             foreach ($orders as $idx => $o) {

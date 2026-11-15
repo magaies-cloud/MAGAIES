@@ -644,7 +644,7 @@
         <button class="ribbon-btn" onclick="window.location.reload()" style="--btn-color: #10b981;">
             <span style="font-size: 1.05rem;">🔄</span> تحديث التقرير
         </button>
-        <button class="ribbon-btn" onclick="try{sessionStorage.removeItem('gl_open_preset_idx');}catch(e){} if(window.parent && window.parent !== window && window.parent.document.getElementById('preset-preview-modal')){window.parent.document.getElementById('preset-preview-modal').style.display='none';}else if(typeof window.magaiesGoBackStepLIFO==='function'){window.magaiesGoBackStepLIFO();}else{window.history.back();}" style="--btn-color: #ef4444;">
+        <button class="ribbon-btn" onclick="try{sessionStorage.removeItem('gl_open_preset_idx');}catch(e){} if(window.parent && window.parent !== window && typeof window.parent.closeLedgerPresetModal==='function'){window.parent.closeLedgerPresetModal();}else if(window.parent && window.parent !== window && window.parent.document.getElementById('preset-preview-modal')){window.parent.document.getElementById('preset-preview-modal').style.display='none';}else if(typeof window.magaiesGoBackStepLIFO==='function'){window.magaiesGoBackStepLIFO();}else{window.history.back();}" style="background: linear-gradient(135deg, #ef4444, #dc2626) !important; color: #ffffff !important; border: 2px solid #fca5a5 !important; font-weight: 900 !important; font-size: 0.95rem !important; padding: 5px 16px !important; border-radius: 12px !important; box-shadow: 0 4px 14px rgba(239,68,68,0.5) !important; flex-shrink: 0;">
             <span style="font-size: 1.15rem; font-weight: 900; line-height: 1;">⬅</span> رجوع
         </button>
     </div>

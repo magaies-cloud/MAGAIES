@@ -550,7 +550,7 @@
         </div>
         <button class="ribbon-btn" onclick="executePrintWithPermission()" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); border:none;">🖨️ طباعة</button>
         <button class="ribbon-btn" onclick="toggleDarkMode()">🌙 عكس الألوان</button>
-        <button class="ribbon-btn" onclick="if(window.parent && window.parent !== window && window.parent.document.getElementById('preset-preview-modal')){window.parent.document.getElementById('preset-preview-modal').style.display='none';}else{window.location.href='mainbalances-report.php';}" style="color:#f87171; border-color:rgba(239,68,68,0.5);">⬅ رجوع</button>
+        <button class="ribbon-btn" onclick="if(window.parent && window.parent !== window && typeof window.parent.closeBalancesPresetModal==='function'){window.parent.closeBalancesPresetModal();}else if(window.parent && window.parent !== window && window.parent.document.getElementById('preset-preview-modal')){window.parent.document.getElementById('preset-preview-modal').style.display='none';}else if(typeof window.magaiesGoBackStepLIFO==='function'){window.magaiesGoBackStepLIFO();}else{window.location.href='mainbalances-report.php';}" style="background: linear-gradient(135deg, #ef4444, #dc2626) !important; color: #ffffff !important; border: 2px solid #fca5a5 !important; font-weight: 900 !important; font-size: 0.96rem !important; padding: 6px 18px !important; border-radius: 12px !important; box-shadow: 0 4px 14px rgba(239,68,68,0.5) !important; flex-shrink: 0;">⬅ رجوع</button>
     </div>
 </div>
 

@@ -500,15 +500,18 @@
     };
 
     try {
-        let stack = JSON.parse(sessionStorage.getItem(STACK_KEY) || '[]');
-        if (!Array.isArray(stack)) stack = [];
-        if (isMainDash) {
-            stack = [curPath];
-        } else if (stack[stack.length - 1] !== curPath) {
-            stack.push(curPath);
-            if (stack.length > 25) stack = stack.slice(-25);
+        const isEmbeddedPreview = (window.self !== window.top) || window.location.search.includes('inModal=1') || curPath.includes('preview-balances-design.php') || curPath.includes('preview-ledger.php');
+        if (!isEmbeddedPreview) {
+            let stack = JSON.parse(sessionStorage.getItem(STACK_KEY) || '[]');
+            if (!Array.isArray(stack)) stack = [];
+            if (isMainDash) {
+                stack = [curPath];
+            } else if (stack[stack.length - 1] !== curPath) {
+                stack.push(curPath);
+                if (stack.length > 25) stack = stack.slice(-25);
+            }
+            sessionStorage.setItem(STACK_KEY, JSON.stringify(stack));
         }
-        sessionStorage.setItem(STACK_KEY, JSON.stringify(stack));
     } catch (_) {}
 
     window.addEventListener('pagehide', window.magaiesSaveCurrentScreenState);
@@ -517,6 +520,15 @@
 
     // 1-Step Sequential Back (LIFO: Open Modal/Preview -> Editor-to-Hub -> Previous Screen in Stack / History)
     window.magaiesGoBackStepLIFO = function() {
+        if (window.self !== window.top && window.parent && window.parent !== window) {
+            const pModal = window.parent.document.getElementById('preset-preview-modal');
+            if (pModal && window.parent.getComputedStyle(pModal).display !== 'none') {
+                if (typeof window.parent.closeBalancesPresetModal === 'function') window.parent.closeBalancesPresetModal();
+                else if (typeof window.parent.closeLedgerPresetModal === 'function') window.parent.closeLedgerPresetModal();
+                else pModal.style.display = 'none';
+                return false;
+            }
+        }
         const openModals = Array.from(document.querySelectorAll('#preset-preview-modal, #mgv-owner-modal, .modal-overlay, .modal, [id$="-modal"], [id$="-overlay"]')).filter(m => {
             const cs = window.getComputedStyle(m);
             return cs.display !== 'none' && cs.visibility !== 'hidden' && parseFloat(cs.opacity || '1') > 0 && m.offsetWidth > 0;

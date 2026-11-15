@@ -570,8 +570,8 @@ class WhatsAppClient {
                                     ? { 'Content-Type': 'application/json', 'Host': 'c.elsajana.com', 'User-Agent': 'MagaieesBrokerInternal/1.0' }
                                     : { 'Content-Type': 'application/json', 'User-Agent': 'MagaieesBrokerInternal/1.0' };
 
-                                const hasOfferKwAnywhere = /(?:^|[\s:：\-،,|.\r\n()\[\]/]+)(?:عرض\s*اسعار|عرض\s*أسعار|عروض\s*اسعار|عروض\s*أسعار|عرض|العرض|عروض|للبيع)(?:$|[\s:：\-،,|.\r\n()\[\]/]+)/iu.test(normBrokerTxt) || /^(?:ع)(?:[\s:：\-،,\r\n]+)|(?:[\s:：\-،,\r\n]+)(?:ع)$/iu.test(normBrokerTxt);
-                                const hasOrderKwAnywhere = /(?:^|[\s:：\-،,|.\r\n()\[\]/]+)(?:مطلوب\s*شراء|طلب\s*شراء|مطلوب|المطلوب|طلبية|الطلبية|طلبيه|الطلبيه|طلب|الطلب)(?:$|[\s:：\-،,|.\r\n()\[\]/]+)/iu.test(normBrokerTxt) || /(?:^|[\r\n]+)\s*(?:م|ط)(?:[\s:：\-،,]+)|(?:[\s:：\-،,]+)(?:م|ط)\s*(?:$|[\r\n]+)/iu.test(normBrokerTxt);
+                                const hasOfferKwAnywhere = /(?:^|[\s:：\-،,|.\r\n()\[\]/]+)(?:عرض\s*اسعار|عرض\s*أسعار|عروض\s*اسعار|عروض\s*أسعار|عرض|العرض|عروض|للبيع)(?:$|[\s:：\-،,|.\r\n()\[\]/]+)/iu.test(normBrokerTxt) || /^(?:ع)(?:[\s:：\-،,.\r\n]+|$)|(?:[\s:：\-،,.\r\n]+)(?:ع)\s*[:：\-،.]?$/iu.test(normBrokerTxt);
+                                const hasOrderKwAnywhere = /(?:^|[\s:：\-،,|.\r\n()\[\]/]+)(?:مطلوب\s*شراء|طلب\s*شراء|مطلوب|المطلوب|طلبية|الطلبية|طلبيه|الطلبيه|طلب|الطلب)(?:$|[\s:：\-،,|.\r\n()\[\]/]+)/iu.test(normBrokerTxt) || /^(?:م|ط)(?:[\s:：\-،,.\r\n]+|$)|(?:^|[\r\n]+)\s*(?:م|ط)(?:[\s:：\-،,.]+)|(?:[\s:：\-،,.]+)(?:م|ط)\s*[:：\-،.]?(?:$|[\r\n]+)/iu.test(normBrokerTxt);
                                 const hasExplicitBrokerPrefix = hasOfferKwAnywhere || hasOrderKwAnywhere || /^(?:بورصة|دلالة)(?:[\s:：\-،,\r\n]+|$)/iu.test(normBrokerTxt);
                                 // Handle single image or album/group of images sent to Broker ONLY when explicitly tagged for Borsa or inside active 2-min Borsa header session (NEVER hijack captionless bank receipts!)
                                 const isPinCaptionOnly = /^\d{1,8}$/.test(normBrokerTxt);
