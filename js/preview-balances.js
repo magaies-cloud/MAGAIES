@@ -1,7 +1,17 @@
 // js/preview-balances.js - Pro Studio Edition
 
-const PRESETS_STORAGE_KEY = 'balances_preview_presets_v30';
-const MAX_PRESETS_LIMIT = 6;
+const PRESETS_STORAGE_KEY = 'balances_preview_presets_v32';
+const MAX_PRESETS_LIMIT = 12;
+
+function getBalancesUserPresetsKey() {
+    try {
+        const u = JSON.parse(localStorage.getItem('user') || '{}');
+        const uid = String(u.id || u.user_id || u.username || 'default').replace(/[^a-zA-Z0-9_-]/g, '_');
+        return 'balances_user_custom_presets_v32_u_' + uid;
+    } catch (e) {
+        return 'balances_user_custom_presets_v32_u_default';
+    }
+}
 let currentData = [];
 let filteredData = [];
 let currentPresetIndex = 0;
@@ -371,7 +381,21 @@ function lightenHex2ShadesBal(hex) {
 }
 
 const BAL_MC_MASTER_ORDER = [0, 1, 6, 7, 4, 5, 8, 11, 9, 10, 2, 3];
-const BAL_MC_LOCK_STAMP = 'bal_gl_mc_unified_2027_v30';
+const BAL_MC_LOCK_STAMP = 'bal_gl_mc_unified_2027_v32';
+
+function toPureBlackAndWhiteConfigs(baseConf) {
+    const conf = JSON.parse(JSON.stringify(baseConf));
+    Object.keys(conf).forEach(k => {
+        conf[k] = {
+            ...conf[k],
+            color: '#000000',
+            bgColor: '#ffffff',
+            headerColor: '#000000',
+            headerBgColor: '#ffffff'
+        };
+    });
+    return conf;
+}
 
 function getFactoryPreset1Configs() {
     let conf = getDefaultConfigs();
@@ -394,6 +418,20 @@ function getFactoryPreset1Configs() {
 
 function getFactoryPreset2Configs() {
     let conf = getFactoryPreset1Configs();
+    Object.keys(conf).forEach(k => {
+        conf[k] = {
+            ...conf[k],
+            color: '#000000',
+            headerBgColor: '#f5ede0',
+            headerColor: '#000000',
+            bgColor: conf[k].bgColor ? lightenHex2ShadesBal(conf[k].bgColor) : ''
+        };
+    });
+    return conf;
+}
+
+function getFactoryPreset3Configs() {
+    let conf = getFactoryPreset2Configs();
     conf[0].fs = 1.08;
     conf[1].fs = 1.10;
     [6, 7, 4, 5, 8, 9].forEach(k => { if (conf[k]) conf[k].fs = 1.24; });
@@ -402,49 +440,74 @@ function getFactoryPreset2Configs() {
 
 function getBalancesForeignConfigs() {
     let conf = getFactoryPreset1Configs();
-    conf[0].fs = 1.08; conf[0].width = '32%';
-    conf[1].fs = 1.10; conf[1].width = '16%';
-    [4, 5, 9].forEach(i => { if (conf[i]) { conf[i].visible = true; conf[i].fs = 1.24; conf[i].width = '17.3%'; } });
-    [6, 7, 8, 10, 11, 2, 3].forEach(i => { if (conf[i]) conf[i].visible = false; });
+    conf[0].fs = 1.08; conf[0].width = '38%';
+    conf[1].fs = 1.10; conf[1].width = '18%';
+    [4, 5].forEach(i => { if (conf[i]) { conf[i].visible = true; conf[i].fs = 1.24; conf[i].width = '22%'; } });
+    [6, 7, 8, 9, 10, 11, 2, 3].forEach(i => { if (conf[i]) conf[i].visible = false; });
     return conf;
 }
 
 function getBalancesLocalConfigs() {
     let conf = getFactoryPreset1Configs();
-    conf[0].fs = 1.08; conf[0].width = '32%';
-    conf[1].fs = 1.10; conf[1].width = '16%';
-    [6, 7, 8].forEach(i => { if (conf[i]) { conf[i].visible = true; conf[i].fs = 1.24; conf[i].width = '17.3%'; } });
-    [4, 5, 9, 10, 11, 2, 3].forEach(i => { if (conf[i]) conf[i].visible = false; });
+    conf[0].fs = 1.08; conf[0].width = '38%';
+    conf[1].fs = 1.10; conf[1].width = '18%';
+    [6, 7].forEach(i => { if (conf[i]) { conf[i].visible = true; conf[i].fs = 1.24; conf[i].width = '22%'; } });
+    [4, 5, 8, 9, 10, 11, 2, 3].forEach(i => { if (conf[i]) conf[i].visible = false; });
     return conf;
 }
 
+function getFactoryPreset4Configs() {
+    return toPureBlackAndWhiteConfigs(getFactoryPreset1Configs());
+}
+
+function getFactoryPreset5Configs() {
+    return toPureBlackAndWhiteConfigs(getFactoryPreset3Configs());
+}
+
+function getBalancesForeignBWConfigs() {
+    return toPureBlackAndWhiteConfigs(getBalancesForeignConfigs());
+}
+
+function getBalancesLocalBWConfigs() {
+    return toPureBlackAndWhiteConfigs(getBalancesLocalConfigs());
+}
+
 const FACTORY_PRESETS_BALANCES = [
-    { name: 'متعدد العملات 1', configs: getFactoryPreset1Configs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-cairo', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
-    { name: 'متعدد العملات 2', configs: getFactoryPreset2Configs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-cairo', paperSize: 'A4', orientation: 'landscape', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
-    { name: 'الأجنبي',         configs: getBalancesForeignConfigs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-cairo', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
-    { name: 'المحلي',          configs: getBalancesLocalConfigs(),   order: [0, 1, 6, 7, 8, 11, 10, 2, 3, 4, 5, 9], theme: '', font: 'font-cairo', paperSize: 'A4', orientation: 'portrait', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
-    { name: 'نمط 1',           configs: getFactoryPreset1Configs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-cairo', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: false },
-    { name: 'نمط 2',           configs: getFactoryPreset2Configs(), order: [...BAL_MC_MASTER_ORDER], theme: '', font: 'font-cairo', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: false }
+    { name: 'متعدد العملات 1', configs: getFactoryPreset1Configs(),     order: [...BAL_MC_MASTER_ORDER], theme: '',              font: 'font-cairo', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
+    { name: 'متعدد العملات 2', configs: getFactoryPreset2Configs(),     order: [...BAL_MC_MASTER_ORDER], theme: '',              font: 'font-cairo', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
+    { name: 'متعدد العملات 3', configs: getFactoryPreset3Configs(),     order: [...BAL_MC_MASTER_ORDER], theme: '',              font: 'font-cairo', paperSize: 'A4', orientation: 'landscape', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
+    { name: 'متعدد العملات 4', configs: getFactoryPreset4Configs(),     order: [...BAL_MC_MASTER_ORDER], theme: 'theme-pure-bw', font: 'font-cairo', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
+    { name: 'متعدد العملات 5', configs: getFactoryPreset5Configs(),     order: [...BAL_MC_MASTER_ORDER], theme: 'theme-pure-bw', font: 'font-cairo', paperSize: 'A4', orientation: 'landscape', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
+    { name: 'الأجنبي',         configs: getBalancesForeignConfigs(),    order: [...BAL_MC_MASTER_ORDER], theme: '',              font: 'font-cairo', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
+    { name: 'أجنبي بلا ألوان',  configs: getBalancesForeignBWConfigs(),  order: [...BAL_MC_MASTER_ORDER], theme: 'theme-pure-bw', font: 'font-cairo', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
+    { name: 'المحلي',          configs: getBalancesLocalConfigs(),      order: [0, 1, 6, 7, 8, 11, 10, 2, 3, 4, 5, 9], theme: '',              font: 'font-cairo', paperSize: 'A4', orientation: 'portrait', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
+    { name: 'محلي بلا ألوان',   configs: getBalancesLocalBWConfigs(),    order: [0, 1, 6, 7, 8, 11, 10, 2, 3, 4, 5, 9], theme: 'theme-pure-bw', font: 'font-cairo', paperSize: 'A4', orientation: 'portrait', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: true, _glMcStamp: BAL_MC_LOCK_STAMP },
+    { name: 'نمط 1',           configs: getFactoryPreset1Configs(),     order: [...BAL_MC_MASTER_ORDER], theme: '',              font: 'font-cairo', paperSize: 'A4', orientation: 'portrait',  margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: false },
+    { name: 'نمط 2',           configs: getFactoryPreset3Configs(),     order: [...BAL_MC_MASTER_ORDER], theme: '',              font: 'font-cairo', paperSize: 'A4', orientation: 'landscape', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: false },
+    { name: 'نمط 3',           configs: getFactoryPreset5Configs(),     order: [...BAL_MC_MASTER_ORDER], theme: 'theme-pure-bw', font: 'font-cairo', paperSize: 'A4', orientation: 'landscape', margins: 'normal', showLogo: true, showInfo: true, showUser: true, userPos: 'bottom-right', showDateTime: true, showPageNums: true, showInRibbon: true, isLocked: false }
 ];
 
+const FIXED_FACTORY_COUNT_BAL = 9;
+
 function getSavedPresets() {
-    let raw = localStorage.getItem(PRESETS_STORAGE_KEY);
+    const userKey = getBalancesUserPresetsKey();
+    let raw = localStorage.getItem(userKey) || localStorage.getItem(PRESETS_STORAGE_KEY);
     let list = [];
     if (raw) { try { list = JSON.parse(raw); } catch(e) { list = []; } }
-    if (!Array.isArray(list) || list.length === 0) {
-        return JSON.parse(JSON.stringify(FACTORY_PRESETS_BALANCES));
-    }
     const out = [];
-    const fixedNames = ['متعدد العملات 1', 'متعدد العملات 2', 'الأجنبي', 'المحلي', 'نمط 1', 'نمط 2'];
-    for (let i = 0; i < 6; i++) {
-        if (i < 4) {
+    const totalCount = FACTORY_PRESETS_BALANCES.length;
+    for (let i = 0; i < totalCount; i++) {
+        if (i < FIXED_FACTORY_COUNT_BAL) {
             out.push(JSON.parse(JSON.stringify(FACTORY_PRESETS_BALANCES[i])));
         } else {
-            const src = (list[i] && list[i].configs) ? list[i] : ((list[i + 2] && list[i + 2].configs) ? list[i + 2] : null);
+            const uIdx = i - FIXED_FACTORY_COUNT_BAL;
+            const src = (Array.isArray(list) && list.length === 3 && list[uIdx] && list[uIdx].configs)
+                ? list[uIdx]
+                : ((Array.isArray(list) && list[i] && list[i].configs) ? list[i] : null);
             if (src) {
                 const p = { ...FACTORY_PRESETS_BALANCES[i], ...src, isLocked: false, showInRibbon: src.showInRibbon !== false };
                 const cn = String(p.name || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F]/gu, '').trim();
-                p.name = (!cn || /^(?:نمط|افتراضي|تخطيط|قالب)\s*\d*$/u.test(cn) || cn.includes('المستخدم')) ? ('نمط ' + (i - 3)) : cn;
+                p.name = (!cn || /^(?:نمط|افتراضي|تخطيط|قالب)\s*\d*$/u.test(cn) || cn.includes('المستخدم')) ? ('نمط ' + (uIdx + 1)) : cn;
                 out.push(p);
             } else {
                 out.push(JSON.parse(JSON.stringify(FACTORY_PRESETS_BALANCES[i])));
@@ -459,12 +522,14 @@ function savePresets(presets) {
         if (presets.length > MAX_PRESETS_LIMIT) {
             presets = presets.slice(0, MAX_PRESETS_LIMIT);
         }
+        const userKey = getBalancesUserPresetsKey();
+        localStorage.setItem(userKey, JSON.stringify(presets));
         localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
-        syncPresetsToDB(PRESETS_STORAGE_KEY, presets);
+        syncPresetsToDB(userKey, presets, true);
     }
 }
 
-function syncPresetsToDB(reportKey, presets) {
+function syncPresetsToDB(reportKey, presets, perUser = false) {
     if (!Array.isArray(presets)) return;
     try {
         const token = localStorage.getItem('erp_token') || '';
@@ -473,7 +538,7 @@ function syncPresetsToDB(reportKey, presets) {
         fetch('api_index.php/report-layout', {
             method: 'POST',
             headers: headers,
-            body: JSON.stringify({ reportKey: reportKey, layout: presets })
+            body: JSON.stringify({ reportKey: reportKey, layout: presets, perUser: perUser })
         }).catch(err => console.warn('[PresetDBSync] POST failed:', err));
     } catch(e) { console.warn('[PresetDBSync] Error:', e); }
 }
@@ -508,8 +573,10 @@ function loadPresetsFromDB(reportKey, localKey, onComplete) {
 }
 
 function initPresets() {
+    const userKey = getBalancesUserPresetsKey();
     let list = getSavedPresets();
-    savePresets(list);
+    localStorage.setItem(userKey, JSON.stringify(list));
+    localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(list));
     
     renderPresetButtons();
     renderPresetsManagementList();
@@ -517,8 +584,9 @@ function initPresets() {
         loadPreset(currentPresetIndex || 0);
     }
 
-    loadPresetsFromDB(PRESETS_STORAGE_KEY, PRESETS_STORAGE_KEY, function(dbLayout) {
+    loadPresetsFromDB(userKey, userKey, function(dbLayout) {
         if (Array.isArray(dbLayout) && dbLayout.length > 0) {
+            localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(dbLayout));
             renderPresetButtons();
             renderPresetsManagementList();
             if (typeof currentPresetIndex !== 'undefined') loadPreset(currentPresetIndex);
@@ -531,7 +599,7 @@ function loadPreset(idx) {
     if (!presets || !presets[idx]) return;
     currentPresetIndex = idx;
     const p = presets[idx];
-    const locked = (idx < 4);
+    const locked = (idx < FIXED_FACTORY_COUNT_BAL);
     p.isLocked = locked;
     applyDesignState(p);
     renderPresetButtons();
@@ -554,9 +622,9 @@ function applyPreset(idx) {
 
 function saveCurrentPreset(targetIdx) {
     const idx = (typeof targetIdx === 'number') ? targetIdx : currentPresetIndex;
-    if (idx < 4) {
-        const fixedNames = ['متعدد العملات 1', 'متعدد العملات 2', 'الأجنبي', 'المحلي'];
-        if (typeof showToast === 'function') showToast('🔒 "' + (fixedNames[idx] || '') + '" مثبت نهائياً في قاعدة البيانات — يمكنك التخصيص والحفظ بحرية في (نمط 1 أو نمط 2)', 'info');
+    if (idx < FIXED_FACTORY_COUNT_BAL) {
+        const fixedNames = FACTORY_PRESETS_BALANCES.map(p => p.name);
+        if (typeof showToast === 'function') showToast('🔒 "' + (fixedNames[idx] || '') + '" مثبت نهائياً في قاعدة البيانات — يمكنك التخصيص والحفظ بحرية في (نمط 1 أو نمط 2 أو نمط 3)', 'info');
         loadPreset(idx);
         return;
     }
@@ -571,6 +639,8 @@ function saveCurrentPreset(targetIdx) {
     p.paperSize = window.currentPaperSize || currentPaperSize || 'A4';
     p.orientation = window.currentOrientation || currentOrientation || 'portrait';
     p.margins = window.currentMargins || currentMargins || 'normal';
+    p.tableWidth = typeof currentTableWidth !== 'undefined' ? currentTableWidth : 100;
+    p.rowHeight = typeof currentRowHeight !== 'undefined' ? currentRowHeight : 'normal';
     p.showLogo = showHeaderLogo;
     p.showInfo = showHeaderInfo;
     p.isLocked = false;
@@ -613,7 +683,7 @@ function resetPresetToFactory(idx) {
     if (!presets || !presets[idx]) return;
     
     presets[idx] = JSON.parse(JSON.stringify(factory));
-    presets[idx].isLocked = false;
+    presets[idx].isLocked = (idx < FIXED_FACTORY_COUNT_BAL);
     savePresets(presets);
     
     if (idx === currentPresetIndex) {
@@ -630,7 +700,7 @@ function resetPresetToFactory(idx) {
 function resetAllPresetsToFactory() {
     if (!confirm('⚠️ هل أنت متأكد من استرجاع كافة القوالب والتصميمات إلى ضبط المصنع الأصلي للنظام؟')) return;
     const presets = JSON.parse(JSON.stringify(FACTORY_PRESETS_BALANCES));
-    presets.forEach(p => { p.isLocked = false; });
+    presets.forEach((p, idx) => { p.isLocked = (idx < FIXED_FACTORY_COUNT_BAL); });
     savePresets(presets);
     currentPresetIndex = 0;
     loadPreset(0);
@@ -680,10 +750,12 @@ function renderPresetsManagementList() {
         const themeLabel = p.theme ? p.theme.replace('theme-', '') : 'افتراضي';
         const orientLabel = p.orientation === 'portrait' ? 'طولي' : 'عرضي';
 
+        const isLockedPreset = idx < FIXED_FACTORY_COUNT_BAL;
         card.innerHTML = `
             <div class="sr-preset-header">
                 <span style="font-weight:900; font-size:11.5px; background:${isCurrent ? '#0284c7' : '#64748b'}; color:#fff; padding:1px 5px; border-radius:3px;">${idx + 1}</span>
-                <input type="text" class="sr-preset-name-input" value="${p.name}" onchange="renamePreset(${idx}, this.value)" style="font-size:11px; padding:1px 4px;">
+                <input type="text" class="sr-preset-name-input" value="${p.name}" ${isLockedPreset ? 'readonly disabled title="قالب نظام افتراضي مثبت نهائياً"' : `onchange="renamePreset(${idx}, this.value)"`} style="font-size:11px; padding:1px 4px; ${isLockedPreset ? 'background:#f1f5f9; cursor:not-allowed; font-weight:900;' : ''}">
+                ${isLockedPreset ? '<span style="color:#d97706; font-weight:900; font-size:10px;">🔒 مثبت</span>' : ''}
                 ${isCurrent ? '<span style="color:#0284c7; font-weight:900; font-size:10.5px;">🟢 النشط</span>' : ''}
             </div>
             
@@ -692,7 +764,7 @@ function renderPresetsManagementList() {
                 <span class="sr-preset-badge" style="font-size:9.5px; padding:1px 4px;">📄 ${p.paperSize || 'A4'} ${orientLabel}</span>
             </div>
             <label style="display:flex; align-items:center; gap:5px; font-size:10.5px; font-weight:800; color:#334155; cursor:pointer; background:#f8fafc; border:1px solid #e2e8f0; border-radius:4px; padding:2px 6px; margin:2px 0;" title="إظهار أو إخفاء هذا الزر من الشريط العلوي">
-                <input type="checkbox" ${p.showInRibbon !== false ? 'checked' : ''} onchange="togglePresetRibbonVisibility(${idx}, this.checked)" style="width:13px; height:13px; accent-color:#0284c7; cursor:pointer;">
+                <input type="checkbox" ${p.showInRibbon !== false ? 'checked' : ''} ${isLockedPreset ? 'disabled' : `onchange="togglePresetRibbonVisibility(${idx}, this.checked)"`} style="width:13px; height:13px; accent-color:#0284c7; cursor:pointer;">
                 <span>👁️ إظهار في الشريط</span>
             </label>
 
@@ -700,9 +772,10 @@ function renderPresetsManagementList() {
                 <button type="button" class="sr-preset-btn sr-preset-btn-apply" onclick="loadPreset(${idx}); switchStudioTab('cols');" title="تطبيق هذا القالب" style="font-size:10px; padding:2px 4px;">
                     ✨ تطبيق
                 </button>
+                ${isLockedPreset ? '' : `
                 <button type="button" class="sr-preset-btn sr-preset-btn-save" onclick="saveCurrentPreset(${idx})" title="حفظ التصميم الحالي وتعميمه للكل" style="font-size:10px; padding:2px 6px; background:#10b981; color:#fff; font-weight:900;">
                     💾 حفظ للكل
-                </button>
+                </button>`}
                 ${hasFactory ? `
                 <button type="button" class="sr-preset-btn sr-preset-btn-reset" onclick="resetPresetToFactory(${idx})" title="استرجاع ضبط المصنع الأصلي لهذا القالب" style="font-size:10px; padding:2px 4px;">
                     🔄 مصنع
@@ -717,6 +790,7 @@ function renderPresetsManagementList() {
 }
 
 function renamePreset(idx, newName) {
+    if (idx < FIXED_FACTORY_COUNT_BAL) return;
     const presets = getSavedPresets();
     if (!presets[idx]) return;
     if (newName && newName.trim()) {
@@ -728,6 +802,7 @@ function renamePreset(idx, newName) {
 }
 
 function deletePreset(idx) {
+    if (idx < FIXED_FACTORY_COUNT_BAL) return;
     const presets = getSavedPresets();
     if (!presets[idx]) return;
     if (confirm('⚠️ هل أنت متأكد من حذف التخصيص "' + presets[idx].name + '"؟')) {
@@ -843,7 +918,7 @@ function setTableTheme(themeName) {
     const sel = document.getElementById('table-theme-select');
     if (sel) sel.value = themeName || '';
     if (tbl) {
-        tbl.classList.remove('theme-gold', 'theme-lightblue', 'theme-slate', 'theme-classic-navy', 'theme-emerald-pro', 'theme-modern-slate', 'theme-luxury-gold', 'theme-luxury-black');
+        tbl.classList.remove('theme-gold', 'theme-lightblue', 'theme-slate', 'theme-classic-navy', 'theme-emerald-pro', 'theme-modern-slate', 'theme-luxury-gold', 'theme-luxury-black', 'theme-pure-bw');
         if (themeName) tbl.classList.add(themeName);
     }
 }
@@ -1467,6 +1542,9 @@ function applyDesignState(state) {
     setNumberFont(currentFont);
     setPaperSize(currentPaperSize, true);
     setPageOrientation(currentOrientation, true);
+    if (state.margins && typeof setPageMargins === 'function') setPageMargins(state.margins);
+    if (state.tableWidth && typeof setTableWidth === 'function') setTableWidth(state.tableWidth);
+    if (state.rowHeight && typeof setRowHeight === 'function') setRowHeight(state.rowHeight);
     
     const logoChk = document.getElementById('hdr-show-logo-chk');
     const infoChk = document.getElementById('hdr-show-info-chk');

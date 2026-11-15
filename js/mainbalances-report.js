@@ -247,25 +247,17 @@ function loadLayout() {
         })
         .catch(err => console.log('DB layout sync info:', err));
 
-    // Permanently sync and lock User Presets to Database
-    fetch('api_index.php/report-layout?reportKey=balances_preview_presets_v7', { headers: headers })
+    // Permanently sync and lock User Presets to Database (Per-User for نمط 1, نمط 2, نمط 3)
+    const uObj = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch(e){ return {}; } })();
+    const uUid = String(uObj.id || uObj.user_id || uObj.username || 'default').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const userPresetKey = 'balances_user_custom_presets_v32_u_' + uUid;
+    fetch('api_index.php/report-layout?reportKey=' + encodeURIComponent(userPresetKey), { headers: headers })
         .then(res => res.json())
         .then(data => {
             if (data && data.success && Array.isArray(data.layout) && data.layout.length > 0) {
-                localStorage.setItem('balances_preview_presets_v7', JSON.stringify(data.layout));
+                localStorage.setItem(userPresetKey, JSON.stringify(data.layout));
+                localStorage.setItem('balances_preview_presets_v32', JSON.stringify(data.layout));
                 if (typeof window.renderBalancesPresets === 'function') window.renderBalancesPresets();
-            } else {
-                let curUserList = localStorage.getItem('balances_preview_presets_v7');
-                if (curUserList) {
-                    fetch('api_index.php/report-layout', {
-                        method: 'POST',
-                        headers: { ...headers, 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            reportKey: 'balances_preview_presets_v7',
-                            layout: JSON.parse(curUserList)
-                        })
-                    });
-                }
             }
         })
         .catch(e => console.log(e));
@@ -1015,9 +1007,7 @@ function runReport(isAutoInit = false) {
             if (sectorFilter === 'EXTERNAL' && !pSector.includes('EXT') && !pSector.includes('خارجي')) return false;
         }
 
-        // Currency Filter
-        if (currFilter === 'SDG' && p.currency && p.currency !== 'SDG') return false;
-        if (currFilter === 'USD' && p.currency && p.currency !== 'USD') return false;
+        // Currency Mode is handled via column visibility & display (do not exclude accounts by base currency tag)
 
         // Condition Filter
         if (conditionFilter === 'DEBTORS_ONLY' && p.endingDebitLocal <= 0) return false;
@@ -2011,7 +2001,8 @@ function renderTable(results, isAutoInit = false) {
         cells[0] = `<td style="${getCellStyle(0)}">${p.name} <span style="color:#64748b;font-size:0.7rem;margin-right:5px;">(${typeLabel})</span>${limBadge}</td>`;
         cells[1] = `<td class="num" dir="ltr" style="${getCellStyle(1)}" onclick="window.toggleNumberMagnification(this); event.stopPropagation();">${cleanPhone || '-'}</td>`;
         cells[2] = `<td class="num" style="${getCellStyle(2)}" onclick="window.toggleNumberMagnification(this); event.stopPropagation();">${p.taxNumber || '-'}</td>`;
-        cells[3] = `<td style="font-weight:bold; color:#38bdf8; ${getCellStyle(3)}">${p.currency || 'SDG'}</td>`;
+        const activeCurrCode = (document.getElementById('filter-currency') && document.getElementById('filter-currency').value === 'USD') ? 'USD' : (p.currency || 'SDG');
+        cells[3] = `<td style="font-weight:bold; color:#38bdf8; ${getCellStyle(3)}">${activeCurrCode}</td>`;
         cells[4] = `<td class="num" style="${getCellStyle(4)}" onclick="window.toggleNumberMagnification(this); event.stopPropagation();">${endingDebitForeign > 0 ? fmtColNum(endingDebitForeign, 4) : '-'}</td>`;
         cells[5] = `<td class="num" style="${getCellStyle(5)}" onclick="window.toggleNumberMagnification(this); event.stopPropagation();">${endingCreditForeign > 0 ? fmtColNum(endingCreditForeign, 5) : '-'}</td>`;
         cells[6] = `<td class="num" style="${getCellStyle(6)}" onclick="window.toggleNumberMagnification(this); event.stopPropagation();">${endingDebitLocal > 0 ? fmtColNum(endingDebitLocal, 6) : '-'}</td>`;
@@ -2249,17 +2240,67 @@ window.openLedgerMultiCurrencyHere = function() {
     modal.style.display = 'flex';
 };
 
+window.toggleTargetCurrencyFilter = function() {
+    const inp = document.getElementById('filter-currency');
+    const btn = document.getElementById('btn-toggle-currency');
+    if (!inp || !btn) return;
+    const next = (inp.value === 'USD') ? 'SDG' : 'USD';
+    inp.value = next;
+    if (next === 'USD') {
+        btn.textContent = 'دولار ⇄';
+        btn.style.setProperty('background', 'linear-gradient(135deg, #0284c7 0%, #1d4ed8 100%)', 'important');
+        btn.style.setProperty('border-color', '#38bdf8', 'important');
+        btn.style.setProperty('box-shadow', '0 3px 10px rgba(2,132,199,0.32)', 'important');
+        if (window.colConfigs) {
+            if (window.colConfigs[4]) window.colConfigs[4].visible = true;
+            if (window.colConfigs[5]) window.colConfigs[5].visible = true;
+            if (window.colConfigs[6]) window.colConfigs[6].visible = false;
+            if (window.colConfigs[7]) window.colConfigs[7].visible = false;
+        }
+    } else {
+        btn.textContent = 'جنيه ⇄';
+        btn.style.setProperty('background', 'linear-gradient(135deg, #059669 0%, #047857 100%)', 'important');
+        btn.style.setProperty('border-color', '#34d399', 'important');
+        btn.style.setProperty('box-shadow', '0 3px 10px rgba(16,185,129,0.28)', 'important');
+        if (window.colConfigs) {
+            if (window.colConfigs[6]) window.colConfigs[6].visible = true;
+            if (window.colConfigs[7]) window.colConfigs[7].visible = true;
+            if (window.colConfigs[4]) window.colConfigs[4].visible = false;
+            if (window.colConfigs[5]) window.colConfigs[5].visible = false;
+        }
+    }
+    if (typeof applyLayoutToDOM === 'function') applyLayoutToDOM();
+    if (typeof window.runReport === 'function') window.runReport(true);
+};
+
 window.renderBalancesPresets = function() {
     const container = document.getElementById('main-presets-container');
     if (!container) return;
     container.innerHTML = '';
 
-    const PRESETS_STORAGE_KEY = 'balances_preview_presets_v30';
+    const PRESETS_STORAGE_KEY = 'balances_preview_presets_v32';
+    const uObj = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch(e){ return {}; } })();
+    const uUid = String(uObj.id || uObj.user_id || uObj.username || 'default').replace(/[^a-zA-Z0-9_-]/g, '_');
+    const userPresetKey = 'balances_user_custom_presets_v32_u_' + uUid;
     let presets = [];
-    try { presets = JSON.parse(localStorage.getItem(PRESETS_STORAGE_KEY) || '[]'); } catch(e){}
+    try { presets = JSON.parse(localStorage.getItem(userPresetKey) || localStorage.getItem(PRESETS_STORAGE_KEY) || '[]'); } catch(e){}
 
-    const fixedDefaults = ['متعدد العملات 1', 'متعدد العملات 2', 'الأجنبي', 'المحلي', 'نمط 1', 'نمط 2'];
-    const palette = ['#0284c7', '#059669', '#d97706', '#7e22ce', '#0ea5e9', '#10b981'];
+    const fixedDefaults = ['متعدد العملات 1', 'متعدد العملات 2', 'متعدد العملات 3', 'متعدد العملات 4', 'متعدد العملات 5', 'الأجنبي', 'أجنبي بلا ألوان', 'المحلي', 'محلي بلا ألوان', 'نمط 1', 'نمط 2', 'نمط 3'];
+    const gradients = [
+        'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+        'linear-gradient(135deg, #059669 0%, #047857 100%)',
+        'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',
+        'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+        'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)',
+        'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
+        'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
+        'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+        'linear-gradient(135deg, #9333ea 0%, #7e22ce 100%)',
+        'linear-gradient(135deg, #db2777 0%, #be185d 100%)',
+        'linear-gradient(135deg, #e11d48 0%, #be123c 100%)',
+        'linear-gradient(135deg, #0891b2 0%, #0e7490 100%)'
+    ];
+    const borders = ['#38bdf8', '#34d399', '#2dd4bf', '#60a5fa', '#818cf8', '#fbbf24', '#fb923c', '#a78bfa', '#c084fc', '#f472b6', '#fb7185', '#22d3ee'];
     const stripIcons = (s) => String(s || '').replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F]/gu, '').trim();
 
     fixedDefaults.forEach((defName, idx) => {
@@ -2268,40 +2309,18 @@ window.renderBalancesPresets = function() {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'preset-ribbon-btn preset-slot-' + idx;
-        const cleanName = idx < 4 ? defName : (stripIcons(p.name) || defName);
-        btn.style.cssText = 'background:' + palette[idx] + ' !important; color:#ffffff !important; border:1.5px solid rgba(255,255,255,0.35) !important; font-weight:900 !important;';
+        const cleanName = idx < 9 ? defName : (stripIcons(p.name) || defName);
+        const isMultiCurr = idx < 5;
+        const isShortPattern = idx >= 9;
+        const isShortSingle = (idx === 5 || idx === 7);
+        const flexVal = isMultiCurr ? '1.38 1 0%' : (isShortPattern ? '0.58 1 0%' : (isShortSingle ? '0.72 1 0%' : '1.15 1 0%'));
+        const padVal = isMultiCurr ? '0 10px' : (isShortPattern ? '0 4px' : '0 7px');
+        btn.style.cssText = 'flex:' + flexVal + ' !important; min-width:0 !important; padding:' + padVal + ' !important; height:38px !important; border-radius:9px !important; background:' + gradients[idx] + ' !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; border:1.8px solid ' + borders[idx] + ' !important; font-weight:900 !important; font-size:0.84rem !important; box-shadow:0 3px 10px rgba(0,0,0,0.22) !important; white-space:nowrap !important;';
         btn.textContent = cleanName;
-        btn.title = idx < 4 ? (cleanName + ' — نموذج قياسي مطابق لدفتر الأستاذ') : ('تخصيص وحفظ ' + cleanName);
+        btn.title = idx < 9 ? (cleanName + ' — نموذج قياسي مثبت نهائياً') : ('تخصيص وحفظ ' + cleanName + ' (خاص بالمستخدم)');
         btn.onclick = (e) => { if (e) e.preventDefault(); window.openPresetModal(idx, cleanName); };
         container.appendChild(btn);
     });
-
-    const chartBtn = document.createElement('button');
-    chartBtn.type = 'button';
-    chartBtn.className = 'preset-ribbon-btn';
-    chartBtn.style.cssText = 'background:#0284c7 !important;color:#ffffff !important;border:1.5px solid #38bdf8 !important;font-weight:900 !important;';
-    chartBtn.textContent = '📊 التقارير البصرية';
-    chartBtn.onclick = () => window.toggleVisualHub();
-    container.appendChild(chartBtn);
-
-    const mainPreviewBtn = document.createElement('button');
-    mainPreviewBtn.type = 'button';
-    mainPreviewBtn.className = 'preset-ribbon-btn btn-hero-preview';
-    mainPreviewBtn.style.cssText = 'background:#059669 !important;color:#ffffff !important;border:1.5px solid #34d399 !important;font-weight:900 !important;';
-    mainPreviewBtn.textContent = '🖨️ شاشة العرض للطباعة';
-    mainPreviewBtn.onclick = () => {
-        if (typeof window.openNewPreviewPage === 'function') window.openNewPreviewPage();
-        else window.openPresetModal(0, 'متعدد العملات 1');
-    };
-    container.appendChild(mainPreviewBtn);
-
-    const ctrlBtn = document.createElement('button');
-    ctrlBtn.type = 'button';
-    ctrlBtn.className = 'preset-ribbon-btn unified-col-props-btn unified-col-props-far-left';
-    ctrlBtn.style.cssText = "display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; height:43px !important; padding:0 18px !important; border-radius:10px !important; background:linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%) !important; border:1.8px solid #38bdf8 !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; font-family:'Cairo','Tajawal',sans-serif !important; font-size:0.92rem !important; font-weight:900 !important; cursor:pointer !important; box-shadow:0 4px 12px rgba(14,165,233,0.25) !important; white-space:nowrap !important; flex-shrink:0 !important; margin-right:auto !important;";
-    ctrlBtn.innerHTML = '<span>⚙️</span><span>خصائص الأعمدة</span>';
-    ctrlBtn.onclick = (e) => openColumnContextMenu(e);
-    container.appendChild(ctrlBtn);
 };
 window.addEventListener('storage', function(e) {
     if (e.key === 'balances_preview_presets_v7') {

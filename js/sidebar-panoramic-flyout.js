@@ -1124,7 +1124,7 @@
             if (sb && e.relatedTarget && sb.contains(e.relatedTarget)) {
                 return;
             }
-            scheduleCloseFlyout(150);
+            hidePanoramicFlyout(false);
         });
 
         document.body.appendChild(flyoutEl);
@@ -1322,7 +1322,7 @@
             if (!sbEl) return;
             const rel = e.relatedTarget;
             if (rel && (sbEl.contains(rel) || (flyoutEl && flyoutEl.contains(rel)))) return;
-            scheduleCloseFlyout(140);
+            scheduleCloseFlyout(60);
         }, { passive: true });
 
         document.addEventListener('keydown', (e) => {

@@ -84,6 +84,15 @@
         table.excel-table.theme-luxury-black tbody tr:nth-child(even) { background: #fafafa !important; }
         table.excel-table.theme-luxury-black tbody tr:nth-child(odd) { background: #ffffff !important; }
         table.excel-table.theme-luxury-black tfoot td { background: #171717 !important; color: #f5f5f5 !important; font-weight: 900 !important; border-color: #000000 !important; }
+
+        /* Pure Black & White Theme (Zero Colors, Pure White BG, Pure Black Text & Borders) */
+        table.excel-table.theme-pure-bw { background: #ffffff !important; color: #000000 !important; border: 4px solid #000000 !important; }
+        table.excel-table.theme-pure-bw th, table.excel-table.theme-pure-bw td { background: #ffffff !important; background-image: none !important; color: #000000 !important; border: 2.2px solid #000000 !important; filter: none !important; text-shadow: none !important; }
+        table.excel-table.theme-pure-bw thead tr { border-bottom: 3.5px solid #000000 !important; background: #ffffff !important; }
+        table.excel-table.theme-pure-bw thead th:hover { background: #f8fafc !important; color: #000000 !important; }
+        table.excel-table.theme-pure-bw tbody tr, table.excel-table.theme-pure-bw tbody tr:nth-child(even) td, table.excel-table.theme-pure-bw tbody tr:nth-child(odd) td { background: #ffffff !important; color: #000000 !important; filter: none !important; }
+        table.excel-table.theme-pure-bw tfoot tr { border-top: 3.5px solid #000000 !important; background: #ffffff !important; }
+        table.excel-table.theme-pure-bw tfoot td { background: #ffffff !important; color: #000000 !important; border-color: #000000 !important; font-weight: 900 !important; }
         
         /* Fonts */
         .font-newsons { font-family: 'JetBrains Mono', monospace !important; }
@@ -515,13 +524,17 @@
         <script>
         function saveCurrentPresetAndLock() {
             const activeIdx = (typeof currentPresetIndex === 'number') ? currentPresetIndex : (window.currentPresetIndex || 0);
+            if (activeIdx < (typeof FIXED_FACTORY_COUNT_BAL !== 'undefined' ? FIXED_FACTORY_COUNT_BAL : 9)) {
+                if (typeof saveCurrentPreset === 'function') saveCurrentPreset(activeIdx);
+                return;
+            }
             if (typeof saveCurrentPreset === 'function') {
                 saveCurrentPreset(activeIdx);
                 let presets = getSavedPresets();
                 if (presets[activeIdx]) {
                     presets[activeIdx].isLocked = false;
                     savePresets(presets);
-                    syncPresetsToDB(typeof PRESETS_STORAGE_KEY !== 'undefined' ? PRESETS_STORAGE_KEY : 'balances_preview_presets_v20', presets);
+                    syncPresetsToDB(typeof PRESETS_STORAGE_KEY !== 'undefined' ? PRESETS_STORAGE_KEY : 'balances_preview_presets_v32', presets);
                 }
             }
         }

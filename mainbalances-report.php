@@ -916,12 +916,12 @@ $page_title = 'حساب الأرصدة الأساسية';
         /* Fast Zero-Lag Mode: Remove glass shines, blurs, orbs & jittery hover animations */
         .ambient-bg, .preset-ribbon-btn::after, .preset-btn::after, .btn-action-hero::after, .btn-run::after { display: none !important; content: none !important; }
         *, *::before, *::after { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; animation-duration: 0s !important; }
-        #main-presets-container { display: flex !important; align-items: center !important; gap: 6px !important; flex-wrap: wrap !important; padding: 6px 8px !important; border-radius: 10px !important; }
+        #main-presets-container { display: flex !important; align-items: center !important; gap: 5px !important; flex-wrap: nowrap !important; padding: 6px 8px !important; border-radius: 10px !important; }
         #main-presets-container .preset-ribbon-btn, #main-presets-container .btn-action-hero {
-            height: 36px !important; min-height: 36px !important; padding: 0 14px !important; border-radius: 8px !important;
-            font-size: 0.86rem !important; font-weight: 800 !important; line-height: 1 !important; white-space: nowrap !important;
-            display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 6px !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2) !important; transform: none !important; transition: opacity 0.12s ease !important;
+            height: 38px !important; min-height: 38px !important; border-radius: 8px !important;
+            font-size: 0.84rem !important; font-weight: 900 !important; line-height: 1 !important; white-space: nowrap !important;
+            display: inline-flex !important; align-items: center !important; justify-content: center !important; gap: 4px !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.22) !important; transform: none !important; transition: opacity 0.12s ease !important;
         }
         #main-presets-container .preset-ribbon-btn:hover, #main-presets-container .btn-action-hero:hover { transform: none !important; filter: brightness(1.08) !important; box-shadow: 0 2px 6px rgba(0,0,0,0.25) !important; }
 </style>
@@ -1067,14 +1067,14 @@ $page_title = 'حساب الأرصدة الأساسية';
     <?php include 'includes/header.php'; ?>
 
     <!-- FILTERS & PRESET CONTROLS PANEL (EXPANDED ~1CM) -->
-    <div class="report-header no-print" style="background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; padding: 18px 24px; margin-bottom: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.4);">
-        <div class="filter-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 12px; gap: 14px;">
+    <div class="report-header no-print" style="background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; padding: 12px 16px; margin-bottom: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.4);">
+        <div class="filter-row" style="display: flex; align-items: flex-end; gap: 8px; flex-wrap: nowrap; margin-bottom: 10px; width: 100%;">
             <!-- 1. نوع المجموعة -->
-            <div class="filter-group">
-                <label style="font-size:0.85rem; margin-bottom:6px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:4px;">
+            <div class="filter-group" style="flex: 1; min-width: 0; margin: 0;">
+                <label style="font-size:0.75rem; margin-bottom:4px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:3px; white-space:nowrap;">
                     <span>📂 نوع المجموعة</span>
                 </label>
-                <select class="filter-input" id="filter-group" style="padding:6px 12px; font-size:0.9rem; height:40px; border-radius:8px; font-weight:700;" onchange="runReport()">
+                <select class="filter-input" id="filter-group" style="padding:4px 8px; font-size:0.76rem; height:38px; border-radius:8px; font-weight:800; width:100%; margin:0; box-sizing:border-box;" onchange="runReport()">
                     <option value="ALL">جميع الحسابات والأرصدة (الكل)</option>
                     <option value="CUST">👥 أرصدة العملاء</option>
                     <option value="SUPP">🛍️ أرصدة الموردين</option>
@@ -1085,11 +1085,11 @@ $page_title = 'حساب الأرصدة الأساسية';
             </div>
 
             <!-- 2. ترتيب الأرصدة -->
-            <div class="filter-group">
-                <label style="font-size:0.85rem; margin-bottom:6px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:4px;">
+            <div class="filter-group" style="flex: 1; min-width: 0; margin: 0;">
+                <label style="font-size:0.75rem; margin-bottom:4px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:3px; white-space:nowrap;">
                     <span>🔃 ترتيب الأرصدة</span>
                 </label>
-                <select class="filter-input" id="filter-sort" style="padding:6px 12px; font-size:0.9rem; height:40px; border-radius:8px; font-weight:700;" onchange="runReport()">
+                <select class="filter-input" id="filter-sort" style="padding:4px 8px; font-size:0.76rem; height:38px; border-radius:8px; font-weight:800; width:100%; margin:0; box-sizing:border-box;" onchange="runReport()">
                     <option value="BALANCE_DESC">حسب الرصيد (من الأعلى للأقل)</option>
                     <option value="BALANCE_ASC">حسب الرصيد (من الأقل للأعلى)</option>
                     <option value="DEBIT_DESC">🔴 الأعلى مديونية (عليه فقط)</option>
@@ -1100,21 +1100,21 @@ $page_title = 'حساب الأرصدة الأساسية';
             </div>
 
             <!-- 3. مركز التكلفة -->
-            <div class="filter-group">
-                <label style="font-size:0.85rem; margin-bottom:6px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:4px;">
+            <div class="filter-group" style="flex: 1; min-width: 0; margin: 0;">
+                <label style="font-size:0.75rem; margin-bottom:4px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:3px; white-space:nowrap;">
                     <span>🏢 مركز التكلفة</span>
                 </label>
-                <select class="filter-input" id="filter-costcenter" style="padding:6px 12px; font-size:0.9rem; height:40px; border-radius:8px; font-weight:700;" onchange="runReport()">
+                <select class="filter-input" id="filter-costcenter" style="padding:4px 8px; font-size:0.76rem; height:38px; border-radius:8px; font-weight:800; width:100%; margin:0; box-sizing:border-box;" onchange="runReport()">
                     <option value="ALL">جميع مراكز التكلفة (الكل)</option>
                 </select>
             </div>
 
             <!-- 4. القطاعات والتصنيفات -->
-            <div class="filter-group">
-                <label style="font-size:0.85rem; margin-bottom:6px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:4px;">
+            <div class="filter-group" style="flex: 1; min-width: 0; margin: 0;">
+                <label style="font-size:0.75rem; margin-bottom:4px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:3px; white-space:nowrap;">
                     <span>🏷️ القطاع / التصنيف</span>
                 </label>
-                <select class="filter-input" id="filter-sector" style="padding:6px 12px; font-size:0.9rem; height:40px; border-radius:8px; font-weight:700;" onchange="runReport()">
+                <select class="filter-input" id="filter-sector" style="padding:4px 8px; font-size:0.76rem; height:38px; border-radius:8px; font-weight:800; width:100%; margin:0; box-sizing:border-box;" onchange="runReport()">
                     <option value="ALL">جميع القطاعات والتصنيفات</option>
                     <option value="RETAIL">🛒 قطاع التجزئة</option>
                     <option value="WHOLESALE">🏢 قطاع الجملة والشركات</option>
@@ -1123,24 +1123,12 @@ $page_title = 'حساب الأرصدة الأساسية';
                 </select>
             </div>
 
-            <!-- 5. التحديد بالعملة -->
-            <div class="filter-group">
-                <label style="font-size:0.85rem; margin-bottom:6px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:4px;">
-                    <span>💱 العملة المستهدفة</span>
-                </label>
-                <select class="filter-input" id="filter-currency" style="padding:6px 12px; font-size:0.9rem; height:40px; border-radius:8px; font-weight:700;" onchange="runReport()">
-                    <option value="ALL">جميع العملات (محلي + أجنبي)</option>
-                    <option value="SDG">🇸🇩 الجنيه السوداني (SDG)</option>
-                    <option value="USD">💵 الدولار الأمريكي (USD)</option>
-                </select>
-            </div>
-
-            <!-- 6. حالة الرصيد والتصفية الذكية -->
-            <div class="filter-group">
-                <label style="font-size:0.85rem; margin-bottom:6px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:4px;">
+            <!-- 5. حالة الرصيد والتصفية الذكية -->
+            <div class="filter-group" style="flex: 1; min-width: 0; margin: 0;">
+                <label style="font-size:0.75rem; margin-bottom:4px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:3px; white-space:nowrap;">
                     <span>🎯 حالة الرصيد</span>
                 </label>
-                <select class="filter-input" id="filter-condition" style="padding:6px 12px; font-size:0.9rem; height:40px; border-radius:8px; font-weight:700;" onchange="runReport()">
+                <select class="filter-input" id="filter-condition" style="padding:4px 8px; font-size:0.76rem; height:38px; border-radius:8px; font-weight:800; width:100%; margin:0; box-sizing:border-box;" onchange="runReport()">
                     <option value="ALL">جميع الأرصدة (بدون تصفية)</option>
                     <option value="DEBTORS_ONLY">🔴 الأرصدة المدينة فقط (عليه)</option>
                     <option value="CREDITORS_ONLY">🟢 الأرصدة الدائنة فقط (له)</option>
@@ -1148,19 +1136,33 @@ $page_title = 'حساب الأرصدة الأساسية';
                     <option value="NON_ZERO">≠ الأرصدة غير الصفرية فقط</option>
                 </select>
             </div>
+
+            <!-- 6. زر تبديل العملة المستهدفة (جنيه ⇄ دولار) -->
+            <div class="filter-group" style="flex-shrink: 0; margin: 0; display: flex; align-items: flex-end;">
+                <input type="hidden" id="filter-currency" value="ALL">
+                <button type="button" id="btn-toggle-currency" onclick="window.toggleTargetCurrencyFilter()" style="height:38px !important; min-height:38px !important; max-height:38px !important; padding:0 12px !important; margin:0 !important; border-radius:8px !important; background:linear-gradient(135deg, #059669 0%, #047857 100%) !important; border:1.8px solid #34d399 !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; font-family:'Cairo','Tajawal',sans-serif !important; font-size:0.82rem !important; font-weight:900 !important; cursor:pointer !important; box-shadow:0 3px 10px rgba(16,185,129,0.28) !important; white-space:nowrap !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; box-sizing:border-box !important;">جنيه ⇄</button>
+            </div>
+
+            <!-- 7. زر خصائص الأعمدة (بدون ترس - أقصى اليسار) -->
+            <div class="filter-group" style="flex-shrink: 0; margin: 0; display: flex; align-items: flex-end;">
+                <button type="button" class="preset-ribbon-btn unified-col-props-btn unified-col-props-far-left" onclick="openColumnContextMenu(event)" style="display:inline-flex !important; align-items:center !important; justify-content:center !important; height:38px !important; min-height:38px !important; max-height:38px !important; padding:0 14px !important; margin:0 !important; border-radius:8px !important; background:linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%) !important; border:1.8px solid #38bdf8 !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; font-family:'Cairo','Tajawal',sans-serif !important; font-size:0.82rem !important; font-weight:900 !important; cursor:pointer !important; box-shadow:0 3px 10px rgba(14,165,233,0.25) !important; white-space:nowrap !important; box-sizing:border-box !important;">خصائص الأعمدة</button>
+            </div>
         </div>
         <div class="filter-row" style="margin-top: 10px; margin-bottom: 15px; display: flex; gap: 6px; flex-wrap: nowrap; width: 100%; align-items: center;">
 
             <div class="preset-slots-container no-print" id="main-presets-container" style="flex:1; display:flex; gap:6px; align-items:center; flex-wrap:nowrap; padding:4px 8px; border-radius:10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); min-height: 48px; overflow-x: auto;">
                 <button type="button" class="preset-ribbon-btn preset-slot-0" onclick="window.openPresetModal(0, 'متعدد العملات 1')">متعدد العملات 1</button>
                 <button type="button" class="preset-ribbon-btn preset-slot-1" onclick="window.openPresetModal(1, 'متعدد العملات 2')">متعدد العملات 2</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-2" onclick="window.openPresetModal(2, 'الأجنبي')">الأجنبي</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-3" onclick="window.openPresetModal(3, 'المحلي')">المحلي</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-4" onclick="window.openPresetModal(4, 'نمط 1')">نمط 1</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-5" onclick="window.openPresetModal(5, 'نمط 2')">نمط 2</button>
-                <button type="button" class="preset-ribbon-btn" onclick="window.toggleVisualHub()" style="background:#0284c7 !important; color:#ffffff !important; border:1px solid #38bdf8 !important; font-weight:900 !important;">📊 التقارير البصرية</button>
-                <button type="button" class="preset-ribbon-btn btn-hero-preview" onclick="if(typeof window.openNewPreviewPage==='function') window.openNewPreviewPage();" style="background:#059669 !important; color:#ffffff !important; border:1px solid #34d399 !important; font-weight:900 !important;">🖨️ شاشة العرض للطباعة</button>
-                <button type="button" class="preset-ribbon-btn unified-col-props-btn unified-col-props-far-left" onclick="openColumnContextMenu(event)" style="display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; height:43px !important; padding:0 18px !important; border-radius:10px !important; background:linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%) !important; border:1.8px solid #38bdf8 !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; font-family:'Cairo','Tajawal',sans-serif !important; font-size:0.92rem !important; font-weight:900 !important; cursor:pointer !important; box-shadow:0 4px 12px rgba(14,165,233,0.25) !important; white-space:nowrap !important; flex-shrink:0 !important; margin-right:auto !important;"><span>⚙️</span><span>خصائص الأعمدة</span></button>
+                <button type="button" class="preset-ribbon-btn preset-slot-2" onclick="window.openPresetModal(2, 'متعدد العملات 3')">متعدد العملات 3</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-3" onclick="window.openPresetModal(3, 'متعدد العملات 4')">متعدد العملات 4</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-4" onclick="window.openPresetModal(4, 'متعدد العملات 5')">متعدد العملات 5</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-5" onclick="window.openPresetModal(5, 'الأجنبي')">الأجنبي</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-6" onclick="window.openPresetModal(6, 'أجنبي بلا ألوان')">أجنبي بلا ألوان</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-7" onclick="window.openPresetModal(7, 'المحلي')">المحلي</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-8" onclick="window.openPresetModal(8, 'محلي بلا ألوان')">محلي بلا ألوان</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-9" onclick="window.openPresetModal(9, 'نمط 1')">نمط 1</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-10" onclick="window.openPresetModal(10, 'نمط 2')">نمط 2</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-11" onclick="window.openPresetModal(11, 'نمط 3')">نمط 3</button>
             </div>
 
         </div>

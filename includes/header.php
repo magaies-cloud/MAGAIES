@@ -2656,8 +2656,8 @@ html.light-theme input[type="date"]::-webkit-datetime-edit-year-field {
 }
 /* توحيد القائمة الجانبية ولوحة البيانات الأساسية ومربعات البحث الذكي وإخفاء كبسولة المرشد في الجوال */
 @media (max-width: 960px) { #msg-universal-fixed-launcher { display: none !important; } }
-.global-sidebar:not(:hover) { width: var(--sb-collapsed, 62px) !important; }
-.global-sidebar:not(:hover) .sidebar-logo-text, .global-sidebar:not(:hover) .sidebar-text { opacity: 0 !important; max-width: 0 !important; pointer-events: none !important; }
+.global-sidebar:not(:hover):not(.panoramic-flyout-open) { width: var(--sb-collapsed, 62px) !important; }
+.global-sidebar:not(:hover):not(.panoramic-flyout-open) .sidebar-logo-text, .global-sidebar:not(:hover):not(.panoramic-flyout-open) .sidebar-text { opacity: 0 !important; max-width: 0 !important; pointer-events: none !important; }
 .global-sidebar .sidebar-item, .global-sidebar .sidebar-text { font-family: var(--magaiees-active-font, 'Tajawal', 'Cairo', sans-serif) !important; font-weight: 900 !important; }
 html.light-theme .global-sidebar .sidebar-item, html.light-theme .global-sidebar .sidebar-label,
 html.light-theme #magaiees-panoramic-flyout .pf-card-title, html.light-theme #magaiees-panoramic-flyout .pf-card-sub, html.light-theme #magaiees-panoramic-flyout .pf-header-title {
