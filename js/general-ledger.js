@@ -3237,11 +3237,23 @@ async function openPresetModal(presetIndex, presetName, isLocked = false) {
         const st = document.createElement('style');
         st.id = 'docked-preset-view-style';
         st.textContent = `
-            #preset-preview-modal { position: fixed; top: 0; left: 0; bottom: 0; right: 0; z-index: 99990; background: #f1f5f9; display: flex; flex-direction: column; padding: 0; margin: 0; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+            #preset-preview-modal { position: fixed; top: 0; left: 0; bottom: 0; right: 0; z-index: 99990; background: #f1f5f9; display: flex; flex-direction: column; padding: 0; margin: 0; transition: right 0.28s cubic-bezier(0.4, 0, 0.2, 1); }
             body.has-sidebar #preset-preview-modal, html.has-sidebar #preset-preview-modal { right: var(--sb-collapsed, 62px); }
-            body.has-sidebar.sidebar-open #preset-preview-modal, html.has-sidebar.sidebar-open #preset-preview-modal { right: var(--sb-expanded, 240px); }
+            html.has-sidebar body.sidebar-open #preset-preview-modal, body.has-sidebar.sidebar-open #preset-preview-modal, html.has-sidebar.sidebar-open #preset-preview-modal { right: var(--sb-expanded, 240px) !important; }
+            body.no-sidebar #preset-preview-modal, html.no-sidebar #preset-preview-modal, body.sidebar-hidden #preset-preview-modal, html.sidebar-hidden #preset-preview-modal { right: 0 !important; }
         `;
         document.head.appendChild(st);
+        const sbEl = document.querySelector('.global-sidebar, #global-sidebar, aside.sidebar');
+        if (sbEl && typeof ResizeObserver !== 'undefined') {
+            new ResizeObserver(() => {
+                const m = document.getElementById('preset-preview-modal');
+                if (m && m.style.display !== 'none') {
+                    const r = sbEl.getBoundingClientRect();
+                    const visibleW = (r.width > 0 && r.right > 0 && getComputedStyle(sbEl).display !== 'none') ? Math.max(0, window.innerWidth - r.left) : 0;
+                    m.style.right = Math.min(visibleW, 320) + 'px';
+                }
+            }).observe(sbEl);
+        }
     }
 
     let modal = document.getElementById('preset-preview-modal');

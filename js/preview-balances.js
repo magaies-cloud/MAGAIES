@@ -1,6 +1,6 @@
 // js/preview-balances.js - Pro Studio Edition
 
-const PRESETS_STORAGE_KEY = 'balances_preview_presets_v20';
+const PRESETS_STORAGE_KEY = 'balances_preview_presets_v27';
 const MAX_PRESETS_LIMIT = 6;
 let currentData = [];
 let filteredData = [];
@@ -371,24 +371,24 @@ function lightenHex2ShadesBal(hex) {
 }
 
 const BAL_MC_MASTER_ORDER = [0, 1, 6, 7, 4, 5, 8, 11, 9, 10, 2, 3];
-const BAL_MC_LOCK_STAMP = 'bal_gl_mc_unified_2027_v11';
+const BAL_MC_LOCK_STAMP = 'bal_gl_mc_unified_2027_v27';
 
 function getFactoryPreset1Configs() {
     let conf = getDefaultConfigs();
     const slimNameFont = "'Tajawal', sans-serif";
     const compactArFont = "'Cairo', 'Tajawal', sans-serif";
-    conf[0]  = { ...conf[0],  label: "اسم الحساب",          visible: true,  fs: 0.86, fontWeight: '800', fontFamily: slimNameFont,  color: '#1c1208', bgColor: '#fbf7ef', align: 'right',  width: '' };
-    conf[1]  = { ...conf[1],  label: "رقم الهاتف",          visible: true,  fs: 0.84, fontWeight: '900', fontFamily: compactArFont, color: '#4a2c0a', bgColor: '#efe3cc', align: 'center', width: '' };
-    conf[2]  = { ...conf[2],  label: "الرقم الضريبي",        visible: false, fs: 0.85, fontWeight: '',    fontFamily: compactArFont, color: '',        bgColor: '',        align: 'center', width: '' };
-    conf[3]  = { ...conf[3],  label: "العملة",              visible: false, fs: 0.85, fontWeight: '',    fontFamily: compactArFont, color: '',        bgColor: '',        align: 'center', width: '' };
-    conf[6]  = { ...conf[6],  label: "مدين محلي (عليه)",    visible: true,  fs: 0.98, fontWeight: '900', fontFamily: compactArFont, color: '#14532d', bgColor: '#eef6ee', align: 'center', decimals: 0, width: '' };
-    conf[7]  = { ...conf[7],  label: "دائن محلي (له)",      visible: true,  fs: 0.98, fontWeight: '900', fontFamily: compactArFont, color: '#991b1b', bgColor: '#fbf0ec', align: 'center', decimals: 0, width: '' };
-    conf[8]  = { ...conf[8],  label: "الإجمالي المحلي",      visible: false, fs: 1.00, fontWeight: '900', fontFamily: compactArFont, color: '#1c1208', bgColor: '#f5ecd9', align: 'center', decimals: 0, width: '' };
-    conf[11] = { ...(conf[11] || conf[0]), label: "سعر الصرف", visible: false, fs: 0.90, fontWeight: '', fontFamily: compactArFont, color: '#3b2612', bgColor: '#f3ebdc', align: 'center', decimals: 2, width: '' };
-    conf[4]  = { ...conf[4],  label: "مدين أجنبي (عليه)",   visible: true,  fs: 0.98, fontWeight: '900', fontFamily: compactArFont, color: '#14532d', bgColor: '#eef6ee', align: 'center', decimals: 2, width: '' };
-    conf[5]  = { ...conf[5],  label: "دائن أجنبي (له)",     visible: true,  fs: 0.98, fontWeight: '900', fontFamily: compactArFont, color: '#991b1b', bgColor: '#fbf0ec', align: 'center', decimals: 2, width: '' };
-    conf[9]  = { ...conf[9],  label: "الإجمالي الأجنبي",     visible: false, fs: 1.00, fontWeight: '900', fontFamily: compactArFont, color: '#1c1208', bgColor: '#f5ecd9', align: 'center', decimals: 2, width: '' };
-    conf[10] = { ...conf[10], label: "ملاحظات",             visible: false, fs: 0.85, fontWeight: '900', fontFamily: compactArFont, color: '#3b2612', bgColor: '#f4ede0', align: 'center', width: '' };
+    conf[0]  = { ...conf[0],  label: "اسم الحساب",          visible: true,  fs: 1.02, fontWeight: '900', fontFamily: slimNameFont,  color: '#1c1208', bgColor: '#fcfaf5', align: 'center', width: '28%' };
+    conf[1]  = { ...conf[1],  label: "رقم الهاتف",          visible: true,  fs: 1.04, fontWeight: '900', fontFamily: compactArFont, color: '#4a2c0a', bgColor: '#f7f1e4', align: 'center', width: '14%' };
+    conf[2]  = { ...conf[2],  label: "الرقم الضريبي",        visible: false, fs: 0.95, fontWeight: '',    fontFamily: compactArFont, color: '',        bgColor: '',        align: 'center', width: '' };
+    conf[3]  = { ...conf[3],  label: "العملة",              visible: false, fs: 0.95, fontWeight: '',    fontFamily: compactArFont, color: '',        bgColor: '',        align: 'center', width: '' };
+    conf[6]  = { ...conf[6],  label: "مدين محلي (عليه)",    visible: true,  fs: 1.18, fontWeight: '900', fontFamily: compactArFont, color: '#14532d', bgColor: '#eef6ee', align: 'center', decimals: 0, width: '14.5%' };
+    conf[7]  = { ...conf[7],  label: "دائن محلي (له)",      visible: true,  fs: 1.18, fontWeight: '900', fontFamily: compactArFont, color: '#991b1b', bgColor: '#fbf0ec', align: 'center', decimals: 0, width: '14.5%' };
+    conf[8]  = { ...conf[8],  label: "الإجمالي المحلي",      visible: false, fs: 1.18, fontWeight: '900', fontFamily: compactArFont, color: '#1c1208', bgColor: '#f5ecd9', align: 'center', decimals: 0, width: '' };
+    conf[11] = { ...(conf[11] || conf[0]), label: "سعر الصرف", visible: false, fs: 0.95, fontWeight: '', fontFamily: compactArFont, color: '#3b2612', bgColor: '#f3ebdc', align: 'center', decimals: 2, width: '' };
+    conf[4]  = { ...conf[4],  label: "مدين أجنبي (عليه)",   visible: true,  fs: 1.18, fontWeight: '900', fontFamily: compactArFont, color: '#14532d', bgColor: '#eef6ee', align: 'center', decimals: 2, width: '14.5%' };
+    conf[5]  = { ...conf[5],  label: "دائن أجنبي (له)",     visible: true,  fs: 1.18, fontWeight: '900', fontFamily: compactArFont, color: '#991b1b', bgColor: '#fbf0ec', align: 'center', decimals: 2, width: '14.5%' };
+    conf[9]  = { ...conf[9],  label: "الإجمالي الأجنبي",     visible: false, fs: 1.18, fontWeight: '900', fontFamily: compactArFont, color: '#1c1208', bgColor: '#f5ecd9', align: 'center', decimals: 2, width: '' };
+    conf[10] = { ...conf[10], label: "ملاحظات",             visible: false, fs: 0.95, fontWeight: '900', fontFamily: compactArFont, color: '#3b2612', bgColor: '#f4ede0', align: 'center', width: '' };
     return conf;
 }
 
@@ -439,9 +439,14 @@ function getSavedPresets() {
         return JSON.parse(JSON.stringify(FACTORY_PRESETS_BALANCES));
     }
     const out = [];
+    const fixedNames = ['متعدد العملات 1', 'متعدد العملات 2', 'الأجنبي', 'المحلي', 'نمط 1', 'نمط 2'];
     for (let i = 0; i < 6; i++) {
         if (i < 4) {
-            out.push(JSON.parse(JSON.stringify(FACTORY_PRESETS_BALANCES[i])));
+            if (list[i] && list[i].configs && list[i]._userSavedV27 === true) {
+                out.push({ ...FACTORY_PRESETS_BALANCES[i], ...list[i], name: fixedNames[i], isLocked: false });
+            } else {
+                out.push(JSON.parse(JSON.stringify(FACTORY_PRESETS_BALANCES[i])));
+            }
         } else {
             const src = (list[i] && list[i].configs) ? list[i] : ((list[i + 2] && list[i + 2].configs) ? list[i + 2] : null);
             if (src) {
@@ -549,9 +554,9 @@ function loadPreset(idx) {
     renderPresetsManagementList();
     
     const saveBtn = document.getElementById('mega-save-btn');
-    if (saveBtn) {
-        saveBtn.style.display = '';
-    }
+    if (saveBtn) saveBtn.style.display = '';
+    const panelSaveBtn = document.querySelector('.sr-save-panel-btn');
+    if (panelSaveBtn) panelSaveBtn.style.display = '';
 }
 
 function applyPreset(idx) {
@@ -574,7 +579,7 @@ function saveCurrentPreset(targetIdx) {
     p.theme = currentTheme;
     p.font = currentFont;
     p.paperSize = window.currentPaperSize || currentPaperSize || 'A4';
-    p.orientation = window.currentOrientation || currentOrientation || 'landscape';
+    p.orientation = window.currentOrientation || currentOrientation || 'portrait';
     p.margins = window.currentMargins || currentMargins || 'normal';
     p.showLogo = showHeaderLogo;
     p.showInfo = showHeaderInfo;
@@ -591,6 +596,7 @@ function saveCurrentPreset(targetIdx) {
     p.showPageNums = pChk ? pChk.checked : true;
     p.updatedAt = new Date().toISOString();
     p.isCustomized = true;
+    p._userSavedV27 = true;
 
     savePresets(presets);
     renderPresetButtons();
@@ -804,13 +810,22 @@ window.renderPresetsManagementList = renderPresetsManagementList;
 
 function toggleSettingsPanel() {
     const p = document.getElementById('settings-panel');
-    const isOpening = (p.style.display === 'none' || p.style.display === '');
-    p.style.display = isOpening ? 'flex' : 'none';
-
-    if (isOpening && selectedColIndex === null) {
-        selectColumn(6); // Default select "مدين محلي"
+    if (!p) return;
+    p.style.display = '';
+    const isOpening = !p.classList.contains('show');
+    if (isOpening) {
+        p.classList.add('show');
+        if (selectedColIndex === null) selectColumn(6);
+    } else {
+        p.classList.remove('show');
     }
 }
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const p = document.getElementById('settings-panel');
+        if (p) { p.classList.remove('show'); p.style.display = ''; }
+    }
+});
 
 function switchStudioTab(tab) {
     // Support both old IDs (tab-btn-*) and new IDs (sr-tab-*)
@@ -989,9 +1004,9 @@ function renderTable() {
             th.classList.add('selected-col');
         }
         
-        const hdrFs = lblTxt.length >= 14 ? 0.76 : (lblTxt.length >= 10 ? 0.80 : 0.85);
+        const hdrFs = lblTxt.length >= 14 ? 0.90 : (lblTxt.length >= 10 ? 0.95 : 1.00);
         th.style.fontSize = (conf.headerFs || hdrFs) + 'rem';
-        th.style.textAlign = conf.align || 'center';
+        th.style.textAlign = 'center';
         th.style.fontWeight = '900';
         if (conf.fontFamily && conf.fontFamily !== 'inherit') th.style.fontFamily = conf.fontFamily;
         if (conf.headerColor) th.style.color = conf.headerColor;
@@ -1052,16 +1067,9 @@ function renderTable() {
             const cellTxt = c.isNum ? formatCustomNumber(rawVal, conf) : (rawVal || '-');
             td.innerText = cellTxt;
             
-            let dynFs = parseFloat(conf.fs || 0.9) || 0.9;
-            if (idx === 1) {
-                const pLen = String(cellTxt).length;
-                dynFs = pLen >= 13 ? 0.70 : (pLen >= 11 ? 0.75 : 0.81);
-            } else if (c.isNum) {
-                const nLen = String(cellTxt).length;
-                if (nLen >= 14) dynFs = Math.min(dynFs, 0.72);
-                else if (nLen >= 12) dynFs = Math.min(dynFs, 0.78);
-                else if (nLen >= 10) dynFs = Math.min(dynFs, 0.85);
-                else if (nLen >= 8) dynFs = Math.min(dynFs, 0.92);
+            let dynFs = parseFloat(conf.fs || 1.05) || 1.05;
+            if (c.isNum && String(cellTxt).length >= 15) {
+                dynFs = Math.min(dynFs, 0.98);
             }
             td.style.fontSize = dynFs + 'rem';
             td.style.textAlign = conf.align || 'center';

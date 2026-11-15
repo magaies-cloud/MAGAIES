@@ -119,8 +119,8 @@
             text-shadow: none !important;
         }
 
-        /* Hide injected global navigation sidebar/header on preview page */
-        .global-sidebar, header.premium-header, .global-header, .navbar {
+        /* Hide injected global navigation header on preview page */
+        header.premium-header, .global-header, .navbar<?= !empty($_GET['inModal']) ? ', .global-sidebar' : '' ?> {
             display: none !important;
         }
 
@@ -202,17 +202,16 @@
 
         /* Printable Area - Realistic Solid Paper Sheet Boundary */
         .print-area {
-            padding: 18px 14px;
-            margin: 18px auto 40px auto;
+            padding: 16px 14px;
+            margin: 14px auto 35px auto;
             background: var(--table-bg);
             color: var(--text-color);
-            border: 1px solid var(--table-border);
+            border: 2px solid #2b1d0e;
             border-radius: 4px;
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
             box-sizing: border-box;
             position: relative;
-            overflow-x: hidden;
         }
 
         body.dark-mode .print-area {
@@ -220,8 +219,8 @@
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
         }
 
-        .print-area.paper-portrait { width: 210mm; max-width: 96vw; }
-        .print-area.paper-landscape { width: 297mm; max-width: 98vw; }
+        .print-area.paper-portrait { max-width: 96% !important; width: 96% !important; }
+        .print-area.paper-landscape { max-width: 99% !important; width: 99% !important; }
 
         /* Paper sheet indicator badge */
         .print-area::before {
@@ -270,26 +269,26 @@
             background: linear-gradient(180deg, #eadbc4 0%, #dcc7a6 100%);
             color: #1c1208;
             font-weight: 900 !important;
-            font-size: clamp(0.68rem, 0.9vw, 0.76rem) !important;
-            letter-spacing: -0.3px !important;
-            padding: 6px 4px !important;
-            width: 1%;
+            font-size: 0.92rem;
+            letter-spacing: -0.15px;
+            padding: 8px 6px;
+            text-align: center !important;
             cursor: pointer; position: relative; user-select: none;
             white-space: nowrap !important; word-break: keep-all !important;
         }
-        table.excel-table thead th[data-col-idx="0"], table.excel-table td[data-col-idx="0"] { width: auto !important; }
+        table.excel-table thead th[data-col-idx="0"] { font-size: 0.98rem; text-align: center !important; }
         table.excel-table thead th:hover { background: #d4bc94 !important; }
         table.excel-table thead th.selected-col { background: #fef3c7 !important; color: #78350f !important; border-bottom: 3.5px solid #b45309 !important; }
         body.dark-mode table.excel-table thead th.selected-col { background: #78532a !important; color: #fde68a !important; border-bottom-color: #fbbf24 !important; }
         
-        table.excel-table td.num-cell { font-family: 'Cairo', 'Inter', sans-serif !important; font-weight: 900 !important; direction: ltr; letter-spacing: -0.25px; width: 1%; white-space: nowrap !important; overflow: hidden !important; padding: 4px 4px !important; }
-        table.excel-table td[data-col-idx="1"] { font-family: 'Cairo', 'Inter', sans-serif !important; font-weight: 900 !important; direction: ltr; letter-spacing: -0.35px !important; width: 1% !important; white-space: nowrap !important; padding: 4px 3px !important; }
-        table.excel-table td[data-col-idx="0"] { font-family: 'Tajawal', sans-serif !important; letter-spacing: -0.3px !important; white-space: normal !important; line-height: 1.22 !important; padding: 4px 6px !important; }
+        table.excel-table td.num-cell { font-family: 'Cairo', 'Inter', sans-serif !important; font-weight: 900 !important; direction: ltr; letter-spacing: -0.15px; white-space: nowrap !important; padding: 6px 6px; }
+        table.excel-table td[data-col-idx="1"] { font-family: 'Cairo', 'Inter', sans-serif !important; font-weight: 900 !important; direction: ltr; letter-spacing: -0.2px; white-space: nowrap !important; padding: 6px 6px; }
+        table.excel-table td[data-col-idx="0"] { font-family: 'Tajawal', sans-serif !important; letter-spacing: -0.1px; white-space: normal !important; line-height: 1.3; padding: 6px 10px; }
 
         /* Elegant Warm Beige Palette (No Harsh Blue Overrides) */
         table.excel-table tbody tr:nth-child(even) td { filter: brightness(0.985); }
         table.excel-table tfoot tr { border-top: 3.5px solid #2b1d0e !important; }
-        table.excel-table tfoot td { font-weight: 900 !important; background: #e8dcc8 !important; color: #1c1208 !important; font-size: 0.86rem !important; padding: 5px 4px !important; }
+        table.excel-table tfoot td { font-weight: 900 !important; background: #e8dcc8 !important; color: #1c1208 !important; font-size: 1.12rem; padding: 7px 6px; }
         
         @page { size: A4 portrait; margin: 6mm; }
         @media print {
@@ -609,7 +608,7 @@
 <?php include 'includes/studio-modals.php'; ?>
 <script src="js/localforage.min.js"></script>
 <script src="js/app.js?v=20261016_v28"></script>
-<script src="js/preview-balances.js?v=2027_gl_mc_unified_v11"></script>
+<script src="js/preview-balances.js?v=<?= file_exists(__DIR__ . '/js/preview-balances.js') ? filemtime(__DIR__ . '/js/preview-balances.js') : time() ?>_v26"></script>
 
 <script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
 <script src="js/magaiees_back.js?v=2026_back_v2" defer></script>

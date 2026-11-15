@@ -1497,9 +1497,12 @@ if ($resource === 'report-layout') {
         $fullKey = 'report_layout_' . $layoutTenantId . '_' . $reportKey;
         $val = json_encode($layoutData, JSON_UNESCAPED_UNICODE);
         
-        // Save strictly for current tenant without overwriting other companies' report layouts
+        // Save for current tenant AND default global fallback so locked/shared presets apply across all browsers & companies
         $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
         $stmt->execute([$fullKey, $val, $val]);
+        $defGlobalKey = 'report_layout_default_' . $reportKey;
+        $stmt->execute([$defGlobalKey, $val, $val]);
+        $stmt->execute([$reportKey, $val, $val]);
         
         jsonResponse(['success' => true]);
     }
