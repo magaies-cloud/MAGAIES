@@ -263,21 +263,31 @@ function calculateLedgerTxns() {
     let opInfo = { intrinsicBal: 0, opDebitLoc: 0, opCreditLoc: 0, opDebitFc: 0, opCreditFc: 0, opBalFc: 0, exchangeRate: 1, currency: 'SDG' };
     
     if (accVal !== 'ALL') {
-        const cleanFilter = accVal.replace(/^(cust|supp|bank|safe|exp)-/, '');
-        const selectedAccName = (typeof getAccountName === 'function') ? getAccountName(accVal) : '';
+        const filterPrefix = (String(accVal).match(/^(cust|supp|bank|safe|exp)-/i) || [''])[0].toLowerCase();
+        const cleanFilter = String(accVal).replace(/^(cust-|supp-|bank-|safe-|exp-)+/i, '').trim();
+        const selectedAccName = ((typeof getAccountName === 'function') ? getAccountName(accVal) : '').trim();
         txns = txns.filter(t => {
             if (!t) return false;
             const tAcc = String(t.account || '').trim();
+            if (!tAcc) return false;
             if (tAcc === String(accVal)) return true;
-            if (tAcc === cleanFilter) return true;
-            
-            const cleanTAcc = tAcc.replace(/^(cust|supp|bank|safe|exp)-/, '');
-            if (cleanTAcc === cleanFilter) return true;
+
+            const tPrefix = (tAcc.match(/^(cust|supp|bank|safe|exp)-/i) || [''])[0].toLowerCase();
+            if (filterPrefix && tPrefix && filterPrefix !== tPrefix) return false;
+
+            const cleanTAcc = tAcc.replace(/^(cust-|supp-|bank-|safe-|exp-)+/i, '').trim();
+            if (cleanTAcc === cleanFilter) {
+                if (!filterPrefix || tPrefix === filterPrefix || cleanFilter.length >= 6) return true;
+                const tName = String(t.accountName || ((typeof getAccountName === 'function') ? getAccountName(tAcc) : '') || '').trim();
+                if (selectedAccName && tName && tName === selectedAccName) return true;
+            }
 
             if (selectedAccName && selectedAccName !== accVal) {
-                const tAccName = (typeof getAccountName === 'function') ? getAccountName(tAcc) : '';
-                if (tAccName && tAccName === selectedAccName) return true;
                 if (tAcc === selectedAccName) return true;
+                if (!tPrefix || !filterPrefix || tPrefix === filterPrefix) {
+                    const tAccName = String(t.accountName || ((typeof getAccountName === 'function') ? getAccountName(tAcc) : '') || '').trim();
+                    if (tAccName && tAccName === selectedAccName) return true;
+                }
             }
             return false;
         });

@@ -105,11 +105,23 @@ function buildAccountsList() {
         banks.forEach(b => ALL_ACCOUNTS.push({ id: `bank-${b.id}`, name: b.bankName || b.name, icon: '🏦', type: 'بنك' }));
     } catch(e) { console.warn('Error loading banks:', e); }
     
+    const _readMergedMaster = (baseKey) => {
+        const getTK = window.getTenantKey || ((k) => k);
+        let a = [], b = [];
+        try { a = JSON.parse(localStorage.getItem(getTK(baseKey)) || '[]'); } catch(e){}
+        try { b = JSON.parse(localStorage.getItem(baseKey) || '[]'); } catch(e){}
+        if (!Array.isArray(a)) a = Object.values(a || {});
+        if (!Array.isArray(b)) b = Object.values(b || {});
+        const m = new Map();
+        [...a, ...b].forEach(x => { if (x && (x.id || x.name)) m.set(String(x.id || x.name).trim(), x); });
+        return Array.from(m.values()).filter(x => x && !x.deleted && !x.is_deleted);
+    };
+    window.__glReadMergedMaster = _readMergedMaster;
+
     try {
-        const getTenantKey = window.getTenantKey || ((k) => k);
-        const custs = (JSON.parse(localStorage.getItem(getTenantKey('erp_customers_v1')) || localStorage.getItem('erp_customers_v1')) || []).filter(x => x && !x.deleted);
+        const custs = _readMergedMaster('erp_customers_v1');
         custs.forEach(c => ALL_ACCOUNTS.push({
-            id: `cust-${c.id}`,
+            id: String(c.id).toLowerCase().startsWith('cust-') ? String(c.id) : `cust-${c.id}`,
             name: c.name,
             icon: '👤',
             type: 'عميل',
@@ -121,10 +133,9 @@ function buildAccountsList() {
     } catch(e) { console.warn('Error loading customers:', e); }
 
     try {
-        const getTenantKey = window.getTenantKey || ((k) => k);
-        const sups  = (JSON.parse(localStorage.getItem(getTenantKey('erp_suppliers_v1')) || localStorage.getItem('erp_suppliers_v1')) || []).filter(x => x && !x.deleted);
-        sups.forEach(s  => ALL_ACCOUNTS.push({
-            id: `supp-${s.id}`,
+        const sups = _readMergedMaster('erp_suppliers_v1');
+        sups.forEach(s => ALL_ACCOUNTS.push({
+            id: String(s.id).toLowerCase().startsWith('supp-') ? String(s.id) : `supp-${s.id}`,
             name: s.name,
             icon: '🏭',
             type: 'مورد',
@@ -229,9 +240,7 @@ function highlightSearchMatches(text, query) {
 }
 
 function onAccountSearch() {
-    if (!ALL_ACCOUNTS || ALL_ACCOUNTS.length <= 1) {
-        buildAccountsList();
-    }
+    buildAccountsList();
     const input = document.getElementById('account-search-input');
     const list = document.getElementById('autocomplete-list');
     if (!input || !list) return;
@@ -390,6 +399,7 @@ function onAccountSearchKey(e) {
 }
 
 window.selectAccount = function selectAccount(id, name, icon) {
+    window.__glExplicitAllAccounts = (id === 'ALL');
     document.getElementById('filter-account').value = id;
     const wrap = document.getElementById('account-search-wrap');
     const chip = document.getElementById('selected-chip');
@@ -405,11 +415,20 @@ window.selectAccount = function selectAccount(id, name, icon) {
     
     const list = document.getElementById('autocomplete-list');
     if (list) list.style.display = 'none';
+
+    if (id && id !== 'ALL') {
+        currentDateMode = 'all';
+        const allChk = document.getElementById('gl-all-periods-chk');
+        const allBtn = document.getElementById('gl-all-periods-btn');
+        if (allChk) allChk.checked = true;
+        if (allBtn) allBtn.classList.add('is-active');
+    }
     
     runReport(); // Auto run report on selection
 }
 
 function clearAccountSearch() {
+    window.__glExplicitAllAccounts = false;
     document.getElementById('filter-account').value = 'ALL';
     
     const chip = document.getElementById('selected-chip');
@@ -529,13 +548,25 @@ window.triggerTransferOrAccountSearch = function(customQuery) {
     const smartInput = document.getElementById('filter-smart');
     const q = (typeof customQuery === 'string' ? customQuery : ((input && input.value) ? input.value : (smartInput ? smartInput.value : ''))).trim();
     if (!q) {
-        if (typeof showToast === 'function') showToast('يرجى كتابة رقم التحويلة أو اسم الحساب للبحث', 'info');
+        if (typeof showToast === 'function') showToast('يرجى كتابة اسم الحساب أو رقم التحويلة للبحث', 'info');
         return;
     }
-    
+
     const list = document.getElementById('autocomplete-list');
     if (list) list.style.display = 'none';
-    
+
+    if (typeof customQuery !== 'string' && input && input.value && input.value.trim()) {
+        if (typeof buildAccountsList === 'function') buildAccountsList();
+        const norm = (s) => String(s || '').toLowerCase().replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').trim();
+        const qNorm = norm(q);
+        const match = (ALL_ACCOUNTS || []).find(a => a && a.id !== 'ALL' && (norm(a.name) === qNorm || String(a.statementPin || '') === q || String(a.receiptCodeNum || '') === q))
+                   || (ALL_ACCOUNTS || []).find(a => a && a.id !== 'ALL' && norm(a.name).includes(qNorm));
+        if (match) {
+            selectAccount(match.id, match.name, match.icon);
+            return;
+        }
+    }
+
     inspectBankTransfer(q);
 };
 
@@ -1813,26 +1844,49 @@ function runReport() {
         const ccFilter = ccEl ? ccEl.value : 'ALL';
         const postedFilter = postedEl ? postedEl.value : 'ALL';
         const smartSearch = (smartEl ? smartEl.value : '').trim().toLowerCase();
+
+        if (accVal === 'ALL' && !window.__glExplicitAllAccounts && !smartSearch) {
+            currentTxns = [];
+            const tbody = document.getElementById('recent-tbody');
+            if (tbody) {
+                tbody.innerHTML = `<tr class="empty-state"><td colspan="14"><div style="text-align:center;padding:34px;color:#94a3b8;"><div style="font-size:2.4rem;margin-bottom:8px;">📒</div><h3 style="color:#e2e8f0;font-weight:900;">اختر اسم العميل أو المورد أو الحساب</h3><p style="font-size:0.88rem;margin-top:4px;">اكتب اسم الحساب بالأعلى لعرض كشفه الخاص بدءاً من الرصيد الافتتاحي ثم حركاته المتتالية فقط (أو اختر "جميع الحسابات" من القائمة لعرض اليومية العامة).</p></div></td></tr>`;
+            }
+            const pg = document.getElementById('ledger-pagination');
+            if (pg) pg.innerHTML = '';
+            return;
+        }
         
         let filtered = ALL_TXNS || [];
 
-        // Account Filter
+        // Account Filter (Strict Entity-Type Isolation: never mix cust-X with bank-X / safe-X / supp-X)
         if (accVal !== 'ALL') {
-            const cleanFilter = accVal.replace(/^(cust|supp|bank|safe|exp)-/, '');
-            const selectedAccName = (typeof getAccountName === 'function') ? getAccountName(accVal) : '';
+            const filterPrefix = (String(accVal).match(/^(cust|supp|bank|safe|exp)-/i) || [''])[0].toLowerCase();
+            const cleanFilter = String(accVal).replace(/^(cust|supp|bank|safe|exp)-/i, '').trim();
+            const selectedAccName = ((typeof getAccountName === 'function') ? getAccountName(accVal) : '').trim();
             filtered = filtered.filter(t => {
                 if (!t) return false;
                 const tAcc = String(t.account || '').trim();
+                if (!tAcc) return false;
                 if (tAcc === String(accVal)) return true;
-                if (tAcc === cleanFilter) return true;
-                
-                const cleanTAcc = tAcc.replace(/^(cust|supp|bank|safe|exp)-/, '');
-                if (cleanTAcc === cleanFilter) return true;
+
+                const tPrefix = (tAcc.match(/^(cust|supp|bank|safe|exp)-/i) || [''])[0].toLowerCase();
+                if (filterPrefix && tPrefix && filterPrefix !== tPrefix) return false;
+
+                const cleanTAcc = tAcc.replace(/^(cust|supp|bank|safe|exp)-/i, '').trim();
+                if (cleanTAcc === cleanFilter) {
+                    if (!filterPrefix || tPrefix === filterPrefix) return true;
+                    // Bare ID without prefix: allow if long unique ID or matching account name
+                    if (cleanFilter.length >= 6) return true;
+                    const tName = String(t.accountName || ((typeof getAccountName === 'function') ? getAccountName(tAcc) : '') || '').trim();
+                    if (selectedAccName && tName && tName === selectedAccName) return true;
+                }
 
                 if (selectedAccName && selectedAccName !== accVal) {
-                    const tAccName = (typeof getAccountName === 'function') ? getAccountName(tAcc) : '';
-                    if (tAccName && tAccName === selectedAccName) return true;
                     if (tAcc === selectedAccName) return true;
+                    if (!tPrefix || !filterPrefix || tPrefix === filterPrefix) {
+                        const tAccName = String(t.accountName || ((typeof getAccountName === 'function') ? getAccountName(tAcc) : '') || '').trim();
+                        if (tAccName && tAccName === selectedAccName) return true;
+                    }
                 }
                 return false;
             });
@@ -1985,26 +2039,28 @@ function runReport() {
         }
 
         if (accVal !== 'ALL') {
-            const cleanId = accVal.replace(/^(cust|supp|bank|safe|exp)-/, '');
-            
-            const custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => x && !x.deleted);
-            const sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => x && !x.deleted);
-            const banks = (JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => x && !x.deleted);
-            const safes = (JSON.parse(localStorage.getItem('erp_safes_v1')) || []).filter(x => x && !x.deleted);
-            const accounts = (JSON.parse(localStorage.getItem('erp_accounts_v1')) || []).filter(x => x && !x.deleted);
+            const cleanId = String(accVal).replace(/^(cust-|supp-|bank-|safe-|exp-)+/i, '');
+            const readM = window.__glReadMergedMaster || ((k) => (JSON.parse(localStorage.getItem(k)) || []).filter(x => x && !x.deleted));
+            const custs = readM('erp_customers_v1');
+            const sups = readM('erp_suppliers_v1');
+            const banks = readM('erp_banks_v1');
+            const safes = readM('erp_safes_v1');
+            const accounts = readM('erp_accounts_v1');
             
             const pickBestMaster = (arr) => {
                 const active = (arr || []).filter(x => x && !x.deleted);
-                return active.find(x => String(x.id) === String(accVal) || String(x.id) === String(cleanId))
+                return active.find(x => String(x.id) === String(accVal) || String(x.id) === String(cleanId) || String(x.id).replace(/^(cust|supp|bank|safe|exp)-/i, '') === String(cleanId))
                     || active.filter(x => x.name === accVal).sort((a, b) => (Math.abs(parseNum(b.openingBalance || b.openingDebit || b.balance || 0)) - Math.abs(parseNum(a.openingBalance || a.openingDebit || a.balance || 0))) || ((b._crdtTs || 0) - (a._crdtTs || 0)))[0]
                     || active.find(x => x.code === cleanId);
             };
-            const matchedSupp = pickBestMaster(sups);
-            let masterRec = pickBestMaster(custs)
-                         || matchedSupp
-                         || pickBestMaster(banks)
-                         || pickBestMaster(safes)
-                         || pickBestMaster(accounts);
+            const accPfx = (String(accVal).match(/^(cust|supp|bank|safe|exp)-/i) || [''])[0].toLowerCase();
+            const matchedSupp = (!accPfx || accPfx === 'supp-') ? pickBestMaster(sups) : null;
+            let masterRec = (accPfx === 'cust-') ? pickBestMaster(custs)
+                         : (accPfx === 'supp-') ? matchedSupp
+                         : (accPfx === 'bank-') ? pickBestMaster(banks)
+                         : (accPfx === 'safe-') ? pickBestMaster(safes)
+                         : (accPfx === 'exp-')  ? pickBestMaster(accounts)
+                         : (pickBestMaster(custs) || matchedSupp || pickBestMaster(banks) || pickBestMaster(safes) || pickBestMaster(accounts));
             
             if (masterRec) {
                 let rawDate = String(masterRec.date || masterRec.createdAt || masterRec.created_at || masterRec.timestamp || masterRec.addedDate || '').trim();

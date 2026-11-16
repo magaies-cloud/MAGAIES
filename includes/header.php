@@ -109,7 +109,7 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
 </script>
 <style id="global-zero-lag-css">
 .ambient-bg, .ambient-bg .orb, .preset-ribbon-btn::after, .preset-btn::after, .btn-action-hero::after, .btn-run::after, .action-tab.active::before, .sticky-footer::before { display: none !important; content: none !important; }
-*:not(#market-broker-ticker-track):not(#market-broker-orders-track):not(#global-screens-broker-ticker-track):not(#athkar-marquee-track), *::before, *::after { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; animation: none !important; }
+*:not(#market-broker-ticker-track):not(#market-broker-orders-track):not(#global-screens-broker-ticker-track):not(#athkar-marquee-track):not(.quran-seamless-track), *::before, *::after { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; animation: none !important; }
 button, .btn, .modern-btn, .preset-ribbon-btn, .preset-btn, .btn-action-hero, .btn-run, .action-tab, .fin-card, .pos-grid tbody tr { transition: background-color 0.08s ease, border-color 0.08s ease, opacity 0.08s ease !important; }
 button:hover, .btn:hover, .modern-btn:hover, .preset-ribbon-btn:hover, .preset-btn:hover, .btn-action-hero:hover, .del-btn:hover, .modal-close:hover { transform: none !important; }
 </style>
@@ -378,6 +378,50 @@ table.pos-grid tbody td select {
         }
     });
 </script>
+<script id="magaies-natural-100-screen-guard">
+(function(){
+    try {
+        var CLEAN_FLAG = 'magaies_natural_screen_fix_20261115_v7';
+        var ZOOM_KEYS = ['magaies_global_master_scale_v1','elsajana_global_screen_scale_v15','magaies_erp_global_proportional_scale_v15','elsajana_grn_zoom_scale','magaies_sl_fc1_scale_6_8','magaies_global_font_px','magaies_telescopic_zoom_scale','gl_c1_proportional_zoom','erp_global_6_8_zoom_scale','sales_c1_prop_zoom','pur_c1_prop_zoom','erp_split_zoom_scale_v1','erp_global_laptop_zoom_scale_v1','erp_pa_c15_zoom_scale','magaies_gate_table_scale_v2','erp_gate_table_scale_v1','magaiees_font_scale','magaies_font_scale','magaiees_typography_hierarchy_v1','magaies_ergo_global_mode','magaies_ergo_vboost_px'];
+        if (localStorage.getItem(CLEAN_FLAG) !== '1') {
+            ZOOM_KEYS.forEach(function(k){ localStorage.removeItem(k); });
+            for (var i = localStorage.length - 1; i >= 0; i--) {
+                var lk = localStorage.key(i) || '';
+                if (lk.indexOf('magaies_ergo_page_') === 0 || /(_zoom_scale|_prop_zoom|_screen_scale|viewport_profile)/i.test(lk)) localStorage.removeItem(lk);
+            }
+            localStorage.setItem(CLEAN_FLAG, '1');
+            if ('caches' in window) { caches.keys().then(function(ks){ ks.forEach(function(c){ caches.delete(c); }); }).catch(function(){}); }
+            if ('serviceWorker' in navigator) { navigator.serviceWorker.getRegistrations().then(function(rs){ rs.forEach(function(r){ r.update(); }); }).catch(function(){}); }
+        }
+        var root = document.documentElement;
+        root.style.removeProperty('zoom');
+        root.style.removeProperty('--mg-natural-comp-zoom');
+        root.style.fontSize = '';
+        root.removeAttribute('data-magaiees-scaled');
+        root.style.setProperty('--global-master-scale', '1');
+        root.style.setProperty('--magaiees-font-scale', '1');
+        var chkZoom = function(){
+            if (window.__calibrateTrueNatural100Screen) { window.__calibrateTrueNatural100Screen(); return; }
+            if (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '')) return;
+            var iw = window.innerWidth || 1366, sw = (window.screen && window.screen.availWidth) || iw;
+            var isMax = Math.abs(window.screenX || 0) <= 30 && (!window.outerWidth || window.outerWidth >= sw * 0.88);
+            var zPct = isMax ? Math.round((sw / Math.max(iw, 200)) * 100) : 100;
+            var hud = document.getElementById('mg-chrome-zoom-guide-banner');
+            if (zPct > 115) {
+                if (!hud && document.body) {
+                    hud = document.createElement('div');
+                    hud.id = 'mg-chrome-zoom-guide-banner';
+                    hud.style.cssText = 'position:fixed;top:4px;left:50%;transform:translateX(-50%);z-index:2147483647;background:linear-gradient(135deg,#991b1b,#dc2626);color:#fff;border:1.5px solid #fde047;border-radius:8px;padding:4px 10px;font-family:Cairo,Tajawal,sans-serif;font-size:clamp(4px,2.2vw,13px);line-height:1.35;font-weight:900;box-shadow:0 6px 20px rgba(0,0,0,0.7);text-align:center;direction:rtl;width:max-content;max-width:94vw;';
+                    document.body.appendChild(hud);
+                }
+                if (hud) { hud.style.display = 'block'; hud.innerHTML = '⚠️ زوم كروم مضبوط على <span style="color:#fde047;">' + zPct + '%</span> — اضغط <b>Ctrl + 0</b> أو افتح نقاط كروم <b>(⋮)</b> واجعل <b>التكبير = 100%</b> فتختفي الرسالة فوراً'; }
+            } else if (hud) { hud.style.display = 'none'; }
+        };
+        window.addEventListener('DOMContentLoaded', chkZoom, { once: true });
+        window.addEventListener('resize', chkZoom, { passive: true });
+    } catch(e) {}
+})();
+</script>
 <link id="magaiees-google-fonts-pack" rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Readex+Pro:wght@300;400;500;600;700&display=swap">
 <script>(function(){try{var f=localStorage.getItem('magaiees_font_family')||'default',s=parseInt(localStorage.getItem('magaiees_font_scale')||'100',10)||100,w=localStorage.getItem('magaiees_font_weight')||'auto',r=document.documentElement,fm={'default':"'Tajawal','Cairo',sans-serif",'ibm_plex':"'IBM Plex Sans Arabic','Inter',sans-serif",'readex_pro':"'Readex Pro','Inter',sans-serif",'almarai':"'Almarai','Inter',sans-serif"};if(f&&f!=='default'&&fm[f]){r.setAttribute('data-magaiees-font',f);r.style.setProperty('--magaiees-active-font',fm[f]);}else{r.removeAttribute('data-magaiees-font');r.style.removeProperty('--magaiees-active-font');}if(w&&w!=='auto'){r.setAttribute('data-mg-master-weight',w);r.style.setProperty('--mg-master-weight',w);}else{r.removeAttribute('data-mg-master-weight');r.style.removeProperty('--mg-master-weight');}r.style.setProperty('--magaiees-font-scale',(s/100).toFixed(3));if(s!==100){r.setAttribute('data-magaiees-scaled','true');r.style.fontSize=(16*(s/100)).toFixed(2)+'px';}else{r.removeAttribute('data-magaiees-scaled');r.style.fontSize='';}var h=JSON.parse(localStorage.getItem('magaiees_typography_hierarchy_v1')||'{}'),lvls=['sidebar','flyout','titles','modals','details','tables','mobile'];for(var i=0;i<lvls.length;i++){var k=lvls[i],c=h[k]||{};var ls=parseInt(c.scale||100,10)||100,lw=c.weight||'auto',lf=c.font||'inherit';if(ls!==100||lw!=='auto'||lf!=='inherit'){r.setAttribute('data-mg-lvl-'+k,'1');r.style.setProperty('--mg-lvl-'+k+'-scale',(ls/100).toFixed(3));if(lw!=='auto'){r.style.setProperty('--mg-lvl-'+k+'-weight',lw);r.style.setProperty('--mg-lvl-'+k+'-weight-sub',lw);}else{r.style.removeProperty('--mg-lvl-'+k+'-weight');r.style.removeProperty('--mg-lvl-'+k+'-weight-sub');}if(lf!=='inherit'&&fm[lf])r.style.setProperty('--mg-lvl-'+k+'-font',fm[lf]);else r.style.removeProperty('--mg-lvl-'+k+'-font');}else{r.removeAttribute('data-mg-lvl-'+k);r.style.removeProperty('--mg-lvl-'+k+'-scale');r.style.removeProperty('--mg-lvl-'+k+'-weight');r.style.removeProperty('--mg-lvl-'+k+'-font');}}}catch(e){}})();</script>
 <link rel="stylesheet" href="css/theme.css?v=<?= file_exists(__DIR__ . '/../css/theme.css') ? filemtime(__DIR__ . '/../css/theme.css') : '12' ?>">
@@ -443,7 +487,7 @@ table.pos-grid tbody td select {
     }
 })();
 </script>
-<script defer src="js/sidebar-panoramic-flyout.js?v=2027_noicons_center_v2'/../js/sidebar-panoramic-flyout.js?v=2027_noicons_center_v2') ? filemtime(__DIR__ . '/../js/sidebar-panoramic-flyout.js?v=2027_noicons_center_v2') : time() ?>"></script>
+<script defer src="js/sidebar-panoramic-flyout.js?v=<?= file_exists(__DIR__ . '/../js/sidebar-panoramic-flyout.js') ? filemtime(__DIR__ . '/../js/sidebar-panoramic-flyout.js') : '2027_natural_v6' ?>"></script>
 <script defer src="js/erp_alerts_guard.js?v=20260902_v1"></script>
 <style>
 @keyframes neonPulseHeader {
@@ -3038,7 +3082,7 @@ try {
                         ':root { --global-master-scale: 1; --global-master-font-px: 15px; --sb-collapsed: 62px; --sb-expanded: 240px; --erp-ergo-max-w: calc(100% - 28px); --erp-ergo-vpad: 0px; --erp-ergo-grid-min-h: auto; }\n' +
                         '#dash-fc1-smart-ai-command-bar, #curtain-drawer, #desktop-sync-shield-btn, #header-mobile-quick-btn, #magaiees-top-mobile-btn, .msg-quartet-shield, .msg-quartet-mobile { display: none !important; }\n' +
                         'html { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin: 0 !important; padding: 0 !important; }\n' +
-                        'body { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin: 0 !important; padding: 0 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: flex-start !important; }\n' +
+                        'body { box-sizing: border-box !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; min-height: 100vh !important; margin: 0 !important; padding: 0 !important; display: flex !important; flex-direction: column !important; align-items: stretch !important; justify-content: flex-start !important; }\n' +
                         'html.has-sidebar body:not(.no-sidebar), body.has-sidebar:not(.no-sidebar) { margin-right: var(--sb-collapsed, 62px) !important; margin-left: 0 !important; margin-inline-start: var(--sb-collapsed, 62px) !important; margin-inline-end: 0 !important; padding-inline: 0 !important; width: calc(100% - var(--sb-collapsed, 62px)) !important; max-width: calc(100% - var(--sb-collapsed, 62px)) !important; }\n' +
                         'html.has-sidebar body.sidebar-open:not(.no-sidebar), body.has-sidebar.sidebar-open:not(.no-sidebar) { margin-right: var(--sb-expanded, 240px) !important; margin-left: 0 !important; margin-inline-start: var(--sb-expanded, 240px) !important; margin-inline-end: 0 !important; width: calc(100% - var(--sb-expanded, 240px)) !important; max-width: calc(100% - var(--sb-expanded, 240px)) !important; }\n' +
                         rootSel + ' { box-sizing: border-box !important; width: var(--erp-ergo-max-w, calc(100% - 28px)) !important; max-width: var(--erp-ergo-max-w, calc(100% - 28px)) !important; min-width: 0 !important; margin-inline: auto !important; margin-left: auto !important; margin-right: auto !important; padding-left: 0 !important; padding-right: 0 !important; padding-inline: 0 !important; left: 0 !important; right: 0 !important; transform-origin: top center !important; }\n' +
@@ -3122,65 +3166,17 @@ try {
                     }
                 };
 
-                if (!localStorage.getItem('magaies_scale_clean_20261112_v2')) {
-                    try {
-                        [MASTER_SCALE_KEY, mdScaleKey, c15Key, grnScaleKey, slFc1Key, GLOBAL_FONT_KEY, 'magaies_telescopic_zoom_scale', 'magaies_ergo_global_mode'].forEach(function(k) { localStorage.removeItem(k); });
-                        localStorage.setItem('magaies_scale_clean_20261112_v2', '1');
-                    } catch (e) {}
-                }
-                var savedScale = localStorage.getItem(MASTER_SCALE_KEY);
-                if (savedScale) window.applyGlobalSovereignMasterScale(savedScale, true);
-
-                window.addEventListener('storage', function(ev) {
-                    if (ev.key === MASTER_SCALE_KEY) {
-                        window.applyGlobalSovereignMasterScale(ev.newValue, true);
-                    } else if (ev.key === GLOBAL_FONT_KEY && ev.newValue) {
-                        document.documentElement.style.setProperty('--global-master-font-px', parseInt(ev.newValue, 10) + 'px');
-                    }
+                [MASTER_SCALE_KEY, mdScaleKey, c15Key, grnScaleKey, slFc1Key, GLOBAL_FONT_KEY, 'magaies_telescopic_zoom_scale'].forEach(function(k) {
+                    try { localStorage.removeItem(k); } catch (e) {}
                 });
-                if (viewportBc) {
-                    viewportBc.onmessage = function(ev) {
-                        if (ev.data && ev.data.type === 'SCALE_SYNC' && ev.data.scale) {
-                            window.applyGlobalSovereignMasterScale(ev.data.scale, true);
-                        } else if (ev.data && ev.data.type === 'FONT_SYNC' && ev.data.fontPx) {
-                            document.documentElement.style.setProperty('--global-master-font-px', parseInt(ev.data.fontPx, 10) + 'px');
-                        }
-                    };
-                }
+                window.applyGlobalSovereignMasterScale(1.0, true);
 
-                // دعم التكبير والتصغير الخارق بـ (Ctrl + رولة الماوس) حتى 10 أضعاف (10x) في جميع شاشات البرنامج
-                if (!window.ElsajanaUniversalUI2027 && !document.querySelector('script[src*="elsajana-universal-ui-2027.js?v=2027_clean_v2"]')) {
+                if (!window.ElsajanaUniversalUI2027 && !document.querySelector('script[src*="elsajana-universal-ui-2027.js?v=2027_natural_100_v3"]')) {
                     var _ergoScr = document.createElement('script');
                     _ergoScr.defer = true;
-                    _ergoScr.src = 'js/elsajana-universal-ui-2027.js?v=2027_clean_v2';
+                    _ergoScr.src = 'js/elsajana-universal-ui-2027.js?v=2027_natural_100_v3';
                     (document.head || document.documentElement).appendChild(_ergoScr);
                 }
-                (function() {
-                    var _ctrlZoomHandler = function(ev) {
-                        if (!ev.ctrlKey) return;
-                        if (typeof window.setMdProportionalZoom === 'function') return;
-                        ev.preventDefault();
-                        var cur = parseFloat(localStorage.getItem(MASTER_SCALE_KEY) || '1') || 1;
-                        var step = cur >= 2 ? (ev.deltaY < 0 ? 0.25 : -0.25) : (ev.deltaY < 0 ? 0.08 : -0.08);
-                        var nextVal = Math.min(10.0, Math.max(0.25, Math.round((cur + step) * 100) / 100));
-                        window.applyGlobalSovereignMasterScale(nextVal, false);
-                    };
-                    var _ctrlActive = false;
-                    window.addEventListener('keydown', function(e) {
-                        if (e.key === 'Control' && !_ctrlActive) {
-                            _ctrlActive = true;
-                            window.addEventListener('wheel', _ctrlZoomHandler, { passive: false });
-                        }
-                    }, { passive: true });
-                    var _releaseCtrl = function() {
-                        if (_ctrlActive) {
-                            _ctrlActive = false;
-                            window.removeEventListener('wheel', _ctrlZoomHandler, { passive: false });
-                        }
-                    };
-                    window.addEventListener('keyup', function(e) { if (e.key === 'Control') _releaseCtrl(); }, { passive: true });
-                    window.addEventListener('blur', _releaseCtrl, { passive: true });
-                })();
             } catch (e) {}
         }
         if (/account-statement\.php/i.test(window.location.pathname)) {

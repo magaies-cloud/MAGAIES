@@ -12,6 +12,51 @@
 (function () {
     'use strict';
 
+    // ─── True Natural 100% Desktop Screen Normalizer (Auto-cancels accidental Chrome 150%-500% Zoom & stale localStorage scales) ───
+    (function enforceTrueNatural100Screen() {
+        try {
+            var CLEAN_V = 'magaies_natural_screen_fix_20261115_v4';
+            if (localStorage.getItem(CLEAN_V) !== '1') {
+                ['magaies_global_master_scale_v1','elsajana_global_screen_scale_v15','magaies_erp_global_proportional_scale_v15','elsajana_grn_zoom_scale','magaies_sl_fc1_scale_6_8','magaies_global_font_px','magaies_telescopic_zoom_scale','gl_c1_proportional_zoom','erp_global_6_8_zoom_scale','sales_c1_prop_zoom','pur_c1_prop_zoom','erp_split_zoom_scale_v1','erp_global_laptop_zoom_scale_v1','erp_pa_c15_zoom_scale','magaies_gate_table_scale_v2','erp_gate_table_scale_v1','magaiees_font_scale','magaies_font_scale','magaiees_typography_hierarchy_v1','magaies_ergo_global_mode','magaies_ergo_vboost_px'].forEach(function(k){ localStorage.removeItem(k); });
+                for (var i = localStorage.length - 1; i >= 0; i--) {
+                    var lk = localStorage.key(i) || '';
+                    if (lk.indexOf('magaies_ergo_page_') === 0 || /(_zoom_scale|_prop_zoom|_screen_scale|viewport_profile)/i.test(lk)) localStorage.removeItem(lk);
+                }
+                localStorage.setItem(CLEAN_V, '1');
+            }
+            var calibrate = function() {
+                var root = document.documentElement;
+                root.style.removeProperty('zoom');
+                root.style.removeProperty('--mg-natural-comp-zoom');
+                root.style.fontSize = '';
+                root.removeAttribute('data-magaiees-scaled');
+                if (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent || '')) return;
+                var iw = window.innerWidth || 1366, sw = (window.screen && window.screen.availWidth) || (window.screen && window.screen.width) || iw;
+                var isMax = Math.abs(window.screenX || 0) <= 30 && (!window.outerWidth || window.outerWidth >= sw * 0.88);
+                var zPct = isMax ? Math.round((sw / Math.max(iw, 200)) * 100) : 100;
+                var hud = document.getElementById('mg-chrome-zoom-guide-banner');
+                if (zPct > 115) {
+                    if (!hud && document.body) {
+                        hud = document.createElement('div');
+                        hud.id = 'mg-chrome-zoom-guide-banner';
+                        hud.style.cssText = 'position:fixed;top:4px;left:50%;transform:translateX(-50%);z-index:2147483647;background:linear-gradient(135deg,#991b1b,#dc2626);color:#fff;border:1.5px solid #fde047;border-radius:8px;padding:4px 10px;font-family:Cairo,Tajawal,sans-serif;font-size:clamp(4px,2.2vw,13px);line-height:1.35;font-weight:900;box-shadow:0 6px 20px rgba(0,0,0,0.7);text-align:center;direction:rtl;width:max-content;max-width:94vw;';
+                        document.body.appendChild(hud);
+                    }
+                    if (hud) {
+                        hud.style.display = 'block';
+                        hud.innerHTML = '⚠️ زوم كروم مضبوط على <span style="color:#fde047;">' + zPct + '%</span> — اضغط <b>Ctrl + 0</b> أو افتح نقاط كروم <b>(⋮)</b> واجعل <b>التكبير = 100%</b> فتختفي الرسالة فوراً';
+                    }
+                } else if (hud) {
+                    hud.style.display = 'none';
+                }
+            };
+            window.__calibrateTrueNatural100Screen = calibrate;
+            calibrate();
+            window.addEventListener('resize', calibrate, { passive: true });
+            document.addEventListener('DOMContentLoaded', calibrate, { once: true });
+        } catch (e) {}
+    })();
+
     // ─── Translation Dictionary ─────────────────────────────────
     const translations = {
 

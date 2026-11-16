@@ -16961,9 +16961,6 @@ html.grn-ophthalmic-comfort-active body {
                 };
                 window.setGrnGlobalUnifiedFontPx(localStorage.getItem('magaies_global_font_px') || localStorage.getItem('elsajana_sl_font_size') || '15', true);
 
-                // مستمع حدث (Ctrl + Wheel) التلسكوبي الفائق (من 0.25x حتى 10x) وحفظه وتوريثه عبر كل الشاشات
-                window.addEventListener('wheel', (e) => { if (e.ctrlKey && window.ElsajanaUniversalUI2027) { if (e.target && e.target.closest && e.target.closest('.global-sidebar, .magical-glass-header')) return; e.preventDefault(); e.stopImmediatePropagation(); window.ElsajanaUniversalUI2027.stepZoom(e.deltaY < 0 ? 0.2 : -0.2); } }, { passive: false, capture: true });
-
                 // تزامن المقاس والخطوط المحفوظة فورياً بين التبويبات وجميع شاشات البرنامج
                 window.addEventListener('storage', (e) => {
                     if ([

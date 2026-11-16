@@ -186,7 +186,7 @@
             || (document.getElementById('purchase-editor-view') && document.getElementById('purchase-editor-view').style.display !== 'none' ? document.getElementById('purchase-editor-view') : null)
             || document.getElementById('purchase-hub-view');
         if (stage) {
-            stage.style.zoom = String(_zoomLevel);
+            stage.style.zoom = Math.abs(_zoomLevel - 1) < 0.01 ? '' : String(_zoomLevel);
             const pctTxt = Math.round(_zoomLevel * 100) + '%';
             const badge = document.getElementById('sl-zoom-pct-lbl');
             if (badge) badge.textContent = pctTxt;
@@ -196,7 +196,7 @@
             if (mcpB) mcpB.textContent = pctTxt + ' (6:8)';
             const paB = document.getElementById('pa-c1-zoom-badge');
             if (paB) paB.textContent = '📐 أبعاد (6:8) ' + pctTxt;
-            try { localStorage.setItem('magaies_telescopic_zoom_scale', String(_zoomLevel)); } catch (_) {}
+            try { localStorage.removeItem('magaies_telescopic_zoom_scale'); } catch (_) {}
         }
     };
 
@@ -461,21 +461,7 @@
         const curPage = (window.location.pathname.split('/').pop() || '').toLowerCase();
         const isMainDash = (curPage === '' || curPage === 'index.php' || curPage === 'magaiees_unified_dashboard.php');
         const oldLawBar = document.getElementById('sl-sovereign-law1-bar'); if (oldLawBar) oldLawBar.remove();
-
-        let _pinchDist = 0, _pinchStartZoom = 1;
-        window.addEventListener('touchstart', (e) => {
-            if (e.touches && e.touches.length === 2) {
-                _pinchDist = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-                _pinchStartZoom = _zoomLevel;
-            }
-        }, { passive: true });
-        window.addEventListener('touchmove', (e) => {
-            if (e.touches && e.touches.length === 2 && _pinchDist > 10) {
-                e.preventDefault();
-                const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-                setTelescopicZoom(_pinchStartZoom * (d / _pinchDist));
-            }
-        }, { passive: false });
+        setTelescopicZoom(1);
 
         let _dlTimer = 0;
         if (typeof MutationObserver !== 'undefined') {

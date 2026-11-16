@@ -23,7 +23,7 @@ $page_title = 'لوحة التحكم';
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<script src="js/lang.js"></script>
+<script src="js/lang.js?v=20261115_natural_v6"></script>
 <script>
 (function(){
     var l = localStorage.getItem('erp_lang') || 'ar';
@@ -136,12 +136,6 @@ function switchToMobileEdition() {
     <style>
         html {
             font-size: 16px;
-        }
-        @media (min-width: 1440px) {
-            html { font-size: 17px; }
-        }
-        @media (min-width: 1920px) {
-            html { font-size: 18px; }
         }
 
         :root {

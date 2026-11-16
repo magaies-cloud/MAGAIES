@@ -367,12 +367,19 @@ $page_title = 'حساب الأرصدة الأساسية';
             text-shadow: none !important;
         }
 
+        @page { size: A4 landscape; margin: 6mm; }
         @media print {
-            .no-print { display: none !important; }
-            body { background: white !important; color: black !important; }
-            #v-classic-ent { padding: 0 !important; }
-            #print-container { background: #fff !important; }
+            html, body { width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; background: #ffffff !important; color: #000000 !important; overflow: visible !important; }
+            .no-print, .global-sidebar, header.premium-header, #analytics-dashboard, #settings-sidebar, #columnContextMenu, #partnerContextMenu { display: none !important; }
+            .sgl-master-container, #mb-proportional-root, #v-classic-ent, #print-container, .grid-scroll-wrap { width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; background: #ffffff !important; border: none !important; box-shadow: none !important; overflow: visible !important; }
+            #balances-table, table.pos-grid { width: 100% !important; max-width: 100% !important; table-layout: auto !important; border-collapse: collapse !important; page-break-inside: auto !important; }
+            #balances-table th, #balances-table td, table.pos-grid th, table.pos-grid td { font-size: 8.5pt !important; padding: 4px 5px !important; min-height: 0 !important; color: #000000 !important; border: 1px solid #94a3b8 !important; white-space: normal !important; word-break: break-word !important; }
+            #balances-table td[data-col-id*="date"], #balances-table th[data-col-id*="date"] { white-space: nowrap !important; font-size: 8pt !important; }
         }
+        #mb-proportional-root .report-header .filter-row:first-child .filter-group label { font-size: 0.72rem !important; line-height: 1.2 !important; margin-bottom: 3px !important; white-space: nowrap !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+        #mb-proportional-root .report-header .filter-row:first-child select.filter-input { font-size: 0.72rem !important; font-weight: 800 !important; height: 35px !important; min-height: 35px !important; max-height: 35px !important; padding: 2px 6px !important; line-height: 1.2 !important; }
+        #mb-proportional-root .report-header .filter-row:first-child select.filter-input option { font-size: 0.78rem !important; font-weight: 700 !important; }
+        #mb-proportional-root #print-container, #mb-proportional-root .grid-scroll-wrap { max-width: 100% !important; overflow-x: auto !important; box-sizing: border-box !important; }
     
         
         /* Universal Light Theme Overrides for Internal Screens */

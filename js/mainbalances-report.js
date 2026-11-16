@@ -561,8 +561,8 @@ function calculateAccountLedgerBalance(p, allTxns, systemUsdRate, ccFilter = 'AL
     const pIdStr = String(p.id || '').trim();
     const pType = p.type || 'CUST';
     const prefix = pType === 'CUST' ? 'cust-' : pType === 'SUPP' ? 'supp-' : pType === 'BANK' ? 'bank-' : pType === 'SAFE' ? 'safe-' : 'exp-';
-    const pRefPrefixed = pIdStr.startsWith(prefix) ? pIdStr : (prefix + pIdStr);
     const pBareId = pIdStr.replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '').trim();
+    const pRefPrefixed = prefix + pBareId;
     const pName = String(p.name || '').trim();
     const pCode = String(p.code || p.accountNo || '').trim();
 
@@ -603,27 +603,32 @@ function calculateAccountLedgerBalance(p, allTxns, systemUsdRate, ccFilter = 'AL
     // 2. O(1) indexed lookup of transactions matching this account (50x faster than scanning allTxns per partner)
     let partnerTxns;
     const idxMap = (allTxns === ALL_TXNS && window._txnBucketMap) ? window._txnBucketMap : null;
+    const isRelevantEntityTxn = (t) => {
+        if (!t || (ccFilter && ccFilter !== 'ALL' && t.costCenter !== ccFilter)) return false;
+        const tAcc = String(t.account || '').trim();
+        const tPfx = (tAcc.match(/^(cust|supp|bank|safe|exp)-/i) || [''])[0].toLowerCase();
+        if (prefix && tPfx && tPfx !== prefix.toLowerCase()) return false;
+        return true;
+    };
     if (idxMap) {
         const hitSet = new Set();
         const addKey = (k) => { if (!k) return; const arr = idxMap.get(k); if (arr) for (let i = 0; i < arr.length; i++) hitSet.add(arr[i]); };
-        addKey('id:' + pRefPrefixed);
-        addKey('id:' + pBareId);
-        if (pCode) addKey('id:' + pCode);
+        addKey('id:' + pRefPrefixed.toLowerCase());
+        if (pBareId && pBareId.length >= 6) addKey('id:' + pBareId.toLowerCase());
+        if (pCode && pCode !== '-') addKey('id:' + pCode.toLowerCase());
         if (pName) addKey('nm:' + pName);
         if (normName) addKey('nm:' + normName);
         if (compactName) addKey('cp:' + compactName);
         partnerTxns = [];
-        hitSet.forEach(t => {
-            if (!ccFilter || ccFilter === 'ALL' || t.costCenter === ccFilter) partnerTxns.push(t);
-        });
+        hitSet.forEach(t => { if (isRelevantEntityTxn(t)) partnerTxns.push(t); });
     } else {
         partnerTxns = (allTxns || []).filter(t => {
-            if (!t || (ccFilter && ccFilter !== 'ALL' && t.costCenter !== ccFilter)) return false;
+            if (!isRelevantEntityTxn(t)) return false;
             const tAcc = String(t.account || '').trim();
             if (!tAcc) return false;
-            if (tAcc === pRefPrefixed || tAcc === pBareId) return true;
+            if (tAcc.toLowerCase() === pRefPrefixed.toLowerCase()) return true;
             const cleanTAcc = tAcc.replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '').trim();
-            if ((cleanTAcc && cleanTAcc === pBareId) || (pCode && (tAcc === pCode || cleanTAcc === pCode)) || (pName && tAcc === pName)) return true;
+            if ((pBareId.length >= 6 && cleanTAcc.toLowerCase() === pBareId.toLowerCase()) || (pCode && pCode !== '-' && (tAcc === pCode || cleanTAcc === pCode)) || (pName && tAcc === pName)) return true;
             const normT = normalizeArabic(tAcc);
             return !!(normName && (normT === normName || normT.replace(/\s+/g, '') === compactName));
         });
@@ -904,9 +909,9 @@ function loadData() {
         if (!t) return;
         const tAcc = String(t.account || '').trim();
         if (tAcc) {
-            pushKey('id:' + tAcc, t);
+            pushKey('id:' + tAcc.toLowerCase(), t);
             const cleanT = tAcc.replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '').trim();
-            if (cleanT && cleanT !== tAcc) pushKey('id:' + cleanT, t);
+            if (cleanT && cleanT.length >= 6 && cleanT.toLowerCase() !== tAcc.toLowerCase()) pushKey('id:' + cleanT.toLowerCase(), t);
             pushKey('nm:' + tAcc, t);
             const normT = normalizeArabic(tAcc);
             if (normT) { pushKey('nm:' + normT, t); pushKey('cp:' + normT.replace(/\s+/g, ''), t); }
@@ -940,26 +945,55 @@ function loadData() {
 
 let _autoInitBalancesTimer = null;
 let _reportHasRun = false;
-function autoInitBalancesReport() {
-    // Prevent multiple auto-runs — only allow ONE successful auto-init
-    if (_reportHasRun) return;
+let _syncingMasterBalances = false;
+async function syncFreshMasterForBalances() {
+    if (_syncingMasterBalances) return;
+    _syncingMasterBalances = true;
+    try {
+        const res = await fetch('api/load_master_data.php?_t=' + Date.now(), { cache: 'no-store' });
+        const d = await res.json();
+        if (d && d.success !== false) {
+            const getTK = window.getTenantKey || ((k) => k);
+            const mergeSave = (key, srvArr) => {
+                if (!Array.isArray(srvArr) || !srvArr.length) return;
+                let loc = []; try { loc = JSON.parse(localStorage.getItem(baseKey) || '[]'); } catch(e){}
+                const m = new Map();
+                (Array.isArray(loc) ? loc : []).forEach(x => { if (x && x.id) m.set(String(x.id), x); });
+                srvArr.forEach(x => { if (x && x.id) m.set(String(x.id), Object.assign({}, m.get(String(x.id)) || {}, x)); });
+                const merged = Array.from(m.values());
+                localStorage.setItem(key, JSON.stringify(merged));
+                const tk = getTK(key);
+                if (tk !== key) localStorage.setItem(tk, JSON.stringify(merged));
+            };
+            var baseKey = 'erp_customers_v1'; mergeSave('erp_customers_v1', d.customers);
+            baseKey = 'erp_suppliers_v1'; mergeSave('erp_suppliers_v1', d.suppliers);
+            baseKey = 'erp_banks_v1'; mergeSave('erp_banks_v1', d.banks);
+            baseKey = 'erp_safes_v1'; mergeSave('erp_safes_v1', d.safes);
+            loadData();
+            runReport(true);
+        }
+    } catch (e) {} finally { _syncingMasterBalances = false; }
+}
+function autoInitBalancesReport(ev) {
+    if (_reportHasRun && (!ev || ev.type !== 'DBReady')) return;
     if (_autoInitBalancesTimer) clearTimeout(_autoInitBalancesTimer);
     _autoInitBalancesTimer = setTimeout(() => {
-        if (_reportHasRun) return;
         try {
             loadLayout();
             applyLayoutToDOM();
             loadData();
-            
             if (ALL_PARTNERS.length > 0) {
                 _reportHasRun = true;
                 runReport(true);
             }
+            syncFreshMasterForBalances();
         } catch(err) {
             console.error('[balances-report.js] Error during autoInitBalancesReport:', err);
         }
-    }, 100);
+    }, 80);
 }
+window.addEventListener('storage', (e) => { if (e && e.key && /erp_(customers|suppliers|banks|safes|accounts|gl)_v1/.test(e.key)) { loadData(); runReport(true); } });
+window.addEventListener('focus', () => { loadData(); runReport(true); });
 
 // Attach event listeners — the _reportHasRun guard ensures only the first successful one runs
 document.addEventListener('DBReady', autoInitBalancesReport);

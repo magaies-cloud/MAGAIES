@@ -349,12 +349,19 @@
                 const alarmLinks = document.querySelectorAll('a[href*="alarm.php"], [data-href*="alarm.php"]');
                 alarmLinks.forEach(a => {
                     let badge = a.querySelector('.erp-guard-live-badge');
+                    const isRibbonBtn = a.classList && (a.classList.contains('qa-ribbon-btn') || a.classList.contains('qa-master-btn'));
                     if (total > 0) {
                         if (!badge) {
                             badge = document.createElement('span');
                             badge.className = 'erp-guard-live-badge';
-                            badge.style.cssText = 'margin-right:auto; background:' + (red > 0 ? '#ef4444' : '#f59e0b') + '; color:#fff; font-size:0.68rem; font-weight:900; padding:1px 6px; border-radius:999px; box-shadow:0 0 10px rgba(239,68,68,0.6);';
                             a.appendChild(badge);
+                        }
+                        if (isRibbonBtn) {
+                            a.style.position = 'relative';
+                            a.style.justifyContent = 'center';
+                            badge.style.cssText = 'position:absolute; top:3px; left:5px; margin:0; background:' + (red > 0 ? '#ef4444' : '#f59e0b') + '; color:#fff; font-size:0.62rem; line-height:1.2; font-weight:900; padding:1px 5px; border-radius:999px; box-shadow:0 0 8px rgba(239,68,68,0.6); pointer-events:none;';
+                        } else {
+                            badge.style.cssText = 'margin-right:auto; background:' + (red > 0 ? '#ef4444' : '#f59e0b') + '; color:#fff; font-size:0.68rem; font-weight:900; padding:1px 6px; border-radius:999px; box-shadow:0 0 10px rgba(239,68,68,0.6);';
                         }
                         badge.textContent = total;
                     } else if (badge) {

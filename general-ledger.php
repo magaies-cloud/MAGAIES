@@ -1471,8 +1471,8 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
     <div class="report-header no-print" style="padding: 12px 16px; margin-bottom: 12px;">
         <!-- السطر الأول: اسم الحساب + زر الكل الأنيق + من + إلى + زر التحويل جنيه/دولار + مركز الكلفة -->
         <div class="gl-top-row-1" style="display: flex; flex-direction: row; flex-wrap: nowrap; gap: 9px; align-items: flex-end; margin-bottom: 10px; direction: rtl;">
-            <!-- 1. اسم الحساب (مساحة واسعة ومريحة) -->
-            <div class="filter-group" style="flex: 1.45 1 205px; min-width: 190px;">
+            <!-- 1. اسم الحساب (مساحة واسعة ومريحة مضافة من تقليص مركز الكلفة) -->
+            <div class="filter-group" style="flex: 2.65 1 310px; min-width: 250px;">
                 <label>اسم الحساب</label>
                 <div class="search-wrap" id="account-search-wrap">
                     <input type="text" class="filter-input" id="account-search-input" placeholder="ابحث باسم الحساب أو العميل أو المورد..." autocomplete="off" onfocus="if(typeof onAccountSearch==='function')onAccountSearch()" oninput="if(typeof onAccountSearch==='function')onAccountSearch()" onclick="if(typeof onAccountSearch==='function')onAccountSearch()">
@@ -1497,19 +1497,19 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             </div>
 
             <!-- 3. من -->
-            <div class="filter-group" style="flex: 0 0 160px; width: 160px;">
-                <label>من</label>
-                <input type="date" class="filter-input" id="filter-date-from" value="<?php echo date('Y-m-01'); ?>">
+            <div class="filter-group" style="flex: 0 0 168px; width: 168px;">
+                <label style="display:block; text-align:center !important; font-size:0.94rem !important; font-weight:900 !important;">من</label>
+                <input type="date" class="filter-input" id="filter-date-from" value="<?php echo date('Y-m-01'); ?>" style="text-align:center !important; justify-content:center !important; font-size:1.02rem !important; font-weight:900 !important; padding-inline:6px !important;">
             </div>
 
             <!-- 4. إلى -->
-            <div class="filter-group" style="flex: 0 0 160px; width: 160px;">
-                <label>إلى</label>
-                <input type="date" class="filter-input" id="filter-date-to" value="<?php echo date('Y-m-t'); ?>">
+            <div class="filter-group" style="flex: 0 0 168px; width: 168px;">
+                <label style="display:block; text-align:center !important; font-size:0.94rem !important; font-weight:900 !important;">إلى</label>
+                <input type="date" class="filter-input" id="filter-date-to" value="<?php echo date('Y-m-t'); ?>" style="text-align:center !important; justify-content:center !important; font-size:1.02rem !important; font-weight:900 !important; padding-inline:6px !important;">
             </div>
 
             <!-- 5. زر التحويل ما بين الجنيه والدولار -->
-            <div class="filter-group" style="flex: 0 0 132px; width: 132px;">
+            <div class="filter-group" style="flex: 0 0 128px; width: 128px;">
                 <label>العملة</label>
                 <select id="filter-currency" style="display:none;"><option value="ALL" selected>ALL</option></select>
                 <button type="button" id="gl-fin-strip-currency-btn" onclick="window.toggleGLStripCurrencyMode && window.toggleGLStripCurrencyMode()" title="التحويل الفوري بين الجنيه السوداني والدولار" class="gl-currency-toggle-btn">
@@ -1519,9 +1519,9 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             </div>
 
             <!-- 6. مركز الكلفة -->
-            <div class="filter-group" style="flex: 1.35 1 195px; min-width: 175px; max-width: 280px;">
-                <label>مركز الكلفة</label>
-                <select class="filter-input" id="filter-costcenter">
+            <div class="filter-group" style="flex: 0 1 132px; min-width: 112px; max-width: 138px;">
+                <label style="white-space:nowrap;">مركز الكلفة</label>
+                <select class="filter-input" id="filter-costcenter" style="padding-inline:6px !important; font-size:0.82rem !important;">
                     <option value="ALL">كل المراكز</option>
                 </select>
             </div>
