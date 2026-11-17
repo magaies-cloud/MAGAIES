@@ -652,19 +652,19 @@
                 backdrop-filter: none !important;
                 -webkit-backdrop-filter: none !important;
                 box-shadow: -3px 0 14px rgba(0, 0, 0, 0.35) !important;
-                transition: width 0.14s ease-out !important;
+                transition: width 0.24s cubic-bezier(0.22, 1, 0.36, 1) !important;
             }
-            .global-sidebar:hover,
+            body.sidebar-open .global-sidebar,
             .global-sidebar.panoramic-flyout-open {
                 width: 240px !important;
                 border-left-color: rgba(56, 189, 248, 0.55) !important;
             }
             .global-sidebar .sidebar-logo-text,
             .global-sidebar .sidebar-text {
-                transition: opacity 0.1s ease-out !important;
+                transition: opacity 0.2s cubic-bezier(0.22, 1, 0.36, 1), max-width 0.24s cubic-bezier(0.22, 1, 0.36, 1) !important;
             }
-            .global-sidebar:hover .sidebar-logo-text,
-            .global-sidebar:hover .sidebar-text,
+            body.sidebar-open .global-sidebar .sidebar-logo-text,
+            body.sidebar-open .global-sidebar .sidebar-text,
             .global-sidebar.panoramic-flyout-open .sidebar-logo-text,
             .global-sidebar.panoramic-flyout-open .sidebar-text {
                 max-width: 180px !important;
@@ -724,7 +724,7 @@
                 transition: all 0.25s ease;
                 pointer-events: none;
             }
-            .global-sidebar:hover .sidebar-item .sb-panoramic-chevron,
+            body.sidebar-open .global-sidebar .sidebar-item .sb-panoramic-chevron,
             .global-sidebar.panoramic-flyout-open .sidebar-item .sb-panoramic-chevron {
                 opacity: 0.7;
                 transform: translateY(-50%) translateX(0);
@@ -1220,6 +1220,13 @@
     document.addEventListener('mousemove', (ev) => {
         lastPtrX = ev.clientX;
         lastPtrY = ev.clientY;
+        if (document.body.classList.contains('sidebar-open') || (flyoutEl && flyoutEl.classList.contains('is-visible'))) {
+            if (isCursorInSafeZone()) {
+                clearTimeout(closeTimer);
+            } else {
+                scheduleCloseFlyout(140);
+            }
+        }
     }, { passive: true });
 
     function isCursorInSafeZone() {
@@ -1277,6 +1284,8 @@
         if (sb) {
             sb.classList.remove('panoramic-flyout-open');
         }
+        document.body.classList.remove('sidebar-open');
+        document.documentElement.classList.remove('sidebar-open');
         document.querySelectorAll('.global-sidebar .sidebar-item.panoramic-hovered').forEach(el => {
             el.classList.remove('panoramic-hovered');
         });
@@ -1307,7 +1316,9 @@
         if (window.__pfGlobalDelegatedBound) return;
         window.__pfGlobalDelegatedBound = true;
 
+        // Click-to-Open Sidebar + Ultra-Smooth Hover Gliding ONLY While Open
         document.addEventListener('mouseover', (e) => {
+            if (!document.body.classList.contains('sidebar-open') && (!flyoutEl || !flyoutEl.classList.contains('is-visible'))) return;
             const item = e.target && e.target.closest ? e.target.closest('.global-sidebar .sidebar-nav .sidebar-item') : null;
             if (!item) return;
             clearTimeout(closeTimer);
@@ -1317,22 +1328,54 @@
             }
         }, { passive: true });
 
-        document.addEventListener('mouseout', (e) => {
-            const sbEl = e.target && e.target.closest ? e.target.closest('.global-sidebar') : null;
-            if (!sbEl) return;
-            const rel = e.relatedTarget;
-            if (rel && (sbEl.contains(rel) || (flyoutEl && flyoutEl.contains(rel)))) return;
-            scheduleCloseFlyout(60);
-        }, { passive: true });
+        document.addEventListener('click', (e) => {
+            const sbNow = document.querySelector('.global-sidebar');
+            const hdr = e.target && e.target.closest ? e.target.closest('.global-sidebar .sidebar-header') : null;
+            if (hdr) {
+                e.preventDefault();
+                e.stopPropagation();
+                const nowOpen = document.body.classList.toggle('sidebar-open');
+                if (!nowOpen) hidePanoramicFlyout(true);
+                return;
+            }
+            const item = e.target && e.target.closest ? e.target.closest('.global-sidebar .sidebar-nav .sidebar-item') : null;
+            if (item) {
+                const rawHref = (item.getAttribute('data-href') || item.getAttribute('href') || '').split('?')[0].trim();
+                const isUnlocked = document.body.classList.contains('sidebar-open') || (flyoutEl && flyoutEl.classList.contains('is-visible'));
+                if (!isUnlocked) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    document.body.classList.add('sidebar-open');
+                    if (PANORAMIC_MENUS[rawHref]) {
+                        if (!item.querySelector('.sb-panoramic-chevron')) decorateSidebarChevrons(sbNow);
+                        renderFlyoutForLink(item);
+                    }
+                    return;
+                }
+                if (PANORAMIC_MENUS[rawHref] && (activeSidebarLink !== item || !flyoutEl || !flyoutEl.classList.contains('is-visible'))) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    renderFlyoutForLink(item);
+                    return;
+                }
+                return;
+            }
+            if (sbNow && sbNow.contains(e.target) && !document.body.classList.contains('sidebar-open')) {
+                document.body.classList.add('sidebar-open');
+                return;
+            }
+            const clickedInsideFlyout = flyoutEl && flyoutEl.contains(e.target);
+            const clickedInsideSb = sbNow && sbNow.contains(e.target);
+            if (!clickedInsideFlyout && !clickedInsideSb) {
+                if (flyoutEl && flyoutEl.classList.contains('is-visible')) hidePanoramicFlyout(true);
+                if (document.body.classList.contains('sidebar-open')) document.body.classList.remove('sidebar-open');
+            }
+        }, true);
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') hidePanoramicFlyout(true);
-        });
-        document.addEventListener('click', (e) => {
-            if (!flyoutEl || !flyoutEl.classList.contains('is-visible')) return;
-            const sbNow = document.querySelector('.global-sidebar');
-            if (!flyoutEl.contains(e.target) && (!sbNow || !sbNow.contains(e.target))) {
+            if (e.key === 'Escape') {
                 hidePanoramicFlyout(true);
+                document.body.classList.remove('sidebar-open');
             }
         });
     }

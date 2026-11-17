@@ -655,52 +655,9 @@ try {
         <?php $header_theme_class = 'header-theme-settings'; ?>
         <?php include 'includes/header.php'; ?>
 
-    <!-- 🌟 Executive Cybersecurity, AI Governance & Role Simulator Command Bar 🌟 -->
-    <div class="glass-panel" style="margin-bottom: 16px; padding: 16px 20px; border-radius: 18px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(8, 25, 48, 0.95)); border: 1px solid rgba(56, 189, 248, 0.35); box-shadow: 0 10px 30px rgba(0,0,0,0.35);">
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
-            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                <div style="background: rgba(16, 185, 129, 0.15); border: 1.5px solid #10b981; color: #34d399; padding: 6px 14px; border-radius: 999px; font-weight: 900; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
-                    <i class="fa-solid fa-shield-halved"></i> مؤشر الأمان السيبراني: <span id="cyber-live-score-badge">98% (محصن)</span>
-                </div>
-                <div style="position: relative; min-width: 270px; flex: 1;">
-                    <input type="search" id="settings-omni-search" oninput="window.filterSettingsOmniSearch(this.value)" placeholder="🔍 ابحث فوراً في كل إعدادات النظام، الضرائب، الصلاحيات، الأمن..." style="width: 100%; padding: 8px 14px; border-radius: 10px; background: rgba(2, 6, 23, 0.75); border: 1px solid rgba(56, 189, 248, 0.4); color: #f8fafc; font-family: 'Tajawal', sans-serif; font-size: 0.88rem; outline: none;">
-                </div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                <button type="button" onclick="window.openCyberSecurityShieldModal()" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), rgba(5, 150, 105, 0.32)); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.5); padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: 'Tajawal', sans-serif;">
-                    🛡️ فحص درع الأمان السيبراني
-                </button>
-                <button type="button" onclick="window.openPermissionSimulatorModal()" style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(2, 132, 199, 0.32)); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.5); padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: 'Tajawal', sans-serif;">
-                    🧪 محاكي صلاحيات الموظفين (Live)
-                </button>
-                <button type="button" onclick="window.openSettingsAIGovernanceModal()" style="background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(126, 34, 206, 0.35)); color: #e9d5ff; border: 1px solid rgba(168, 85, 247, 0.55); padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: 'Tajawal', sans-serif;">
-                    🤖 مستشار الحوكمة الذكي AI
-                </button>
-                <button type="button" onclick="window.openMaster7ThemesModal()" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.32)); color: #fde68a; border: 1px solid rgba(245, 158, 11, 0.5); padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: 'Tajawal', sans-serif;">
-                    🎨 الثيمات الـ 7 المعتمدة
-                </button>
-                <button type="button" onclick="switchTab('fonts')" style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(37, 99, 235, 0.35)); color: #bae6fd; border: 1px solid rgba(56, 189, 248, 0.55); padding: 8px 14px; border-radius: 10px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; font-family: 'Tajawal', sans-serif;">
-                    🖥️ مقاسات الشاشات والخطوط وراحة العين
-                </button>
-            </div>
-        </div>
-
-        <!-- 🔗 Direct Cross-Screen & Cross-Report Integration Links 🔗 -->
-        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.12); font-size: 0.78rem;">
-            <span style="color: #94a3b8; font-weight: 800; margin-left: 4px;">🔗 الربط الشامل بالشاشات والتقارير:</span>
-            <a href="users-roles.php" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); padding:4px 10px; border-radius:8px; text-decoration:none; font-weight:700;">👥 المستخدمين والأدوار</a>
-            <a href="system-self-audit.php" style="background:rgba(5,150,105,0.2); color:#10b981; border:1.5px solid #059669; padding:4px 10px; border-radius:8px; text-decoration:none; font-weight:900;">🛡️ درع السيادة</a>
-            <a href="audit-log.php" style="background:rgba(16,185,129,0.12); color:#34d399; border:1px solid rgba(16,185,129,0.3); padding:4px 10px; border-radius:8px; text-decoration:none; font-weight:700;">🕵️ سجل الرقابة الجنائي</a>
-            <a href="alerts_manager.php" style="background:rgba(244,63,94,0.12); color:#fb7185; border:1px solid rgba(244,63,94,0.3); padding:4px 10px; border-radius:8px; text-decoration:none; font-weight:700;">🔔 الحارس الأمين والتنبيهات</a>
-            <a href="direct-sales.php" style="background:rgba(255,255,255,0.06); color:#e2e8f0; border:1px solid rgba(255,255,255,0.15); padding:4px 10px; border-radius:8px; text-decoration:none; font-weight:700;">🛒 المبيعات والكاشير</a>
-            <a href="purchase.php" style="background:rgba(255,255,255,0.06); color:#e2e8f0; border:1px solid rgba(255,255,255,0.15); padding:4px 10px; border-radius:8px; text-decoration:none; font-weight:700;">📦 المشتريات</a>
-            <a href="vouchers-hub.php" style="background:rgba(255,255,255,0.06); color:#e2e8f0; border:1px solid rgba(255,255,255,0.15); padding:4px 10px; border-radius:8px; text-decoration:none; font-weight:700;">💸 السندات المالية</a>
-            <a href="posting-accounts.php" style="background:rgba(255,255,255,0.06); color:#e2e8f0; border:1px solid rgba(255,255,255,0.15); padding:4px 10px; border-radius:8px; text-decoration:none; font-weight:700;">📑 ترحيل الحسابات</a>
-            <a href="inventory.php" style="background:rgba(255,255,255,0.06); color:#e2e8f0; border:1px solid rgba(255,255,255,0.15); padding:4px 10px; border-radius:8px; text-decoration:none; font-weight:700;">🏭 المخازن والجرد</a>
-            <a href="smart_reports_hub.php" style="background:rgba(168,85,247,0.12); color:#c084fc; border:1px solid rgba(168,85,247,0.3); padding:4px 10px; border-radius:8px; text-decoration:none; font-weight:700;">📊 بوابة التقارير الذكية</a>
-            <a href="master-data.php" style="background:rgba(245,158,11,0.12); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); padding:4px 10px; border-radius:8px; text-decoration:none; font-weight:700;">🗂️ البيانات الرئيسية</a>
-            <a href="engineering_tools.php" style="background:rgba(20,184,166,0.12); color:#2dd4bf; border:1px solid rgba(20,184,166,0.3); padding:4px 10px; border-radius:8px; text-decoration:none; font-weight:700;">🧰 الأدوات المساعدة</a>
-        </div>
+    <!-- شريط البحث الفوري في الإعدادات -->
+    <div class="glass-panel" style="margin-bottom: 14px; padding: 10px 16px; border-radius: 14px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(8, 25, 48, 0.95)); border: 1px solid rgba(56, 189, 248, 0.35);">
+        <input type="search" id="settings-omni-search" oninput="window.filterSettingsOmniSearch(this.value)" placeholder="🔍 ابحث فوراً في كل إعدادات النظام، الضرائب، الشاشة، الخطوط، الصلاحيات..." style="width: 100%; padding: 8px 14px; border-radius: 10px; background: rgba(2, 6, 23, 0.75); border: 1px solid rgba(56, 189, 248, 0.4); color: #f8fafc; font-family: 'Tajawal', sans-serif; font-size: 0.9rem; outline: none;">
     </div>
 
     <!-- Tabs Navigation -->
@@ -710,10 +667,10 @@ try {
         <button class="tab-btn" onclick="switchTab('inventory', this)" data-i18n="settings.warehouses">📦 المخازن</button>
         <button class="tab-btn" onclick="switchTab('printing', this)" data-i18n="settings.printing">🖨️ إعدادات الطباعة</button>
         <button class="tab-btn" onclick="switchTab('email', this)" data-i18n="settings.smtp">📧 إعدادات البريد SMTP</button>
-
         <button class="tab-btn" onclick="switchTab('users', this)" data-i18n="settings.users">🛡️ المستخدمين والصلاحيات</button>
         <button class="tab-btn" onclick="switchTab('cybersecurity', this)">🔐 الأمان السيبراني والحوكمة</button>
-        <button class="tab-btn" onclick="switchTab('fonts', this)">🔤 الخطوط وحجم العرض</button>
+        <button class="tab-btn" onclick="switchTab('screen', this)">🖥️ إعدادات الشاشة</button>
+        <button class="tab-btn" onclick="switchTab('fonts', this)">🔤 إعدادات الخطوط</button>
         <button class="tab-btn" onclick="switchTab('ui', this)" data-i18n="settings.langUI">🎨 اللغة والواجهة</button>
         <button class="tab-btn" onclick="switchTab('system', this)" data-i18n="settings.system">💾 النظام والنسخ</button>
     </div>
@@ -1363,50 +1320,97 @@ try {
             </div>
         </div>
 
-        <!-- Tab: Fonts & Display Scaling (الخطوط وحجم النص / العرض) -->
-        <div class="tab-content" id="tab-fonts">
-            <!-- 0. Ophthalmic Multi-Monitor Calibration & Gemini Voice Key Panel -->
-            <div class="glass-panel" style="margin-bottom: 22px; padding: 24px; border-radius: 20px; background: linear-gradient(145deg, rgba(15, 23, 42, 0.94), rgba(8, 25, 48, 0.96)); border: 2px solid rgba(56, 189, 248, 0.45); box-shadow: 0 12px 35px rgba(0,0,0,0.4);">
+        <!-- Tab: Screen Settings (إعدادات الشاشة مستقلة) -->
+        <div class="tab-content" id="tab-screen">
+            <style>
+                .ergo-prof-card{position:relative;padding:14px 16px;border-radius:14px;background:rgba(15,23,42,0.78);border:1.8px solid rgba(148,163,184,0.28);color:#cbd5e1;font-weight:900;cursor:pointer;text-align:right;transition:all 0.2s ease;}
+                .ergo-prof-card:hover{transform:translateY(-2px);border-color:#38bdf8;background:rgba(30,41,59,0.95);box-shadow:0 6px 18px rgba(56,189,248,0.2);}
+                .ergo-prof-card.is-active{background:linear-gradient(135deg,rgba(14,165,233,0.28),rgba(16,185,129,0.22))!important;border:2.5px solid #38bdf8!important;color:#ffffff!important;box-shadow:0 0 22px rgba(56,189,248,0.42),inset 0 0 12px rgba(56,189,248,0.18)!important;}
+                .ergo-prof-card .ergo-act-pill{display:none;background:#10b981;color:#022c22;padding:2px 9px;border-radius:999px;font-size:0.72rem;font-weight:900;}
+                .ergo-prof-card.is-active .ergo-act-pill{display:inline-block;}
+                .ergo-vb-chip{padding:7px 13px;border-radius:9px;background:rgba(15,23,42,0.8);border:1.5px solid rgba(148,163,184,0.3);color:#cbd5e1;font-weight:900;font-size:0.82rem;cursor:pointer;transition:all 0.18s;}
+                .ergo-vb-chip:hover{border-color:#38bdf8;color:#fff;}
+                .ergo-vb-chip.is-active{background:linear-gradient(135deg,#0284c7,#059669)!important;border-color:#6ee7b7!important;color:#fff!important;box-shadow:0 0 14px rgba(16,185,129,0.4);}
+            </style>
+            <div class="glass-panel" style="margin-bottom: 18px; padding: 20px; border-radius: 20px; background: linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(2, 6, 23, 0.98)); border: 2px solid #38bdf8;">
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px;">
+                    <div>
+                        <h3 style="margin:0;color:#38bdf8;font-size:1.24rem;font-weight:900;">🖥️ تصغير وتكبير الشاشة</h3>
+                        <p style="margin:4px 0 0;color:#cbd5e1;font-size:0.85rem;font-weight:700;">تحكم سلس لتصغير أو تكبير الشاشة من المنتصف بتناسق تام وموحد عبر كافة شاشات البرنامج والنوافذ المنبثقة.</p>
+                    </div>
+                    <span id="cfg-screen-step-badge" style="background:rgba(56,189,248,0.18);color:#fde047;border:1.5px solid #38bdf8;padding:6px 14px;border-radius:999px;font-weight:900;font-size:0.88rem;">0 (الوضع الطبيعي 100%)</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                    <button type="button" onclick="window.setMagaiesScreenZoomStep((parseInt(localStorage.getItem('magaies_screen_zoom_step_v1')||'0',10)||0)-1)" style="padding:8px 16px;border-radius:10px;background:#e11d48;color:#fff;border:none;font-weight:900;cursor:pointer;">➖ تصغير درجة</button>
+                    <input type="range" id="cfg-screen-step-range" min="-15" max="10" step="1" value="0" oninput="window.setMagaiesScreenZoomStep(this.value, true)" onchange="window.setMagaiesScreenZoomStep(this.value, false)" style="flex:1;min-width:220px;accent-color:#38bdf8;cursor:pointer;">
+                    <button type="button" onclick="window.setMagaiesScreenZoomStep((parseInt(localStorage.getItem('magaies_screen_zoom_step_v1')||'0',10)||0)+1)" style="padding:8px 16px;border-radius:10px;background:#059669;color:#fff;border:none;font-weight:900;cursor:pointer;">➕ تكبير درجة</button>
+                    <button type="button" onclick="window.setMagaiesScreenZoomStep(0)" style="padding:8px 14px;border-radius:10px;background:rgba(148,163,184,0.2);color:#f8fafc;border:1px solid rgba(148,163,184,0.4);font-weight:900;cursor:pointer;">↺ الوضع الطبيعي (0)</button>
+                </div>
+            </div>
+            <div class="glass-panel" style="margin-bottom: 20px; padding: 22px; border-radius: 20px; background: linear-gradient(145deg, rgba(15, 23, 42, 0.94), rgba(8, 25, 48, 0.96)); border: 2px solid rgba(56, 189, 248, 0.45);">
                 <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.1);">
                     <div>
-                        <h3 style="margin:0;color:#38bdf8;font-size:1.28rem;font-weight:900;">🖥️ استوديو مقاسات الشاشات وطب راحة العين (لابتوب • كمبيوتر مكتبي عريض • شاشة طولية)</h3>
-                        <p style="margin:4px 0 0;color:#cbd5e1;font-size:0.88rem;font-weight:700;">يمنع التمطيط الأفقي على الشاشات المكتبية العريضة، ويزيد الارتفاع الرأسي للجداول، ويتكيف تلقائياً أو يدوياً للبرنامج كله أو لكل شاشة مستقلة.</p>
+                        <h3 style="margin:0;color:#38bdf8;font-size:1.25rem;font-weight:900;">📐 استوديو مقاسات الشاشات الموحد وراحة العين (يشمل كافة الأجهزة والشاشات)</h3>
+                        <p style="margin:4px 0 0;color:#cbd5e1;font-size:0.86rem;font-weight:700;">انقر على أي خيار ليضيء ويتفعل فوراً على جميع شاشات البرنامج من الألف إلى الياء بنفس المقاس والتناسق.</p>
                     </div>
-                    <span id="settings-ergo-live-badge" style="background:rgba(16,185,129,0.2);color:#34d399;border:1.5px solid #10b981;padding:6px 14px;border-radius:999px;font-weight:900;font-size:0.82rem;">👁️ راحة العين نشطة</span>
+                    <span id="settings-ergo-live-badge" style="background:rgba(16,185,129,0.22);color:#6ee7b7;border:1.5px solid #10b981;padding:6px 14px;border-radius:999px;font-weight:900;font-size:0.84rem;">✓ نشط وموحد</span>
                 </div>
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-bottom:14px;">
-                    <button type="button" onclick="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.setProfile('auto','global')" style="padding:12px;border-radius:12px;background:rgba(14,165,233,0.15);border:2px solid #0ea5e9;color:#f8fafc;font-weight:900;cursor:pointer;text-align:right;">🤖 تلقائي ذكي (موصى به)<div style="font-size:0.76rem;color:#94a3b8;margin-top:3px;">يتعرف تلقائياً على اللابتوب والمكتبي والطولي</div></button>
-                    <button type="button" onclick="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.setProfile('laptop','global')" style="padding:12px;border-radius:12px;background:rgba(15,23,42,0.8);border:1.5px solid rgba(148,163,184,0.35);color:#f8fafc;font-weight:900;cursor:pointer;text-align:right;">💻 مقاس اللابتوب (1480px)<div style="font-size:0.76rem;color:#94a3b8;margin-top:3px;">زاوية نظر بؤرية مركزة بدون أي مطّ</div></button>
-                    <button type="button" onclick="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.setProfile('desktop_comfort','global')" style="padding:12px;border-radius:12px;background:rgba(16,185,129,0.14);border:2px solid #10b981;color:#f8fafc;font-weight:900;cursor:pointer;text-align:right;">🖥️ كمبيوتر مكتبي مريح (+ارتفاع)<div style="font-size:0.76rem;color:#94a3b8;margin-top:3px;">يعالج ضيق الارتفاع ويمنع مطّ العرض</div></button>
-                    <button type="button" onclick="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.setProfile('portrait_tall','global')" style="padding:12px;border-radius:12px;background:rgba(168,85,247,0.14);border:1.5px solid #a855f7;color:#f8fafc;font-weight:900;cursor:pointer;text-align:right;">📱 شاشة طولية (Portrait)<div style="font-size:0.76rem;color:#94a3b8;margin-top:3px;">أقصى ارتفاع رأسي للجداول والتقارير</div></button>
-                    <button type="button" onclick="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.setProfile('ultrawide_full','global')" style="padding:12px;border-radius:12px;background:rgba(245,158,11,0.14);border:1.5px solid #f59e0b;color:#f8fafc;font-weight:900;cursor:pointer;text-align:right;">↔️ ملء العرض الكامل (100%)<div style="font-size:0.76rem;color:#94a3b8;margin-top:3px;">امتداد أفقي كامل من الحافة للحافة</div></button>
-                </div>
-                <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-top:10px;border-top:1px dashed rgba(255,255,255,0.12);font-size:0.86rem;font-weight:800;color:#e2e8f0;">
-                    <span>↕️ زيادة الارتفاع الرأسي وراحة الأسطر:</span>
-                    <input type="range" min="0" max="24" step="2" value="6" oninput="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.setVerticalBoost(this.value);document.getElementById('set-vboost-val').textContent='+'+this.value+'px';" style="width:200px;">
-                    <span id="set-vboost-val" style="color:#fde047;">+6px</span>
-                    <span style="color:#94a3b8;">| 💡 يمكنك أيضاً التبديل لأي شاشة منفردة من زر (🖥️ مقاس الشاشة) أعلى يمين كل شاشة بجوار زر السمات.</span>
+                <div id="settings-ergo-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:12px;margin-bottom:18px;">
+                    <button type="button" class="ergo-prof-card" data-ergo-card="auto" onclick="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.setProfile('auto','global')"><div style="display:flex;justify-content:space-between;align-items:center;"><span>🤖 تلقائي ذكي (موصى به)</span><span class="ergo-act-pill">✓ نشط الآن</span></div><div style="font-size:0.76rem;color:#94a3b8;margin-top:4px;font-weight:700;">يتعرف تلقائياً على اللابتوب والمكتبي والتابلت والطولي</div></button>
+                    <button type="button" class="ergo-prof-card" data-ergo-card="laptop" onclick="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.setProfile('laptop','global')"><div style="display:flex;justify-content:space-between;align-items:center;"><span>💻 مقاس اللابتوب (1480px)</span><span class="ergo-act-pill">✓ نشط الآن</span></div><div style="font-size:0.76rem;color:#94a3b8;margin-top:4px;font-weight:700;">زاوية نظر بؤرية مركزة ومريحة بدون أي تمطيط</div></button>
+                    <button type="button" class="ergo-prof-card" data-ergo-card="desktop_comfort" onclick="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.setProfile('desktop_comfort','global')"><div style="display:flex;justify-content:space-between;align-items:center;"><span>🖥️ كمبيوتر مكتبي مريح</span><span class="ergo-act-pill">✓ نشط الآن</span></div><div style="font-size:0.76rem;color:#94a3b8;margin-top:4px;font-weight:700;">يعالج ضيق الارتفاع ويوازن العرض على الشاشات المكتبية</div></button>
+                    <button type="button" class="ergo-prof-card" data-ergo-card="tablet_touch" onclick="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.setProfile('tablet_touch','global')"><div style="display:flex;justify-content:space-between;align-items:center;"><span>📲 تابلت وشاشات لمس الكاشير</span><span class="ergo-act-pill">✓ نشط الآن</span></div><div style="font-size:0.76rem;color:#94a3b8;margin-top:4px;font-weight:700;">مسافات لمس مريحة وعرض متكامل لأجهزة الآيباد والكاشير</div></button>
+                    <button type="button" class="ergo-prof-card" data-ergo-card="portrait_tall" onclick="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.setProfile('portrait_tall','global')"><div style="display:flex;justify-content:space-between;align-items:center;"><span>📱 شاشة طولية (Portrait)</span><span class="ergo-act-pill">✓ نشط الآن</span></div><div style="font-size:0.76rem;color:#94a3b8;margin-top:4px;font-weight:700;">أقصى ارتفاع رأسي للجداول المحاسبية والتقارير الطويلة</div></button>
+                    <button type="button" class="ergo-prof-card" data-ergo-card="uhd_4k" onclick="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.setProfile('uhd_4k','global')"><div style="display:flex;justify-content:space-between;align-items:center;"><span>📺 شاشة كبيرة جداً / 4K</span><span class="ergo-act-pill">✓ نشط الآن</span></div><div style="font-size:0.76rem;color:#94a3b8;margin-top:4px;font-weight:700;">اتزان بصري فخم للشاشات العملاقة وعروض الإدارة</div></button>
+                    <button type="button" class="ergo-prof-card" data-ergo-card="ultrawide_full" onclick="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.setProfile('ultrawide_full','global')"><div style="display:flex;justify-content:space-between;align-items:center;"><span>↔️ ملء العرض الكامل (100%)</span><span class="ergo-act-pill">✓ نشط الآن</span></div><div style="font-size:0.76rem;color:#94a3b8;margin-top:4px;font-weight:700;">امتداد أفقي كامل من الحافة للحافة في كل الشاشات</div></button>
                 </div>
             </div>
-            <div class="glass-panel" style="margin-bottom:24px;padding:22px;border-radius:20px;background:linear-gradient(145deg,rgba(15,23,42,0.95),rgba(2,6,23,0.98));border:2px solid #f59e0b;box-shadow:0 12px 35px rgba(0,0,0,0.45);">
+            <div class="glass-panel" style="padding:18px 20px;border-radius:18px;background:linear-gradient(145deg,rgba(15,23,42,0.95),rgba(2,6,23,0.98));border:1.8px solid #f59e0b;">
                 <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
                     <div>
-                        <h3 style="margin:0;color:#fff;font-size:1.22rem;font-weight:900;">🔒 قفل اليومية التلقائي على حركات الأيام السابقة (بكلمة سر المالك)</h3>
-                        <p style="margin:4px 0 0;color:#cbd5e1;font-size:0.86rem;font-weight:700;">يمنع الموظفين تلقائياً من إضافة أو تعديل أو حذف أي فاتورة أو سند بتاريخ سابق لليوم إلا بعد إدخال كلمة سر المالك.</p>
+                        <h3 style="margin:0;color:#fff;font-size:1.1rem;font-weight:900;">🔒 قفل اليومية التلقائي على حركات الأيام السابقة (بكلمة سر المالك)</h3>
                     </div>
                     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-                        <label style="display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:10px;background:rgba(16,185,129,0.18);border:1.5px solid #10b981;color:#6ee7b7;font-weight:900;cursor:pointer;">
-                            <input type="checkbox" id="cfg-lock-prev-days" checked onchange="(function(c){const s=JSON.parse(localStorage.getItem('erp_settings_v1')||'{}');s.lockPreviousDays=c;localStorage.setItem('erp_settings_v1',JSON.stringify(s));if(window.showToast)window.showToast(c?'🔒 تم تفعيل قفل اليومية التلقائي للأيام السابقة':'🔓 تم إيقاف القفل التلقائي للأيام السابقة','success',2500);})(this.checked)" style="width:18px;height:18px;accent-color:#10b981;">
+                        <label style="display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:10px;background:rgba(16,185,129,0.18);border:1.5px solid #10b981;color:#6ee7b7;font-weight:900;cursor:pointer;">
+                            <input type="checkbox" id="cfg-lock-prev-days" checked onchange="(function(c){const s=JSON.parse(localStorage.getItem('erp_settings_v1')||'{}');s.lockPreviousDays=c;localStorage.setItem('erp_settings_v1',JSON.stringify(s));if(window.showToast)window.showToast(c?'🔒 تم تفعيل قفل اليومية التلقائي':'🔓 تم إيقاف القفل التلقائي','success',2200);})(this.checked)" style="width:17px;height:17px;accent-color:#10b981;">
                             <span>مفعل تلقائياً ✅</span>
                         </label>
-                        <div style="display:inline-flex;align-items:center;gap:6px;color:#e2e8f0;font-weight:800;font-size:0.84rem;">
-                            <span>تاريخ إغلاق ثابت (اختياري):</span>
-                            <input type="date" id="cfg-acc-lock-date" onchange="(function(v){const s=JSON.parse(localStorage.getItem('erp_settings_v1')||'{}');s.accountingLockDate=v;localStorage.setItem('erp_settings_v1',JSON.stringify(s));if(window.showToast)window.showToast('🔒 تم تحديث تاريخ إغلاق الفترة المحاسبية','success',2200);})(this.value)" style="padding:6px 10px;border-radius:8px;border:1px solid #f59e0b;background:#020617;color:#fff;font-weight:800;">
-                        </div>
+                        <input type="date" id="cfg-acc-lock-date" onchange="(function(v){const s=JSON.parse(localStorage.getItem('erp_settings_v1')||'{}');s.accountingLockDate=v;localStorage.setItem('erp_settings_v1',JSON.stringify(s));})(this.value)" style="padding:5px 10px;border-radius:8px;border:1px solid #f59e0b;background:#020617;color:#fff;font-weight:800;">
                     </div>
                 </div>
-                <script>(function(){try{const s=JSON.parse(localStorage.getItem('erp_settings_v1')||'{}');const c=document.getElementById('cfg-lock-prev-days'),d=document.getElementById('cfg-acc-lock-date');if(c)c.checked=(s.lockPreviousDays!==false);if(d&&s.accountingLockDate)d.value=s.accountingLockDate;}catch(_){}})();</script>
             </div>
+            <script>
+                window.renderSettingsErgoStudio = function() {
+                    try {
+                        var mode = localStorage.getItem('magaies_ergo_global_mode') || 'auto';
+                        var vb = parseInt(localStorage.getItem('magaies_ergo_vboost_px') || '0', 10) || 0;
+                        document.querySelectorAll('[data-ergo-card]').forEach(function(btn) {
+                            btn.classList.toggle('is-active', btn.getAttribute('data-ergo-card') === mode);
+                        });
+                        document.querySelectorAll('[data-vb-val]').forEach(function(ch) {
+                            ch.classList.toggle('is-active', parseInt(ch.getAttribute('data-vb-val'), 10) === vb);
+                        });
+                        var rng = document.getElementById('set-vboost-range'), lbl = document.getElementById('set-vboost-val');
+                        if (rng) rng.value = String(vb);
+                        if (lbl) lbl.textContent = '+' + vb + 'px';
+                        var s = parseInt(localStorage.getItem('magaies_screen_zoom_step_v1') || '0', 10) || 0;
+                        var zRng = document.getElementById('cfg-screen-step-range'), zBdg = document.getElementById('cfg-screen-step-badge');
+                        if (zRng) zRng.value = String(s);
+                        if (zBdg) zBdg.textContent = (s > 0 ? ('+' + s + ' تكبير') : (s < 0 ? (s + ' تصغير') : '0 (الوضع الطبيعي 100%)')) + ' — ' + Math.round((1 + s * 0.02) * 100) + '%';
+                    } catch (_) {}
+                };
+                window.setSettingsVerticalBoostUI = function(px) {
+                    var v = Math.max(0, Math.min(24, parseInt(px, 10) || 0));
+                    if (window.MagaiesScreenErgonomics) window.MagaiesScreenErgonomics.setVerticalBoost(v);
+                    else localStorage.setItem('magaies_ergo_vboost_px', String(v));
+                    window.renderSettingsErgoStudio();
+                };
+                (function(){try{const s=JSON.parse(localStorage.getItem('erp_settings_v1')||'{}');const c=document.getElementById('cfg-lock-prev-days'),d=document.getElementById('cfg-acc-lock-date');if(c)c.checked=(s.lockPreviousDays!==false);if(d&&s.accountingLockDate)d.value=s.accountingLockDate;window.renderSettingsErgoStudio();}catch(_){}})();
+            </script>
+        </div>
+
+        <!-- Tab: Fonts Only (إعدادات الخطوط مستقلة) -->
+        <div class="tab-content" id="tab-fonts">
             <!-- 1. 4 Fonts Selection Panel -->
             <div class="glass-panel" style="margin-bottom: 24px; padding: 28px; border-radius: 20px; background: linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(2, 6, 23, 0.96)); border-right: 4px solid #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); box-shadow: 0 12px 35px rgba(0,0,0,0.45);">
                 <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; margin-bottom: 22px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08);">
@@ -2077,6 +2081,9 @@ document.addEventListener('DOMContentLoaded', function() {
             targetTab.style.display = 'block';
             if (tabId === 'users' && typeof window.initSettingsUsersStudio === 'function') {
                 window.initSettingsUsersStudio();
+            }
+            if (tabId === 'screen' && typeof window.renderSettingsErgoStudio === 'function') {
+                window.renderSettingsErgoStudio();
             }
             if ((tabId === 'fonts' || tabId === 'ui') && window.MagaieesTypography && typeof window.MagaieesTypography.syncUI === 'function') {
                 window.MagaieesTypography.syncUI();

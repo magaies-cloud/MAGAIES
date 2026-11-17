@@ -162,7 +162,7 @@ JSON.parse = function(val) {
     window.getTenantKey = function(baseKey) {
         const strKey = String(baseKey || '');
         // Keys that are NOT tenant-specific (global session settings only)
-        const globalKeys = ['authToken', 'user', 'tenant_id', 'erp_theme', 'ui_theme', 'pur_light_tone_palette', 'magaies_light_tone', 'erp_lang', 'currentTenantId', 'session_active', 'deviceUuid', 'magaies_dirty_keys_v1'];
+        const globalKeys = ['authToken', 'user', 'tenant_id', 'erp_theme', 'ui_theme', 'pur_light_tone_palette', 'magaies_light_tone', 'erp_lang', 'currentTenantId', 'session_active', 'deviceUuid', 'magaies_dirty_keys_v1', 'preview_ledger_config', 'preview_ledger_data', 'preview_ledger_totals', 'preview_table_data', 'preview_table_totals', 'ledger_preview_presets_v20'];
         if (globalKeys.includes(strKey) || strKey.startsWith('magaies_') || strKey.startsWith('magaiees_')) return strKey;
         // If already prefixed, return as-is
         if (strKey.startsWith('tenant_')) return strKey;
@@ -1080,6 +1080,49 @@ JSON.parse = function(val) {
                 console.warn('Auto-seed banks failed:', banksErr);
             }
         }
+
+        // ── Universal Master Entities Sync from MySQL (api/get_master_data.php) across ALL screens ──
+        try {
+            const _mdHeaders = {};
+            const _mdTok = localGetItem('authToken') || localGetItem('erp_token') || localGetItem('token') || '';
+            const _mdTid = localGetItem('currentTenantId') || '';
+            if (_mdTok) _mdHeaders['Authorization'] = 'Bearer ' + _mdTok;
+            if (_mdTid) _mdHeaders['X-Tenant-Id'] = String(_mdTid);
+            const _mdRes = await fetch('api/get_master_data.php', { headers: _mdHeaders });
+            if (_mdRes && _mdRes.ok) {
+                const _mdJson = await _mdRes.json();
+                const _md = (_mdJson && _mdJson.data) ? _mdJson.data : null;
+                if (_md) {
+                    const _syncEntityStore = (baseKey, srvArr) => {
+                        if (!Array.isArray(srvArr) || srvArr.length === 0) return;
+                        const tKey = window.getTenantKey(baseKey);
+                        let locArr = [];
+                        try { locArr = JSON.parse(window.DB_STORE[tKey] || localGetItem(tKey) || localGetItem(baseKey) || '[]') || []; } catch (_) { locArr = []; }
+                        if (!Array.isArray(locArr)) locArr = [];
+                        const byId = new Map();
+                        locArr.forEach(x => { if (x && !x.deleted) byId.set(String(x.id || x.code || x.name || ''), x); });
+                        srvArr.forEach(x => { if (x && !x.deleted) byId.set(String(x.id || x.code || x.name || ''), x); });
+                        const mergedStr = JSON.stringify(Array.from(byId.values()));
+                        window.DB_STORE[tKey] = mergedStr;
+                        window.DB_STORE[baseKey] = mergedStr;
+                        localSetItem(tKey, mergedStr);
+                        localSetItem(baseKey, mergedStr);
+                        if (typeof localforage !== 'undefined') localforage.setItem(tKey, mergedStr).catch(() => {});
+                    };
+                    _syncEntityStore('erp_customers_v1', _md.customers);
+                    _syncEntityStore('erp_suppliers_v1', _md.suppliers);
+                    _syncEntityStore('erp_warehouses_v1', _md.warehouses);
+                    _syncEntityStore('erp_safes_v1', _md.safes);
+                    _syncEntityStore('erp_banks_v1', _md.banks);
+                    _syncEntityStore('erp_items_v1', _md.items);
+                    _syncEntityStore('erp_accounts_v1', _md.accounts);
+                    if (Array.isArray(_md.cost_centers) && _md.cost_centers.length > 0) {
+                        _syncEntityStore('erp_cost_centers_v1', _md.cost_centers);
+                        _syncEntityStore('erp_jobs_v1', _md.cost_centers);
+                    }
+                }
+            }
+        } catch (_mdErr) {}
 
         window.APP_READY = true;
         document.dispatchEvent(new Event('DBReady'));
@@ -5620,13 +5663,14 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         const name = String(item.name || item.bankName || item.safeName || item.accountName || '').trim();
         const code = String(item.code || '').trim();
         let canonicalId = id;
-        if (prefix && !id.startsWith(prefix)) canonicalId = prefix + id;
+        if (prefix && !id.toLowerCase().startsWith(prefix.toLowerCase())) canonicalId = prefix + id;
         if (id) {
             accountMap.set(id.toLowerCase(), canonicalId);
-            accountMap.set(id.replace(/^(cust|supp|bank|safe|exp)-/, '').toLowerCase(), canonicalId);
+            const bareId = id.replace(/^(cust-|supp-|bank-|safe-|exp-|sub-|sust-)+/i, '').toLowerCase();
+            if (bareId.length >= 6) accountMap.set(bareId, canonicalId);
         }
-        if (name) accountMap.set(name.toLowerCase(), canonicalId);
-        if (code) accountMap.set(code.toLowerCase(), canonicalId);
+        if (name && name !== '-') accountMap.set(name.toLowerCase(), canonicalId);
+        if (code && code !== '-' && code !== '0' && code.length >= 3) accountMap.set(code.toLowerCase(), canonicalId);
     };
 
     custs.forEach(c => registerAcc(c, 'cust-'));
@@ -6782,7 +6826,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         const currency = inv.currency || 'SDG';
         const time = inv.time || timeNow;
         const refNo = inv.invoiceNo || inv.id;
-        const supplierAcct = resolveAccount(inv.supplierId || inv.supplier || inv.customer || 'supp-001');
+        const supplierAcct = resolveAccount(inv.supplierId || inv.supplier || inv.customer || 'walk-in-supplier', 'walk-in-supplier');
         const isPosted = inv.isPosted !== false;
 
         const rate = parseNum(inv.exchangeRate || 1);

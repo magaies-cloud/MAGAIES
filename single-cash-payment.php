@@ -1838,146 +1838,311 @@ try {
     </style>
 <!-- 👑 USER REQUESTED TYPOGRAPHY ENHANCEMENTS (+2 & +3 SIZES) 👑 -->
     <style id="user-requested-typography-override">
-        /* 1. التاريخ (زيادة الخط درجتين) */
+        /* 1. التاريخ (مقاس مدمج ومتساوٍ مع رقم السند وبدون أيقونة خارجية) */
         .date-input, #hdr-date {
-            font-size: 1.85rem !important; /* زيادة درجتين إضافيتين بناء على طلب المستخدم */
+            font-size: 1.18rem !important;
             font-weight: 900 !important;
-            height: 52px !important;
-            padding: 4px 16px !important;
-            min-width: 195px !important;
+            height: 38px !important;
+            padding: 2px 10px !important;
+            min-width: 148px !important;
             color: #ffffff !important;
             background: rgba(15, 23, 42, 0.9) !important;
-            border: 2px solid #38bdf8 !important;
-            border-radius: 10px !important;
-            text-shadow: 0 0 10px rgba(56, 189, 248, 0.5) !important;
-            letter-spacing: 1px !important;
-        }
-        .date-crystal {
-            height: 58px !important;
-        }
-        .date-crystal .icon-box {
-            font-size: 1.65rem !important;
-            width: 44px !important;
-            height: 44px !important;
-        }
-        .date-input::-webkit-calendar-picker-indicator {
-            width: 22px !important;
-            height: 22px !important;
-        }
-
-        /* 1.1 خانة كتابة العملة (زيادة بنسبة 25%) */
-        #currency {
-            height: 68px !important; /* زيادة الارتفاع بنسبة 25% من 55px */
-            font-size: 1.55rem !important; /* زيادة حجم الخط بنسبة 25% */
-            min-width: 140px !important;
-            font-weight: 900 !important;
-        }
-
-        /* 2. النقد والشيك والوعد / العهد (زيادة الخط درجتين) */
-        .bal-label {
-            font-size: 1.15rem !important; /* زيادة درجتين */
-            font-weight: 900 !important;
-            color: #f1f5f9 !important;
+            border: 1.8px solid #38bdf8 !important;
+            border-radius: 9px !important;
             letter-spacing: 0.5px !important;
         }
-        .bal-val {
-            font-size: 1.65rem !important; /* زيادة درجتين */
-            font-weight: 900 !important;
-            letter-spacing: 1px !important;
+        .date-crystal {
+            height: 42px !important;
+            padding: 2px 6px !important;
         }
-        .bal-icon {
-            font-size: 1.7rem !important;
+        .date-crystal .icon-box {
+            display: none !important;
         }
-        .pay-toggle-btn {
-            font-size: 1.25rem !important; /* زيادة درجتين */
-            font-weight: 900 !important;
-            padding: 9px 20px !important;
-            border-radius: 22px !important;
+        .date-input::-webkit-calendar-picker-indicator {
+            width: 18px !important;
+            height: 18px !important;
+            cursor: pointer !important;
         }
 
-        /* 3. رقم السند (زيادة الخط درجتين) */
+        /* 1.1 خانة كتابة العملة */
+        #currency {
+            height: 54px !important;
+            font-size: 1.15rem !important;
+            min-width: 96px !important;
+            font-weight: 900 !important;
+        }
+
+        /* 2. النقد والشيك والوعد / العهد (مقاس أنيق ومصغر) */
+        .bal-label {
+            font-size: 0.84rem !important;
+            font-weight: 800 !important;
+            color: #cbd5e1 !important;
+        }
+        .bal-val {
+            font-size: 1.18rem !important;
+            font-weight: 900 !important;
+            letter-spacing: 0.5px !important;
+        }
+        .bal-icon {
+            font-size: 1.15rem !important;
+        }
+        .pay-toggle-btn {
+            font-size: 0.96rem !important;
+            font-weight: 900 !important;
+            padding: 5px 14px !important;
+            border-radius: 18px !important;
+        }
+
+        /* 3. رقم السند متناسق ومساوٍ للتاريخ */
         .badge-label {
-            font-size: 1.05rem !important; /* زيادة درجتين */
+            font-size: 0.78rem !important;
             font-weight: 800 !important;
             color: #cbd5e1 !important;
         }
         .badge-val, #voucher-number {
-            font-size: 1.85rem !important; /* زيادة درجتين مع توهج أحمر واضح */
+            font-size: 1.2rem !important;
             font-weight: 900 !important;
             color: #f87171 !important;
-            text-shadow: 0 0 15px rgba(239, 68, 68, 0.7) !important;
-            letter-spacing: 1.5px !important;
+            letter-spacing: 1px !important;
         }
         .crystal-pill {
-            height: 52px !important; /* Slim & Tall enough to comfortably frame larger fonts */
-            padding: 0 16px !important;
+            height: 40px !important;
+            padding: 0 12px !important;
         }
 
-        /* 4. في الأسفل: مجموع الشيكات، مجموع التحويلات، إجمالي الجملة (زيادة الخط 3 درجات كاملة) */
+        /* 4. الإجماليات وأزرار الأسفل مدمجة لاحتواء الشاشة كاملة بدون تمرير */
         #unified-total-box {
-            display: block !important; /* Always visible at the bottom of the voucher */
-            margin-top: 25px !important;
-            padding: 15px 0 !important;
+            display: block !important;
+            margin-top: 6px !important;
+            padding: 4px 0 !important;
         }
-        .cheque-glow span:first-of-type {
-            font-size: 1.65rem !important; /* مجموع الشيكات: زيادة 3 درجات */
-            font-weight: 900 !important;
-            color: #c084fc !important;
-            text-shadow: 0 0 15px rgba(168,85,247,0.7) !important;
+        .cheque-glow span:first-of-type, .bank-glow span:first-of-type {
+            font-size: 0.95rem !important;
+            font-weight: 800 !important;
         }
-        #unified-cheque-total {
-            font-size: 2.85rem !important; /* قيمة الشيكات: زيادة 3 درجات */
+        #unified-cheque-total, #unified-bank-total {
+            font-size: 1.35rem !important;
             font-weight: 900 !important;
-            color: #f3e8ff !important;
-            text-shadow: 0 0 25px rgba(168,85,247,1) !important;
-        }
-        .bank-glow span:first-of-type {
-            font-size: 1.65rem !important; /* مجموع التحويلات: زيادة 3 درجات */
-            font-weight: 900 !important;
-            color: #34d399 !important;
-            text-shadow: 0 0 15px rgba(16,185,129,0.7) !important;
-        }
-        #unified-bank-total {
-            font-size: 2.85rem !important; /* قيمة التحويلات: زيادة 3 درجات */
-            font-weight: 900 !important;
-            color: #a7f3d0 !important;
-            text-shadow: 0 0 25px rgba(16,185,129,1) !important;
         }
         .grand-glow span:first-of-type {
-            font-size: 1.95rem !important; /* إجمالي الجملة: زيادة 3 درجات */
+            font-size: 1.05rem !important;
             font-weight: 900 !important;
-            color: #7dd3fc !important;
-            text-shadow: 0 0 20px rgba(56,189,248,0.8) !important;
         }
         #unified-grand-total {
-            font-size: 3.4rem !important; /* قيمة إجمالي الجملة: زيادة 3 درجات عملاقة وواضحة جداً */
+            font-size: 1.65rem !important;
             font-weight: 900 !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 35px rgba(56,189,248,1) !important;
         }
-
-        /* ═══ زر الواتساب البارز مع النص الواضح في السطر الموحد ═══ */
+        .scp-account-card {
+            padding: 9px 14px !important;
+            border-radius: 13px !important;
+        }
+        /* تباين واضح وصريح: خلفية سوداء/كحلية داكنة جداً (#02050c) ومستطيلات أفتح قليلاً (#1d2d4e) بحواف ظاهرة ولكن رفيعة وخفيفة تضيء عند الاقتراب */
+        html:not(.light-theme) body #scp-proportional-root .single-unified-form {
+            background: #02050c !important;
+            border: 1.5px solid rgba(56, 189, 248, 0.32) !important;
+            box-shadow: 0 16px 38px rgba(0, 0, 0, 0.8) !important;
+        }
+        :root.light-theme body #scp-proportional-root .single-unified-form {
+            background: var(--lt-canvas-2, #dfd1b8) !important;
+            border: 1.8px solid var(--lt-border, #854d0e) !important;
+        }
+        html:not(.light-theme) body #scp-proportional-root .sub-header-bar,
+        html:not(.light-theme) body #scp-proportional-root .scp-top-amount-row,
+        html:not(.light-theme) body #scp-proportional-root .scp-beneficiary-row,
+        html:not(.light-theme) body #scp-proportional-root #payment-panel {
+            background: linear-gradient(145deg, #1e3054 0%, #162442 100%) !important;
+            border: 1.5px solid rgba(125, 211, 252, 0.52) !important;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.65) !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+        }
+        :root.light-theme body #scp-proportional-root .sub-header-bar,
+        :root.light-theme body #scp-proportional-root .scp-top-amount-row,
+        :root.light-theme body #scp-proportional-root .scp-beneficiary-row,
+        :root.light-theme body #scp-proportional-root #payment-panel {
+            background: #ffffff !important;
+            border: 1.6px solid rgba(71, 85, 105, 0.55) !important;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1) !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+        }
+        html body #scp-proportional-root .sub-header-bar:hover, html body #scp-proportional-root .sub-header-bar:focus-within,
+        html body #scp-proportional-root .scp-top-amount-row:hover, html body #scp-proportional-root .scp-top-amount-row:focus-within,
+        html body #scp-proportional-root .scp-beneficiary-row:hover, html body #scp-proportional-root .scp-beneficiary-row:focus-within,
+        html body #scp-proportional-root #payment-panel:hover, html body #scp-proportional-root #payment-panel:focus-within {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65), 0 0 14px rgba(56, 189, 248, 0.42) !important;
+        }
+        html:not(.light-theme) body #scp-proportional-root #live-tafqeet-bar > div:first-child {
+            background: #070d1a !important;
+            border: 1.5px solid rgba(251, 191, 36, 0.68) !important;
+        }
+        html:not(.light-theme) body #scp-proportional-root #live-tafqeet-bar #live-tafqeet-text {
+            color: #fde047 !important; -webkit-text-fill-color: #fde047 !important; font-weight: 900 !important;
+        }
+        html:not(.light-theme) body #scp-proportional-root #live-tafqeet-bar > div:last-child {
+            background: #051814 !important;
+            border: 1.5px solid rgba(52, 211, 153, 0.68) !important;
+        }
+        html:not(.light-theme) body #scp-proportional-root #live-tafqeet-bar #live-tafqeet-foreign {
+            color: #6ee7b7 !important; -webkit-text-fill-color: #6ee7b7 !important; font-weight: 900 !important;
+        }
+        :root.light-theme body #scp-proportional-root #live-tafqeet-bar > div:first-child {
+            background: #fef3c7 !important;
+            border: 1.6px solid #d97706 !important;
+        }
+        :root.light-theme body #scp-proportional-root #live-tafqeet-bar #live-tafqeet-text {
+            color: #78350f !important; -webkit-text-fill-color: #78350f !important; font-weight: 900 !important;
+        }
+        :root.light-theme body #scp-proportional-root #live-tafqeet-bar > div:last-child {
+            background: #d1fae5 !important;
+            border: 1.6px solid #059669 !important;
+        }
+        :root.light-theme body #scp-proportional-root #live-tafqeet-bar #live-tafqeet-foreign {
+            color: #064e3b !important; -webkit-text-fill-color: #064e3b !important; font-weight: 900 !important;
+        }
+        #scp-proportional-root #from-account-search, #scp-proportional-root #to-account-search {
+            font-weight: 900 !important;
+            letter-spacing: 0.2px !important;
+        }
+        html:not(.light-theme) body #scp-proportional-root .scp-from-card {
+            background: linear-gradient(145deg, #421220 0%, #2a0a14 100%) !important;
+            border: 1.5px solid rgba(251, 113, 133, 0.62) !important;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6) !important;
+        }
+        html:not(.light-theme) body #scp-proportional-root .scp-to-card {
+            background: linear-gradient(145deg, #0b4636 0%, #062b22 100%) !important;
+            border: 1.5px solid rgba(52, 211, 153, 0.62) !important;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6) !important;
+        }
+        :root.light-theme body #scp-proportional-root .scp-from-card {
+            background: #ffe4e6 !important;
+            border: 1.6px solid #e11d48 !important;
+        }
+        :root.light-theme body #scp-proportional-root .scp-to-card {
+            background: #d1fae5 !important;
+            border: 1.6px solid #059669 !important;
+        }
+        html:not(.light-theme) #scp-proportional-root #from-account-search {
+            background-color: #2a0a10 !important;
+            border: 2px solid #f87171 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+        }
+        html:not(.light-theme) #scp-proportional-root #to-account-search {
+            background-color: #04261c !important;
+            border: 2px solid #34d399 !important;
+            color: #ffffff !important;
+            -webkit-text-fill-color: #ffffff !important;
+        }
+        :root.light-theme #scp-proportional-root #from-account-search {
+            background-color: #fff1f2 !important;
+            border: 2.2px solid #dc2626 !important;
+            color: #7f1d1d !important;
+            -webkit-text-fill-color: #7f1d1d !important;
+        }
+        :root.light-theme #scp-proportional-root #to-account-search {
+            background-color: #ecfdf5 !important;
+            border: 2.2px solid #059669 !important;
+            color: #064e3b !important;
+            -webkit-text-fill-color: #064e3b !important;
+        }
+        html:not(.light-theme) #scp-proportional-root #exchange-rate {
+            background: linear-gradient(135deg, #1e293b, #0f172a) !important;
+            color: #fde047 !important;
+            -webkit-text-fill-color: #fde047 !important;
+            border: 2.2px solid #fbbf24 !important;
+        }
+        html:not(.light-theme) #scp-proportional-root .check-card,
+        html:not(.light-theme) #scp-proportional-root #pay-cheque-section {
+            background: linear-gradient(145deg, rgba(30, 58, 138, 0.45), rgba(15, 23, 42, 0.72)) !important;
+            border-color: #60a5fa !important;
+        }
+        /* إضاءة ذكية واضحة للحواف عند المرور أو التركيز على العملة، المحلي، الصرف، الأجنبي، من حساب، وإلى حساب */
+        #scp-proportional-root #currency {
+            border: 1.4px solid rgba(148, 163, 184, 0.25) !important;
+            box-shadow: none !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+        }
+        #scp-proportional-root #currency:hover, #scp-proportional-root #currency:focus {
+            border-color: rgba(56, 189, 248, 0.78) !important;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.32) !important;
+        }
+        #scp-proportional-root #amount-local,
+        #scp-proportional-root #amount-foreign {
+            border: 2.5px solid #dc2626 !important;
+            color: #b91c1c !important;
+            box-shadow: none !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+        }
+        #scp-proportional-root #amount-local:hover, #scp-proportional-root #amount-local:focus,
+        #scp-proportional-root #amount-foreign:hover, #scp-proportional-root #amount-foreign:focus {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 14px rgba(220, 38, 38, 0.52) !important;
+        }
+        html:not(.light-theme) #scp-proportional-root #exchange-rate {
+            border: 1.4px solid rgba(251, 191, 36, 0.32) !important;
+            box-shadow: none !important;
+        }
+        #scp-proportional-root #exchange-rate:hover, #scp-proportional-root #exchange-rate:focus {
+            border-color: rgba(251, 191, 36, 0.85) !important;
+            box-shadow: 0 0 11px rgba(251, 191, 36, 0.36) !important;
+        }
+        #scp-proportional-root .scp-from-card:hover, #scp-proportional-root .scp-from-card:focus-within {
+            border-color: #fb7185 !important;
+            box-shadow: 0 0 22px rgba(244, 63, 94, 0.55), inset 0 0 12px rgba(244, 63, 94, 0.18) !important;
+            transform: translateY(-1px);
+        }
+        #scp-proportional-root .scp-to-card:hover, #scp-proportional-root .scp-to-card:focus-within {
+            border-color: #6ee7b7 !important;
+            box-shadow: 0 0 22px rgba(16, 185, 129, 0.55), inset 0 0 12px rgba(16, 185, 129, 0.18) !important;
+            transform: translateY(-1px);
+        }
+        .epic-arrow-container {
+            width: 44px !important;
+            height: 44px !important;
+            left: 50% !important;
+            top: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            border-radius: 50% !important;
+            background: radial-gradient(circle, #1e293b 0%, #090d16 100%) !important;
+            border: 2.2px solid #fbbf24 !important;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.65), 0 0 18px rgba(251,191,36,0.55) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            z-index: 12 !important;
+            transition: transform 0.22s ease, box-shadow 0.22s ease !important;
+        }
+        .epic-arrow-container:hover {
+            transform: translate(-50%, -50%) scale(1.1) !important;
+            box-shadow: 0 0 22px rgba(251,191,36,0.85) !important;
+        }
+        .sticky-footer .royal-crystal-btn,
+        .sticky-footer .crystal-btn {
+            height: 38px !important;
+            min-height: 38px !important;
+            padding: 0 14px !important;
+            font-size: 0.92rem !important;
+            border-radius: 10px !important;
+        }
         .btn-whatsapp-icon-only {
             --tab-border-color: #25d366;
             --tab-glow-color: rgba(37, 211, 102, 0.85);
             background: linear-gradient(135deg, #22c55e 0%, #16a34a 52%, #15803d 100%) !important;
-            border: 2.2px solid #86efac !important;
-            border-radius: 14px !important;
+            border: 2px solid #86efac !important;
+            border-radius: 10px !important;
             color: #ffffff !important;
             width: auto !important;
-            height: 52px !important;
-            min-width: 145px !important;
-            padding: 0 24px !important;
-            font-size: 1.2rem !important;
+            height: 38px !important;
+            min-width: 115px !important;
+            padding: 0 16px !important;
+            font-size: 0.96rem !important;
             font-weight: 900 !important;
-            gap: 10px !important;
+            gap: 7px !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
             cursor: pointer !important;
-            box-shadow: 0 5px 16px rgba(0, 0, 0, 0.5), 0 0 16px rgba(37, 211, 102, 0.45) !important;
             flex-shrink: 0 !important;
-            transition: all 0.25s ease !important;
         }
         .btn-whatsapp-icon-only:hover,
         .crystal-btn.btn-whatsapp-icon-only:hover {
@@ -2619,18 +2784,92 @@ try {
             animation: none !important;
         }
 
-        /* Specialized Focus Illumination for From Account (Refined Red) & To Account (Refined Green) */
-        html body .single-unified-form #from-account-search:focus,
-        html.light-theme body .single-unified-form #from-account-search:focus {
-            border: 2px solid rgba(248, 113, 113, 0.95) !important;
-            box-shadow: 0 0 14px rgba(239, 68, 68, 0.35), inset 0 0 8px rgba(239, 68, 68, 0.15) !important;
-            animation: none !important;
+        /* ═══ FINAL AUTHORITATIVE CONTRAST, PITCH-BLACK NAME INPUTS & SOFT ILLUMINATED EDGES ═══ */
+        html:not(.light-theme) body #scp-proportional-root .single-unified-form { background: #000000 !important; border: 1.5px solid rgba(148,163,184,0.28) !important; }
+        html:not(.light-theme) body #scp-proportional-root .sub-header-bar,
+        html:not(.light-theme) body #scp-proportional-root .scp-top-amount-row,
+        html:not(.light-theme) body #scp-proportional-root .scp-beneficiary-row,
+        html:not(.light-theme) body #scp-proportional-root #payment-panel {
+            background: linear-gradient(145deg, #243b67 0%, #192a4d 100%) !important;
+            border: 1.5px solid rgba(148, 163, 184, 0.45) !important;
+            padding: 8px 14px !important;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.75) !important;
         }
-        html body .single-unified-form #to-account-search:focus,
-        html.light-theme body .single-unified-form #to-account-search:focus {
-            border: 2px solid rgba(52, 211, 153, 0.95) !important;
-            box-shadow: 0 0 14px rgba(16, 185, 129, 0.35), inset 0 0 8px rgba(16, 185, 129, 0.15) !important;
-            animation: none !important;
+        html body #scp-proportional-root .from-to-row { background: transparent !important; border: none !important; box-shadow: none !important; padding: 2px 0 !important; }
+        html:not(.light-theme) body #scp-proportional-root .scp-from-card {
+            background: linear-gradient(145deg, #4c1120 0%, #2e0913 100%) !important;
+            border: 1.6px solid rgba(251, 113, 133, 0.55) !important;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.7) !important;
+        }
+        html:not(.light-theme) body #scp-proportional-root .scp-to-card {
+            background: linear-gradient(145deg, #0d4f3d 0%, #072f24 100%) !important;
+            border: 1.6px solid rgba(52, 211, 153, 0.55) !important;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.7) !important;
+        }
+        html body #scp-proportional-root .sub-header-bar:hover, html body #scp-proportional-root .sub-header-bar:focus-within,
+        html body #scp-proportional-root .scp-top-amount-row:hover, html body #scp-proportional-root .scp-top-amount-row:focus-within,
+        html body #scp-proportional-root .scp-beneficiary-row:hover, html body #scp-proportional-root .scp-beneficiary-row:focus-within,
+        html body #scp-proportional-root #payment-panel:hover, html body #scp-proportional-root #payment-panel:focus-within {
+            border-color: #38bdf8 !important; box-shadow: 0 0 16px rgba(56, 189, 248, 0.55) !important;
+        }
+        html body #scp-proportional-root .scp-from-card:hover, html body #scp-proportional-root .scp-from-card:focus-within {
+            border-color: #ff4d6d !important; box-shadow: 0 0 18px rgba(255, 77, 109, 0.65) !important;
+        }
+        html body #scp-proportional-root .scp-to-card:hover, html body #scp-proportional-root .scp-to-card:focus-within {
+            border-color: #34d399 !important; box-shadow: 0 0 18px rgba(52, 211, 153, 0.65) !important;
+        }
+        html:not(.light-theme) body #scp-proportional-root #from-account-search,
+        html:not(.light-theme) body #scp-proportional-root #to-account-search {
+            background: #000000 !important; background-color: #000000 !important;
+            color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; font-weight: 900 !important;
+        }
+        html body #scp-proportional-root #from-account-search:hover, html body #scp-proportional-root #from-account-search:focus {
+            border: 2px solid #ff4d6d !important; box-shadow: 0 0 16px rgba(255, 77, 109, 0.6) !important;
+        }
+        html body #scp-proportional-root #to-account-search:hover, html body #scp-proportional-root #to-account-search:focus {
+            border: 2px solid #34d399 !important; box-shadow: 0 0 16px rgba(52, 211, 153, 0.6) !important;
+        }
+        html body #scp-proportional-root #amount-local, html body #scp-proportional-root #amount-foreign {
+            background: #ffffff !important; color: #b91c1c !important; border: 3px solid #dc2626 !important; box-shadow: none !important;
+        }
+        html body #scp-proportional-root #amount-local:hover, html body #scp-proportional-root #amount-local:focus,
+        html body #scp-proportional-root #amount-foreign:hover, html body #scp-proportional-root #amount-foreign:focus {
+            border: 3.5px solid #ef4444 !important; box-shadow: 0 0 18px rgba(239, 68, 68, 0.65) !important;
+        }
+        /* السمة الفاتحة: تباين قوي وألوان واضحة وحواف صريحة لكل البطاقات وحقل الصرف */
+        :root.light-theme body #scp-proportional-root .single-unified-form {
+            background: var(--lt-canvas-2, #d6c19c) !important;
+            border: 2.5px solid var(--lt-border, #5c2808) !important;
+            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.16) !important;
+        }
+        :root.light-theme body #scp-proportional-root .sub-header-bar,
+        :root.light-theme body #scp-proportional-root .scp-top-amount-row,
+        :root.light-theme body #scp-proportional-root .scp-beneficiary-row,
+        :root.light-theme body #scp-proportional-root #payment-panel {
+            background: #ffffff !important;
+            border: 2.2px solid var(--lt-border, #5c2808) !important;
+            padding: 8px 14px !important;
+            box-shadow: 0 5px 14px rgba(0, 0, 0, 0.14) !important;
+        }
+        :root.light-theme body #scp-proportional-root .scp-from-card {
+            background: #fecdd3 !important;
+            border: 2.4px solid #dc2626 !important;
+            box-shadow: 0 5px 14px rgba(220, 38, 38, 0.16) !important;
+        }
+        :root.light-theme body #scp-proportional-root .scp-to-card {
+            background: #a7f3d0 !important;
+            border: 2.4px solid #059669 !important;
+            box-shadow: 0 5px 14px rgba(5, 150, 105, 0.16) !important;
+        }
+        :root.light-theme body #scp-proportional-root #from-account-search,
+        :root.light-theme body #scp-proportional-root #to-account-search {
+            background: #ffffff !important; background-color: #ffffff !important;
+            color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 900 !important;
+        }
+        :root.light-theme body #scp-proportional-root #exchange-rate {
+            background: #fde68a !important; background-color: #fde68a !important;
+            color: #78350f !important; -webkit-text-fill-color: #78350f !important;
+            border: 2.4px solid #b45309 !important; text-shadow: none !important; box-shadow: none !important;
         }
     </style>
 </head>
@@ -2645,7 +2884,7 @@ try {
 
     <div class="toast-container" id="toast-container"></div>
 
-    <div class="pos-wrapper" id="scp-proportional-root" style="width: calc(100% - 24px); max-width: calc(100% - 24px); margin: 0 auto; padding: 8px 0 36px 0; box-sizing: border-box;">
+    <div class="pos-wrapper" id="scp-proportional-root" style="width: var(--erp-ergo-max-w, calc(100% - 24px)) !important; max-width: var(--erp-ergo-max-w, calc(100% - 24px)) !important; margin: 0 auto !important; padding: 6px 8px 26px !important; box-sizing: border-box;">
 
 
         <!-- NEW ADVANCED HEADER -->
@@ -2653,9 +2892,9 @@ try {
         <?php include 'includes/header.php'; ?>
 
         <!-- (Moved SUB HEADER BAR inside main form) -->
-        <div class="split-layout-wrapper" id="main-layout-wrapper" style="display: block; margin-top: 15px; width: 100%;">
+        <div class="split-layout-wrapper" id="main-layout-wrapper" style="display: block; margin-top: 8px; width: 100%;">
             <!-- Main Content area (Full width) -->
-            <div class="main-panel" id="main-form-panel" style="padding: 10px; margin-bottom: 15px; width: 100%;">
+            <div class="main-panel" id="main-form-panel" style="padding: 4px; margin-bottom: 10px; width: 100%;">
 
                 <div id="edit-warning-banner" style="display: none; background: rgba(220, 38, 38, 0.15); border: 2px solid #ef4444; color: #f87171; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2); animation: pulse-glow 2s infinite;">
                     <div style="display: flex; align-items: center; gap: 10px;">
@@ -2682,21 +2921,20 @@ try {
 
                 <div class="interactive-columns" style="display: block;">
                     <!-- ONE SINGLE RECTANGLE -->
-                    <div class="focus-zone single-unified-form" style="padding: 25px; background: var(--surface, rgba(15, 23, 42, 0.4)); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <div class="focus-zone single-unified-form" style="padding: 14px 18px; background: var(--surface, rgba(15, 23, 42, 0.45)); border: 1.5px solid rgba(56, 189, 248, 0.25); border-radius: 16px; box-shadow: 0 10px 28px rgba(0,0,0,0.3);">
                         
                         <!-- Top Row: Date, Balances, Voucher Number -->
-                        <div class="sub-header-bar" style="margin-top: 0; margin-bottom: 25px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);">
-                            <!-- Title & Date -->
-                            <div class="header-group group-primary">
-                                <div class="crystal-pill date-crystal hover-scale">
-                                    <div class="icon-box bg-gradient-blue">📅</div>
+                        <div class="sub-header-bar" style="margin-top: 0; margin-bottom: 12px; padding: 6px 12px; border-radius: 12px; background: rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.08); box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);">
+                            <!-- Date Only (Inner Picker Icon Only) -->
+                            <div class="header-group group-primary" style="flex:0 0 auto;">
+                                <div class="crystal-pill date-crystal hover-scale" style="padding:2px 4px; background:transparent; border:none; box-shadow:none;">
                                     <input type="date" id="hdr-date" class="date-input" value="<?php echo date('Y-m-d'); ?>">
                                 </div>
                             </div>
                             
-                            <!-- Balances -->
-                            <div class="header-group group-balances">
-                                <div class="crystal-pill bal-crystal hover-scale">
+                            <!-- Balances (Expanded Middle Space, Sleek Compact Text) -->
+                            <div class="header-group group-balances" style="flex:1 1 auto; display:flex; justify-content:center; min-width:0;">
+                                <div class="crystal-pill bal-crystal hover-scale" style="width:100%; max-width:860px; justify-content:space-around; padding:4px 14px; min-height:42px;">
                                     <div class="bal-card cash-card">
                                         <span class="bal-icon">💵</span>
                                         <div class="bal-info">
@@ -2740,141 +2978,108 @@ try {
                             </div>
                         </div>
 
-                        <!-- Row 1: Currency | Amount | Rate | Foreign -->
-                        <div class="scp-top-amount-row" style="display: grid; grid-template-columns: 1.0fr 1.9fr 1.2fr 1.9fr; gap: 15px; margin-bottom: 25px; background: var(--bg-secondary, rgba(0,0,0,0.2)); padding: 18px 20px; border-radius: 16px; border: 2.5px solid rgba(251, 191, 36, 0.75);">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <label class="label" style="display:flex; align-items:center; gap:5px; color:var(--amber, #fbbf24); font-size:1.15rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">💱 العملة</label>
-                                <select class="form-input system-currency-select input-glow-focus hover-glow" id="currency" data-next="exchange-rate" onchange="updateCurrency(); document.getElementById('exchange-rate').focus(); document.getElementById('exchange-rate').select();" style="height: 68px; border-radius: 10px; flex-grow: 1; min-width: 140px; width: 100%; font-size: 1.55rem !important; font-weight: 900; padding-right: 8px; padding-left: 8px;">
+                        <!-- Row 1: Labels Above Boxes (Currency | Local Amount | Rate | Foreign Amount) -->
+                        <div class="scp-top-amount-row" style="display: grid; grid-template-columns: 1.05fr 1.95fr 1.05fr 1.95fr; gap: 12px; align-items: end; margin-bottom: 12px; background: var(--bg-secondary, rgba(0,0,0,0.2)); padding: 10px 14px; border-radius: 14px; border: 2px solid rgba(251, 191, 36, 0.7);">
+                            <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+                                <label class="label" style="display:flex; align-items:center; gap:4px; color:var(--amber, #fbbf24); font-size:0.84rem; font-weight:800; margin-bottom:0; white-space:nowrap;">💱 العملة</label>
+                                <select class="form-input system-currency-select input-glow-focus hover-glow" id="currency" data-next="exchange-rate" onchange="updateCurrency(); document.getElementById('exchange-rate').focus(); document.getElementById('exchange-rate').select();" style="height: 58px !important; border-radius: 10px; width: 100%; font-size: 1.25rem !important; font-weight: 900; padding: 0 10px;">
                                     <option value="SDG">جنيه (SDG)</option>
                                     <option value="USD">دولار (USD)</option>
                                     <option value="AED">درهم (AED)</option>
                                 </select>
                             </div>
-                            <div style="display: flex; align-items: center; gap: 10px; position: relative;">
-                                <label id="label-box-1" class="label" style="display:flex; align-items:center; gap:5px; color:var(--text-primary, #cbd5e1); font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;"><span class="vivid-icon vivid-green" style="width:24px; height:24px; font-size:1.1rem;">💰</span> المبلغ (محلي)</label>
-                                <div style="position: relative; flex-grow: 1; min-width: 0; width: 100%;">
-                                    <span id="amount-currency-symbol" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: var(--primary-color, #3b82f6); color: white; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.9rem; pointer-events: none; z-index: 5; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);">SDG</span>
-                                    <input type="text" class="form-input amount hover-scale input-glow-focus hover-glow" id="amount-local" data-next="from-account" autofocus value="0" inputmode="numeric" onfocus="this.select()" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if(typeof calcEquiv === 'function') calcEquiv('local');" onkeydown="if(event.key.length===1 && !/[0-9.+\-*\/()]/.test(event.key) && !event.ctrlKey && !event.metaKey) event.preventDefault();" oninput="if(typeof window.handleSmoothAmountInput === 'function') { window.handleSmoothAmountInput(this, 'local'); } else { let val = this.value.replace(/[^0-9.]/g, ''); this.value = val; calcEquiv('local'); }" style="height: 94px !important; box-sizing: border-box !important; font-size: 2.35rem !important; font-weight: 900; text-align: center; background: #ffffff !important; color: #b91c1c !important; border: 4.5px solid #dc2626 !important; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; direction: ltr; border-radius: 14px; width: 100%; transition: font-size 0.2s ease, letter-spacing 0.2s ease; padding-left: 60px;">
+                            <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0; position: relative;">
+                                <label id="label-box-1" class="label" style="display:flex; align-items:center; gap:4px; color:var(--text-primary, #cbd5e1); font-size:0.86rem; font-weight:800; margin-bottom:0; white-space:nowrap;">💰 المبلغ (محلي)</label>
+                                <div style="position: relative; width: 100%; min-width: 0;">
+                                    <span id="amount-currency-symbol" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: var(--primary-color, #3b82f6); color: white; padding: 3px 9px; border-radius: 7px; font-weight: 800; font-size: 0.8rem; pointer-events: none; z-index: 5;">SDG</span>
+                                    <input type="text" class="form-input amount hover-scale input-glow-focus hover-glow" id="amount-local" data-next="from-account" autofocus value="0" inputmode="numeric" onfocus="this.select()" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if(typeof calcEquiv === 'function') calcEquiv('local');" onkeydown="if(event.key.length===1 && !/[0-9٠-٩۰-۹.,+\-*\/()]/.test(event.key) && !event.ctrlKey && !event.metaKey) event.preventDefault();" oninput="if(typeof window.handleSmoothAmountInput === 'function') { window.handleSmoothAmountInput(this, 'local'); } else { let val = this.value.replace(/[^0-9.]/g, ''); this.value = val; calcEquiv('local'); }" style="height: 58px !important; box-sizing: border-box !important; font-size: 1.68rem !important; font-weight: 900; text-align: center; background: #ffffff !important; color: #b91c1c !important; border: 3px solid #ef4444 !important; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 1px; direction: ltr; border-radius: 11px; width: 100%; padding-left: 54px;">
                                 </div>
                             </div>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <label class="label scp-rate-label" style="display:flex; align-items:center; gap:5px; color:#fbbf24; font-size:1.15rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">⚖️ الصرف</label>
-                                <input type="number" class="form-input input-glow-focus hover-glow" id="exchange-rate" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" placeholder="الصرف" readonly style="flex: 2; text-align: center; cursor:pointer; background:linear-gradient(135deg, #1c1504, #2e2107) !important; color:#ffd700 !important; font-weight:900; height: 68px; border-radius: 12px; font-size: 1.85rem !important; letter-spacing: 1.5px; min-width: 130px; width: 100%; border: 2.5px solid #fbbf24 !important; box-shadow: 0 0 18px rgba(251, 191, 36, 0.45), inset 0 0 12px rgba(251, 191, 36, 0.2);" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=Math.round(r); this.dataset.userEdited='1'; if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
+                            <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+                                <label class="label scp-rate-label" style="display:flex; align-items:center; gap:4px; color:#fbbf24; font-size:0.84rem; font-weight:800; margin-bottom:0; white-space:nowrap;">⚖️ الصرف</label>
+                                <input type="number" class="form-input input-glow-focus hover-glow" id="exchange-rate" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" placeholder="الصرف" readonly style="text-align: center; cursor:pointer; background:linear-gradient(135deg, #1c1504, #2e2107) !important; color:#ffd700 !important; font-weight:900; height: 58px !important; border-radius: 10px; font-size: 1.48rem !important; letter-spacing: 1px; width: 100%; border: 2px solid #fbbf24 !important; box-shadow: 0 0 12px rgba(251, 191, 36, 0.35);" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=Math.round(r); this.dataset.userEdited='1'; if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
                             </div>
-                            <div style="display: flex; align-items: center; gap: 10px; position: relative;">
-                                <label id="label-box-2" class="label" style="display:flex; align-items:center; gap:5px; color:var(--text-primary, #cbd5e1); font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">💵 القيمة (أجنبي)</label>
-                                <div style="position: relative; flex-grow: 1; min-width: 0; width: 100%;">
-                                    <span id="amount-foreign-currency-symbol" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: #ef4444; color: white; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.9rem; pointer-events: none; z-index: 5; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);">USD</span>
-                                    <input type="text" class="form-input amount input-glow-focus hover-glow" id="amount-foreign" data-next="from-account" value="0" inputmode="decimal" onfocus="this.select()" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if(typeof calcEquiv === 'function') calcEquiv('foreign');" onkeydown="if(event.key.length===1 && !/[0-9.+\-*\/()]/.test(event.key) && !event.ctrlKey && !event.metaKey) event.preventDefault();" oninput="if(typeof window.handleSmoothAmountInput === 'function') { window.handleSmoothAmountInput(this, 'foreign'); } else { let val = this.value.replace(/[^0-9.]/g, ''); this.value = val; calcEquiv('foreign'); }" style="height: 94px !important; box-sizing: border-box !important; font-size: 2.35rem !important; text-align: center; background: #ffffff !important; color: #b91c1c !important; font-weight: 900; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; direction: ltr; border-radius: 14px; width: 100%; transition: font-size 0.2s ease, letter-spacing 0.2s ease; padding-left: 60px; cursor: text; border: 4.5px solid #dc2626 !important;">
+                            <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0; position: relative;">
+                                <label id="label-box-2" class="label" style="display:flex; align-items:center; gap:4px; color:var(--text-primary, #cbd5e1); font-size:0.86rem; font-weight:800; margin-bottom:0; white-space:nowrap;">💵 القيمة (أجنبي)</label>
+                                <div style="position: relative; width: 100%; min-width: 0;">
+                                    <span id="amount-foreign-currency-symbol" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: #ef4444; color: white; padding: 3px 9px; border-radius: 7px; font-weight: 800; font-size: 0.8rem; pointer-events: none; z-index: 5;">USD</span>
+                                    <input type="text" class="form-input amount input-glow-focus hover-glow" id="amount-foreign" data-next="from-account" value="0" inputmode="decimal" onfocus="this.select()" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if(typeof calcEquiv === 'function') calcEquiv('foreign');" onkeydown="if(event.key.length===1 && !/[0-9٠-٩۰-۹.,+\-*\/()]/.test(event.key) && !event.ctrlKey && !event.metaKey) event.preventDefault();" oninput="if(typeof window.handleSmoothAmountInput === 'function') { window.handleSmoothAmountInput(this, 'foreign'); } else { let val = this.value.replace(/[^0-9.]/g, ''); this.value = val; calcEquiv('foreign'); }" style="height: 58px !important; box-sizing: border-box !important; font-size: 1.68rem !important; text-align: center; background: #ffffff !important; color: #b91c1c !important; font-weight: 900; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 1px; direction: ltr; border-radius: 11px; width: 100%; padding-left: 54px; cursor: text; border: 2.5px solid #dc2626 !important;">
                                 </div>
                             </div>
 
-                            <!-- ═══ شريط التفقيط الفوري الحي (Live Arabic Tafqeet Bar) ═══ -->
-                            <div id="live-tafqeet-bar" style="grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px; border-radius: 10px; background: linear-gradient(90deg, rgba(251, 191, 36, 0.14), rgba(16, 185, 129, 0.12)); border: 1.5px solid rgba(251, 191, 36, 0.45); font-size: 1.02rem; font-weight: 800; color: #fef08a; box-shadow: inset 0 0 12px rgba(251, 191, 36, 0.1);">
-                                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                                    <span style="background: rgba(251, 191, 36, 0.22); border: 1px solid #fbbf24; color: #ffd700; padding: 2px 10px; border-radius: 6px; font-size: 0.88rem; font-weight: 900; white-space: nowrap;">📜 التفقيط الفوري:</span>
-                                    <span id="live-tafqeet-text" style="color: #ffffff; font-weight: 900; letter-spacing: 0.3px;">صفر جنيه سوداني لا غير</span>
+                            <!-- تفقيط مقسوم إلى جزئين مستقلين (المحلي لوحده والأجنبي لوحده بدون كلمة تفقيط) -->
+                            <div id="live-tafqeet-bar" style="grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 2px;">
+                                <div style="padding: 5px 12px; border-radius: 8px; background: rgba(251, 191, 36, 0.12); border: 1.5px solid rgba(251, 191, 36, 0.45); text-align: center;">
+                                    <span id="live-tafqeet-text" style="color: #fef08a; font-size: 0.92rem; font-weight: 900;">صفر جنيه سوداني لا غير</span>
                                 </div>
-                                <span id="live-tafqeet-foreign" style="color: #6ee7b7; font-size: 0.92rem; font-weight: 800; white-space: nowrap; direction: rtl;"></span>
+                                <div style="padding: 5px 12px; border-radius: 8px; background: rgba(16, 185, 129, 0.12); border: 1.5px solid rgba(16, 185, 129, 0.45); text-align: center;">
+                                    <span id="live-tafqeet-foreign" style="color: #6ee7b7; font-size: 0.92rem; font-weight: 900; direction: rtl;">صفر دولار أمريكي لا غير</span>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Row 2: من حساب | إلى حساب -->
-                        <div class="from-to-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 70px; margin-bottom: 25px; position: relative;">
-                            
-                            <!-- Crystalline Wave Flow Connection -->
-                            <svg class="money-flow-svg" width="100%" height="40" viewBox="0 0 1000 40" preserveAspectRatio="none">
-                                <defs>
-                                    <linearGradient id="pathColorGradient" x1="100%" y1="0%" x2="0%" y2="0%">
-                                        <stop offset="0%" stop-color="#ff0055" />
-                                        <stop offset="50%" stop-color="#ff0055" />
-                                        <stop offset="100%" stop-color="#ff0055" />
-                                    </linearGradient>
-                                </defs>
-                                <!-- Static subtle path -->
-                                <path class="flow-path-bg" d="M 720 20 C 630 5, 570 35, 500 20 C 430 5, 370 35, 280 20" fill="none" stroke="rgba(255, 255, 255, 0.05)" stroke-width="2.5" />
-                                <!-- Flowing pulses -->
-                                <path class="flow-path-wave-1" d="M 720 20 C 630 5, 570 35, 500 20 C 430 5, 370 35, 280 20" fill="none" stroke="url(#pathColorGradient)" stroke-width="3.5" stroke-dasharray="100 900" stroke-dashoffset="1000" />
-                                <path class="flow-path-wave-2" d="M 720 20 C 630 5, 570 35, 500 20 C 430 5, 370 35, 280 20" fill="none" stroke="url(#pathColorGradient)" stroke-width="2.2" stroke-dasharray="50 950" stroke-dashoffset="1000" />
-                            </svg>
-
-                            <!-- Epic Animated Transfer Arrow (Centered Absolute) -->
+                        <!-- Row 2: من حساب | إلى حساب (الدائرة المتوهجة في المنتصف تماماً بدون خط متحرك) -->
+                        <div class="from-to-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 62px; margin-bottom: 8px; position: relative;">
                             <div class="epic-arrow-container" onclick="swapAccounts()" role="button" aria-label="عكس الحسابات" title="عكس حساب الصرف والاستلام">
-                                <svg class="transfer-arrow-anim" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline class="chev chev-3" points="20 18 14 12 20 6"></polyline>
-                                    <polyline class="chev chev-2" points="13 18 7 12 13 6"></polyline>
-                                    <polyline class="chev chev-1" points="6 18 0 12 6 6"></polyline>
+                                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fde047" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="filter: drop-shadow(0 0 8px rgba(253,224,71,0.95));">
+                                    <line x1="20" y1="12" x2="4" y2="12"></line>
+                                    <polyline points="10 18 4 12 10 6"></polyline>
                                 </svg>
                             </div>
 
-                            <!-- من حساب (Refined Crimson Burgundy) -->
+                            <!-- من حساب (التسمية فوق المستطيل) -->
                             <div class="scp-account-card scp-from-card" data-swap="1">
-                                <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
-                                    <label class="label" style="display:flex; align-items:center; gap:5px; color:#fecaca; margin-bottom:0; font-weight:800; white-space:nowrap; flex-shrink:0; font-size: 1.5rem !important;">
-                                        <span style="display:flex; align-items:center; justify-content:center; width: 28px; height: 28px; background: rgba(239, 68, 68, 0.25); border: 1px solid rgba(248, 113, 113, 0.6); border-radius: 50%; color: #fff;">
-                                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                                <div style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
+                                    <label class="label" style="display:flex; align-items:center; gap:5px; color:#fecaca; margin-bottom:0; font-weight:800; white-space:nowrap; font-size: 0.92rem !important;">
+                                        <span style="display:inline-flex; align-items:center; justify-content:center; width: 20px; height: 20px; background: rgba(239, 68, 68, 0.25); border: 1px solid rgba(248, 113, 113, 0.6); border-radius: 50%; color: #fff;">
+                                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
                                         </span>
                                         من حساب <span style="color:#ffffff;">(صرف)</span>
                                     </label>
-                                    <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
+                                    <div class="custom-dropdown-input-wrap" style="width: 100%; min-width: 0; position: relative;">
                                         <input type="hidden" id="from-account">
-                                        <input type="text" autocomplete="off" class="form-input input-glow-focus hover-glow" id="from-account-search" placeholder="ابحث عن حساب الصرف..." onfocus="showAccountDropdown('from')" onblur="hideAccountDropdownDelayed('from')" oninput="filterAccountDropdown('from'); if(typeof adjustAccountNameFontSize==='function') adjustAccountNameFontSize(this);" style="width: 100%; padding: 12px 15px 12px 82px; border-radius: 10px; font-weight: bold; font-size: 1.55rem !important;">
-                                        <button type="button" id="from-account-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('from-account').value)" class="crystal-btn-sm btn-blue-glass" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); z-index: 5; font-size: 0.78rem; font-weight: 800; padding: 2px 7px; height: 28px; display: none;" title="عرض كشف حساب الأستاذ العام">📖 الأستاذ</button>
-                                        <div class="custom-dropdown-list" id="from-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: var(--surface, #1e293b); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: none; margin-top: 5px;"></div>
+                                        <input type="text" autocomplete="off" class="form-input input-glow-focus hover-glow" id="from-account-search" placeholder="ابحث عن حساب الصرف..." onfocus="showAccountDropdown('from')" onblur="hideAccountDropdownDelayed('from')" oninput="filterAccountDropdown('from'); if(typeof adjustAccountNameFontSize==='function') adjustAccountNameFontSize(this);" style="width: 100%; height: 50px !important; padding: 6px 14px 6px 76px; border-radius: 10px; font-weight: 900; font-size: 1.18rem !important;">
+                                        <button type="button" id="from-account-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('from-account').value)" class="crystal-btn-sm btn-blue-glass" style="position: absolute; left: 6px; top: 50%; transform: translateY(-50%); z-index: 5; font-size: 0.75rem; font-weight: 800; padding: 2px 6px; height: 26px; display: none;" title="عرض كشف حساب الأستاذ العام">📖 الأستاذ</button>
+                                        <div class="custom-dropdown-list" id="from-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: var(--surface, #1e293b); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 8px; max-height: 240px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: none; margin-top: 4px;"></div>
                                     </div>
                                 </div>
-                                <div id="from-account-live-bal" style="display: none; align-items: center; justify-content: space-between; gap: 8px; padding: 5px 12px; border-radius: 8px; background: rgba(0,0,0,0.35); border: 1px solid rgba(248, 113, 113, 0.45); font-size: 0.88rem; font-weight: 800; color: #fecaca; flex-wrap: wrap;"></div>
+                                <div id="from-account-live-bal" style="display: none; align-items: center; justify-content: space-between; gap: 6px; margin-top: 4px; padding: 3px 10px; border-radius: 7px; background: rgba(0,0,0,0.35); border: 1px solid rgba(248, 113, 113, 0.45); font-size: 0.82rem; font-weight: 800; color: #fecaca; flex-wrap: wrap;"></div>
                             </div>
-                            <!-- إلى حساب (Refined Emerald Green) -->
+                            <!-- إلى حساب (التسمية فوق المستطيل) -->
                             <div class="scp-account-card scp-to-card" data-swap="1">
-                                <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
-                                    <label class="label" style="display:flex; align-items:center; gap:5px; color:#a7f3d0; margin-bottom:0; font-weight:800; white-space:nowrap; flex-shrink:0; font-size: 1.5rem !important;">
-                                        <span style="display:flex; align-items:center; justify-content:center; width: 28px; height: 28px; background: rgba(16, 185, 129, 0.25); border: 1px solid rgba(52, 211, 153, 0.6); border-radius: 50%; color: #fff;">
-                                              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                                <div style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
+                                    <label class="label" style="display:flex; align-items:center; gap:5px; color:#a7f3d0; margin-bottom:0; font-weight:800; white-space:nowrap; font-size: 0.92rem !important;">
+                                        <span style="display:inline-flex; align-items:center; justify-content:center; width: 20px; height: 20px; background: rgba(16, 185, 129, 0.25); border: 1px solid rgba(52, 211, 153, 0.6); border-radius: 50%; color: #fff;">
+                                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
                                         </span>
                                         إلى حساب <span style="color:#ffffff;">(استلام)</span>
                                     </label>
-                                    <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
+                                    <div class="custom-dropdown-input-wrap" style="width: 100%; min-width: 0; position: relative;">
                                         <input type="hidden" id="to-account">
-                                        <input type="text" autocomplete="off" class="form-input input-glow-focus hover-glow" id="to-account-search" placeholder="ابحث عن حساب الاستلام..." onfocus="showAccountDropdown('to')" onblur="hideAccountDropdownDelayed('to')" oninput="filterAccountDropdown('to'); if(typeof adjustAccountNameFontSize==='function') adjustAccountNameFontSize(this);" style="width: 100%; padding: 12px 15px 12px 82px; border-radius: 10px; font-weight: bold; font-size: 1.55rem !important;">
-                                        <button type="button" id="to-account-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('to-account').value)" class="crystal-btn-sm btn-blue-glass" style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); z-index: 5; font-size: 0.78rem; font-weight: 800; padding: 2px 7px; height: 28px; display: none;" title="عرض كشف حساب الأستاذ العام">📖 الأستاذ</button>
-                                        <div class="custom-dropdown-list" id="to-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: var(--surface, #1e293b); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: none; margin-top: 5px;"></div>
+                                        <input type="text" autocomplete="off" class="form-input input-glow-focus hover-glow" id="to-account-search" placeholder="ابحث عن حساب الاستلام..." onfocus="showAccountDropdown('to')" onblur="hideAccountDropdownDelayed('to')" oninput="filterAccountDropdown('to'); if(typeof adjustAccountNameFontSize==='function') adjustAccountNameFontSize(this);" style="width: 100%; height: 50px !important; padding: 6px 14px 6px 76px; border-radius: 10px; font-weight: 900; font-size: 1.18rem !important;">
+                                        <button type="button" id="to-account-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('to-account').value)" class="crystal-btn-sm btn-blue-glass" style="position: absolute; left: 6px; top: 50%; transform: translateY(-50%); z-index: 5; font-size: 0.75rem; font-weight: 800; padding: 2px 6px; height: 26px; display: none;" title="عرض كشف حساب الأستاذ العام">📖 الأستاذ</button>
+                                        <div class="custom-dropdown-list" id="to-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: var(--surface, #1e293b); border: 1px solid var(--border, rgba(255,255,255,0.1)); border-radius: 8px; max-height: 240px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: none; margin-top: 4px;"></div>
                                     </div>
                                 </div>
-                                <div id="to-account-live-bal" style="display: none; align-items: center; justify-content: space-between; gap: 8px; padding: 5px 12px; border-radius: 8px; background: rgba(0,0,0,0.35); border: 1px solid rgba(52, 211, 153, 0.45); font-size: 0.88rem; font-weight: 800; color: #a7f3d0; flex-wrap: wrap;"></div>
+                                <div id="to-account-live-bal" style="display: none; align-items: center; justify-content: space-between; gap: 6px; margin-top: 4px; padding: 3px 10px; border-radius: 7px; background: rgba(0,0,0,0.35); border: 1px solid rgba(52, 211, 153, 0.45); font-size: 0.82rem; font-weight: 800; color: #a7f3d0; flex-wrap: wrap;"></div>
                             </div>
                         </div>
 
-                        <!-- Row 3: المستفيد | مركز التكلفة -->
-                        <div class="scp-beneficiary-row" style="display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; background: var(--bg-secondary, rgba(255,255,255,0.02)); padding: 14px 18px; border-radius: 16px; border: 2px solid rgba(168, 85, 247, 0.7);">
-                            <!-- Beneficiary (Right) -->
-                            <div style="display: flex; align-items: center; gap: 10px; flex-grow: 1; min-width: 250px;">
-                                <label class="label" style="color:var(--amber, #fbbf24); font-weight:800; display:flex; align-items:center; gap:5px; margin-bottom:0; white-space:nowrap;">
-                                    <span class="vivid-icon vivid-yellow" style="width:24px; height:24px; margin-left:0px;"><span class="icon-pulse" style="font-size:0.9rem;">👨‍💼</span></span> المستفيد
-                                </label>
-                                <input type="text" class="form-input input-glow-focus hover-glow" id="beneficiary-name" data-next="cost-center" placeholder="اسم المستفيد (اختياري)..." style="height: 48px; border-radius: 10px; border-color: rgba(251, 191, 36, 0.4); flex-grow: 1;">
+                        <!-- Row 3+4 مدمجة في سطر واحد: المستفيد | مركز التكلفة | البيان المالي -->
+                        <div class="scp-beneficiary-row" style="display: grid; grid-template-columns: 0.9fr 0.75fr 1.65fr; gap: 10px; align-items: center; margin-bottom: 8px; background: var(--bg-secondary, rgba(255,255,255,0.02)); padding: 6px 12px !important; border-radius: 12px !important; border: 1.5px solid rgba(34, 211, 238, 0.55);">
+                            <div style="display: flex; align-items: center; gap: 6px; min-width: 0;">
+                                <label class="label" style="color:var(--amber, #fbbf24); font-weight:800; margin-bottom:0; white-space:nowrap; font-size:0.86rem;">👨‍💼 المستفيد</label>
+                                <input type="text" class="form-input input-glow-focus hover-glow" id="beneficiary-name" data-next="cost-center" placeholder="المستفيد (اختياري)..." style="height: 36px; border-radius: 8px; border-color: rgba(251, 191, 36, 0.4); flex: 1; min-width: 0; font-size:0.95rem;">
                             </div>
-
-                            <!-- Cost Center (Left) -->
-                            <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0; min-width: 200px;">
-                                <label class="label" style="display:flex; align-items:center; gap:5px; margin-bottom:0; white-space:nowrap;">
-                                    <span style="font-size:1.1rem; opacity:0.8;">📊</span> مركز التكلفة
-                                </label>
-                                <select class="form-input input-glow-focus hover-glow" id="cost-center" data-next="to-statement" style="height: 48px; border-radius: 10px; flex-grow: 1; min-width: 150px;">
-                                    <!-- Populated via JS -->
-                                </select>
+                            <div style="display: flex; align-items: center; gap: 6px; min-width: 0;">
+                                <label class="label" style="margin-bottom:0; white-space:nowrap; font-size:0.86rem;">📊 المركز</label>
+                                <select class="form-input input-glow-focus hover-glow" id="cost-center" data-next="to-statement" style="height: 36px; border-radius: 8px; flex: 1; min-width: 0; font-size:0.92rem;"></select>
                             </div>
-                        </div>
-
-                        <!-- Row 4: البيان -->
-                        <div class="scp-statement-row" style="margin-bottom: 25px; display: flex; align-items: center; gap: 15px; background: rgba(255,255,255,0.02); padding: 14px 18px; border-radius: 16px; border: 2px solid rgba(34, 211, 238, 0.7);">
-                            <div style="display: flex; flex-grow: 1; gap: 10px;">
-                                <input type="text" class="form-input input-glow-focus hover-glow" id="to-statement" data-next="btn-save" placeholder="اكتب مبرر أو تفاصيل الدفع (البيان)..." style="height: 48px; border-radius: 10px; flex-grow: 1;">
-                                <button type="button" onclick="autoCategorize()" id="btn-auto-categorize" style="background: linear-gradient(135deg, #c084fc, #9333ea); color: white; border: none; border-radius: 10px; padding: 0 15px; height: 48px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: bold; white-space: nowrap; box-shadow: 0 4px 15px rgba(147, 51, 234, 0.4); transition: transform 0.2s;" title="توجيه محاسبي ذكي">
-                                    <span style="font-size: 1.2rem;">🪄</span> <span class="btn-text">توقع الحساب</span>
-                                </button>
+                            <div style="display: flex; align-items: center; gap: 6px; min-width: 0;">
+                                <input type="text" class="form-input input-glow-focus hover-glow" id="to-statement" data-next="btn-save" placeholder="البيان المالي (تفاصيل ومبرر الحركة)..." style="height: 36px; border-radius: 8px; flex: 1; min-width: 0; font-size:0.95rem;">
+                                <button type="button" onclick="autoCategorize()" id="btn-auto-categorize" style="background: linear-gradient(135deg, #c084fc, #9333ea); color: white; border: none; border-radius: 8px; padding: 0 10px; height: 36px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; font-weight: 800; font-size:0.82rem; white-space: nowrap;" title="توجيه محاسبي ذكي">🪄 توقع</button>
+                                <input type="hidden" id="from-statement">
                             </div>
-                            <input type="hidden" id="from-statement"> <!-- Hidden to satisfy JS -->
                         </div>
 
                         <!-- Hidden radios to prevent legacy JS checks breaking -->
@@ -2948,8 +3153,8 @@ try {
         #num-props-menu button.prop-btn { background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.5); color: #60a5fa; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
         #num-props-menu button.prop-btn:hover { background: rgba(59, 130, 246, 0.4); color: #fff; }
     </style>
-                        <div id="payment-panel" style="display: block; background: var(--surface, rgba(15, 23, 42, 0.4)); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; margin-top: 20px; margin-bottom: 20px;">
-                            <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding: 12px 20px; background: var(--surface, rgba(15, 23, 42, 0.4)); border-bottom: 1px solid rgba(255,255,255,0.06); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
+                        <div id="payment-panel" style="display: block; background: var(--surface, rgba(15, 23, 42, 0.4)); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; margin-top: 8px; margin-bottom: 6px;">
+                            <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 6px 14px; background: var(--surface, rgba(15, 23, 42, 0.4)); border-bottom: 1px solid rgba(255,255,255,0.06); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
                                 <div class="panel-title" style="background: linear-gradient(135deg, #ff4d4d, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.15rem; font-weight: 900; display: inline-flex; align-items: center; gap: 6px; margin: 0; white-space: nowrap; flex: none;">
                                     <span>💳</span> طريقة وتفاصيل الدفع للمستند المجمع
                                 </div>
@@ -3051,9 +3256,9 @@ try {
             </div>
         </div>
 
-        <!-- STICKY FOOTER -->
-        <div class="sticky-footer" style="background: rgba(15,23,42,0.92); backdrop-filter: none; -webkit-backdrop-filter: none; border-top: 2px solid rgba(56, 189, 248, 0.45); border-left: 1px solid rgba(56, 189, 248, 0.4); border-right: 1px solid rgba(56, 189, 248, 0.4); border-radius: 20px 20px 0 0; padding: 12px 20px; position: sticky; bottom: 0; z-index: 100; box-shadow: 0 -10px 40px rgba(0,0,0,0.6), inset 0 2px 15px rgba(255,255,255,0.05);">
-            <div class="footer-actions unified-footer-bar" style="width: 100%; justify-content: center; gap: 16px; display: flex; flex-wrap: wrap; align-items: center;">
+        <!-- COMPACT BOTTOM ACTION BAR (Fits inside single viewport) -->
+        <div class="sticky-footer" style="background: rgba(15,23,42,0.94); border: 1.5px solid rgba(56, 189, 248, 0.45); border-radius: 14px; padding: 6px 14px; margin-top: 4px; box-shadow: 0 -6px 24px rgba(0,0,0,0.45);">
+            <div class="footer-actions unified-footer-bar" style="width: 100%; justify-content: center; gap: 10px; display: flex; flex-wrap: wrap; align-items: center;">
                 <button type="button" class="btn crystal-btn royal-crystal-btn royal-btn-exit btn-exit" onclick="if(typeof magaieesGoBack === 'function') { magaieesGoBack(); } else if(document.referrer) { window.history.back(); } else { window.location.href='magaiees_unified_dashboard.php'; }" title="الخروج والرجوع للشاشة السابقة">🚪 خروج</button>
                 <button type="button" class="btn crystal-btn royal-crystal-btn royal-btn-new btn-new" onclick="resetVoucher()" title="تصفير الحقول وبدء سند جديد">✨ جديد</button>
                 <button type="button" class="btn crystal-btn royal-crystal-btn royal-btn-preview btn-print-preview" id="btn-preview-invoice" style="display: inline-flex;" onclick="previewVoucher()" title="معاينة السند المالي قبل الطباعة">👁️ معاينة</button>

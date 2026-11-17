@@ -353,20 +353,57 @@
             html:not(.light-theme) #mcp-proportional-root input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="hidden"]),
             html:not(.light-theme) #mcp-proportional-root select, html:not(.light-theme) #mcp-proportional-root textarea { background-color: #000000 !important; color: #FFFFFF !important; -webkit-text-fill-color: #FFFFFF !important; border: 1.8px solid rgba(255,255,255,0.28) !important; font-weight: 900 !important; }
 
-            /* Laser Centering inside Net Workspace */
-            #sl-main-wrapper, #grn-proportional-root, #scp-proportional-root, #mcp-proportional-root, #pa-proportional-root, #mb-proportional-root, #dmr-proportional-root {
-                width: calc(100% - 24px) !important;
-                max-width: calc(100% - 24px) !important;
-                margin-left: 12px !important;
-                margin-right: 12px !important;
-                transform: none !important;
+            /* Unified Screen Geometry & Harmonious Proportions across ALL Main Screens (with wider allowance for multi-column/15-col screens) */
+            #pur-proportional-root, #sales-proportional-root, #grn-proportional-root, #scp-proportional-root, #mcp-proportional-root, #pa-proportional-root, #mb-proportional-root, #dmr-proportional-root, #gl-proportional-root, #md-proportional-root, #sl-main-wrapper, .vouchers-container, .settings-container, .dashboard-container, .hub-container, .analytics-container, .eng-container, .main-container, .page-container {
+                width: var(--erp-ergo-max-w, calc(100% - 20px)) !important;
+                max-width: var(--erp-ergo-max-w, calc(100% - 20px)) !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
                 box-sizing: border-box !important;
+            }
+            /* Multi-column / dense 15-column screens automatically receive full clean horizontal room */
+            #mcp-proportional-root, #pur-proportional-root, #sales-proportional-root, #grn-proportional-root, #mb-proportional-root, #gl-proportional-root {
+                width: var(--erp-ergo-wide-w, var(--erp-ergo-max-w, calc(100% - 16px))) !important;
+                max-width: var(--erp-ergo-wide-w, var(--erp-ergo-max-w, calc(100% - 16px))) !important;
+            }
+            .modal-overlay .modal-card, .md-child-modal, .pa-c1-modal-box, .scp-fc1-modal-card, .mcp-fc1-modal-card, .mg-c14-modal-card {
+                font-family: var(--global-master-font-family, 'Cairo', 'Tajawal', sans-serif) !important;
+                font-size: var(--global-master-font-px, 15.5px);
+                box-sizing: border-box !important;
+            }
+            /* ربط الشريط الجانبي والنافذة المنبثقة الجانبية وبطاقات إجماليات دفتر الأستاذ بلون السمة المختارة تلقائياً */
+            :root.light-theme .global-sidebar,
+            :root.light-theme #magaies-panoramic-flyout,
+            :root.light-theme .panoramic-flyout-panel,
+            :root.light-theme #panoramic-flyout-overlay .flyout-card {
+                background: linear-gradient(160deg, var(--lt-hdr-1, #fffbf2) 0%, var(--lt-card-2, #f5ebd6) 100%) !important;
+                border-color: var(--lt-border, #78350f) !important;
+                color: var(--lt-ink, #0F172A) !important;
+            }
+            :root.light-theme .global-sidebar *,
+            :root.light-theme #magaies-panoramic-flyout *:not(.badge) {
+                color: var(--lt-ink, #0F172A) !important;
+                text-shadow: none !important;
+            }
+            :root.light-theme .gl-summary-strip > div,
+            :root.light-theme .gl-kpi-card,
+            :root.light-theme #gl-proportional-root .summary-card {
+                background: linear-gradient(145deg, var(--lt-card-1, #ffffff) 0%, var(--lt-sub-2, #fbf4e6) 100%) !important;
+                border: 2.2px solid var(--lt-border, #78350f) !important;
+                color: var(--lt-ink, #0F172A) !important;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
+            }
+            html:not(.light-theme) .global-sidebar,
+            html:not(.light-theme) #magaies-panoramic-flyout,
+            html:not(.light-theme) .panoramic-flyout-panel {
+                background: linear-gradient(160deg, var(--dk-card-1, #1b3159) 0%, var(--dk-canvas, #010308) 100%) !important;
+                border-color: var(--dk-border, #38bdf8) !important;
             }
             #pa-proportional-root, #mb-proportional-root, #dmr-proportional-root { overflow-y: auto !important; overflow-x: auto !important; font-family: 'Cairo', 'Tajawal', 'Outfit', sans-serif !important; }
             :root.light-theme #dmr-proportional-root .no-print.bg-slate-900\/80 { background: linear-gradient(145deg, var(--lt-card-1, #ffffff) 0%, var(--lt-card-2, #fcf7ee) 100%) !important; border: 2.5px solid var(--lt-border, #5c2808) !important; color: #0F172A !important; }
             :root.light-theme #dmr-proportional-root .bg-slate-800\/80, :root.light-theme #dmr-proportional-root .bg-slate-800\/60 { background: var(--lt-sub-2, #fbf4e6) !important; border: 1.8px solid var(--lt-border, #5c2808) !important; color: #0F172A !important; }
             :root.light-theme #dmr-proportional-root input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):not([type="range"]), :root.light-theme #dmr-proportional-root select, :root.light-theme .dmr-modal-box input:not([type="checkbox"]):not([type="radio"]), :root.light-theme .dmr-modal-box select { background-color: #FFFFFF !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; border: 2px solid var(--lt-border, #5c2808) !important; font-weight: 900 !important; }
-            #mb-proportional-root th, #mb-proportional-root td, #mb-proportional-root label, #mb-proportional-root button { white-space: normal !important; text-overflow: clip !important; }
+            #mb-proportional-root th, #mb-proportional-root td, #mb-proportional-root label, #mb-proportional-root button:not(.preset-ribbon-btn) { white-space: normal !important; text-overflow: clip !important; }
 
             /* Dual View: Compact Mode */
             body.els-compact-mode #sl-qr-camera-card,
@@ -481,41 +518,47 @@
         applyScreenErgonomics();
     });
 
-    // ── OPHTHALMIC & MULTI-DISPLAY ERGONOMICS ENGINE (Laptop / Desktop Wide / Portrait / Full) ──
+    // ── OPHTHALMIC & MULTI-DISPLAY ERGONOMICS ENGINE (7 Complete Profiles) ──
     const ERGO_PROFILES = [
-        { id: 'auto',            icon: '🛡️', name: 'الوضع القياسي الثابت (يدوي — افتراضي)', desc: 'مقاسات أصلية ثابتة 100% بدون أي تدخل أو تغيير تلقائي' },
-        { id: 'laptop',          icon: '💻', name: 'مقاس اللابتوب المتوازن (1480px)', desc: 'تحديد يدوي لزاوية نظر مريحة على اللابتوب' },
-        { id: 'desktop_comfort', icon: '🖥️', name: 'شاشة ديسكتوب عريضة (+ارتفاع رأسي)', desc: 'تحديد يدوي يمنع التمطيط العرضي على الشاشات العريضة' },
-        { id: 'portrait_tall',   icon: '📱', name: 'شاشة طولية (Portrait Vertical)', desc: 'تحديد يدوي للشاشات الطولية الدوارة' },
-        { id: 'ultrawide_full',  icon: '↔️', name: 'ملء العرض الكامل (100% عريض)', desc: 'يمتد يدوياً على كامل عرض الشاشة بدون قيود' }
+        { id: 'auto',            icon: '🤖', name: 'تلقائي ذكي (موصى به)',             desc: 'يتعرف تلقائياً على نوع شاشتك ويوازن العرض والارتفاع بدقة' },
+        { id: 'laptop',          icon: '💻', name: 'مقاس اللابتوب المتوازن (1480px)',  desc: 'زاوية نظر بؤرية مريحة بدون أي تمطيط على شاشات اللابتوب' },
+        { id: 'desktop_comfort', icon: '🖥️', name: 'كمبيوتر مكتبي مريح (+ارتفاع)',     desc: 'يعالج ضيق الارتفاع الرأسي ويمنع مطّ العرض على الشاشات المكتبية' },
+        { id: 'tablet_touch',    icon: '📲', name: 'تابلت وشاشات لمس الكاشير (POS)',   desc: 'مسافات لمس مريحة وعرض متكامل بدون تمرير جانبي' },
+        { id: 'portrait_tall',   icon: '📱', name: 'شاشة طولية (Portrait Vertical)',   desc: 'أقصى ارتفاع رأسي للجداول المحاسبية والتقارير الطويلة' },
+        { id: 'uhd_4k',          icon: '📺', name: 'شاشة كبيرة جداً / 4K (1820px)',   desc: 'اتزان بصري فخم للشاشات العملاقة وعروض الإدارة' },
+        { id: 'ultrawide_full',  icon: '↔️', name: 'ملء العرض الكامل (100% عريض)',     desc: 'امتداد أفقي كامل من الحافة للحافة بدون قيود' }
     ];
     const pageErgoKey = () => 'magaies_ergo_page_' + (location.pathname.split('/').pop() || 'index.php');
     const detectHardwareMode = () => {
         const w = window.innerWidth || 1366, h = Math.max(window.innerHeight || 768, 320), ar = w / h;
         if (h > w * 1.02) return 'portrait_tall';
+        if (w >= 2200) return 'uhd_4k';
+        if (w <= 1100) return 'tablet_touch';
         if (w >= 1600 || ar >= 1.82) return 'desktop_comfort';
         return 'laptop';
     };
     const applyScreenErgonomics = (notify = false) => {
         const pgVal = localStorage.getItem(pageErgoKey()) || '';
         const glbVal = localStorage.getItem('magaies_ergo_global_mode') || 'auto';
-        const vBoost = parseInt(localStorage.getItem('magaies_ergo_vboost_px') || '0', 10) || 0;
+        try { localStorage.removeItem('magaies_ergo_vboost_px'); } catch (_) {}
         const chosen = pgVal || glbVal || 'auto';
-        const resolved = chosen === 'auto' ? 'auto_balanced' : chosen;
+        const resolved = chosen === 'auto' ? detectHardwareMode() : chosen;
         const root = document.documentElement;
         root.setAttribute('data-ergo-mode', chosen);
         root.setAttribute('data-ergo-resolved', resolved);
-        let maxW = 'calc(100% - 28px)', gridH = 'auto', vpad = vBoost + 'px';
-        if (resolved === 'laptop') { maxW = 'min(calc(100% - 28px), 1480px)'; gridH = (52 + Math.round(vBoost / 4)) + 'dvh'; }
-        else if (resolved === 'desktop_comfort') { maxW = 'min(calc(100% - 40px), calc(100dvh * 1.68), 1620px)'; gridH = (60 + Math.round(vBoost / 3)) + 'dvh'; vpad = (4 + vBoost) + 'px'; }
-        else if (resolved === 'portrait_tall') { maxW = 'calc(100% - 18px)'; gridH = (72 + Math.round(vBoost / 3)) + 'dvh'; vpad = (3 + vBoost) + 'px'; }
+        let maxW = 'calc(100% - 20px)', wideW = 'calc(100% - 16px)';
+        if (resolved === 'laptop') { maxW = 'min(calc(100% - 20px), 1520px)'; wideW = 'calc(100% - 16px)'; }
+        else if (resolved === 'desktop_comfort') { maxW = 'min(calc(100% - 28px), 1680px)'; wideW = 'min(calc(100% - 18px), 1840px)'; }
+        else if (resolved === 'tablet_touch' || resolved === 'portrait_tall') { maxW = 'calc(100% - 14px)'; wideW = 'calc(100% - 12px)'; }
+        else if (resolved === 'uhd_4k') { maxW = 'min(calc(100% - 36px), 1860px)'; wideW = 'min(calc(100% - 24px), 2100px)'; }
+        else if (resolved === 'ultrawide_full') { maxW = 'calc(100% - 16px)'; wideW = 'calc(100% - 16px)'; }
         root.style.setProperty('--erp-ergo-max-w', maxW);
-        root.style.setProperty('--erp-ergo-grid-min-h', gridH);
-        root.style.setProperty('--erp-ergo-vpad', vpad);
+        root.style.setProperty('--erp-ergo-wide-w', wideW);
         const lbl = document.getElementById('magaies-ergo-hdr-lbl');
-        if (lbl) lbl.textContent = (pgVal ? '📌 ' : '') + (resolved === 'desktop_comfort' ? 'مكتبي مريح' : resolved === 'portrait_tall' ? 'طولي' : resolved === 'laptop' ? 'لابتوب' : resolved === 'ultrawide_full' ? 'عريض كامل' : 'مقاس الشاشة');
+        const namesShort = { desktop_comfort: 'مكتبي متوازن', portrait_tall: 'طولي', laptop: 'لابتوب', tablet_touch: 'تابلت/لمس', uhd_4k: 'شاشة 4K', ultrawide_full: 'عريض كامل' };
+        if (lbl) lbl.textContent = (pgVal ? '📌 ' : '') + (chosen === 'auto' ? ('تلقائي • ' + (namesShort[resolved] || 'متوازن')) : (namesShort[resolved] || 'مقاس الشاشة'));
         if (typeof window.renderSettingsErgoStudio === 'function') window.renderSettingsErgoStudio();
-        if (notify && typeof window.showToast === 'function') window.showToast('🖥️ تم ضبط هندسة الشاشة وراحة العين فوراً', 'success', 2200);
+        if (notify && typeof window.showToast === 'function') window.showToast('🖥️ تم توحيد أبعاد ومقاسات كافة الشاشات تلقائياً', 'success', 2000);
     };
 
     const setErgoProfile = (mode, scope = 'global') => {
@@ -538,8 +581,7 @@
         pop.style.cssText = `position:fixed;z-index:2147483645;background:${isDk ? '#0f172a' : '#fffbf2'};border:2.5px solid #38bdf8;border-radius:14px;padding:11px;box-shadow:0 18px 42px rgba(0,0,0,0.65);width:315px;direction:rtl;font-family:Cairo,Tajawal,sans-serif;color:${ink};`;
         pop.innerHTML = `<div style="font-weight:900;font-size:0.9rem;margin-bottom:7px;display:flex;justify-content:space-between;"><span>🖥️ هندسة الشاشات وراحة العين</span><span style="font-size:0.75rem;color:#0ea5e9;">${window.innerWidth}×${window.innerHeight}</span></div>
             <div style="display:flex;gap:5px;margin-bottom:8px;"><button type="button" id="ergo-sc-glb" style="flex:1;padding:5px;border-radius:8px;font-weight:900;font-size:0.76rem;cursor:pointer;border:2px solid ${scope==='global'?'#10b981':'#64748b'};background:${scope==='global'?'#059669':'transparent'};color:${scope==='global'?'#fff':ink};">🌐 للبرنامج كله</button><button type="button" id="ergo-sc-pg" style="flex:1;padding:5px;border-radius:8px;font-weight:900;font-size:0.76rem;cursor:pointer;border:2px solid ${scope==='page'?'#f59e0b':'#64748b'};background:${scope==='page'?'#d97706':'transparent'};color:${scope==='page'?'#fff':ink};">📌 لهذه الشاشة فقط</button></div>` +
-            ERGO_PROFILES.map(p => `<button type="button" data-ep="${p.id}" style="width:100%;text-align:right;padding:7px 9px;margin-bottom:5px;border-radius:9px;cursor:pointer;background:${cur===p.id?(isDk?'#1e293b':'#fef3c7'):'transparent'};border:${cur===p.id?'2px solid #0ea5e9':'1px solid rgba(148,163,184,0.4)'};color:${ink}!important;font-weight:900;font-size:0.82rem;"><div>${p.icon} ${p.name} ${cur===p.id?'✓':''}</div><div style="font-size:0.71rem;opacity:0.8;font-weight:700;">${p.desc}</div></button>`).join('') +
-            `<div style="margin-top:6px;padding-top:6px;border-top:1px dashed rgba(148,163,184,0.35);font-size:0.78rem;font-weight:900;">↕️ توسيع الارتفاع الرأسي للجداول: <span id="ergo-vb-lbl">+${vb}px</span><input type="range" min="0" max="24" step="2" value="${vb}" style="width:100%;margin-top:4px;" oninput="document.getElementById('ergo-vb-lbl').textContent='+'+this.value+'px';window.MagaiesScreenErgonomics.setVerticalBoost(this.value);"></div>`;
+            ERGO_PROFILES.map(p => `<button type="button" data-ep="${p.id}" style="width:100%;text-align:right;padding:7px 9px;margin-bottom:5px;border-radius:9px;cursor:pointer;background:${cur===p.id?(isDk?'#1e293b':'#fef3c7'):'transparent'};border:${cur===p.id?'2px solid #0ea5e9':'1px solid rgba(148,163,184,0.4)'};color:${ink}!important;font-weight:900;font-size:0.82rem;"><div>${p.icon} ${p.name} ${cur===p.id?'✓':''}</div><div style="font-size:0.71rem;opacity:0.8;font-weight:700;">${p.desc}</div></button>`).join('');
         let activeScope = scope;
         pop.querySelector('#ergo-sc-glb').onclick = () => { activeScope = 'global'; localStorage.removeItem(pageErgoKey()); applyScreenErgonomics(true); pop.style.display = 'none'; };
         pop.querySelector('#ergo-sc-pg').onclick = () => { activeScope = 'page'; localStorage.setItem(pageErgoKey(), cur); applyScreenErgonomics(true); pop.style.display = 'none'; };

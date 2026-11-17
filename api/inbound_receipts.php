@@ -3833,12 +3833,10 @@ function handleWhatsAppStatementRequest($pdo, $tenantId, $messageText, $senderPh
     }
 
     // Determine final output mode ('balance_only' vs 'detailed')
-    if ($explicitBalanceOnlyRequest) {
+    if ($effectiveMode === 'balance_only' || $explicitBalanceOnlyRequest) {
         $renderMode = 'balance_only';
-    } elseif ($explicitDetailedRequest) {
-        $renderMode = ($masterMode === 'force_balance_only_all') ? 'balance_only' : 'detailed';
     } else {
-        $renderMode = ($effectiveMode === 'balance_only') ? 'balance_only' : 'detailed';
+        $renderMode = 'detailed';
     }
 
     // Anti-Spam Cooldown: Prevent network double-delivery within 1 second without blocking interactive queries

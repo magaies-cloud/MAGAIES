@@ -3138,17 +3138,24 @@ try {
                         return;
                     }
 
-                    var mainEl = document.querySelector('#pur-proportional-root, #sales-proportional-root, #grn-proportional-root, #md-proportional-root, .dash-main, #purchase-editor-view, #sl-main-wrapper, .dashboard-container, .alarm-master-wrapper, .vouchers-container, .hub-container, .analytics-container, .eng-container, .settings-container, .main-container, .page-container, main');
+                    var mainEl = document.querySelector('#pur-proportional-root, #sales-proportional-root, #grn-proportional-root, #scp-proportional-root, #mcp-proportional-root, #pa-proportional-root, #mb-proportional-root, #dmr-proportional-root, #gl-proportional-root, #md-proportional-root, .dash-main, #purchase-editor-view, #sl-main-wrapper, .dashboard-container, .alarm-master-wrapper, .vouchers-container, .hub-container, .analytics-container, .eng-container, .settings-container, .main-container, .page-container, main');
                     if (mainEl) {
                         mainEl.style.boxSizing = 'border-box';
                         mainEl.style.transformOrigin = 'top center';
                         mainEl.style.marginInline = 'auto';
                         mainEl.style.marginLeft = 'auto';
                         mainEl.style.marginRight = 'auto';
-                        mainEl.style.transform = '';
-                        mainEl.style.zoom = Math.abs(val - 1) < 0.01 ? '' : String(val);
-                        mainEl.style.width = 'var(--erp-ergo-max-w, calc(100% - 28px))';
-                        mainEl.style.maxWidth = 'var(--erp-ergo-max-w, calc(100% - 28px))';
+                        if (val < 0.995) {
+                            mainEl.style.zoom = '';
+                            mainEl.style.transform = 'scale(' + val + ')';
+                            mainEl.style.width = 'var(--erp-ergo-max-w, calc(100% - 28px))';
+                            mainEl.style.maxWidth = 'var(--erp-ergo-max-w, calc(100% - 28px))';
+                        } else {
+                            mainEl.style.transform = '';
+                            mainEl.style.zoom = Math.abs(val - 1) < 0.01 ? '' : String(val);
+                            mainEl.style.width = 'var(--erp-ergo-max-w, calc(100% - 28px))';
+                            mainEl.style.maxWidth = 'var(--erp-ergo-max-w, calc(100% - 28px))';
+                        }
                     }
                     if (!skipSave && document.body) {
                         var zb = document.getElementById('magaies-telescopic-zoom-hud');
@@ -3156,25 +3163,36 @@ try {
                             zb = document.createElement('button');
                             zb.id = 'magaies-telescopic-zoom-hud';
                             zb.type = 'button';
-                            zb.title = 'انقر لإعادة مقاس الشاشة الطبيعي (100% = 1x)';
+                            zb.title = 'انقر لإعادة مقاس الشاشة الطبيعي (100% = 0)';
                             zb.style.cssText = 'position:fixed;bottom:18px;right:82px;z-index:2147483000;padding:6px 14px;border-radius:999px;background:linear-gradient(135deg,#0f172a,#1e293b);color:#fde047;border:2px solid #38bdf8;font-family:Tajawal,Cairo,sans-serif;font-size:0.86rem;font-weight:900;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,0.65);transition:opacity 0.25s;';
-                            zb.onclick = function() { window.applyGlobalSovereignMasterScale(1.0, false); zb.style.display = 'none'; };
+                            zb.onclick = function() { window.setMagaiesScreenZoomStep(0); zb.style.display = 'none'; };
                             document.body.appendChild(zb);
                         }
-                        zb.textContent = '🔍 التكبير التلسكوبي: ' + Math.round(val * 100) + '% (' + val.toFixed(2) + 'x) ↺';
+                        zb.textContent = '🖥️ مقاس الشاشة: ' + Math.round(val * 100) + '% ↺';
                         zb.style.display = Math.abs(val - 1) < 0.01 ? 'none' : 'inline-flex';
                     }
                 };
 
-                [MASTER_SCALE_KEY, mdScaleKey, c15Key, grnScaleKey, slFc1Key, GLOBAL_FONT_KEY, 'magaies_telescopic_zoom_scale'].forEach(function(k) {
-                    try { localStorage.removeItem(k); } catch (e) {}
-                });
-                window.applyGlobalSovereignMasterScale(1.0, true);
+                window.setMagaiesScreenZoomStep = function(stepInt, skipToast) {
+                    var st = Math.max(-15, Math.min(10, parseInt(stepInt, 10) || 0));
+                    try { localStorage.setItem('magaies_screen_zoom_step_v1', String(st)); } catch (_) {}
+                    var scaleVal = Math.round((1 + (st * 0.02)) * 1000) / 1000;
+                    window.applyGlobalSovereignMasterScale(scaleVal, false);
+                    var badge = document.getElementById('cfg-screen-step-badge');
+                    var rng = document.getElementById('cfg-screen-step-range');
+                    if (rng && String(rng.value) !== String(st)) rng.value = String(st);
+                    if (badge) badge.textContent = (st > 0 ? ('+' + st + ' تكبير') : (st < 0 ? (st + ' تصغير') : '0 (الوضع الطبيعي 100%)')) + ' — ' + Math.round(scaleVal * 100) + '%';
+                    if (!skipToast && typeof window.showToast === 'function') window.showToast('🖥️ تم ضبط إعدادات الشاشة: ' + (st > 0 ? '+' + st : st) + ' (' + Math.round(scaleVal * 100) + '%)', 'success', 1800);
+                };
 
-                if (!window.ElsajanaUniversalUI2027 && !document.querySelector('script[src*="elsajana-universal-ui-2027.js?v=2027_natural_100_v3"]')) {
+                var savedZoomStep = 0;
+                try { savedZoomStep = Math.max(-15, Math.min(10, parseInt(localStorage.getItem('magaies_screen_zoom_step_v1') || '0', 10) || 0)); } catch (_) {}
+                window.applyGlobalSovereignMasterScale(Math.round((1 + (savedZoomStep * 0.02)) * 1000) / 1000, true);
+
+                if (!window.ElsajanaUniversalUI2027 && !document.querySelector('script[src*="elsajana-universal-ui-2027.js?v=2027_natural_100_v5"]')) {
                     var _ergoScr = document.createElement('script');
                     _ergoScr.defer = true;
-                    _ergoScr.src = 'js/elsajana-universal-ui-2027.js?v=2027_natural_100_v3';
+                    _ergoScr.src = 'js/elsajana-universal-ui-2027.js?v=2027_natural_100_v5';
                     (document.head || document.documentElement).appendChild(_ergoScr);
                 }
             } catch (e) {}

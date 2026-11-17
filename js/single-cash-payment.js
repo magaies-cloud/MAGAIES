@@ -525,20 +525,14 @@ window.updateLiveTafqeetAndBalances = function() {
     const tafTextEl = document.getElementById('live-tafqeet-text');
     const tafForEl = document.getElementById('live-tafqeet-foreign');
     if (tafTextEl) {
-        if (amtLocal > 0 && typeof window.formatArabicTafqeet === 'function') {
-            tafTextEl.textContent = window.formatArabicTafqeet(amtLocal, 'SDG');
-            tafTextEl.style.color = '#fef08a';
-        } else {
-            tafTextEl.textContent = 'صفر جنيه سوداني لا غير';
-            tafTextEl.style.color = '#cbd5e1';
-        }
+        tafTextEl.textContent = (amtLocal > 0 && typeof window.formatArabicTafqeet === 'function')
+            ? window.formatArabicTafqeet(amtLocal, 'SDG')
+            : 'صفر جنيه سوداني لا غير';
     }
     if (tafForEl) {
-        if (amtForeign > 0 && typeof window.formatArabicTafqeet === 'function') {
-            tafForEl.textContent = `💵 يعادل: ${window.formatArabicTafqeet(amtForeign, foreignSym)}`;
-        } else {
-            tafForEl.textContent = '';
-        }
+        tafForEl.textContent = (amtForeign > 0 && typeof window.formatArabicTafqeet === 'function')
+            ? window.formatArabicTafqeet(amtForeign, foreignSym)
+            : (foreignSym === 'AED' ? 'صفر درهم إماراتي لا غير' : 'صفر دولار أمريكي لا غير');
     }
 
     // 2. تحديث كاشف الرصيد اللحظي في بطاقتي (من حساب) و (إلى حساب)
@@ -828,15 +822,11 @@ window.adjustAccountNameFontSize = function(input) {
     if (!input) return;
     const len = (input.value || '').trim().length;
     if (len > 34) {
+        input.style.setProperty('font-size', '0.88rem', 'important');
+    } else if (len > 24) {
         input.style.setProperty('font-size', '0.98rem', 'important');
-    } else if (len > 26) {
-        input.style.setProperty('font-size', '1.14rem', 'important');
-    } else if (len > 20) {
-        input.style.setProperty('font-size', '1.28rem', 'important');
-    } else if (len > 15) {
-        input.style.setProperty('font-size', '1.42rem', 'important');
     } else {
-        input.style.setProperty('font-size', '1.55rem', 'important');
+        input.style.setProperty('font-size', '1.1rem', 'important');
     }
 };
 

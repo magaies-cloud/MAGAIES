@@ -2,37 +2,23 @@
 window.toggleNumberMagnification = function(el) {
     if (!el) return;
     const isMagnified = el.classList.contains('focused-num') || el.classList.contains('num-magnified');
+    const props = ['background', 'background-color', 'color', 'font-size', 'font-weight', 'border', 'border-radius', 'box-shadow', 'transform', 'z-index', 'position', 'padding', 'letter-spacing', 'text-shadow', 'line-height'];
     if (isMagnified) {
         el.classList.remove('focused-num', 'num-magnified');
-        el.style.removeProperty('background');
-        el.style.removeProperty('background-color');
-        el.style.removeProperty('color');
-        el.style.removeProperty('font-size');
-        el.style.removeProperty('font-weight');
-        el.style.removeProperty('border');
-        el.style.removeProperty('border-radius');
-        el.style.removeProperty('box-shadow');
-        el.style.removeProperty('transform');
-        el.style.removeProperty('z-index');
-        el.style.removeProperty('position');
-        el.style.removeProperty('padding');
-        el.style.removeProperty('letter-spacing');
-        el.style.removeProperty('text-shadow');
+        props.forEach(p => el.style.removeProperty(p));
     } else {
         el.classList.add('focused-num', 'num-magnified');
         el.style.setProperty('background', '#fef08a', 'important');
         el.style.setProperty('background-color', '#fef08a', 'important');
         el.style.setProperty('color', '#0f172a', 'important');
-        el.style.setProperty('font-size', '1.85rem', 'important');
+        el.style.setProperty('font-size', '1.28rem', 'important');
         el.style.setProperty('font-weight', '900', 'important');
-        el.style.setProperty('border', '2.5px solid #eab308', 'important');
-        el.style.setProperty('border-radius', '12px', 'important');
-        el.style.setProperty('box-shadow', '0 12px 30px rgba(234, 179, 8, 0.45), 0 4px 12px rgba(0,0,0,0.2)', 'important');
-        el.style.setProperty('transform', 'scale(1.08)', 'important');
-        el.style.setProperty('z-index', '99999', 'important');
-        el.style.setProperty('position', 'relative', 'important');
-        el.style.setProperty('padding', '8px 20px', 'important');
-        el.style.setProperty('letter-spacing', '0.8px', 'important');
+        el.style.setProperty('border-radius', '4px', 'important');
+        el.style.setProperty('box-shadow', 'inset 0 0 0 2px #eab308', 'important');
+        el.style.setProperty('transform', 'none', 'important');
+        el.style.setProperty('padding', '4px 6px', 'important');
+        el.style.setProperty('letter-spacing', '0px', 'important');
+        el.style.setProperty('line-height', '1.2', 'important');
         el.style.setProperty('text-shadow', 'none', 'important');
     }
 };
@@ -605,9 +591,15 @@ function calculateAccountLedgerBalance(p, allTxns, systemUsdRate, ccFilter = 'AL
     const idxMap = (allTxns === ALL_TXNS && window._txnBucketMap) ? window._txnBucketMap : null;
     const isRelevantEntityTxn = (t) => {
         if (!t || (ccFilter && ccFilter !== 'ALL' && t.costCenter !== ccFilter)) return false;
+        if (t.type === 'opening' || t.ref === 'OPENING' || t.ref === 'OPEN-BAL') return false;
         const tAcc = String(t.account || '').trim();
+        if (!tAcc || /^(walk-in|walk-in-supplier|unknown|-|all|حسابات فرعية متعددة)$/i.test(tAcc)) return false;
         const tPfx = (tAcc.match(/^(cust|supp|bank|safe|exp)-/i) || [''])[0].toLowerCase();
         if (prefix && tPfx && tPfx !== prefix.toLowerCase()) return false;
+        if (tPfx) {
+            const cT = tAcc.replace(/^(cust-|supp-|bank-|safe-|exp-|sub-|sust-)+/i, '').trim().toLowerCase();
+            return cT === pBareId.toLowerCase() || (pCode && pCode !== '-' && pCode.length >= 3 && cT === pCode.toLowerCase());
+        }
         return true;
     };
     if (idxMap) {
@@ -950,25 +942,26 @@ async function syncFreshMasterForBalances() {
     if (_syncingMasterBalances) return;
     _syncingMasterBalances = true;
     try {
-        const res = await fetch('api/load_master_data.php?_t=' + Date.now(), { cache: 'no-store' });
+        const tId = (window.SERVER_TENANT && window.SERVER_TENANT.id) || (JSON.parse(localStorage.getItem('user') || '{}').tenant_id) || '12';
+        const res = await fetch('api/get_master_data.php?tenant_id=' + encodeURIComponent(tId) + '&_t=' + Date.now(), { cache: 'no-store' });
         const d = await res.json();
-        if (d && d.success !== false) {
+        if (d && (d.status === 'success' || d.success !== false)) {
             const getTK = window.getTenantKey || ((k) => k);
             const mergeSave = (key, srvArr) => {
                 if (!Array.isArray(srvArr) || !srvArr.length) return;
-                let loc = []; try { loc = JSON.parse(localStorage.getItem(baseKey) || '[]'); } catch(e){}
+                const tk = getTK(key);
+                let loc = []; try { loc = JSON.parse(localStorage.getItem(tk) || localStorage.getItem(key) || '[]'); } catch(e){}
                 const m = new Map();
                 (Array.isArray(loc) ? loc : []).forEach(x => { if (x && x.id) m.set(String(x.id), x); });
                 srvArr.forEach(x => { if (x && x.id) m.set(String(x.id), Object.assign({}, m.get(String(x.id)) || {}, x)); });
                 const merged = Array.from(m.values());
                 localStorage.setItem(key, JSON.stringify(merged));
-                const tk = getTK(key);
                 if (tk !== key) localStorage.setItem(tk, JSON.stringify(merged));
             };
-            var baseKey = 'erp_customers_v1'; mergeSave('erp_customers_v1', d.customers);
-            baseKey = 'erp_suppliers_v1'; mergeSave('erp_suppliers_v1', d.suppliers);
-            baseKey = 'erp_banks_v1'; mergeSave('erp_banks_v1', d.banks);
-            baseKey = 'erp_safes_v1'; mergeSave('erp_safes_v1', d.safes);
+            mergeSave('erp_customers_v1', d.customers);
+            mergeSave('erp_suppliers_v1', d.suppliers);
+            mergeSave('erp_banks_v1', d.banks);
+            mergeSave('erp_safes_v1', d.safes);
             loadData();
             runReport(true);
         }
@@ -1043,11 +1036,11 @@ function runReport(isAutoInit = false) {
 
         // Currency Mode is handled via column visibility & display (do not exclude accounts by base currency tag)
 
-        // Condition Filter
-        if (conditionFilter === 'DEBTORS_ONLY' && p.endingDebitLocal <= 0) return false;
-        if (conditionFilter === 'CREDITORS_ONLY' && p.endingCreditLocal <= 0) return false;
-        if (conditionFilter === 'ACTIVE_ONLY' && !p.lastDate) return false;
-        if (conditionFilter === 'NON_ZERO' && p.endingDebitLocal === 0 && p.endingCreditLocal === 0 && p.endingDebitForeign === 0 && p.endingCreditForeign === 0) return false;
+        // Condition Filter (exclude zero-balance accounts by default unless WITH_ZERO is explicitly chosen)
+        const hasAnyBal = Math.abs(p.endingDebitLocal || 0) > 0.001 || Math.abs(p.endingCreditLocal || 0) > 0.001 || Math.abs(p.endingDebitForeign || 0) > 0.001 || Math.abs(p.endingCreditForeign || 0) > 0.001;
+        if (conditionFilter !== 'WITH_ZERO' && !hasAnyBal) return false;
+        if (conditionFilter === 'DEBTORS_ONLY' && p.endingDebitLocal <= 0.001) return false;
+        if (conditionFilter === 'CREDITORS_ONLY' && p.endingCreditLocal <= 0.001) return false;
 
         return true;
     });
@@ -1965,9 +1958,9 @@ function handleRowClick(event, partnerId, partnerType, partnerName) {
 }
 
 function renderTable(results, isAutoInit = false) {
-    const cond = document.getElementById('filter-condition') ? document.getElementById('filter-condition').value : 'ALL';
-    // Filter out accounts with zero ending balance only when NON_ZERO condition is chosen
-    if (cond === 'NON_ZERO') {
+    const cond = document.getElementById('filter-condition') ? document.getElementById('filter-condition').value : 'NON_ZERO';
+    // Exclude zero ending balance accounts by default (show only + or - balances unless WITH_ZERO is chosen)
+    if (cond !== 'WITH_ZERO') {
         results = results.filter(p => {
             const dL = Math.abs(p.endingDebitLocal || 0);
             const cL = Math.abs(p.endingCreditLocal || 0);
@@ -2177,9 +2170,9 @@ window.getBalancesPresets = function() {
         { name: 'رقم الهاتف', alias: 'رقم الهاتف', id: 'phone', bold: false, fs: 0.95, visible: true, align: 'center', color: '#cbd5e1', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
         { name: 'الرقم الضريبي', alias: 'الرقم الضريبي', id: 'taxNo', bold: false, fs: 0.95, visible: true, align: 'center', color: '#cbd5e1', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
         { name: 'العملة', alias: 'العملة', id: 'currency', bold: true, fontWeight: '900', fs: 1.0, visible: true, align: 'center', color: '#fbbf24', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
-        { name: 'مدين أجنبي (عليه)', alias: 'مدين أجنبي (عليه)', id: 'debitF', bold: true, fontWeight: '900', fs: 1.1, visible: true, align: 'center', color: '#38bdf8', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
+        { name: 'مدين أجنبي (لنا)', alias: 'مدين أجنبي (لنا)', id: 'debitF', bold: true, fontWeight: '900', fs: 1.1, visible: true, align: 'center', color: '#38bdf8', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
         { name: 'دائن أجنبي (له)', alias: 'دائن أجنبي (له)', id: 'creditF', bold: true, fontWeight: '900', fs: 1.1, visible: true, align: 'center', color: '#fb7185', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
-        { name: 'مدين محلي (عليه)', alias: 'مدين محلي (عليه)', id: 'debit', bold: true, fontWeight: '900', fs: 1.15, visible: true, align: 'center', color: '#34d399', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
+        { name: 'مدين محلي (لنا)', alias: 'مدين محلي (لنا)', id: 'debit', bold: true, fontWeight: '900', fs: 1.15, visible: true, align: 'center', color: '#34d399', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
         { name: 'دائن محلي (له)', alias: 'دائن محلي (له)', id: 'credit', bold: true, fontWeight: '900', fs: 1.15, visible: true, align: 'center', color: '#f43f5e', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' },
         { name: 'ملحوظة', alias: 'ملحوظة', id: 'note', bold: false, fs: 0.9, visible: true, align: 'right', color: '#94a3b8', bg: '', decimals: 2, dec: 2, thousands: true, thousandsSep: ',', decSep: '.', roundMode: 'round' }
     ];
@@ -2320,6 +2313,7 @@ window.renderBalancesPresets = function() {
     try { presets = JSON.parse(localStorage.getItem(userPresetKey) || localStorage.getItem(PRESETS_STORAGE_KEY) || '[]'); } catch(e){}
 
     const fixedDefaults = ['متعدد العملات 1', 'متعدد العملات 2', 'متعدد العملات 3', 'متعدد العملات 4', 'متعدد العملات 5', 'الأجنبي', 'أجنبي بلا ألوان', 'المحلي', 'محلي بلا ألوان', 'نمط 1', 'نمط 2', 'نمط 3'];
+    const compactLabels = ['متعدد 1', 'متعدد 2', 'متعدد 3', 'متعدد 4', 'متعدد 5', 'أجنبي', 'أجنبي صافي', 'محلي', 'محلي صافي', 'نمط 1', 'نمط 2', 'نمط 3'];
     const gradients = [
         'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
         'linear-gradient(135deg, #059669 0%, #047857 100%)',
@@ -2344,13 +2338,9 @@ window.renderBalancesPresets = function() {
         btn.type = 'button';
         btn.className = 'preset-ribbon-btn preset-slot-' + idx;
         const cleanName = idx < 9 ? defName : (stripIcons(p.name) || defName);
-        const isMultiCurr = idx < 5;
-        const isShortPattern = idx >= 9;
-        const isShortSingle = (idx === 5 || idx === 7);
-        const flexVal = isMultiCurr ? '1.38 1 0%' : (isShortPattern ? '0.58 1 0%' : (isShortSingle ? '0.72 1 0%' : '1.15 1 0%'));
-        const padVal = isMultiCurr ? '0 10px' : (isShortPattern ? '0 4px' : '0 7px');
-        btn.style.cssText = 'flex:' + flexVal + ' !important; min-width:0 !important; padding:' + padVal + ' !important; height:38px !important; border-radius:9px !important; background:' + gradients[idx] + ' !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; border:1.8px solid ' + borders[idx] + ' !important; font-weight:900 !important; font-size:0.84rem !important; box-shadow:0 3px 10px rgba(0,0,0,0.22) !important; white-space:nowrap !important;';
-        btn.textContent = cleanName;
+        const shortTxt = idx < 9 ? compactLabels[idx] : (stripIcons(p.name) || compactLabels[idx]);
+        btn.style.cssText = 'flex:1 1 0% !important; min-width:fit-content !important; padding:0 8px !important; height:34px !important; border-radius:9px !important; background:' + gradients[idx] + ' !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; border:1.8px solid ' + borders[idx] + ' !important; font-weight:900 !important; font-size:0.82rem !important; box-shadow:0 3px 10px rgba(0,0,0,0.25) !important; white-space:nowrap !important; display:inline-flex !important; align-items:center !important; justify-content:center !important; cursor:pointer !important;';
+        btn.textContent = shortTxt;
         btn.title = idx < 9 ? (cleanName + ' — نموذج قياسي مثبت نهائياً') : ('تخصيص وحفظ ' + cleanName + ' (خاص بالمستخدم)');
         btn.onclick = (e) => { if (e) e.preventDefault(); window.openPresetModal(idx, cleanName); };
         container.appendChild(btn);
@@ -2365,11 +2355,10 @@ window.addEventListener('storage', function(e) {
 });
 
 async function openPresetModal(presetIndex, presetName) {
-    if (!window.lastResults || !Array.isArray(window.lastResults) || window.lastResults.length === 0) {
-        if (typeof window.runReport === 'function') {
-            await window.runReport();
-        }
-    }
+    try {
+        if (typeof loadData === 'function') loadData();
+        if (typeof window.runReport === 'function') await window.runReport(true);
+    } catch (_) {}
 
     if (!window.lastResults || !Array.isArray(window.lastResults)) {
         window.lastResults = [];
@@ -2445,10 +2434,16 @@ async function openPresetModal(presetIndex, presetName) {
     }
 
     const existingIframe = modal.querySelector('#preset-modal-iframe');
-    if (existingIframe && existingIframe.contentWindow && typeof existingIframe.contentWindow.loadPreset === 'function') {
+    if (existingIframe && existingIframe.contentWindow) {
         modal.style.display = 'flex';
-        existingIframe.contentWindow.loadPreset(presetIndex);
-        return;
+        if (typeof existingIframe.contentWindow.reloadBalancesPreviewData === 'function') {
+            await existingIframe.contentWindow.reloadBalancesPreviewData(presetIndex);
+            return;
+        }
+        if (typeof existingIframe.contentWindow.loadPreset === 'function') {
+            existingIframe.contentWindow.loadPreset(presetIndex);
+            return;
+        }
     }
 
     modal.innerHTML = `<iframe id="preset-modal-iframe" src="preview-balances-design.php?presetIndex=${presetIndex}&inModal=1&_t=${Date.now()}" style="width: 100%; height: 100%; border: none; flex: 1; background: #f8fafc;"></iframe>`;
@@ -2478,11 +2473,10 @@ window.openNewPreviewPage = async function() {
         showToast('جاري تحضير شاشة المعاينة...', 'info');
     }
 
-    if (!window.lastResults || !Array.isArray(window.lastResults) || window.lastResults.length === 0) {
-        if (typeof window.runReport === 'function') {
-            await window.runReport();
-        }
-    }
+    try {
+        if (typeof loadData === 'function') loadData();
+        if (typeof window.runReport === 'function') await window.runReport(true);
+    } catch (_) {}
 
     if (!window.lastResults || !Array.isArray(window.lastResults)) {
         window.lastResults = [];

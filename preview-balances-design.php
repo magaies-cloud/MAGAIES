@@ -105,27 +105,27 @@
         .font-tajawal { font-family: 'Tajawal', sans-serif !important; font-weight: 400 !important; font-variant-numeric: tabular-nums !important; }
         .font-cairo { font-family: 'Cairo', sans-serif !important; font-weight: 400 !important; font-variant-numeric: tabular-nums !important; }
 
-        /* Cumulative Independent Cell Magnification for Auditing */
-        td.focused-num {
-            transform: scale(1.45) translateY(-2px) !important;
-            color: #ffffff !important;
+        /* Cumulative Non-Overlapping Cell Magnification for Auditing */
+        td.focused-num, body.dark-mode td.focused-num, :root.light-theme td.focused-num {
+            transform: none !important;
+            display: table-cell !important;
+            box-sizing: border-box !important;
+            font-size: 1.28rem !important;
             font-weight: 900 !important;
-            background: linear-gradient(135deg, #1e3a8a, #172554) !important;
-            border-radius: 8px !important;
-            box-shadow: 0 0 30px rgba(30, 58, 138, 0.7), inset 0 0 0 2px #3b82f6 !important;
-            z-index: 1000 !important;
-            position: relative !important;
-            display: inline-block !important;
-            padding: 4px 12px !important;
-            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-            text-shadow: 0 0 10px rgba(0, 0, 0, 0.6) !important;
-        }
-        body.dark-mode td.focused-num,
-        :root.light-theme td.focused-num {
-            color: #ffffff !important;
-            background: linear-gradient(135deg, #1e3a8a, #172554) !important;
-            box-shadow: 0 10px 30px rgba(30, 58, 138, 0.35), inset 0 0 0 2px #3b82f6 !important;
+            line-height: 1.2 !important;
+            letter-spacing: 0 !important;
+            color: #0f172a !important;
+            background: #fef08a !important;
+            box-shadow: inset 0 0 0 2px #eab308 !important;
+            border-radius: 4px !important;
+            padding: 3px 6px !important;
             text-shadow: none !important;
+            transition: background 0.15s ease, font-size 0.15s ease !important;
+        }
+        @media print {
+            td.focused-num, body.dark-mode td.focused-num, :root.light-theme td.focused-num {
+                background: transparent !important; box-shadow: none !important; font-size: inherit !important; color: inherit !important;
+            }
         }
 
         /* Hide injected global navigation header on preview page */
@@ -620,8 +620,9 @@
 <!-- Long Press HUD Overlay for 8-second Save & Lock -->
 <?php include 'includes/studio-modals.php'; ?>
 <script src="js/localforage.min.js"></script>
-<script src="js/app.js?v=20261016_v28"></script>
-<script src="js/preview-balances.js?v=<?= file_exists(__DIR__ . '/js/preview-balances.js') ? filemtime(__DIR__ . '/js/preview-balances.js') : time() ?>_v26"></script>
+<script>if ('caches' in window) { caches.keys().then(ks => ks.forEach(k => { if (!k.includes('bal-sync-v10')) caches.delete(k); })).catch(()=>{}); }</script>
+<script src="js/app.js?v=<?= file_exists(__DIR__ . '/js/app.js') ? filemtime(__DIR__ . '/js/app.js') : time() ?>_v30"></script>
+<script src="js/preview-balances.js?v=<?= file_exists(__DIR__ . '/js/preview-balances.js') ? filemtime(__DIR__ . '/js/preview-balances.js') : time() ?>_v30"></script>
 
 <script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
 <script src="js/magaiees_back.js?v=2026_back_v2" defer></script>

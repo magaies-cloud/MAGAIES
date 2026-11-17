@@ -362,49 +362,29 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             color: #0f172a !important;
         }
 
-        /* ── Magnified Number Audit Effect (+100% / 2x Size, Elegant Modern Box) ── */
-        table#recent-table tbody td.num-magnified, 
-        table#preview-table tbody td.num-magnified,
-        .pos-grid tbody td.num-magnified,
-        .excel-table tbody td.num-magnified,
-        .excel-table td.num-magnified,
-        td.num-magnified {
-            font-size: 1.8rem !important;
+        /* ── Magnified Number Audit Effect (Clear Non-Overlapping Audit Box) ── */
+        table#recent-table tbody td.num-magnified, table#preview-table tbody td.num-magnified,
+        .pos-grid tbody td.num-magnified, .excel-table tbody td.num-magnified, .excel-table td.num-magnified, td.num-magnified,
+        :root.light-theme table#recent-table tbody td.num-magnified, :root.light-theme table#preview-table tbody td.num-magnified,
+        :root.light-theme .pos-grid tbody td.num-magnified, :root.light-theme .excel-table tbody td.num-magnified, :root.light-theme .excel-table td.num-magnified {
+            font-size: 1.28rem !important;
             font-weight: 900 !important;
-            font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace !important;
             font-variant-numeric: tabular-nums !important;
-            background: linear-gradient(145deg, #ffffff, #f8fafc) !important;
-            background-color: #ffffff !important;
-            color: #1d4ed8 !important;
-            border: 2.5px solid #2563eb !important;
-            border-radius: 12px !important;
-            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.3), 0 4px 14px rgba(0, 0, 0, 0.18), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
-            z-index: 99999 !important;
-            position: relative !important;
+            background: #fef08a !important;
+            background-color: #fef08a !important;
+            color: #0f172a !important;
+            border-radius: 4px !important;
+            box-shadow: inset 0 0 0 2px #eab308 !important;
             text-shadow: none !important;
-            padding: 10px 22px !important;
+            padding: 4px 6px !important;
             white-space: nowrap !important;
-            min-width: max-content !important;
-            width: auto !important;
-            overflow: visible !important;
             display: table-cell !important;
-            letter-spacing: 0.8px !important;
-            transform: scale(1.06) !important;
-            line-height: 1.25 !important;
-            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            box-sizing: border-box !important;
+            letter-spacing: 0 !important;
+            transform: none !important;
+            line-height: 1.2 !important;
             cursor: pointer !important;
-        }
-        :root.light-theme table#recent-table tbody td.num-magnified, 
-        :root.light-theme table#preview-table tbody td.num-magnified,
-        :root.light-theme .pos-grid tbody td.num-magnified,
-        :root.light-theme .excel-table tbody td.num-magnified,
-        :root.light-theme .excel-table td.num-magnified {
-            background: linear-gradient(145deg, #ffffff, #f8fafc) !important;
-            background-color: #ffffff !important;
-            color: #1d4ed8 !important;
-            border: 2.5px solid #2563eb !important;
-            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.25), 0 4px 14px rgba(0, 0, 0, 0.12) !important;
-            text-shadow: none !important;
+            transition: background 0.15s ease, font-size 0.15s ease !important;
         }
 
         /* ── Custom Context Menu Styling ── */
@@ -1574,7 +1554,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
     <!-- شريط الأرصدة الثلاثي الأبعاد (إجمالي المدين | إجمالي الدائن | صافي الرصيد التراكمي) -->
     <div class="gl-pur-fin-strip no-print" style="display:grid; grid-template-columns: repeat(3, minmax(180px, 1fr)); gap:12px; align-items:stretch; margin-bottom:14px;">
         <div class="gl-pur-capsule gl-cap-emerald">
-            <div class="gl-cap-lbl">📥 إجمالي المدين (عليه)</div>
+            <div class="gl-cap-lbl">📥 إجمالي المدين (لنا)</div>
             <div id="launcher-total-debit" class="summary-card-val">0.00</div>
             <div id="launcher-total-debit-foreign" class="gl-cap-sub">0.00</div>
         </div>
@@ -1610,12 +1590,12 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
                     <th width="100" style="position: relative; white-space: nowrap;">رقم التحويلة<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th width="120" style="position: relative; white-space: nowrap;">اسم البنك<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th width="140" style="position: relative; white-space: nowrap;">الحساب المقابل<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
-                    <th width="90" style="position: relative; white-space: nowrap;">مدين (عليه)<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
-                    <th width="90" style="position: relative; white-space: nowrap;">دائن (له)<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="90" style="position: relative; white-space: nowrap;">مدين محلي (لنا)<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="90" style="position: relative; white-space: nowrap;">دائن محلي (له)<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th width="100" style="position: relative; white-space: nowrap;">الرصيد المحلي<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th width="90" style="position: relative; white-space: nowrap;">سعر الصرف<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
-                    <th width="90" style="position: relative; white-space: nowrap;">مدين (عليه) أجنبي<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
-                    <th width="90" style="position: relative; white-space: nowrap;">دائن (له) أجنبي<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="90" style="position: relative; white-space: nowrap;">مدين أجنبي (لنا)<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="90" style="position: relative; white-space: nowrap;">دائن أجنبي (له)<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th width="120" style="position: relative; white-space: nowrap;">الرصيد الأجنبي<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                 </tr>
             </thead>
@@ -1843,7 +1823,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
 
 <!-- Core JS -->
 <script src="js/localforage.min.js"></script>
-<script src="js/app.js?v=20261016_v28"></script>
+<script src="js/app.js?v=<?= file_exists(__DIR__ . '/js/app.js') ? filemtime(__DIR__ . '/js/app.js') : time() ?>"></script>
 <script defer src="js/html2pdf.bundle.min.js"></script>
 <script defer src="js/whatsapp-integration.js?v=20261029_fast"></script>
 <script defer src="js/erp-whatsapp-suite.js?v=20261029_fast"></script>

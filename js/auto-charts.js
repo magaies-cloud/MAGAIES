@@ -5,7 +5,8 @@
  */
 (function () {
     const pageName = (window.location.pathname.split('/').pop() || '').toLowerCase();
-    if (pageName.includes('login')) return;
+    const noChartEntryPages = ['login', 'single-cash-payment.php', 'multi-cash-payment.php', 'purchase.php', 'sales.php', 'direct-sales.php', 'purchase-receipt.php', 'purchase-return.php', 'sales-return.php', 'sales-delivery.php', 'journal-voucher.php'];
+    if (noChartEntryPages.some(p => pageName.includes(p))) return;
 
     window._autoChartActiveFilter = 'all';
     window._setAutoChartFilter = function (mode) {

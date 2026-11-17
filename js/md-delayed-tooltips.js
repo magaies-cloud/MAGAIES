@@ -979,6 +979,10 @@
         if (typeof e.stopPropagation === 'function') e.stopPropagation();
 
         hide(false);
+        ['num-props-menu', 'custom-num-menu', 'num-context-menu', 'gl-context-menu', 'columnContextMenu', 'partnerContextMenu'].forEach(id => {
+            const oldM = document.getElementById(id);
+            if (oldM) oldM.style.display = 'none';
+        });
         rcTargetEl = explainableTarget;
         stripNativeTitles(explainableTarget);
 
@@ -986,28 +990,108 @@
         const thEl = raw.closest('th[data-col-id]');
         const colId = thEl ? thEl.getAttribute('data-col-id') : '';
         const canColCfg = typeof window.openGLColumnModal === 'function' && (colId || raw.closest('#statement-table, #journal-table'));
+        const numTarget = (raw.matches && raw.matches('input, select, td, th, .num, .amount, .bal-val')) ? raw : (raw.closest && raw.closest('input, td.num, .num, .amount, [oncontextmenu*="showNumberProperties"], .gl-summary-strip > div, .kpi-card'));
+        const curComma = document.getElementById('prop-comma-status') ? document.getElementById('prop-comma-status').textContent : (numTarget && numTarget.dataset.useComma === '0' ? 'معطل' : 'مفعل');
+        const curDec = document.getElementById('prop-dec-val') ? document.getElementById('prop-dec-val').textContent : (numTarget && numTarget.dataset.decPlaces ? numTarget.dataset.decPlaces : '2');
+        const rgbToHex = (rgb) => { const m2 = String(rgb || '').match(/\d+/g); return (m2 && m2.length >= 3) ? ('#' + m2.slice(0,3).map(x => (+x).toString(16).padStart(2,'0')).join('')) : '#ffffff'; };
+        const curHex = numTarget ? rgbToHex(window.getComputedStyle(numTarget).color) : '#ffffff';
 
+        m.style.minWidth = '255px';
         m.innerHTML =
-            '<div style="padding:4px 10px 6px;font-size:11.5px;font-weight:900;color:#94a3b8;border-bottom:1px solid rgba(148,163,184,0.18);margin-bottom:5px;display:flex;align-items:center;justify-content:space-between;">' +
-                '<span>💡 دليل الشرح الذكي</span>' +
-                '<span style="font-size:10px;color:#38bdf8;">اختر النوع</span>' +
+            '<div style="padding:3px 10px 5px;font-size:11.5px;font-weight:900;color:#94a3b8;border-bottom:1px solid rgba(148,163,184,0.2);margin-bottom:4px;display:flex;align-items:center;justify-content:space-between;">' +
+                '<span>💡 الشرح الذكي</span><span style="font-size:10px;color:#38bdf8;">أولاً</span>' +
             '</div>' +
-            '<button type="button" data-rc-act="audio" style="width:100%;display:flex;align-items:center;gap:9px;padding:9px 11px;border:none;border-radius:9px;background:transparent;color:#ffffff;font-family:inherit;font-size:13.5px;font-weight:900;cursor:pointer;text-align:right;transition:background 0.14s;">' +
-                '<span style="font-size:16px;">🔊</span><span>الشرح الصوتي</span>' +
-            '</button>' +
-            '<button type="button" data-rc-act="text" style="width:100%;display:flex;align-items:center;gap:9px;padding:9px 11px;border:none;border-radius:9px;background:transparent;color:#fde047;font-family:inherit;font-size:13.5px;font-weight:900;cursor:pointer;text-align:right;transition:background 0.14s;margin-top:2px;">' +
-                '<span style="font-size:16px;">📖</span><span>الشرح الكتابي</span>' +
-            '</button>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:6px;">' +
+                '<button type="button" data-rc-act="audio" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 8px;border:1px solid rgba(56,189,248,0.35);border-radius:8px;background:rgba(56,189,248,0.12);color:#ffffff;font-family:inherit;font-size:12.5px;font-weight:900;cursor:pointer;"><span>🔊</span><span>شرح صوتي</span></button>' +
+                '<button type="button" data-rc-act="text" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 8px;border:1px solid rgba(250,204,21,0.35);border-radius:8px;background:rgba(250,204,21,0.12);color:#fde047;font-family:inherit;font-size:12.5px;font-weight:900;cursor:pointer;"><span>📖</span><span>شرح كتابي</span></button>' +
+            '</div>' +
+            (numTarget
+                ? '<div style="padding:4px 10px 5px;font-size:11.5px;font-weight:900;color:#38bdf8;border-top:1px solid rgba(148,163,184,0.22);border-bottom:1px solid rgba(148,163,184,0.18);margin:4px 0 5px;">⚙️ خصائص الخط والأرقام الكاملة</div>' +
+                  '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 10px;font-size:12px;color:#e2e8f0;font-weight:800;"><span>حجم الخط</span><div style="display:flex;gap:4px;"><button type="button" data-rc-num="fs-inc" style="padding:2px 9px;border-radius:5px;border:1px solid #38bdf8;background:rgba(56,189,248,0.2);color:#fff;font-weight:900;cursor:pointer;">➕</button><button type="button" data-rc-num="fs-dec" style="padding:2px 9px;border-radius:5px;border:1px solid #64748b;background:rgba(148,163,184,0.15);color:#fff;font-weight:900;cursor:pointer;">➖</button></div></div>' +
+                  '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 10px;font-size:12px;color:#e2e8f0;font-weight:800;"><span>سمك الخط</span><div style="display:flex;gap:4px;"><button type="button" data-rc-wt="900" style="padding:2px 8px;border-radius:5px;border:1px solid #10b981;background:rgba(16,185,129,0.2);color:#6ee7b7;font-weight:900;font-size:11px;cursor:pointer;">تخين</button><button type="button" data-rc-wt="500" style="padding:2px 8px;border-radius:5px;border:1px solid #64748b;background:rgba(148,163,184,0.15);color:#cbd5e1;font-weight:500;font-size:11px;cursor:pointer;">عادي</button></div></div>' +
+                  '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 10px;font-size:12px;color:#e2e8f0;font-weight:800;"><span>لون الخط</span><div style="display:flex;align-items:center;gap:4px;"><input type="color" id="rc-color-picker" value="' + curHex + '" style="width:24px;height:22px;padding:0;border:1px solid #94a3b8;border-radius:4px;cursor:pointer;background:transparent;"><button type="button" data-rc-col="#b91c1c" style="width:16px;height:16px;border-radius:50%;background:#ef4444;border:1px solid #fff;cursor:pointer;"></button><button type="button" data-rc-col="#047857" style="width:16px;height:16px;border-radius:50%;background:#10b981;border:1px solid #fff;cursor:pointer;"></button><button type="button" data-rc-col="#d97706" style="width:16px;height:16px;border-radius:50%;background:#fbbf24;border:1px solid #fff;cursor:pointer;"></button><button type="button" data-rc-col="#0284c7" style="width:16px;height:16px;border-radius:50%;background:#38bdf8;border:1px solid #fff;cursor:pointer;"></button><button type="button" data-rc-col="#000000" style="width:16px;height:16px;border-radius:50%;background:#000000;border:1px solid #fff;cursor:pointer;"></button></div></div>' +
+                  '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 10px;font-size:12px;color:#e2e8f0;font-weight:800;"><span>الفاصلة الألفية (,)</span><button type="button" id="rc-comma-btn" style="padding:2px 9px;border-radius:5px;border:1px solid #10b981;background:rgba(16,185,129,0.16);color:#34d399;font-weight:900;font-size:11px;cursor:pointer;">' + curComma + '</button></div>' +
+                  '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 10px;font-size:12px;color:#e2e8f0;font-weight:800;"><span>الخانات العشرية</span><div style="display:flex;align-items:center;gap:5px;"><span id="rc-dec-lbl" style="color:#fbbf24;font-weight:900;">' + curDec + '</span><button type="button" data-rc-dec="1" style="padding:1px 7px;border-radius:5px;border:1px solid #38bdf8;background:rgba(56,189,248,0.2);color:#fff;cursor:pointer;">➕</button><button type="button" data-rc-dec="-1" style="padding:1px 7px;border-radius:5px;border:1px solid #64748b;background:rgba(148,163,184,0.15);color:#fff;cursor:pointer;">➖</button></div></div>' +
+                  '<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 10px;font-size:12px;color:#e2e8f0;font-weight:800;"><span>نوع الخط</span><select id="rc-font-sel" style="background:#0f172a;color:#fde047;border:1px solid #475569;border-radius:5px;padding:2px 5px;font-size:11px;font-weight:800;"><option value="Cairo,Tajawal,sans-serif">Cairo / Tajawal</option><option value="Inter,sans-serif">Inter</option><option value="Consolas,monospace">Monospace</option></select></div>' +
+                  '<div style="padding:5px 10px 2px;"><button type="button" id="rc-save-num-props" style="width:100%;padding:5px 10px;border-radius:7px;border:none;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:900;font-size:12px;cursor:pointer;">💾 حفظ الخصائص</button></div>'
+                : '') +
             (canColCfg
                 ? '<div style="height:1px;background:rgba(148,163,184,0.18);margin:5px 0;"></div>' +
-                  '<button type="button" data-rc-act="colcfg" style="width:100%;display:flex;align-items:center;gap:9px;padding:8px 11px;border:none;border-radius:9px;background:transparent;color:#38bdf8;font-family:inherit;font-size:13px;font-weight:900;cursor:pointer;text-align:right;transition:background 0.14s;">' +
-                      '<span style="font-size:15px;">⚙️</span><span>تخصيص وتنسيق الأعمدة</span>' +
-                  '</button>'
+                  '<button type="button" data-rc-act="colcfg" style="width:100%;display:flex;align-items:center;gap:9px;padding:7px 11px;border:none;border-radius:9px;background:transparent;color:#38bdf8;font-family:inherit;font-size:12.5px;font-weight:900;cursor:pointer;text-align:right;"><span>⚙️</span><span>تخصيص وتنسيق الأعمدة</span></button>'
                 : '');
 
+        const saveTargetStyle = () => {
+            if (!numTarget || !numTarget.id) return;
+            try {
+                const map = JSON.parse(localStorage.getItem('erp_unified_field_props_v1') || '{}');
+                map[location.pathname + '#' + numTarget.id] = {
+                    fs: numTarget.style.fontSize, fw: numTarget.style.fontWeight, col: numTarget.style.color,
+                    ff: numTarget.style.fontFamily, comma: numTarget.dataset.useComma || '1', dec: numTarget.dataset.decPlaces || '2'
+                };
+                localStorage.setItem('erp_unified_field_props_v1', JSON.stringify(map));
+            } catch (_) {}
+        };
+        m.querySelectorAll('button[data-rc-num]').forEach(nb => {
+            nb.onclick = (ev) => {
+                ev.preventDefault(); ev.stopPropagation();
+                if (!numTarget) return;
+                window.currentTargetInput = numTarget;
+                const curPx = parseFloat(window.getComputedStyle(numTarget).fontSize) || 18;
+                const nextPx = Math.max(11, Math.min(46, curPx + (nb.getAttribute('data-rc-num') === 'fs-inc' ? 2 : -2)));
+                numTarget.style.setProperty('font-size', nextPx + 'px', 'important');
+                saveTargetStyle();
+            };
+        });
+        m.querySelectorAll('button[data-rc-wt]').forEach(wb => {
+            wb.onclick = (ev) => {
+                ev.preventDefault(); ev.stopPropagation();
+                if (!numTarget) return;
+                numTarget.style.setProperty('font-weight', wb.getAttribute('data-rc-wt'), 'important');
+                saveTargetStyle();
+            };
+        });
+        const applyCol = (c) => {
+            if (!numTarget || !c) return;
+            numTarget.style.setProperty('color', c, 'important');
+            numTarget.style.setProperty('-webkit-text-fill-color', c, 'important');
+            const pk = m.querySelector('#rc-color-picker'); if (pk && c.startsWith('#') && c.length === 7) pk.value = c;
+            saveTargetStyle();
+        };
+        m.querySelectorAll('button[data-rc-col]').forEach(cb => { cb.onclick = (ev) => { ev.preventDefault(); ev.stopPropagation(); applyCol(cb.getAttribute('data-rc-col')); }; });
+        const pkEl = m.querySelector('#rc-color-picker');
+        if (pkEl) { pkEl.onclick = (ev) => ev.stopPropagation(); pkEl.oninput = (ev) => applyCol(ev.target.value); }
+        const cmBtn = m.querySelector('#rc-comma-btn');
+        if (cmBtn) cmBtn.onclick = (ev) => {
+            ev.preventDefault(); ev.stopPropagation();
+            window.currentTargetInput = numTarget;
+            if (typeof window.applyNumProp === 'function') { window.applyNumProp('toggle-comma'); cmBtn.textContent = document.getElementById('prop-comma-status')?.textContent || 'مفعل'; }
+            else if (numTarget) {
+                const useC = numTarget.dataset.useComma === '0' ? '1' : '0';
+                numTarget.dataset.useComma = useC; cmBtn.textContent = useC === '1' ? 'مفعل' : 'معطل';
+                if (numTarget.value !== undefined) { const rawN = parseFloat(String(numTarget.value).replace(/,/g, '')); if (!isNaN(rawN)) numTarget.value = useC === '1' ? rawN.toLocaleString('en-US') : String(rawN); }
+            }
+            saveTargetStyle();
+        };
+        m.querySelectorAll('button[data-rc-dec]').forEach(db => {
+            db.onclick = (ev) => {
+                ev.preventDefault(); ev.stopPropagation();
+                window.currentTargetInput = numTarget;
+                const dStep = parseInt(db.getAttribute('data-rc-dec'), 10);
+                if (typeof window.applyNumProp === 'function') { window.applyNumProp(dStep > 0 ? 'dec-inc' : 'dec-dec'); const dl = m.querySelector('#rc-dec-lbl'); if (dl && document.getElementById('prop-dec-val')) dl.textContent = document.getElementById('prop-dec-val').textContent; }
+                else if (numTarget) {
+                    const nextD = Math.max(0, Math.min(4, (parseInt(numTarget.dataset.decPlaces || '2', 10) || 0) + dStep));
+                    numTarget.dataset.decPlaces = String(nextD);
+                    const dl = m.querySelector('#rc-dec-lbl'); if (dl) dl.textContent = String(nextD);
+                    if (numTarget.value !== undefined) { const rawN = parseFloat(String(numTarget.value).replace(/,/g, '')); if (!isNaN(rawN)) numTarget.value = rawN.toLocaleString('en-US', { minimumFractionDigits: nextD, maximumFractionDigits: nextD }); }
+                }
+                saveTargetStyle();
+            };
+        });
+        const fSel = m.querySelector('#rc-font-sel');
+        if (fSel) { fSel.onclick = (ev) => ev.stopPropagation(); fSel.onchange = (ev) => { if (numTarget) { numTarget.style.setProperty('font-family', ev.target.value, 'important'); saveTargetStyle(); } }; }
+        const svBtn = m.querySelector('#rc-save-num-props');
+        if (svBtn) svBtn.onclick = (ev) => { ev.preventDefault(); ev.stopPropagation(); if (typeof window.saveNumberProperties === 'function') { window.currentTargetInput = numTarget; window.saveNumberProperties(); } saveTargetStyle(); hideRcMenu(); if (typeof window.showToast === 'function') window.showToast('💾 تم حفظ خصائص وتنسيق الخانة بنجاح', 'success', 1800); };
         m.querySelectorAll('button[data-rc-act]').forEach(btn => {
-            btn.onmouseenter = () => { btn.style.background = 'rgba(56,189,248,0.18)'; };
-            btn.onmouseleave = () => { btn.style.background = 'transparent'; };
             btn.onclick = (ev) => {
                 ev.preventDefault();
                 ev.stopPropagation();

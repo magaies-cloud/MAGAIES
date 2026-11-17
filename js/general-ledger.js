@@ -399,8 +399,29 @@ function onAccountSearchKey(e) {
 }
 
 window.selectAccount = function selectAccount(id, name, icon) {
-    window.__glExplicitAllAccounts = (id === 'ALL');
-    document.getElementById('filter-account').value = id;
+    const cleanTarget = String(id || 'ALL').trim() || 'ALL';
+    window.__glExplicitAllAccounts = (cleanTarget === 'ALL');
+    window.__glSelectedAccountId = cleanTarget;
+    try {
+        if (cleanTarget !== 'ALL') {
+            sessionStorage.setItem('gl_selected_acc_id', cleanTarget);
+            sessionStorage.setItem('gl_selected_acc_name', String(name || ''));
+            sessionStorage.setItem('gl_selected_acc_icon', String(icon || '👤'));
+        } else {
+            sessionStorage.removeItem('gl_selected_acc_id');
+            sessionStorage.removeItem('gl_selected_acc_name');
+        }
+    } catch (_) {}
+    const accSel = document.getElementById('filter-account');
+    if (accSel) {
+        if (accSel.tagName === 'SELECT' && accSel.options && cleanTarget !== 'ALL' && !Array.from(accSel.options).some(o => o.value === cleanTarget)) {
+            const opt = document.createElement('option');
+            opt.value = cleanTarget;
+            opt.textContent = `${icon || '👤'} ${name || cleanTarget}`;
+            accSel.appendChild(opt);
+        }
+        accSel.value = cleanTarget;
+    }
     const wrap = document.getElementById('account-search-wrap');
     const chip = document.getElementById('selected-chip');
     
@@ -429,6 +450,12 @@ window.selectAccount = function selectAccount(id, name, icon) {
 
 function clearAccountSearch() {
     window.__glExplicitAllAccounts = false;
+    window.__glSelectedAccountId = 'ALL';
+    try {
+        sessionStorage.removeItem('gl_selected_acc_id');
+        sessionStorage.removeItem('gl_selected_acc_name');
+        sessionStorage.removeItem('gl_open_preset_idx');
+    } catch (_) {}
     document.getElementById('filter-account').value = 'ALL';
     
     const chip = document.getElementById('selected-chip');
@@ -1284,11 +1311,19 @@ async function syncLiveMasterAndReceiptsForGL(forceRefreshUI = true) {
         }
 
         if (changed || forceRefreshUI) {
-            const currentSelectedId = document.getElementById('filter-account')?.value || 'ALL';
+            const currentSelectedId = (window.__glSelectedAccountId || document.getElementById('filter-account')?.value || 'ALL').trim() || 'ALL';
             buildAccountsList();
             if (currentSelectedId && currentSelectedId !== 'ALL') {
                 const selEl = document.getElementById('filter-account');
-                if (selEl) selEl.value = currentSelectedId;
+                if (selEl) {
+                    if (selEl.tagName === 'SELECT' && selEl.options && !Array.from(selEl.options).some(o => o.value === currentSelectedId)) {
+                        const opt = document.createElement('option');
+                        opt.value = currentSelectedId;
+                        opt.textContent = currentSelectedId;
+                        selEl.appendChild(opt);
+                    }
+                    selEl.value = currentSelectedId;
+                }
             }
             ALL_TXNS = collectAllTransactions();
             if (typeof runReport === 'function') {
@@ -1836,7 +1871,7 @@ function runReport() {
         const postedEl = document.getElementById('filter-posted');
         const smartEl = document.getElementById('filter-smart');
 
-        const accVal = accEl ? accEl.value : 'ALL';
+        const accVal = ((window.__glSelectedAccountId && window.__glSelectedAccountId !== 'ALL') ? window.__glSelectedAccountId : (accEl && accEl.value ? accEl.value : 'ALL')).trim() || 'ALL';
         const fromDate = fromEl ? fromEl.value : '';
         const toDate = toEl ? toEl.value : '';
         const currencyFilter = curEl ? curEl.value : 'ALL';
@@ -1861,30 +1896,28 @@ function runReport() {
         // Account Filter (Strict Entity-Type Isolation: never mix cust-X with bank-X / safe-X / supp-X)
         if (accVal !== 'ALL') {
             const filterPrefix = (String(accVal).match(/^(cust|supp|bank|safe|exp)-/i) || [''])[0].toLowerCase();
-            const cleanFilter = String(accVal).replace(/^(cust|supp|bank|safe|exp)-/i, '').trim();
+            const cleanFilter = String(accVal).replace(/^(cust-|supp-|bank-|safe-|exp-|sub-|sust-)+/i, '').trim();
             const selectedAccName = ((typeof getAccountName === 'function') ? getAccountName(accVal) : '').trim();
             filtered = filtered.filter(t => {
-                if (!t) return false;
+                if (!t || !cleanFilter) return false;
+                if (t.type === 'opening' || t.ref === 'OPENING' || t.ref === 'OPEN-BAL') return false;
                 const tAcc = String(t.account || '').trim();
                 if (!tAcc) return false;
-                if (tAcc === String(accVal)) return true;
+                if (tAcc.toLowerCase() === String(accVal).toLowerCase()) return true;
 
                 const tPrefix = (tAcc.match(/^(cust|supp|bank|safe|exp)-/i) || [''])[0].toLowerCase();
                 if (filterPrefix && tPrefix && filterPrefix !== tPrefix) return false;
 
-                const cleanTAcc = tAcc.replace(/^(cust|supp|bank|safe|exp)-/i, '').trim();
-                if (cleanTAcc === cleanFilter) {
-                    if (!filterPrefix || tPrefix === filterPrefix) return true;
-                    // Bare ID without prefix: allow if long unique ID or matching account name
-                    if (cleanFilter.length >= 6) return true;
-                    const tName = String(t.accountName || ((typeof getAccountName === 'function') ? getAccountName(tAcc) : '') || '').trim();
-                    if (selectedAccName && tName && tName === selectedAccName) return true;
+                const cleanTAcc = tAcc.replace(/^(cust-|supp-|bank-|safe-|exp-|sub-|sust-)+/i, '').trim();
+                if (/^(walk-in|walk-in-supplier|unknown|-|all|حسابات فرعية متعددة)$/i.test(tAcc) || /^(walk-in|walk-in-supplier|unknown|-|all)$/i.test(cleanTAcc)) return false;
+                if (cleanTAcc && cleanTAcc.toLowerCase() === cleanFilter.toLowerCase()) {
+                    if (!filterPrefix || tPrefix === filterPrefix || (!tPrefix && cleanFilter.length >= 6)) return true;
                 }
 
-                if (selectedAccName && selectedAccName !== accVal) {
+                if (selectedAccName && selectedAccName !== accVal && !tPrefix) {
                     if (tAcc === selectedAccName) return true;
-                    if (!tPrefix || !filterPrefix || tPrefix === filterPrefix) {
-                        const tAccName = String(t.accountName || ((typeof getAccountName === 'function') ? getAccountName(tAcc) : '') || '').trim();
+                    if (cleanTAcc.length < 6) {
+                        const tAccName = String(t.accountName || '').trim();
                         if (tAccName && tAccName === selectedAccName) return true;
                     }
                 }
@@ -2049,9 +2082,10 @@ function runReport() {
             
             const pickBestMaster = (arr) => {
                 const active = (arr || []).filter(x => x && !x.deleted);
-                return active.find(x => String(x.id) === String(accVal) || String(x.id) === String(cleanId) || String(x.id).replace(/^(cust|supp|bank|safe|exp)-/i, '') === String(cleanId))
+                const cfLow = String(cleanId || '').toLowerCase();
+                return active.find(x => String(x.id).toLowerCase() === String(accVal).toLowerCase() || String(x.id).toLowerCase() === cfLow || String(x.id).replace(/^(cust-|supp-|bank-|safe-|exp-|sub-|sust-)+/i, '').toLowerCase() === cfLow)
                     || active.filter(x => x.name === accVal).sort((a, b) => (Math.abs(parseNum(b.openingBalance || b.openingDebit || b.balance || 0)) - Math.abs(parseNum(a.openingBalance || a.openingDebit || a.balance || 0))) || ((b._crdtTs || 0) - (a._crdtTs || 0)))[0]
-                    || active.find(x => x.code === cleanId);
+                    || active.find(x => x.code && String(x.code) === String(cleanId));
             };
             const accPfx = (String(accVal).match(/^(cust|supp|bank|safe|exp)-/i) || [''])[0].toLowerCase();
             const matchedSupp = (!accPfx || accPfx === 'supp-') ? pickBestMaster(sups) : null;
@@ -2263,12 +2297,12 @@ const DEFAULT_GL_COLUMNS_CONFIG = [
     { id: 'transferNo', label: 'رقم التحويلة', isNum: false, align: 'center', width: '100px' },
     { id: 'bankName', label: 'اسم البنك', isNum: false, align: 'center', width: '120px' },
     { id: 'counterAccount', label: 'الحساب المقابل', isNum: false, align: 'right', width: '140px' },
-    { id: 'debit', label: 'مدين (عليه)', isNum: true, align: 'right', width: '90px', numColor: '#34d399' },
-    { id: 'credit', label: 'دائن (له)', isNum: true, align: 'right', width: '90px', numColor: '#f87171' },
+    { id: 'debit', label: 'مدين محلي (لنا)', isNum: true, align: 'right', width: '90px', numColor: '#34d399' },
+    { id: 'credit', label: 'دائن محلي (له)', isNum: true, align: 'right', width: '90px', numColor: '#f87171' },
     { id: 'balance', label: 'الرصيد المحلي', isNum: true, align: 'right', width: '100px' },
     { id: 'exchangeRate', label: 'سعر الصرف', isNum: true, align: 'center', width: '90px', numColor: '#eab308' },
-    { id: 'debitForeign', label: 'مدين (عليه) أجنبي', isNum: true, align: 'right', width: '90px', numColor: '#34d399' },
-    { id: 'creditForeign', label: 'دائن (له) أجنبي', isNum: true, align: 'right', width: '90px', numColor: '#f87171' },
+    { id: 'debitForeign', label: 'مدين أجنبي (لنا)', isNum: true, align: 'right', width: '90px', numColor: '#34d399' },
+    { id: 'creditForeign', label: 'دائن أجنبي (له)', isNum: true, align: 'right', width: '90px', numColor: '#f87171' },
     { id: 'balanceForeign', label: 'الرصيد الأجنبي', isNum: true, align: 'right', width: '120px' }
 ];
 
@@ -3083,6 +3117,17 @@ function getAccountName(accVal) {
 }
 
 async function prepareLedgerPreviewData() {
+    const typedInput = document.getElementById('account-search-input');
+    const curSel = ((window.__glSelectedAccountId && window.__glSelectedAccountId !== 'ALL') ? window.__glSelectedAccountId : (document.getElementById('filter-account')?.value || 'ALL')).trim() || 'ALL';
+    if (curSel === 'ALL' && !window.__glExplicitAllAccounts && typedInput && typedInput.value && typedInput.value.trim()) {
+        if (typeof buildAccountsList === 'function') buildAccountsList();
+        const q = typedInput.value.trim();
+        const norm = (s) => String(s || '').toLowerCase().replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/[أإآٱ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').trim();
+        const qNorm = norm(q);
+        const m = (ALL_ACCOUNTS || []).find(a => a && a.id !== 'ALL' && (norm(a.name) === qNorm || String(a.statementPin || '') === q || String(a.receiptCodeNum || '') === q))
+               || (ALL_ACCOUNTS || []).find(a => a && a.id !== 'ALL' && norm(a.name).includes(qNorm));
+        if (m) selectAccount(m.id, m.name, m.icon);
+    }
     if (typeof syncLiveMasterAndReceiptsForGL === 'function') {
         try { await syncLiveMasterAndReceiptsForGL(false); } catch (e) {}
     }
@@ -3123,7 +3168,7 @@ async function prepareLedgerPreviewData() {
     let runningBalanceFc = 0;
     
     // Check if we are filtering by a specific account (assuming filterAccount is in scope or we can check the DOM)
-    const accFilter = document.getElementById('filter-account') ? document.getElementById('filter-account').value : 'ALL';
+    const accFilter = ((window.__glSelectedAccountId && window.__glSelectedAccountId !== 'ALL') ? window.__glSelectedAccountId : (document.getElementById('filter-account') && document.getElementById('filter-account').value ? document.getElementById('filter-account').value : 'ALL')).trim() || 'ALL';
 
     previewTxns = previewTxns.map(t => {
         const dr = parseFloat(t.debit || t.dr || 0);
@@ -3167,7 +3212,7 @@ async function prepareLedgerPreviewData() {
     window.currentTxns = currentTxns;
 
     const config = {
-        filterAccount: document.getElementById('filter-account') ? document.getElementById('filter-account').value : 'ALL',
+        filterAccount: ((window.__glSelectedAccountId && window.__glSelectedAccountId !== 'ALL') ? window.__glSelectedAccountId : (document.getElementById('filter-account') && document.getElementById('filter-account').value ? document.getElementById('filter-account').value : 'ALL')).trim() || 'ALL',
         dateMode: typeof currentDateMode !== 'undefined' ? currentDateMode : 'all',
         dateFrom: document.getElementById('filter-date-from') ? document.getElementById('filter-date-from').value : '',
         dateTo: document.getElementById('filter-date-to') ? document.getElementById('filter-date-to').value : '',
@@ -3197,12 +3242,10 @@ async function prepareLedgerPreviewData() {
         
         if (typeof localforage !== 'undefined') {
             await localforage.setItem('preview_ledger_data', previewTxns);
-            await localforage.setItem('preview_table_data', previewTxns);
         }
         
         try {
             localStorage.setItem('preview_ledger_data', JSON.stringify(previewTxns));
-            localStorage.setItem('preview_table_data', JSON.stringify(previewTxns));
         } catch(quotaErr) {
             console.warn('LocalStorage quota limit reached, stored in IndexedDB/localforage:', quotaErr);
         }
@@ -3214,7 +3257,12 @@ async function prepareLedgerPreviewData() {
 async function openPreviewDesign() {
     try {
         await prepareLedgerPreviewData();
-        window.location.href = 'preview-ledger.php';
+        const cfg = JSON.parse(localStorage.getItem('preview_ledger_config') || '{}');
+        if ((!cfg.filterAccount || cfg.filterAccount === 'ALL') && !window.__glExplicitAllAccounts) {
+            if (typeof showToast === 'function') showToast('يرجى اختيار اسم العميل أو الحساب أولاً لعرض كشف حسابه', 'info');
+            return;
+        }
+        window.location.href = `preview-ledger.php?accountId=${encodeURIComponent(cfg.filterAccount || 'ALL')}&accountName=${encodeURIComponent(cfg.accountName || '')}`;
     } catch (e) {
         console.error(e);
         if (typeof window.glShowStandardToast === 'function') window.glShowStandardToast('❌ حدث خطأ غير متوقع: ' + e.message, 'error'); else if (typeof showToast === 'function') showToast('حدث خطأ غير متوقع: ' + e.message, 'error');
@@ -3288,6 +3336,11 @@ async function openPresetModal(presetIndex, presetName, isLocked = false) {
         if (typeof window.glShowStandardToast === 'function') window.glShowStandardToast('حدث خطأ غير متوقع: ' + e.message, 'error'); else if (typeof showToast === 'function') showToast('حدث خطأ غير متوقع: ' + e.message, 'error');
         return;
     }
+    const _chkCfg = JSON.parse(localStorage.getItem('preview_ledger_config') || '{}');
+    if ((!_chkCfg.filterAccount || _chkCfg.filterAccount === 'ALL') && !window.__glExplicitAllAccounts) {
+        if (typeof showToast === 'function') showToast('يرجى اختيار اسم العميل أو الحساب أولاً لعرض كشف حسابه', 'info');
+        return;
+    }
 
     if (!document.getElementById('docked-preset-view-style')) {
         const st = document.createElement('style');
@@ -3325,16 +3378,8 @@ async function openPresetModal(presetIndex, presetName, isLocked = false) {
     }
 
     try { sessionStorage.setItem('gl_open_preset_idx', String(presetIndex)); } catch(e){}
-    const existingIframe = modal.querySelector('#preset-modal-iframe');
-    if (existingIframe && existingIframe.contentWindow && typeof existingIframe.contentWindow.loadPreset === 'function') {
-        modal.style.display = 'flex';
-        if (typeof existingIframe.contentWindow.reloadPreviewDataFromStorage === 'function') {
-            existingIframe.contentWindow.reloadPreviewDataFromStorage();
-        }
-        existingIframe.contentWindow.loadPreset(presetIndex);
-        return;
-    }
-    modal.innerHTML = `<iframe id="preset-modal-iframe" src="preview-ledger.php?presetIndex=${presetIndex}&inModal=1&_t=${Date.now()}" style="width: 100%; height: 100%; border: none; flex: 1; background: #fff;"></iframe>`;
+    const _accQ = `&accountId=${encodeURIComponent(_chkCfg.filterAccount || 'ALL')}&accountName=${encodeURIComponent(_chkCfg.accountName || '')}`;
+    modal.innerHTML = `<iframe id="preset-modal-iframe" src="preview-ledger.php?presetIndex=${presetIndex}&inModal=1${_accQ}&_t=${Date.now()}" style="width: 100%; height: 100%; border: none; flex: 1; background: #fff;"></iframe>`;
     modal.style.display = 'flex';
 }
 window.openPresetModal = openPresetModal;
@@ -3355,27 +3400,18 @@ window.addEventListener('popstate', function() {
 window.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') window.closeLedgerPresetModal(false);
 });
-window.addEventListener('keydown', function(e) {
-    const m = document.getElementById('preset-preview-modal');
-    if (m && m.style.display !== 'none') {
-        if (e.key === 'F5' || ((e.ctrlKey || e.metaKey) && (e.key === 'r' || e.key === 'R'))) {
-            e.preventDefault();
-            e.stopPropagation();
-            const ifr = document.getElementById('preset-modal-iframe');
-            if (ifr && ifr.contentWindow) ifr.contentWindow.location.reload();
-        }
-    }
-}, true);
 window.addEventListener('load', function() {
     if (window.self !== window.top || window.location.pathname.includes('preview-ledger.php') || !document.getElementById('recent-table')) return;
     try {
-        const navEntry = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || null;
-        const isPageReload = navEntry ? (navEntry.type === 'reload') : (performance.navigation && performance.navigation.type === 1);
-        const savedPreset = sessionStorage.getItem('gl_open_preset_idx');
-        if (isPageReload && savedPreset !== null && savedPreset !== '') {
-            setTimeout(function() { openPresetModal(parseInt(savedPreset, 10) || 0, 'افتراضي', false); }, 250);
-        } else {
-            sessionStorage.removeItem('gl_open_preset_idx');
+        sessionStorage.removeItem('gl_open_preset_idx');
+        const urlParams = new URLSearchParams(window.location.search);
+        if (!urlParams.get('accountId') && !urlParams.get('partner_id') && !urlParams.get('id') && !urlParams.get('name')) {
+            const savedId = sessionStorage.getItem('gl_selected_acc_id');
+            const savedName = sessionStorage.getItem('gl_selected_acc_name');
+            const savedIcon = sessionStorage.getItem('gl_selected_acc_icon') || '👤';
+            if (savedId && savedId !== 'ALL') {
+                setTimeout(function() { selectAccount(savedId, savedName || savedId, savedIcon); }, 120);
+            }
         }
     } catch(e){}
 });

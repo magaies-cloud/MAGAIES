@@ -1142,6 +1142,23 @@
             direction: ltr !important;
             letter-spacing: 0.3px !important;
         }
+        .op-bal-infield-wrap { position: relative; width: 100%; border-radius: 10px; }
+        #cust-opening-balance, #sup-opening-balance { height: 44px !important; min-height: 44px !important; padding: 6px 28px 6px 10px !important; -moz-appearance: textfield !important; box-sizing: border-box !important; }
+        #cust-opening-balance::-webkit-outer-spin-button, #cust-opening-balance::-webkit-inner-spin-button, #sup-opening-balance::-webkit-outer-spin-button, #sup-opening-balance::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; }
+        .op-bal-sign-stepper { position: absolute !important; right: 5px !important; top: 50% !important; transform: translateY(-50%) !important; height: 30px !important; width: 20px !important; display: flex !important; flex-direction: column !important; gap: 2px !important; z-index: 4 !important; }
+        .pro-field-card .op-bal-step-btn, .op-bal-step-btn { display: flex !important; align-items: center !important; justify-content: center !important; width: 20px !important; min-width: 20px !important; max-width: 20px !important; height: 14px !important; min-height: 14px !important; max-height: 14px !important; margin: 0 !important; padding: 0 !important; border: 1px solid rgba(148,163,184,0.45) !important; border-radius: 3px !important; background: rgba(15,23,42,0.82) !important; color: #f8fafc !important; font-size: 0.56rem !important; font-weight: 900 !important; line-height: 1 !important; cursor: pointer !important; user-select: none !important; box-shadow: none !important; }
+        .pro-field-card .op-bal-step-btn.step-pos:hover, .pro-field-card .op-bal-step-btn.step-pos.active { background: #059669 !important; color: #fff !important; border-color: #10b981 !important; }
+        .pro-field-card .op-bal-step-btn.step-neg:hover, .pro-field-card .op-bal-step-btn.step-neg.active { background: #e11d48 !important; color: #fff !important; border-color: #fb7185 !important; }
+        :root.light-theme .pro-field-card .op-bal-step-btn, html[data-theme="warm_cream"] .pro-field-card .op-bal-step-btn, html[data-theme="ultra_white"] .pro-field-card .op-bal-step-btn, html[data-theme="exec_gray"] .pro-field-card .op-bal-step-btn { background: #e2e8f0 !important; color: #0f172a !important; border-color: #94a3b8 !important; }
+        .op-bal-infield-hint { position: static !important; margin-top: 6px !important; padding: 2px 2px 0 !important; pointer-events: auto; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 4px; direction: rtl; font-family: 'Cairo', 'Tajawal', sans-serif; font-size: 0.68rem; font-weight: 900; line-height: 1.25; z-index: 3; }
+        .op-bal-infield-hint [data-sign] { cursor: pointer; padding: 1px 5px; border-radius: 4px; transition: all 0.15s; user-select: none; }
+        .op-bal-infield-hint [data-sign].is-active-sign { background: rgba(250, 204, 21, 0.22); box-shadow: inset 0 0 0 1px rgba(234, 179, 8, 0.75); }
+        .op-bal-infield-hint .op-owe-us { color: #fca5a5; }
+        .op-bal-infield-hint .op-we-owe { color: #6ee7b7; }
+        .op-bal-infield-hint .op-sep { color: rgba(148, 163, 184, 0.65); font-weight: 700; pointer-events: none; }
+        :root.light-theme .op-bal-infield-hint .op-owe-us, html[data-theme="warm_cream"] .op-bal-infield-hint .op-owe-us, html[data-theme="ultra_white"] .op-bal-infield-hint .op-owe-us, html[data-theme="exec_gray"] .op-bal-infield-hint .op-owe-us { color: #b91c1c !important; }
+        :root.light-theme .op-bal-infield-hint .op-we-owe, html[data-theme="warm_cream"] .op-bal-infield-hint .op-we-owe, html[data-theme="ultra_white"] .op-bal-infield-hint .op-we-owe, html[data-theme="exec_gray"] .op-bal-infield-hint .op-we-owe { color: #047857 !important; }
+        :root.light-theme .op-bal-infield-hint .op-sep { color: #64748b !important; }
         /* ☀️ LIGHT THEME 4-TIER STEPPED BEIGE & WHITE HIERARCHY:
            - الخلفية العامة: بيج رملي دافئ أغمق قليلاً (#d6c7aa)
            - حولها ثاني (لوحة البطاقة الرئيسية .md-card / .neon-glass-panel): بيج متوسط دافئ (#e4d7be)
@@ -1403,25 +1420,24 @@
             border: 1px solid rgba(148, 163, 184, 0.16) !important;
         }
         table.pro-table th {
-            white-space: normal !important;
-            overflow-wrap: anywhere !important;
-            word-break: break-word !important;
+            white-space: nowrap !important;
             height: auto !important;
-            min-height: 44px !important;
-            line-height: 1.4 !important;
+            min-height: 30px !important;
+            padding: 5px 6px !important;
+            line-height: 1.2 !important;
             border: 1px solid rgba(148, 163, 184, 0.18) !important;
             border-bottom: 1.5px solid rgba(148, 163, 184, 0.28) !important;
             font-weight: 900 !important;
         }
         table.pro-table td {
-            white-space: normal !important;
-            overflow-wrap: anywhere !important;
-            word-break: break-word !important;
+            white-space: nowrap !important;
             height: auto !important;
-            min-height: 44px !important;
-            line-height: 1.4 !important;
+            min-height: 28px !important;
+            padding: 3px 6px !important;
+            line-height: 1.2 !important;
             border: 1px solid rgba(148, 163, 184, 0.14) !important;
             font-weight: 800 !important;
+            vertical-align: middle !important;
         }
         :root.light-theme table.pro-table,
         :root.light-theme table.pro-table td,
@@ -2084,7 +2100,7 @@
                     <a href="customer-portfolio.php" style="height:32px; padding:0 10px; border-radius:8px; background:rgba(168,85,247,0.14); color:#d8b4fe; border:1px solid rgba(168,85,247,0.35); font-size:0.76rem; font-weight:800; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">💼 محفظة العملاء</a>
                     <a href="supplier_reliability.php" style="height:32px; padding:0 10px; border-radius:8px; background:rgba(245,158,11,0.14); color:#fbbf24; border:1px solid rgba(245,158,11,0.35); font-size:0.76rem; font-weight:800; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">🏭 موثوقية الموردين</a>
                     <a href="inventory-report.php" style="height:32px; padding:0 10px; border-radius:8px; background:rgba(59,130,246,0.14); color:#93c5fd; border:1px solid rgba(59,130,246,0.35); font-size:0.76rem; font-weight:800; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">📦 مركز المخازن</a>
-                    <a href="general-ledger.php" onclick="(function(a,e){var cid=(document.getElementById('cust-id')&&document.getElementById('cust-id').value)||'',cn=(document.getElementById('cust-name')&&document.getElementById('cust-name').value)||'',sid=(document.getElementById('sup-id')&&document.getElementById('sup-id').value)||'',sn=(document.getElementById('sup-name')&&document.getElementById('sup-name').value)||'';if(cid||cn){e.preventDefault();window.location.href='general-ledger.php?accountId='+encodeURIComponent(cid?'cust-'+cid:'')+'&name='+encodeURIComponent(cn);}else if(sid||sn){e.preventDefault();window.location.href='general-ledger.php?accountId='+encodeURIComponent(sid?'supp-'+sid:'')+'&name='+encodeURIComponent(sn);}})(this,event)" style="height:32px; padding:0 10px; border-radius:8px; background:rgba(236,72,153,0.14); color:#f9a8d4; border:1px solid rgba(236,72,153,0.35); font-size:0.76rem; font-weight:800; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">📒 دفتر الأستاذ</a>
+                    <a href="general-ledger.php" onclick="(function(a,e){var cid=(document.getElementById('cust-id')&&document.getElementById('cust-id').value)||'',cn=(document.getElementById('cust-name')&&document.getElementById('cust-name').value)||'',sid=(document.getElementById('sup-id')&&document.getElementById('sup-id').value)||'',sn=(document.getElementById('sup-name')&&document.getElementById('sup-name').value)||'';if(cid||cn){e.preventDefault();var cParam=cid?(String(cid).toLowerCase().startsWith('cust-')?cid:'cust-'+cid):'';window.location.href='general-ledger.php?accountId='+encodeURIComponent(cParam)+'&name='+encodeURIComponent(cn);}else if(sid||sn){e.preventDefault();var sParam=sid?(String(sid).toLowerCase().startsWith('supp-')?sid:'supp-'+String(sid).replace(/^sup-/i,'')):'';window.location.href='general-ledger.php?accountId='+encodeURIComponent(sParam)+'&name='+encodeURIComponent(sn);}})(this,event)" style="height:32px; padding:0 10px; border-radius:8px; background:rgba(236,72,153,0.14); color:#f9a8d4; border:1px solid rgba(236,72,153,0.35); font-size:0.76rem; font-weight:800; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">📒 دفتر الأستاذ</a>
                 </div>
                 </div>
                 <!-- الصف الثالث: منظومة الدستور الختامي الثاني (2 من 2) — التسميع الذري، مفسر النتائج AI، الشيكات وبنكك، الرادار الجنائي، وأقفال الأمان -->
@@ -2262,13 +2278,13 @@
                                 <input type="hidden" id="cust-opening-debit" value="0">
                                 <input type="hidden" id="cust-opening-credit" value="0">
                                 <div class="md-entity-seg-group" style="display: inline-flex; align-items: center; background: rgba(15, 23, 42, 0.85); border: 2px solid rgba(148, 163, 184, 0.5); border-radius: 10px; padding: 3px; gap: 4px; height: 36px; box-sizing: border-box;">
-                                    <button type="button" id="cust-mode-btn-disabled" class="md-entity-seg-btn" onclick="setFormStatementMode('cust', 'disabled', true)" data-md-tip-title="🔒 موقوف" data-md-tip="إيقاف هذا العميل من التعامل وطلب الرصيد أو كشف الحساب عبر الواتساب." style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1.6px solid rgba(148, 163, 184, 0.42); font-size: 0.74rem; font-weight: 800; cursor: pointer;">🔒 موقوف</button>
-                                    <button type="button" id="cust-mode-btn-balance_only" class="md-entity-seg-btn" onclick="setFormStatementMode('cust', 'balance_only', true)" data-md-tip-title="💰 الرصيد فقط" data-md-tip="يسمح لهذا العميل بطلب الرصيد الإجمالي فقط من الواتساب دون تفاصيل الحركات." style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1.6px solid rgba(148, 163, 184, 0.42); font-size: 0.74rem; font-weight: 800; cursor: pointer;">💰 الرصيد</button>
-                                    <button type="button" id="cust-mode-btn-detailed" class="md-entity-seg-btn" onclick="setFormStatementMode('cust', 'detailed', true)" data-md-tip-title="📊 كشف حساب" data-md-tip="يسمح لهذا العميل بطلب كشف حساب مفصل عن طريق الواتساب." style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1.6px solid rgba(148, 163, 184, 0.42); font-size: 0.74rem; font-weight: 800; cursor: pointer;">📊 كشف</button>
+                                    <button type="button" id="cust-mode-btn-disabled" class="md-entity-seg-btn" onclick="setFormStatementMode('cust', 'disabled', true)" data-md-tip-title="🔒 موقوف نهائياً" data-md-tip="موقوف نهائياً: لا يستطيع هذا العميل طلب الرصيد ولا كشف الحساب عبر الواتساب." style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1.6px solid rgba(148, 163, 184, 0.42); font-size: 0.74rem; font-weight: 800; cursor: pointer;">🔒 موقوف</button>
+                                    <button type="button" id="cust-mode-btn-balance_only" class="md-entity-seg-btn" onclick="setFormStatementMode('cust', 'balance_only', true)" data-md-tip-title="💰 الرصيد فقط" data-md-tip="يستطيع هذا العميل أن يطلب معرفة الرصيد فقط عبر الواتساب (بدون كشف حساب مفصل)." style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1.6px solid rgba(148, 163, 184, 0.42); font-size: 0.74rem; font-weight: 800; cursor: pointer;">💰 الرصيد</button>
+                                    <button type="button" id="cust-mode-btn-detailed" class="md-entity-seg-btn" onclick="setFormStatementMode('cust', 'detailed', true)" data-md-tip-title="📊 كشف الحساب والرصيد" data-md-tip="يستطيع هذا العميل أن يطلب كشف الحساب المفصل وكذلك الرصيد عبر الواتساب." style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1.6px solid rgba(148, 163, 184, 0.42); font-size: 0.74rem; font-weight: 800; cursor: pointer;">📊 كشف</button>
                                 </div>
                                 <div class="md-entity-seg-group" style="display: inline-flex; align-items: center; background: rgba(15, 23, 42, 0.85); border: 2px solid rgba(16, 185, 129, 0.55); border-radius: 10px; padding: 3px; gap: 4px; height: 36px; box-sizing: border-box;">
-                                    <button type="button" id="cust-rcpt-btn-auto_post" class="md-entity-seg-btn" onclick="setFormReceiptApprovalMode('cust', 'auto_post', true)" data-md-tip-title="⚡ الاعتماد الفوري للإشعارات" data-md-tip="الإشعارات البنكية التي يرسلها هذا العميل (أو مناديبُه) عبر الواتساب تُعتمد اعتماداً فورياً وتُقيد في حسابه تلقائياً." style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1.6px solid rgba(148, 163, 184, 0.42); font-size: 0.74rem; font-weight: 800; cursor: pointer;">⚡ اعتماد فوري</button>
-                                    <button type="button" id="cust-rcpt-btn-review_first" class="md-entity-seg-btn" onclick="setFormReceiptApprovalMode('cust', 'review_first', true)" data-md-tip-title="👁️ مراجعة الإشعارات قبل الاعتماد" data-md-tip="الإشعارات البنكية التي يرسلها هذا العميل عبر الواتساب تُحفظ للمراجعة أولاً قبل اعتمادها وترحيلها في الحساب." style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1.6px solid rgba(148, 163, 184, 0.42); font-size: 0.74rem; font-weight: 800; cursor: pointer;">👁️ مراجعة</button>
+                                    <button type="button" id="cust-rcpt-btn-auto_post" class="md-entity-seg-btn" onclick="setFormReceiptApprovalMode('cust', 'auto_post', true)" data-md-tip-title="⚡ نزول تلقائي للإشعارات" data-md-tip="عند إرسال إشعار بنكي من هذا العميل عبر الواتساب ينزل المبلغ في حسابه ورصيده تلقائياً وفوراً." style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1.6px solid rgba(148, 163, 184, 0.42); font-size: 0.74rem; font-weight: 800; cursor: pointer;">⚡ اعتماد فوري</button>
+                                    <button type="button" id="cust-rcpt-btn-review_first" class="md-entity-seg-btn" onclick="setFormReceiptApprovalMode('cust', 'review_first', true)" data-md-tip-title="👁️ انتظار المراجعة للإشعارات" data-md-tip="عند إرسال إشعار بنكي من هذا العميل عبر الواتساب لا ينزل في رصيده تلقائياً، بل ينتظر المراجعة والاعتماد اليدوي أولاً." style="height: 28px; padding: 0 9px; border-radius: 7px; border: 1.6px solid rgba(148, 163, 184, 0.42); font-size: 0.74rem; font-weight: 800; cursor: pointer;">👁️ مراجعة</button>
                                 </div>
                                 <div style="display:inline-flex; align-items:center; gap:4px;">
                                     <select id="cust-default-bank-id" class="entity-default-bank-select" data-md-tip-title="🏦 البنك الافتراضي للعميل" data-md-tip="البنك الافتراضي المخصص لهذا العميل؛ حينما يرسل إشعار تحويل عبر الواتساب يُعتمد ويُودع المبلغ في هذا البنك تلقائياً." style="height: 36px; background: rgba(15, 23, 42, 0.9); color: #fcd34d; border: 2px solid rgba(245, 158, 11, 0.6); border-radius: 10px; padding: 0 10px; font-size: 0.78rem; font-weight: 800; max-width: 175px;">
@@ -2305,15 +2321,21 @@
                                 <input type="text" id="cust-whatsapp" class="pro-num-input" oninput="document.getElementById('cust-phone').value = this.value; if(typeof updateCombinedPinPreview==='function') updateCombinedPinPreview('cust');" placeholder="00249123000000">
                             </div>
 
-                            <div class="pro-field-card" data-md-tip-title="💰 الرصيد الافتتاحي للعميل" data-md-tip="موجب (+) يعني: عليه / مدين / لنا — وسالب (-) يعني: له / دائن / علينا.">
-                                <label class="pro-field-label" style="display:flex;align-items:center;justify-content:space-between;gap:4px;flex-wrap:wrap;">
+                            <div class="pro-field-card" data-md-tip-title="💰 الرصيد الافتتاحي للعميل" data-md-tip="اضغط السهم العلوي (+) أو (مدين • عليه • لنا) للرصيد الموجب، أو السهم السفلي (−) أو (دائن • له • علينا) للرصيد السالب دون الحاجة للبحث عن علامة السالب في لوحة المفاتيح.">
+                                <label class="pro-field-label">
                                     <span>💰 الرصيد الافتتاحي</span>
-                                    <span id="cust-op-bal-sign-badge" style="font-size:0.66rem;font-weight:900;padding:1px 6px;border-radius:6px;background:rgba(56,189,248,0.14);color:#7dd3fc;border:1px solid rgba(56,189,248,0.35);">± موجب: عليه | سالب: له</span>
                                 </label>
-                                <input type="number" id="cust-opening-balance" class="pro-num-input" step="any" placeholder="0.00 (+ عليه مدين لنا | - له دائن علينا)" oninput="(function(el){var v=parseFloat(el.value||0),b=document.getElementById('cust-op-bal-sign-badge');if(!b)return;if(v<0){b.textContent='➖ سالب: له / دائن / علينا';b.style.background='rgba(16,185,129,0.2)';b.style.color='#34d399';b.style.borderColor='#10b981';}else if(v>0){b.textContent='➕ موجب: عليه / مدين / لنا';b.style.background='rgba(239,68,68,0.2)';b.style.color='#fca5a5';b.style.borderColor='#ef4444';}else{b.textContent='± موجب: عليه | سالب: له';b.style.background='rgba(56,189,248,0.14)';b.style.color='#7dd3fc';b.style.borderColor='rgba(56,189,248,0.35)';}})(this)">
-                                <div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px;justify-content:space-between;font-size:0.68rem;font-weight:900;line-height:1.3;">
-                                    <span style="color:#fca5a5;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);padding:1px 6px;border-radius:5px;">➕ موجب: عليه • مدين • لنا</span>
-                                    <span style="color:#6ee7b7;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);padding:1px 6px;border-radius:5px;">➖ سالب: له • دائن • علينا</span>
+                                <div class="op-bal-infield-wrap">
+                                    <input type="number" id="cust-opening-balance" class="pro-num-input" step="any" placeholder="0.00" oninput="window.syncMdOpBalHint&&window.syncMdOpBalHint(this,'cust',true)">
+                                    <div class="op-bal-sign-stepper">
+                                        <span role="button" class="op-bal-step-btn step-pos" title="موجب (+): مدين • عليه • لنا" onclick="window.setMdOpBalSign('cust', 1)">▲</span>
+                                        <span role="button" class="op-bal-step-btn step-neg" title="سالب (−): دائن • له • علينا" onclick="window.setMdOpBalSign('cust', -1)">▼</span>
+                                    </div>
+                                </div>
+                                <div class="op-bal-infield-hint" id="cust-op-infield-hint">
+                                    <span class="op-owe-us" data-sign="pos" onclick="window.setMdOpBalSign('cust', 1)" title="اضغط لجعل المبلغ موجب (+)">(+) مدين • عليه • لنا</span>
+                                    <span class="op-sep">|</span>
+                                    <span class="op-we-owe" data-sign="neg" onclick="window.setMdOpBalSign('cust', -1)" title="اضغط لجعل المبلغ سالب (−)">(−) دائن • له • علينا</span>
                                 </div>
                             </div>
 
@@ -2457,7 +2479,7 @@
 
                     <div class="table-responsive" style="overflow-x: auto;">
                         <table class="pro-table">
-                            <thead><tr><th style="width: 115px; text-align: center;">🔐 الرقم السري</th><th style="width: 25%; min-width: 180px; text-align: right;">العميل</th><th style="width: 130px; text-align: center;">الواتساب</th><th style="width: 175px; text-align: center;">كشف الحساب</th><th style="width: 85px; text-align: center;">الحالة</th><th style="width: 125px; text-align: center;">الرصيد</th><th style="width: 110px; text-align: center;">الائتمان</th><th style="width: 95px; text-align: center;">المسؤول</th><th style="width: 55px; text-align: center;">السرية</th><th style="width: 110px; text-align: center;">الإجراء</th></tr></thead>
+                            <thead><tr><th style="width: 95px; text-align: center;">🔐 الرقم السري</th><th style="width: 14%; min-width: 120px; max-width: 165px; text-align: right;">العميل</th><th style="width: 115px; text-align: center;">الواتساب</th><th style="width: 265px; text-align: center;">كشف الحساب والإشعارات</th><th style="width: 75px; text-align: center;">الحالة</th><th style="width: 115px; text-align: center;">الرصيد</th><th style="width: 100px; text-align: center;">الائتمان</th><th style="width: 80px; text-align: center;">المسؤول</th><th style="width: 48px; text-align: center;">السرية</th><th style="width: 195px; text-align: center;">الإجراء</th></tr></thead>
                             <tbody id="customers-tbody"></tbody>
                         </table>
                     </div>
@@ -2600,12 +2622,71 @@
                                 <input type="text" id="sup-whatsapp" class="pro-num-input" oninput="document.getElementById('sup-phone').value = this.value; if(typeof updateCombinedPinPreview==='function') updateCombinedPinPreview('sup');" placeholder="00249123000000">
                             </div>
 
-                            <div class="pro-field-card">
+                            <div class="pro-field-card" data-md-tip-title="💰 الرصيد الافتتاحي للمورد" data-md-tip="اضغط السهم العلوي (+) أو (دائن • له • علينا) للرصيد الموجب، أو السهم السفلي (−) أو (مدين • عليه • لنا) للرصيد السالب بضغطة واحدة.">
                                 <label class="pro-field-label">
                                     <span>💰 الرصيد الافتتاحي</span>
                                 </label>
-                                <input type="number" id="sup-opening-balance" class="pro-num-input" step="any" placeholder="0.00">
+                                <div class="op-bal-infield-wrap">
+                                    <input type="number" id="sup-opening-balance" class="pro-num-input" step="any" placeholder="0.00" oninput="window.syncMdOpBalHint&&window.syncMdOpBalHint(this,'sup',true)">
+                                    <div class="op-bal-sign-stepper">
+                                        <span role="button" class="op-bal-step-btn step-pos" title="موجب (+): دائن • له • علينا" onclick="window.setMdOpBalSign('sup', 1)">▲</span>
+                                        <span role="button" class="op-bal-step-btn step-neg" title="سالب (−): مدين • عليه • لنا" onclick="window.setMdOpBalSign('sup', -1)">▼</span>
+                                    </div>
+                                </div>
+                                <div class="op-bal-infield-hint" id="sup-op-infield-hint">
+                                    <span class="op-we-owe" data-sign="pos" onclick="window.setMdOpBalSign('sup', 1)" title="اضغط لجعل المبلغ موجب (+)">(+) دائن • له • علينا</span>
+                                    <span class="op-sep">|</span>
+                                    <span class="op-owe-us" data-sign="neg" onclick="window.setMdOpBalSign('sup', -1)" title="اضغط لجعل المبلغ سالب (−)">(−) مدين • عليه • لنا</span>
+                                </div>
                             </div>
+                            <script>
+                            window.setMdOpBalSign = function(role, dir) {
+                                var el = document.getElementById(role === 'sup' ? 'sup-opening-balance' : 'cust-opening-balance');
+                                if (!el) return;
+                                var raw = String(el.value || '').trim();
+                                var num = parseFloat(raw);
+                                if (!isNaN(num) && num !== 0) {
+                                    el.value = (dir < 0 ? -Math.abs(num) : Math.abs(num));
+                                    el.dataset.pendingSign = '';
+                                } else {
+                                    el.dataset.pendingSign = (dir < 0 ? 'neg' : 'pos');
+                                    el.placeholder = (dir < 0 ? '-0.00' : '0.00');
+                                }
+                                window.syncMdOpBalHint(el, role, false);
+                                el.focus();
+                                try { el.dispatchEvent(new Event('change', { bubbles: true })); } catch (_) {}
+                            };
+                            window.syncMdOpBalHint = function(el, role, fromInput) {
+                                if (!el) return;
+                                if (fromInput && el.dataset.pendingSign === 'neg') {
+                                    var typed = parseFloat(el.value);
+                                    if (!isNaN(typed) && typed > 0) {
+                                        el.value = -Math.abs(typed);
+                                        el.dataset.pendingSign = '';
+                                    }
+                                } else if (fromInput && el.dataset.pendingSign === 'pos') {
+                                    el.dataset.pendingSign = '';
+                                }
+                                var box = document.getElementById(role === 'sup' ? 'sup-op-infield-hint' : 'cust-op-infield-hint');
+                                if (!box) return;
+                                var v = parseFloat(el.value || 0);
+                                var effNeg = (v < 0) || ((!v || isNaN(v)) && el.dataset.pendingSign === 'neg');
+                                var effPos = (v > 0) || ((!v || isNaN(v)) && el.dataset.pendingSign === 'pos');
+                                var posEl = box.querySelector('[data-sign="pos"]'), negEl = box.querySelector('[data-sign="neg"]');
+                                if (posEl && negEl) {
+                                    posEl.style.opacity = effNeg ? '0.35' : '1';
+                                    negEl.style.opacity = effPos ? '0.35' : '1';
+                                    posEl.classList.toggle('is-active-sign', effPos);
+                                    negEl.classList.toggle('is-active-sign', effNeg);
+                                }
+                                var wrap = el.closest('.op-bal-infield-wrap');
+                                if (wrap) {
+                                    var bPos = wrap.querySelector('.step-pos'), bNeg = wrap.querySelector('.step-neg');
+                                    if (bPos) bPos.classList.toggle('active', effPos);
+                                    if (bNeg) bNeg.classList.toggle('active', effNeg);
+                                }
+                            };
+                            </script>
 
                             <div class="pro-field-card">
                                 <label class="pro-field-label">
@@ -2712,7 +2793,7 @@
 
                     <div class="table-responsive" style="overflow-x: auto;">
                         <table class="pro-table" id="tab-suppliers-table">
-                            <thead><tr><th style="width: 115px; text-align: center;">🔐 الرقم السري</th><th style="width: 28%; min-width: 180px; text-align: right;">المورد</th><th style="width: 130px; text-align: center;">الواتساب</th><th style="width: 175px; text-align: center;">كشف الحساب</th><th style="width: 85px; text-align: center;">الحالة</th><th style="width: 125px; text-align: center;">الرصيد</th><th style="width: 115px; text-align: center;">الائتمان</th><th style="width: 55px; text-align: center;">السرية</th><th style="width: 110px; text-align: center;">الإجراء</th></tr></thead>
+                            <thead><tr><th style="width: 95px; text-align: center;">🔐 الرقم السري</th><th style="width: 15%; min-width: 120px; max-width: 165px; text-align: right;">المورد</th><th style="width: 115px; text-align: center;">الواتساب</th><th style="width: 265px; text-align: center;">كشف الحساب والإشعارات</th><th style="width: 75px; text-align: center;">الحالة</th><th style="width: 115px; text-align: center;">الرصيد</th><th style="width: 105px; text-align: center;">الائتمان</th><th style="width: 48px; text-align: center;">السرية</th><th style="width: 195px; text-align: center;">الإجراء</th></tr></thead>
                             <tbody></tbody>
                         </table>
                     </div>

@@ -319,52 +319,30 @@ $page_title = 'حساب الأرصدة الأساسية';
             opacity: 0.8;
         }
         
-        /* The Focused Specific Number Feature (Size Increase + Soft Light Yellow Background) */
-        td.focused-num,
-        td.num-magnified,
-        #balances-table tbody td.focused-num,
-        #balances-table tbody td.num-magnified,
-        .pos-grid tbody td.focused-num,
-        .pos-grid tbody td.num-magnified,
-        .num.focused-num,
-        .num.num-magnified {
-            font-size: 1.85rem !important;
+        /* The Focused Specific Number Feature (Non-Overlapping Audit Highlight) */
+        td.focused-num, td.num-magnified, #balances-table tbody td.focused-num, #balances-table tbody td.num-magnified,
+        .pos-grid tbody td.focused-num, .pos-grid tbody td.num-magnified, .num.focused-num, .num.num-magnified,
+        :root.light-theme td.focused-num, :root.light-theme td.num-magnified,
+        :root.light-theme #balances-table tbody td.focused-num, :root.light-theme #balances-table tbody td.num-magnified,
+        :root.light-theme .pos-grid tbody td.focused-num, :root.light-theme .pos-grid tbody td.num-magnified {
+            font-size: 1.28rem !important;
             font-weight: 900 !important;
-            font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace !important;
             font-variant-numeric: tabular-nums !important;
-            background: #fef08a !important; /* Soft Light Yellow */
-            background-color: #fef08a !important;
-            color: #0f172a !important; /* Crisp Dark Contrast */
-            border: 2.5px solid #eab308 !important;
-            border-radius: 12px !important;
-            box-shadow: 0 12px 30px rgba(234, 179, 8, 0.45), 0 4px 14px rgba(0, 0, 0, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.9) !important;
-            z-index: 99999 !important;
-            position: relative !important;
-            display: table-cell !important;
-            padding: 8px 20px !important;
-            white-space: nowrap !important;
-            min-width: max-content !important;
-            width: auto !important;
-            overflow: visible !important;
-            letter-spacing: 0.8px !important;
-            transform: scale(1.08) !important;
-            line-height: 1.25 !important;
-            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
-            text-shadow: none !important;
-            cursor: pointer !important;
-        }
-        :root.light-theme td.focused-num,
-        :root.light-theme td.num-magnified,
-        :root.light-theme #balances-table tbody td.focused-num,
-        :root.light-theme #balances-table tbody td.num-magnified,
-        :root.light-theme .pos-grid tbody td.focused-num,
-        :root.light-theme .pos-grid tbody td.num-magnified {
             background: #fef08a !important;
             background-color: #fef08a !important;
             color: #0f172a !important;
-            border: 2.5px solid #eab308 !important;
-            box-shadow: 0 10px 25px rgba(234, 179, 8, 0.3), 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+            border-radius: 4px !important;
+            box-shadow: inset 0 0 0 2px #eab308 !important;
+            display: table-cell !important;
+            box-sizing: border-box !important;
+            padding: 4px 6px !important;
+            white-space: nowrap !important;
+            letter-spacing: 0 !important;
+            transform: none !important;
+            line-height: 1.2 !important;
             text-shadow: none !important;
+            cursor: pointer !important;
+            transition: background 0.15s ease, font-size 0.15s ease !important;
         }
 
         @page { size: A4 landscape; margin: 6mm; }
@@ -997,7 +975,7 @@ $page_title = 'حساب الأرصدة الأساسية';
                 <label style="display:block; margin-bottom:10px; font-weight:800; color:#38bdf8;">🎨 تخصيص ألوان وحجم خط الأرقام:</label>
                 <div style="display:flex; flex-direction:column; gap:10px;">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:0.85rem; font-weight:bold; color:#f87171;">🔴 لون أرقام المدين (عليه):</span>
+                        <span style="font-size:0.85rem; font-weight:bold; color:#f87171;">🔴 لون أرقام المدين (لنا):</span>
                         <input type="color" value="#f87171" onchange="updateColField(6, 'color', this.value); updateColField(4, 'color', this.value);" style="border:none; width:45px; height:30px; border-radius:6px; cursor:pointer; background:transparent;">
                     </div>
                     <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -1136,11 +1114,11 @@ $page_title = 'حساب الأرصدة الأساسية';
                     <span>🎯 حالة الرصيد</span>
                 </label>
                 <select class="filter-input" id="filter-condition" style="padding:4px 8px; font-size:0.76rem; height:38px; border-radius:8px; font-weight:800; width:100%; margin:0; box-sizing:border-box;" onchange="runReport()">
-                    <option value="ALL">جميع الأرصدة (بدون تصفية)</option>
-                    <option value="DEBTORS_ONLY">🔴 الأرصدة المدينة فقط (عليه)</option>
+                    <option value="NON_ZERO" selected>≠ الأرصدة غير الصفرية فقط (+ / −)</option>
+                    <option value="DEBTORS_ONLY">🔴 الأرصدة المدينة فقط (لنا)</option>
                     <option value="CREDITORS_ONLY">🟢 الأرصدة الدائنة فقط (له)</option>
                     <option value="ACTIVE_ONLY">⚡ الأرصدة المتحركة (ذات نشاط)</option>
-                    <option value="NON_ZERO">≠ الأرصدة غير الصفرية فقط</option>
+                    <option value="WITH_ZERO">جميع الحسابات (بما فيها الصفرية)</option>
                 </select>
             </div>
 
@@ -1157,16 +1135,16 @@ $page_title = 'حساب الأرصدة الأساسية';
         </div>
         <div class="filter-row" style="margin-top: 10px; margin-bottom: 15px; display: flex; gap: 6px; flex-wrap: nowrap; width: 100%; align-items: center;">
 
-            <div class="preset-slots-container no-print" id="main-presets-container" style="flex:1; display:flex; gap:6px; align-items:center; flex-wrap:nowrap; padding:4px 8px; border-radius:10px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); min-height: 48px; overflow-x: auto;">
-                <button type="button" class="preset-ribbon-btn preset-slot-0" onclick="window.openPresetModal(0, 'متعدد العملات 1')">متعدد العملات 1</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-1" onclick="window.openPresetModal(1, 'متعدد العملات 2')">متعدد العملات 2</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-2" onclick="window.openPresetModal(2, 'متعدد العملات 3')">متعدد العملات 3</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-3" onclick="window.openPresetModal(3, 'متعدد العملات 4')">متعدد العملات 4</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-4" onclick="window.openPresetModal(4, 'متعدد العملات 5')">متعدد العملات 5</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-5" onclick="window.openPresetModal(5, 'الأجنبي')">الأجنبي</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-6" onclick="window.openPresetModal(6, 'أجنبي بلا ألوان')">أجنبي بلا ألوان</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-7" onclick="window.openPresetModal(7, 'المحلي')">المحلي</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-8" onclick="window.openPresetModal(8, 'محلي بلا ألوان')">محلي بلا ألوان</button>
+            <div class="preset-slots-container no-print" id="main-presets-container" style="flex:1; display:flex; gap:5px; align-items:center; flex-wrap:nowrap; padding:4px 6px; border-radius:10px; background: rgba(15,23,42,0.55); border: 1px solid rgba(56,189,248,0.25); min-height: 44px; overflow-x: auto;">
+                <button type="button" class="preset-ribbon-btn preset-slot-0" onclick="window.openPresetModal(0, 'متعدد العملات 1')">متعدد 1</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-1" onclick="window.openPresetModal(1, 'متعدد العملات 2')">متعدد 2</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-2" onclick="window.openPresetModal(2, 'متعدد العملات 3')">متعدد 3</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-3" onclick="window.openPresetModal(3, 'متعدد العملات 4')">متعدد 4</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-4" onclick="window.openPresetModal(4, 'متعدد العملات 5')">متعدد 5</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-5" onclick="window.openPresetModal(5, 'الأجنبي')">أجنبي</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-6" onclick="window.openPresetModal(6, 'أجنبي بلا ألوان')">أجنبي صافي</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-7" onclick="window.openPresetModal(7, 'المحلي')">محلي</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-8" onclick="window.openPresetModal(8, 'محلي بلا ألوان')">محلي صافي</button>
                 <button type="button" class="preset-ribbon-btn preset-slot-9" onclick="window.openPresetModal(9, 'نمط 1')">نمط 1</button>
                 <button type="button" class="preset-ribbon-btn preset-slot-10" onclick="window.openPresetModal(10, 'نمط 2')">نمط 2</button>
                 <button type="button" class="preset-ribbon-btn preset-slot-11" onclick="window.openPresetModal(11, 'نمط 3')">نمط 3</button>
@@ -1179,7 +1157,7 @@ $page_title = 'حساب الأرصدة الأساسية';
     <div id="analytics-dashboard" class="no-print" style="display:block; margin-bottom: 10px; padding: 8px; background: rgba(15, 23, 42, 0.9); border-radius: 10px; border: 1px solid rgba(255,255,255,0.12);">
         <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;">
             <div style="background: rgba(16,185,129,0.12); border-radius: 8px; padding: 8px 12px; border: 1px solid rgba(16,185,129,0.4);">
-                <div style="color: #f8fafc; font-size: 0.9rem; font-weight: 900; text-align: center; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">إجمالي الأرصدة المدينة / العملاء (عليه)</div>
+                <div style="color: #f8fafc; font-size: 0.9rem; font-weight: 900; text-align: center; margin-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px;">إجمالي الأرصدة المدينة / العملاء (لنا)</div>
                 <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
                     <div style="flex: 1; min-width: 0; text-align: center;">
                         <span style="color:#cbd5e1; font-size:0.72rem; font-weight:800; display:block; margin-bottom:2px;">بالجنيه السوداني (SDG)</span>

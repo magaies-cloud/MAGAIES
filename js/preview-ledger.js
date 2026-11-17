@@ -31,9 +31,9 @@ const baseColumns = [
     { idx: 13, defaultLabel: "رقم التحويلة", field: "transferNo", isNum: false },
     { idx: 15, defaultLabel: "اسم البنك", field: "bankName", isNum: false },
     { idx: 14, defaultLabel: "رقم الشيك", field: "checkNo", isNum: false },
-    { idx: 5, defaultLabel: "مدين محلي (عليه)", field: "debit", isNum: true },
+    { idx: 5, defaultLabel: "مدين محلي (لنا)", field: "debit", isNum: true },
     { idx: 6, defaultLabel: "دائن محلي (له)", field: "credit", isNum: true },
-    { idx: 7, defaultLabel: "مدين أجنبي (عليه)", field: "debitForeign", isNum: true },
+    { idx: 7, defaultLabel: "مدين أجنبي (لنا)", field: "debitForeign", isNum: true },
     { idx: 8, defaultLabel: "دائن أجنبي (له)", field: "creditForeign", isNum: true },
     { idx: 9, defaultLabel: "سعر الصرف", field: "exchangeRate", isNum: true },
     { idx: 10, defaultLabel: "الإجمالي المحلي", field: "balance", isNum: true },
@@ -195,7 +195,8 @@ function updateSubheaderLabels() {
             try { config = JSON.parse(configStr); } catch(e){}
         }
 
-        const accVal = config.filterAccount || 'ALL';
+        const _uParams = new URLSearchParams(window.location.search);
+        const accVal = _uParams.get('accountId') || config.filterAccount || 'ALL';
         const fromDate = config.dateFrom || '';
         const toDate = config.dateTo || '';
         const currentDateMode = config.dateMode || 'all';
@@ -204,7 +205,7 @@ function updateSubheaderLabels() {
         const custLbl = document.getElementById('report-customer-name-lbl');
         if (custLbl) {
             if (accVal !== 'ALL') {
-                let accName = typeof getAccountName === 'function' ? getAccountName(accVal) : accVal;
+                let accName = _uParams.get('accountName') || config.accountName || (typeof getAccountName === 'function' ? getAccountName(accVal) : accVal);
                 custLbl.innerText = 'السيد / ' + accName;
             } else {
                 custLbl.innerText = 'السيد / جميع الحسابات';
@@ -245,7 +246,8 @@ function calculateLedgerTxns() {
         try { config = JSON.parse(configStr); } catch(e){}
     }
 
-    const accVal = config.filterAccount || 'ALL';
+    const _uParamsCalc = new URLSearchParams(window.location.search);
+    const accVal = _uParamsCalc.get('accountId') || config.filterAccount || 'ALL';
     const fromDate = config.dateFrom || '';
     const toDate = config.dateTo || '';
     const typeFilter = config.filterType || 'ALL';
@@ -267,25 +269,25 @@ function calculateLedgerTxns() {
         const cleanFilter = String(accVal).replace(/^(cust-|supp-|bank-|safe-|exp-)+/i, '').trim();
         const selectedAccName = ((typeof getAccountName === 'function') ? getAccountName(accVal) : '').trim();
         txns = txns.filter(t => {
-            if (!t) return false;
+            if (!t || !cleanFilter) return false;
+            if (t.type === 'opening' || t.ref === 'OPENING' || t.ref === 'OPEN-BAL') return false;
             const tAcc = String(t.account || '').trim();
             if (!tAcc) return false;
-            if (tAcc === String(accVal)) return true;
+            if (tAcc.toLowerCase() === String(accVal).toLowerCase()) return true;
 
             const tPrefix = (tAcc.match(/^(cust|supp|bank|safe|exp)-/i) || [''])[0].toLowerCase();
             if (filterPrefix && tPrefix && filterPrefix !== tPrefix) return false;
 
-            const cleanTAcc = tAcc.replace(/^(cust-|supp-|bank-|safe-|exp-)+/i, '').trim();
-            if (cleanTAcc === cleanFilter) {
-                if (!filterPrefix || tPrefix === filterPrefix || cleanFilter.length >= 6) return true;
-                const tName = String(t.accountName || ((typeof getAccountName === 'function') ? getAccountName(tAcc) : '') || '').trim();
-                if (selectedAccName && tName && tName === selectedAccName) return true;
+            const cleanTAcc = tAcc.replace(/^(cust-|supp-|bank-|safe-|exp-|sub-|sust-)+/i, '').trim();
+            if (/^(walk-in|walk-in-supplier|unknown|-|all|حسابات فرعية متعددة)$/i.test(tAcc) || /^(walk-in|walk-in-supplier|unknown|-|all)$/i.test(cleanTAcc)) return false;
+            if (cleanTAcc && cleanTAcc.toLowerCase() === cleanFilter.toLowerCase()) {
+                if (!filterPrefix || tPrefix === filterPrefix || (!tPrefix && cleanFilter.length >= 6)) return true;
             }
 
-            if (selectedAccName && selectedAccName !== accVal) {
+            if (selectedAccName && selectedAccName !== accVal && !tPrefix) {
                 if (tAcc === selectedAccName) return true;
-                if (!tPrefix || !filterPrefix || tPrefix === filterPrefix) {
-                    const tAccName = String(t.accountName || ((typeof getAccountName === 'function') ? getAccountName(tAcc) : '') || '').trim();
+                if (cleanTAcc.length < 6) {
+                    const tAccName = String(t.accountName || '').trim();
                     if (tAccName && tAccName === selectedAccName) return true;
                 }
             }
@@ -346,21 +348,41 @@ function calculateLedgerTxns() {
             } catch(e){}
         }
 
-        let custs = []; try { custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => x && !x.deleted); } catch(e){}
-        let sups = []; try { sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => x && !x.deleted); } catch(e){}
-        let banks = []; try { banks = (JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => x && !x.deleted); } catch(e){}
-        let safes = []; try { safes = (JSON.parse(localStorage.getItem('erp_safes_v1')) || []).filter(x => x && !x.deleted); } catch(e){}
-        let accounts = []; try { accounts = (JSON.parse(localStorage.getItem('erp_accounts_v1')) || []).filter(x => x && !x.deleted); } catch(e){}
-        
-        if (typeof ALL_ACCOUNTS !== 'undefined' && Array.isArray(ALL_ACCOUNTS)) {
-            accounts = accounts.concat(ALL_ACCOUNTS);
-        }
+        const _readPlMaster = (k) => {
+            const getTK = window.getTenantKey || ((x) => x);
+            let a = [], b = [];
+            try { a = JSON.parse(localStorage.getItem(getTK(k)) || '[]'); } catch(e){}
+            try { b = JSON.parse(localStorage.getItem(k) || '[]'); } catch(e){}
+            if (!Array.isArray(a)) a = Object.values(a || {});
+            if (!Array.isArray(b)) b = Object.values(b || {});
+            const m = new Map();
+            [...b, ...a].forEach(x => { if (x && (x.id || x.name)) m.set(String(x.id || x.name).trim(), x); });
+            return Array.from(m.values()).filter(x => x && !x.deleted && !x.is_deleted);
+        };
+        let custs = _readPlMaster('erp_customers_v1');
+        let sups = _readPlMaster('erp_suppliers_v1');
+        let banks = _readPlMaster('erp_banks_v1');
+        let safes = _readPlMaster('erp_safes_v1');
+        let accounts = _readPlMaster('erp_accounts_v1');
+        if (typeof ALL_ACCOUNTS !== 'undefined' && Array.isArray(ALL_ACCOUNTS)) accounts = accounts.concat(ALL_ACCOUNTS);
 
-        let masterRec = custs.find(x => x && (x.id === accVal || x.id === cleanFilter || x.name === accVal)) 
-                     || sups.find(x => x && (x.id === accVal || x.id === cleanFilter || x.name === accVal)) 
-                     || banks.find(x => x && (x.id === accVal || x.id === cleanFilter || x.name === accVal)) 
-                     || safes.find(x => x && (x.id === accVal || x.id === cleanFilter || x.name === accVal))
-                     || accounts.find(x => x && (x.id === accVal || x.id === cleanFilter || x.code === cleanFilter || x.name === accVal));
+        const _matchPlRec = (arr) => {
+            const cfLow = String(cleanFilter || '').toLowerCase();
+            const avLow = String(accVal || '').toLowerCase();
+            return (arr || []).find(x => x && (
+                String(x.id || '').toLowerCase() === avLow ||
+                String(x.id || '').toLowerCase() === cfLow ||
+                (cfLow && String(x.id || '').replace(/^(cust-|supp-|bank-|safe-|exp-|sub-|sust-)+/i, '').toLowerCase() === cfLow) ||
+                x.name === accVal
+            ));
+        };
+        const matchedSuppPl = (!filterPrefix || filterPrefix === 'supp-') ? _matchPlRec(sups) : null;
+        let masterRec = (filterPrefix === 'cust-') ? _matchPlRec(custs)
+                     : (filterPrefix === 'supp-') ? matchedSuppPl
+                     : (filterPrefix === 'bank-') ? _matchPlRec(banks)
+                     : (filterPrefix === 'safe-') ? _matchPlRec(safes)
+                     : (filterPrefix === 'exp-')  ? _matchPlRec(accounts)
+                     : (_matchPlRec(custs) || matchedSuppPl || _matchPlRec(banks) || _matchPlRec(safes) || _matchPlRec(accounts));
         
         let intrinsicBal = 0;
         let currency = 'SDG';
@@ -379,11 +401,8 @@ function calculateLedgerTxns() {
             if (opDebit > 0 || opCredit > 0) {
                 intrinsicBal = opDebit - opCredit;
             } else if (rawBal !== 0) {
-                if (masterRec.balance_type === 'credit' || masterRec.balanceType === 'credit') {
-                    intrinsicBal = -Math.abs(rawBal);
-                } else {
-                    intrinsicBal = Math.abs(rawBal);
-                }
+                const isCreditNature = (masterRec === matchedSuppPl) || masterRec.balance_type === 'credit' || masterRec.balanceType === 'credit';
+                intrinsicBal = isCreditNature ? -rawBal : rawBal;
             }
             currency = masterRec.currency || 'SDG';
             // Read account-specific rate (only meaningful for foreign currency accounts)
@@ -590,62 +609,45 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadCompanyHeader();
     });
 
-    // Fast-path: use pre-built preview_ledger_data first, fallback to calculateLedgerTxns
-    const rawData = localStorage.getItem('preview_ledger_data') || localStorage.getItem('preview_table_data');
-    if (rawData) {
-        try {
-            const parsed = JSON.parse(rawData);
-            if (Array.isArray(parsed) && parsed.length > 0) currentData = parsed;
-        } catch(e) {}
-    }
-    if ((!currentData || currentData.length === 0) && typeof calculateLedgerTxns === 'function') {
-        try {
-            const liveCalculated = calculateLedgerTxns();
-            if (Array.isArray(liveCalculated) && liveCalculated.length > 0) currentData = liveCalculated;
-        } catch (e) {}
-    }
-
-    if (!currentData || currentData.length === 0) {
-        if (typeof localforage !== 'undefined') {
-            try {
-                const lfData = await localforage.getItem('preview_ledger_data');
-                if (Array.isArray(lfData) && lfData.length > 0) {
-                    currentData = lfData;
-                }
-            } catch(e) {
-                console.error('Error reading from localforage:', e);
-            }
-        }
-    }
-
-    if (!currentData || currentData.length === 0) {
-        const rawData = localStorage.getItem('preview_ledger_data') || localStorage.getItem('preview_table_data');
-        if (rawData) {
-            try {
-                const parsed = JSON.parse(rawData);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    currentData = parsed;
-                }
-            } catch(e) {
-                console.error('Error parsing ledger data', e);
-            }
-        }
-    }
-
+    const _uInit = new URLSearchParams(window.location.search);
+    const _urlAccId = _uInit.get('accountId') || '';
+    let _isSpecificAccountCfg = Boolean(_urlAccId && _urlAccId !== 'ALL');
     const rawConfig = localStorage.getItem('preview_ledger_config');
     if (rawConfig) {
         try {
             const cfg = JSON.parse(rawConfig);
+            if (cfg.filterAccount && cfg.filterAccount !== 'ALL') _isSpecificAccountCfg = true;
+            if (_urlAccId && cfg.filterAccount && cfg.filterAccount !== _urlAccId) {
+                localStorage.removeItem('preview_ledger_data');
+            }
             if (cfg.accountName) {
                 const mainTitle = document.getElementById('report-main-title');
-                if (mainTitle) {
-                    mainTitle.innerText = 'دفتر الأستاذ العام';
-                }
+                if (mainTitle) mainTitle.innerText = 'دفتر الأستاذ العام';
             }
         } catch(e){}
     }
 
-    if (!currentData || currentData.length === 0) {
+    let _hasExplicitLedgerArr = false;
+    const rawData = localStorage.getItem('preview_ledger_data');
+    if (rawData) {
+        try {
+            const parsed = JSON.parse(rawData);
+            if (Array.isArray(parsed)) { currentData = parsed; _hasExplicitLedgerArr = true; }
+        } catch(e) {}
+    }
+    if ((!_hasExplicitLedgerArr || currentData.length === 0) && typeof calculateLedgerTxns === 'function') {
+        try {
+            const liveCalculated = calculateLedgerTxns();
+            if (Array.isArray(liveCalculated) && (liveCalculated.length > 0 || _isSpecificAccountCfg)) { currentData = liveCalculated; _hasExplicitLedgerArr = true; }
+        } catch (e) {}
+    }
+    if (!_hasExplicitLedgerArr && typeof localforage !== 'undefined') {
+        try {
+            const lfData = await localforage.getItem('preview_ledger_data');
+            if (Array.isArray(lfData)) { currentData = lfData; _hasExplicitLedgerArr = true; }
+        } catch(e) {}
+    }
+    if ((!currentData || currentData.length === 0) && !_isSpecificAccountCfg) {
         if (typeof collectAllTransactions === 'function') {
             currentData = collectAllTransactions();
         }
@@ -653,6 +655,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     filteredData = [...currentData];
     initPresets();
+
+    window.reloadPreviewDataFromStorage = function() {
+        try {
+            loadCompanyHeader();
+            const rc = JSON.parse(localStorage.getItem('preview_ledger_config') || '{}');
+            const isSpec = !!(rc.filterAccount && rc.filterAccount !== 'ALL');
+            const rd = JSON.parse(localStorage.getItem('preview_ledger_data') || 'null');
+            if (Array.isArray(rd) && (rd.length > 0 || isSpec)) {
+                currentData = rd;
+            } else if (typeof calculateLedgerTxns === 'function') {
+                currentData = calculateLedgerTxns() || [];
+            }
+            filteredData = [...currentData];
+            if (typeof renderTable === 'function') renderTable();
+        } catch (e) {}
+    };
 
     window.refreshPreviewLedgerLive = function() {
         try {
@@ -779,8 +797,8 @@ function getDefaultConfigs() {
 
 
 
-const MASTER_DEF1_LOCK_STAMP = 'gl_def1_locked_20261114_v3';
-const MASTER_DEF2_LOCK_STAMP = 'gl_def2_locked_20261114_v3';
+const MASTER_DEF1_LOCK_STAMP = 'gl_def1_locked_20261116_v4';
+const MASTER_DEF2_LOCK_STAMP = 'gl_def2_locked_20261116_v4';
 const MASTER_DEF3_LOCK_STAMP = 'gl_def3_locked_20261114_v3';
 const MASTER_DEF4_STAMP = 'gl_def4_init_20261114_v5';
 const MASTER_DEF1_ORDER = [0, 12, 1, 2, 3, 4, 13, 15, 14, 5, 6, 10, 9, 7, 8, 11];
@@ -810,20 +828,20 @@ function calcAutoFitNumberRem(textStr, baseRem, colWidthPx) {
 
 function getFactoryPreset1LedgerConfigs() {
     return [
-        { label: "التاريخ", visible: true, fs: 0.9, fontWeight: "900", fontFamily: "inherit", color: "", bgColor: "#edfafd", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest" },
+        { label: "التاريخ", visible: true, fs: 0.96, headerFs: 0.78, fontWeight: "900", fontFamily: "inherit", color: "", bgColor: "#edfafd", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "7.5%" },
         { label: "الرقم المرجعي", visible: false, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest" },
         { label: "البيان / الوصف", visible: false, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest" },
         { label: "الحساب المقابل", visible: false, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest" },
         { label: "نوع الحركة", visible: false, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest" },
-        { label: "مدين محلي (عليه)", visible: true, fs: 0.9, headerFs: 0.78, fontWeight: "900", fontFamily: "inherit", color: "#0516ff", bgColor: "#f0ffff", align: "center", thousandSep: ",", decimals: 0, showDecSep: true, rounding: "nearest", width: "138px" },
-        { label: "دائن محلي (له)", visible: true, fs: 0.9, headerFs: 0.78, fontWeight: "900", fontFamily: "inherit", color: "#fb0404", bgColor: "#fcf2f2", align: "center", thousandSep: ",", decimals: 0, showDecSep: true, rounding: "nearest", width: "138px" },
-        { label: "مدين أجنبي (عليه)", visible: true, fs: 0.9, headerFs: 0.78, fontWeight: "", fontFamily: "inherit", color: "#0703fc", bgColor: "#f0ffff", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "134px" },
-        { label: "دائن أجنبي (له)", visible: true, fs: 0.9, headerFs: 0.78, fontWeight: "", fontFamily: "inherit", color: "#fa0000", bgColor: "#fcf2f2", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "134px" },
-        { label: "سعر الصرف", visible: true, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "#e0fff1", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "100px" },
-        { label: "الإجمالي المحلي", visible: true, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "#fefff0", align: "center", thousandSep: ",", decimals: 0, showDecSep: true, rounding: "nearest", width: "152px" },
-        { label: "الإجمالي الأجنبي", visible: true, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "#fefff0", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "140px" },
-        { label: "ملاحظات", visible: true, fs: 0.9, fontWeight: "900", fontFamily: "inherit", color: "", bgColor: "#e9fbee", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "192px" },
-        { label: "رقم التحويلة", visible: true, fs: 0.9, fontWeight: "900", fontFamily: "inherit", color: "", bgColor: "#fff0ff", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "162px" },
+        { label: "مدين محلي (لنا)", visible: true, fs: 1.02, headerFs: 0.74, fontWeight: "900", fontFamily: "inherit", color: "#0516ff", bgColor: "#f0ffff", align: "center", thousandSep: ",", decimals: 0, showDecSep: true, rounding: "nearest", width: "10%" },
+        { label: "دائن محلي (له)", visible: true, fs: 1.02, headerFs: 0.74, fontWeight: "900", fontFamily: "inherit", color: "#fb0404", bgColor: "#fcf2f2", align: "center", thousandSep: ",", decimals: 0, showDecSep: true, rounding: "nearest", width: "10%" },
+        { label: "مدين أجنبي (لنا)", visible: true, fs: 1.0, headerFs: 0.74, fontWeight: "", fontFamily: "inherit", color: "#0703fc", bgColor: "#f0ffff", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "9.5%" },
+        { label: "دائن أجنبي (له)", visible: true, fs: 1.0, headerFs: 0.74, fontWeight: "", fontFamily: "inherit", color: "#fa0000", bgColor: "#fcf2f2", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "9.5%" },
+        { label: "سعر الصرف", visible: true, fs: 0.96, headerFs: 0.74, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "#e0fff1", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "7%" },
+        { label: "الإجمالي المحلي", visible: true, fs: 1.05, headerFs: 0.76, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "#fefff0", align: "center", thousandSep: ",", decimals: 0, showDecSep: true, rounding: "nearest", width: "11%" },
+        { label: "الإجمالي الأجنبي", visible: true, fs: 1.02, headerFs: 0.76, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "#fefff0", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "11.5%" },
+        { label: "ملاحظات", visible: true, fs: 0.78, headerFs: 0.78, fontWeight: "900", fontFamily: "inherit", color: "", bgColor: "#e9fbee", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "13.5%", wrapText: true },
+        { label: "رقم التحويلة", visible: true, fs: 0.94, headerFs: 0.76, fontWeight: "900", fontFamily: "inherit", color: "", bgColor: "#fff0ff", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest", width: "10.5%" },
         { label: "رقم الشيك", visible: false, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest" },
         { label: "اسم البنك", visible: false, fs: 0.9, fontWeight: "", fontFamily: "inherit", color: "", bgColor: "", align: "center", thousandSep: ",", decimals: 2, showDecSep: true, rounding: "nearest" }
     ];
@@ -1068,6 +1086,8 @@ function enforceMasterPresetsPolicy(list) {
         list[1].order = [...MASTER_DEF1_ORDER];
         list[1].theme = '';
         list[1].font = 'font-newsons';
+        list[1].orientation = 'landscape';
+        list[1].tableWidth = 100;
         list[1].isLocked = true;
     }
     // 3. Always lock Default 3 (idx 2) permanently across all companies/devices/browsers
@@ -1778,13 +1798,14 @@ function renderTable() {
         th.style.fontWeight = '900';
         if (conf.fontFamily && conf.fontFamily !== 'inherit') th.style.fontFamily = conf.fontFamily;
         if (conf.width) {
+            const isPct = String(conf.width).includes('%');
             const wNum = parseInt(conf.width, 10);
             th.style.setProperty('width', conf.width, 'important');
-            th.style.setProperty('min-width', conf.width, 'important');
+            th.style.setProperty('min-width', isPct ? '0px' : conf.width, 'important');
             th.style.setProperty('max-width', conf.width, 'important');
             th.style.overflow = 'hidden';
             th.style.textOverflow = 'ellipsis';
-            if (!isNaN(wNum)) {
+            if (!isPct && !isNaN(wNum)) {
                 if (wNum <= 10) {
                     th.style.padding = '0px';
                     th.style.fontSize = '0px';
@@ -1907,13 +1928,14 @@ function renderTable() {
             td.style.setProperty('color', cellColor, 'important');
             td.style.setProperty('background-color', rowBg, 'important');
         if (conf.width) {
+            const isPct = String(conf.width).includes('%');
             const wNum = parseInt(conf.width, 10);
             td.style.setProperty('width', conf.width, 'important');
-            td.style.setProperty('min-width', conf.width, 'important');
+            td.style.setProperty('min-width', isPct ? '0px' : conf.width, 'important');
             td.style.setProperty('max-width', conf.width, 'important');
             td.style.overflow = 'hidden';
             if (!isAutoFitCol) td.style.textOverflow = 'ellipsis';
-            if (!isNaN(wNum)) {
+            if (!isPct && !isNaN(wNum)) {
                 if (wNum <= 10) {
                     td.style.padding = '0px';
                     td.style.fontSize = '0px';
@@ -1968,8 +1990,9 @@ function renderTable() {
             td.style.setProperty('border-top', '5.5px solid #000000', 'important');
             td.style.fontSize = (conf.fs || 1.18) + 'rem';
             if (conf.width) {
+                const isPctFoot = String(conf.width).includes('%');
                 td.style.setProperty('width', conf.width, 'important');
-                td.style.setProperty('min-width', conf.width, 'important');
+                td.style.setProperty('min-width', isPctFoot ? '0px' : conf.width, 'important');
                 td.style.setProperty('max-width', conf.width, 'important');
                 td.style.overflow = 'hidden';
             }

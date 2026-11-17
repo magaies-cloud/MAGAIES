@@ -9,7 +9,7 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2027.99-11-15-natural-100-v6';
+const CACHE_NAME = 'magaiees-pwa-v2027.99-11-17-unified-screens-v16';
 
 const PRECACHE_ASSETS = [
     './',
@@ -176,6 +176,11 @@ self.addEventListener('fetch', (event) => {
     if (request.method !== 'GET') return;
 
     const url = new URL(request.url);
+    // On localhost / 127.0.0.1, NEVER serve stale SW cache — always fetch live local files directly
+    if (url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+        event.respondWith(fetch(request, { cache: 'no-store' }).catch(() => caches.match(request)));
+        return;
+    }
     const isNavigation = request.mode === 'navigate' || (request.headers.get('accept') || '').includes('text/html');
 
     // 1. Dynamic JSON APIs & background pings (non-navigation): bypass SW cache so offline queue catches network errors

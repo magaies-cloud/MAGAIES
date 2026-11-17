@@ -64,43 +64,32 @@
         table.excel-table.theme-luxury-black tbody tr:nth-child(odd) { background: #ffffff !important; }
         table.excel-table.theme-luxury-black tfoot td { background: #171717 !important; color: #f5f5f5 !important; font-weight: 900 !important; border-color: #000000 !important; }
         
-        /* ── Magnified Number Audit Effect (+100% / 2x Size, Elegant Modern Box) ── */
-        .excel-table tbody td.num-magnified,
-        .excel-table td.num-magnified,
-        td.num-magnified {
-            font-size: 1.8rem !important;
+        /* ── Magnified Number Audit Effect (Clear Non-Overlapping Audit Box) ── */
+        .excel-table tbody td.num-magnified, .excel-table td.num-magnified, td.num-magnified,
+        :root.light-theme .excel-table tbody td.num-magnified, :root.light-theme .excel-table td.num-magnified {
+            font-size: 1.26rem !important;
             font-weight: 900 !important;
-            font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace !important;
             font-variant-numeric: tabular-nums !important;
-            background: linear-gradient(145deg, #ffffff, #f8fafc) !important;
-            background-color: #ffffff !important;
-            color: #1d4ed8 !important;
-            border: 2.5px solid #2563eb !important;
-            border-radius: 12px !important;
-            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.3), 0 4px 14px rgba(0, 0, 0, 0.18), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
-            z-index: 99999 !important;
-            position: relative !important;
+            background: #fef08a !important;
+            background-color: #fef08a !important;
+            color: #0f172a !important;
+            border-radius: 4px !important;
+            box-shadow: inset 0 0 0 2px #eab308 !important;
             text-shadow: none !important;
-            padding: 10px 22px !important;
+            padding: 3px 6px !important;
             white-space: nowrap !important;
-            min-width: max-content !important;
-            width: auto !important;
-            overflow: visible !important;
             display: table-cell !important;
-            letter-spacing: 0.8px !important;
-            transform: scale(1.06) !important;
-            line-height: 1.25 !important;
-            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            box-sizing: border-box !important;
+            letter-spacing: 0 !important;
+            transform: none !important;
+            line-height: 1.2 !important;
             cursor: pointer !important;
+            transition: background 0.15s ease, font-size 0.15s ease !important;
         }
-        :root.light-theme .excel-table tbody td.num-magnified,
-        :root.light-theme .excel-table td.num-magnified {
-            background: linear-gradient(145deg, #ffffff, #f8fafc) !important;
-            background-color: #ffffff !important;
-            color: #1d4ed8 !important;
-            border: 2.5px solid #2563eb !important;
-            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.25), 0 4px 14px rgba(0, 0, 0, 0.12) !important;
-            text-shadow: none !important;
+        @media print {
+            .excel-table tbody td.num-magnified, .excel-table td.num-magnified, td.num-magnified {
+                background: transparent !important; box-shadow: none !important; font-size: inherit !important; color: inherit !important;
+            }
         }
 
         /* Fonts */
@@ -212,6 +201,7 @@
             transition: all 0.3s ease;
             box-sizing: border-box;
             position: relative;
+            overflow-x: hidden;
         }
 
         body.dark-mode .print-area {
@@ -219,8 +209,8 @@
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
         }
 
-        .print-area.paper-portrait { max-width: 99% !important; width: 99% !important; }
-        .print-area.paper-landscape { max-width: 99.6% !important; width: 99.6% !important; }
+        .print-area.paper-portrait { max-width: min(210mm, 99%) !important; width: min(210mm, 99%) !important; }
+        .print-area.paper-landscape { max-width: min(297mm, 99.6%) !important; width: min(297mm, 99.6%) !important; }
 
         /* Paper sheet indicator badge */
         .print-area::before {
@@ -249,7 +239,7 @@
 
         /* Excel-like Flat Table — 3-Tier Border Hierarchy (Fine 1px Inner / 3px Section Dividers / Heavy 4.5px Outer Frame) */
         table.excel-table {
-            width: 100%; border-collapse: collapse !important; table-layout: auto;
+            width: 100% !important; max-width: 100% !important; border-collapse: collapse !important; table-layout: fixed !important;
             background: #ffffff; color: #000000;
             border: 4.5px solid #000000 !important;
             outline: 1.5px solid #000000 !important;
@@ -397,7 +387,8 @@
             }
             table.excel-table {
                 width: 100% !important;
-                table-layout: auto !important;
+                max-width: 100% !important;
+                table-layout: fixed !important;
             }
             table.excel-table th, table.excel-table td {
                 border: 1px solid var(--table-border) !important;
@@ -736,7 +727,7 @@ try {
 } catch(e){}
 </script>
 <script src="js/localforage.min.js"></script>
-<script src="js/app.js?v=20261113_v36"></script>
+<script src="js/app.js?v=<?= file_exists(__DIR__ . '/js/app.js') ? filemtime(__DIR__ . '/js/app.js') : time() ?>"></script>
 <script src="js/general-ledger.js?v=<?= file_exists(__DIR__ . '/js/general-ledger.js') ? filemtime(__DIR__ . '/js/general-ledger.js') : time() ?>"></script>
 <script src="js/preview-ledger.js?v=<?= file_exists(__DIR__ . '/js/preview-ledger.js') ? filemtime(__DIR__ . '/js/preview-ledger.js') : time() ?>"></script>
 <script defer src="js/erp-whatsapp-suite.js?v=20261113_v36"></script>

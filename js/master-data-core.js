@@ -2315,22 +2315,22 @@
             const effectiveRcptMode = policyRcptMode === 'review_first_all' ? 'review_first' : (policyRcptMode === 'auto_post_all' ? 'auto_post' : rcptMode);
             const roleWord = entityType === 'supplier' ? 'المورد' : 'العميل';
             const rcptPillHtml = effectiveRcptMode === 'review_first'
-                ? `<button type="button" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" data-md-tip-title="👁️ مراجعة الإشعارات" data-md-tip="الإشعارات البنكية التي يرسلها هذا ${roleWord} تُراجع أولاً قبل اعتمادها في الحساب (اضغط للتبديل إلى الاعتماد الفوري)." style="margin-top:4px; background:rgba(245,158,11,0.2); color:#fcd34d; border:1px solid rgba(245,158,11,0.5); padding:2px 8px; border-radius:6px; font-size:0.72rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">👁️ مراجعة</button>`
-                : `<button type="button" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" data-md-tip-title="⚡ الاعتماد الفوري للإشعارات" data-md-tip="الإشعارات البنكية التي يرسلها هذا ${roleWord} عبر الواتساب تُعتمد اعتماداً فورياً وتُقيد في حسابه تلقائياً (اضغط للتبديل إلى المراجعة)." style="margin-top:4px; background:rgba(16,185,129,0.15); color:#6ee7b7; border:1px solid rgba(16,185,129,0.4); padding:2px 8px; border-radius:6px; font-size:0.72rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:4px;">⚡ تلقائي</button>`;
+                ? `<button type="button" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" data-md-tip-title="👁️ انتظار المراجعة للإشعارات" data-md-tip="عند إرسال إشعار بنكي من هذا ${roleWord} عبر الواتساب لا ينزل في رصيده تلقائياً، بل ينتظر المراجعة والاعتماد اليدوي أولاً (اضغط للتبديل إلى تلقائي)." style="background:rgba(245,158,11,0.2); color:#fcd34d; border:1px solid rgba(245,158,11,0.5); padding:2px 7px; border-radius:6px; font-size:0.71rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:3px; white-space:nowrap;">👁️ مراجعة</button>`
+                : `<button type="button" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" data-md-tip-title="⚡ نزول تلقائي للإشعارات" data-md-tip="عند إرسال إشعار بنكي من هذا ${roleWord} عبر الواتساب ينزل المبلغ في حسابه ورصيده تلقائياً وفوراً (اضغط للتبديل إلى انتظار المراجعة)." style="background:rgba(16,185,129,0.16); color:#6ee7b7; border:1px solid rgba(16,185,129,0.45); padding:2px 7px; border-radius:6px; font-size:0.71rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:3px; white-space:nowrap;">⚡ تلقائي</button>`;
 
             const customBankBadge = item.defaultBankName
-                ? `<div data-md-tip-title="🏦 البنك الافتراضي (${item.defaultBankName})" data-md-tip="حينما يرسل هذا ${roleWord} إشعار تحويل عبر الواتساب يُعتمد ويُودع في هذا البنك تلقائياً." style="margin-top:2px; font-size:0.68rem; color:#fcd34d; font-weight:800;">🏦 ${item.defaultBankName}</div>`
+                ? `<span data-md-tip-title="🏦 البنك الافتراضي (${item.defaultBankName})" data-md-tip="حينما يرسل هذا ${roleWord} إشعار تحويل عبر الواتساب يُعتمد ويُودع في هذا البنك تلقائياً." style="font-size:0.68rem; color:#fcd34d; font-weight:800; white-space:nowrap;">🏦 ${item.defaultBankName}</span>`
                 : '';
 
-            return `
-                <div style="display:inline-flex; align-items:center; gap:3px; background:rgba(15,23,42,0.65); padding:3px; border-radius:8px; border:1px solid rgba(148,163,184,0.2);">
-                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'disabled')" data-md-tip-title="🔒 موقوف" data-md-tip="إيقاف هذا ${roleWord} من طلب الرصيد أو كشف الحساب عبر الواتساب." style="${btnStyle('disabled')} padding:3px 6px; border-radius:6px; font-size:0.72rem; cursor:pointer; white-space:nowrap;">🔒 موقوف</button>
-                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'balance_only')" data-md-tip-title="💰 الرصيد فقط" data-md-tip="يسمح لهذا ${roleWord} بطلب معرفة الرصيد فقط عبر الواتساب." style="${btnStyle('balance_only')} padding:3px 6px; border-radius:6px; font-size:0.72rem; cursor:pointer; white-space:nowrap;">💰 الرصيد</button>
-                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'detailed')" data-md-tip-title="📊 كشف حساب" data-md-tip="يسمح لهذا ${roleWord} بطلب كشف حساب مفصل عن طريق الواتساب." style="${btnStyle('detailed')} padding:3px 6px; border-radius:6px; font-size:0.72rem; cursor:pointer; white-space:nowrap;">📊 كشف</button>
+            return `<div style="display:inline-flex; align-items:center; gap:4px; flex-wrap:nowrap; white-space:nowrap;">
+                <div style="display:inline-flex; align-items:center; gap:2px; background:rgba(15,23,42,0.65); padding:2px; border-radius:7px; border:1px solid rgba(148,163,184,0.2); white-space:nowrap;">
+                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'disabled')" data-md-tip-title="🔒 موقوف نهائياً" data-md-tip="موقوف نهائياً: لا يستطيع هذا ${roleWord} طلب الرصيد ولا كشف الحساب عبر الواتساب." style="${btnStyle('disabled')} padding:2px 6px; border-radius:5px; font-size:0.71rem; cursor:pointer; white-space:nowrap;">🔒 موقوف</button>
+                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'balance_only')" data-md-tip-title="💰 الرصيد فقط" data-md-tip="يستطيع هذا ${roleWord} أن يطلب معرفة الرصيد فقط عبر الواتساب (بدون كشف حساب مفصل)." style="${btnStyle('balance_only')} padding:2px 6px; border-radius:5px; font-size:0.71rem; cursor:pointer; white-space:nowrap;">💰 الرصيد</button>
+                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'detailed')" data-md-tip-title="📊 كشف الحساب والرصيد" data-md-tip="يستطيع هذا ${roleWord} أن يطلب كشف الحساب المفصل وكذلك الرصيد عبر الواتساب." style="${btnStyle('detailed')} padding:2px 6px; border-radius:5px; font-size:0.71rem; cursor:pointer; white-space:nowrap;">📊 كشف</button>
                 </div>
-                <div>${rcptPillHtml}</div>
+                ${rcptPillHtml}
                 ${customBankBadge}
-            `;
+            </div>`;
         }
 
         function ensureCustomerReceiptCodes() {
@@ -2767,24 +2767,24 @@
                 const pinTip = (pInfo.last2 && cleanPin.length === 3)
                     ? `الرقم السري (5 أرقام): ${pInfo.full5} = آخر رقمين من الواتساب (${pInfo.last2}) + الثلاثة أرقام السرية (${cleanPin}) — اضغط للنسخ`
                     : `الرقم السري: ${cleanPin || '-'} (أضف رقم الواتساب ليصبح 5 أرقام)`;
-                const pinBadge = `<span onclick="copyEntityWhatsAppCard('customer', '${c.id}')" title="${pinTip}" style="background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.45); padding:3px 10px; border-radius:8px; font-weight:900; font-family:monospace; font-size:0.88rem; display:inline-block; cursor:pointer; direction:ltr;">🔐 ${pinLabelHtml} 📋</span>`;
+                const pinBadge = `<span onclick="copyEntityWhatsAppCard('customer', '${c.id}')" title="${pinTip}" style="background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.45); padding:1px 7px; border-radius:6px; font-weight:900; font-family:monospace; font-size:0.82rem; display:inline-block; cursor:pointer; direction:ltr; white-space:nowrap;">🔐 ${pinLabelHtml} 📋</span>`;
                 
                 const subCount = Array.isArray(c.subPhones) ? c.subPhones.length : 0;
-                const subPhonesBadge = subCount > 0 ? `<div style="margin-top:3px;"><span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:1px 6px; border-radius:6px; font-size:0.72rem; font-weight:700;">📱 +${subCount}</span></div>` : '';
+                const subPhonesBadge = subCount > 0 ? ` <span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:1px 5px; border-radius:5px; font-size:0.68rem; font-weight:700;">📱+${subCount}</span>` : '';
 
                 const stmtToggleBtn = buildTableStatementControlHtml('customer', c);
 
                 rowsHtml.push(`<tr>
-                    <td style="text-align:center;">${pinBadge}</td>
-                    <td style="font-weight:bold;">${c.name}</td>
-                    <td style="text-align:center; direction:ltr;"><div style="font-family:monospace; font-weight:800;">${c.whatsapp || c.phone || '-'}</div>${subPhonesBadge}</td>
-                    <td style="text-align:center;">${stmtToggleBtn}</td>
-                    <td style="text-align:center;">${statusBadge}</td>
-                    <td style="text-align:center;">${balDisplay}</td>
-                    <td style="text-align:center; cursor:pointer;" ondblclick="startInlineMasterEdit(this, 'customer_limit', '${c.id}', ${parseFloat(c.creditLimit) || 0})" title="انقر مرتين لتعديل حد الائتمان مباشرة">${(c.creditLimit || 0).toLocaleString()} ${c.currency || 'SDG'} <small style="opacity:0.45;">✏️</small></td>
-                    <td style="font-size:0.85rem; text-align:center;">${c.contactPerson || '-'}</td>
-                    <td style="text-align:center;">${c.securityLevel || 1}</td>
-                    <td style="text-align:center; white-space:nowrap;"><button class="btn-text" style="color:#fbbf24; font-weight:800; margin-left:5px;" onclick="openEntityDrillDownStatementModal('customer', '${c.id}')" title="كشف الحساب التفصيلي والحركات (Drill-Down)">📊</button><button class="btn-text" style="color:#38bdf8; font-weight:800; margin-left:5px;" onclick="window.location.href='account-statement.php?partner='+encodeURIComponent('${(c.name || '').replace(/'/g, "\\'")}')" title="كشف الحساب الرسمي الشامل">📄</button><button class="btn-text" style="color:#c084fc; font-weight:800; margin-left:5px;" onclick="window.location.href='customer-portfolio.php'" title="محفظة العميل 360°">💼</button><button class="btn-text" style="color:#34d399; font-weight:800; margin-left:6px;" onclick="openEntityQrCardModal('customer', '${c.id}')" title="بطاقة QR">🪪</button><button class="btn-text" style="color:#38bdf8; font-weight:800;" onclick="editCustomer('${c.id}')">✏️ تعديل</button><button class="btn-text" style="color:var(--danger-color); font-weight:800; margin-right:8px;" onclick="deleteCustomer('${c.id}')">🗑️ حذف</button></td>
+                    <td style="text-align:center; white-space:nowrap;">${pinBadge}</td>
+                    <td style="font-weight:bold; max-width:165px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${(c.name || '').replace(/"/g, '&quot;')}">${c.name}</td>
+                    <td style="text-align:center; direction:ltr; white-space:nowrap;"><span style="font-family:monospace; font-weight:800;">${c.whatsapp || c.phone || '-'}</span>${subPhonesBadge}</td>
+                    <td style="text-align:center; white-space:nowrap;">${stmtToggleBtn}</td>
+                    <td style="text-align:center; white-space:nowrap;">${statusBadge}</td>
+                    <td style="text-align:center; white-space:nowrap;">${balDisplay}</td>
+                    <td style="text-align:center; cursor:pointer; white-space:nowrap;" ondblclick="startInlineMasterEdit(this, 'customer_limit', '${c.id}', ${parseFloat(c.creditLimit) || 0})" title="انقر مرتين لتعديل حد الائتمان مباشرة">${(c.creditLimit || 0).toLocaleString()} ${c.currency || 'SDG'} <small style="opacity:0.45;">✏️</small></td>
+                    <td style="font-size:0.82rem; text-align:center; white-space:nowrap;">${c.contactPerson || '-'}</td>
+                    <td style="text-align:center; white-space:nowrap;">${c.securityLevel || 1}</td>
+                    <td style="text-align:center; white-space:nowrap;"><div style="display:inline-flex; align-items:center; gap:4px; flex-wrap:nowrap; white-space:nowrap;"><button class="btn-text" style="color:#fbbf24; font-weight:800; padding:1px 3px;" onclick="openEntityDrillDownStatementModal('customer', '${c.id}')" title="كشف الحساب التفصيلي والحركات (Drill-Down)">📊</button><button class="btn-text" style="color:#38bdf8; font-weight:800; padding:1px 3px;" onclick="window.location.href='account-statement.php?partner='+encodeURIComponent('${(c.name || '').replace(/'/g, "\\'")}')" title="كشف الحساب الرسمي الشامل">📄</button><button class="btn-text" style="color:#c084fc; font-weight:800; padding:1px 3px;" onclick="window.location.href='customer-portfolio.php'" title="محفظة العميل 360°">💼</button><button class="btn-text" style="color:#34d399; font-weight:800; padding:1px 3px;" onclick="openEntityQrCardModal('customer', '${c.id}')" title="بطاقة QR">🪪</button><button class="btn-text" style="color:#38bdf8; font-weight:800; padding:1px 4px; white-space:nowrap;" onclick="editCustomer('${c.id}')">✏️ تعديل</button><button class="btn-text" style="color:var(--danger-color); font-weight:800; padding:1px 4px; white-space:nowrap;" onclick="deleteCustomer('${c.id}')">🗑️ حذف</button></div></td>
                 </tr>`);
             });
             if (!query && customers.length > maxShow) {
@@ -3203,20 +3203,20 @@
                 const pinBadge = `<span onclick="copyEntityWhatsAppCard('supplier', '${s.id}')" title="${pinTip}" style="background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.45); padding:3px 10px; border-radius:8px; font-weight:900; font-family:monospace; font-size:0.88rem; display:inline-block; cursor:pointer; direction:ltr;">🔐 ${pinLabelHtml} 📋</span>`;
 
                 const subCount = Array.isArray(s.subPhones) ? s.subPhones.length : 0;
-                const subPhonesBadge = subCount > 0 ? `<div style="margin-top:3px;"><span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:1px 6px; border-radius:6px; font-size:0.72rem; font-weight:700;">📱 +${subCount}</span></div>` : '';
+                const subPhonesBadge = subCount > 0 ? ` <span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:1px 5px; border-radius:5px; font-size:0.68rem; font-weight:700;">📱+${subCount}</span>` : '';
 
                 const stmtToggleBtn = buildTableStatementControlHtml('supplier', s);
 
                 rowsHtmlSup.push(`<tr>
-                    <td style="text-align:center;">${pinBadge}</td>
-                    <td style="font-weight:bold;">${s.name}</td>
-                    <td style="text-align:center; direction:ltr;"><div style="font-family:monospace; font-weight:800;">${s.whatsapp || s.phone || '-'}</div>${subPhonesBadge}</td>
-                    <td style="text-align:center;">${stmtToggleBtn}</td>
-                    <td style="text-align:center;">${statusBadge}</td>
-                    <td style="text-align:center;">${balDisplay}</td>
-                    <td style="text-align:center; cursor:pointer;" ondblclick="startInlineMasterEdit(this, 'supplier_limit', '${s.id}', ${parseFloat(s.creditLimit) || 0})">${(s.creditLimit || 0).toLocaleString()} SDG <small style="opacity:0.45;">✏️</small></td>
-                    <td style="text-align:center;">${s.securityLevel || 1}</td>
-                    <td style="text-align:center; white-space:nowrap;"><button class="btn-text" style="color:#fbbf24; font-weight:800; margin-left:5px;" onclick="openEntityDrillDownStatementModal('supplier', '${s.id}')" title="كشف الحساب التفصيلي والحركات (Drill-Down)">📊</button><button class="btn-text" style="color:#38bdf8; font-weight:800; margin-left:5px;" onclick="window.location.href='account-statement.php?partner='+encodeURIComponent('${(s.name || '').replace(/'/g, "\\'")}')" title="كشف الحساب الرسمي الشامل">📄</button><button class="btn-text" style="color:#f59e0b; font-weight:800; margin-left:5px;" onclick="window.location.href='supplier_reliability.php'" title="تقييم وموثوقية المورد 360°">🏭</button><button class="btn-text" style="color:#34d399; font-weight:800; margin-left:6px;" onclick="openEntityQrCardModal('supplier', '${s.id}')" title="بطاقة QR">🪪</button><button class="btn-text" style="color:#38bdf8; font-weight:800;" onclick="editSupplier('${s.id}')">✏️ تعديل</button><button class="btn-text" style="color:var(--danger-color); font-weight:800; margin-right:8px;" onclick="deleteSupplier('${s.id}')">🗑️ حذف</button></td>
+                    <td style="text-align:center; white-space:nowrap;">${pinBadge}</td>
+                    <td style="font-weight:bold; max-width:165px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${(s.name || '').replace(/"/g, '&quot;')}">${s.name}</td>
+                    <td style="text-align:center; direction:ltr; white-space:nowrap;"><span style="font-family:monospace; font-weight:800;">${s.whatsapp || s.phone || '-'}</span>${subPhonesBadge}</td>
+                    <td style="text-align:center; white-space:nowrap;">${stmtToggleBtn}</td>
+                    <td style="text-align:center; white-space:nowrap;">${statusBadge}</td>
+                    <td style="text-align:center; white-space:nowrap;">${balDisplay}</td>
+                    <td style="text-align:center; cursor:pointer; white-space:nowrap;" ondblclick="startInlineMasterEdit(this, 'supplier_limit', '${s.id}', ${parseFloat(s.creditLimit) || 0})">${(s.creditLimit || 0).toLocaleString()} SDG <small style="opacity:0.45;">✏️</small></td>
+                    <td style="text-align:center; white-space:nowrap;">${s.securityLevel || 1}</td>
+                    <td style="text-align:center; white-space:nowrap;"><div style="display:inline-flex; align-items:center; gap:4px; flex-wrap:nowrap; white-space:nowrap;"><button class="btn-text" style="color:#fbbf24; font-weight:800; padding:1px 3px;" onclick="openEntityDrillDownStatementModal('supplier', '${s.id}')" title="كشف الحساب التفصيلي والحركات (Drill-Down)">📊</button><button class="btn-text" style="color:#38bdf8; font-weight:800; padding:1px 3px;" onclick="window.location.href='account-statement.php?partner='+encodeURIComponent('${(s.name || '').replace(/'/g, "\\'")}')" title="كشف الحساب الرسمي الشامل">📄</button><button class="btn-text" style="color:#f59e0b; font-weight:800; padding:1px 3px;" onclick="window.location.href='supplier_reliability.php'" title="تقييم وموثوقية المورد 360°">🏭</button><button class="btn-text" style="color:#34d399; font-weight:800; padding:1px 3px;" onclick="openEntityQrCardModal('supplier', '${s.id}')" title="بطاقة QR">🪪</button><button class="btn-text" style="color:#38bdf8; font-weight:800; padding:1px 4px; white-space:nowrap;" onclick="editSupplier('${s.id}')">✏️ تعديل</button><button class="btn-text" style="color:var(--danger-color); font-weight:800; padding:1px 4px; white-space:nowrap;" onclick="deleteSupplier('${s.id}')">🗑️ حذف</button></div></td>
                 </tr>`);
             });
             if (!query && suppliers.length > maxShowSup) {

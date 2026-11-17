@@ -61,10 +61,10 @@ const baseColumns = [
     { idx: 1, defaultLabel: "رقم الهاتف", field: "phone", isNum: false },
     { idx: 2, defaultLabel: "الرقم الضريبي", field: "taxNumber", isNum: false },
     { idx: 3, defaultLabel: "العملة", field: "currency", isNum: false },
-    { idx: 4, defaultLabel: "مدين (أجنبي)", field: "endingDebitForeign", isNum: true },
-    { idx: 5, defaultLabel: "دائن (أجنبي)", field: "endingCreditForeign", isNum: true },
-    { idx: 6, defaultLabel: "مدين (محلي)", field: "endingDebitLocal", isNum: true },
-    { idx: 7, defaultLabel: "دائن (محلي)", field: "endingCreditLocal", isNum: true },
+    { idx: 4, defaultLabel: "مدين أجنبي (لنا)", field: "endingDebitForeign", isNum: true },
+    { idx: 5, defaultLabel: "دائن أجنبي (له)", field: "endingCreditForeign", isNum: true },
+    { idx: 6, defaultLabel: "مدين محلي (لنا)", field: "endingDebitLocal", isNum: true },
+    { idx: 7, defaultLabel: "دائن محلي (له)", field: "endingCreditLocal", isNum: true },
     { idx: 8, defaultLabel: "رصيد (محلي)", field: "balanceLocal", isNum: true },
     { idx: 9, defaultLabel: "رصيد (أجنبي)", field: "balanceForeign", isNum: true },
     { idx: 10, defaultLabel: "ملاحظات / حالة", field: "notes", isNum: false },
@@ -200,34 +200,50 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     window.addEventListener('DBReady', loadCompanyHeader);
 
-    // Load Table Data
-    const rawData = localStorage.getItem('preview_table_data');
-    let parsedData = null;
-    
-    if (rawData) {
+    // Load Table Data (Direct Parent Sync + Storage Fallback)
+    const isValidBalancesArray = (arr) => Array.isArray(arr) && arr.length > 0 && !arr.some(r => String(r?.name || '').includes('شركة تجريبية')) && arr.some(r => r && (r.endingDebitLocal !== undefined || r.endingCreditLocal !== undefined || r.type === 'CUST' || r.type === 'SUPP'));
+    async function resolveBalancesPreviewRows() {
         try {
-            parsedData = JSON.parse(rawData);
-        } catch(e) { console.error('Error parsing localStorage data', e); }
-    } else if (typeof localforage !== 'undefined') {
-        try {
-            localforage.config({
-                driver: [localforage.INDEXEDDB, localforage.WEBSQL, localforage.LOCALSTORAGE],
-                name: 'MagaeesApp',
-                storeName: 'preview_data'
-            });
-            parsedData = await localforage.getItem('preview_table_data');
-        } catch(e) { console.error('Error getting localforage data', e); }
+            if (window.parent && window.parent !== window && isValidBalancesArray(window.parent.lastResults)) {
+                return JSON.parse(JSON.stringify(window.parent.lastResults));
+            }
+        } catch (_) {}
+        let parsedData = null;
+        const rawData = localStorage.getItem('preview_table_data');
+        if (rawData) {
+            try { parsedData = JSON.parse(rawData); } catch (e) {}
+        }
+        if (!isValidBalancesArray(parsedData) && typeof localforage !== 'undefined') {
+            try {
+                localforage.config({ driver: [localforage.INDEXEDDB, localforage.WEBSQL, localforage.LOCALSTORAGE], name: 'MagaeesApp', storeName: 'preview_data' });
+                parsedData = await localforage.getItem('preview_table_data');
+            } catch (e) {}
+        }
+        return isValidBalancesArray(parsedData) ? parsedData : null;
     }
-    
-    const isDemoData = (arr) => !Array.isArray(arr) || arr.length === 0 || (arr.length <= 2 && arr.some(r => String(r?.name || '').includes('شركة تجريبية')));
-    if (!isDemoData(parsedData)) {
-        currentData = parsedData;
+    window.reloadBalancesPreviewData = async function(presetIdx) {
+        const freshRows = await resolveBalancesPreviewRows();
+        if (freshRows) {
+            currentData = freshRows;
+            filteredData = [...currentData];
+        }
+        if (typeof presetIdx === 'number' && !isNaN(presetIdx) && presetIdx >= 0) {
+            loadPreset(presetIdx);
+        } else {
+            renderTable();
+        }
+    };
+    const syncedRows = await resolveBalancesPreviewRows();
+    if (syncedRows) {
+        currentData = syncedRows;
     } else {
         const buildRealParties = (custs, supps) => {
             const rate = parseFloat(window.SYSTEM_USD_RATE || localStorage.getItem('erp_usd_rate') || 600) || 600;
             const mapParty = (x, role) => {
                 if (!x || x.deleted || !x.name) return null;
-                const bal = parseFloat(x.currentBalance ?? x.balance ?? x.openingBalance ?? 0) || 0;
+                const rawBal = parseFloat(x.currentBalance ?? x.balance ?? x.openingBalance ?? 0) || 0;
+                const bal = (role === 'SUPP' || x.balance_type === 'credit') ? -rawBal : rawBal;
+                if (Math.abs(bal) <= 0.001) return null;
                 const cur = String(x.currency || 'SDG').toUpperCase();
                 const isUsd = cur !== 'SDG';
                 const balLocal = isUsd ? (bal * rate) : bal;
@@ -405,11 +421,11 @@ function getFactoryPreset1Configs() {
     conf[1]  = { ...conf[1],  label: "رقم الهاتف",          visible: true,  fs: 1.04, fontWeight: '900', fontFamily: compactArFont, color: '#4a2c0a', bgColor: '#f7f1e4', align: 'center', width: '14%' };
     conf[2]  = { ...conf[2],  label: "الرقم الضريبي",        visible: false, fs: 0.95, fontWeight: '',    fontFamily: compactArFont, color: '',        bgColor: '',        align: 'center', width: '' };
     conf[3]  = { ...conf[3],  label: "العملة",              visible: false, fs: 0.95, fontWeight: '',    fontFamily: compactArFont, color: '',        bgColor: '',        align: 'center', width: '' };
-    conf[6]  = { ...conf[6],  label: "مدين محلي (عليه)",    visible: true,  fs: 1.18, fontWeight: '900', fontFamily: compactArFont, color: '#14532d', bgColor: '#eef6ee', align: 'center', decimals: 0, width: '14.5%' };
+    conf[6]  = { ...conf[6],  label: "مدين محلي (لنا)",     visible: true,  fs: 1.18, fontWeight: '900', fontFamily: compactArFont, color: '#14532d', bgColor: '#eef6ee', align: 'center', decimals: 0, width: '14.5%' };
     conf[7]  = { ...conf[7],  label: "دائن محلي (له)",      visible: true,  fs: 1.18, fontWeight: '900', fontFamily: compactArFont, color: '#991b1b', bgColor: '#fbf0ec', align: 'center', decimals: 0, width: '14.5%' };
     conf[8]  = { ...conf[8],  label: "الإجمالي المحلي",      visible: false, fs: 1.18, fontWeight: '900', fontFamily: compactArFont, color: '#1c1208', bgColor: '#f5ecd9', align: 'center', decimals: 0, width: '' };
     conf[11] = { ...(conf[11] || conf[0]), label: "سعر الصرف", visible: false, fs: 0.95, fontWeight: '', fontFamily: compactArFont, color: '#3b2612', bgColor: '#f3ebdc', align: 'center', decimals: 2, width: '' };
-    conf[4]  = { ...conf[4],  label: "مدين أجنبي (عليه)",   visible: true,  fs: 1.18, fontWeight: '900', fontFamily: compactArFont, color: '#14532d', bgColor: '#eef6ee', align: 'center', decimals: 2, width: '14.5%' };
+    conf[4]  = { ...conf[4],  label: "مدين أجنبي (لنا)",    visible: true,  fs: 1.18, fontWeight: '900', fontFamily: compactArFont, color: '#14532d', bgColor: '#eef6ee', align: 'center', decimals: 2, width: '14.5%' };
     conf[5]  = { ...conf[5],  label: "دائن أجنبي (له)",     visible: true,  fs: 1.18, fontWeight: '900', fontFamily: compactArFont, color: '#991b1b', bgColor: '#fbf0ec', align: 'center', decimals: 2, width: '14.5%' };
     conf[9]  = { ...conf[9],  label: "الإجمالي الأجنبي",     visible: false, fs: 1.18, fontWeight: '900', fontFamily: compactArFont, color: '#1c1208', bgColor: '#f5ecd9', align: 'center', decimals: 2, width: '' };
     conf[10] = { ...conf[10], label: "ملاحظات",             visible: false, fs: 0.95, fontWeight: '900', fontFamily: compactArFont, color: '#3b2612', bgColor: '#f4ede0', align: 'center', width: '' };
@@ -1104,7 +1120,7 @@ function renderTable() {
     thead.appendChild(trHead);
     requestAnimationFrame(() => {
         const ctx = (window.__balHdrCanvas || (window.__balHdrCanvas = document.createElement('canvas'))).getContext('2d');
-        document.querySelectorAll('#preview-thead th, #preview-tbody td.num-cell, #preview-tbody td[data-col-idx="1"], #preview-tfoot td').forEach(el => {
+        document.querySelectorAll('#preview-thead th, #preview-tbody td.num-cell:not(.focused-num), #preview-tbody td[data-col-idx="1"]:not(.focused-num), #preview-tfoot td:not(.focused-num)').forEach(el => {
             const txt = (el.innerText || '').trim();
             const cw = el.clientWidth;
             if (!txt || txt === '-' || !cw) return;
