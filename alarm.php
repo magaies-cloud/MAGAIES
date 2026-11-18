@@ -2749,6 +2749,17 @@ foreach ($rules as $r) {
                 </div>
             </div>
 
+            <div id="wa-tray-routing-card" style="margin-bottom:14px; padding:14px 16px; border-radius:16px; background:linear-gradient(135deg,rgba(16,185,129,0.16),rgba(15,23,42,0.95)); border:2px solid rgba(16,185,129,0.5); display:flex; flex-direction:column; gap:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                    <div style="font-weight:900; color:#6ee7b7; font-size:0.95rem;">📥 تنبيه رسائل وإشعارات الواتساب الواردة بالصينية (إرسال صورة الإشعار وبيانات العميل تلقائياً للمحددين أدناه):</div>
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                        <button type="button" onclick="window._mgrAlerts12.alertMap={}; localStorage.setItem(getMgrAlertsKey(), JSON.stringify(window._mgrAlerts12)); fetch('api/inbound_receipts.php?action=save_manager_alerts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({alertMap:{}})}).catch(()=>{}); window.renderAllRuleCardsSlots12(); renderLiveViolations(window._allHybridAlerts||[]);" style="padding:5px 12px; border-radius:10px; background:rgba(239,68,68,0.18); border:1px solid rgba(239,68,68,0.45); color:#fca5a5; font-size:0.78rem; font-weight:900; cursor:pointer;">🗑️ تفريغ كافة علامات الصح</button>
+                        <a href="settings.php" onclick="localStorage.setItem('open_settings_tab','manager-alerts')" style="padding:5px 12px; border-radius:10px; background:rgba(245,158,11,0.2); border:1px solid rgba(245,158,11,0.5); color:#fde68a; font-size:0.78rem; font-weight:900; text-decoration:none;">⚙️ تعريف أرقام الـ 12 مستلم في الإعدادات ↗</a>
+                    </div>
+                </div>
+                <div id="wa-tray-slots-strip"></div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="live-violations-grid"></div>
         </div>
 
@@ -3312,8 +3323,8 @@ foreach ($rules as $r) {
         const red = alerts.filter(a => a.severity === 'RED').length;
         const yel = alerts.filter(a => a.severity !== 'RED').length;
         const topMsgs = alerts.slice(0, 6).map((a, i) => `${i + 1}. ${a.message}`).join('\n');
-        const text = `🛡️ *تقرير الحارس الأمين والإنذارات الحية — نظام السيطرة ERP*\n📅 التاريخ: ${new Date().toISOString().slice(0, 10)}\n🚨 إنذارات حرجة: ${red}\n⚠️ تحذيرات متوسطة: ${yel}\n\n📌 *أبرز الملاحظات المرصودة:*\n${topMsgs || '✅ جميع العمليات آمنة ومطابقة 100%.'}\n\n🔗 رابط الرادار: ${window.location.href}`;
-        window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+        const text = `🛡️ *تقرير الحارس الأمين والإنذارات الحية — نظام السيطرة ERP*\n📅 التاريخ: ${new Date().toISOString().slice(0, 10)}\n🚨 إنذارات حرجة: ${red}\n⚠️ تحذيرات متوسطة: ${yel}\n\n📌 *أبرز الملاحظات المرصودة:*\n${topMsgs || '✅ جميع العمليات آمنة ومطابقة 100%.'}`;
+        window.dispatchAlertToSelectedSlots('wa_receipts_tray', text);
     };
 
     window.openAlarmAIPredictiveCenter = function () {
@@ -3322,7 +3333,7 @@ foreach ($rules as $r) {
         const redCnt = alerts.filter(a => a.severity === 'RED').length;
         const yelCnt = alerts.filter(a => a.severity !== 'RED').length;
         const totalRules = document.querySelectorAll('.alert-detail-card').length || 88;
-        const enabledRules = Array.from(document.querySelectorAll('.alert-detail-card input[type="checkbox"]')).filter(c => c.checked).length;
+        const enabledRules = Array.from(document.querySelectorAll('.alert-detail-card .ios-switch input[type="checkbox"]')).filter(c => c.checked).length;
         const healthScore = Math.max(15, Math.min(100, Math.round(100 - (redCnt * 8) - (yelCnt * 2) - ((totalRules - enabledRules) * 0.5))));
 
         let modal = document.getElementById('alarm-ai-predictive-modal');
@@ -3442,14 +3453,67 @@ foreach ($rules as $r) {
         runHybridLiveScanner(false);
     }
 
-    function shareAlertViaWhatsApp(msg, screenFile) {
-        const text = `🚨 *تنبيه رقابي عاجل — نظام السيطرة ERP*\n\n${msg}\n\n🔗 الشاشة المختصة: ${window.location.origin}/ELSAJANA2/magaies/${screenFile || 'alarm.php'}`;
-        window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+    window._mgrAlerts12 = { recipients: Array.from({length:12}, (_,i)=>({slot:i+1, role:i<4?`مدير ${i+1}`:`موظف ${i+1}`, phone:''})), alertMap: {} };
+    function getMgrAlertsKey() { return (typeof getTenantKey === 'function') ? getTenantKey('erp_manager_alerts_v1') : 'erp_manager_alerts_v1'; }
+    window.buildSlots12StripHtml = function(alertKey) {
+        const cleanKey = String(alertKey || 'default_alert').replace(/[^a-zA-Z0-9_-]/g, '_');
+        const selected = (window._mgrAlerts12.alertMap && Array.isArray(window._mgrAlerts12.alertMap[cleanKey])) ? window._mgrAlerts12.alertMap[cleanKey] : [];
+        let boxes = '';
+        for (let i = 1; i <= 12; i++) {
+            const rcp = (window._mgrAlerts12.recipients || []).find(r => Number(r.slot) === i) || {};
+            const isMgr = i <= 4;
+            const chk = selected.includes(i) ? 'checked' : '';
+            const clr = isMgr ? '#fbbf24' : '#38bdf8';
+            const bdr = isMgr ? 'rgba(245,158,11,0.45)' : 'rgba(56,189,248,0.35)';
+            const tip = `${isMgr ? 'مدير ' + i : 'موظف ' + i}${rcp.phone ? ' (' + rcp.phone + ')' : ' (لم يُسجّل رقمه بعد في الإعدادات)'}`;
+            boxes += `<label title="${tip}" style="display:inline-flex; flex-direction:column; align-items:center; justify-content:center; min-width:30px; padding:3px 5px; border-radius:8px; background:rgba(2,6,23,0.75); border:1px solid ${bdr}; cursor:pointer; user-select:none; gap:2px;">
+                <span style="font-size:11px; font-weight:900; color:${clr}; line-height:1;">${i}</span>
+                <input type="checkbox" class="mgr-slot-chk" data-alert-key="${cleanKey}" data-slot="${i}" ${chk} onchange="window.toggleAlertSlot12('${cleanKey}', ${i}, this.checked)" style="width:14px; height:14px; accent-color:${isMgr?'#f59e0b':'#0284c7'}; cursor:pointer;">
+            </label>`;
+        }
+        return `<div class="mgr-12-bar" style="display:flex; align-items:center; gap:5px; flex-wrap:wrap; margin-top:8px; padding:6px 10px; border-radius:12px; background:rgba(15,23,42,0.75); border:1px dashed rgba(148,163,184,0.28);">
+            <span style="font-size:11px; font-weight:900; color:#cbd5e1; margin-left:4px;">📲 واتساب (1-4 مدراء | 5-12 موظفين):</span>${boxes}
+        </div>`;
+    };
+    window.toggleAlertSlot12 = function(alertKey, slot, isChecked) {
+        if (!window._mgrAlerts12.alertMap) window._mgrAlerts12.alertMap = {};
+        const cur = new Set(Array.isArray(window._mgrAlerts12.alertMap[alertKey]) ? window._mgrAlerts12.alertMap[alertKey] : []);
+        if (isChecked) cur.add(slot); else cur.delete(slot);
+        window._mgrAlerts12.alertMap[alertKey] = Array.from(cur).sort((a,b)=>a-b);
+        localStorage.setItem(getMgrAlertsKey(), JSON.stringify(window._mgrAlerts12));
+        document.querySelectorAll(`.mgr-slot-chk[data-alert-key="${alertKey}"][data-slot="${slot}"]`).forEach(el => { el.checked = isChecked; });
+        fetch('api/inbound_receipts.php?action=save_manager_alerts', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ alertMap: window._mgrAlerts12.alertMap }) }).catch(()=>{});
+    };
+    window.dispatchAlertToSelectedSlots = async function(alertKey, text) {
+        const cleanKey = String(alertKey || 'wa_receipts_tray').replace(/[^a-zA-Z0-9_-]/g, '_');
+        const slots = (window._mgrAlerts12.alertMap && Array.isArray(window._mgrAlerts12.alertMap[cleanKey])) ? window._mgrAlerts12.alertMap[cleanKey] : [];
+        if (!slots.length) {
+            alert('⚠️ يرجى أولاً وضع علامة صح ☑️ تحت رقم المدير (1–4) أو الموظف (5–12) الذي تريد إرسال هذا التنبيه إليه.');
+            return;
+        }
+        const targets = (window._mgrAlerts12.recipients || []).filter(r => slots.includes(Number(r.slot)) && String(r.phone || '').replace(/\D/g, '').length >= 8);
+        if (!targets.length) {
+            alert('⚠️ يرجى أولاً إدخال رقم واتساب للمدير أو الموظف المحدد بعلامة صح (1–12) في شاشة الإعدادات (تبويب 👔 إشعارات الإدارة 12 رقم).');
+            return;
+        }
+        let sent = 0;
+        for (const t of targets) {
+            try {
+                const r = await fetch('api_index.php?r=wa-tenant&endpoint=send', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ phone: t.phone, message: text }) });
+                const d = await r.json();
+                if (d && (d.success || d.ok)) sent++;
+            } catch (_) {}
+        }
+        alert(sent > 0 ? `✅ تم إرسال التنبيه مباشرة من واتساب المؤسسة إلى (${sent}) من المستلمين المحددين.` : '⚠️ تعذر الإرسال؛ تأكد من أن واتساب المؤسسة متصل بالباركود.');
+    };
+    function shareAlertViaWhatsApp(msg, screenFile, alertKey) {
+        const text = `🚨 *تنبيه رقابي عاجل — نظام السيطرة ERP*\n\n${msg}\n\n📄 الشاشة المختصة: ${screenFile || 'alarm.php'}`;
+        window.dispatchAlertToSelectedSlots(alertKey || 'wa_receipts_tray', text);
     }
 
     function filterRuleCardsByState(state) {
         document.querySelectorAll('.alert-detail-card').forEach(card => {
-            const chk = card.querySelector('input[type="checkbox"]');
+            const chk = card.querySelector('.ios-switch input[type="checkbox"]');
             const isEn = chk ? chk.checked : true;
             if (state === 'ALL') card.style.display = 'block';
             else if (state === 'ENABLED') card.style.display = isEn ? 'block' : 'none';
@@ -3485,16 +3549,53 @@ foreach ($rules as $r) {
             const key = String(l.id || ('alert_' + idx)).replace(/'/g, '');
             const safeMsg = String(l.message || '').replace(/'/g, "\\'");
             const safeScreen = String(l.screen_file || '').replace(/'/g, "\\'");
-            const linkBtn = l.screen_file ? `<a href="${l.screen_file}" class="px-2.5 py-1.5 bg-slate-900/90 hover:bg-slate-800 text-sky-300 rounded-xl text-[11px] font-black transition border border-sky-500/30 whitespace-nowrap flex items-center gap-1">معالجة ↗</a>` : '';
-            const waBtn = `<button type="button" onclick="shareAlertViaWhatsApp('${safeMsg}', '${safeScreen}')" class="px-2.5 py-1.5 bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 rounded-xl text-[11px] font-black transition border border-emerald-500/30 whitespace-nowrap" title="إرسال تحذير فوري عبر واتساب">📲 واتساب</button>`;
+            const linkBtn = l.screen_file ? `<a href="${l.screen_file}" title="فتح الشاشة التي حدثت فيها هذه الملاحظة لمعالجتها وتصحيحها فوراً" class="px-2.5 py-1.5 bg-slate-900/90 hover:bg-slate-800 text-sky-300 rounded-xl text-[11px] font-black transition border border-sky-500/30 whitespace-nowrap flex items-center gap-1">معالجة ↗</a>` : '';
+            const waBtn = `<button type="button" onclick="shareAlertViaWhatsApp('${safeMsg}', '${safeScreen}', '${key}')" class="px-2.5 py-1.5 bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 rounded-xl text-[11px] font-black transition border border-emerald-500/30 whitespace-nowrap" title="إرسال مباشر من واتساب المؤسسة للأرقام المحددة بعلامة صح (1-12)">📲 واتساب</button>`;
             const ackBtn = `<button type="button" onclick="snoozeLiveAlert('${key}')" class="px-2 py-1.5 bg-slate-900/70 hover:bg-slate-800 text-slate-400 rounded-xl text-[11px] font-black transition border border-white/10" title="تم الاطلاع / كتم مؤقت">✓</button>`;
-            html += `<div class="p-3.5 rounded-2xl border text-xs font-bold leading-relaxed ${bgCls} flex justify-between items-center gap-2 flex-wrap"><div class="flex-1 min-w-[200px]">${l.message}</div><div class="flex items-center gap-1.5">${waBtn}${linkBtn}${ackBtn}</div></div>`;
+            html += `<div class="p-3.5 rounded-2xl border text-xs font-bold leading-relaxed ${bgCls} flex flex-col gap-1"><div class="flex justify-between items-center gap-2 flex-wrap"><div class="flex-1 min-w-[200px]">${l.message}</div><div class="flex items-center gap-1.5">${waBtn}${linkBtn}${ackBtn}</div></div>${window.buildSlots12StripHtml(key)}</div>`;
         });
         container.innerHTML = html;
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
+    window.renderAllRuleCardsSlots12 = function() {
+        const trayEl = document.getElementById('wa-tray-slots-strip');
+        if (trayEl) trayEl.innerHTML = window.buildSlots12StripHtml('wa_receipts_tray');
+        document.querySelectorAll('.alert-detail-card').forEach(card => {
+            const sw = card.querySelector('.ios-switch input[type="checkbox"]');
+            const rKey = sw && sw.id ? sw.id.replace(/^tcheck-/, '') : 'rule_default';
+            let holder = card.querySelector('.rule-card-slots12-holder');
+            if (!holder) {
+                holder = document.createElement('div');
+                holder.className = 'rule-card-slots12-holder';
+                card.appendChild(holder);
+            }
+            const titleTxt = (card.querySelector('h3') ? card.querySelector('h3').textContent.trim() : rKey).replace(/'/g, "\\'");
+            holder.innerHTML = `<div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-top:8px;">
+                <div style="flex:1;">${window.buildSlots12StripHtml(rKey)}</div>
+                <button type="button" onclick="shareAlertViaWhatsApp('${titleTxt}', 'alarm.php', '${rKey}')" class="px-3 py-1.5 bg-emerald-950/90 hover:bg-emerald-900 text-emerald-300 rounded-xl text-xs font-black border border-emerald-500/40 whitespace-nowrap" style="margin-top:8px;">📲 إرسال للمحددين</button>
+            </div>`;
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', async function() {
+        try {
+            const loc = JSON.parse(localStorage.getItem(getMgrAlertsKey()) || '{}');
+            if (loc.recipients) window._mgrAlerts12.recipients = loc.recipients;
+            if (loc.alertMap) window._mgrAlerts12.alertMap = loc.alertMap;
+        } catch (_) {}
+        window.renderAllRuleCardsSlots12();
         runHybridLiveScanner(false);
+        try {
+            const res = await fetch('api/inbound_receipts.php?action=get_manager_alerts');
+            const d = await res.json();
+            if (d && d.success) {
+                window._mgrAlerts12.recipients = d.recipients || window._mgrAlerts12.recipients;
+                window._mgrAlerts12.alertMap = d.alertMap || window._mgrAlerts12.alertMap;
+                localStorage.setItem(getMgrAlertsKey(), JSON.stringify(window._mgrAlerts12));
+                window.renderAllRuleCardsSlots12();
+                renderLiveViolations(window._allHybridAlerts || []);
+            }
+        } catch (_) {}
     });
     </script>
     <script defer src="js/app.js?v=20261016_v28"></script>

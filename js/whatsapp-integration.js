@@ -10,22 +10,22 @@ function initWhatsAppModal() {
     if (document.getElementById('wa-modal-overlay')) return;
 
     const modalHTML = `
-        <div id="wa-modal-overlay" class="modal-overlay" style="z-index: 100000; background: rgba(0,0,0,0.8);">
-            <div class="modal-card" style="max-width: 400px; text-align: center; border-color: #25D366;">
-                <div class="modal-header" style="border-bottom-color: rgba(37, 211, 102, 0.2);">
-                    <h3 style="color: #25D366; display:flex; align-items:center; gap:8px; justify-content:center; margin:0;">
-                        <svg width="26" height="26" viewBox="0 0 24 24" fill="#25d366" style="vertical-align: middle;">
+        <div id="wa-modal-overlay" class="modal-overlay" onclick="if(event.target===this) closeWAModal()" style="z-index: 10000000; background: rgba(2,6,23,0.78); backdrop-filter: blur(5px); padding: 28px 16px; align-items: center; justify-content: center;">
+            <div class="modal-card" style="width: 100%; max-width: 420px !important; height: auto !important; max-height: 80vh !important; overflow-y: auto !important; margin: auto !important; text-align: center; border: 3px solid #25D366 !important; border-radius: 18px !important; box-shadow: 0 24px 55px rgba(0,0,0,0.8) !important;">
+                <div class="modal-header" style="display:flex; align-items:center; justify-content:space-between; padding: 10px 14px; border-bottom: 1.5px solid rgba(37, 211, 102, 0.25);">
+                    <h3 style="color: #25D366; display:flex; align-items:center; gap:8px; justify-content:center; margin:0; font-size:1.1rem;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="#25d366" style="vertical-align: middle;">
                             <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
                         </svg>
                         ربط واتساب
                     </h3>
-                    <button class="modal-close" onclick="closeWAModal()">✕</button>
+                    <button type="button" class="modal-close" onclick="closeWAModal()" style="background:rgba(239,68,68,0.18); border:1.5px solid #ef4444; color:#ef4444; width:34px; height:34px; border-radius:10px; font-weight:900; font-size:1.1rem; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;">✕</button>
                 </div>
-                <div class="modal-body" style="color: #f1f5f9;">
-                    <p id="wa-status-text" style="margin-bottom: 15px; font-weight: bold;">جاري التحقق من حالة الاتصال...</p>
-                    <div id="wa-qr-container" style="background: white; padding: 15px; border-radius: 12px; display: inline-block; min-width: 250px; min-height: 250px; margin-bottom: 15px; box-sizing: border-box; vertical-align: middle;">
+                <div class="modal-body" style="color: #f1f5f9; padding: 10px 14px;">
+                    <p id="wa-status-text" style="margin-bottom: 8px; font-weight: bold; font-size: 0.92rem;">جاري التحقق من حالة الاتصال...</p>
+                    <div id="wa-qr-container" style="background: white; padding: 10px; border-radius: 12px; display: inline-block; min-width: 190px; min-height: 185px; margin-bottom: 8px; box-sizing: border-box; vertical-align: middle;">
                     </div>
-                    <p id="wa-instruction-text" style="font-size: 0.85rem; color: #94a3b8;">امسح هذا الرمز باستخدام تطبيق واتساب في هاتفك لربط حسابك بالنظام المحاسبي.</p>
+                    <p id="wa-instruction-text" style="font-size: 0.8rem; color: #94a3b8; margin: 4px 0;">امسح هذا الرمز باستخدام تطبيق واتساب في هاتفك لربط حسابك بالنظام المحاسبي.</p>
                     
                     <div class="wa-help-section" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 15px; text-align: center;">
                         <button onclick="toggleWAInstructions()" style="background: transparent; border: none; color: #25d366; font-size: 0.85rem; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; outline: none;">
@@ -56,9 +56,10 @@ function initWhatsAppModal() {
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer" style="display:flex; justify-content:center; gap:10px; border-top-color: rgba(37, 211, 102, 0.2);">
-                    <button class="btn btn-primary" id="wa-logout-btn" style="background: #ef4444; border-color: #ef4444; display: none;" onclick="logoutWhatsApp()">إلغاء الربط (تسجيل خروج)</button>
-                    <button class="btn btn-ghost" id="wa-refresh-btn" onclick="checkWAStatus()">تحديث الحالة</button>
+                <div class="modal-footer" style="display:flex; justify-content:center; flex-wrap:wrap; gap:8px; padding:10px 14px; border-top: 1.5px solid rgba(37, 211, 102, 0.2);">
+                    <button type="button" class="btn btn-primary" id="wa-logout-btn" style="background: #ef4444; border-color: #ef4444; display: none;" onclick="logoutWhatsApp()">إلغاء الربط</button>
+                    <button type="button" class="btn btn-ghost" id="wa-refresh-btn" onclick="checkWAStatus()">تحديث الحالة</button>
+                    <button type="button" class="btn" onclick="closeWAModal()" style="background:#334155; color:#fff; border:1.5px solid #64748b; padding:7px 16px; border-radius:8px; font-weight:900; cursor:pointer;">✖ إغلاق</button>
                 </div>
             </div>
         </div>
@@ -97,7 +98,9 @@ function initWhatsAppModal() {
                     background: rgba(255, 255, 255, 0.3);
                 }
 
-                /* ── Light Mode overrides for WhatsApp Modal ── */
+                /* ── Compact Framed Bounds & Light Mode overrides for WhatsApp Modal ── */
+                html body #wa-modal-overlay { padding: 7vh 16px !important; align-items: center !important; justify-content: center !important; }
+                html body #wa-modal-overlay .modal-card { width: 92% !important; max-width: 390px !important; height: auto !important; min-height: 0 !important; max-height: 74vh !important; margin: auto !important; overflow-y: auto !important; border: 3px solid #25D366 !important; border-radius: 18px !important; }
                 :root.light-theme #wa-modal-overlay .modal-card {
                     background: #ffffff !important;
                     border: 2px solid #25D366 !important;
@@ -277,8 +280,22 @@ function setWAContainerState(state, data = '') {
                         الواتساب مربوط بحسابك ومفعل بنجاح
                     </div>
                     ${phoneBadge}
-                    <div style="font-size: 0.82rem; color: #64748b; font-weight: 500; margin-top: 12px; line-height: 1.5; max-width: 290px;">
-                        حساب الواتساب جاهز ومفعل حالياً لإرسال الفواتير والتقارير المالية مباشرة للعملاء.
+                    <div style="font-size: 0.82rem; color: #64748b; font-weight: 700; margin-top: 10px; line-height: 1.5; max-width: 320px;">
+                        أي إشعار تحويل يُرسل لهذا الواتساب <b style="color:#ef4444; font-weight:900; text-decoration:underline;">بعد الربط</b> يظهر تلقائياً في صينية الإشعارات، أو يمكنك نسخه من واتساب ويب ولصقه بـ <b>Ctrl+V</b>.
+                    </div>
+                    <div id="wa-portal-icon-link-box" data-smart-help="رابط ورمز QR خاص بأيقونة السيطرة لمؤسستك؛ يمسحه العميل أو ينقر الرابط لتنزل له أيقونة السيطرة على هاتفه ويرسل منها الإشعارات مباشرة." style="width:100%; margin-top:8px; padding:7px 9px; border-radius:10px; background:rgba(16,185,129,0.1); border:1.5px dashed #10b981;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+                            <span id="wa-portal-link-txt" style="font-size:0.74rem; color:#047857; font-weight:800; direction:ltr; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1;">${(location.hostname==='localhost'||location.hostname==='127.0.0.1'?'https://c.elsajana.com':location.origin)}/send-receipt.php?t=${encodeURIComponent((window.SERVER_TENANT&&window.SERVER_TENANT.id)||'12')}</span>
+                            <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('wa-portal-link-txt').textContent.trim()); if(window.showToast) showToast('✅ تم نسخ رابط أيقونة السيطرة','success');" style="background:#059669; color:#fff; border:none; border-radius:7px; padding:4px 8px; font-size:0.73rem; font-weight:900; cursor:pointer; white-space:nowrap;">📋 نسخ الرابط</button>
+                            <button type="button" onclick="const q=document.getElementById('wa-portal-qr-pop'); if(q) q.style.display=(q.style.display==='none'?'block':'none');" style="background:#0284c7; color:#fff; border:none; border-radius:7px; padding:4px 8px; font-size:0.73rem; font-weight:900; cursor:pointer; white-space:nowrap;">🔲 QR</button>
+                        </div>
+                        <div id="wa-portal-qr-pop" style="display:none; margin-top:8px; padding-top:8px; border-top:1px dashed #10b981; text-align:center;">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=5&data=${encodeURIComponent(((location.hostname==='localhost'||location.hostname==='127.0.0.1'?'https://c.elsajana.com':location.origin)+'/send-receipt.php?t='+encodeURIComponent((window.SERVER_TENANT&&window.SERVER_TENANT.id)||'12')))}" alt="Portal QR" style="width:140px; height:140px; border-radius:10px; background:#fff; padding:4px; border:1px solid #10b981;">
+                        </div>
+                    </div>
+                    <div style="display:flex; flex-direction:column; gap:8px; width:100%; margin-top:12px;">
+                        <button type="button" onclick="closeWAModal(); if(window.InboundBankakManager){InboundBankakManager.toggleDrawer();}" style="width:100%; padding:10px 14px; border-radius:10px; border:1.5px solid #0284c7; background:linear-gradient(135deg,#0ea5e9,#0284c7); color:#fff; font-weight:900; font-size:0.92rem; cursor:pointer;">📥 فتح صينية إشعارات الواتساب الواردة</button>
+                        <button type="button" onclick="closeWAModal(); if(window.FinancialOCR){FinancialOCR.openWhatsAppWebPopup();}else{window.open('https://web.whatsapp.com','_blank');}" style="width:100%; padding:9px 14px; border-radius:10px; border:1.5px solid #16a34a; background:rgba(37,211,102,0.15); color:#15803d; font-weight:900; font-size:0.88rem; cursor:pointer;">💬 فتح محادثات واتساب ويب ونسخ الإشعار</button>
                     </div>
                 </div>
             `;

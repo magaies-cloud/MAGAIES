@@ -671,6 +671,7 @@ try {
         <button class="tab-btn" onclick="switchTab('cybersecurity', this)">🔐 الأمان السيبراني والحوكمة</button>
         <button class="tab-btn" onclick="switchTab('screen', this)">🖥️ إعدادات الشاشة</button>
         <button class="tab-btn" onclick="switchTab('fonts', this)">🔤 إعدادات الخطوط</button>
+        <button class="tab-btn" onclick="switchTab('manager-alerts', this); if(window.loadManagerAlerts12) window.loadManagerAlerts12();" style="border-color: rgba(16,185,129,0.5); color: #34d399; font-weight: 900;">👔 إشعارات الإدارة (12 رقم)</button>
         <button class="tab-btn" onclick="switchTab('ui', this)" data-i18n="settings.langUI">🎨 اللغة والواجهة</button>
         <button class="tab-btn" onclick="switchTab('system', this)" data-i18n="settings.system">💾 النظام والنسخ</button>
     </div>
@@ -1683,6 +1684,26 @@ try {
                         </tfoot>
                     </table>
                 </div>
+            </div>
+        </div>
+
+        <!-- Tab: Manager & Staff 12 WhatsApp Alerts -->
+        <div class="tab-content" id="tab-manager-alerts">
+            <div class="glass-panel" style="padding: 24px; border-radius: 20px; background: linear-gradient(145deg, rgba(15, 23, 42, 0.92), rgba(2, 6, 23, 0.96)); border: 2px solid rgba(16, 185, 129, 0.45); box-shadow: 0 12px 35px rgba(0,0,0,0.4);">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:18px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:14px;">
+                    <div>
+                        <h3 style="margin:0; color:#34d399; font-size:1.3rem; font-weight:900;">👔 أرقام واتساب الإدارة والموظفين (4 مدراء + 8 موظفين = 12 رقماً)</h3>
+                        <p style="margin:5px 0 0; color:#cbd5e1; font-size:0.9rem; font-weight:700;">أدخل أرقام الواتساب مع مفتاح الدولة (مثل: <code style="color:#fde68a;">249912345678</code>). في شاشة التنبيهات ستظهر الأرقام من <b>1 إلى 12</b> وتحت كل رقم علامة صح ☑️ لاختيار المستلمين لكل تنبيه.</p>
+                    </div>
+                    <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                        <a href="alarm.php" style="padding:10px 16px; border-radius:12px; background:rgba(244,63,94,0.18); border:1.5px solid rgba(244,63,94,0.5); color:#fda4af; font-weight:900; text-decoration:none; font-size:0.88rem;">🚨 فتح شاشة توزيع التنبيهات (1–12) ↗</a>
+                        <button type="button" onclick="window.saveManagerAlerts12()" style="padding:10px 22px; border-radius:12px; background:linear-gradient(135deg,#10b981,#059669); border:none; color:#fff; font-weight:900; cursor:pointer; font-size:0.95rem; box-shadow:0 6px 18px rgba(16,185,129,0.35);">💾 حفظ الأرقام الـ 12</button>
+                    </div>
+                </div>
+                <h4 style="margin:0 0 10px; color:#fde68a; font-size:1rem; font-weight:900;">👑 أولاً: أرقام المدراء الأربعة (1 – 4)</h4>
+                <div id="mgr-slots-1-4" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:12px; margin-bottom:20px;"></div>
+                <h4 style="margin:0 0 10px; color:#38bdf8; font-size:1rem; font-weight:900;">👥 ثانياً: أرقام الموظفين الثمانية (5 – 12)</h4>
+                <div id="mgr-slots-5-12" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:12px;"></div>
             </div>
         </div>
 
@@ -4752,6 +4773,62 @@ window.openMaster7ThemesModal = function() {
     `;
     document.body.appendChild(overlay);
 };
+window.loadManagerAlerts12 = async function() {
+    const g1 = document.getElementById('mgr-slots-1-4'), g2 = document.getElementById('mgr-slots-5-12');
+    if (!g1 || !g2) return;
+    const tKey = (typeof getTenantKey === 'function') ? getTenantKey('erp_manager_alerts_v1') : 'erp_manager_alerts_v1';
+    let cfg = {};
+    try { cfg = JSON.parse(localStorage.getItem(tKey) || '{}') || {}; } catch (_) {}
+    try {
+        const res = await fetch('api/inbound_receipts.php?action=get_manager_alerts');
+        const d = await res.json();
+        if (d && d.success) { cfg.recipients = d.recipients || cfg.recipients; cfg.alertMap = d.alertMap || cfg.alertMap; localStorage.setItem(tKey, JSON.stringify(cfg)); }
+    } catch (_) {}
+    const list = Array.isArray(cfg.recipients) && cfg.recipients.length === 12 ? cfg.recipients : Array.from({length:12}, (_,i)=>({slot:i+1, role:i<4?`مدير ${i+1}`:`موظف ${i+1}`, phone:''}));
+    const cardHtml = (r) => {
+        const isMgr = r.slot <= 4;
+        const bdr = isMgr ? 'rgba(245,158,11,0.45)' : 'rgba(56,189,248,0.38)';
+        const badgeBg = isMgr ? 'linear-gradient(135deg,#f59e0b,#d97706)' : 'linear-gradient(135deg,#0284c7,#0369a1)';
+        const lbl = isMgr ? `مدير ${r.slot}` : `موظف ${r.slot}`;
+        return `<div style="background:rgba(15,23,42,0.85); border:1.5px solid ${bdr}; border-radius:14px; padding:12px; display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+                <span style="background:${badgeBg}; color:#fff; font-weight:900; font-size:0.85rem; padding:3px 10px; border-radius:8px;">رقم (${r.slot}) — ${lbl}</span>
+                <span style="font-size:0.78rem; color:#94a3b8; font-weight:800;">واتساب 📲</span>
+            </div>
+            <input type="tel" dir="ltr" id="mgr-phone-slot-${r.slot}" value="${(r.phone||'').replace(/"/g,'&quot;')}" placeholder="2499XXXXXXXX" style="width:100%; padding:10px 12px; border-radius:10px; border:1.5px solid rgba(255,255,255,0.18); background:#0b1120; color:#fff; font-weight:900; font-size:1rem; text-align:left; font-family:monospace;">
+        </div>`;
+    };
+    g1.innerHTML = list.slice(0, 4).map(cardHtml).join('');
+    g2.innerHTML = list.slice(4, 12).map(cardHtml).join('');
+};
+window.saveManagerAlerts12 = async function() {
+    const tKey = (typeof getTenantKey === 'function') ? getTenantKey('erp_manager_alerts_v1') : 'erp_manager_alerts_v1';
+    let cfg = {};
+    try { cfg = JSON.parse(localStorage.getItem(tKey) || '{}') || {}; } catch (_) {}
+    const recipients = [];
+    for (let i = 1; i <= 12; i++) {
+        const el = document.getElementById('mgr-phone-slot-' + i);
+        recipients.push({ slot: i, role: i <= 4 ? `مدير ${i}` : `موظف ${i}`, phone: el ? el.value.trim() : '' });
+    }
+    cfg.recipients = recipients;
+    if (!cfg.alertMap) cfg.alertMap = {};
+    localStorage.setItem(tKey, JSON.stringify(cfg));
+    try {
+        await fetch('api/inbound_receipts.php?action=save_manager_alerts', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ recipients, alertMap: cfg.alertMap }) });
+    } catch (_) {}
+    if (typeof showToast === 'function') showToast('✅ تم حفظ أرقام المدراء (1-4) والموظفين (5-12) بنجاح', 'success');
+    else alert('✅ تم حفظ الأرقام الـ 12 بنجاح');
+};
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        if (window.loadManagerAlerts12) window.loadManagerAlerts12();
+        if (localStorage.getItem('open_settings_tab') === 'manager-alerts') {
+            localStorage.removeItem('open_settings_tab');
+            const btn = document.querySelector("button[onclick*=\"switchTab('manager-alerts'\"]");
+            if (btn && typeof switchTab === 'function') switchTab('manager-alerts', btn);
+        }
+    }, 250);
+});
 </script>
 
 </body>

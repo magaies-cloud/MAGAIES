@@ -507,6 +507,34 @@ switch ($action) {
         }
         break;
 
+    case 'get_manager_alerts':
+        $cfgFile = $uploadDir . 'manager_alerts_' . intval($activeTenantId) . '.json';
+        $defRecips = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $defRecips[] = ['slot' => $i, 'role' => ($i <= 4 ? "مدير $i" : "موظف $i"), 'phone' => ''];
+        }
+        $saved = is_file($cfgFile) ? json_decode(@file_get_contents($cfgFile), true) : null;
+        if (!is_array($saved)) $saved = [];
+        echo json_encode([
+            'success' => true,
+            'tenant_id' => $activeTenantId,
+            'recipients' => (!empty($saved['recipients']) && is_array($saved['recipients'])) ? $saved['recipients'] : $defRecips,
+            'alertMap' => (isset($saved['alertMap']) && is_array($saved['alertMap'])) ? $saved['alertMap'] : (object)[]
+        ]);
+        break;
+
+    case 'save_manager_alerts':
+        $cfgFile = $uploadDir . 'manager_alerts_' . intval($activeTenantId) . '.json';
+        $existing = is_file($cfgFile) ? (json_decode(@file_get_contents($cfgFile), true) ?: []) : [];
+        if (isset($jsonData['recipients']) && is_array($jsonData['recipients'])) $existing['recipients'] = $jsonData['recipients'];
+        if (isset($jsonData['alertMap']) && is_array($jsonData['alertMap'])) {
+            $existing['alertMap'] = array_merge($existing['alertMap'] ?? [], $jsonData['alertMap']);
+        }
+        $existing['updated_at'] = date('c');
+        @file_put_contents($cfgFile, json_encode($existing, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+        echo json_encode(['success' => true, 'data' => $existing]);
+        break;
+
     case 'upload':
     case 'save_inbound':
         try {
@@ -592,6 +620,46 @@ switch ($action) {
                 }
             } elseif (!empty($_POST['receipt_image']) || !empty($jsonData['receipt_image'])) {
                 $imagePath = $_POST['receipt_image'] ?? $jsonData['receipt_image'];
+            }
+
+            // تحويل فوري إلى شاشة الفحص ثلاثية الأعمدة إذا كانت هناك جلسة نشطة مربوطة بالشاشة
+            if (!empty($imagePath) && empty($_POST['from_portal']) && empty($jsonData['from_portal'])) {
+                $bridgeDirSess = dirname(__DIR__) . '/uploads/qr_bridge/';
+                $activeSessFile = $bridgeDirSess . 'active_tenant_session_' . intval($activeTenantId) . '.json';
+                $sessEntry = null;
+                if (is_file($activeSessFile)) {
+                    $candSess = json_decode(@file_get_contents($activeSessFile), true) ?: [];
+                    if (!empty($candSess['channel']) && (time() - intval($candSess['updated_at'] ?? 0) <= 2700)) {
+                        $sessEntry = $candSess;
+                    }
+                }
+                if (!$sessEntry && !empty($custPhone)) {
+                    $mapFile = $bridgeDirSess . 'wa_sender_map_' . intval($activeTenantId) . '.json';
+                    $sDigits = substr(preg_replace('/\D+/', '', $custPhone), -9);
+                    if ($sDigits !== '' && is_file($mapFile)) {
+                        $sMap = json_decode(@file_get_contents($mapFile), true) ?: [];
+                        $m = $sMap[$sDigits] ?? null;
+                        if (is_array($m) && !empty($m['channel']) && (time() - intval($m['ts'] ?? 0) <= 2700)) $sessEntry = $m;
+                    }
+                }
+                if (is_array($sessEntry) && !empty($sessEntry['channel'])) {
+                    $chClean = preg_replace('/[^a-zA-Z0-9_-]/', '', $sessEntry['channel']);
+                    $bFile = $bridgeDirSess . 'bridge_' . $chClean . '.json';
+                    $bState = is_file($bFile) ? (json_decode(@file_get_contents($bFile), true) ?: []) : ['channel' => $chClean, 'scans' => [], 'receipts' => []];
+                    if (!isset($bState['receipts']) || !is_array($bState['receipts'])) $bState['receipts'] = [];
+                    $bState['mobileConnectedAt'] = round(microtime(true) * 1000);
+                    $bState['receipts'][] = [
+                        'receiptId' => 'wasess_' . uniqid(),
+                        'fileUrl' => ltrim($imagePath, '/'),
+                        'fileName' => basename($imagePath),
+                        'mimeType' => 'image/jpeg',
+                        'processed' => false,
+                        'timestamp' => round(microtime(true) * 1000)
+                    ];
+                    @file_put_contents($bFile, json_encode($bState, JSON_UNESCAPED_UNICODE));
+                    echo json_encode(['success' => true, 'session_streamed' => true, 'status' => 'session_review', 'message' => 'تم إرسال الإشعار مباشرة إلى جلسة المراجعة ثلاثية الأعمدة على الكمبيوتر']);
+                    exit;
+                }
             }
 
             // Idempotency guard: if the exact same receipt_image was already uploaded for this tenant (e.g. local endpoint fallback retry), return it directly without inserting a duplicate row
@@ -706,6 +774,45 @@ switch ($action) {
             $finalApprovalMode = $postingResult['approval_mode'] ?? (($finalRow['issue_reason'] ?? '') === 'awaiting_posting_approval' ? 'review_first' : 'auto_post');
 
             $adminNotificationText = $postingResult['admin_notification'] ?? null;
+
+            // توجيه تلقائي لإشعار التحويل وصورته لأرقام المدراء والموظفين (1..12) المحددين لتنبيه الصينية
+            $mgrCfgFile = $uploadDir . 'manager_alerts_' . intval($activeTenantId) . '.json';
+            if (is_file($mgrCfgFile) && ($finalRow['status'] ?? '') !== 'duplicate_rejected') {
+                $mgrCfg = json_decode(@file_get_contents($mgrCfgFile), true) ?: [];
+                $checkedSlots = (isset($mgrCfg['alertMap']['wa_receipts_tray']) && is_array($mgrCfg['alertMap']['wa_receipts_tray'])) ? $mgrCfg['alertMap']['wa_receipts_tray'] : [];
+                $senderDigits = preg_replace('/\D+/', '', (string)($finalRow['customer_phone'] ?? $custPhone));
+                $targetPhones = [];
+                foreach (($mgrCfg['recipients'] ?? []) as $rcp) {
+                    $sl = intval($rcp['slot'] ?? 0);
+                    $ph = preg_replace('/\D+/', '', (string)($rcp['phone'] ?? ''));
+                    if ($ph !== '' && in_array($sl, $checkedSlots) && ($senderDigits === '' || substr($ph, -8) !== substr($senderDigits, -8))) {
+                        $targetPhones[$ph] = $ph;
+                    }
+                }
+                if (!empty($targetPhones)) {
+                    $statusLine = ($finalApprovalMode === 'review_first')
+                        ? '⏳ في صينية الإشعارات (بانتظار المراجعة والاعتماد)'
+                        : (!empty($finalVoucherNo) ? "✅ نزل في حساب العميل مباشرة (سند رقم: {$finalVoucherNo})" : '📥 تم الاستلام في صينية الإشعارات');
+                    $fwdCaption = "📥 *إشعار تحويل وارد — نظام السيطرة*\n"
+                        . "👤 *المرسل:* " . ($finalCustName ?: 'غير محدد') . "\n"
+                        . (!empty($custPhone) ? "📞 *هاتف المرسل:* {$custPhone}\n" : "")
+                        . "💰 *المبلغ:* " . number_format($finalAmount) . " " . ($currency ?: 'SDG') . "\n"
+                        . "🔢 *رقم العملية:* " . ($finalTransferNo ?: '---') . " (" . ($finalBankName ?: 'بنك') . ")\n"
+                        . "📌 *الحالة:* {$statusLine}";
+                    $absImg = (!empty($imagePath) && is_file(dirname(__DIR__) . '/' . ltrim($imagePath, '/'))) ? (dirname(__DIR__) . '/' . ltrim($imagePath, '/')) : '';
+                    register_shutdown_function(function () use ($activeTenantId, $targetPhones, $fwdCaption, $absImg) {
+                        $waUid = 'wa_tenant_' . intval($activeTenantId);
+                        foreach ($targetPhones as $destPhone) {
+                            $ch = curl_init('http://127.0.0.1:3001/wa/send');
+                            $postFields = ['userId' => $waUid, 'phone' => $destPhone, 'message' => $fwdCaption];
+                            if ($absImg !== '' && class_exists('CURLFile')) $postFields['file'] = new CURLFile($absImg);
+                            curl_setopt_array($ch, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => $postFields, CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 12]);
+                            @curl_exec($ch);
+                            @curl_close($ch);
+                        }
+                    });
+                }
+            }
 
             echo json_encode([
                 'success' => true,
@@ -1371,11 +1478,69 @@ switch ($action) {
         }
         break;
 
+    case 'bind_wa_session':
+        $bridgeDirSess = dirname(__DIR__) . '/uploads/qr_bridge/';
+        if (!is_dir($bridgeDirSess)) @mkdir($bridgeDirSess, 0777, true);
+        $chSess = preg_replace('/[^a-zA-Z0-9_-]/', '', (string)($_POST['channel'] ?? $jsonData['channel'] ?? ''));
+        if (!empty($jsonData['unbind'])) {
+            $mapFile = $bridgeDirSess . 'wa_sender_map_' . intval($activeTenantId) . '.json';
+            if (is_file($mapFile)) {
+                $sMap = json_decode(@file_get_contents($mapFile), true) ?: [];
+                foreach ($sMap as $k => $v) { if (($v['channel'] ?? '') === $chSess) unset($sMap[$k]); }
+                @file_put_contents($mapFile, json_encode($sMap, JSON_UNESCAPED_UNICODE));
+            }
+            @unlink($bridgeDirSess . 'session_' . $chSess . '.json');
+            $actF = $bridgeDirSess . 'active_tenant_session_' . intval($activeTenantId) . '.json';
+            if (is_file($actF)) {
+                $actD = json_decode(@file_get_contents($actF), true) ?: [];
+                if (($actD['channel'] ?? '') === $chSess || empty($chSess)) @unlink($actF);
+            }
+            echo json_encode(['success' => true]);
+            break;
+        }
+        $sessMeta = [
+            'channel' => $chSess,
+            'tenant_id' => $activeTenantId,
+            'customer_id' => trim((string)($jsonData['customer_id'] ?? '')),
+            'customer_name' => trim((string)($jsonData['customer_name'] ?? '')),
+            'bank_id' => trim((string)($jsonData['bank_id'] ?? '')),
+            'bank_name' => trim((string)($jsonData['bank_name'] ?? '')),
+            'updated_at' => time()
+        ];
+        if ($chSess !== '') {
+            @file_put_contents($bridgeDirSess . 'session_' . $chSess . '.json', json_encode($sessMeta, JSON_UNESCAPED_UNICODE));
+            @file_put_contents($bridgeDirSess . 'active_tenant_session_' . intval($activeTenantId) . '.json', json_encode($sessMeta, JSON_UNESCAPED_UNICODE));
+        }
+        $waPhone = '';
+        $stWa = @file_get_contents('http://127.0.0.1:3001/wa/status?userId=wa_tenant_' . intval($activeTenantId));
+        if ($stWa) { $waJson = json_decode($stWa, true); $waPhone = preg_replace('/\D+/', '', (string)($waJson['phoneNumber'] ?? '')); }
+        echo json_encode(['success' => true, 'wa_phone' => $waPhone, 'session' => $sessMeta]);
+        break;
+
     case 'whatsapp_statement_request':
         try {
             $msgText = trim((string)($_GET['message_text'] ?? $_POST['message_text'] ?? $jsonData['message_text'] ?? $_GET['message'] ?? $_POST['message'] ?? $jsonData['message'] ?? $_GET['text'] ?? $_POST['text'] ?? $jsonData['text'] ?? ''));
             $senderPhone = trim((string)($_GET['sender_phone'] ?? $_POST['sender_phone'] ?? $jsonData['sender_phone'] ?? ''));
             $senderName = trim((string)($_GET['sender_name'] ?? $_POST['sender_name'] ?? $jsonData['sender_name'] ?? ''));
+            if (preg_match('/(?:#SESSION_|جلسة_)([a-zA-Z0-9_-]+)/ui', $msgText, $mSess)) {
+                $chSess = $mSess[1];
+                $bridgeDirSess = dirname(__DIR__) . '/uploads/qr_bridge/';
+                if (!is_dir($bridgeDirSess)) @mkdir($bridgeDirSess, 0777, true);
+                $mapFile = $bridgeDirSess . 'wa_sender_map_' . intval($activeTenantId) . '.json';
+                $sMap = is_file($mapFile) ? (json_decode(@file_get_contents($mapFile), true) ?: []) : [];
+                $sDigits = substr(preg_replace('/\D+/', '', $senderPhone), -9);
+                $sessInfo = is_file($bridgeDirSess . 'session_' . $chSess . '.json') ? (json_decode(@file_get_contents($bridgeDirSess . 'session_' . $chSess . '.json'), true) ?: []) : [];
+                if ($sDigits !== '') $sMap[$sDigits] = ['channel' => $chSess, 'ts' => time(), 'customer_name' => $sessInfo['customer_name'] ?? ''];
+                @file_put_contents($mapFile, json_encode($sMap, JSON_UNESCAPED_UNICODE));
+                $bFile = $bridgeDirSess . 'bridge_' . $chSess . '.json';
+                $bState = is_file($bFile) ? (json_decode(@file_get_contents($bFile), true) ?: []) : ['channel' => $chSess, 'scans' => [], 'receipts' => []];
+                $bState['mobileConnectedAt'] = round(microtime(true) * 1000);
+                @file_put_contents($bFile, json_encode($bState, JSON_UNESCAPED_UNICODE));
+                $cLbl = !empty($sessInfo['customer_name']) ? (' للعميل *' . $sessInfo['customer_name'] . '*') : '';
+                $bLbl = !empty($sessInfo['bank_name']) ? (' (' . $sessInfo['bank_name'] . ')') : '';
+                echo json_encode(['success' => true, 'matched' => true, 'reply_text' => "🔗 *تم ربط جلسة الواتساب بشاشة الكمبيوتر بنجاح{$cLbl}{$bLbl}!*\nأرسل أو حوّل الآن مجموعة الإشعارات هنا، وستفتح أمامك مباشرة في الشاشة ثلاثية الأعمدة للفحص بالذكاء الاصطناعي والمراجعة والحفظ."], JSON_UNESCAPED_UNICODE);
+                break;
+            }
             $stmtResult = handleWhatsAppStatementRequest($pdo, $activeTenantId, $msgText, $senderPhone, $senderName);
             echo json_encode($stmtResult, JSON_UNESCAPED_UNICODE);
         } catch (Exception $e) {

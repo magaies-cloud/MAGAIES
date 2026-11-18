@@ -2836,7 +2836,7 @@ try {
         html body #scp-proportional-root #amount-foreign:hover, html body #scp-proportional-root #amount-foreign:focus {
             border: 3.5px solid #ef4444 !important; box-shadow: 0 0 18px rgba(239, 68, 68, 0.65) !important;
         }
-        /* السمة الفاتحة: تباين قوي وألوان واضحة وحواف صريحة لكل البطاقات وحقل الصرف */
+        /* السمة الفاتحة: تباين عالٍ يتفاعل ديناميكياً مع كل السمات الـ 13 وأزرار ثقيلة وواضحة */
         :root.light-theme body #scp-proportional-root .single-unified-form {
             background: var(--lt-canvas-2, #d6c19c) !important;
             border: 2.5px solid var(--lt-border, #5c2808) !important;
@@ -2845,32 +2845,161 @@ try {
         :root.light-theme body #scp-proportional-root .sub-header-bar,
         :root.light-theme body #scp-proportional-root .scp-top-amount-row,
         :root.light-theme body #scp-proportional-root .scp-beneficiary-row,
-        :root.light-theme body #scp-proportional-root #payment-panel {
-            background: #ffffff !important;
-            border: 2.2px solid var(--lt-border, #5c2808) !important;
+        :root.light-theme body #scp-proportional-root #payment-panel,
+        :root.light-theme body #scp-proportional-root #payment-panel .panel-header-row {
+            background: color-mix(in srgb, var(--lt-canvas-2, #d5c3a1) 78%, #94a3b8 22%) !important;
+            border: 2.3px solid var(--lt-border, #5c2808) !important;
             padding: 8px 14px !important;
-            box-shadow: 0 5px 14px rgba(0, 0, 0, 0.14) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.45), 0 5px 14px rgba(0, 0, 0, 0.14) !important;
         }
-        :root.light-theme body #scp-proportional-root .scp-from-card {
-            background: #fecdd3 !important;
-            border: 2.4px solid #dc2626 !important;
-            box-shadow: 0 5px 14px rgba(220, 38, 38, 0.16) !important;
+        :root.light-theme body #scp-proportional-root #transfers-container > div,
+        :root.light-theme body #scp-proportional-root #cheques-container > div {
+            background: color-mix(in srgb, var(--lt-canvas-2, #d5c3a1) 72%, #64748b 28%) !important;
+            border: 2px solid var(--lt-border, #334155) !important; border-radius: 10px !important; padding: 8px 10px !important;
         }
-        :root.light-theme body #scp-proportional-root .scp-to-card {
-            background: #a7f3d0 !important;
-            border: 2.4px solid #059669 !important;
-            box-shadow: 0 5px 14px rgba(5, 150, 105, 0.16) !important;
+        /* توحيد ارتفاع وسمك وسنترة المسافات بين التاريخ والنقدية/الشيكات/العهد ورقم السند */
+        html body #scp-proportional-root .sub-header-bar {
+            display: grid !important; grid-template-columns: auto 1fr auto !important;
+            align-items: center !important; gap: 18px !important; padding: 6px 14px !important;
         }
-        :root.light-theme body #scp-proportional-root #from-account-search,
-        :root.light-theme body #scp-proportional-root #to-account-search {
-            background: #ffffff !important; background-color: #ffffff !important;
-            color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 900 !important;
+        html body #scp-proportional-root .sub-header-bar .group-primary,
+        html body #scp-proportional-root .sub-header-bar .group-balances,
+        html body #scp-proportional-root .sub-header-bar .group-nav {
+            display: flex !important; align-items: center !important; justify-content: center !important; margin: 0 !important;
+        }
+        html body #scp-proportional-root .sub-header-bar .date-crystal { padding: 0 !important; height: 42px !important; display: flex !important; align-items: center !important; }
+        html body #scp-proportional-root #hdr-date,
+        html body #scp-proportional-root .bal-crystal,
+        html body #scp-proportional-root #voucher-nav-pill {
+            height: 42px !important; min-height: 42px !important; max-height: 42px !important;
+            box-sizing: border-box !important; border-radius: 10px !important;
+            display: inline-flex !important; align-items: center !important;
+        }
+        html body #scp-proportional-root #hdr-date { padding: 0 12px !important; min-width: 155px !important; }
+        html body #scp-proportional-root .bal-crystal { width: 100% !important; max-width: 760px !important; margin: 0 auto !important; padding: 0 18px !important; justify-content: space-evenly !important; }
+        html body #scp-proportional-root #voucher-nav-pill { padding: 0 8px !important; gap: 8px !important; }
+        html body #scp-proportional-root .prev-btn, html body #scp-proportional-root .next-btn { width: 30px !important; height: 30px !important; min-width: 30px !important; border-radius: 7px !important; padding: 0 !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; }
+        /* حواف ظاهرة وثقيلة للنقدية والشيكات والعهد ورقم السند وأسهم التنقل */
+        :root.light-theme body #scp-proportional-root .bal-crystal,
+        :root.light-theme body #scp-proportional-root #voucher-nav-pill,
+        :root.light-theme body #scp-proportional-root #hdr-date {
+            background: #ffffff !important;
+            border: 2.2px solid var(--lt-border, #451a03) !important;
+            color: #000000 !important; -webkit-text-fill-color: #000000 !important;
+        }
+        :root.light-theme body #scp-proportional-root .bal-label,
+        :root.light-theme body #scp-proportional-root .badge-label { color: #334155 !important; -webkit-text-fill-color: #334155 !important; font-weight: 900 !important; }
+        :root.light-theme body #scp-proportional-root .bal-val { color: #0f172a !important; -webkit-text-fill-color: #0f172a !important; font-weight: 900 !important; }
+        :root.light-theme body #scp-proportional-root #voucher-number { color: #b91c1c !important; -webkit-text-fill-color: #b91c1c !important; font-weight: 900 !important; text-shadow: none !important; }
+        :root.light-theme body #scp-proportional-root .prev-btn,
+        :root.light-theme body #scp-proportional-root .next-btn {
+            background: #1e3a8a !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; border: 1.8px solid #0f172a !important;
+        }
+        :root.light-theme body #scp-proportional-root .prev-btn svg,
+        :root.light-theme body #scp-proportional-root .next-btn svg { stroke: #ffffff !important; stroke-width: 3 !important; }
+        /* رمز الأجندة جوار التاريخ بلون أسود صريح واضح فوق الخلفية البيضاء */
+        :root.light-theme body #scp-proportional-root #hdr-date::-webkit-calendar-picker-indicator,
+        :root.light-theme body #scp-proportional-root input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: brightness(0) saturate(100%) !important; opacity: 1 !important; cursor: pointer !important; transform: scale(1.18);
+        }
+        /* سعر الصرف بتصميم ذهبي أنيق ومتباين في السمة الفاتحة والسمة الغامقة */
+        html:not(.light-theme) body #scp-proportional-root #exchange-rate {
+            background: linear-gradient(135deg, #1c1504, #2e2107) !important;
+            color: #fde047 !important; -webkit-text-fill-color: #fde047 !important;
+            border: 2.2px solid #fbbf24 !important; font-weight: 900 !important;
         }
         :root.light-theme body #scp-proportional-root #exchange-rate {
-            background: #fde68a !important; background-color: #fde68a !important;
-            color: #78350f !important; -webkit-text-fill-color: #78350f !important;
-            border: 2.4px solid #b45309 !important; text-shadow: none !important; box-shadow: none !important;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%) !important;
+            color: #000000 !important; -webkit-text-fill-color: #000000 !important;
+            border: 2.5px solid #b45309 !important; font-weight: 900 !important; text-shadow: none !important;
+            box-shadow: inset 0 1px 0 #ffffff, 0 3px 8px rgba(180, 83, 9, 0.2) !important;
         }
+        /* بطاقتا من حساب وإلى حساب + زر الأستاذ ثقيل وبارز + خلفية غامقة لشريط الرصيد ليبرز النص الفاتح */
+        :root.light-theme body #scp-proportional-root .scp-from-card { background: #fecdd3 !important; border: 2.4px solid #dc2626 !important; }
+        :root.light-theme body #scp-proportional-root .scp-to-card { background: #a7f3d0 !important; border: 2.4px solid #059669 !important; }
+        :root.light-theme body #scp-proportional-root #from-account-search,
+        :root.light-theme body #scp-proportional-root #to-account-search {
+            background: #ffffff !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 900 !important;
+        }
+        html body #scp-proportional-root #from-account-ledger-btn,
+        html body #scp-proportional-root #to-account-ledger-btn {
+            background: linear-gradient(135deg, #1d4ed8, #1e3a8a) !important;
+            color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;
+            border: 1.8px solid #0f172a !important; font-weight: 900 !important; box-shadow: 0 2px 6px rgba(0,0,0,0.35) !important;
+        }
+        html body #scp-proportional-root #from-account-live-bal {
+            background: #3b0712 !important; border: 1.8px solid #e11d48 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;
+        }
+        html body #scp-proportional-root #to-account-live-bal {
+            background: #042f24 !important; border: 1.8px solid #059669 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important;
+        }
+        html body #scp-proportional-root #from-account-live-bal *, html body #scp-proportional-root #to-account-live-bal * {
+            color: #fde047 !important; -webkit-text-fill-color: #fde047 !important; font-weight: 900 !important;
+        }
+        /* أزرار نقدي، تحويل بنكي، شيك، مسح إشعار، وتدريب النماذج ثقيلة وعالية التباين */
+        :root.light-theme body #scp-proportional-root .pay-toggle-btn {
+            background: var(--lt-sub-2, #f1e4cb) !important;
+            border: 2px solid var(--lt-border, #451a03) !important;
+            color: #0f172a !important; -webkit-text-fill-color: #0f172a !important; font-weight: 900 !important;
+        }
+        :root.light-theme body #scp-proportional-root #toggle-cash.active { background: #059669 !important; border-color: #064e3b !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+        :root.light-theme body #scp-proportional-root #toggle-bank.active { background: #1d4ed8 !important; border-color: #1e3a8a !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+        :root.light-theme body #scp-proportional-root #toggle-cheque.active { background: #7c3aed !important; border-color: #4c1d95 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+        :root.light-theme body #scp-proportional-root #btn-financial-ocr { background: #0e7490 !important; border: 2.2px solid #164e63 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+        :root.light-theme body #scp-proportional-root #btn-financial-qr { background: #047857 !important; border: 2.2px solid #064e3b !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+        :root.light-theme body #scp-proportional-root #btn-financial-wa-tray { background: #15803d !important; border: 2.2px solid #14532d !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
+        :root.light-theme body #scp-proportional-root .pay-toggle-btn[onclick*="openTrainer"] { background: #6d28d9 !important; border: 2.2px solid #3b0764 !important; color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; font-weight: 900 !important; }
+        :root.light-theme body #scp-proportional-root .sticky-footer {
+            background: linear-gradient(145deg, var(--lt-card-1, #ffffff) 0%, var(--lt-sub-2, #f5ebd6) 100%) !important;
+            border: 2.2px solid var(--lt-border, #5c2808) !important;
+            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.12) !important;
+        }
+        /* تثبيت الأسود الفحمي القوي (#000000) والخط العريض (900) لكل العناوين والحقول في السمة الفاتحة لراحة العين وأعلى تباين */
+        :root.light-theme body #scp-proportional-root .label,
+        :root.light-theme body #scp-proportional-root .scp-from-card .label,
+        :root.light-theme body #scp-proportional-root .scp-to-card .label,
+        :root.light-theme body #scp-proportional-root .panel-title,
+        :root.light-theme body #scp-proportional-root .bal-label,
+        :root.light-theme body #scp-proportional-root .bal-val,
+        :root.light-theme body #scp-proportional-root .badge-label {
+            color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 900 !important; text-shadow: none !important; opacity: 1 !important;
+        }
+        :root.light-theme body #scp-proportional-root #hdr-date,
+        :root.light-theme body #scp-proportional-root #currency,
+        :root.light-theme body #scp-proportional-root #amount-local,
+        :root.light-theme body #scp-proportional-root #amount-foreign,
+        :root.light-theme body #scp-proportional-root #beneficiary-name,
+        :root.light-theme body #scp-proportional-root #cost-center,
+        :root.light-theme body #scp-proportional-root #to-statement,
+        :root.light-theme body #scp-proportional-root #payment-panel input:not([type="checkbox"]),
+        :root.light-theme body #scp-proportional-root #payment-panel select,
+        :root.light-theme body #scp-proportional-root .scp-tafqeet-pill {
+            background: #ffffff !important; border: 2.2px solid var(--lt-border, #3b1806) !important;
+            color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 900 !important; text-shadow: none !important;
+        }
+        :root.light-theme body #scp-proportional-root .pay-toggle-btn:not(.active) {
+            color: #000000 !important; -webkit-text-fill-color: #000000 !important; border-width: 2.2px !important;
+        }
+        /* تباين عالٍ وحواف قوية لمجموع الشيكات ومجموع التحويلات والإجمالي ونافذة تدريب النماذج */
+        :root.light-theme body #scp-proportional-root #pay-bank-section { background: var(--lt-sub-1, #ecfdf5) !important; border: 2.4px solid #059669 !important; box-shadow: none !important; }
+        :root.light-theme body #scp-proportional-root #pay-cheque-section { background: var(--lt-sub-1, #f5f3ff) !important; border: 2.4px solid #7c3aed !important; box-shadow: none !important; }
+        :root.light-theme body #scp-proportional-root .total-glass-card .glow-orb { display: none !important; }
+        :root.light-theme body #scp-proportional-root .total-glass-card.cheque-glow { background: var(--lt-card-1, #f5f3ff) !important; border: 2.8px solid #6d28d9 !important; box-shadow: 0 4px 12px rgba(109,40,217,0.16) !important; }
+        :root.light-theme body #scp-proportional-root .total-glass-card.bank-glow { background: var(--lt-card-1, #ecfdf5) !important; border: 2.8px solid #047857 !important; box-shadow: 0 4px 12px rgba(4,120,87,0.16) !important; }
+        :root.light-theme body #scp-proportional-root .total-glass-card.grand-glow { background: var(--lt-sub-2, #e0f2fe) !important; border: 3px solid #0369a1 !important; box-shadow: 0 6px 16px rgba(3,105,161,0.2) !important; }
+        :root.light-theme body #scp-proportional-root .total-glass-card.cheque-glow span:first-of-type { color: #4c1d95 !important; -webkit-text-fill-color: #4c1d95 !important; text-shadow: none !important; }
+        :root.light-theme body #scp-proportional-root .total-glass-card.bank-glow span:first-of-type { color: #064e3b !important; -webkit-text-fill-color: #064e3b !important; text-shadow: none !important; }
+        :root.light-theme body #scp-proportional-root .total-glass-card.grand-glow span:first-of-type { color: #0c4a6e !important; -webkit-text-fill-color: #0c4a6e !important; text-shadow: none !important; }
+        :root.light-theme body #scp-proportional-root #unified-cheque-total,
+        :root.light-theme body #scp-proportional-root #unified-bank-total,
+        :root.light-theme body #scp-proportional-root #unified-grand-total { color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 900 !important; text-shadow: none !important; }
+        :root.light-theme body #financial-ocr-trainer-modal > div,
+        :root.light-theme body #financial-ocr-review-modal > div { background: var(--lt-card-1, #ffffff) !important; border: 2.8px solid var(--lt-border, #3b1806) !important; color: #000000 !important; }
+        :root.light-theme body #financial-ocr-trainer-modal *:not(button):not(.badge),
+        :root.light-theme body #financial-ocr-review-modal label { color: #000000 !important; font-weight: 800 !important; text-shadow: none !important; }
+        :root.light-theme body #financial-ocr-trainer-modal input,
+        :root.light-theme body #financial-ocr-trainer-modal select,
+        :root.light-theme body #financial-ocr-trainer-modal textarea { background: #ffffff !important; border: 2px solid var(--lt-border, #3b1806) !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 900 !important; }
     </style>
 </head>
 <body>
@@ -2997,7 +3126,7 @@ try {
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0;">
                                 <label class="label scp-rate-label" style="display:flex; align-items:center; gap:4px; color:#fbbf24; font-size:0.84rem; font-weight:800; margin-bottom:0; white-space:nowrap;">⚖️ الصرف</label>
-                                <input type="number" class="form-input input-glow-focus hover-glow" id="exchange-rate" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" placeholder="الصرف" readonly style="text-align: center; cursor:pointer; background:linear-gradient(135deg, #1c1504, #2e2107) !important; color:#ffd700 !important; font-weight:900; height: 58px !important; border-radius: 10px; font-size: 1.48rem !important; letter-spacing: 1px; width: 100%; border: 2px solid #fbbf24 !important; box-shadow: 0 0 12px rgba(251, 191, 36, 0.35);" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=Math.round(r); this.dataset.userEdited='1'; if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
+                                <input type="number" class="form-input input-glow-focus hover-glow" id="exchange-rate" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" placeholder="الصرف" readonly style="text-align: center; cursor:pointer; background:linear-gradient(135deg, #1c1504, #2e2107); color:#ffd700; font-weight:900; height: 58px !important; border-radius: 10px; font-size: 1.48rem !important; letter-spacing: 1px; width: 100%; border: 2px solid #fbbf24; box-shadow: 0 0 12px rgba(251, 191, 36, 0.35);" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=Math.round(r); this.dataset.userEdited='1'; if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 4px; min-width: 0; position: relative;">
                                 <label id="label-box-2" class="label" style="display:flex; align-items:center; gap:4px; color:var(--text-primary, #cbd5e1); font-size:0.86rem; font-weight:800; margin-bottom:0; white-space:nowrap;">💵 القيمة (أجنبي)</label>
@@ -3173,8 +3302,12 @@ try {
                                     <button type="button" class="pay-toggle-btn" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 1.2rem; font-weight: 900; padding: 8px 18px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;">💵 نقدي</button>
                                     <button type="button" class="pay-toggle-btn active" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 1.2rem; font-weight: 900; padding: 8px 18px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;">🏦 تحويل بنكي</button>
                                     <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 1.2rem; font-weight: 900; padding: 8px 18px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;">✍️ شيك</button>
-                                    <button type="button" class="pay-toggle-btn" id="btn-financial-ocr" onclick="FinancialOCR.openScanner({ target: 'single' })" style="background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(16,185,129,0.2)); border: 1.5px solid #22d3ee; color: #22d3ee; border-radius: 20px; font-size: 1.15rem; font-weight: 900; padding: 8px 18px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(6,182,212,0.25);" title="تصوير وقراءة إشعار بنكك أو الشيك بالذكاء الاصطناعي">
-                                        <span style="font-size: 1.3rem;">📷</span> مسح إشعار / شيك (AI OCR)
+                                    <button type="button" class="pay-toggle-btn" id="btn-financial-qr" onclick="FinancialOCR.openMobileQRBridge({ target: 'single' })" style="background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.22)); border: 1.5px solid #34d399; color: #34d399; border-radius: 20px; font-size: 1.15rem; font-weight: 900; padding: 8px 16px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(16,185,129,0.25);" title="ربط الجوال بضغطة واحدة عبر QR لرفع الإشعار مباشرة من استوديو الهاتف أو الواتساب">
+                                        <span id="btn-fin-qr-dot" style="width:9px;height:9px;border-radius:50%;background:#f59e0b;display:inline-block;"></span>
+                                        <span style="font-size: 1.25rem;">📱</span> ربط الجوال (QR)
+                                    </button>
+                                    <button type="button" class="pay-toggle-btn" id="btn-financial-wa-tray" onclick="if(window.InboundBankakManager){InboundBankakManager.toggleDrawer();}else if(typeof openWAModal==='function'){openWAModal();}" style="background: linear-gradient(135deg, rgba(37,211,102,0.24), rgba(22,163,74,0.22)); border: 1.5px solid #25D366; color: #4ade80; border-radius: 20px; font-size: 1.12rem; font-weight: 900; padding: 8px 15px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 7px;" title="سحب الإشعارات الواردة من حساب الواتساب المربوط مباشرة إلى الحركة">
+                                        <span style="font-size: 1.2rem;">📥</span> صينية واتساب
                                     </button>
                                     <button type="button" class="pay-toggle-btn" onclick="FinancialOCR.openTrainer()" style="background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.4); color: #d8b4fe; padding: 8px 14px; border-radius: 20px; font-size: 1.05rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px;" title="شرح وتدريب النماذج للذكاء الاصطناعي">
                                         <span>🧠</span> تدريب النماذج
@@ -3693,11 +3826,12 @@ try {
         </div>
     </div>
 
+    <?php if (file_exists(__DIR__ . '/includes/inbound-bankak-drawer.php')) include_once __DIR__ . '/includes/inbound-bankak-drawer.php'; ?>
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/promissory-flight-animation.js?v=20261029_fast"></script>
-    <script defer src="js/app.js?v=20261016_v28"></script>
+    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '20261117'; ?>"></script>
     <script defer src="js/html2pdf.bundle.min.js"></script>
-    <script defer src="js/whatsapp-integration.js?v=20261029_fast"></script>
+    <script defer src="js/whatsapp-integration.js?v=<?php echo file_exists('js/whatsapp-integration.js') ? filemtime('js/whatsapp-integration.js') : '20261117'; ?>"></script>
     
     <script>
       document.addEventListener('DOMContentLoaded', () => {
@@ -3716,7 +3850,7 @@ try {
     </script>
     <script defer src="js/master-banks-helper.js?v=<?php echo file_exists('js/master-banks-helper.js') ? filemtime('js/master-banks-helper.js') : '1'; ?>"></script>
     <script defer src="js/voucher-qr-barcode-suite.js?v=20261103"></script>
-    <script defer src="js/single-cash-payment.js?v=20261029_fast"></script>
+    <script defer src="js/single-cash-payment.js?v=<?php echo file_exists('js/single-cash-payment.js') ? filemtime('js/single-cash-payment.js') : '20261117'; ?>"></script>
     <script>
         let lastEnterTime = 0;
         // Perfected Exact Path Enter Navigation & Ctrl+S Instant Save

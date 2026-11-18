@@ -2947,8 +2947,11 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
                             <!-- ═══ Unified 6-Icon Base (قاعدة الأيقونات الموحدة: نقدي + تحويل + شيك + AI + واتساب + نماذج) ═══ -->
                             <div class="crystal-unified-dock" style="flex: 2.1; min-width: 300px;">
                                 <div style="display: flex; gap: 5px; align-items: center; width: 100%;">
-                                    <button type="button" class="btn crystal-btn btn-dock-btn block-btn-ai-scan" onclick="FinancialOCR.openScanner({ target: 'multi', blockId: '{ID}' })" title="مسح إشعار بالذكاء الاصطناعي">
+                                    <button type="button" class="btn crystal-btn btn-dock-btn block-btn-ai-scan" onclick="FinancialOCR.openScanner({ target: 'multi', blockId: '{ID}' })" title="مسح إشعار بالذكاء الاصطناعي من الكمبيوتر">
                                         <span class="btn-icon">📷</span> <span class="btn-text">إشعار AI</span>
+                                    </button>
+                                    <button type="button" class="btn crystal-btn btn-dock-btn" onclick="FinancialOCR.openMobileQRBridge({ target: 'multi', blockId: '{ID}' })" title="ربط الجوال بضغطة واحدة عبر QR لرفع الإشعار من استوديو الهاتف أو الواتساب">
+                                        <span class="btn-icon">📱</span> <span class="btn-text">QR جوال</span>
                                     </button>
                                     <button type="button" class="btn crystal-btn btn-dock-btn block-btn-ai-whatsapp block-btn-ai-whatsapp-ingest" onclick="handleBlockWhatsAppClick('{ID}')" title="إرسال واتساب مباشر لهذا الحساب ⚡">
                                         <span class="btn-icon" style="display: inline-flex; align-items: center; justify-content: center; gap: 3px;">

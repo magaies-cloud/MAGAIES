@@ -2693,6 +2693,30 @@
             triggerMasterSavePulse('#customer-form');
             if (typeof showToast === 'function') showToast(`✅ تم حفظ العميل "${name}" (🔐 ${statementPin})`, 'success', 2000);
 
+            if (existingIdx === -1 && whatsapp && String(whatsapp).replace(/\D/g, '').length >= 8) {
+                (async () => {
+                    try {
+                        const tid = (window.SERVER_TENANT && window.SERVER_TENANT.id) || localStorage.getItem('erp_tenant_id') || 12;
+                        let compName = (window.SERVER_TENANT && window.SERVER_TENANT.name) || '';
+                        try {
+                            const st = JSON.parse(localStorage.getItem(typeof getTenantKey === 'function' ? getTenantKey('erp_settings_v1') : 'erp_settings_v1') || '{}');
+                            if (st.companyName) compName = st.companyName;
+                        } catch (_) {}
+                        compName = compName || 'مؤسستنا التجارية';
+                        const portalBase = (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || /^192\.168\./.test(location.hostname))
+                            ? `https://c.elsajana.com/send-receipt.php`
+                            : `${location.origin}${location.pathname.replace(/\/[^/]*$/, '')}/send-receipt.php`;
+                        const iconLink = `${portalBase}?t=${encodeURIComponent(tid)}&name=${encodeURIComponent(name)}&phone=${encodeURIComponent(whatsapp)}`;
+                        const msg1 = `🌟 *مرحباً بك (${name}) في مؤسسة الرصد والسيطرة الرقمية*\nتم تفعيل حسابكم بنجاح ضمن منظومة الرصد المالي الذكي لضمان دقة وسرعة توثيق كافة تعاملاتكم المالية لحظياً.`;
+                        const msg2 = `🏛️ *ترحيب خاص من (${compName})*\nأهلاً وسهلاً بكم شريكاً كريماً معنا.\nللتعامل المالي معنا وإرسال إشعارات التحويل البنكي بسهولة وأمان، يرجى *الضغط على الرابط أدناه* لفتح وتثبيت *أيقونة السيطرة* الخاصة بكم على هاتفكم:\n\n🔗 ${iconLink}`;
+                        await fetch('api_index.php?r=wa-tenant&endpoint=send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: whatsapp, message: msg1 }) });
+                        setTimeout(() => {
+                            fetch('api_index.php?r=wa-tenant&endpoint=send', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: whatsapp, message: msg2 }) }).catch(() => {});
+                        }, 1400);
+                    } catch (_) {}
+                })();
+            }
+
             const backendRes = await syncToBackend('save_customer', custData);
             if (backendRes && backendRes.success === false && !backendRes.networkOffline) {
                 setMasterLocalData('erp_customers_v1', prevCustomersSnapshot, true);

@@ -5649,12 +5649,30 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         return (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate > 0 ? ledgerExchangeRate : 1);
     }
 
-    // Pre-build O(1) Master Data Lookup Maps for maximum performance
-    const custs = []; try { custs.push(...(JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => x && !x.deleted)); } catch(e){}
-    const sups = []; try { sups.push(...(JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => x && !x.deleted)); } catch(e){}
-    const banks = []; try { banks.push(...(JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => x && !x.deleted)); } catch(e){}
-    const safes = []; try { safes.push(...(JSON.parse(localStorage.getItem('erp_safes_v1')) || []).filter(x => x && !x.deleted)); } catch(e){}
-    const accounts = []; try { accounts.push(...(JSON.parse(localStorage.getItem('erp_accounts_v1')) || []).filter(x => x && !x.deleted)); } catch(e){}
+    // Helper: merge data across tenant-prefixed key and base key for zero data loss
+    function loadSourceTable(baseKey) {
+        const getTK = window.getTenantKey || ((k) => k);
+        const tk = getTK(baseKey);
+        let list1 = [], list2 = [];
+        try { list1 = JSON.parse(localStorage.getItem(tk) || '[]'); } catch(e){}
+        try { list2 = JSON.parse(localStorage.getItem(baseKey) || '[]'); } catch(e){}
+        if (!Array.isArray(list1)) list1 = Object.values(list1 || {});
+        if (!Array.isArray(list2)) list2 = Object.values(list2 || {});
+        const map = new Map();
+        [...list2, ...list1].forEach(v => {
+            if (!v) return;
+            const key = String(v.voucherNo || v.id || v.paymentNo || v.receiptNo || v.invoiceNo || v.code || v.name || Math.random()).trim();
+            map.set(key, v);
+        });
+        return Array.from(map.values()).filter(v => v && !v.deleted);
+    }
+
+    // Pre-build O(1) Master Data Lookup Maps (tenant-aware!)
+    const custs = loadSourceTable('erp_customers_v1');
+    const sups = loadSourceTable('erp_suppliers_v1');
+    const banks = loadSourceTable('erp_banks_v1');
+    const safes = loadSourceTable('erp_safes_v1');
+    const accounts = loadSourceTable('erp_accounts_v1');
 
     const accountMap = new Map();
     const registerAcc = (item, prefix) => {
@@ -5686,26 +5704,6 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         const cleanStr = str.replace(/^(cust|supp|bank|safe|exp)-/, '');
         if (accountMap.has(cleanStr)) return accountMap.get(cleanStr);
         return accVal;
-    }
-
-    // Helper: merge data across tenant-prefixed key and base key for zero data loss
-    function loadSourceTable(baseKey) {
-        const getTK = window.getTenantKey || ((k) => k);
-        const tk = getTK(baseKey);
-        let list1 = [];
-        let list2 = [];
-        try { list1 = JSON.parse(localStorage.getItem(tk) || '[]'); } catch(e){}
-        try { list2 = JSON.parse(localStorage.getItem(baseKey) || '[]'); } catch(e){}
-        if (!Array.isArray(list1)) list1 = Object.values(list1);
-        if (!Array.isArray(list2)) list2 = Object.values(list2);
-        
-        const map = new Map();
-        [...list2, ...list1].forEach(v => {
-            if (!v) return;
-            const key = String(v.voucherNo || v.id || v.paymentNo || v.receiptNo || v.invoiceNo || Math.random()).trim();
-            map.set(key, v);
-        });
-        return Array.from(map.values()).filter(v => v && !v.deleted);
     }
 
     // 1. Single Receipts (erp_single_receipts_v1)

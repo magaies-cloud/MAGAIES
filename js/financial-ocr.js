@@ -62,11 +62,264 @@
             }
         },
 
+        _qrBridgePollTimer: null,
+        _qrProcessedIds: {},
+        getScreenSessionMeta() {
+            const path = window.location.pathname || '';
+            const isSingle = /single-cash-payment\.php/i.test(path);
+            const isMulti = /multi-cash-payment\.php/i.test(path);
+            const vNo = (document.getElementById('voucher-number')?.innerText || document.getElementById('voucher-no-display')?.value || document.getElementById('inv-number')?.value || '').trim();
+            const cleanV = vNo.replace(/[^a-zA-Z0-9_-]/g, '') || 'new';
+            const blk = (this.activeContext && this.activeContext.blockId) ? String(this.activeContext.blockId) : '1';
+            if (isSingle) return { key: `erp_qr_single_${cleanV}`, label: `حركة مالية فردية — مستند (${vNo || 'جديد'})`, prefix: `s_${cleanV}` };
+            if (isMulti) return { key: `erp_qr_multi_${cleanV}_b${blk}`, label: `حركة مالية مجمعة (${vNo || 'جديد'}) — بلوك #${blk}`, prefix: `m_${cleanV}_b${blk}` };
+            const pg = path.split('/').pop().replace(/\.php$/i, '') || 'screen';
+            return { key: `erp_qr_${pg}_${cleanV}`, label: `شاشة (${pg}) — ${vNo || 'نشطة'}`, prefix: `${pg}_${cleanV}` };
+        },
+        getMobileQRChannel() {
+            const meta = this.getScreenSessionMeta();
+            let ch = sessionStorage.getItem(meta.key);
+            if (!ch) {
+                ch = ('fq_' + meta.prefix + '_' + Math.random().toString(36).slice(2, 7)).replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 42);
+                sessionStorage.setItem(meta.key, ch);
+            }
+            return ch;
+        },
+        _collectUniversalAccountGroups() {
+            const getTK = window.getTenantKey || ((k) => k);
+            const readArr = (k) => { try { return JSON.parse(localStorage.getItem(getTK(k)) || localStorage.getItem(k) || '[]').filter(x => x && !x.deleted && (x.name || x.bankName || x.title)); } catch (_) { return []; } };
+            const normId = (raw, pfx) => { const s = String(raw || '').trim(); return (!s || s.startsWith(pfx + '-')) ? s : (pfx + '-' + s); };
+            const groups = [
+                { label: '👥 العملاء', items: readArr('erp_customers_v1').map(x => ({ id: normId(x.id, 'cust'), name: x.name })) },
+                { label: '🚚 الموردين', items: readArr('erp_suppliers_v1').map(x => ({ id: normId(x.id, 'supp'), name: x.name })) },
+                { label: '🏦 البنوك', items: readArr('erp_banks_v1').map(x => ({ id: normId(x.id, 'bank'), name: x.bankName || x.name })) },
+                { label: '🗄️ الخزن والصناديق', items: readArr('erp_safes_v1').map(x => ({ id: normId(x.id, 'safe'), name: x.name })) },
+                { label: '💸 المصروفات والحسابات العامة', items: [...readArr('erp_expenses_v1').map(x => ({ id: normId(x.id, 'exp'), name: x.name || x.title })), ...readArr('erp_accounts_v1').map(x => ({ id: String(x.id || x.code || ''), name: x.name || x.title }))] }
+            ];
+            if (Array.isArray(window.ACCOUNTS)) {
+                const seen = new Set(groups.flatMap(g => g.items.map(i => i.id)));
+                const extra = window.ACCOUNTS.filter(a => a && a.id && a.name && !seen.has(String(a.id))).map(a => ({ id: String(a.id), name: a.name }));
+                if (extra.length) groups[4].items.push(...extra);
+            }
+            return groups;
+        },
+        async openMobileQRBridge(options = {}) {
+            this.activeContext = Object.assign({ target: 'single', blockId: null, docHint: 'auto' }, options);
+            const ch = this.getMobileQRChannel();
+            let origin = window.location.origin;
+            const pathDir = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+            try {
+                const r = await fetch('api/qr_live_bridge.php?action=info&channel=' + encodeURIComponent(ch));
+                const inf = await r.json();
+                if (inf && inf.lanIp && (location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
+                    origin = location.protocol + '//' + inf.lanIp + (location.port ? ':' + location.port : '');
+                }
+            } catch (e) {}
+            const mobileUrl = origin + pathDir + 'mobile-receipt-bridge.php?channel=' + encodeURIComponent(ch);
+            const qrSrc = 'https://api.qrserver.com/v1/create-qr-code/?size=230x230&margin=6&data=' + encodeURIComponent(mobileUrl);
+            let modal = document.getElementById('fin-mobile-qr-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'fin-mobile-qr-modal';
+                modal.style.cssText = 'position:fixed;inset:0;z-index:9999999;background:rgba(2,6,23,0.82);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;direction:rtl;font-family:Tajawal,sans-serif;';
+                modal.onclick = (ev) => { if (ev.target === modal) modal.style.display = 'none'; };
+                document.body.appendChild(modal);
+            }
+            const portalUrl = ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'https://c.elsajana.com' : location.origin) + '/send-receipt.php?t=' + encodeURIComponent((window.SERVER_TENANT && window.SERVER_TENANT.id) || '12');
+            const portalQrSrc = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=6&data=' + encodeURIComponent(portalUrl);
+            const meta = this.getScreenSessionMeta();
+            const isLight = document.documentElement.classList.contains('light-theme');
+            const bgCard = isLight ? '#ffffff' : 'linear-gradient(155deg,#0f172a,#162238)';
+            const txtMain = isLight ? '#0f172a' : '#f8fafc';
+            const subBg = isLight ? '#f8fafc' : 'rgba(2,6,23,0.6)';
+            const bdrMain = isLight ? '#0284c7' : '#38bdf8';
+            const groups = this._collectUniversalAccountGroups();
+            const curFrom = (this.activeSessionBinding && this.activeSessionBinding.fromId) || document.getElementById('from-account')?.value || '';
+            const curTo = (this.activeSessionBinding && this.activeSessionBinding.toId) || document.getElementById('to-account')?.value || document.getElementById('main-account')?.value || '';
+            const buildAccOpts = (selVal, placeholder) => `<option value="">${placeholder}</option>` + groups.filter(g => g.items.length).map(g => `<optgroup label="${g.label}">${g.items.map(it => `<option value="${it.id.replace(/"/g,'&quot;')}" ${selVal===it.id?'selected':''}>${it.name}</option>`).join('')}</optgroup>`).join('');
+            this._qrUrls = { studioQr: qrSrc, portalUrl, portalQr: portalQrSrc, ch, screenLabel: meta.label };
+            modal.innerHTML = `<div style="width:100%;max-width:720px;background:${bgCard};border:2.5px solid ${bdrMain};border-radius:22px;padding:20px 24px;color:${txtMain};text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.45);">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:12px;margin-bottom:14px;border-bottom:1.5px solid rgba(148,163,184,0.25);flex-wrap:wrap;">
+                    <div style="text-align:right;">
+                        <div style="font-size:1.22rem;font-weight:900;color:${isLight?'#0369a1':'#38bdf8'};">📱 مركز ربط الجوال والجلسات المستقلة</div>
+                        <div style="font-size:0.82rem;font-weight:900;color:${isLight?'#047857':'#34d399'};margin-top:2px;">📌 معزولة ومرتبطة بهذه الشاشة فقط: ${meta.label}</div>
+                    </div>
+                    <button type="button" onclick="document.getElementById('fin-mobile-qr-modal').style.display='none'" style="background:rgba(239,68,68,0.14);border:1.5px solid #ef4444;color:#ef4444;padding:6px 14px;border-radius:10px;font-weight:900;font-size:0.9rem;cursor:pointer;">✕ إغلاق</button>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
+                    <button type="button" id="fin-qr-tab-studio" onclick="FinancialOCR.showRequestedQR('studio')" style="padding:12px 10px;border-radius:14px;background:${isLight?'#fffbeb':'rgba(245,158,11,0.16)'};border:2px solid #f59e0b;color:${isLight?'#92400e':'#fde68a'};font-weight:900;font-size:0.88rem;cursor:pointer;line-height:1.45;transition:all 0.2s;">📷 QR استوديو الهاتف<div style="font-size:0.74rem;opacity:0.9;margin-top:3px;">بالكاميرا العادية وليس الواتساب</div></button>
+                    <button type="button" id="fin-qr-tab-session" onclick="FinancialOCR.showRequestedQR('session')" style="padding:12px 10px;border-radius:14px;background:${isLight?'#faf5ff':'rgba(168,85,247,0.18)'};border:2px solid #a855f7;color:${isLight?'#6b21a8':'#f3e8ff'};font-weight:900;font-size:0.88rem;cursor:pointer;line-height:1.45;transition:all 0.2s;">🔗 QR ربط الجلسة<div style="font-size:0.74rem;opacity:0.9;margin-top:3px;">تحويل من حساب ⬅ إلى حساب</div></button>
+                    <button type="button" id="fin-qr-tab-icon" onclick="FinancialOCR.showRequestedQR('icon')" style="padding:12px 10px;border-radius:14px;background:${isLight?'#ecfdf5':'rgba(16,185,129,0.16)'};border:2px solid #10b981;color:${isLight?'#065f46':'#a7f3d0'};font-weight:900;font-size:0.88rem;cursor:pointer;line-height:1.45;transition:all 0.2s;">🛡️ QR أيقونة السيطرة<div style="font-size:0.74rem;opacity:0.9;margin-top:3px;">رابط وباركود للعملاء</div></button>
+                </div>
+                <div id="fin-qr-dynamic-stage" style="display:none;margin-bottom:14px;padding:14px 16px;border-radius:16px;background:${subBg};border:2.5px solid rgba(56,189,248,0.65);">
+                    <div id="fin-qr-mode-ribbon" style="display:inline-block;margin-bottom:8px;padding:5px 16px;border-radius:999px;font-weight:900;font-size:0.88rem;color:#fff;background:#0284c7;"></div>
+                    <div id="fin-qr-live-status" style="margin-bottom:10px;padding:8px 12px;border-radius:10px;background:${isLight?'#fef3c7':'rgba(245,158,11,0.16)'};border:1px solid #f59e0b;color:${isLight?'#92400e':'#fde68a'};font-weight:900;font-size:0.86rem;line-height:1.5;"></div>
+                    <div id="fin-qr-session-controls" style="display:none;margin-bottom:12px;text-align:right;">
+                        <input type="text" id="fin-sess-filter" oninput="FinancialOCR.filterSessionAccountSelects(this.value)" placeholder="🔍 بحث سريع في كل الحسابات (العملاء، الموردين، البنوك، الخزن، المصروفات)..." style="width:100%;box-sizing:border-box;margin-bottom:8px;padding:8px 12px;border-radius:10px;border:1.5px solid #94a3b8;background:${isLight?'#fff':'#0f172a'};color:${txtMain};font-weight:800;font-size:0.84rem;font-family:Tajawal,sans-serif;">
+                        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:end;">
+                            <div>
+                                <label style="display:block;font-size:0.8rem;font-weight:900;color:${isLight?'#0369a1':'#7dd3fc'};margin-bottom:4px;">📤 من حساب (الدافع / المرسل):</label>
+                                <select id="fin-sess-from" onchange="FinancialOCR.updateWaSessionQR()" style="width:100%;padding:9px 10px;border-radius:10px;background:${isLight?'#fff':'#0f172a'};color:${txtMain};border:2px solid #0284c7;font-weight:900;font-size:0.86rem;font-family:Tajawal,sans-serif;">${buildAccOpts(curFrom, '-- اختر حساب (من): عميل / مورد / بنك / خزينة / مصروف --')}</select>
+                            </div>
+                            <button type="button" onclick="FinancialOCR.swapSessionAccounts()" title="عكس الحسابين (من ⇄ إلى)" style="height:40px;padding:0 12px;border-radius:10px;background:rgba(168,85,247,0.18);border:1.5px solid #a855f7;color:${isLight?'#6b21a8':'#e9d5ff'};font-weight:900;cursor:pointer;">⇄</button>
+                            <div>
+                                <label style="display:block;font-size:0.8rem;font-weight:900;color:${isLight?'#047857':'#6ee7b7'};margin-bottom:4px;">📥 إلى حساب (المستلم / المودع فيه):</label>
+                                <select id="fin-sess-to" onchange="FinancialOCR.updateWaSessionQR()" style="width:100%;padding:9px 10px;border-radius:10px;background:${isLight?'#fff':'#0f172a'};color:${txtMain};border:2px solid #10b981;font-weight:900;font-size:0.86rem;font-family:Tajawal,sans-serif;">${buildAccOpts(curTo, '-- اختر حساب (إلى): بنك / خزينة / مورد / عميل / مصروف --')}</select>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="background:#fff;padding:10px;border-radius:16px;display:inline-block;border:2px solid #cbd5e1;"><img id="fin-qr-main-img" src="" alt="QR" style="width:190px;height:190px;display:block;"></div>
+                    <div id="fin-qr-icon-copy-row" style="display:none;margin-top:10px;">
+                        <span id="fin-portal-icon-url" style="display:none;">${portalUrl}</span>
+                        <button type="button" onclick="FinancialOCR.copyCustomerPortalIconLink()" style="background:linear-gradient(135deg,#10b981,#059669);border:none;color:#fff;padding:9px 20px;border-radius:10px;font-weight:900;font-size:0.88rem;cursor:pointer;">📋 نسخ رابط أيقونة السيطرة</button>
+                    </div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+                    <button type="button" onclick="document.getElementById('fin-mobile-qr-modal').style.display='none';FinancialOCR.pasteFromClipboardDirect();" style="background:${isLight?'#ecfdf5':'rgba(16,185,129,0.2)'};border:2px solid #10b981;color:${isLight?'#065f46':'#a7f3d0'};padding:11px 8px;border-radius:12px;font-weight:900;font-size:0.92rem;cursor:pointer;">📋 لصق</button>
+                    <button type="button" onclick="document.getElementById('fin-mobile-qr-modal').style.display='none';FinancialOCR.triggerUploadAgain();" style="background:${isLight?'#f0f9ff':'rgba(56,189,248,0.2)'};border:2px solid #0284c7;color:${isLight?'#075985':'#e0f2fe'};padding:11px 8px;border-radius:12px;font-weight:900;font-size:0.92rem;cursor:pointer;">💻 اللابتوب</button>
+                    <button type="button" onclick="document.getElementById('fin-mobile-qr-modal').style.display='none';if(typeof openWAModal==='function'){openWAModal();}else if(window.InboundBankakManager){InboundBankakManager.toggleDrawer();}" style="background:${isLight?'#f0fdf4':'rgba(37,211,102,0.2)'};border:2px solid #16a34a;color:${isLight?'#166534':'#86efac'};padding:11px 8px;border-radius:12px;font-weight:900;font-size:0.92rem;cursor:pointer;">🟢 واتساب</button>
+                    <button type="button" id="fin-qr-disconnect-btn" onclick="FinancialOCR.disconnectMobileQRBridge();" style="background:${isLight?'#fef2f2':'rgba(239,68,68,0.2)'};border:2px solid #ef4444;color:${isLight?'#991b1b':'#fca5a5'};padding:11px 8px;border-radius:12px;font-weight:900;font-size:0.92rem;cursor:pointer;">🔌 إلغاء</button>
+                </div>
+            </div>`;
+            modal.style.display = 'flex';
+            this.startMobileQRPoll();
+        },
+        async showRequestedQR(mode) {
+            const stage = document.getElementById('fin-qr-dynamic-stage');
+            const ribbon = document.getElementById('fin-qr-mode-ribbon');
+            const img = document.getElementById('fin-qr-main-img');
+            const st = document.getElementById('fin-qr-live-status');
+            const sessBox = document.getElementById('fin-qr-session-controls');
+            const copyRow = document.getElementById('fin-qr-icon-copy-row');
+            if (!stage || !img || !st || !this._qrUrls) return;
+            const tabTheme = { studio: { color: '#f59e0b', title: '✓ النشط الآن: 📷 باركود استوديو الهاتف' }, session: { color: '#9333ea', title: '✓ النشط الآن: 🔗 باركود ربط الجلسة (من ⬅ إلى)' }, icon: { color: '#059669', title: '✓ النشط الآن: 🛡️ باركود أيقونة السيطرة للعملاء' } };
+            ['studio', 'session', 'icon'].forEach(m => {
+                const b = document.getElementById('fin-qr-tab-' + m);
+                if (!b) return;
+                if (m === mode) { b.style.transform = 'scale(1.03)'; b.style.opacity = '1'; b.style.boxShadow = `0 0 0 3px ${tabTheme[m].color}, 0 8px 20px rgba(0,0,0,0.35)`; }
+                else { b.style.transform = 'scale(0.97)'; b.style.opacity = '0.45'; b.style.boxShadow = 'none'; }
+            });
+            stage.style.display = 'block';
+            stage.style.borderColor = tabTheme[mode].color;
+            if (ribbon) { ribbon.style.background = tabTheme[mode].color; ribbon.textContent = tabTheme[mode].title; }
+            sessBox.style.display = (mode === 'session') ? 'block' : 'none';
+            copyRow.style.display = (mode === 'icon') ? 'block' : 'none';
+            if (mode === 'studio') {
+                st.innerHTML = '📷 افتح <b>الكاميرا العادية للهاتف وليس الواتساب</b> وامسح الكود للوصول إلى <b>استوديو الهاتف للفحص والمراجعة</b>';
+                img.src = this._qrUrls.studioQr;
+            } else if (mode === 'icon') {
+                st.innerHTML = '🛡️ امسح الكود بهاتف العميل لتثبيت <b>أيقونة السيطرة</b> أو انسخ الرابط بالأسفل';
+                img.src = this._qrUrls.portalQr;
+            } else if (mode === 'session') {
+                await this.updateWaSessionQR();
+            }
+        },
+        filterSessionAccountSelects(q) {
+            const needle = String(q || '').trim().toLowerCase();
+            ['fin-sess-from', 'fin-sess-to'].forEach(id => {
+                const sel = document.getElementById(id);
+                if (!sel) return;
+                Array.from(sel.querySelectorAll('option')).forEach((opt, idx) => {
+                    if (idx === 0) return;
+                    opt.hidden = needle ? !opt.textContent.toLowerCase().includes(needle) : false;
+                });
+            });
+        },
+        swapSessionAccounts() {
+            const f = document.getElementById('fin-sess-from'), t = document.getElementById('fin-sess-to');
+            if (f && t) { const tmp = f.value; f.value = t.value; t.value = tmp; this.updateWaSessionQR(); }
+        },
+        async updateWaSessionQR() {
+            const img = document.getElementById('fin-qr-main-img');
+            const st = document.getElementById('fin-qr-live-status');
+            const fSel = document.getElementById('fin-sess-from');
+            const tSel = document.getElementById('fin-sess-to');
+            const ch = (this._qrUrls && this._qrUrls.ch) || this.getMobileQRChannel();
+            const fromId = fSel ? fSel.value : '';
+            const fromName = (fSel && fSel.selectedIndex > 0) ? fSel.options[fSel.selectedIndex].text : '';
+            const toId = tSel ? tSel.value : '';
+            const toName = (tSel && tSel.selectedIndex > 0) ? tSel.options[tSel.selectedIndex].text : '';
+            this.activeSessionBinding = { fromId, fromName, toId, toName, customerId: fromId, customerName: fromName, bankId: toId, bankName: toName, channel: ch };
+            let waPhone = '';
+            try {
+                const r = await fetch('api/inbound_receipts.php?action=bind_wa_session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ channel: ch, customer_id: fromId, customer_name: (fromName && toName) ? `${fromName} ⬅ ${toName}` : (fromName || toName), bank_id: toId, bank_name: this._qrUrls?.screenLabel || toName }) });
+                const d = await r.json();
+                if (d && d.wa_phone) waPhone = d.wa_phone;
+            } catch (_) {}
+            const sessUrl = waPhone ? `https://wa.me/${waPhone}?text=${encodeURIComponent('#SESSION_' + ch)}` : this._qrUrls.studioQr;
+            if (img) img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=6&data=' + encodeURIComponent(sessUrl);
+            const routeDesc = (fromName || toName) ? `(${fromName || 'من غير محدد'} ⬅ ${toName || 'إلى غير محدد'})` : '(اختر الحسابين من وإلى أعلاه)';
+            if (st) st.innerHTML = waPhone
+                ? `🔗 <b>جلسة واتساب معزولة لهذه الشاشة ${routeDesc}:</b> امسح الكود بالكاميرا العادية وأرسل رسالة الربط، ثم حوّل دفعة الإشعارات لواتساب المؤسسة لتفتح هنا في الشاشة ثلاثية الأعمدة!`
+                : `⚠️ اربط واتساب المؤسسة من زر <b>🟢 واتساب</b> لتفعيل جلسة الواتساب، أو امسح هذا الكود لرفع دفعة الجلسة مباشرة من الجوال ${routeDesc}.`;
+        },
+        togglePortalIconQR() {
+            const box = document.getElementById('fin-portal-qr-expand');
+            if (box) box.style.display = (box.style.display === 'none' || !box.style.display) ? 'block' : 'none';
+        },
+        copyCustomerPortalIconLink() {
+            const el = document.getElementById('fin-portal-icon-url');
+            const url = el ? el.textContent.trim() : ('https://c.elsajana.com/send-receipt.php?t=12');
+            if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url);
+            if (typeof this.showToast === 'function') this.showToast('✅ تم نسخ رابط أيقونة السيطرة! أرسله لأي شخص لتنزل له الأيقونة فوراً.', 'success');
+        },
+        async disconnectMobileQRBridge() {
+            const meta = this.getScreenSessionMeta();
+            const oldCh = sessionStorage.getItem(meta.key);
+            if (this._qrBridgePollTimer) { clearInterval(this._qrBridgePollTimer); this._qrBridgePollTimer = null; }
+            if (oldCh) {
+                try { await fetch('api/qr_live_bridge.php?action=disconnect&channel=' + encodeURIComponent(oldCh), { method: 'POST' }); } catch (_) {}
+                try { await fetch('api/inbound_receipts.php?action=bind_wa_session', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ channel: oldCh, unbind: true }) }); } catch (_) {}
+            }
+            this.activeSessionBinding = null;
+            sessionStorage.removeItem(meta.key);
+            const dot = document.getElementById('btn-fin-qr-dot');
+            if (dot) { dot.style.background = '#f59e0b'; dot.style.boxShadow = 'none'; }
+            if (typeof this.showToast === 'function') this.showToast('🔌 تم إلغاء ربط الجوال وتوليد رمز جديد', 'info');
+            await this.openMobileQRBridge(this.activeContext || {});
+        },
+        startMobileQRPoll() {
+            if (this._qrBridgePollTimer) return;
+            this._qrBridgePollTimer = setInterval(async () => {
+                try {
+                    const ch = this.getMobileQRChannel();
+                    const res = await fetch('api/qr_live_bridge.php?action=poll&channel=' + encodeURIComponent(ch));
+                    const d = await res.json();
+                    if (!d || !d.ok) return;
+                    const st = document.getElementById('fin-qr-live-status');
+                    if (st && d.mobileConnected) {
+                        st.style.background = 'rgba(16,185,129,0.2)'; st.style.borderColor = '#10b981'; st.style.color = '#6ee7b7';
+                        st.textContent = '🟢 الجوال متصل الآن! اختر الإشعار من استوديو الجوال...';
+                    }
+                    const dot = document.getElementById('btn-fin-qr-dot');
+                    if (dot) { dot.style.background = d.mobileConnected ? '#22c55e' : '#f59e0b'; dot.style.boxShadow = d.mobileConnected ? '0 0 8px #22c55e' : 'none'; }
+                    const recs = Array.isArray(d.unprocessedReceipts) ? d.unprocessedReceipts : [];
+                    if (!recs.length) return;
+                    const files = [];
+                    for (const rec of recs) {
+                        if (!rec.receiptId || this._qrProcessedIds[rec.receiptId]) continue;
+                        this._qrProcessedIds[rec.receiptId] = true;
+                        fetch('api/qr_live_bridge.php?action=ack_receipt&channel=' + encodeURIComponent(ch) + '&receiptId=' + encodeURIComponent(rec.receiptId)).catch(() => {});
+                        const imgRes = await fetch(rec.fileUrl + '?_t=' + Date.now());
+                        const blob = await imgRes.blob();
+                        files.push(new File([blob], rec.fileName || 'mobile_receipt.jpg', { type: rec.mimeType || blob.type || 'image/jpeg' }));
+                    }
+                    if (files.length) {
+                        const m = document.getElementById('fin-mobile-qr-modal');
+                        if (m) m.style.display = 'none';
+                        this.activeContext = Object.assign({ target: 'single', blockId: null, docHint: 'auto' }, this.activeContext || {});
+                        await this.handleFileSelected({ files });
+                    }
+                } catch (e) {}
+            }, 1500);
+        },
+
         async inspectReceiptDirect(receipt, blockId = '1') {
             if (!receipt) return;
+            const isSinglePage = /single-cash-payment\.php/i.test(window.location.pathname || '');
             this.activeContext = {
-                target: 'multi',
-                blockId: blockId,
+                target: isSinglePage ? 'single' : 'multi',
+                blockId: isSinglePage ? null : blockId,
                 docHint: 'transfer'
             };
 
@@ -5539,6 +5792,24 @@
         // Single Cash Payment Handler (Creates N Separate Distinct Rows in Voucher)
         applyBatchToSinglePayment(items) {
             if (!Array.isArray(items)) items = [items];
+            if (this.activeSessionBinding && (this.activeSessionBinding.fromId || this.activeSessionBinding.toId)) {
+                const sb = this.activeSessionBinding;
+                const fromIn = document.getElementById('from-account'), fromSrch = document.getElementById('from-account-search');
+                const toIn = document.getElementById('to-account'), toSrch = document.getElementById('to-account-search');
+                if (sb.fromId && fromIn) {
+                    if (fromSrch && sb.fromName) fromSrch.value = sb.fromName;
+                    fromIn.value = sb.fromId;
+                    fromIn.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+                if (sb.toId && toIn) {
+                    if (toSrch && sb.toName) toSrch.value = sb.toName;
+                    toIn.value = sb.toId;
+                    toIn.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+                if (sb.toName && String(sb.toId || '').startsWith('bank-')) {
+                    items.forEach(d => { if (!d.bank_name) d.bank_name = sb.toName; });
+                }
+            }
             let count = 0;
             let totalAmount = 0;
 
@@ -6683,6 +6954,7 @@
         if (typeof FinancialOCR.initGlobalPasteListener === 'function') {
             FinancialOCR.initGlobalPasteListener();
         }
+        if (localStorage.getItem('erp_fin_qr_channel')) FinancialOCR.startMobileQRPoll();
     });
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
         if (typeof FinancialOCR.initFieldProps === 'function') {
@@ -6691,6 +6963,7 @@
         if (typeof FinancialOCR.initGlobalPasteListener === 'function') {
             FinancialOCR.initGlobalPasteListener();
         }
+        if (localStorage.getItem('erp_fin_qr_channel')) FinancialOCR.startMobileQRPoll();
     }
 
 })(window);

@@ -101,6 +101,13 @@ window.InboundBankakManager = {
         } catch (e) {}
     },
 
+    openDrawer: function() {
+        const overlay = document.getElementById('inbound-bankak-drawer-overlay');
+        if (!overlay) return;
+        overlay.style.display = 'flex';
+        this.refreshReceipts();
+    },
+
     toggleDrawer: function() {
         const overlay = document.getElementById('inbound-bankak-drawer-overlay');
         if (!overlay) return;

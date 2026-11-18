@@ -5048,10 +5048,18 @@ window.getPartyAccountBalance = function(partyId, partyName, targetRole = 'debto
     // احتساب حركات دفتر الأستاذ العام من erp_gl_v1
     let glTxns = [];
     try {
-        glTxns = JSON.parse(localStorage.getItem(getTenantKey('erp_gl_v1')) || localStorage.getItem('erp_gl_v1') || '[]');
+        if (typeof window.rebuildGLFromAllTables === 'function' && (!window._cachedLiveGLTs || (Date.now() - window._cachedLiveGLTs) > 1200)) {
+            window._cachedLiveGLTxns = window.rebuildGLFromAllTables(false);
+            window._cachedLiveGLTs = Date.now();
+        }
+        glTxns = Array.isArray(window._cachedLiveGLTxns) && window._cachedLiveGLTxns.length > 0
+            ? window._cachedLiveGLTxns
+            : JSON.parse(localStorage.getItem(getTenantKey('erp_gl_v1')) || localStorage.getItem('erp_gl_v1') || '[]');
     } catch(e) { glTxns = []; }
     if (!Array.isArray(glTxns)) glTxns = Object.values(glTxns || {});
 
+    const effectiveName = (masterRec && masterRec.name ? String(masterRec.name).trim() : '') || cleanName;
+    const masterCode = (masterRec && masterRec.code ? String(masterRec.code).trim() : '');
     let runningBal = intrinsicBal;
     let hasGLTxns = false;
     let isVoucherAlreadyInGL = false;
@@ -5059,17 +5067,18 @@ window.getPartyAccountBalance = function(partyId, partyName, targetRole = 'debto
 
     if (glTxns.length > 0) {
         const pRefPrefixed = (entityType === 'customer' ? 'cust-' : entityType === 'supplier' ? 'supp-' : entityType === 'bank' ? 'bank-' : entityType === 'safe' ? 'safe-' : 'exp-') + bareId;
-        const normName = cleanName ? cleanName.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/\s+/g, ' ').toLowerCase() : '';
+        const normName = effectiveName ? effectiveName.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/\s+/g, ' ').toLowerCase() : '';
 
         glTxns.forEach(t => {
-            if (!t) return;
+            if (!t || t.isOpening || t.type === 'opening') return;
             const tAcc = String(t.account || '').trim();
             const cleanTAcc = tAcc.replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '').trim();
             let matches = false;
 
             if (cleanId && (tAcc === cleanId || cleanTAcc === cleanId)) matches = true;
             else if (bareId && (cleanTAcc === bareId || tAcc === pRefPrefixed)) matches = true;
-            else if (cleanName && (tAcc === cleanName || t.accountName === cleanName || t.partner === cleanName)) matches = true;
+            else if (masterCode && (tAcc === masterCode || cleanTAcc === masterCode)) matches = true;
+            else if (effectiveName && (tAcc === effectiveName || t.accountName === effectiveName || t.partner === effectiveName)) matches = true;
             else if (normName) {
                 const normT = tAcc.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/\s+/g, ' ').toLowerCase();
                 const normP = String(t.partner || t.accountName || '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/\s+/g, ' ').toLowerCase();

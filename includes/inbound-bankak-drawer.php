@@ -332,4 +332,4 @@ $currentActiveTenant = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '
 </style>
 
 <script>window.INBOUND_ACTIVE_TENANT = '<?php echo addslashes($currentActiveTenant); ?>';</script>
-<script defer src="js/inbound-bankak-drawer-core.js?v=20261029_fast"></script>
+<script defer src="js/inbound-bankak-drawer-core.js?v=<?php echo file_exists(__DIR__ . '/../js/inbound-bankak-drawer-core.js') ? filemtime(__DIR__ . '/../js/inbound-bankak-drawer-core.js') : '20261117'; ?>"></script>

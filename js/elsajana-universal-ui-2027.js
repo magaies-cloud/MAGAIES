@@ -538,27 +538,82 @@
         return 'laptop';
     };
     const applyScreenErgonomics = (notify = false) => {
-        const pgVal = localStorage.getItem(pageErgoKey()) || '';
-        const glbVal = localStorage.getItem('magaies_ergo_global_mode') || 'auto';
-        try { localStorage.removeItem('magaies_ergo_vboost_px'); } catch (_) {}
-        const chosen = pgVal || glbVal || 'auto';
-        const resolved = chosen === 'auto' ? detectHardwareMode() : chosen;
+        const pgKey = 'magaies_dim_page_' + (location.pathname.split('/').pop() || 'index.php');
+        let dim = { w: 100, h: 100 };
+        try {
+            const pgRaw = localStorage.getItem(pgKey);
+            const glbRaw = localStorage.getItem('magaies_dim_global');
+            if (pgRaw) dim = Object.assign(dim, JSON.parse(pgRaw));
+            else if (glbRaw) dim = Object.assign(dim, JSON.parse(glbRaw));
+        } catch (_) {}
+        const wPct = Math.max(50, Math.min(200, Number(dim.w) || 100));
+        const rawH = Number(dim.h);
+        const hPct = (!rawH || rawH < 30) ? 100 : Math.max(50, Math.min(200, rawH));
         const root = document.documentElement;
-        root.setAttribute('data-ergo-mode', chosen);
-        root.setAttribute('data-ergo-resolved', resolved);
-        let maxW = 'calc(100% - 20px)', wideW = 'calc(100% - 16px)';
-        if (resolved === 'laptop') { maxW = 'min(calc(100% - 20px), 1520px)'; wideW = 'calc(100% - 16px)'; }
-        else if (resolved === 'desktop_comfort') { maxW = 'min(calc(100% - 28px), 1680px)'; wideW = 'min(calc(100% - 18px), 1840px)'; }
-        else if (resolved === 'tablet_touch' || resolved === 'portrait_tall') { maxW = 'calc(100% - 14px)'; wideW = 'calc(100% - 12px)'; }
-        else if (resolved === 'uhd_4k') { maxW = 'min(calc(100% - 36px), 1860px)'; wideW = 'min(calc(100% - 24px), 2100px)'; }
-        else if (resolved === 'ultrawide_full') { maxW = 'calc(100% - 16px)'; wideW = 'calc(100% - 16px)'; }
-        root.style.setProperty('--erp-ergo-max-w', maxW);
-        root.style.setProperty('--erp-ergo-wide-w', wideW);
+        const applyDimCss = (wP, hP) => {
+            const maxW = wP >= 99.5 ? 'calc(100% - 16px)' : ('calc(' + wP + '% - 16px)');
+            root.style.setProperty('--erp-ergo-max-w', maxW);
+            root.style.setProperty('--erp-ergo-wide-w', maxW);
+            const boostPx = Math.round((hP - 100) * 8);
+            root.style.setProperty('--erp-ergo-vh-boost', Math.max(0, boostPx) + 'px');
+            root.style.setProperty('--erp-ergo-vpad', Math.round((hP - 100) / 3) + 'px');
+            if (hP !== 100) root.setAttribute('data-vh-boosted', '1'); else root.removeAttribute('data-vh-boosted');
+            let st = document.getElementById('els-live-wh-scale-2027');
+            if (!st) { st = document.createElement('style'); st.id = 'els-live-wh-scale-2027'; document.head.appendChild(st); }
+            const wZoom = wP > 100 ? (wP / 100).toFixed(3) : '1';
+            const vS = (hP / 100).toFixed(3);
+            st.textContent = (wP === 100 && hP === 100) ? '' : `
+                #pur-proportional-root, #sales-proportional-root, #grn-proportional-root, #scp-proportional-root, #mcp-proportional-root, #pa-proportional-root, #mb-proportional-root, #dmr-proportional-root, #gl-proportional-root, #md-proportional-root, .vouchers-container, .main-container, .page-container {
+                    ${wP > 100 ? 'zoom:' + wZoom + ';' : ''}
+                    ${hP !== 100 ? 'transform: scaleY(' + vS + ') !important; transform-origin: top center !important; margin-bottom: calc((' + vS + ' - 1) * 78vh) !important;' : ''}
+                }`;
+        };
+        applyDimCss(wPct, hPct);
         const lbl = document.getElementById('magaies-ergo-hdr-lbl');
-        const namesShort = { desktop_comfort: 'مكتبي متوازن', portrait_tall: 'طولي', laptop: 'لابتوب', tablet_touch: 'تابلت/لمس', uhd_4k: 'شاشة 4K', ultrawide_full: 'عريض كامل' };
-        if (lbl) lbl.textContent = (pgVal ? '📌 ' : '') + (chosen === 'auto' ? ('تلقائي • ' + (namesShort[resolved] || 'متوازن')) : (namesShort[resolved] || 'مقاس الشاشة'));
+        if (lbl) lbl.textContent = (localStorage.getItem(pgKey) ? '📌 ' : '') + 'الشاشة ' + wPct + '% ↔ • ' + hPct + '% ↕';
         if (typeof window.renderSettingsErgoStudio === 'function') window.renderSettingsErgoStudio();
-        if (notify && typeof window.showToast === 'function') window.showToast('🖥️ تم توحيد أبعاد ومقاسات كافة الشاشات تلقائياً', 'success', 2000);
+        if (notify && typeof window.showToast === 'function') window.showToast('🖥️ تم حفظ أبعاد الشاشة (العرض ' + wPct + '% • الارتفاع ' + hPct + '%)', 'success', 2000);
+    };
+    window.MagaiesScreenDimensions = {
+        getCurrent: () => {
+            const pgKey = 'magaies_dim_page_' + (location.pathname.split('/').pop() || 'index.php');
+            let dim = { w: 100, h: 100, scope: localStorage.getItem(pgKey) ? 'page' : 'global' };
+            try {
+                const raw = localStorage.getItem(pgKey) || localStorage.getItem('magaies_dim_global');
+                if (raw) Object.assign(dim, JSON.parse(raw));
+            } catch (_) {}
+            if (!dim.h || Number(dim.h) < 30) dim.h = 100;
+            return dim;
+        },
+        preview: (w, h) => {
+            const wP = Math.max(50, Math.min(200, Number(w) || 100));
+            const hP = Math.max(50, Math.min(200, Number(h) || 100));
+            const root = document.documentElement;
+            const maxW = wP >= 99.5 ? 'calc(100% - 16px)' : ('calc(' + wP + '% - 16px)');
+            root.style.setProperty('--erp-ergo-max-w', maxW);
+            root.style.setProperty('--erp-ergo-wide-w', maxW);
+            root.style.setProperty('--erp-ergo-vh-boost', Math.max(0, Math.round((hP - 100) * 8)) + 'px');
+            let st = document.getElementById('els-live-wh-scale-2027');
+            if (!st) { st = document.createElement('style'); st.id = 'els-live-wh-scale-2027'; document.head.appendChild(st); }
+            const vS = (hP / 100).toFixed(3);
+            st.textContent = (wP === 100 && hP === 100) ? '' : `
+                #pur-proportional-root, #sales-proportional-root, #grn-proportional-root, #scp-proportional-root, #mcp-proportional-root, #pa-proportional-root, #mb-proportional-root, #dmr-proportional-root, #gl-proportional-root, #md-proportional-root, .vouchers-container, .main-container, .page-container {
+                    ${wP > 100 ? 'zoom:' + (wP / 100).toFixed(3) + ';' : ''}
+                    ${hP !== 100 ? 'transform: scaleY(' + vS + ') !important; transform-origin: top center !important; margin-bottom: calc((' + vS + ' - 1) * 78vh) !important;' : ''}
+                }`;
+            return { w: wP, h: hP };
+        },
+        save: (w, h, scope) => {
+            const pgKey = 'magaies_dim_page_' + (location.pathname.split('/').pop() || 'index.php');
+            const payload = JSON.stringify({ w: Math.max(50, Math.min(200, Number(w) || 100)), h: Math.max(50, Math.min(200, Number(h) || 100)) });
+            if (scope === 'page') {
+                localStorage.setItem(pgKey, payload);
+            } else {
+                localStorage.setItem('magaies_dim_global', payload);
+                Object.keys(localStorage).forEach(k => { if (k.indexOf('magaies_dim_page_') === 0 || k.indexOf('magaies_ergo_page_') === 0) localStorage.removeItem(k); });
+            }
+            applyScreenErgonomics(true);
+        }
     };
 
     const setErgoProfile = (mode, scope = 'global') => {
@@ -577,15 +632,19 @@
         const isDk = !document.documentElement.classList.contains('light-theme');
         const pgVal = localStorage.getItem(pageErgoKey()) || '', glbVal = localStorage.getItem('magaies_ergo_global_mode') || 'auto';
         const cur = pgVal || glbVal, scope = pgVal ? 'page' : 'global', vb = parseInt(localStorage.getItem('magaies_ergo_vboost_px') || '0', 10) || 0;
+        const curDim = window.MagaiesScreenDimensions ? window.MagaiesScreenDimensions.getCurrent() : { w: 100, h: 100 };
+        let lvW = Number(curDim.w) || 100, lvH = (!curDim.h || Number(curDim.h) < 30) ? 100 : Number(curDim.h);
         const ink = isDk ? '#ffffff' : '#0F172A';
-        pop.style.cssText = `position:fixed;z-index:2147483645;background:${isDk ? '#0f172a' : '#fffbf2'};border:2.5px solid #38bdf8;border-radius:14px;padding:11px;box-shadow:0 18px 42px rgba(0,0,0,0.65);width:315px;direction:rtl;font-family:Cairo,Tajawal,sans-serif;color:${ink};`;
-        pop.innerHTML = `<div style="font-weight:900;font-size:0.9rem;margin-bottom:7px;display:flex;justify-content:space-between;"><span>🖥️ هندسة الشاشات وراحة العين</span><span style="font-size:0.75rem;color:#0ea5e9;">${window.innerWidth}×${window.innerHeight}</span></div>
-            <div style="display:flex;gap:5px;margin-bottom:8px;"><button type="button" id="ergo-sc-glb" style="flex:1;padding:5px;border-radius:8px;font-weight:900;font-size:0.76rem;cursor:pointer;border:2px solid ${scope==='global'?'#10b981':'#64748b'};background:${scope==='global'?'#059669':'transparent'};color:${scope==='global'?'#fff':ink};">🌐 للبرنامج كله</button><button type="button" id="ergo-sc-pg" style="flex:1;padding:5px;border-radius:8px;font-weight:900;font-size:0.76rem;cursor:pointer;border:2px solid ${scope==='page'?'#f59e0b':'#64748b'};background:${scope==='page'?'#d97706':'transparent'};color:${scope==='page'?'#fff':ink};">📌 لهذه الشاشة فقط</button></div>` +
-            ERGO_PROFILES.map(p => `<button type="button" data-ep="${p.id}" style="width:100%;text-align:right;padding:7px 9px;margin-bottom:5px;border-radius:9px;cursor:pointer;background:${cur===p.id?(isDk?'#1e293b':'#fef3c7'):'transparent'};border:${cur===p.id?'2px solid #0ea5e9':'1px solid rgba(148,163,184,0.4)'};color:${ink}!important;font-weight:900;font-size:0.82rem;"><div>${p.icon} ${p.name} ${cur===p.id?'✓':''}</div><div style="font-size:0.71rem;opacity:0.8;font-weight:700;">${p.desc}</div></button>`).join('');
-        let activeScope = scope;
-        pop.querySelector('#ergo-sc-glb').onclick = () => { activeScope = 'global'; localStorage.removeItem(pageErgoKey()); applyScreenErgonomics(true); pop.style.display = 'none'; };
-        pop.querySelector('#ergo-sc-pg').onclick = () => { activeScope = 'page'; localStorage.setItem(pageErgoKey(), cur); applyScreenErgonomics(true); pop.style.display = 'none'; };
-        pop.querySelectorAll('[data-ep]').forEach(b => { b.onclick = () => { setErgoProfile(b.dataset.ep, activeScope); pop.style.display = 'none'; }; });
+        pop.style.cssText = `position:fixed;z-index:2147483645;background:${isDk ? '#0f172a' : '#fffbf2'};border:2.5px solid #38bdf8;border-radius:14px;padding:12px;box-shadow:0 18px 42px rgba(0,0,0,0.65);width:325px;direction:rtl;font-family:Cairo,Tajawal,sans-serif;color:${ink};`;
+        pop.innerHTML = `<div style="font-weight:900;font-size:0.92rem;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;"><span>🖥️ عرض وارتفاع الشاشة</span><button type="button" id="ergo-rst-100" style="padding:2px 8px;border-radius:6px;border:1.5px solid #64748b;background:transparent;color:${ink};font-weight:900;font-size:0.75rem;cursor:pointer;">↺ 100%</button></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;margin-bottom:6px;border-radius:9px;background:${isDk?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)'};font-weight:900;font-size:0.86rem;"><span>↔️ العرض: <b id="ergo-lv-w">${lvW}%</b></span><div style="display:flex;gap:5px;"><button type="button" data-edim="w+" style="padding:3px 11px;border-radius:6px;border:1.8px solid #0284c7;background:${isDk?'rgba(56,189,248,0.2)':'#e0f2fe'};color:${ink};font-weight:900;cursor:pointer;">➕</button><button type="button" data-edim="w-" style="padding:3px 11px;border-radius:6px;border:1.8px solid #64748b;background:transparent;color:${ink};font-weight:900;cursor:pointer;">➖</button></div></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;margin-bottom:8px;border-radius:9px;background:${isDk?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)'};font-weight:900;font-size:0.86rem;"><span>↕️ الارتفاع: <b id="ergo-lv-h">${lvH}%</b></span><div style="display:flex;gap:5px;"><button type="button" data-edim="h+" style="padding:3px 11px;border-radius:6px;border:1.8px solid #059669;background:${isDk?'rgba(16,185,129,0.2)':'#d1fae5'};color:${ink};font-weight:900;cursor:pointer;">➕</button><button type="button" data-edim="h-" style="padding:3px 11px;border-radius:6px;border:1.8px solid #64748b;background:transparent;color:${ink};font-weight:900;cursor:pointer;">➖</button></div></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;"><button type="button" id="ergo-sv-pg" style="padding:7px;border-radius:8px;font-weight:900;font-size:0.78rem;cursor:pointer;border:1.8px solid #d97706;background:#f59e0b;color:#000;">📌 حفظ لهذه الشاشة</button><button type="button" id="ergo-sv-glb" style="padding:7px;border-radius:8px;font-weight:900;font-size:0.78rem;cursor:pointer;border:1.8px solid #047857;background:#10b981;color:#000;">🌐 تعميم لكل الشاشات</button></div>`;
+        const updLbls = () => { window.MagaiesScreenDimensions.preview(lvW, lvH); pop.querySelector('#ergo-lv-w').textContent = lvW + '%'; pop.querySelector('#ergo-lv-h').textContent = lvH + '%'; };
+        pop.querySelectorAll('[data-edim]').forEach(b => { b.onclick = (ev) => { ev.stopPropagation(); const op = b.dataset.edim; if (op==='w+') lvW=Math.min(200,lvW+5); else if (op==='w-') lvW=Math.max(50,lvW-5); else if (op==='h+') lvH=Math.min(200,lvH+5); else if (op==='h-') lvH=Math.max(50,lvH-5); updLbls(); }; });
+        pop.querySelector('#ergo-rst-100').onclick = (ev) => { ev.stopPropagation(); lvW = 100; lvH = 100; updLbls(); };
+        pop.querySelector('#ergo-sv-pg').onclick = () => { window.MagaiesScreenDimensions.save(lvW, lvH, 'page'); pop.style.display = 'none'; };
+        pop.querySelector('#ergo-sv-glb').onclick = () => { window.MagaiesScreenDimensions.save(lvW, lvH, 'global'); pop.style.display = 'none'; };
         const r = anchorEl ? anchorEl.getBoundingClientRect() : { bottom: 60, left: 20 };
         pop.style.top = Math.max(10, Math.min(window.innerHeight - 430, r.bottom + 8)) + 'px';
         pop.style.left = Math.max(12, Math.min(window.innerWidth - 330, r.left)) + 'px';

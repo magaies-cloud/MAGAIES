@@ -50,11 +50,14 @@ function readBridgeState($file) {
     if (!isset($data['scans']) || !is_array($data['scans'])) {
         $data['scans'] = [];
     }
+    if (!isset($data['receipts']) || !is_array($data['receipts'])) {
+        $data['receipts'] = [];
+    }
     return $data;
 }
 
 function writeBridgeState($file, $data) {
-    // Keep only last 60 scans from the last 30 minutes
+    // Keep only last 60 scans/receipts from the last 30 minutes
     $cutoff = (time() - 1800) * 1000;
     if (isset($data['scans']) && is_array($data['scans'])) {
         $data['scans'] = array_values(array_filter($data['scans'], function ($s) use ($cutoff) {
@@ -62,6 +65,14 @@ function writeBridgeState($file, $data) {
         }));
         if (count($data['scans']) > 60) {
             $data['scans'] = array_slice($data['scans'], -60);
+        }
+    }
+    if (isset($data['receipts']) && is_array($data['receipts'])) {
+        $data['receipts'] = array_values(array_filter($data['receipts'], function ($r) use ($cutoff) {
+            return isset($r['timestamp']) && $r['timestamp'] >= $cutoff;
+        }));
+        if (count($data['receipts']) > 30) {
+            $data['receipts'] = array_slice($data['receipts'], -30);
         }
     }
     @file_put_contents($file, json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), LOCK_EX);
@@ -115,6 +126,10 @@ if ($action === 'info') {
 
 if ($action === 'connect') {
     $state = readBridgeState($stateFile);
+    if (!empty($state['disconnected'])) {
+        echo json_encode(['ok' => false, 'disconnected' => true], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
     $state['mobileConnectedAt'] = round(microtime(true) * 1000);
     $state['mobileDevice'] = substr((string)($input['device'] ?? $_SERVER['HTTP_USER_AGENT'] ?? 'Mobile Scanner'), 0, 120);
     writeBridgeState($stateFile, $state);
@@ -123,6 +138,15 @@ if ($action === 'connect') {
         'channel' => $channel,
         'connectedAt' => $state['mobileConnectedAt']
     ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($action === 'disconnect') {
+    $state = readBridgeState($stateFile);
+    $state['disconnected'] = true;
+    $state['mobileConnectedAt'] = 0;
+    writeBridgeState($stateFile, $state);
+    echo json_encode(['ok' => true, 'disconnected' => true], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -167,9 +191,11 @@ if ($action === 'poll') {
 
     $unprocessed = [];
     foreach ($state['scans'] as $s) {
-        if (empty($s['processedByLaptop'])) {
-            $unprocessed[] = $s;
-        }
+        if (empty($s['processedByLaptop'])) $unprocessed[] = $s;
+    }
+    $unprocessedReceipts = [];
+    foreach (($state['receipts'] ?? []) as $r) {
+        if (empty($r['processedByLaptop'])) $unprocessedReceipts[] = $r;
     }
 
     echo json_encode([
@@ -178,8 +204,47 @@ if ($action === 'poll') {
         'mobileConnected' => $isConnected,
         'mobileConnectedAt' => $state['mobileConnectedAt'] ?? 0,
         'unprocessedScans' => $unprocessed,
+        'unprocessedReceipts' => $unprocessedReceipts,
         'recentScans' => array_slice($state['scans'], -20)
     ], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($action === 'push_receipt') {
+    $recDir = $bridgeDir . '/receipts';
+    if (!is_dir($recDir)) @mkdir($recDir, 0777, true);
+    $state = readBridgeState($stateFile);
+    $nowMs = round(microtime(true) * 1000);
+    $state['mobileConnectedAt'] = $nowMs;
+    $saved = [];
+    $images = $input['images'] ?? (!empty($input['image']) ? [$input['image']] : []);
+    foreach ($images as $idx => $b64) {
+        if (!is_string($b64) || strpos($b64, 'base64,') === false) continue;
+        [$meta, $rawB64] = explode('base64,', $b64, 2);
+        $ext = ( stripos($meta, 'png') !== false ) ? 'png' : (( stripos($meta, 'webp') !== false ) ? 'webp' : 'jpg');
+        $bin = base64_decode($rawB64);
+        if (!$bin) continue;
+        $rid = 'rec_' . $nowMs . '_' . mt_rand(100, 999) . '_' . $idx;
+        $fname = $rid . '.' . $ext;
+        file_put_contents($recDir . '/' . $fname, $bin);
+        $entry = ['receiptId' => $rid, 'fileUrl' => 'uploads/qr_bridge/receipts/' . $fname, 'fileName' => 'mobile_receipt_' . ($idx + 1) . '.' . $ext, 'mimeType' => 'image/' . ($ext === 'jpg' ? 'jpeg' : $ext), 'timestamp' => $nowMs, 'processedByLaptop' => false];
+        $state['receipts'][] = $entry;
+        $saved[] = $entry;
+    }
+    writeBridgeState($stateFile, $state);
+    echo json_encode(['ok' => count($saved) > 0, 'count' => count($saved), 'saved' => $saved], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
+if ($action === 'ack_receipt') {
+    $rid = (string)($input['receiptId'] ?? $_REQUEST['receiptId'] ?? '');
+    $state = readBridgeState($stateFile);
+    foreach ($state['receipts'] as &$r) {
+        if (($r['receiptId'] ?? '') === $rid) { $r['processedByLaptop'] = true; break; }
+    }
+    unset($r);
+    writeBridgeState($stateFile, $state);
+    echo json_encode(['ok' => true], JSON_UNESCAPED_UNICODE);
     exit;
 }
 

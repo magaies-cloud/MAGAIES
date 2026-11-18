@@ -24,6 +24,10 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>بوابة إرسال إشعار الدفع - <?= htmlspecialchars($companyName) ?></title>
+    <link rel="manifest" href="receipt-portal-manifest.php?t=<?= urlencode($tenantId) ?>&name=<?= urlencode($_GET['name'] ?? '') ?>&phone=<?= urlencode($_GET['phone'] ?? '') ?>">
+    <meta name="theme-color" content="#047857">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="السيطرة إشعارات">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -174,15 +178,19 @@ try {
         <!-- Submission Form -->
         <form id="receiptForm" onsubmit="submitReceipt(event)">
             <input type="hidden" name="tenant_id" value="<?= htmlspecialchars($tenantId) ?>">
+            <div id="pwaInstallBanner" style="margin-bottom:14px;padding:10px 12px;border-radius:14px;background:linear-gradient(135deg,rgba(4,120,87,0.32),rgba(15,23,42,0.9));border:1.8px solid #fbbf24;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                <div style="text-align:right;"><strong style="color:#fde047;font-size:0.9rem;display:block;">📲 أيقونة السيطرة السريعة</strong><span style="font-size:0.76rem;color:#e2e8f0;">ثبّت الأيقونة على شاشة هاتفك لإرسال الإشعارات بضغطة واحدة</span></div>
+                <button type="button" id="btnInstallPwa" onclick="installSaitaraIcon()" style="background:linear-gradient(135deg,#f59e0b,#d97706);color:#000;border:none;border-radius:10px;padding:8px 13px;font-weight:900;font-size:0.82rem;cursor:pointer;white-space:nowrap;">تثبيت الأيقونة ⬇️</button>
+            </div>
 
             <div class="form-group">
                 <label>اسم العميل / المؤسسة: <span style="color:#ef4444;">*</span></label>
-                <input type="text" id="custName" name="customer_name" placeholder="مثال: شركة البركة للمقاولات" required>
+                <input type="text" id="custName" name="customer_name" value="<?= htmlspecialchars($_GET['name'] ?? '') ?>" placeholder="مثال: شركة البركة للمقاولات" required>
             </div>
 
             <div class="form-group">
                 <label>رقم هاتف الواتساب: <span style="color:#ef4444;">*</span></label>
-                <input type="tel" id="custPhone" name="customer_phone" placeholder="مثال: 0912345678" required style="font-family:'Consolas',monospace; direction:ltr; text-align:right;">
+                <input type="tel" id="custPhone" name="customer_phone" value="<?= htmlspecialchars($_GET['phone'] ?? '') ?>" placeholder="مثال: 0912345678" required style="font-family:'Consolas',monospace; direction:ltr; text-align:right;">
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -249,6 +257,21 @@ try {
     </div>
 
     <script>
+    let deferredSaitaraPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredSaitaraPrompt = e;
+    });
+    async function installSaitaraIcon() {
+        if (deferredSaitaraPrompt) {
+            deferredSaitaraPrompt.prompt();
+            await deferredSaitaraPrompt.userChoice;
+            deferredSaitaraPrompt = null;
+        } else {
+            alert('📲 لتثبيت أيقونة «السيطرة» على هاتفك:\n• في أندرويد (Chrome): اضغط القائمة (⋮) أعلى المتصفح ثم اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».\n• في آيفون (Safari): اضغط زر المشاركة (⬆️) بالأسفل ثم اختر «إضافة إلى الشاشة الرئيسية».');
+        }
+    }
+
     function previewFile(input) {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
@@ -281,6 +304,7 @@ try {
         const form = document.getElementById('receiptForm');
         const formData = new FormData(form);
         formData.append('action', 'upload');
+        formData.append('from_portal', '1');
 
         try {
             const res = await fetch('api/inbound_receipts.php?action=upload', {

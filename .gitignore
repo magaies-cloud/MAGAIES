@@ -68,3 +68,4 @@ cloudflared.exe
 *.bat
 *.bak*
 *.vbs
+backups/pre_*
