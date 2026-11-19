@@ -1,4 +1,6 @@
-<?php $page_title = 'المبيعات - المبيعات المحجوزة'; ?>
+<?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+ $page_title = 'المبيعات - المبيعات المحجوزة'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -44,7 +46,7 @@
   });
 })();
 </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>المبيعات - المبيعات المحجوزة</title>
@@ -58,7 +60,7 @@
         .toast {
             padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem;
             display:flex; align-items:center; gap:8px; pointer-events:auto;
-            backdrop-filter:blur(20px); box-shadow:0 12px 40px rgba(0,0,0,0.5);
+            /* gpu-opt */ box-shadow:0 12px 40px rgba(0,0,0,0.5);
             animation:toastIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
             font-family:'Cairo',sans-serif; max-width:90vw;
         }
@@ -565,7 +567,7 @@
     <script defer src="js/print-engine.js"></script>
     <script defer src="js/reserved-sales.js?v=3"></script>
 
-<script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
+<!-- bg-media lazy-loaded via includes/header.php -->
 <script src="js/magaiees_back.js?v=2026_back_v2" defer></script>
 </body>
 </html>

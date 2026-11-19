@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 // =========================================================================
 // بوابة التحقق الرقمي الرسمي من صحة واعتماد السندات المالية عبر الـ QR والباركود
 // Digital Voucher Verification & QR Certificate Portal
@@ -19,10 +21,9 @@ $toAcc     = isset($_GET['to']) ? trim($_GET['to']) : '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($page_title); ?></title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
-    <script src="js/theme.js"></script>
     <style>
         body {
             font-family: 'Cairo', sans-serif;

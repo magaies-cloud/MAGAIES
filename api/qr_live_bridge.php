@@ -141,11 +141,31 @@ if ($action === 'connect') {
     exit;
 }
 
+if ($action === 'proxy_img') {
+    $u = ltrim((string)($_GET['u'] ?? ''), '/');
+    if ($u === '' || strpos($u, '..') !== false || !preg_match('#^uploads/#', $u)) { http_response_code(400); exit; }
+    $chImg = curl_init('https://c.elsajana.com/' . $u);
+    curl_setopt_array($chImg, [CURLOPT_RETURNTRANSFER => true, CURLOPT_FOLLOWLOCATION => true, CURLOPT_SSL_VERIFYPEER => false, CURLOPT_TIMEOUT => 12]);
+    $bin = curl_exec($chImg);
+    $ct = curl_getinfo($chImg, CURLINFO_CONTENT_TYPE) ?: 'image/jpeg';
+    curl_close($chImg);
+    header('Content-Type: ' . $ct);
+    echo $bin;
+    exit;
+}
+
 if ($action === 'disconnect') {
     $state = readBridgeState($stateFile);
     $state['disconnected'] = true;
     $state['mobileConnectedAt'] = 0;
+    $state['waBoundPhone'] = '';
+    $state['waBoundAt'] = 0;
     writeBridgeState($stateFile, $state);
+    if (PHP_OS_FAMILY === 'Windows') {
+        $chD = curl_init('https://c.elsajana.com/api/qr_live_bridge.php?action=disconnect&channel=' . urlencode($channel));
+        curl_setopt_array($chD, [CURLOPT_POST => true, CURLOPT_RETURNTRANSFER => true, CURLOPT_SSL_VERIFYPEER => false, CURLOPT_TIMEOUT => 3]);
+        @curl_exec($chD); curl_close($chD);
+    }
     echo json_encode(['ok' => true, 'disconnected' => true], JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -187,7 +207,9 @@ if ($action === 'push_scan') {
 if ($action === 'poll') {
     $state = readBridgeState($stateFile);
     $nowMs = round(microtime(true) * 1000);
-    $isConnected = ($nowMs - ($state['mobileConnectedAt'] ?? 0)) < 15000;
+    $studioLive = (($nowMs - ($state['mobileConnectedAt'] ?? 0)) < 15000) && empty($state['waBoundAt']);
+    $waBound = !empty($state['waBoundAt']) && ((time() - (int)$state['waBoundAt']) < 43200);
+    $waBoundPhone = $waBound ? (string)($state['waBoundPhone'] ?? '') : '';
 
     $unprocessed = [];
     foreach ($state['scans'] as $s) {
@@ -198,10 +220,38 @@ if ($action === 'poll') {
         if (empty($r['processedByLaptop'])) $unprocessedReceipts[] = $r;
     }
 
+    if (PHP_OS_FAMILY === 'Windows') {
+        $chR = curl_init('https://c.elsajana.com/api/qr_live_bridge.php?action=poll&channel=' . urlencode($channel));
+        curl_setopt_array($chR, [CURLOPT_RETURNTRANSFER => true, CURLOPT_SSL_VERIFYPEER => false, CURLOPT_CONNECTTIMEOUT => 2, CURLOPT_TIMEOUT => 3]);
+        $rawR = @curl_exec($chR);
+        curl_close($chR);
+        $rem = $rawR ? @json_decode($rawR, true) : null;
+        if (is_array($rem) && !empty($rem['ok'])) {
+            $remConnAt = (float)($rem['mobileConnectedAt'] ?? 0);
+            if (!empty($rem['waBound']) || ($remConnAt > 0 && ($nowMs - $remConnAt) < 43200000)) {
+                $waBound = true;
+                if (!empty($rem['waBoundPhone'])) $waBoundPhone = (string)$rem['waBoundPhone'];
+            }
+            if (!empty($rem['mobileConnected']) && empty($rem['waBound']) && ($nowMs - $remConnAt) < 15000) {
+                $studioLive = true;
+            }
+            foreach (($rem['unprocessedReceipts'] ?? []) as $rr) {
+                if (!empty($rr['fileUrl']) && strpos($rr['fileUrl'], 'proxy_img') === false && strpos($rr['fileUrl'], 'http') !== 0) {
+                    $rr['fileUrl'] = 'api/qr_live_bridge.php?action=proxy_img&u=' . urlencode($rr['fileUrl']);
+                }
+                $unprocessedReceipts[] = $rr;
+            }
+        }
+    }
+    $isConnected = $studioLive || $waBound;
+
     echo json_encode([
         'ok' => true,
         'channel' => $channel,
         'mobileConnected' => $isConnected,
+        'studioConnected' => $studioLive,
+        'waBound' => $waBound,
+        'waBoundPhone' => $waBoundPhone,
         'mobileConnectedAt' => $state['mobileConnectedAt'] ?? 0,
         'unprocessedScans' => $unprocessed,
         'unprocessedReceipts' => $unprocessedReceipts,
@@ -244,6 +294,11 @@ if ($action === 'ack_receipt') {
     }
     unset($r);
     writeBridgeState($stateFile, $state);
+    if (PHP_OS_FAMILY === 'Windows' && $rid !== '') {
+        $chA = curl_init('https://c.elsajana.com/api/qr_live_bridge.php?action=ack_receipt&channel=' . urlencode($channel) . '&receiptId=' . urlencode($rid));
+        curl_setopt_array($chA, [CURLOPT_RETURNTRANSFER => true, CURLOPT_SSL_VERIFYPEER => false, CURLOPT_TIMEOUT => 3]);
+        @curl_exec($chA); curl_close($chA);
+    }
     echo json_encode(['ok' => true], JSON_UNESCAPED_UNICODE);
     exit;
 }

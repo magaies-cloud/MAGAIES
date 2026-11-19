@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 // preview-balances-design.php
 // Excel-Style Preview Page for Balances - Pro Edition with Studio Tabs & Page Setup
 ?>
@@ -126,9 +128,9 @@
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(30, 41, 59, 0.7));
             border: 1px solid rgba(255, 255, 255, 0.25);
             color: white; padding: 8px 18px; border-radius: 22px; font-family: inherit; font-weight: 900;
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); font-size: 0.88rem; display: inline-flex; align-items: center; gap: 6px;
+            cursor: pointer; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); font-size: 0.88rem; display: inline-flex; align-items: center; gap: 6px;
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(14px);
+            /* gpu-opt */
         }
         .ribbon-btn::after {
             content: ''; position: absolute; top: 0; left: 0; width: 50%; height: 100%;
@@ -149,9 +151,9 @@
             background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(15,23,42,0.8));
             border: 1.5px solid rgba(255,255,255,0.25);
             color: #f1f5f9; padding: 8px 18px; border-radius: 24px; font-family: inherit; font-size: 0.92rem;
-            cursor: pointer; transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); font-weight: 900; display: inline-flex; align-items: center; gap: 8px;
+            cursor: pointer; transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); font-weight: 900; display: inline-flex; align-items: center; gap: 8px;
             box-shadow: 0 6px 18px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.3);
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            /* gpu-opt */ /* gpu-opt */
         }
         .preset-btn::after {
             content: ''; position: absolute; top: 0; left: 0; width: 50%; height: 100%;
@@ -184,7 +186,7 @@
         .studio-tab-btn {
             background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3);
             color: #ffffff !important; padding: 6px 18px; border-radius: 18px;
-            font-family: inherit; font-weight: 800; cursor: pointer; transition: all 0.25s; font-size: 0.88rem;
+            font-family: inherit; font-weight: 800; cursor: pointer; transition: transform 0.25s, opacity 0.25s, background-color 0.25s, border-color 0.25s, color 0.25s; font-size: 0.88rem;
         }
         .studio-tab-btn.active {
             background: #ffffff !important; color: #854d0e !important; font-weight: 900;
@@ -229,7 +231,7 @@
             border: 1px solid var(--table-border);
             border-radius: 4px;
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
             box-sizing: border-box;
             position: relative;
         }
@@ -262,7 +264,7 @@
         .company-header {
             display: flex; justify-content: space-between; align-items: flex-start; height: 3.5cm;
             border-bottom: 3px solid var(--text-color); margin-bottom: 15px; padding-bottom: 10px;
-            transition: all 0.3s;
+            transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
         }
         .company-logo-wrap { width: 3.5cm; height: 100%; border: 1px solid var(--table-border); display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 8px; }
         .company-logo-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; }
@@ -350,7 +352,7 @@
             font-size: 0.95rem;
             opacity: 0;
             transform: translateY(-20px) scale(0.95);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -380,8 +382,8 @@
             width: 100vw;
             height: 100vh;
             background: rgba(15, 23, 42, 0.45);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            /* gpu-opt */
+            /* gpu-opt */
             z-index: 100000;
             display: flex;
             align-items: center;
@@ -396,8 +398,8 @@
         }
         .reset-modal-container {
             background: rgba(30, 41, 59, 0.65);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            /* gpu-opt */
+            /* gpu-opt */
             border: 1px solid rgba(255, 255, 255, 0.15);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
             border-radius: 20px;
@@ -417,7 +419,7 @@
         .reset-modal-icon {
             font-size: 3rem;
             margin-bottom: 15px;
-            animation: pulse-warn 2s infinite;
+            animation: none; /* cpu-opt */
         }
         @keyframes pulse-warn {
             0% { transform: scale(1); }
@@ -448,7 +450,7 @@
             padding: 10px 24px;
             border-radius: 14px;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: transform 0.25s ease, opacity 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
             border: none;
             display: flex;
             align-items: center;
@@ -488,6 +490,7 @@
         }
     </style>
     <style id="global-zero-lag-css">.ambient-bg,.ambient-bg .orb,.preset-ribbon-btn::after,.preset-btn::after,.btn-action-hero::after,.btn-run::after,.action-tab.active::before,.sticky-footer::before{display:none!important;content:none!important}*,*::before,*::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important}button,a,input,select,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}button,.btn,.modern-btn,.preset-ribbon-btn,.preset-btn,.btn-action-hero,.btn-run,.action-tab,.fin-card,.pos-grid tbody tr{transition:background-color .08s ease,border-color .08s ease,opacity .08s ease!important}button:hover,.btn:hover,.modern-btn:hover,.preset-ribbon-btn:hover,.preset-btn:hover,.btn-action-hero:hover,.del-btn:hover,.modal-close:hover{transform:none!important}</style>
+    <link id="magaies-ophthalmic-ergo-css" rel="stylesheet" href="css/ophthalmic-ergonomics-2027.css?v=2027_gold_v8">
 </head>
 <body>
 
@@ -535,8 +538,8 @@
 <script src="js/print-engine.js?v=20261029_fast"></script>
 <script src="js/direct-sales-preview-studio.js?v=20261029_fast"></script>
 
-<script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
+<script>(function(){var l=0,q=[];window.ensureGlobalBgMedia=function(c){if(l&&typeof window.quickHeaderPlay==='function'){if(c)c();return;}if(c)q.push(c);if(document.querySelector('script[data-lazy-bgm]'))return;var s=document.createElement('script');s.src='js/global_background_media.js?v=<?= @filemtime(__DIR__."/js/global_background_media.js")?:2027 ?>';s.dataset.lazyBgm='1';s.onload=function(){l=1;q.splice(0).forEach(function(fn){try{fn();}catch(_){}});};document.body.appendChild(s);};['quickHeaderPlay','setHeaderMediaVolume','quickHeaderStop','openBackgroundPopout','toggleHeaderMediaDropdown','playPersistentMedia'].forEach(function(fn){if(typeof window[fn]!=='function')window[fn]=function(){var a=arguments;window.ensureGlobalBgMedia(function(){if(typeof window[fn]==='function')window[fn].apply(window,a);});};});try{if(localStorage.getItem('erp_bg_media_playing')==='1'||localStorage.getItem('magaies_live_tv_active')==='1')window.addEventListener('DOMContentLoaded',function(){setTimeout(function(){window.ensureGlobalBgMedia();},300);},{once:true});}catch(_){}})();</script>
 <script src="js/magaiees_back.js?v=2026_back_v2" defer></script>
-<script src="js/magaies-smart-guide.js" defer></script>
+<script>(function(){var l=0;window.loadMagaiesSmartGuide=function(c){if(l){if(c)c();return;}l=1;var s=document.createElement('script');s.src='js/magaies-smart-guide.js?v=<?= @filemtime(__DIR__."/js/magaies-smart-guide.js")?:2027 ?>';s.onload=function(){if(c)c();};document.body.appendChild(s);};window.addEventListener('keydown',function(e){if(e.key==='F1'){e.preventDefault();window.loadMagaiesSmartGuide();}});window.addEventListener('contextmenu',function(){window.loadMagaiesSmartGuide();},{once:true,passive:true});})();</script>
 </body>
 </html>

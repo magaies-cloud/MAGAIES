@@ -622,24 +622,25 @@ switch ($action) {
                 $imagePath = $_POST['receipt_image'] ?? $jsonData['receipt_image'];
             }
 
-            // تحويل فوري إلى شاشة الفحص ثلاثية الأعمدة إذا كانت هناك جلسة نشطة مربوطة بالشاشة
-            if (!empty($imagePath) && empty($_POST['from_portal']) && empty($jsonData['from_portal'])) {
+            // تحويل فوري إلى شاشة الفحص ثلاثية الأعمدة إذا كانت هناك جلسة نشطة مربوطة بالشاشة (دون اعتراض الرسائل التي تحمل رقماً سرياً صريحاً لعميل مثل عبد الرحمن)
+            $hasExplicitPinCaption = !empty($caption) && preg_match('/^\s*(?:#|باسورد|سري|كود|pin|\s)*\d{3,6}\s*$/ui', normalizeInboundDigits($caption));
+            if (!$hasExplicitPinCaption && !empty($imagePath) && empty($_POST['from_portal']) && empty($jsonData['from_portal'])) {
                 $bridgeDirSess = dirname(__DIR__) . '/uploads/qr_bridge/';
                 $activeSessFile = $bridgeDirSess . 'active_tenant_session_' . intval($activeTenantId) . '.json';
                 $sessEntry = null;
-                if (is_file($activeSessFile)) {
-                    $candSess = json_decode(@file_get_contents($activeSessFile), true) ?: [];
-                    if (!empty($candSess['channel']) && (time() - intval($candSess['updated_at'] ?? 0) <= 2700)) {
-                        $sessEntry = $candSess;
-                    }
-                }
-                if (!$sessEntry && !empty($custPhone)) {
+                if (!empty($custPhone)) {
                     $mapFile = $bridgeDirSess . 'wa_sender_map_' . intval($activeTenantId) . '.json';
                     $sDigits = substr(preg_replace('/\D+/', '', $custPhone), -9);
                     if ($sDigits !== '' && is_file($mapFile)) {
                         $sMap = json_decode(@file_get_contents($mapFile), true) ?: [];
                         $m = $sMap[$sDigits] ?? null;
-                        if (is_array($m) && !empty($m['channel']) && (time() - intval($m['ts'] ?? 0) <= 2700)) $sessEntry = $m;
+                        if (is_array($m) && !empty($m['channel']) && (time() - intval($m['ts'] ?? 0) <= 43200)) $sessEntry = $m;
+                    }
+                }
+                if (!$sessEntry && is_file($activeSessFile)) {
+                    $candSess = json_decode(@file_get_contents($activeSessFile), true) ?: [];
+                    if (!empty($candSess['channel']) && (time() - intval($candSess['updated_at'] ?? 0) <= 3600)) {
+                        $sessEntry = $candSess;
                     }
                 }
                 if (is_array($sessEntry) && !empty($sessEntry['channel'])) {
@@ -1490,6 +1491,7 @@ switch ($action) {
                 @file_put_contents($mapFile, json_encode($sMap, JSON_UNESCAPED_UNICODE));
             }
             @unlink($bridgeDirSess . 'session_' . $chSess . '.json');
+            @unlink($bridgeDirSess . 'bridge_' . $chSess . '.json');
             $actF = $bridgeDirSess . 'active_tenant_session_' . intval($activeTenantId) . '.json';
             if (is_file($actF)) {
                 $actD = json_decode(@file_get_contents($actF), true) ?: [];
@@ -1514,6 +1516,19 @@ switch ($action) {
         $waPhone = '';
         $stWa = @file_get_contents('http://127.0.0.1:3001/wa/status?userId=wa_tenant_' . intval($activeTenantId));
         if ($stWa) { $waJson = json_decode($stWa, true); $waPhone = preg_replace('/\D+/', '', (string)($waJson['phoneNumber'] ?? '')); }
+        if ($waPhone === '') {
+            $credF = dirname(__DIR__) . '/baileys_auth_wa_tenant_' . intval($activeTenantId) . '/creds.json';
+            if (is_file($credF)) {
+                $credJ = json_decode((string)@file_get_contents($credF), true);
+                if (!empty($credJ['me']['id'])) $waPhone = preg_replace('/\D+/', '', explode(':', explode('@', (string)$credJ['me']['id'])[0])[0]);
+            }
+        }
+        if (PHP_OS_FAMILY === 'Windows') {
+            $chSync = curl_init('https://c.elsajana.com/api/inbound_receipts.php?action=bind_wa_session&tenant_id=' . intval($activeTenantId));
+            curl_setopt_array($chSync, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => json_encode(array_merge($jsonData ?: [], ['channel' => $chSess])), CURLOPT_HTTPHEADER => ['Content-Type: application/json'], CURLOPT_RETURNTRANSFER => true, CURLOPT_SSL_VERIFYPEER => false, CURLOPT_TIMEOUT => 3]);
+            $remBind = @curl_exec($chSync); curl_close($chSync);
+            if ($waPhone === '' && $remBind) { $rbJ = json_decode($remBind, true); if (!empty($rbJ['wa_phone'])) $waPhone = preg_replace('/\D+/', '', (string)$rbJ['wa_phone']); }
+        }
         echo json_encode(['success' => true, 'wa_phone' => $waPhone, 'session' => $sessMeta]);
         break;
 
@@ -1535,6 +1550,8 @@ switch ($action) {
                 $bFile = $bridgeDirSess . 'bridge_' . $chSess . '.json';
                 $bState = is_file($bFile) ? (json_decode(@file_get_contents($bFile), true) ?: []) : ['channel' => $chSess, 'scans' => [], 'receipts' => []];
                 $bState['mobileConnectedAt'] = round(microtime(true) * 1000);
+                $bState['waBoundPhone'] = $sDigits;
+                $bState['waBoundAt'] = time();
                 @file_put_contents($bFile, json_encode($bState, JSON_UNESCAPED_UNICODE));
                 $cLbl = !empty($sessInfo['customer_name']) ? (' للعميل *' . $sessInfo['customer_name'] . '*') : '';
                 $bLbl = !empty($sessInfo['bank_name']) ? (' (' . $sessInfo['bank_name'] . ')') : '';

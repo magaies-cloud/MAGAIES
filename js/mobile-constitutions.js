@@ -13457,6 +13457,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 1. رولة الماوس المتناسقة (Ctrl + Wheel Proportional Zoom 0.5x..2.5x) مع بقاء الشاشة في المنتصف الليزري الدقيق
     window.addEventListener('wheel', function(e) {
+      return; // Native browser Ctrl+Wheel zoom unblocked across all screens (25%–500%)
       if (!e.ctrlKey) return;
       e.preventDefault();
       if (!window.MgConstitution2) return;

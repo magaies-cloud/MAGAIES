@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 $detectedSubdomain = strtolower(trim((string)($_GET['tenant'] ?? $_GET['subdomain'] ?? '')));
 if ($detectedSubdomain === '') {
     $rawHost = strtolower(preg_replace('/:\d+$/', '', $_SERVER['HTTP_HOST'] ?? ''));
@@ -88,7 +90,7 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
 })();
 </script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="preload" as="image" href="assets/user_bg_fast.jpg">
@@ -108,7 +110,7 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
     <link rel="icon" type="image/x-icon" href="favicon.ico?v=2026_m_v5">
     <link rel="shortcut icon" href="assets/favicon.ico?v=2026_m_v5">
     <meta name="theme-color" content="#0F172A">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/all.min.css?v=2027">
     <style>
         *, *::before, *::after {
             box-sizing: border-box;
@@ -140,8 +142,8 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
             flex-direction: column;
             gap: 0 !important;
             text-align: center;
-            backdrop-filter: blur(28px) saturate(180%);
-            -webkit-backdrop-filter: blur(28px) saturate(180%);
+            /* gpu-opt */
+            /* gpu-opt */
             border-radius: 26px;
             border: 1.5px solid rgba(56, 189, 248, 0.28) !important;
             box-shadow: 0 28px 65px rgba(0, 0, 0, 0.78),
@@ -225,7 +227,7 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
             font-size: 1.02rem;
             font-weight: 700;
             outline: none;
-            transition: all 0.25s ease;
+            transition: transform 0.25s ease, opacity 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
             box-sizing: border-box;
             box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.55) !important;
         }
@@ -295,7 +297,7 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
             font-weight: 800;
             border: none;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .btn-login:hover {
             box-shadow: 0 12px 30px rgba(56, 189, 248, 0.6) !important;
@@ -312,8 +314,8 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
             padding: 8px 16px;
             border-radius: 20px;
             margin-top: 15px;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            /* gpu-opt */
+            /* gpu-opt */
             display: inline-block;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
@@ -323,8 +325,8 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(12, 16, 27, 0.85);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            /* gpu-opt */
+            /* gpu-opt */
             z-index: 9999;
             display: flex;
             align-items: center;
@@ -374,7 +376,7 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
             font-size: 0.8rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s;
         }
         .reset-tab-btn.active {
             background: rgba(56, 189, 248, 0.25);
@@ -392,7 +394,7 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
             background: rgba(255, 255, 255, 0.06);
             color: white;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s;
         }
         .channel-btn:hover {
             background: rgba(255, 255, 255, 0.12);
@@ -417,7 +419,7 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
             font-weight: 800;
             font-size: 1rem;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s;
         }
         .btn-reset-submit:hover { opacity: 0.9; transform: translateY(-1px); }
         .btn-reset-cancel {
@@ -461,6 +463,7 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
         }
     </style>
     <style id="global-zero-lag-css">.ambient-bg,.ambient-bg .orb,.preset-ribbon-btn::after,.preset-btn::after,.btn-action-hero::after,.btn-run::after,.action-tab.active::before,.sticky-footer::before{display:none!important;content:none!important}*,*::before,*::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important}button,a,input,select,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}button,.btn,.modern-btn,.preset-ribbon-btn,.preset-btn,.btn-action-hero,.btn-run,.action-tab,.fin-card,.pos-grid tbody tr{transition:background-color .08s ease,border-color .08s ease,opacity .08s ease!important}button:hover,.btn:hover,.modern-btn:hover,.preset-ribbon-btn:hover,.preset-btn:hover,.btn-action-hero:hover,.del-btn:hover,.modal-close:hover{transform:none!important}</style>
+    <link id="magaies-ophthalmic-ergo-css" rel="stylesheet" href="css/ophthalmic-ergonomics-2027.css?v=2027_gold_v8">
 </head>
 <body class="magaiees-login-body" style="background-color: #060b16 !important; color: #ffffff !important;">
     <script>

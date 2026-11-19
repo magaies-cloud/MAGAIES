@@ -2643,7 +2643,7 @@ if ($resource === 'sync') {
             $cloudMirrored = false;
             if ((int)$tenant_id === 12 && isLocalLaptopEnvironment() && empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL']) && !empty($rawInput)) {
                 $cloudMirrored = true;
-                register_shutdown_function(function() use ($rawInput, $token) {
+                register_shutdown_function(function() use ($rawInput, $token, $tenant_id) {
                     try {
                         if (function_exists('finishClientResponseEarly')) {
                             finishClientResponseEarly();

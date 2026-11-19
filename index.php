@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0');
 header('Pragma: no-cache');
 header('Expires: Thu, 01 Jan 1970 00:00:00 GMT');
@@ -46,9 +48,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="manifest" href="manifest.json">
@@ -101,7 +101,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             border-radius: 50%;
             filter: blur(95px);
             opacity: 0.28;
-            animation: auroraFloat 18s ease-in-out infinite alternate;
+            animation: none; /* cpu-opt */
         }
         .aurora-orb.orb-cyan { width: 520px; height: 520px; background: #0ea5e9; top: -120px; right: -100px; }
         .aurora-orb.orb-violet { width: 480px; height: 480px; background: #7c3aed; bottom: -140px; left: -100px; animation-delay: -6s; }
@@ -145,8 +145,8 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             font-weight: 800;
             color: #fde047;
             background: rgba(2, 6, 23, 0.78);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            /* gpu-opt */
+            /* gpu-opt */
             border: 1px solid rgba(250, 204, 21, 0.4);
             padding: 5px 14px;
             border-radius: 999px;
@@ -158,7 +158,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             gap: 6px;
             align-items: center;
             background: rgba(2, 6, 23, 0.65);
-            backdrop-filter: blur(10px);
+            /* gpu-opt */
             padding: 6px 10px;
             border-radius: 999px;
             border: 1px solid rgba(255, 255, 255, 0.12);
@@ -169,7 +169,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             border-radius: 999px;
             background: rgba(255, 255, 255, 0.35);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
         .ads-dot.active {
             width: 26px;
@@ -208,7 +208,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             bottom: 14px;
             right: 20px;
             background: rgba(2, 6, 23, 0.85);
-            backdrop-filter: blur(12px);
+            /* gpu-opt */
             color: #f8fafc;
             padding: 6px 16px;
             border-radius: 999px;
@@ -251,7 +251,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             background: linear-gradient(135deg, rgba(15, 23, 42, 0.85), rgba(7, 13, 30, 0.92));
             border: 1px solid rgba(56, 189, 248, 0.22);
             box-shadow: 0 22px 50px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(18px);
+            /* gpu-opt */
         }
         .exec-promo-card {
             display: flex;
@@ -261,7 +261,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             border-radius: 18px;
             background: rgba(255, 255, 255, 0.025);
             border: 1px solid rgba(255, 255, 255, 0.07);
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             text-align: right;
             position: relative;
             overflow: hidden;
@@ -304,8 +304,8 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
         /* Glass Panel & Navbar */
         .glass-panel {
             background: var(--surface-color);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            /* gpu-opt */
+            /* gpu-opt */
             border: 1px solid var(--glass-border);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
         }
@@ -320,7 +320,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             align-items: center;
             padding: 1rem 5%;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            transition: all 0.35s ease;
+            transition: transform 0.35s ease, opacity 0.35s ease, background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease;
         }
         .logo {
             font-size: 1.7rem;
@@ -388,7 +388,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             text-decoration: none;
             font-weight: 800;
             border: 1px solid rgba(255, 255, 255, 0.14);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             cursor: pointer;
             display: inline-flex;
             align-items: center;
@@ -443,9 +443,9 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             font-weight: 800;
             margin-bottom: 24px;
             font-size: 0.95rem;
-            backdrop-filter: blur(12px);
+            /* gpu-opt */
             box-shadow: 0 0 25px rgba(56, 189, 248, 0.18);
-            animation: badgePulse 3s ease-in-out infinite alternate;
+            animation: none; /* cpu-opt */
         }
         @keyframes badgePulse {
             0% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.15); }
@@ -493,7 +493,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             border: 1px solid rgba(255, 255, 255, 0.25);
             cursor: pointer;
             box-shadow: 0 14px 32px rgba(37, 99, 235, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.45);
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -518,8 +518,8 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+            /* gpu-opt */
         }
         .btn-secondary-hero:hover {
             background: rgba(56, 189, 248, 0.14);
@@ -536,7 +536,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             border-radius: 20px;
             background: rgba(15, 23, 42, 0.68);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(14px);
+            /* gpu-opt */
         }
         .hero-metric-item {
             text-align: center;
@@ -573,7 +573,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
         }
         .dash-mockup {
             background: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(12px);
+            /* gpu-opt */
             border: 1px solid rgba(255, 255, 255, 0.9);
             border-radius: 24px;
             overflow: hidden;
@@ -621,7 +621,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             justify-content: center;
             font-size: 1.15rem;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
             box-shadow: 0 4px 10px rgba(0,0,0,0.25);
         }
         .dash-icon:hover, .dash-icon.active-3d {
@@ -654,7 +654,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             background: linear-gradient(135deg, #38bdf8, #8b5cf6);
             border-radius: 50%;
             box-shadow: 0 0 12px rgba(59,130,246,0.4);
-            animation: pulseGlow 2s infinite alternate;
+            animation: none; /* cpu-opt */
         }
 
         .dash-stats {
@@ -671,7 +671,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             flex-direction: column;
             gap: 5px;
             box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
         .dash-stat-card:hover {
             border-color: #38bdf8;
@@ -759,14 +759,14 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             border-radius: 50%;
             display: inline-block;
             box-shadow: 0 0 10px var(--success-color);
-            animation: statusPulse 1.5s infinite alternate;
+            animation: none; /* cpu-opt */
         }
 
         /* 3D Floating Cards around Dashboard */
         .floating-card {
             position: absolute;
             background: rgba(15, 23, 42, 0.92);
-            backdrop-filter: blur(16px);
+            /* gpu-opt */
             border: 1px solid rgba(56, 189, 248, 0.35);
             border-radius: 18px;
             padding: 12px 16px;
@@ -788,10 +788,10 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             box-shadow: inset 0 2px 3px rgba(255,255,255,0.45), 0 6px 14px rgba(0,0,0,0.35);
             flex-shrink: 0;
         }
-        .card-left { bottom: 35px; right: -45px; animation: floatLeft 6s ease-in-out infinite alternate; }
-        .card-right { top: 55px; left: -45px; animation: floatRight 6s ease-in-out infinite alternate; }
-        .card-whatsapp { top: -24px; right: 35px; animation: floatTop 7s ease-in-out infinite alternate; }
-        .card-users { bottom: -22px; left: 25px; animation: floatBottom 5s ease-in-out infinite alternate; }
+        .card-left { bottom: 35px; right: -45px; animation: none; /* cpu-opt */ }
+        .card-right { top: 55px; left: -45px; animation: none; /* cpu-opt */ }
+        .card-whatsapp { top: -24px; right: 35px; animation: none; /* cpu-opt */ }
+        .card-users { bottom: -22px; left: 25px; animation: none; /* cpu-opt */ }
 
         @keyframes floatLeft { 0% { transform: translateY(0px) scale(1); } 100% { transform: translateY(-12px) scale(1.03); } }
         @keyframes floatRight { 0% { transform: translateY(0px) scale(1); } 100% { transform: translateY(12px) scale(1.03); } }
@@ -817,14 +817,14 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             margin-bottom: 28px;
             letter-spacing: 0.5px;
         }
-        .marquee-wrapper { display: flex; width: 200%; animation: scroll 30s linear infinite; gap: 45px; align-items: center; }
+        .marquee-wrapper { display: flex; width: 200%; animation: none; /* cpu-opt */ gap: 45px; align-items: center; }
         .marquee-wrapper:hover { animation-play-state: paused; }
         .partner-logo {
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.08);
             padding: 10px 22px;
             border-radius: 16px;
-            transition: all 0.35s ease;
+            transition: transform 0.35s ease, opacity 0.35s ease, background-color 0.35s ease, border-color 0.35s ease, color 0.35s ease;
             display: flex;
             align-items: center;
             gap: 14px;
@@ -912,7 +912,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
         .feature-card {
             padding: 38px 30px;
             border-radius: 26px;
-            transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.45s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.45s cubic-bezier(0.16, 1, 0.3, 1), color 0.45s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             overflow: hidden;
             background: linear-gradient(165deg, rgba(30, 41, 59, 0.72), rgba(10, 17, 36, 0.92));
@@ -1033,7 +1033,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             display: flex;
             align-items: flex-start;
             gap: 22px;
-            transition: all 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.45s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.45s cubic-bezier(0.16, 1, 0.3, 1), color 0.45s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             overflow: hidden;
             box-shadow: 0 18px 40px rgba(0, 0, 0, 0.38);
@@ -1085,7 +1085,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             position: relative;
             z-index: 2;
             transform-style: preserve-3d;
-            animation: antigravityLevitating 4.2s ease-in-out infinite;
+            animation: none; /* cpu-opt */
             box-shadow:
                 0 16px 30px -6px rgba(0, 0, 0, 0.7),
                 0 0 24px var(--ag-glow, rgba(56, 189, 248, 0.55)),
@@ -1117,7 +1117,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             background: radial-gradient(ellipse at center, var(--ag-accent, #38bdf8) 0%, rgba(0, 0, 0, 0.8) 55%, transparent 75%);
             filter: blur(4px);
             opacity: 0.75;
-            animation: antigravityShadowPulse 4.2s ease-in-out infinite;
+            animation: none; /* cpu-opt */
         }
         .cap-box:hover .antigravity-orb {
             transform: translateY(-10px) rotateY(-14deg) rotateX(12deg) scale(1.08);
@@ -1160,7 +1160,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             padding: 50px 38px;
             border-radius: 30px;
             text-align: center;
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             background: linear-gradient(180deg, rgba(30, 41, 59, 0.72), rgba(15, 23, 42, 0.9));
             border: 2px solid var(--glass-border);
@@ -1244,7 +1244,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
         .footer-col p { color: var(--text-secondary); font-size: 1rem; line-height: 1.8; margin-bottom: 15px; }
         .footer-links { list-style: none; padding: 0; margin: 0; }
         .footer-links li { margin-bottom: 12px; }
-        .footer-links a { color: var(--text-secondary); text-decoration: none; font-size: 1rem; transition: all 0.3s; display: inline-block; }
+        .footer-links a { color: var(--text-secondary); text-decoration: none; font-size: 1rem; transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s; display: inline-block; }
         .footer-links a:hover { color: var(--primary-accent); transform: translateX(-5px); }
         .footer-contact { list-style: none; padding: 0; margin: 0; }
         .footer-contact li { display: flex; align-items: center; gap: 10px; color: var(--text-secondary); font-size: 1rem; margin-bottom: 15px; }
@@ -1275,7 +1275,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
             left: 0; top: 0; width: 100%; height: 100%;
             overflow: auto;
             background-color: rgba(3, 7, 18, 0.85);
-            backdrop-filter: blur(10px);
+            /* gpu-opt */
             align-items: center;
             justify-content: center;
             opacity: 0;
@@ -1339,6 +1339,7 @@ $page_title = 'السيطرة (MAGAIEES) - المنظومة السحابية ا�
         }
     </style>
     <style id="global-zero-lag-css">.ambient-bg,.ambient-bg .orb,.preset-ribbon-btn::after,.preset-btn::after,.btn-action-hero::after,.btn-run::after,.action-tab.active::before,.sticky-footer::before{display:none!important;content:none!important}*,*::before,*::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important}button,a,input,select,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}button,.btn,.modern-btn,.preset-ribbon-btn,.preset-btn,.btn-action-hero,.btn-run,.action-tab,.fin-card,.pos-grid tbody tr{transition:background-color .08s ease,border-color .08s ease,opacity .08s ease!important}button:hover,.btn:hover,.modern-btn:hover,.preset-ribbon-btn:hover,.preset-btn:hover,.btn-action-hero:hover,.del-btn:hover,.modal-close:hover{transform:none!important}</style>
+    <link id="magaies-ophthalmic-ergo-css" rel="stylesheet" href="css/ophthalmic-ergonomics-2027.css?v=2027_gold_v8">
 </head>
 <body>
 

@@ -1,4 +1,6 @@
-<?php 
+<?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+ 
 $page_title = "الجرد الشامل للمخازن"; 
 $header_theme_class = "header-theme-inventory";
 ?>
@@ -10,7 +12,7 @@ $header_theme_class = "header-theme-inventory";
     <title><?php echo $page_title; ?> - نظام السيطرة</title>
     
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     
     <!-- Base CSS -->
     <link rel="stylesheet" href="css/theme.css?v=20261029_fast">
@@ -44,7 +46,7 @@ $header_theme_class = "header-theme-inventory";
 
         /* Ambient Orbs */
         .ambient-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 0; overflow: hidden; }
-        .orb { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.25; animation: floatOrb 18s ease-in-out infinite alternate; }
+        .orb { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.25; animation: none; /* cpu-opt */ }
         .orb-1 { width: 450px; height: 450px; background: #0284c7; top: -80px; left: -80px; }
         .orb-2 { width: 500px; height: 500px; background: #059669; bottom: -100px; right: -100px; animation-duration: 22s; }
         @keyframes floatOrb { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(60px, 40px) scale(1.08); } }
@@ -60,7 +62,7 @@ $header_theme_class = "header-theme-inventory";
             display: flex; gap: 6px; flex-wrap: wrap; overflow: visible;
             background: var(--surface-card); padding: 6px 10px; border-radius: 14px; 
             border: 1px solid var(--glass-border); box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            backdrop-filter: blur(20px); align-items: center; width: 100%; z-index: 100; position: relative;
+            /* gpu-opt */ align-items: center; width: 100%; z-index: 100; position: relative;
             min-height: 48px; box-sizing: border-box;
         }
         .nav-cluster { display: flex; align-items: center; gap: 4px; }
@@ -69,7 +71,7 @@ $header_theme_class = "header-theme-inventory";
         .nav-tab {
             padding: 8px 15px; border-radius: 9px; text-decoration: none; font-weight: 700;
             color: var(--text-secondary); background: transparent; border: 1px solid transparent;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 6px; font-size: 0.88rem;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 6px; font-size: 0.88rem;
             position: relative; white-space: nowrap; flex-shrink: 0; cursor: pointer; height: 38px; box-sizing: border-box;
         }
         .nav-tab:hover { color: #fff; background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.1); transform: translateY(-1px); }
@@ -90,7 +92,7 @@ $header_theme_class = "header-theme-inventory";
         .nav-dropdown { position: relative; display: inline-block; }
         .nav-dropdown-content {
             display: none; position: absolute; top: calc(100% + 6px); right: 0; min-width: 250px;
-            background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(25px);
+            background: rgba(15, 23, 42, 0.98); /* gpu-opt */
             border: 1px solid var(--glass-border); border-radius: 12px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.65); padding: 6px; z-index: 10000;
             animation: dropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -102,7 +104,7 @@ $header_theme_class = "header-theme-inventory";
         .nav-dropdown.active .nav-dropdown-content { display: flex; flex-direction: column; gap: 4px; }
         .nav-dropdown-item {
             display: flex; align-items: center; gap: 10px; padding: 10px 14px; color: #cbd5e1;
-            text-decoration: none; font-size: 0.86rem; font-weight: 700; border-radius: 8px; transition: all 0.2s ease;
+            text-decoration: none; font-size: 0.86rem; font-weight: 700; border-radius: 8px; transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
         }
         .nav-dropdown-item:hover { background: rgba(56, 189, 248, 0.15); color: var(--primary-accent); transform: translateX(-3px); }
 
@@ -110,7 +112,7 @@ $header_theme_class = "header-theme-inventory";
         .btn-action-top {
             padding: 7px 15px; border-radius: 10px; font-weight: 700; cursor: pointer; border: none;
             display: flex; align-items: center; gap: 6px; font-size: 0.85rem; height: 38px; box-sizing: border-box;
-            transition: all 0.2s ease;
+            transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
         }
         .btn-preview-top {
             background: linear-gradient(135deg, #0d9488, #0f766e); color: white;
@@ -131,7 +133,7 @@ $header_theme_class = "header-theme-inventory";
 
         /* Unified Single-Row Filter Hub */
         .filters-hub {
-            background: var(--surface-card); backdrop-filter: blur(20px); border-radius: 14px;
+            background: var(--surface-card); /* gpu-opt */ border-radius: 14px;
             border: 1px solid var(--glass-border); padding: 10px 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.18);
         }
         .filters-main-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
@@ -160,7 +162,7 @@ $header_theme_class = "header-theme-inventory";
         .kpi-card {
             background: var(--surface-card); border: 1px solid var(--glass-border); padding: 14px 18px;
             border-radius: 14px; display: flex; flex-direction: column; gap: 6px; position: relative;
-            overflow: hidden; backdrop-filter: blur(15px); box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            overflow: hidden; /* gpu-opt */ box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
         .kpi-card::before { content: ''; position: absolute; top: 0; right: 0; width: 4px; height: 100%; }
         .kpi-card.c-blue::before { background: var(--primary-accent); }
@@ -174,7 +176,7 @@ $header_theme_class = "header-theme-inventory";
         /* Data Table */
         .table-panel {
             background: var(--surface-card); border: 1px solid var(--glass-border);
-            border-radius: 14px; overflow: hidden; backdrop-filter: blur(15px);
+            border-radius: 14px; overflow: hidden; /* gpu-opt */
             box-shadow: 0 4px 20px rgba(0,0,0,0.25);
         }
         .table-wrapper { overflow-x: auto; max-height: calc(100vh - 350px); }
@@ -202,7 +204,7 @@ $header_theme_class = "header-theme-inventory";
         /* Floating Bottom Action Island */
         .floating-action-island {
             position: sticky; bottom: 12px; z-index: 99;
-            background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(20px);
+            background: rgba(15, 23, 42, 0.9); /* gpu-opt */
             border: 1px solid var(--glass-border); border-radius: 14px;
             padding: 8px 16px; display: flex; justify-content: space-between; align-items: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top: 4px;
@@ -211,7 +213,7 @@ $header_theme_class = "header-theme-inventory";
         /* Modal Overlay & Panels */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(5, 10, 20, 0.92); backdrop-filter: blur(10px);
+            background: rgba(5, 10, 20, 0.92); /* gpu-opt */
             z-index: 12000; display: none; align-items: center; justify-content: center;
         }
         .modal-card {

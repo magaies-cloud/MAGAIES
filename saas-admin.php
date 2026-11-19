@@ -1,13 +1,11 @@
-<?php if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() === 0) { @ob_start('ob_gzhandler'); } ?>
+<?php if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); } ?>
 <?php
 $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="manifest" href="manifest.json">
@@ -18,11 +16,11 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ar.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/chart.js" onload="if(typeof initAnalyticsCharts === 'function') initAnalyticsCharts()"></script>
+    <link rel="stylesheet" href="css/flatpickr.min.css">
+    <link rel="stylesheet" href="css/flatpickr-dark.css">
+    <script defer src="js/vendor/flatpickr.min.js"></script>
+    <script defer src="js/vendor/flatpickr-ar.js"></script>
+    <script defer src="js/vendor/chart.umd.min.js" onload="if(typeof initAnalyticsCharts === 'function') initAnalyticsCharts()"></script>
     <script src="js/localforage.min.js"></script>
     <style>
         :root {
@@ -39,7 +37,7 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
         }
         body { background-color: var(--bg-color); color: var(--text-primary); font-family: 'Inter', 'Tajawal', sans-serif; margin: 0; padding: 0; min-height: 100vh; overflow-x: hidden; }
         .ambient-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; z-index: -1; pointer-events: none; background: radial-gradient(circle at 50% 50%, #0c0812 0%, #000000 100%); }
-        .orb { position: absolute; border-radius: 50%; filter: blur(40px); opacity: 0.15; animation: floatOrb 20s infinite alternate ease-in-out; }
+        .orb { position: absolute; border-radius: 50%; filter: blur(40px); opacity: 0.15; animation: none; /* cpu-opt */ }
         .orb-1 { width: 500px; height: 500px; background: #f59e0b; top: -5%; right: -5%; }
         .orb-2 { width: 450px; height: 450px; background: #a855f7; bottom: -10%; left: -5%; animation-delay: -7s; }
         .orb-3 { width: 600px; height: 600px; background: #ea580c; top: 30%; left: 30%; }
@@ -49,7 +47,7 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
         .app-layout { display: flex; min-height: 100vh; direction: rtl; }
         .sidebar {
             position: fixed; top: 0; right: 0; height: 100vh; width: 72px; z-index: 1000;
-            background: rgba(12, 10, 18, 0.95); backdrop-filter: blur(8px);
+            background: rgba(12, 10, 18, 0.95); /* gpu-opt */
             border-left: 1px solid var(--glass-border);
             transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             overflow-x: hidden; overflow-y: auto;
@@ -79,7 +77,7 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
 
         .nav-item {
             display: flex; align-items: center; gap: 12px; padding: 13px 16px;
-            border-radius: 10px; cursor: pointer; transition: all 0.2s; color: #fff;
+            border-radius: 10px; cursor: pointer; transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s; color: #fff;
             white-space: nowrap; position: relative; user-select: none;
         }
         .nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
@@ -95,14 +93,14 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
 
         .nav-group-header {
             display: flex; align-items: center; gap: 12px; padding: 11px 16px;
-            border-radius: 10px; cursor: pointer; transition: all 0.2s; color: var(--text-secondary);
+            border-radius: 10px; cursor: pointer; transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s; color: var(--text-secondary);
             white-space: nowrap; user-select: none;
         }
         .nav-group-header:hover { background: rgba(255,255,255,0.06); color: #fff; }
         .nav-group-header.has-active { color: var(--primary-accent); }
         .nav-group-header .nav-icon { font-size: 1.2rem; min-width: 24px; text-align: center; }
         .nav-group-header .nav-label { opacity: 0; transition: opacity 0.2s 0.1s; font-size: 0.88rem; font-weight: 600; flex: 1; }
-        .nav-group-header .nav-arrow { opacity: 0; transition: all 0.2s; font-size: 0.65rem; color: var(--text-secondary); }
+        .nav-group-header .nav-arrow { opacity: 0; transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s; font-size: 0.65rem; color: var(--text-secondary); }
         .sidebar:hover .nav-group-header .nav-label,
         .sidebar.pinned .nav-group-header .nav-label { opacity: 1; }
         .sidebar:hover .nav-group-header .nav-arrow,
@@ -125,7 +123,7 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
             width: 38px; height: 38px; min-width: 38px; border-radius: 8px;
             background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
             color: var(--text-secondary); cursor: pointer; display: flex;
-            align-items: center; justify-content: center; transition: all 0.2s; font-size: 1rem;
+            align-items: center; justify-content: center; transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s; font-size: 1rem;
         }
         .sidebar-pin:hover { background: rgba(255,255,255,0.1); color: #fff; }
         .sidebar.pinned .sidebar-pin { color: var(--primary-accent); background: rgba(245,158,11,0.1); }
@@ -151,7 +149,7 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
             border-radius: 12px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
             white-space: nowrap;
             text-align: center;
             font-size: 0.85rem;
@@ -173,7 +171,7 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
             flex: 1; padding: 14px 20px; border-radius: 12px; cursor: pointer;
             background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border);
             color: var(--text-secondary); font-weight: 700; font-size: 0.95rem;
-            text-align: center; transition: all 0.3s; display: flex; align-items: center;
+            text-align: center; transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s; display: flex; align-items: center;
             justify-content: center; gap: 8px;
         }
         .section-inner-tab:hover { background: rgba(255,255,255,0.08); color: #fff; }
@@ -184,7 +182,7 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
 
         .premium-header {
             background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(168, 85, 247, 0.15));
-            backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 15px 25px;
+            /* gpu-opt */ border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 15px 25px;
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;
             box-shadow: 0 15px 30px rgba(0,0,0,0.4);
         }
@@ -194,7 +192,7 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
         .brand-text p { margin: 0; font-size: 0.85rem; color: #cbd5e1; }
         
         .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .glass-panel { background: var(--surface-color); backdrop-filter: blur(8px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; transition: all 0.3s; }
+        .glass-panel { background: var(--surface-color); /* gpu-opt */ border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s; }
         .glass-panel:hover { border-color: rgba(255,255,255,0.15); box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
         .kpi-card { padding: 10px 15px !important; border-radius: 12px !important; }
         .kpi-title { font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; display: flex; justify-content: space-between; margin-bottom: 5px; }
@@ -208,7 +206,7 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
             display: inline-block; font-weight: 700; font-size: 0.95rem; color: transparent;
             background: linear-gradient(90deg, #f59e0b, #10b981, #3b82f6, #a855f7, #f59e0b);
             background-size: 200% auto; -webkit-background-clip: text; background-clip: text;
-            animation: gradientMove 3s linear infinite, scrollTicker 20s linear infinite;
+            animation: none; /* cpu-opt */
             text-shadow: 0 0 10px rgba(245, 158, 11, 0.2); white-space: nowrap; padding-left: 100%;
         }
         @keyframes scrollTicker { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
@@ -222,20 +220,20 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
         .badge-active { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
         .badge-suspended { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
 
-        .btn-primary { background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent)); color: #fff; padding: 10px 20px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; transition: all 0.3s; }
-        .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger-color); border: 1px solid rgba(239, 68, 68, 0.3); padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: 700; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent)); color: #fff; padding: 10px 20px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s; }
+        .btn-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger-color); border: 1px solid rgba(239, 68, 68, 0.3); padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: 700; transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s; }
         .btn-outline { background: transparent; border: 1px solid var(--text-secondary); color: var(--text-secondary); padding: 10px 20px; border-radius: 10px; cursor: pointer; }
 
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.9rem; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3); color: white; box-sizing: border-box; }
 
-        #login-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        #login-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); z-index: 9999; display: flex; align-items: center; justify-content: center; /* gpu-opt */ }
         .login-box { width: 90%; max-width: 400px; text-align: center; padding: 40px 35px; }
         .login-box input { width: 100%; padding: 14px; border-radius: 10px; background: rgba(255,255,255,0.07); color: #fff; border: 1px solid var(--glass-border); font-size: 1.1rem; box-sizing: border-box; margin-bottom: 15px; font-family: 'Tajawal',sans-serif; }
         .login-box input:focus { outline: none; border-color: var(--primary-accent); }
         
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; /* gpu-opt */ }
         .modal-content { width: 90%; max-width: 500px; }
         .flex-between { display: flex; justify-content: space-between; align-items: center; }
         
@@ -249,7 +247,7 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
         /* تخصيص Flatpickr ليتناسب مع التصميم الداكن الفخم */
         .flatpickr-calendar {
             background: rgba(20, 20, 22, 0.98) !important;
-            backdrop-filter: blur(8px);
+            /* gpu-opt */
             border: 1px solid var(--glass-border) !important;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7) !important;
             font-family: 'Tajawal', 'Inter', sans-serif !important;
@@ -286,7 +284,7 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
         .flatpickr-day {
             color: var(--text-primary) !important;
             border-radius: 8px !important;
-            transition: all 0.2s ease;
+            transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
         }
         .flatpickr-day:hover, .flatpickr-day:focus {
             background: rgba(255, 255, 255, 0.1) !important;
@@ -347,7 +345,7 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
         .pulsating-dot {
             width: 12px; height: 12px; border-radius: 50%;
             background-color: var(--dot-color);
-            animation: pulse-dot 2s infinite; flex-shrink: 0;
+            animation: none; /* cpu-opt */ flex-shrink: 0;
             display: inline-block; box-shadow: 0 0 0 0 rgba(0,0,0,0.5);
         }
         @keyframes pulse-dot {
@@ -359,7 +357,7 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
         /* Global Search Modal */
         #global-search-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 10000;
+            background: rgba(0,0,0,0.6); /* gpu-opt */ z-index: 10000;
             justify-content: center; align-items: flex-start; padding-top: 10vh;
         }
         #global-search-modal {
@@ -403,10 +401,10 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
         }
         .toast-notification {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
-            background: rgba(20, 20, 22, 0.95); backdrop-filter: blur(8px);
+            background: rgba(20, 20, 22, 0.95); /* gpu-opt */
             border: 1px solid rgba(255,255,255,0.15); border-radius: 12px;
             padding: 14px 28px; color: #fff; font-weight: 600; font-size: 0.95rem;
-            z-index: 99999; opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 99999; opacity: 0; transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.4s cubic-bezier(0.16, 1, 0.3, 1);
             box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 10px;
         }
         .toast-notification.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -424,7 +422,7 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
         .tenant-info-card {
             background: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
             padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.15); transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15); transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
             position: relative; overflow: hidden;
         }
         .tenant-info-card:hover {
@@ -450,7 +448,7 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
         .glass-input {
             padding: 12px 15px; border-radius: 10px; background: rgba(0,0,0,0.4); 
             color: #fff; border: 1px solid rgba(255,255,255,0.15); width: 100%;
-            font-family: 'Tajawal', sans-serif; font-size: 1.1rem; font-weight: bold; transition: all 0.2s ease;
+            font-family: 'Tajawal', sans-serif; font-size: 1.1rem; font-weight: bold; transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
         }
         .glass-input:focus {
             border-color: var(--primary-accent); outline: none; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
@@ -466,7 +464,7 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
         .progress-bar-glow::after {
             content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-            animation: shimmer 2s infinite;
+            animation: none; /* cpu-opt */
         }
         @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
         .admin-notes-card {
@@ -659,6 +657,7 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
 }
 </style>
     <style id="global-zero-lag-css">.ambient-bg,.ambient-bg .orb,.preset-ribbon-btn::after,.preset-btn::after,.btn-action-hero::after,.btn-run::after,.action-tab.active::before,.sticky-footer::before{display:none!important;content:none!important}*,*::before,*::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important}button,a,input,select,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}button,.btn,.modern-btn,.preset-ribbon-btn,.preset-btn,.btn-action-hero,.btn-run,.action-tab,.fin-card,.pos-grid tbody tr{transition:background-color .08s ease,border-color .08s ease,opacity .08s ease!important}button:hover,.btn:hover,.modern-btn:hover,.preset-ribbon-btn:hover,.preset-btn:hover,.btn-action-hero:hover,.del-btn:hover,.modal-close:hover{transform:none!important}</style>
+    <link id="magaies-ophthalmic-ergo-css" rel="stylesheet" href="css/ophthalmic-ergonomics-2027.css?v=2027_gold_v3">
 </head>
 <body>
     <div id="global-search-overlay" onclick="if(event.target===this) toggleGlobalSearch()">
@@ -2108,7 +2107,7 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
     </div>
 
     <!-- Centered Professional WhatsApp Unlink Confirmation Modal -->
-    <div id="admin-wa-unlink-confirm-modal" class="modal-overlay" style="z-index: 10050; background: rgba(2, 6, 23, 0.78); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; padding: 20px;" onclick="if(event.target===this) closeAdminWaUnlinkConfirm()">
+    <div id="admin-wa-unlink-confirm-modal" class="modal-overlay" style="z-index: 10050; background: rgba(2, 6, 23, 0.78);  display: none; align-items: center; justify-content: center; padding: 20px;" onclick="if(event.target===this) closeAdminWaUnlinkConfirm()">
         <div class="glass-panel modal-content" style="max-width: 420px; width: 100%; text-align: center; padding: 28px 24px; border-radius: 18px; background: linear-gradient(145deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.98)); border: 1px solid rgba(239, 68, 68, 0.4); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75), 0 0 30px rgba(239, 68, 68, 0.15); animation: modalFadeIn 0.2s ease-out;">
             <div style="width: 68px; height: 68px; border-radius: 50%; background: rgba(239, 68, 68, 0.14); border: 2px solid rgba(239, 68, 68, 0.4); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
                 <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -3233,7 +3232,7 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
             
             // Check WhatsApp service status on startup and every 20 seconds
             checkWhatsAppStatus();
-            setInterval(checkWhatsAppStatus, 20000);
+            setInterval(function() { if (!document.hidden) checkWhatsAppStatus(); }, 45000);
             
             // Trigger Initial Route
             handleHashChange();
@@ -5665,7 +5664,7 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
             else if (diff < 60) el.innerText = 'منذ ' + diff + ' ثانية';
             else el.innerText = 'منذ ' + Math.round(diff / 60) + ' دقيقة';
         }
-        setInterval(updateHealthTimestamp, 5000);
+        setInterval(function() { if (!document.hidden) updateHealthTimestamp(); }, 30000);
 
         async function loadServerHealth(silent = false) {
             try {
@@ -6009,7 +6008,7 @@ $page_title = 'SaaS Super Admin - السيطرة (MAGAIEES)';
 
 
 <script src="js/magaiees_back.js?v=2026_back_v2" defer></script>
-<script src="js/magaies-smart-guide.js" defer></script>
+<script>(function(){var l=0;window.loadMagaiesSmartGuide=function(c){if(l){if(c)c();return;}l=1;var s=document.createElement('script');s.src='js/magaies-smart-guide.js?v=<?= @filemtime(__DIR__."/js/magaies-smart-guide.js")?:2027 ?>';s.onload=function(){if(c)c();};document.body.appendChild(s);};window.addEventListener('keydown',function(e){if(e.key==='F1'){e.preventDefault();window.loadMagaiesSmartGuide();}});window.addEventListener('contextmenu',function(){window.loadMagaiesSmartGuide();},{once:true,passive:true});})();</script>
 </body>
 </html>
 

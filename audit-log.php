@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 $page_title = 'السجل الرقابي';
 $header_theme_class = 'header-theme-settings';
 ?>
@@ -18,12 +20,10 @@ $header_theme_class = 'header-theme-settings';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>السجل الرقابي - السيطرة ERP</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <link rel="stylesheet" href="css/theme.css?v=neon2">
     <link rel="stylesheet" href="css/components.css?v=neon2">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="css/all.min.css?v=2027" crossorigin="anonymous" referrerpolicy="no-referrer">
 
     <style>
         html, body {
@@ -109,7 +109,7 @@ $header_theme_class = 'header-theme-settings';
             border: 1.5px solid rgba(255, 255, 255, 0.14);
             background: rgba(30, 41, 59, 0.9);
             color: #f8fafc;
-            transition: all 0.18s ease;
+            transition: transform 0.18s ease, opacity 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
             text-decoration: none;
             white-space: nowrap;
         }
@@ -146,7 +146,7 @@ $header_theme_class = 'header-theme-settings';
             justify-content: space-between;
             gap: 10px;
             cursor: pointer;
-            transition: all 0.18s ease;
+            transition: transform 0.18s ease, opacity 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
             user-select: none;
         }
 
@@ -198,7 +198,7 @@ $header_theme_class = 'header-theme-settings';
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: all 0.18s ease;
+            transition: transform 0.18s ease, opacity 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
         }
 
         .audit-tab.active {
@@ -282,7 +282,7 @@ $header_theme_class = 'header-theme-settings';
             border: 1px solid rgba(255, 255, 255, 0.14);
             background: rgba(30, 41, 59, 0.75);
             color: #cbd5e1;
-            transition: all 0.15s;
+            transition: transform 0.15s, opacity 0.15s, background-color 0.15s, border-color 0.15s, color 0.15s;
         }
 
         .date-pill.active, .date-pill:hover {
@@ -379,7 +379,7 @@ $header_theme_class = 'header-theme-settings';
             display: flex;
             flex-direction: column;
             gap: 9px;
-            transition: all 0.18s ease;
+            transition: transform 0.18s ease, opacity 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
         }
 
         .doc-card:hover {
@@ -393,7 +393,7 @@ $header_theme_class = 'header-theme-settings';
             position: fixed;
             inset: 0;
             background: rgba(2, 6, 23, 0.82);
-            backdrop-filter: blur(5px);
+            /* gpu-opt */
             z-index: 999999;
             align-items: center;
             justify-content: center;

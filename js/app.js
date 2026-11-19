@@ -172,10 +172,12 @@ JSON.parse = function(val) {
     const syncKeys = [
         'erp_users_v1', 'erp_customers_v1', 'erp_suppliers_v1', 'erp_items_v1',
         'erp_inventory_v1', 'erp_sales_invoices_v1', 'erp_purchase_invoices_v1',
+        'erp_purchase_returns_v1', 'erp_sales_returns_v1',
         'erp_receipts_v1', 'erp_payments_v1', 'erp_journal_vouchers_v1',
-        'erp_settings_v1', 'erp_warehouses_v1', 'erp_banks_v1', 'erp_safes_v1', 'erp_categories_v1',
+        'erp_settings_v1', 'erp_warehouses_v1', 'erp_banks_v1', 'erp_safes_v1', 'erp_categories_v1', 'erp_units_v1',
         'erp_roles_v1', 'erp_checks_v1', 'erp_gl_v1', 'erp_single_receipts_v1',
-        'erp_single_payments_v1', 'erp_partners_v1', 'erp_employees_v1',
+        'erp_single_payments_v1', 'erp_bank_transfers_v1', 'erp_safe_transfers_v1',
+        'erp_partners_v1', 'erp_employees_v1', 'erp_cost_centers_v1',
         'erp_payroll_v1', 'erp_reserved_sales_v1', 'erp_delivery_notes_v1', 'erp_warehouse_transfers_v1', 'erp_inventory_adjustments_v1',
         'erp_accounts_v1',
         'erp_jobs_v1',
@@ -201,6 +203,8 @@ JSON.parse = function(val) {
     syncChannel.onmessage = function(ev) {
         if (ev.data && ev.data.type === 'SYNC_KEY') {
             window.DB_STORE[ev.data.tenantKey] = ev.data.value;
+            if (ev.data.key) window.DB_STORE[ev.data.key] = ev.data.value;
+            try { window.dispatchEvent(new CustomEvent('magaiesDataUpdated', { detail: { key: ev.data.key || ev.data.tenantKey } })); } catch(_) {}
         }
     };
 
@@ -1082,50 +1086,75 @@ JSON.parse = function(val) {
         }
 
         // ── Universal Master Entities Sync from MySQL (api/get_master_data.php) across ALL screens ──
-        try {
-            const _mdHeaders = {};
-            const _mdTok = localGetItem('authToken') || localGetItem('erp_token') || localGetItem('token') || '';
-            const _mdTid = localGetItem('currentTenantId') || '';
-            if (_mdTok) _mdHeaders['Authorization'] = 'Bearer ' + _mdTok;
-            if (_mdTid) _mdHeaders['X-Tenant-Id'] = String(_mdTid);
-            const _mdRes = await fetch('api/get_master_data.php', { headers: _mdHeaders });
-            if (_mdRes && _mdRes.ok) {
-                const _mdJson = await _mdRes.json();
-                const _md = (_mdJson && _mdJson.data) ? _mdJson.data : null;
-                if (_md) {
-                    const _syncEntityStore = (baseKey, srvArr) => {
-                        if (!Array.isArray(srvArr) || srvArr.length === 0) return;
-                        const tKey = window.getTenantKey(baseKey);
-                        let locArr = [];
-                        try { locArr = JSON.parse(window.DB_STORE[tKey] || localGetItem(tKey) || localGetItem(baseKey) || '[]') || []; } catch (_) { locArr = []; }
-                        if (!Array.isArray(locArr)) locArr = [];
-                        const byId = new Map();
-                        locArr.forEach(x => { if (x && !x.deleted) byId.set(String(x.id || x.code || x.name || ''), x); });
-                        srvArr.forEach(x => { if (x && !x.deleted) byId.set(String(x.id || x.code || x.name || ''), x); });
-                        const mergedStr = JSON.stringify(Array.from(byId.values()));
-                        window.DB_STORE[tKey] = mergedStr;
-                        window.DB_STORE[baseKey] = mergedStr;
-                        localSetItem(tKey, mergedStr);
-                        localSetItem(baseKey, mergedStr);
-                        if (typeof localforage !== 'undefined') localforage.setItem(tKey, mergedStr).catch(() => {});
-                    };
-                    _syncEntityStore('erp_customers_v1', _md.customers);
-                    _syncEntityStore('erp_suppliers_v1', _md.suppliers);
-                    _syncEntityStore('erp_warehouses_v1', _md.warehouses);
-                    _syncEntityStore('erp_safes_v1', _md.safes);
-                    _syncEntityStore('erp_banks_v1', _md.banks);
-                    _syncEntityStore('erp_items_v1', _md.items);
-                    _syncEntityStore('erp_accounts_v1', _md.accounts);
-                    if (Array.isArray(_md.cost_centers) && _md.cost_centers.length > 0) {
-                        _syncEntityStore('erp_cost_centers_v1', _md.cost_centers);
-                        _syncEntityStore('erp_jobs_v1', _md.cost_centers);
+        const _refreshMasterDataFromServer = async (force = false) => {
+            try {
+                const now = Date.now();
+                const lastTs = Number(sessionStorage.getItem('magaies_md_sync_ts') || 0);
+                if (!force && lastTs && (now - lastTs) < 45000) return;
+                const _mdHeaders = {};
+                const _mdTok = localGetItem('authToken') || localGetItem('erp_token') || localGetItem('token') || '';
+                const _mdTid = localGetItem('currentTenantId') || '';
+                if (_mdTok) _mdHeaders['Authorization'] = 'Bearer ' + _mdTok;
+                if (_mdTid) _mdHeaders['X-Tenant-Id'] = String(_mdTid);
+                const _mdRes = await fetch('api/get_master_data.php', { headers: _mdHeaders });
+                if (_mdRes && _mdRes.ok) {
+                    const _mdJson = await _mdRes.json();
+                    const _md = (_mdJson && _mdJson.data) ? _mdJson.data : null;
+                    if (_md) {
+                        const _syncEntityStore = (baseKey, srvArr) => {
+                            if (!Array.isArray(srvArr) || srvArr.length === 0) return;
+                            const tKey = window.getTenantKey(baseKey);
+                            const existingStr = window.DB_STORE[tKey] || localGetItem(tKey) || localGetItem(baseKey) || '[]';
+                            let locArr = [];
+                            try { locArr = JSON.parse(existingStr) || []; } catch (_) { locArr = []; }
+                            if (!Array.isArray(locArr)) locArr = [];
+                            const byId = new Map();
+                            locArr.forEach(x => { if (x && !x.deleted) byId.set(String(x.id || x.code || x.name || ''), x); });
+                            srvArr.forEach(x => { if (x && !x.deleted) byId.set(String(x.id || x.code || x.name || ''), x); });
+                            const mergedStr = JSON.stringify(Array.from(byId.values()));
+                            if (mergedStr === existingStr && window.DB_STORE[tKey]) return;
+                            window.DB_STORE[tKey] = mergedStr;
+                            window.DB_STORE[baseKey] = mergedStr;
+                            localSetItem(tKey, mergedStr);
+                            localSetItem(baseKey, mergedStr);
+                            if (typeof localforage !== 'undefined') localforage.setItem(tKey, mergedStr).catch(() => {});
+                        };
+                        _syncEntityStore('erp_customers_v1', _md.customers);
+                        _syncEntityStore('erp_suppliers_v1', _md.suppliers);
+                        _syncEntityStore('erp_warehouses_v1', _md.warehouses);
+                        _syncEntityStore('erp_safes_v1', _md.safes);
+                        _syncEntityStore('erp_banks_v1', _md.banks);
+                        _syncEntityStore('erp_items_v1', _md.items);
+                        _syncEntityStore('erp_accounts_v1', _md.accounts);
+                        _syncEntityStore('erp_employees_v1', _md.employees);
+                        _syncEntityStore('erp_categories_v1', _md.categories);
+                        _syncEntityStore('erp_units_v1', _md.units);
+                        if (Array.isArray(_md.cost_centers) && _md.cost_centers.length > 0) {
+                            _syncEntityStore('erp_cost_centers_v1', _md.cost_centers);
+                            _syncEntityStore('erp_jobs_v1', _md.cost_centers);
+                        }
+                        try { sessionStorage.setItem('magaies_md_sync_ts', String(Date.now())); } catch (_) {}
                     }
                 }
-            }
-        } catch (_mdErr) {}
+            } catch (_mdErr) {}
+        };
+        window.refreshMasterDataFromServer = _refreshMasterDataFromServer;
 
-        window.APP_READY = true;
-        document.dispatchEvent(new Event('DBReady'));
+        const _hasCachedMasterData = !!(
+            localGetItem(window.getTenantKey('erp_items_v1')) ||
+            localGetItem('erp_items_v1') ||
+            localGetItem(window.getTenantKey('erp_customers_v1'))
+        );
+
+        if (_hasCachedMasterData) {
+            window.APP_READY = true;
+            document.dispatchEvent(new Event('DBReady'));
+            setTimeout(() => { _refreshMasterDataFromServer(false); }, 600);
+        } else {
+            await _refreshMasterDataFromServer(true);
+            window.APP_READY = true;
+            document.dispatchEvent(new Event('DBReady'));
+        }
     }
 
     let isPushing = false;
@@ -1269,8 +1298,11 @@ JSON.parse = function(val) {
                 window.DB_STORE[key] = value;
             }
 
-            // Broadcast to other tabs
-            syncChannel.postMessage({ type: 'SYNC_KEY', tenantKey: tenantKey, value: value });
+            // Broadcast to other tabs & invalidate master-data SWR cache when master entities change
+            if (/^erp_(?:customers|suppliers|items|warehouses|safes|banks|accounts|employees|categories|units|cost_centers)_v1$/.test(String(key))) {
+                try { sessionStorage.removeItem('magaies_md_sync_ts'); } catch(_) {}
+            }
+            syncChannel.postMessage({ type: 'SYNC_KEY', key: key, tenantKey: tenantKey, value: value });
 
             // Save asynchronously to IndexedDB
             if (typeof localforage !== 'undefined') localforage.setItem(tenantKey, value);
@@ -2723,7 +2755,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             refreshPrintBell();
             window.addEventListener('storage', (e) => { if (e.key === 'erp_print_requests') refreshPrintBell(); });
-            setInterval(refreshPrintBell, 15000);
+            setInterval(() => { if (!document.hidden) refreshPrintBell(); }, 60000);
 
             bell.onclick = function() {
                 const reqs = JSON.parse(localStorage.getItem('erp_print_requests') || '[]').filter(r => r.status === 'pending');
@@ -4037,39 +4069,56 @@ function updateExchangeRateUI(data) {
     }
 }
 
-// --- EXCHANGE RATE: Load on page load ---
+// --- SHARED DEDUPLICATED EXCHANGE RATE HELPER (120s session cache) ---
+window.fetchGlobalExchangeRateShared = function(force = false) {
+    try {
+        const now = Date.now();
+        const ts = Number(sessionStorage.getItem('magaies_exrate_cache_ts') || 0);
+        const phpRate = (window.SYSTEM_USD_RATE && parseFloat(window.SYSTEM_USD_RATE) > 1) ? parseFloat(window.SYSTEM_USD_RATE) : 0;
+        const cachedRate = phpRate || parseFloat(localStorage.getItem('erp_cached_global_rate') || '0');
+        if (!force && cachedRate > 1 && ((ts && (now - ts) < 120000) || phpRate > 1)) {
+            if (!ts && phpRate > 1) { try { sessionStorage.setItem('magaies_exrate_cache_ts', String(now)); } catch (_) {} }
+            window.SYSTEM_USD_RATE = cachedRate;
+            window._cachedGlobalRate = cachedRate;
+            return Promise.resolve({ rate: cachedRate, visible: true });
+        }
+        if (window._exRateInFlight && !force) return window._exRateInFlight;
+        const tok = localStorage.getItem('authToken') || '';
+        const url = tok ? 'api_index.php/exchange-rate' : ('api/mirror_sync.php?action=get_currency_rate&_t=' + now);
+        const opts = tok ? { headers: { 'Authorization': 'Bearer ' + tok } } : {};
+        window._exRateInFlight = fetch(url, opts).then(r => r.json()).then(d => {
+            const rVal = d && d.rate ? parseFloat(d.rate) : 0;
+            if (rVal > 1) {
+                window.SYSTEM_USD_RATE = rVal;
+                window._cachedGlobalRate = rVal;
+                try {
+                    localStorage.setItem('erp_cached_global_rate', String(rVal));
+                    localStorage.setItem('erp_rate_usd', String(rVal));
+                    localStorage.setItem('magaiees_system_usd_rate', String(rVal));
+                    localStorage.setItem('magaies_custom_usd_rate', String(rVal));
+                    localStorage.setItem('magaies_usd_rate', String(rVal));
+                    sessionStorage.setItem('magaies_exrate_cache_ts', String(Date.now()));
+                } catch (_) {}
+            }
+            window._exRateInFlight = null;
+            return d;
+        }).catch(() => { window._exRateInFlight = null; return null; });
+        return window._exRateInFlight;
+    } catch (_) {
+        return Promise.resolve(null);
+    }
+};
+
+// --- EXCHANGE RATE: Load on page load (uses deduplicated shared helper) ---
 document.addEventListener('DOMContentLoaded', () => {
-    fetch('api_index.php/exchange-rate', {
-        headers: { "Authorization": `Bearer ${localStorage.getItem('authToken')}` }
-    })
-        .then(res => res.json())
-        .then(data => {
-            if (data) updateExchangeRateUI(data);
-        })
-        .catch(() => {});
+    window.fetchGlobalExchangeRateShared(false).then(data => {
+        if (data) updateExchangeRateUI(data);
+    }).catch(() => {});
 });
 
 // --- ONLINE USERS HEARTBEAT AND PULSE ANIMATION ---
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Add keyframes for heartbeat globally
-    const style = document.createElement('style');
-    style.innerHTML = `
-        @keyframes heartbeatPulse {
-            0% { transform: scale(1); box-shadow: 0 0 8px rgba(16,185,129,0.5); }
-            14% { transform: scale(1.4); box-shadow: 0 0 15px rgba(16,185,129,0.9); }
-            28% { transform: scale(1); box-shadow: 0 0 8px rgba(16,185,129,0.5); }
-            42% { transform: scale(1.4); box-shadow: 0 0 15px rgba(16,185,129,0.9); }
-            70% { transform: scale(1); box-shadow: 0 0 8px rgba(16,185,129,0.5); }
-            100% { transform: scale(1); box-shadow: 0 0 8px rgba(16,185,129,0.5); }
-        }
-    `;
-    document.head.appendChild(style);
-
-    // Apply animation to the online user dot
-    const dots = document.querySelectorAll('.online-users span > span:first-child');
-    dots.forEach(dot => {
-        dot.style.animation = 'heartbeatPulse 1.5s infinite';
-    });
+    // CPU-optimized: static online indicator (no 1.5s infinite heartbeatPulse)
 
     // 2. Ping server every 30 seconds
     async function pingOnlineUsers() {
@@ -4367,24 +4416,11 @@ window.getExchangeRateForCurrency = function(currency) {
     return currency === 'USD' ? 5999 : 0;
 };
 
-// Pre-fetch the global exchange rate from database so it's available immediately
+// Pre-fetch the global exchange rate via deduplicated helper
 (function() {
-    try {
-        fetch('api/mirror_sync.php?action=get_currency_rate&_t=' + Date.now())
-            .then(r => r.json())
-            .then(d => {
-                if (d && d.rate && parseFloat(d.rate) > 1) {
-                    const dbRate = parseFloat(d.rate);
-                    window.SYSTEM_USD_RATE = dbRate;
-                    window._cachedGlobalRate = dbRate;
-                    localStorage.setItem('erp_cached_global_rate', String(dbRate));
-                    localStorage.setItem('erp_rate_usd', String(dbRate));
-                    localStorage.setItem('magaiees_system_usd_rate', String(dbRate));
-                    localStorage.setItem('magaies_custom_usd_rate', String(dbRate));
-                    localStorage.setItem('magaies_usd_rate', String(dbRate));
-                }
-            }).catch(() => {});
-    } catch(e) {}
+    if (typeof window.fetchGlobalExchangeRateShared === 'function') {
+        window.fetchGlobalExchangeRateShared(false).catch(() => {});
+    }
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -4670,12 +4706,37 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Helper to open general ledger for a specific account in a new tab
-window.openGeneralLedgerForAccount = function(accountId) {
+window.openGeneralLedgerForAccount = function(accountId, explicitName) {
     if (!accountId) {
-        alert('الرجاء اختيار الحساب أولاً.');
+        if (typeof window.showToast === 'function') window.showToast('الرجاء اختيار الحساب أولاً.', 'warning');
         return;
     }
-    window.open(`general-ledger.php?accountId=${accountId}`, '_blank');
+    const rawId = String(accountId).trim();
+    const bareId = rawId.replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '').trim();
+    let accName = String(explicitName || '').trim();
+    if (!accName) {
+        const pairs = [['from-account','from-account-search'],['to-account','to-account-search'],['main-account','main-account-search']];
+        for (const [hid, sid] of pairs) {
+            const hEl = document.getElementById(hid), sEl = document.getElementById(sid);
+            if (hEl && String(hEl.value).trim() === rawId && sEl && sEl.value.trim()) { accName = sEl.value.trim(); break; }
+        }
+    }
+    if (!accName || /^(cust|supp|bank|safe|exp)-/i.test(accName)) {
+        const getTK = window.getTenantKey || ((k) => k);
+        for (const k of ['erp_customers_v1','erp_suppliers_v1','erp_banks_v1','erp_safes_v1','erp_accounts_v1']) {
+            try {
+                const arr = JSON.parse(localStorage.getItem(getTK(k)) || localStorage.getItem(k) || '[]');
+                const hit = (Array.isArray(arr) ? arr : []).find(x => x && (String(x.id) === rawId || String(x.id) === bareId || String(x.code) === bareId));
+                if (hit && (hit.name || hit.customerName || hit.supplierName || hit.bankName || hit.safeName)) {
+                    accName = String(hit.name || hit.customerName || hit.supplierName || hit.bankName || hit.safeName).trim();
+                    break;
+                }
+            } catch (_) {}
+        }
+    }
+    accName = accName.replace(/^\[\d+\]\s*/, '').replace(/^(cust|supp|bank|safe|exp)-\S+\s*/i, '').trim();
+    const q = `general-ledger.php?accountId=${encodeURIComponent(rawId)}` + (accName ? `&name=${encodeURIComponent(accName)}` : '');
+    window.open(q, '_blank');
 };
 
 
@@ -5597,31 +5658,20 @@ window.printReportDirectly = function(title, targetSelector) {
 })();
 
 
-window.syncHeaderExchangeRate = function() {
+window.syncHeaderExchangeRate = function(force = false) {
     try {
         const exVal = document.getElementById('global-exchange-rate-val');
         const exBox = document.getElementById('global-exchange-rate-box');
         if (!exVal) return;
-        
-        const token = localStorage.getItem('authToken');
-        if (token) {
-            fetch('api_index.php/exchange-rate', {
-                headers: { 'Authorization': 'Bearer ' + token }
-            }).then(r => r.json()).then(data => {
-                if (data && data.visible && data.rate) {
-                    const saasRate = parseFloat(data.rate);
-                    window._cachedGlobalRate = saasRate;
-                    localStorage.setItem('erp_cached_global_rate', saasRate.toString());
+
+        if (typeof window.fetchGlobalExchangeRateShared === 'function') {
+            window.fetchGlobalExchangeRateShared(force).then(data => {
+                const rateVal = data && data.rate ? parseFloat(data.rate) : (window._cachedGlobalRate || parseFloat(localStorage.getItem('erp_cached_global_rate') || '0'));
+                if (rateVal > 0 && (!data || data.visible !== false)) {
                     if (exBox) exBox.style.display = 'block';
-                    exVal.innerText = saasRate.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+                    exVal.innerText = rateVal.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2});
                 }
             }).catch(() => {});
-        } else {
-            const cached = localStorage.getItem('erp_cached_global_rate');
-            if (cached && parseFloat(cached) > 0) {
-                if (exBox) exBox.style.display = 'block';
-                exVal.innerText = parseFloat(cached).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2});
-            }
         }
     } catch(e) { console.error('Error syncing header exchange rate:', e); }
 };

@@ -1334,12 +1334,21 @@ class WhatsAppClient {
         let resolvedCustomerName = firstItem.pushName;
         let resolvedBankName = 'بنك الخرطوم (بنكك)';
 
-        // Process each receipt in the batch strictly sequentially (non-duplicated, no forgery check)
+        let hasActiveDesktopSession = false;
+        try {
+            const sessPath = path.join(__dirname, 'uploads', 'qr_bridge', `active_tenant_session_${tenantId}.json`);
+            if (fs.existsSync(sessPath)) {
+                const sObj = JSON.parse(fs.readFileSync(sessPath, 'utf8') || '{}');
+                if (sObj && sObj.channel && (Math.floor(Date.now() / 1000) - Number(sObj.updated_at || 0)) <= 3600) hasActiveDesktopSession = true;
+            }
+        } catch (_) {}
+
+        // Process each receipt in the batch (skip slow pre-OCR when streaming directly to active 3-column desktop session!)
         for (const item of currentBatch) {
             try {
                 const activeCaption = batchState.followUpPin || item.caption || sharedBatchCaption || '';
                 let precomputedOcr = null;
-                if (item.filePath && fs.existsSync(item.filePath)) {
+                if (!hasActiveDesktopSession && item.filePath && fs.existsSync(item.filePath)) {
                     try {
                         precomputedOcr = await Promise.race([
                             runFastOcrOnImage({ imagePath: item.filePath }),

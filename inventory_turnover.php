@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 $page_title = 'محلل ركود البضائع ومعدل الدوران';
 $header_theme_class = 'header-theme-reports';
 
@@ -357,9 +359,7 @@ if (!function_exists('convertReportAmount')) {
 </script>
 
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;800&family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -367,8 +367,8 @@ if (!function_exists('convertReportAmount')) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>محلل ركود البضائع ومعدل دوران المخزون | Al-Sajana ERP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script defer src="js/vendor/chart.umd.min.js"></script>
     <style>
         body {
             margin: 0 !important;
@@ -450,12 +450,12 @@ if (!function_exists('convertReportAmount')) {
 
         .glass-panel {
             background: var(--panel-bg);
-            backdrop-filter: blur(15px);
+            /* gpu-opt */
             border: 1px solid var(--border-neon);
             border-radius: 24px;
             padding: 30px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-            animation: pulseGlow 4s ease-in-out infinite;
+            animation: none; /* cpu-opt */
         }
 
         /* ====== الهيدر ====== */
@@ -485,7 +485,7 @@ if (!function_exists('convertReportAmount')) {
             text-decoration: none;
             font-size: 13px;
             font-family: 'Cairo';
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
         .btn-back:hover { background: rgba(0,255,255,0.1); color: var(--cyan); border-color: var(--cyan); }
 
@@ -525,7 +525,7 @@ if (!function_exists('convertReportAmount')) {
             font-family: 'Cairo';
             font-size: 13px;
             font-weight: 700;
-            transition: all 0.3s;
+            transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
         }
         .btn-filter:hover { background: rgba(0,255,255,0.3); transform: translateY(-1px); }
         .btn-reset {
@@ -537,7 +537,7 @@ if (!function_exists('convertReportAmount')) {
             cursor: pointer;
             font-family: 'Cairo';
             font-size: 12px;
-            transition: all 0.3s;
+            transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
         }
         .btn-reset:hover { color: var(--red); border-color: var(--red); }
 
@@ -554,7 +554,7 @@ if (!function_exists('convertReportAmount')) {
             border-radius: 18px;
             padding: 22px;
             text-align: center;
-            transition: all 0.4s ease;
+            transition: transform 0.4s ease, opacity 0.4s ease, background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
             position: relative;
             overflow: hidden;
         }
@@ -587,7 +587,7 @@ if (!function_exists('convertReportAmount')) {
             padding: 22px;
             position: relative;
             overflow: hidden;
-            transition: all 0.4s ease;
+            transition: transform 0.4s ease, opacity 0.4s ease, background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
         }
         .status-box:hover { transform: translateY(-3px); }
         .status-box .status-header {

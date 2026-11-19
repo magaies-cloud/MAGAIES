@@ -2177,9 +2177,6 @@ function getLastPurchasePriceForItem(itemId, unitName) {
 function openAdvancedColSettings(colId) {
     // Deprecated
 }
-function saveAdvancedColSettings() {
-    // Deprecated
-}
 
 // ════════════════════════════════════════
 //  RENDER GRID

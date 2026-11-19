@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
@@ -45,7 +47,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
     <link rel="stylesheet" href="css/components.css?v=20260726">
     <link rel="stylesheet" href="css/sales-invoice.css?v=20260726">
     <link rel="stylesheet" href="css/purchase-module-v2.css?v=<?php echo file_exists('css/purchase-module-v2.css') ? filemtime('css/purchase-module-v2.css') : '2027'; ?>">
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts" defer></script>
+    <script src="js/vendor/apexcharts.min.js" defer></script>
     <style>
         /* ── Modern Launcher Styling ── */
         .report-header { 
@@ -78,7 +80,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             font-family: inherit; 
             font-size: 0.9rem; 
             font-weight: 700;
-            transition: all 0.2s; 
+            transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s; 
             box-sizing: border-box;
             height: 40px;
         }
@@ -114,7 +116,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             cursor: pointer;
             font-size: 0.95rem;
             z-index: 12;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 2px 8px rgba(56, 189, 248,0.35);
         }
         .search-transfer-btn:hover {
@@ -209,17 +211,17 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             background: rgba(234, 179, 8, 0.25) !important;
             border-top: 2.5px solid #eab308 !important;
             border-bottom: 2.5px solid #eab308 !important;
-            animation: transferPulse 2.2s infinite ease-in-out;
+            animation: none; /* cpu-opt */
         }
         @keyframes transferPulse {
             0%, 100% { background: rgba(234, 179, 8, 0.2); box-shadow: inset 0 0 10px rgba(234, 179, 8, 0.3); }
             50% { background: rgba(234, 179, 8, 0.42); box-shadow: inset 0 0 20px rgba(234, 179, 8, 0.6); }
         }
         
-        .btn-run { background: linear-gradient(135deg, #0284c7, #0369a1); color: #ffffff; border: none; padding: 8px 20px; border-radius: 8px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content:center; gap: 8px; transition: all 0.3s; font-family: inherit; font-size: 0.95rem; height: 40px; box-shadow: 0 4px 15px rgba(126, 34, 206, 0.4); }
+        .btn-run { background: linear-gradient(135deg, #0284c7, #0369a1); color: #ffffff; border: none; padding: 8px 20px; border-radius: 8px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content:center; gap: 8px; transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s; font-family: inherit; font-size: 0.95rem; height: 40px; box-shadow: 0 4px 15px rgba(126, 34, 206, 0.4); }
         .btn-run:hover { background: linear-gradient(135deg, #fb923c, #c2410c); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(126, 34, 206, 0.6); }
 
-        .btn-action-secondary { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #f8fafc; padding: 8px 16px; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content:center; gap: 6px; transition: all 0.3s; font-family: inherit; font-size: 0.88rem; height: 40px; }
+        .btn-action-secondary { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); color: #f8fafc; padding: 8px 16px; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content:center; gap: 6px; transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s; font-family: inherit; font-size: 0.88rem; height: 40px; }
         .btn-action-secondary:hover { background: rgba(255,255,255,0.18); transform: translateY(-2px); }
         :root.light-theme .btn-action-secondary { background: #ffffff !important; border-color: rgba(0,0,0,0.15) !important; color: #0f172a !important; }
         
@@ -230,7 +232,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
     background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(135deg, color-mix(in srgb, var(--btn-color, #fff) 14%, rgba(255,255,255,0.06)), rgba(0,0,0,0.25)); 
     background-size: 3px 3px, auto; 
     border: 1.5px solid color-mix(in srgb, var(--btn-color, #fff) 45%, rgba(255,255,255,0.25)); 
-    backdrop-filter: blur(12px) saturate(150%); 
+    /* gpu-opt */ 
     color: #f8fafc; 
     padding: 0 16px; 
     border-radius: 12px; 
@@ -240,7 +242,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
     align-items: center; 
     justify-content: center; 
     gap: 6px; 
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); 
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); 
     font-family: inherit; 
     font-size: 0.95rem; 
     height: 42px; 
@@ -251,7 +253,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
 }
         @keyframes luxuryBreathe { 0% { box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 8px color-mix(in srgb, var(--btn-color, #fff) 15%, transparent); } 100% { box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 25px color-mix(in srgb, var(--btn-color, #fff) 50%, transparent); } }
         .luxury-action-btn::before { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 2px; background: linear-gradient(135deg, var(--btn-color, rgba(255,255,255,0.8)), transparent 40%, var(--btn-color, rgba(255,255,255,0.5))); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0.9; transition: opacity 0.4s; }
-        .luxury-action-btn::after { content: ''; position: absolute; top: 0; left: -100%; width: 75%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.65), transparent); transform: skewX(-25deg); animation: luxurySweep 4s cubic-bezier(0.4, 0, 0.2, 1) infinite; z-index: -1; }
+        .luxury-action-btn::after { content: ''; position: absolute; top: 0; left: -100%; width: 75%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.65), transparent); transform: skewX(-25deg); animation: none; /* cpu-opt */ z-index: -1; }
         .luxury-action-btn:hover { transform: translateY(-4px) scale(1.06); background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(135deg, color-mix(in srgb, var(--btn-color, #fff) 30%, transparent), color-mix(in srgb, var(--btn-color, #fff) 10%, rgba(0,0,0,0.3))); border-color: var(--btn-color, #fff); box-shadow: 0 15px 30px rgba(0,0,0,0.4), 0 0 30px var(--btn-color, rgba(255,255,255,0.5)), inset 0 0 20px color-mix(in srgb, var(--btn-color, #fff) 40%, transparent); color: #fff; text-shadow: 0 0 12px rgba(255,255,255,0.6); animation: none; }
         .luxury-action-btn:hover::before { opacity: 1; background: linear-gradient(135deg, #fff, var(--btn-color, #fff)); }
         
@@ -274,7 +276,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             align-items: center;
             justify-content: space-between;
             margin-bottom: 20px;
-            backdrop-filter: blur(8px);
+            /* gpu-opt */
             box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
             flex-wrap: wrap;
             gap: 10px;
@@ -285,7 +287,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         }
         .presets-slots-wrap { flex-grow: 1; display: flex; gap: 8px; align-items: center; }
         .preset-slot-btn {
-            position: relative; display: inline-flex; align-items: center; justify-content: center; height: 38px; font-size: 0.85rem; padding: 0 14px; border-radius: 10px; font-weight: 700; font-family: inherit; cursor: pointer; flex: 1; min-width: 80px; transition: all 0.3s; user-select: none; text-align: center; box-sizing: border-box; overflow:hidden;
+            position: relative; display: inline-flex; align-items: center; justify-content: center; height: 38px; font-size: 0.85rem; padding: 0 14px; border-radius: 10px; font-weight: 700; font-family: inherit; cursor: pointer; flex: 1; min-width: 80px; transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s; user-select: none; text-align: center; box-sizing: border-box; overflow:hidden;
         }
         .preset-slot-btn .hold-bar { position: absolute; bottom: 0; left: 0; height: 3px; width: 0%; border-bottom-left-radius: 9px; border-bottom-right-radius: 9px; }
         
@@ -314,7 +316,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         .preset-slot-btn[data-id="5"]:hover, .preset-slot-btn[data-id="5"].has-data { background: rgba(244,63,94,0.15); border: 1px solid rgba(244,63,94,0.5); color: #fb7185; }
         .preset-slot-btn[data-id="5"] .hold-bar { background: #f43f5e; }
 
-        .preset-slot-btn.has-data { box-shadow: 0 4px 15px rgba(255,255,255,0.05); animation: pulse 2s infinite ease-in-out; }
+        .preset-slot-btn.has-data { box-shadow: 0 4px 15px rgba(255,255,255,0.05); animation: none; /* cpu-opt */ }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
 
         .pos-grid { width: 100%; border-collapse: collapse; font-family: 'Tajawal', sans-serif; }
@@ -347,7 +349,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         
         .grid-scroll-wrap {
             background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(12px);
+            /* gpu-opt */
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -397,8 +399,8 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             padding: 10px 0;
             width: 290px;
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 25px rgba(56, 189, 248, 0.35);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            /* gpu-opt */
+            /* gpu-opt */
             display: none;
             direction: rtl;
             font-family: 'Tajawal', 'Cairo', sans-serif;
@@ -419,7 +421,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            transition: all 0.2s ease;
+            transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
         }
         .gl-ctx-item:hover {
             background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(56, 189, 248, 0.25));
@@ -462,7 +464,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             width: 220px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
             display: none;
-            backdrop-filter: blur(16px);
+            /* gpu-opt */
         }
         .gl-ctx-submenu:hover .gl-ctx-submenu-content {
             display: block;
@@ -471,7 +473,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         /* ── Draggable Luxury Master Column Customizer ── */
         .gl-modal-overlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(15, 23, 42, 0.25); backdrop-filter: blur(3px);
+            background: rgba(15, 23, 42, 0.25); /* gpu-opt */
             z-index: 100000; display: none;
             direction: rtl; font-family: 'Tajawal', sans-serif;
             pointer-events: auto;
@@ -485,7 +487,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             border-radius: 20px; padding: 14px 18px; width: 94%; max-width: 620px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(56, 189, 248, 0.3);
             color: #f8fafc;
-            backdrop-filter: blur(16px);
+            /* gpu-opt */
             z-index: 100001;
             user-select: none;
             max-height: 90vh;
@@ -497,7 +499,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             display: inline-flex; align-items: center; gap: 6px;
             background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15);
             padding: 4px 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 700;
-            color: #cbd5e1; cursor: pointer; transition: all 0.2s;
+            color: #cbd5e1; cursor: pointer; transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s;
         }
         .gl-col-chip:hover {
             background: rgba(56, 189, 248, 0.2); border-color: rgba(56, 189, 248, 0.5); color: #fff;
@@ -538,7 +540,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2);
             color: #cbd5e1; border-radius: 8px; width: 28px; height: 28px;
             display: inline-flex; align-items: center; justify-content: center;
-            font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
+            font-size: 0.8rem; cursor: pointer; transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s;
         }
         .gl-modal-ctrl-btn:hover {
             background: rgba(56, 189, 248, 0.25); color: #38bdf8; border-color: #38bdf8; transform: scale(1.08);
@@ -559,7 +561,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5);
             color: #f87171; border-radius: 50%; width: 30px; height: 30px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.05rem; cursor: pointer; transition: all 0.25s; font-weight: bold;
+            font-size: 1.05rem; cursor: pointer; transition: transform 0.25s, opacity 0.25s, background-color 0.25s, border-color 0.25s, color 0.25s; font-weight: bold;
         }
         .gl-modal-close-btn:hover {
             background: #ef4444; color: #fff; transform: scale(1.1) rotate(90deg);
@@ -680,7 +682,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             font-size: 0.84rem;
             font-weight: 900;
             cursor: pointer;
-            transition: all 0.15s ease;
+            transition: transform 0.15s ease, opacity 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
             white-space: nowrap;
         }
         .gl-all-btn:hover { border-color: #38bdf8; color: #ffffff; }
@@ -781,7 +783,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             justify-content: center;
             gap: 5px;
             white-space: nowrap;
-            transition: all 0.15s ease;
+            transition: transform 0.15s ease, opacity 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
         }
         .gl-elegant-pill-btn:hover { border-color: #38bdf8; transform: translateY(-1px); }
@@ -1867,8 +1869,8 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch(e) {}
     }
 
-    // Run continuously to guarantee instant live update
-    setInterval(scanAndCleanCells, 3000);
+    // Run throttled when tab visible (still fires immediately on DOMContentLoaded & load)
+    setInterval(function() { if (!document.hidden) scanAndCleanCells(); }, 25000);
     document.addEventListener('DOMContentLoaded', scanAndCleanCells);
     window.addEventListener('load', scanAndCleanCells);
 })();

@@ -1,8 +1,10 @@
-<?php $page_title = 'تسجيل شركة جديدة - السيطرة (MAGAIEES) SaaS'; ?>
+<?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+ $page_title = 'تسجيل شركة جديدة - السيطرة (MAGAIEES) SaaS'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تسجيل شركة جديدة - السيطرة (MAGAIEES) SaaS</title>
@@ -32,7 +34,7 @@
             max-width: 800px;
             padding: 30px;
             background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
+            /* gpu-opt */
             border-radius: 15px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
@@ -148,7 +150,7 @@
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(8px);
+            /* gpu-opt */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -170,7 +172,7 @@
             max-width: 400px;
             width: 90%;
             transform: translateY(20px) scale(0.95);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
         .custom-modal-overlay.active .custom-modal {
@@ -233,7 +235,7 @@
             border-radius: 10px;
             cursor: pointer;
             font-weight: bold;
-            transition: all 0.2s;
+            transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s;
             width: 100%;
         }
         .modal-action-btn:hover {
@@ -253,6 +255,7 @@
         }
     </style>
     <style id="global-zero-lag-css">.ambient-bg,.ambient-bg .orb,.preset-ribbon-btn::after,.preset-btn::after,.btn-action-hero::after,.btn-run::after,.action-tab.active::before,.sticky-footer::before{display:none!important;content:none!important}*,*::before,*::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important}button,a,input,select,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}button,.btn,.modern-btn,.preset-ribbon-btn,.preset-btn,.btn-action-hero,.btn-run,.action-tab,.fin-card,.pos-grid tbody tr{transition:background-color .08s ease,border-color .08s ease,opacity .08s ease!important}button:hover,.btn:hover,.modern-btn:hover,.preset-ribbon-btn:hover,.preset-btn:hover,.btn-action-hero:hover,.del-btn:hover,.modal-close:hover{transform:none!important}</style>
+    <link id="magaies-ophthalmic-ergo-css" rel="stylesheet" href="css/ophthalmic-ergonomics-2027.css?v=2027_gold_v8">
 </head>
 <body>
 

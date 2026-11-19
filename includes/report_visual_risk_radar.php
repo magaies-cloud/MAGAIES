@@ -4,7 +4,7 @@
  * Automatically adapts charts & risk gauges to the exact active report/tab!
  */
 ?>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/vendor/chart.umd.min.js"></script>
 <div id="sovereign-visual-risk-hub" class="no-print" style="margin-top:20px; display:grid; grid-template-columns:repeat(auto-fit,minmax(440px,1fr)); gap:18px;">
     <!-- 1. Dedicated Per-Report Visual Analytics Chart -->
     <div style="background:#0f172a; border:2px solid rgba(56,189,248,0.35); border-radius:18px; padding:18px 20px;" class="bs-card dr-card">

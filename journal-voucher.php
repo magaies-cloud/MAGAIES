@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 $page_title = 'منظومة سند قيد اليومية العام والتسويات المحاسبية الذكية 360°';
 ?>
 <!DOCTYPE html>
@@ -14,9 +16,7 @@ $page_title = 'منظومة سند قيد اليومية العام والتسو
 })();
 </script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منظومة سند قيد اليومية العام والتسويات الذكية 360° | السيطرة</title>
@@ -24,13 +24,12 @@ $page_title = 'منظومة سند قيد اليومية العام والتسو
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="css/sales-invoice.css">
-    <link rel="stylesheet" href="css/unified-design-tokens.css">
     <style>
         .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
         .toast {
             padding:12px 20px; border-radius:12px; font-weight:800; font-size:0.86rem;
             display:flex; align-items:center; gap:8px; pointer-events:auto;
-            backdrop-filter:blur(20px); box-shadow:0 12px 40px rgba(0,0,0,0.5);
+            /* gpu-opt */ box-shadow:0 12px 40px rgba(0,0,0,0.5);
             animation:toastIn 0.35s cubic-bezier(0.16,1,0.3,1) both;
             font-family:'Tajawal',sans-serif; max-width:90vw;
         }
@@ -114,7 +113,7 @@ $page_title = 'منظومة سند قيد اليومية العام والتسو
             background: rgba(30, 41, 59, 0.88);
             color: #f8fafc;
             text-decoration: none;
-            transition: all 0.2s ease;
+            transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
         }
 
         .jv-top-btn:hover {
@@ -151,7 +150,7 @@ $page_title = 'منظومة سند قيد اليومية العام والتسو
             font-size: 0.78rem;
             font-weight: 800;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
         }
 
         .jv-tpl-chip:hover {
@@ -176,7 +175,7 @@ $page_title = 'منظومة سند قيد اليومية العام والتسو
             position: sticky;
             top: 10px;
             z-index: 50;
-            backdrop-filter: blur(12px);
+            /* gpu-opt */
         }
         .bal-stat { text-align: center; padding: 4px 8px; border-left: 1px solid rgba(255,255,255,0.08); }
         .bal-stat:last-child { border-left: none; }
@@ -227,7 +226,7 @@ $page_title = 'منظومة سند قيد اليومية العام والتسو
         .btn-add-row {
             background: rgba(192, 132, 252, 0.12); color: #c084fc; border: 1.5px dashed #c084fc;
             padding: 10px 18px; border-radius: 10px; cursor: pointer; font-weight: 800; font-family: 'Tajawal', sans-serif;
-            transition: all 0.2s;
+            transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s;
         }
         .btn-add-row:hover { background: rgba(192, 132, 252, 0.22); }
 
@@ -512,7 +511,7 @@ $page_title = 'منظومة سند قيد اليومية العام والتسو
     </div>
 
     <!-- Edit Warning Modal -->
-    <div id="edit-warning-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px); z-index: 999999; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;">
+    <div id="edit-warning-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95);  z-index: 999999; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;">
         <div style="background: linear-gradient(135deg, #7f1d1d, #991b1b); border: 2px solid #f87171; border-radius: 20px; padding: 35px; width: 90%; max-width: 560px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
             <div style="font-size: 4rem; margin-bottom: 15px;">⚠️</div>
             <h2 style="color: #ffffff; font-size: 1.8rem; font-weight: 900; margin: 0 0 12px 0;">تنبيه: تعديل قيد مرحّل مسبقاً</h2>
@@ -567,7 +566,7 @@ $page_title = 'منظومة سند قيد اليومية العام والتسو
         setTimeout(() => { modal.style.display = 'none'; }, 250);
     }
     </script>
-    <script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
+    <!-- bg-media lazy-loaded via includes/header.php -->
     <script src="js/magaiees_back.js?v=2026_back_v2" defer></script>
 </body>
 </html>

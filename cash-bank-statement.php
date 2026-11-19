@@ -1,4 +1,6 @@
-<?php $page_title = 'دفتر أستاذ الخزن والبنوك'; ?>
+<?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+ $page_title = 'دفتر أستاذ الخزن والبنوك'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -12,8 +14,7 @@
 })();
 </script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>دفتر أستاذ الخزن والبنوك | Al-Sajana ERP</title>
@@ -45,7 +46,7 @@
         }
         .orb {
             position: absolute; border-radius: 50%; filter: blur(80px);
-            animation: float 20s infinite ease-in-out alternate;
+            animation: none; /* cpu-opt */
         }
         .orb-1 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(56,189,248,0.15), transparent 70%); top: -100px; right: -100px; animation-delay: 0s; }
         .orb-2 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(168,85,247,0.12), transparent 70%); bottom: -200px; left: -100px; animation-delay: -5s; }
@@ -81,14 +82,14 @@
         .header-icon-box::after {
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
-            transform: rotate(45deg); animation: shine 3s infinite;
+            transform: rotate(45deg); animation: none; /* cpu-opt */
         }
         @keyframes shine { 0% { left: -100%; } 20% { left: 100%; } 100% { left: 100%; } }
 
         /* Glass Filter Panel */
         .glass-panel {
             background: var(--glass-bg);
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            /* gpu-opt */ /* gpu-opt */
             border-radius: 24px; border: 1px solid var(--glass-border);
             padding: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05);
             margin-bottom: 30px; position: relative; overflow: hidden;
@@ -102,13 +103,13 @@
         .input-group label {
             position: absolute; top: -10px; right: 15px; background: #161122; padding: 0 8px;
             font-size: 0.8rem; font-weight: 700; color: var(--neon-blue); border-radius: 4px;
-            transition: all 0.3s; pointer-events: none;
+            transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s; pointer-events: none;
         }
         
         .glass-input {
             width: 100%; padding: 16px 20px; background: rgba(0,0,0,0.4);
             border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; color: #fff;
-            font-family: inherit; font-size: 1.05rem; font-weight: 500; transition: all 0.3s;
+            font-family: inherit; font-size: 1.05rem; font-weight: 500; transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
             box-sizing: border-box; outline: none;
         }
         .glass-input:focus {
@@ -121,7 +122,7 @@
             background: linear-gradient(135deg, #38bdf8, #0ea5e9);
             border: none; color: white; padding: 15px 35px;
             font-size: 1.15rem; font-weight: 800; border-radius: 16px;
-            cursor: pointer; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             display: flex; align-items: center; gap: 10px; font-family: inherit;
             box-shadow: 0 10px 25px rgba(56,189,248,0.4); position: relative; overflow: hidden;
         }
@@ -141,9 +142,9 @@
         }
         .kpi-card {
             background: linear-gradient(145deg, rgba(30,41,59,0.5) 0%, rgba(15,23,42,0.8) 100%);
-            backdrop-filter: blur(20px); border-radius: 20px; padding: 25px;
+            /* gpu-opt */ border-radius: 20px; padding: 25px;
             border: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: all 0.4s;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); transition: transform 0.4s, opacity 0.4s, background-color 0.4s, border-color 0.4s, color 0.4s;
             opacity: 0; transform: translateY(20px);
         }
         .kpi-card.show { opacity: 1; transform: translateY(0); }
@@ -166,7 +167,7 @@
         .table-container {
             border-radius: 24px; overflow: hidden; border: 1px solid var(--glass-border);
             box-shadow: 0 20px 50px rgba(0,0,0,0.5); background: rgba(0,0,0,0.3);
-            backdrop-filter: blur(15px);
+            /* gpu-opt */
         }
         .premium-table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: right; color: #fff; }
         .premium-table th {
@@ -176,11 +177,11 @@
         .premium-table td {
             padding: 18px 15px; border-bottom: 1px solid rgba(255,255,255,0.03);
             font-family: 'Inter', 'Tajawal', sans-serif; font-size: 1.05rem; font-weight: 500;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
         
         /* Table Row Animation */
-        .premium-table tbody tr { opacity: 0; transform: translateX(20px); transition: all 0.3s; }
+        .premium-table tbody tr { opacity: 0; transform: translateX(20px); transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s; }
         .premium-table tbody tr.show-row { opacity: 1; transform: translateX(0); }
         
         .premium-table tbody tr:hover td { background: rgba(255,255,255,0.03); }
@@ -298,6 +299,7 @@
         :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
 \n</style>
     <style id="global-zero-lag-css">.ambient-bg,.ambient-bg .orb,.preset-ribbon-btn::after,.preset-btn::after,.btn-action-hero::after,.btn-run::after,.action-tab.active::before,.sticky-footer::before{display:none!important;content:none!important}*,*::before,*::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important}button,a,input,select,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}button,.btn,.modern-btn,.preset-ribbon-btn,.preset-btn,.btn-action-hero,.btn-run,.action-tab,.fin-card,.pos-grid tbody tr{transition:background-color .08s ease,border-color .08s ease,opacity .08s ease!important}button:hover,.btn:hover,.modern-btn:hover,.preset-ribbon-btn:hover,.preset-btn:hover,.btn-action-hero:hover,.del-btn:hover,.modal-close:hover{transform:none!important}</style>
+    <link id="magaies-ophthalmic-ergo-css" rel="stylesheet" href="css/ophthalmic-ergonomics-2027.css?v=2027_gold_v3">
 </head>
 <body>
 
@@ -766,8 +768,8 @@
 
     </script>
 
-<script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
+<script>(function(){var l=0,q=[];window.ensureGlobalBgMedia=function(c){if(l&&typeof window.quickHeaderPlay==='function'){if(c)c();return;}if(c)q.push(c);if(document.querySelector('script[data-lazy-bgm]'))return;var s=document.createElement('script');s.src='js/global_background_media.js?v=<?= @filemtime(__DIR__."/js/global_background_media.js")?:2027 ?>';s.dataset.lazyBgm='1';s.onload=function(){l=1;q.splice(0).forEach(function(fn){try{fn();}catch(_){}});};document.body.appendChild(s);};['quickHeaderPlay','setHeaderMediaVolume','quickHeaderStop','openBackgroundPopout','toggleHeaderMediaDropdown','playPersistentMedia'].forEach(function(fn){if(typeof window[fn]!=='function')window[fn]=function(){var a=arguments;window.ensureGlobalBgMedia(function(){if(typeof window[fn]==='function')window[fn].apply(window,a);});};});try{if(localStorage.getItem('erp_bg_media_playing')==='1'||localStorage.getItem('magaies_live_tv_active')==='1')window.addEventListener('DOMContentLoaded',function(){setTimeout(function(){window.ensureGlobalBgMedia();},300);},{once:true});}catch(_){}})();</script>
 <script src="js/magaiees_back.js?v=2026_back_v2" defer></script>
-<script src="js/magaies-smart-guide.js" defer></script>
+<script>(function(){var l=0;window.loadMagaiesSmartGuide=function(c){if(l){if(c)c();return;}l=1;var s=document.createElement('script');s.src='js/magaies-smart-guide.js?v=<?= @filemtime(__DIR__."/js/magaies-smart-guide.js")?:2027 ?>';s.onload=function(){if(c)c();};document.body.appendChild(s);};window.addEventListener('keydown',function(e){if(e.key==='F1'){e.preventDefault();window.loadMagaiesSmartGuide();}});window.addEventListener('contextmenu',function(){window.loadMagaiesSmartGuide();},{once:true,passive:true});})();</script>
 </body>
 </html>

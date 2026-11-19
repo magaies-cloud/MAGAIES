@@ -7310,6 +7310,7 @@
         window.addEventListener('pageshow', bootUniversalC15);
 
         window.addEventListener('wheel', function (e) {
+            return; // Native browser Ctrl+Wheel zoom unblocked across all screens (25%–500%)
             if (!e.ctrlKey || typeof window.setPurchaseProportionalZoom === 'function' || typeof window.setSlProportionalZoom === 'function') return;
             e.preventDefault();
             const cur = getSavedGlobalScale();

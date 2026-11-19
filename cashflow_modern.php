@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 // ====================================================================
 // نظام Al-Sajana Smart ERP 2026 - كاشف التدفقات النقدية الفعلي V2
 // ====================================================================
@@ -211,13 +213,11 @@ $trend_outflow = count($monthly_outflows) > 1 ? (($monthly_outflows[count($month
 <head>
     <meta charset="UTF-8">
     <title>كاشف التدفقات النقدية | Al-Sajana ERP</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;800&family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/vendor/chart.umd.min.js"></script>
     <style>
         :root {
             --bg-dark: #090514;
@@ -246,7 +246,7 @@ $trend_outflow = count($monthly_outflows) > 1 ? (($monthly_outflows[count($month
         }
         .glass-panel {
             background: var(--panel-bg);
-            backdrop-filter: blur(15px);
+            /* gpu-opt */
             border: 1px solid var(--border-neon);
             border-radius: 24px;
             padding: 30px;
@@ -254,7 +254,7 @@ $trend_outflow = count($monthly_outflows) > 1 ? (($monthly_outflows[count($month
             animation: fadeIn 0.8s ease-out;
         }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .btn-back { background: transparent; color: var(--text-muted); border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 16px; border-radius: 12px; text-decoration: none; font-size: 13px; transition: all 0.3s; }
+        .btn-back { background: transparent; color: var(--text-muted); border: 1px solid rgba(255, 255, 255, 0.1); padding: 8px 16px; border-radius: 12px; text-decoration: none; font-size: 13px; transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s; }
         .btn-back:hover { background: rgba(255,255,255,0.05); color: #fff; }
         
         .filter-container { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 15px 20px; margin-bottom: 30px; display: flex; gap: 15px; align-items: center; flex-wrap: wrap; animation: slideUp 0.6s ease-out 0.2s backwards; }

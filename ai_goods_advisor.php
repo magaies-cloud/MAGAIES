@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 // =========================================================================
 // نظام السجانة والسيطرة ERP 2026
 // مستشار الذكاء الاصطناعي للبضائع والمخازن وسلاسل الإمداد (AI Goods & Inventory Advisor)
@@ -27,12 +29,10 @@ $serverPayload = json_encode([
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($page_title); ?> | السجانة ERP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
+    <link rel="stylesheet" href="css/all.min.css?v=2027">
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
-    <link rel="stylesheet" href="css/sidebar-panoramic-flyout.css">
-    <script src="js/theme.js"></script>
     <style>
         body {
             font-family: 'Cairo', sans-serif;
@@ -89,7 +89,7 @@ $serverPayload = json_encode([
             font-family: 'Cairo', sans-serif; font-size: 0.81rem; font-weight: 800;
             text-decoration: none; cursor: pointer;
             border: 1px solid rgba(255,255,255,0.16);
-            background: rgba(30, 41, 59, 0.88); color: #fff; transition: all 0.2s;
+            background: rgba(30, 41, 59, 0.88); color: #fff; transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s;
         }
         .g-btn:hover { transform: translateY(-2px); border-color: #34d399; }
         .g-btn.emerald { background: linear-gradient(135deg, #059669, #0d9488); border-color: #34d399; }
@@ -122,7 +122,7 @@ $serverPayload = json_encode([
             border-right: 4px solid var(--e-color, #34d399);
             border-radius: 16px; padding: 15px 16px;
             display: flex; flex-direction: column; justify-content: space-between; gap: 10px;
-            transition: all 0.22s;
+            transition: transform 0.22s, opacity 0.22s, background-color 0.22s, border-color 0.22s, color 0.22s;
         }
         .engine-card:hover {
             transform: translateY(-3px);

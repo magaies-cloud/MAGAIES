@@ -9,14 +9,17 @@ $iconData = 'data:image/svg+xml;base64,' . base64_encode($svg);
 echo json_encode([
     'name' => 'بوابة السيطرة لإرسال الإشعارات',
     'short_name' => 'السيطرة إشعارات',
-    'start_url' => 'send-receipt.php?' . $qs,
+    'id' => '/send-receipt.php?t=' . urlencode($t),
+    'start_url' => './send-receipt.php?' . $qs,
+    'scope' => './',
     'display' => 'standalone',
     'background_color' => '#050308',
     'theme_color' => '#047857',
     'dir' => 'rtl',
     'lang' => 'ar',
     'icons' => [
-        ['src' => $iconData, 'sizes' => '192x192', 'type' => 'image/svg+xml', 'purpose' => 'any maskable'],
-        ['src' => $iconData, 'sizes' => '512x512', 'type' => 'image/svg+xml', 'purpose' => 'any maskable']
+        ['src' => 'assets/icon-192.png', 'sizes' => '192x192', 'type' => 'image/png', 'purpose' => 'any'],
+        ['src' => 'assets/icon-512.png', 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'any'],
+        ['src' => 'assets/icon-maskable-512.png', 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'maskable']
     ]
 ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);

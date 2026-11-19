@@ -586,44 +586,39 @@ function calculateAccountLedgerBalance(p, allTxns, systemUsdRate, ccFilter = 'AL
 
     let intrinsicBalFc = entityExRate > 1 ? (intrinsicBal / entityExRate) : 0;
 
-    // 2. O(1) indexed lookup of transactions matching this account (50x faster than scanning allTxns per partner)
-    let partnerTxns;
-    const idxMap = (allTxns === ALL_TXNS && window._txnBucketMap) ? window._txnBucketMap : null;
-    const isRelevantEntityTxn = (t) => {
+    // 2. Exact General-Ledger Account Filter (100% Identical to js/general-ledger.js lines 1898-1926 — never mix counter-legs!)
+    const SYS_COUNTER_ACCS = /^(walk-in|walk-in-supplier|unknown|-|all|حسابات فرعية متعددة|revenue-sales|cost-purchases|tax-payable|tax-receivable|discount-allowed|discount-received|shipping-expense|labor-expense|extra-additions)$/i;
+    const matchesExactGLAccount = (t) => {
         if (!t || (ccFilter && ccFilter !== 'ALL' && t.costCenter !== ccFilter)) return false;
         if (t.type === 'opening' || t.ref === 'OPENING' || t.ref === 'OPEN-BAL') return false;
         const tAcc = String(t.account || '').trim();
-        if (!tAcc || /^(walk-in|walk-in-supplier|unknown|-|all|حسابات فرعية متعددة)$/i.test(tAcc)) return false;
+        if (!tAcc || SYS_COUNTER_ACCS.test(tAcc)) return false;
+        if (tAcc.toLowerCase() === pRefPrefixed.toLowerCase()) return true;
         const tPfx = (tAcc.match(/^(cust|supp|bank|safe|exp)-/i) || [''])[0].toLowerCase();
         if (prefix && tPfx && tPfx !== prefix.toLowerCase()) return false;
-        if (tPfx) {
-            const cT = tAcc.replace(/^(cust-|supp-|bank-|safe-|exp-|sub-|sust-)+/i, '').trim().toLowerCase();
-            return cT === pBareId.toLowerCase() || (pCode && pCode !== '-' && pCode.length >= 3 && cT === pCode.toLowerCase());
+        const cleanTAcc = tAcc.replace(/^(cust-|supp-|bank-|safe-|exp-|sub-|sust-)+/i, '').trim();
+        if (!cleanTAcc || SYS_COUNTER_ACCS.test(cleanTAcc)) return false;
+        if (pBareId && cleanTAcc.toLowerCase() === pBareId.toLowerCase()) {
+            if (!prefix || tPfx === prefix.toLowerCase() || (!tPfx && pBareId.length >= 6)) return true;
         }
-        return true;
+        if (pName && !tPfx) {
+            if (tAcc === pName) return true;
+            if (cleanTAcc.length < 6 && String(t.accountName || '').trim() === pName) return true;
+        }
+        return false;
     };
+    let partnerTxns;
+    const idxMap = (allTxns === ALL_TXNS && window._txnBucketMap) ? window._txnBucketMap : null;
     if (idxMap) {
         const hitSet = new Set();
         const addKey = (k) => { if (!k) return; const arr = idxMap.get(k); if (arr) for (let i = 0; i < arr.length; i++) hitSet.add(arr[i]); };
         addKey('id:' + pRefPrefixed.toLowerCase());
-        if (pBareId && pBareId.length >= 6) addKey('id:' + pBareId.toLowerCase());
-        if (pCode && pCode !== '-') addKey('id:' + pCode.toLowerCase());
+        if (pBareId) addKey('bare:' + pBareId.toLowerCase());
         if (pName) addKey('nm:' + pName);
-        if (normName) addKey('nm:' + normName);
-        if (compactName) addKey('cp:' + compactName);
         partnerTxns = [];
-        hitSet.forEach(t => { if (isRelevantEntityTxn(t)) partnerTxns.push(t); });
+        hitSet.forEach(t => { if (matchesExactGLAccount(t)) partnerTxns.push(t); });
     } else {
-        partnerTxns = (allTxns || []).filter(t => {
-            if (!isRelevantEntityTxn(t)) return false;
-            const tAcc = String(t.account || '').trim();
-            if (!tAcc) return false;
-            if (tAcc.toLowerCase() === pRefPrefixed.toLowerCase()) return true;
-            const cleanTAcc = tAcc.replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '').trim();
-            if ((pBareId.length >= 6 && cleanTAcc.toLowerCase() === pBareId.toLowerCase()) || (pCode && pCode !== '-' && (tAcc === pCode || cleanTAcc === pCode)) || (pName && tAcc === pName)) return true;
-            const normT = normalizeArabic(tAcc);
-            return !!(normName && (normT === normName || normT.replace(/\s+/g, '') === compactName));
-        });
+        partnerTxns = (allTxns || []).filter(matchesExactGLAccount);
     }
 
     // 3. Sort chronologically (oldest first at top, newest at bottom, same as general-ledger.js)
@@ -667,43 +662,11 @@ function calculateAccountLedgerBalance(p, allTxns, systemUsdRate, ccFilter = 'AL
         }
     });
 
-    // Foreign currency sign alignment matching general-ledger.js (lines 1175-1179 & 1236-1240)
-    if (runningBal < -0.001) {
-        runningBalFc = -Math.abs(runningBalFc);
-    } else if (runningBal > 0.001) {
-        runningBalFc = Math.abs(runningBalFc);
-    }
-
-    // 5. Ending balances mapping to the 4 columns
-    let endingDebitLocal = 0;
-    let endingCreditLocal = 0;
-    let endingDebitForeign = 0;
-    let endingCreditForeign = 0;
-
-    if (runningBal > 0.001) {
-        endingDebitLocal = Math.abs(runningBal);
-        endingCreditLocal = 0;
-        endingDebitForeign = Math.abs(runningBalFc);
-        endingCreditForeign = 0;
-    } else if (runningBal < -0.001) {
-        endingDebitLocal = 0;
-        endingCreditLocal = Math.abs(runningBal);
-        endingDebitForeign = 0;
-        endingCreditForeign = Math.abs(runningBalFc);
-    } else {
-        endingDebitLocal = 0;
-        endingCreditLocal = 0;
-        if (runningBalFc > 0.001) {
-            endingDebitForeign = Math.abs(runningBalFc);
-            endingCreditForeign = 0;
-        } else if (runningBalFc < -0.001) {
-            endingDebitForeign = 0;
-            endingCreditForeign = Math.abs(runningBalFc);
-        } else {
-            endingDebitForeign = 0;
-            endingCreditForeign = 0;
-        }
-    }
+    // 5. Ending balances mapping independently to the 4 columns (100% exact match with General Ledger final Local & Foreign balances!)
+    const endingDebitLocal    = runningBal > 0.001   ? Math.abs(runningBal)   : 0;
+    const endingCreditLocal   = runningBal < -0.001  ? Math.abs(runningBal)   : 0;
+    const endingDebitForeign  = runningBalFc > 0.001 ? Math.abs(runningBalFc) : 0;
+    const endingCreditForeign = runningBalFc < -0.001 ? Math.abs(runningBalFc) : 0;
 
     return {
         endingDebitLocal,
@@ -718,7 +681,7 @@ function calculateAccountLedgerBalance(p, allTxns, systemUsdRate, ccFilter = 'AL
 }
 
 function loadData() {
-    // Always rebuild GL from all tables to ensure fresh synchronization
+    // Always rebuild GL identically to general-ledger.js (non-destructive rebuild)
     if (typeof window.rebuildGLFromAllTables === 'function') {
         try {
             window.rebuildGLFromAllTables(false);
@@ -740,10 +703,12 @@ function loadData() {
         if (!Array.isArray(list2)) list2 = Object.values(list2 || {});
         
         const map = new Map();
+        const scoreRec = (r) => Math.abs(parseNum(r.openingBalance || r.opening_balance || r.openingDebit || r.openingCredit || r.balance || 0));
         [...list2, ...list1].forEach(v => {
             if (!v) return;
             const key = String(v.id || v.accountNo || v.code || v.name || Math.random()).trim();
-            map.set(key, v);
+            const prev = map.get(key);
+            if (!prev || scoreRec(v) >= scoreRec(prev)) map.set(key, Object.assign({}, prev || {}, v, (prev && scoreRec(v) === 0 && scoreRec(prev) > 0) ? { openingBalance: prev.openingBalance, openingDebit: prev.openingDebit, openingCredit: prev.openingCredit, balance: prev.balance } : {}));
         });
         return Array.from(map.values()).filter(v => v && !v.deleted && !v.is_deleted);
     }
@@ -900,25 +865,15 @@ function loadData() {
     ALL_TXNS.forEach(t => {
         if (!t) return;
         const tAcc = String(t.account || '').trim();
-        if (tAcc) {
-            pushKey('id:' + tAcc.toLowerCase(), t);
-            const cleanT = tAcc.replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '').trim();
-            if (cleanT && cleanT.length >= 6 && cleanT.toLowerCase() !== tAcc.toLowerCase()) pushKey('id:' + cleanT.toLowerCase(), t);
+        if (!tAcc) return;
+        pushKey('id:' + tAcc.toLowerCase(), t);
+        const cleanT = tAcc.replace(/^(cust-|supp-|bank-|safe-|exp-|sub-|sust-)+/i, '').trim();
+        if (cleanT) pushKey('bare:' + cleanT.toLowerCase(), t);
+        const hasPfx = /^(cust|supp|bank|safe|exp)-/i.test(tAcc);
+        if (!hasPfx) {
             pushKey('nm:' + tAcc, t);
-            const normT = normalizeArabic(tAcc);
-            if (normT) { pushKey('nm:' + normT, t); pushKey('cp:' + normT.replace(/\s+/g, ''), t); }
-            const tAccName = getAccountName(tAcc);
-            if (tAccName) {
-                pushKey('nm:' + tAccName, t);
-                const normTN = normalizeArabic(tAccName);
-                if (normTN) { pushKey('nm:' + normTN, t); pushKey('cp:' + normTN.replace(/\s+/g, ''), t); }
-            }
-        }
-        const tPartner = String(t.partner || t.accountName || '').trim();
-        if (tPartner) {
-            pushKey('id:' + tPartner, t); pushKey('nm:' + tPartner, t);
-            const normTP = normalizeArabic(tPartner);
-            if (normTP) { pushKey('nm:' + normTP, t); pushKey('cp:' + normTP.replace(/\s+/g, ''), t); }
+            const tAN = String(t.accountName || '').trim();
+            if (tAN && cleanT.length < 6) pushKey('nm:' + tAN, t);
         }
     });
     window._txnBucketMap = bMap;
@@ -943,6 +898,10 @@ async function syncFreshMasterForBalances() {
     _syncingMasterBalances = true;
     try {
         const tId = (window.SERVER_TENANT && window.SERVER_TENANT.id) || (JSON.parse(localStorage.getItem('user') || '{}').tenant_id) || '12';
+        if (typeof window.pullFromCloud === 'function') { try { await window.pullFromCloud(true); } catch (_) {} }
+        else if (typeof window.pullFromServer === 'function') { try { await window.pullFromServer(true); } catch (_) {} }
+        else if (typeof window.syncFromServer === 'function') { try { await window.syncFromServer(true); } catch (_) {} }
+        /* Never call mirror_sync?action=pull_all here — it overwrote erp_gl_v1 with stale mirror snapshots and diverged from general-ledger.js! */
         const res = await fetch('api/get_master_data.php?tenant_id=' + encodeURIComponent(tId) + '&_t=' + Date.now(), { cache: 'no-store' });
         const d = await res.json();
         if (d && (d.status === 'success' || d.success !== false)) {
@@ -962,6 +921,30 @@ async function syncFreshMasterForBalances() {
             mergeSave('erp_suppliers_v1', d.suppliers);
             mergeSave('erp_banks_v1', d.banks);
             mergeSave('erp_safes_v1', d.safes);
+            try {
+                const recRes = await fetch('api/inbound_receipts.php?action=list&tenant_id=' + encodeURIComponent(tId) + '&_t=' + Date.now(), { cache: 'no-store' });
+                const recData = await recRes.json();
+                if (recData && recData.success && Array.isArray(recData.data)) {
+                    const rKey = getTK('erp_receipts_v1');
+                    let storedR = []; try { storedR = JSON.parse(localStorage.getItem(rKey) || localStorage.getItem('erp_receipts_v1') || '[]'); if (!Array.isArray(storedR)) storedR = Object.values(storedR || {}); } catch(_){}
+                    const activeSet = Array.isArray(recData.active_voucher_nos) ? new Set(recData.active_voucher_nos.map(v => String(v).trim())) : null;
+                    if (activeSet) storedR = storedR.filter(v => v && !((v.source === 'whatsapp_inbound' || v.inboundReceiptId) && !activeSet.has(String(v.id || v.voucherNo || '').trim())));
+                    const sysR = getSystemUsdRate() || 6000;
+                    const cList = JSON.parse(localStorage.getItem(getTK('erp_customers_v1')) || localStorage.getItem('erp_customers_v1') || '[]');
+                    recData.data.slice().reverse().forEach(r => {
+                        if (!r || !r.voucher_no || (r.status !== 'verified' && r.status !== 'reconciled')) return;
+                        const vNo = String(r.voucher_no).trim(), amt = parseFloat(r.amount || 0) || 0;
+                        if (amt <= 0) return;
+                        let rawCid = String(r.customer_id || '').replace(/^cust-/, '').trim(), cNm = String(r.customer_name || 'عميل بنكك').trim();
+                        if (!rawCid && cNm && Array.isArray(cList)) { const fc = cList.find(c => c && c.name && c.name.trim() === cNm); if (fc && fc.id) rawCid = String(fc.id).replace(/^cust-/, ''); }
+                        const bId = String(r.bank_code || 'B-1700000000001').replace(/^bank-/, ''), bNm = String(r.bank_name || 'بنك الخرطوم').trim();
+                        const exIdx = storedR.findIndex(v => v && (String(v.voucherNo || '').trim() === vNo || String(v.id || '').trim() === vNo));
+                        if (exIdx > -1) { const ex = storedR[exIdx], exIt = ex.items && ex.items[0]; if ((exIt ? String(exIt.accountId || exIt.account || '').replace(/^cust-/, '') : '') === rawCid && Math.abs((parseFloat(ex.totalAmount || 0) || 0) - amt) < 0.01 && ex.isPosted !== false) return; storedR.splice(exIdx, 1); }
+                        storedR.push({ id: vNo, voucherNo: vNo, type: 'receipt', source: 'whatsapp_inbound', isGrouped: true, mainAccount: 'bank-' + bId, toAccount: 'bank-' + bId, fromAccount: 'حسابات فرعية متعددة', date: String(r.created_at || new Date().toISOString()).substring(0, 10), time: String(r.created_at || '').substring(11, 16) || '00:00', totalAmount: amt, amountLocal: amt, foreignAmount: +(amt / sysR).toFixed(2), amountForeign: +(amt / sysR).toFixed(2), currency: r.currency || 'SDG', exchangeRate: 1, systemExchangeRate: sysR, paymentMethod: 'hybrid', inboundReceiptId: Number(r.id), isPosted: true, items: [{ account: rawCid ? ('cust-' + rawCid) : cNm, accountId: rawCid ? ('cust-' + rawCid) : cNm, accountName: cNm, amount: amt, paymentMethods: ['bank'], paymentMethod: 'bank', bankAmount: amt, bankId: bId, bankName: bNm, transferNo: r.transfer_no || '' }] });
+                    });
+                    const rs = JSON.stringify(storedR); localStorage.setItem('erp_receipts_v1', rs); if (rKey !== 'erp_receipts_v1') localStorage.setItem(rKey, rs);
+                }
+            } catch (_) {}
             loadData();
             runReport(true);
         }
@@ -993,11 +976,11 @@ document.addEventListener('DBReady', autoInitBalancesReport);
 document.addEventListener('DOMContentLoaded', autoInitBalancesReport);
 window.addEventListener('load', autoInitBalancesReport);
 
+window.addEventListener('pageshow', () => { syncFreshMasterForBalances(); loadData(); runReport(true); });
+
 function runReport(isAutoInit = false) {
     window.runReport = runReport;
-    if (ALL_PARTNERS.length === 0) {
-        loadData();
-    }
+    loadData();
 
     const grpFilter = document.getElementById('filter-group') ? document.getElementById('filter-group').value : 'ALL';
     const sortFilter = document.getElementById('filter-sort') ? document.getElementById('filter-sort').value : 'BALANCE_DESC';
@@ -1019,6 +1002,31 @@ function runReport(isAutoInit = false) {
         p.runningBalFc = balRes.runningBalFc;
         p.lastDate = balRes.lastDate;
     });
+
+    if (ccFilter === 'ALL') {
+        try {
+            const getTK = window.getTenantKey || ((k) => k);
+            const balByType = { CUST: new Map(), SUPP: new Map(), BANK: new Map(), SAFE: new Map(), EXP: new Map() };
+            ALL_PARTNERS.forEach(p => { if (p && p.id && balByType[p.type]) balByType[p.type].set(String(p.id), p); });
+            [['CUST','erp_customers_v1'],['SUPP','erp_suppliers_v1'],['BANK','erp_banks_v1'],['SAFE','erp_safes_v1'],['EXP','erp_accounts_v1']].forEach(([tp, key]) => {
+                const tk = getTK(key);
+                let arr = []; try { arr = JSON.parse(localStorage.getItem(tk) || localStorage.getItem(key) || '[]'); } catch(_){}
+                if (!Array.isArray(arr) || !arr.length) return;
+                let changed = false;
+                arr.forEach(row => {
+                    const hit = row && row.id ? balByType[tp].get(String(row.id)) : null;
+                    if (!hit) return;
+                    const expectedCb = (tp === 'SUPP') ? -hit.runningBal : hit.runningBal;
+                    if (Math.abs((parseFloat(row.currentBalance) || 0) - expectedCb) > 0.005 || Math.abs((parseFloat(row.currentBalanceForeign) || 0) - (hit.runningBalFc || 0)) > 0.005) {
+                        row.currentBalance = expectedCb;
+                        row.currentBalanceForeign = hit.runningBalFc || 0;
+                        changed = true;
+                    }
+                });
+                if (changed) { const s = JSON.stringify(arr); localStorage.setItem(key, s); if (tk !== key) localStorage.setItem(tk, s); }
+            });
+        } catch (_) {}
+    }
 
     // Filter partners by group, sector, currency & condition
     let results = ALL_PARTNERS.filter(p => {

@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 // =============================================================
 // MAGAIEES ERP 2026 - Customer Inbound Bankak Receipt Submission Portal
 // بوابة العميل لإرسال إشعار تحويل بنكك وتأكيد السداد للشركة
@@ -28,9 +30,7 @@ try {
     <meta name="theme-color" content="#047857">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="السيطرة إشعارات">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <script src="js/magaiees_back.js?v=2026_back_universal" defer></script>
     <style>
         :root {
@@ -60,8 +60,8 @@ try {
             border-radius: 24px;
             padding: 24px 20px;
             box-shadow: 0 25px 60px rgba(0,0,0,0.85), 0 0 35px rgba(16, 185, 129, 0.25);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            /* gpu-opt */
+            /* gpu-opt */
         }
         .header {
             text-align: center;
@@ -103,7 +103,7 @@ try {
             font-family: 'Tajawal', sans-serif;
             font-size: 0.96rem;
             outline: none;
-            transition: all 0.25s ease;
+            transition: transform 0.25s ease, opacity 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
         }
         input:focus, select:focus, textarea:focus {
             border-color: var(--primary);
@@ -117,7 +117,7 @@ try {
             text-align: center;
             background: rgba(56, 189, 248, 0.05);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
             position: relative;
         }
         .file-upload-box:hover {
@@ -136,7 +136,7 @@ try {
             border-radius: 14px;
             cursor: pointer;
             box-shadow: 0 10px 25px rgba(16, 185, 129, 0.5);
-            transition: all 0.25s ease;
+            transition: transform 0.25s ease, opacity 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
             margin-top: 10px;
             display: flex;
             align-items: center;
@@ -159,6 +159,7 @@ try {
         }
     </style>
     <style id="global-zero-lag-css">.ambient-bg,.ambient-bg .orb,.preset-ribbon-btn::after,.preset-btn::after,.btn-action-hero::after,.btn-run::after,.action-tab.active::before,.sticky-footer::before{display:none!important;content:none!important}*,*::before,*::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important}button,a,input,select,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}button,.btn,.modern-btn,.preset-ribbon-btn,.preset-btn,.btn-action-hero,.btn-run,.action-tab,.fin-card,.pos-grid tbody tr{transition:background-color .08s ease,border-color .08s ease,opacity .08s ease!important}button:hover,.btn:hover,.modern-btn:hover,.preset-ribbon-btn:hover,.preset-btn:hover,.btn-action-hero:hover,.del-btn:hover,.modal-close:hover{transform:none!important}</style>
+    <link id="magaies-ophthalmic-ergo-css" rel="stylesheet" href="css/ophthalmic-ergonomics-2027.css?v=2027_gold_v8">
 </head>
 <body>
 
@@ -258,9 +259,19 @@ try {
 
     <script>
     let deferredSaitaraPrompt = null;
+    try {
+        const cn = document.getElementById('custName'), cp = document.getElementById('custPhone');
+        if (cn && !cn.value && localStorage.getItem('saitara_cust_name')) cn.value = localStorage.getItem('saitara_cust_name');
+        if (cp && !cp.value && localStorage.getItem('saitara_cust_phone')) cp.value = localStorage.getItem('saitara_cust_phone');
+    } catch (_) {}
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
         deferredSaitaraPrompt = e;
+        const b = document.getElementById('btnInstallPwa');
+        if (b) b.textContent = 'تثبيت فوري بضغطة ⬇️';
     });
     async function installSaitaraIcon() {
         if (deferredSaitaraPrompt) {
@@ -302,6 +313,10 @@ try {
         btn.innerHTML = '<span>🔄 جاري فحص الإشعار وتنزيله في الحسابات...</span>';
 
         const form = document.getElementById('receiptForm');
+        try {
+            localStorage.setItem('saitara_cust_name', document.getElementById('custName')?.value.trim() || '');
+            localStorage.setItem('saitara_cust_phone', document.getElementById('custPhone')?.value.trim() || '');
+        } catch (_) {}
         const formData = new FormData(form);
         formData.append('action', 'upload');
         formData.append('from_portal', '1');
@@ -343,6 +358,6 @@ try {
         }
     }
     </script>
-<script src="js/magaies-smart-guide.js" defer></script>
+<script>(function(){var l=0;window.loadMagaiesSmartGuide=function(c){if(l){if(c)c();return;}l=1;var s=document.createElement('script');s.src='js/magaies-smart-guide.js?v=<?= @filemtime(__DIR__."/js/magaies-smart-guide.js")?:2027 ?>';s.onload=function(){if(c)c();};document.body.appendChild(s);};window.addEventListener('keydown',function(e){if(e.key==='F1'){e.preventDefault();window.loadMagaiesSmartGuide();}});window.addEventListener('contextmenu',function(){window.loadMagaiesSmartGuide();},{once:true,passive:true});})();</script>
 </body>
 </html>

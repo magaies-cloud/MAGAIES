@@ -33,8 +33,9 @@ RewriteRule ^(.*)$ https://c.elsajana.com/$1 [R=301,L]
 # Cache static assets (fast low-bandwidth cache with instant ?v= busting & background revalidation)
 <IfModule mod_expires.c>
     ExpiresActive On
-    ExpiresByType text/css "access plus 5 minutes"
-    ExpiresByType application/javascript "access plus 5 minutes"
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
     ExpiresByType image/jpeg "access plus 1 year"
     ExpiresByType image/png "access plus 1 year"
     ExpiresByType image/gif "access plus 1 year"
@@ -48,7 +49,7 @@ RewriteRule ^(.*)$ https://c.elsajana.com/$1 [R=301,L]
         Header set Cache-Control "no-cache, no-store, must-revalidate, max-age=0"
     </FilesMatch>
     <FilesMatch "\.(css|js)$">
-        Header set Cache-Control "public, max-age=300, stale-while-revalidate=86400"
+        Header set Cache-Control "public, max-age=31536000, stale-while-revalidate=86400"
     </FilesMatch>
     <FilesMatch "\.(jpg|jpeg|png|gif|webp|svg|woff2)$">
         Header set Cache-Control "public, max-age=31536000, immutable"

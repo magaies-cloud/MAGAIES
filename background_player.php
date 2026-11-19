@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 $channelKey = isset($_GET['ch']) ? htmlspecialchars($_GET['ch']) : 'majd';
 ?>
 <!DOCTYPE html>
@@ -7,9 +9,7 @@ $channelKey = isset($_GET['ch']) ? htmlspecialchars($_GET['ch']) : 'majd';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>بث مباشر في الخلفية | Al-Sajana</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -46,7 +46,7 @@ $channelKey = isset($_GET['ch']) ? htmlspecialchars($_GET['ch']) : 'majd';
             border-radius: 50%;
             background: #ef4444;
             box-shadow: 0 0 10px #ef4444;
-            animation: pulse 1.5s infinite;
+            animation: none; /* cpu-opt */
         }
         @keyframes pulse {
             0%, 100% { transform: scale(1); opacity: 1; }
@@ -79,7 +79,7 @@ $channelKey = isset($_GET['ch']) ? htmlspecialchars($_GET['ch']) : 'majd';
         .channel-name { font-size: 13px; font-weight: 900; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .channel-sub { font-size: 11px; font-weight: 600; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
         .waves { display: flex; align-items: center; gap: 3px; height: 18px; }
-        .bar { width: 3px; background: #f59e0b; border-radius: 2px; animation: eq 1.2s infinite ease-in-out; }
+        .bar { width: 3px; background: #f59e0b; border-radius: 2px; animation: none; /* cpu-opt */ }
         .bar:nth-child(1) { height: 8px; animation-delay: 0.1s; }
         .bar:nth-child(2) { height: 16px; animation-delay: 0.3s; background: #fbbf24; }
         .bar:nth-child(3) { height: 12px; animation-delay: 0.5s; background: #fde047; }
@@ -134,6 +134,7 @@ $channelKey = isset($_GET['ch']) ? htmlspecialchars($_GET['ch']) : 'majd';
         }
     </style>
     <style id="global-zero-lag-css">.ambient-bg,.ambient-bg .orb,.preset-ribbon-btn::after,.preset-btn::after,.btn-action-hero::after,.btn-run::after,.action-tab.active::before,.sticky-footer::before{display:none!important;content:none!important}*,*::before,*::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important}button,a,input,select,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}button,.btn,.modern-btn,.preset-ribbon-btn,.preset-btn,.btn-action-hero,.btn-run,.action-tab,.fin-card,.pos-grid tbody tr{transition:background-color .08s ease,border-color .08s ease,opacity .08s ease!important}button:hover,.btn:hover,.modern-btn:hover,.preset-ribbon-btn:hover,.preset-btn:hover,.btn-action-hero:hover,.del-btn:hover,.modal-close:hover{transform:none!important}</style>
+    <link id="magaies-ophthalmic-ergo-css" rel="stylesheet" href="css/ophthalmic-ergonomics-2027.css?v=2027_gold_v8">
 </head>
 <body>
 

@@ -520,13 +520,13 @@ if ($fraudCheck) {
   \"currency\": \"SDG\" | \"USD\" | \"SAR\",
   \"date\": \"YYYY-MM-DD\",
   \"due_date\": \"YYYY-MM-DD\",
-  \"time\": \"HH:MM\",
+  \"time\": \"HH:MM:SS (الزمن بالساعة والدقيقة والثانية كما في الإشعار)\",
   \"sender_name\": \"اسم المحول\",
-  \"sender_account\": \"من حساب\",
+  \"sender_account\": \"من حساب كاملاً بدون اختصار\",
   \"receiver_name\": \"المستلم / إلى\",
-  \"receiver_account\": \"إلى حساب\",
-  \"receiver_phone\": \"\",
-  \"notes\": \"\",
+  \"receiver_account\": \"إلى حساب كاملاً\",
+  \"receiver_phone\": \"رقم الهاتف إن وجد\",
+  \"notes\": \"التعليق أو البيان المكتوب في الإشعار حرفياً حتى لو كان رقماً فقط مثل 13500\",
   \"confidence_score\": 95,
   \"tampering_score\": 0,
   \"is_suspicious\": false,
@@ -558,13 +558,13 @@ if ($fraudCheck) {
   \"currency\": \"SDG\" | \"SAR\" | \"USD\",
   \"date\": \"YYYY-MM-DD\",
   \"due_date\": \"YYYY-MM-DD\",
-  \"time\": \"\",
+  \"time\": \"HH:MM:SS (الزمن بالساعة والدقيقة والثانية كما في الإشعار)\",
   \"sender_name\": \"اسم المحول\",
-  \"sender_account\": \"من حساب\",
+  \"sender_account\": \"من حساب كاملاً بدون اختصار\",
   \"receiver_name\": \"المستلم / إلى\",
-  \"receiver_account\": \"إلى حساب\",
-  \"receiver_phone\": \"\",
-  \"notes\": \"\",
+  \"receiver_account\": \"إلى حساب كاملاً\",
+  \"receiver_phone\": \"رقم الهاتف إن وجد\",
+  \"notes\": \"التعليق أو البيان المكتوب في الإشعار حرفياً حتى لو كان رقماً فقط مثل 13500\",
   \"confidence_score\": 98,
   \"tampering_score\": 0,
   \"is_suspicious\": false,
@@ -624,7 +624,7 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
             @mkdir($sharedOcrDir, 0777, true);
         }
         $workDir = (is_dir($sharedOcrDir) && is_writable($sharedOcrDir)) ? $sharedOcrDir : sys_get_temp_dir();
-        $cacheFile = $workDir . DIRECTORY_SEPARATOR . 'magaiees_winocr_v2_' . $imgHash . '.json';
+        $cacheFile = $workDir . DIRECTORY_SEPARATOR . 'magaiees_winocr_v3_' . $imgHash . '.json';
 
         $arItems = [];
         $enItems = [];
@@ -1020,9 +1020,27 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
             }
         };
 
+        $extractMoneyCandidates = function($str) {
+            $s = strtr((string)$str, ['٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4','٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9','۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9','٬'=>',','٫'=>'.','O'=>'0','o'=>'0','I'=>'1','l'=>'1']);
+            $s = preg_replace('/(?<=\d)\s*([,.])\s*(?=\d)/', '$1', $s);
+            $out = [];
+            if (preg_match_all('/(?<![0-9,.])([0-9]{1,4}(?:[,.][0-9]{3})+(?:[,.][0-9]{1,2})?|[0-9]{3,10}(?:[,.][0-9]{1,2})?)(?![0-9,.])/', $s, $mm)) {
+                foreach ($mm[1] as $tok) {
+                    $intStr = preg_replace('/[,.][0-9]{1,2}$/', '', $tok);
+                    $dOnly = preg_replace('/\D/', '', $intStr);
+                    if ($dOnly !== '' && strlen($dOnly) <= 10) {
+                        $v = floatval($dOnly);
+                        if ($v >= 100 && $v < 10000000000) $out[] = $v;
+                    }
+                }
+            }
+            return $out;
+        };
         $senderAcc = '';
         $receiverAcc = '';
         $receiverName = '';
+        $spatialAmount = 0.0;
+        $hasVisibleAmountLabel = false;
         $spatialRefCandidates = [];
         $hasVisibleRefLabel = false;
 
@@ -1077,20 +1095,29 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
                     }
                 }
             } else {
-                // Any non-REF labeled row: blacklist all numbers on this row from ever becoming transaction_ref!
+                // Only blacklist numbers strictly on the SAME horizontal row (never adjacent rows, and never .00 decimals!)
                 $combinedRowDigits = '';
                 foreach ($valItems as $vi) {
-                    if ($cat !== 'AMOUNT') {
+                    $isSameY = (abs($vi['y'] - $lRow['y']) <= $rowTol);
+                    $hasCents = (bool)preg_match('/[.,][0-9OoIl]{2}(?!\d)/', $vi['text']);
+                    if ($cat !== 'AMOUNT' && $isSameY && !$hasCents) {
                         $blacklistValueString($vi['text']);
                         $blacklistValueString($vi['rtl_text']);
-                    }
-                    if (abs($vi['y'] - $lRow['y']) <= $rowTol * 2.5) {
                         $dPart = preg_replace('/\D/', '', strtr($vi['text'], ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']));
                         $combinedRowDigits .= $dPart;
                     }
                 }
                 if ($combinedRowDigits !== '' && $cat !== 'AMOUNT') {
                     $excludedRefTokens[$combinedRowDigits] = true;
+                }
+                if ($cat === 'AMOUNT') {
+                    $hasVisibleAmountLabel = true;
+                    foreach (array_merge($valItems, [$lRow['item']]) as $vi) {
+                        if (abs($vi['y'] - $lRow['y']) > $rowTol * 1.2) continue;
+                        foreach ($extractMoneyCandidates($vi['text']) as $cAmt) {
+                            if ($cAmt > $spatialAmount) $spatialAmount = $cAmt;
+                        }
+                    }
                 }
 
                 // Populate Sender Account / Receiver Account / Receiver Name from their exact spatial rows
@@ -1113,16 +1140,17 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
                         }
                     }
                 } elseif ($cat === 'RECEIVER_NAME' && $receiverName === '') {
+                    $nameParts = [];
                     foreach (array_merge($valItems, [$lRow['item']]) as $vi) {
                         $hasAr = preg_match('/\p{Arabic}/u', $vi['rtl_text']);
                         $txt = trim($hasAr ? $vi['rtl_text'] : $vi['text']);
                         $txt = trim(preg_replace('/(?:[إا]سم\s*المرسل\s*[إاز]ليه|[إاز]ليه\s*المرسل\s*[إا]سم|[إا]سم\s*المستفيد|المستفيد\s*[إا]سم|الستقيد|SEELEY|soot|\(So|al\b)/ui', ' ', $txt));
                         $txt = trim(preg_replace('/\s+/u', ' ', $txt));
-                        if (preg_match('/[\p{Arabic}A-Za-z]{3,}/u', $txt) && !preg_match('/\d{4}/', $txt) && !preg_match('/^(فوري|ساهل|بنكك|أوكاش|نجاح|إلى|الى|من)$/u', $txt)) {
-                            $receiverName = $txt;
-                            break;
+                        if (preg_match('/[\p{Arabic}A-Za-z]{2,}/u', $txt) && !preg_match('/\d{3,}/', $txt) && !preg_match('/^(فوري|ساهل|بنكك|أوكاش|نجاح|إلى|الى|من|N\/A)$/ui', $txt)) {
+                            if (!in_array($txt, $nameParts, true)) $nameParts[] = $txt;
                         }
                     }
+                    if (!empty($nameParts)) $receiverName = implode(' ', $nameParts);
                 }
             }
         }
@@ -1212,36 +1240,54 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
         if (($senderAcc === '' || !preg_match('/^\d{4}\s+\d{4}\s+\d{4}\s+\d{4}$/', $senderAcc)) && isset($accMatches[0])) $senderAcc = $accMatches[0];
         if (($receiverAcc === '' || !preg_match('/^\d{4}\s+\d{4}\s+\d{4}\s+\d{4}$/', $receiverAcc)) && isset($accMatches[1])) $receiverAcc = $accMatches[1];
 
-        // 4. Extract Financial Amount (المبلغ)
-        $amount = 0.0;
-        foreach (array_merge($enClean, $arClean) as $line) {
-            if (stripos($line, 'SDG') !== false) {
-                $normNum = strtr(trim($line), ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']);
-                $sdgPos = stripos($normNum, 'SDG');
-                $beforeSdg = substr($normNum, 0, $sdgPos);
-                $afterSdg  = trim(substr($normNum, $sdgPos + 3));
-                $afterSdgClean = trim($afterSdg, " :.,-");
-
-                // O-Cash RTL reconstruction when "000" groups appear BEFORE "SDG" (e.g. "OOO,OOO.OO,SDG5")
-                if (strpos($beforeSdg, '000') !== false && preg_match('/^([1-9]\d{0,2})(?:[.,](\d{3}))?$/', $afterSdgClean, $mRtlLead)) {
-                    $leadDigits = $mRtlLead[1] . ($mRtlLead[2] ?? '');
-                    $withoutCents = preg_replace('/[.,]00\b/', '', $beforeSdg);
-                    $zeroGroups = preg_match_all('/000/', $withoutCents);
-                    if ($zeroGroups > 0) {
-                        $constructed = $leadDigits . str_repeat('000', $zeroGroups);
-                        $candAmt = floatval($constructed);
-                        if ($candAmt > $amount && $candAmt < 10000000000) {
-                            $amount = $candAmt;
+        // 4. Extract Financial Amount (المبلغ) — يدعم الأرقام العربية والفواصل والمسافات ووجود SDG قبل أو بعد المبلغ
+        $normArDigits = function($s) {
+            return strtr((string)$s, ['٠'=>'0','١'=>'1','٢'=>'2','٣'=>'3','٤'=>'4','٥'=>'5','٦'=>'6','٧'=>'7','٨'=>'8','٩'=>'9','۰'=>'0','۱'=>'1','۲'=>'2','۳'=>'3','۴'=>'4','۵'=>'5','۶'=>'6','۷'=>'7','۸'=>'8','۹'=>'9','٬'=>',','٫'=>'.']);
+        };
+        $amount = $spatialAmount;
+        if ($amount <= 0) {
+            foreach ($arItems as $lblIt) {
+                if (preg_match('/(?:المبلغ|مبلغ|الإجمالي|اجمالي)/u', ($lblIt['rtl_text'] ?? '') . ' ' . ($lblIt['text'] ?? ''))) {
+                    $hasVisibleAmountLabel = true;
+                    foreach (array_merge($enItems, $arItems) as $valIt) {
+                        if ($valIt === $lblIt || abs(($valIt['y'] ?? 0) - ($lblIt['y'] ?? 0)) > 28) continue;
+                        foreach ($extractMoneyCandidates($valIt['text'] ?? '') as $cAmt) {
+                            if ($cAmt > $amount) $amount = $cAmt;
                         }
                     }
-                } elseif (preg_match('/^SDG\s*([0-9][0-9,.\s]*)$/i', $normNum, $mDirectSdg)) {
-                    $rawVal = trim($mDirectSdg[1]);
-                    $rawVal = preg_replace('/[.,]\d{2}$/', '', $rawVal);
-                    $digitsVal = preg_replace('/\D/', '', $rawVal);
-                    $candAmt = floatval($digitsVal);
-                    if ($candAmt >= 100 && $candAmt < 10000000000 && $candAmt > $amount) {
-                        $amount = $candAmt;
+                }
+            }
+        }
+        $allMergedLines = array_values(array_map($normArDigits, array_merge($enClean, $arClean)));
+        foreach ($allMergedLines as $liAmt => $line) {
+            if (preg_match('/(SDG|ج\.س|جنيه)/ui', $line)) {
+                $normNum = strtr(trim($line), ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']);
+                $sdgPos = stripos($normNum, 'SDG');
+                if ($sdgPos !== false) {
+                    $beforeSdg = substr($normNum, 0, $sdgPos);
+                    $afterSdg  = trim(substr($normNum, $sdgPos + 3));
+                    $afterSdgClean = trim($afterSdg, " :.,-");
+                    if (strpos($beforeSdg, '000') !== false && preg_match('/^([1-9]\d{0,2})(?:[.,](\d{3}))?$/', $afterSdgClean, $mRtlLead)) {
+                        $leadDigits = $mRtlLead[1] . ($mRtlLead[2] ?? '');
+                        $withoutCents = preg_replace('/[.,]00\b/', '', $beforeSdg);
+                        $zeroGroups = preg_match_all('/000/', $withoutCents);
+                        if ($zeroGroups > 0) {
+                            $candAmt = floatval($leadDigits . str_repeat('000', $zeroGroups));
+                            if ($candAmt > $amount && $candAmt < 10000000000) $amount = $candAmt;
+                        }
                     }
+                }
+                if ($amount <= 0) {
+                    foreach ($extractMoneyCandidates($normNum) as $candAmt) {
+                        if ($candAmt > $amount) $amount = $candAmt;
+                    }
+                }
+            }
+            if ($amount <= 0 && preg_match('/(?:المبلغ|مبلغ|Amount)/ui', $line)) {
+                $hasVisibleAmountLabel = true;
+                $poolAmt = $line . ' ' . ($allMergedLines[$liAmt + 1] ?? '');
+                foreach ($extractMoneyCandidates($poolAmt) as $candAmt) {
+                    if ($candAmt > $amount) $amount = $candAmt;
                 }
             }
         }
@@ -1249,20 +1295,11 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
         $candidateSearchLines = array_merge($enClean, $arClean);
         if ($amount <= 0) {
             foreach ($candidateSearchLines as $line) {
-                $t = trim($line);
+                $t = trim($normArDigits($line));
                 $tClean = trim(preg_replace('/\bSDG\b/i', '', $t));
-                if (preg_match_all('/(?<!\d)([0-9OoIl]{1,4}(?:,[0-9OoIl]{3})+\.[0-9OoIl]{2}|[0-9OoIl]{3,10}\.[0-9OoIl]{2})(?!\d)/', $tClean, $mDecMatches)) {
-                    foreach ($mDecMatches[1] as $rawDec) {
-                        $fixed = strtr($rawDec, ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']);
-                        $intPart = substr($fixed, 0, -3);
-                        $centsPart = substr($fixed, -2);
-                        $digitsOnly = preg_replace('/\D/', '', $intPart);
-                        $candAmt = floatval($digitsOnly . '.' . $centsPart);
-                        if ($candAmt >= 100 && $candAmt < 10000000000 && !isset($excludedRefTokens[(string)$digitsOnly])) {
-                            if ($candAmt > $amount) {
-                                $amount = $candAmt;
-                            }
-                        }
+                if (preg_match('/(?:[0-9OoIl]\s*[,.]\s*[0-9OoIl]{2}|000\s*[,.]\s*[0Oo])(?![0-9,.])/', $tClean)) {
+                    foreach ($extractMoneyCandidates($tClean) as $candAmt) {
+                        if ($candAmt > $amount) $amount = $candAmt;
                     }
                 }
             }
@@ -1359,18 +1396,61 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
             $appName  = 'أوكاش';
         }
 
-        // 7. Extract Date
-        $docDate = date('Y-m-d');
-        foreach ($allLines as $line) {
-            $t = strtr($line, ['O' => '0', 'o' => '0', 'I' => '1', 'l' => '1']);
-            if (preg_match('/(\d{1,2})[-\/]([A-Za-z]{3}|\d{1,2})[-\/](20\d{2})/i', $t, $mD)) {
-                $ts = strtotime($mD[1] . '-' . $mD[2] . '-' . $mD[3]);
-                if ($ts) { $docDate = date('Y-m-d', $ts); break; }
-            } elseif (preg_match('/(20\d{2})[-\/]([A-Za-z]{3}|\d{1,2})[-\/](\d{1,2})/i', $t, $mD2)) {
-                $ts = strtotime($mD2[3] . '-' . $mD2[2] . '-' . $mD2[1]);
-                if ($ts) { $docDate = date('Y-m-d', $ts); break; }
+        // 7. Extract Date, Exact Time (HH:MM:SS), and Receipt Comment (التعليق) without corrupting month letters (Nov/Oct/Jul)
+        $docDate = '';
+        $foundExplicitDate = false;
+        $docTime = '';
+        $extractedNote = '';
+        $arMonths = ['يناير'=>'01','فبراير'=>'02','مارس'=>'03','أبريل'=>'04','ابريل'=>'04','مايو'=>'05','يونيو'=>'06','يوليو'=>'07','أغسطس'=>'08','اغسطس'=>'08','سبتمبر'=>'09','أكتوبر'=>'10','اكتوبر'=>'10','نوفمبر'=>'11','ديسمبر'=>'12'];
+        $enMonths = ['jan'=>'01','feb'=>'02','mar'=>'03','apr'=>'04','may'=>'05','jun'=>'06','jul'=>'07','aug'=>'08','sep'=>'09','oct'=>'10','nov'=>'11','dec'=>'12'];
+        foreach ($allLines as $li => $rawLine) {
+            $line = $normArDigits($rawLine);
+            if ($docTime === '' && preg_match('/\b(\d{1,2}:\d{2}(?::\d{2})?)\b/', $line, $mTm)) {
+                $docTime = $mTm[1];
+            }
+            if (!$foundExplicitDate) {
+                $lineFixed = preg_replace(['/\bN0v\b/i','/\b0ct\b/i','/\bJu1\b/i','/\b2[Oo]2(\d)\b/','/\b[Oo](\d)\b/'], ['Nov','Oct','Jul','202$1','0$1'], $line);
+                if (preg_match('/\b(\d{1,2})\s*[-\/\s]\s*([A-Za-z]{3})\s*[-\/\s]\s*(20\d{2})\b/i', $lineFixed, $mEnD)) {
+                    $mm = $enMonths[strtolower($mEnD[2])] ?? '';
+                    if ($mm !== '') { $docDate = sprintf('%04d-%s-%02d', (int)$mEnD[3], $mm, (int)$mEnD[1]); $foundExplicitDate = true; }
+                } elseif (preg_match('/\b(20\d{2})\s*[-\/\s]\s*([A-Za-z]{3})\s*[-\/\s]\s*(\d{1,2})\b/i', $lineFixed, $mEnYmd)) {
+                    $mm = $enMonths[strtolower($mEnYmd[2])] ?? '';
+                    if ($mm !== '') { $docDate = sprintf('%04d-%s-%02d', (int)$mEnYmd[1], $mm, (int)$mEnYmd[3]); $foundExplicitDate = true; }
+                } elseif (preg_match('/\b(\d{1,2})\s*[-\/\s]\s*(يناير|فبراير|مارس|أبريل|ابريل|مايو|يونيو|يوليو|أغسطس|اغسطس|سبتمبر|أكتوبر|اكتوبر|نوفمبر|ديسمبر)\s*[-\/\s]\s*(20\d{2})\b/u', $lineFixed, $mArD)) {
+                    $mm = $arMonths[$mArD[2]] ?? '';
+                    if ($mm !== '') { $docDate = sprintf('%04d-%s-%02d', (int)$mArD[3], $mm, (int)$mArD[1]); $foundExplicitDate = true; }
+                } elseif (preg_match('/\b(20\d{2})\s*[-\/]\s*(\d{1,2})\s*[-\/]\s*(\d{1,2})\b/', $lineFixed, $mIso)) {
+                    if ((int)$mIso[2] >= 1 && (int)$mIso[2] <= 12 && (int)$mIso[3] >= 1 && (int)$mIso[3] <= 31) {
+                        $docDate = sprintf('%04d-%02d-%02d', (int)$mIso[1], (int)$mIso[2], (int)$mIso[3]); $foundExplicitDate = true;
+                    }
+                } elseif (preg_match('/\b(\d{1,2})\s*[-\/]\s*(\d{1,2})\s*[-\/]\s*(20\d{2})\b/', $lineFixed, $mDmy)) {
+                    $d1 = (int)$mDmy[1]; $m1 = (int)$mDmy[2];
+                    if ($m1 > 12 && $d1 <= 12) { $tmp = $d1; $d1 = $m1; $m1 = $tmp; }
+                    if ($m1 >= 1 && $m1 <= 12 && $d1 >= 1 && $d1 <= 31) {
+                        $docDate = sprintf('%04d-%02d-%02d', (int)$mDmy[3], $m1, $d1); $foundExplicitDate = true;
+                    }
+                }
+            }
+            if ($extractedNote === '' && preg_match('/(?:التعليق|تعليق|الملاحظات|ملاحظات|البيان|Comment|Remarks)\s*[:\-]?\s*(.*)$/ui', trim($line), $mNt)) {
+                $candNote = trim($mNt[1]);
+                if ($candNote === '' && isset($allLines[$li + 1])) $candNote = trim($normArDigits($allLines[$li + 1]));
+                if ($candNote !== '' && !preg_match('/^(التاريخ|المبلغ|رقم|إلى|من)$/u', $candNote)) $extractedNote = $candNote;
             }
         }
+            if ($extractedNote === '') {
+                foreach ($arItems as $lblIt) {
+                    if (preg_match('/(?:التعليق|تعليق|الملاحظات|البيان)/u', $lblIt['rtl_text'] ?? $lblIt['text'] ?? '')) {
+                        foreach ($arItems as $valIt) {
+                            if ($valIt === $lblIt) continue;
+                            if (abs(($valIt['y'] ?? 0) - ($lblIt['y'] ?? 0)) <= 28 && ($valIt['x'] ?? 0) < ($lblIt['x'] ?? 999)) {
+                                $candV = trim($normArDigits($valIt['rtl_text'] ?? $valIt['text'] ?? ''));
+                                if ($candV !== '' && strtoupper($candV) !== 'N/A') { $extractedNote = $candV; break 2; }
+                            }
+                        }
+                    }
+                }
+            }
+            if ($docDate === '') $docDate = date('Y-m-d');
 
         // NOTE: Do NOT generate fake 9xxxxxxxxx numbers when transactionRef is missing/scrolled out of frame!
         $isCroppedMissingRef = (empty($transactionRef) && $amount > 0);
@@ -1414,13 +1494,15 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
                 : 'الإشعار سليم وأصلي — خط رقم العملية (' . $transactionRef . ') والمبلغ (' . number_format($amount, 2) . ' SDG) متطابقان مع قالب ' . $bankName . ' بدون آثار تعديل رقمي';
         }
 
-        if ($amount <= 0 && empty($transactionRef)) {
+        // Keep partial local OCR data if Gemini quota fails, while marking found_explicit_date for smart escalation
+        if ($amount <= 0 && empty($transactionRef) && empty($senderAcc) && empty($receiverAcc)) {
             return null;
         }
 
         $dupInfo = !empty($transactionRef) ? checkBankReferenceDuplicateInDB($transactionRef) : null;
 
         return [
+            'found_explicit_date' => $foundExplicitDate,
             'is_financial_doc'    => true,
             'is_approved_template'=> true,
             'is_non_financial'    => false,
@@ -1438,13 +1520,13 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
             'currency'            => 'SDG',
             'date'                => $docDate,
             'due_date'            => $docDate,
-            'time'                => date('H:i'),
+            'time'                => $docTime !== '' ? $docTime : date('H:i:s'),
             'sender_name'         => '',
             'sender_account'      => $senderAcc,
             'receiver_name'       => $receiverName,
             'receiver_account'    => $receiverAcc,
             'receiver_phone'      => '',
-            'notes'               => $isCroppedMissingRef ? 'رقم العملية غير ظاهر في الصورة (الإشعار مقطوع من الأعلى)' : '',
+            'notes'               => $extractedNote !== '' ? $extractedNote : ($isCroppedMissingRef ? 'رقم العملية غير ظاهر في الصورة' : ''),
             'confidence_score'    => 98,
             'fraud_checked'       => (bool)$fraudCheck,
             'tampering_score'     => $fraudCheck ? $tamperingScore : 0,
@@ -1453,7 +1535,7 @@ if (!function_exists('runLocalReceiptOcrFallback')) {
             'is_duplicate_in_db'  => ($dupInfo !== null),
             'duplicate_info'      => $dupInfo,
             'tampering_reasons'   => $fraudCheck ? $tamperingReasons : '',
-            'rejection_reason'    => ($amount <= 0) ? 'المبلغ غير ظاهر في الإشعار' : '',
+            'rejection_reason'    => ($amount <= 0) ? ($hasVisibleAmountLabel ? 'المبلغ غير واضح في الإشعار' : 'خانة المبلغ مقطوعة من أسفل الصورة (لم يتم تصوير المبلغ)') : '',
             'summary'             => 'تحويل ' . $bankName . ' (' . $appName . ') بمبلغ ' . number_format($amount, 2) . ' SDG' . ($transactionRef ? ' رقم العملية ' . $transactionRef : ' (مقطوع رقم العملية)')
         ];
     }
@@ -1464,18 +1546,14 @@ if (defined('MAGAIEES_OCR_LIBRARY_ONLY') && MAGAIEES_OCR_LIBRARY_ONLY) {
 }
 
 // 1. ULTRA-FAST OFFLINE PRIORITY: Run local spatial OCR first (<0.4s)
-$localOcrData = null;
-$precomputedOcrLines = $inputData['ocr_raw_lines'] ?? null;
-if (empty($inputData['is_refresh'])) {
-    $localOcrData = runLocalReceiptOcrFallback($imageBase64, $mimeType, $fraudCheck, $precomputedOcrLines);
-    if ($localOcrData !== null && (float)($localOcrData['amount'] ?? 0) > 0 && strlen(preg_replace('/\D/', '', (string)($localOcrData['transaction_ref'] ?? ''))) >= 6) {
-        echo json_encode([
-            'success' => true,
-            'data' => $localOcrData,
-            'model_used' => 'local-vision-ocr-turbo'
-        ], JSON_UNESCAPED_UNICODE);
-        exit;
-    }
+$localOcrData = runLocalReceiptOcrFallback($imageBase64, $mimeType, $fraudCheck, $inputData['ocr_raw_lines'] ?? null);
+if (empty($inputData['is_refresh']) && $localOcrData !== null && (float)($localOcrData['amount'] ?? 0) > 0 && (strlen(preg_replace('/\D/', '', (string)($localOcrData['transaction_ref'] ?? ''))) >= 6 || !empty($localOcrData['is_cropped'])) && !empty($localOcrData['found_explicit_date'])) {
+    echo json_encode([
+        'success' => true,
+        'data' => $localOcrData,
+        'model_used' => 'local-vision-ocr-turbo'
+    ], JSON_UNESCAPED_UNICODE);
+    exit;
 }
 
 // 2. GEMINI AI FALLBACK (Only if a valid AIza... Gemini key is configured)

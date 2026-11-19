@@ -1,4 +1,6 @@
-<?php 
+<?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+ 
 $page_title = "لوحة معلومات المخازن (Inventory Hub)"; 
 $header_theme_class = "header-theme-inventory";
 ?>
@@ -19,12 +21,12 @@ $header_theme_class = "header-theme-inventory";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $page_title; ?> - نظام السيطرة</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <link rel="stylesheet" href="css/theme.css?v=20261029_fast">
     <link rel="stylesheet" href="css/components.css?v=20261029_fast">
     
     <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="js/vendor/chart.umd.min.js"></script>
     
     <style>
         :root {
@@ -46,7 +48,7 @@ $header_theme_class = "header-theme-inventory";
                               radial-gradient(circle at 10% 90%, rgba(16, 185, 129, 0.04), transparent 40%);
         }
         .ambient-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 0; overflow: hidden; }
-        .orb { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.25; animation: floatOrb 18s ease-in-out infinite alternate; }
+        .orb { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.25; animation: none; /* cpu-opt */ }
         .orb-1 { width: 450px; height: 450px; background: #0284c7; top: -80px; left: -80px; }
         .orb-2 { width: 500px; height: 500px; background: #059669; bottom: -100px; right: -100px; animation-duration: 22s; }
         @keyframes floatOrb { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(60px, 40px) scale(1.08); } }
@@ -63,8 +65,8 @@ $header_theme_class = "header-theme-inventory";
             border: 1px solid var(--glass-border); border-radius: 14px; padding: 12px 14px;
             min-height: 86px;
             display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-            color: #fff; cursor: pointer; transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-            backdrop-filter: blur(14px); box-shadow: 0 6px 20px rgba(0,0,0,0.25); text-decoration: none;
+            color: #fff; cursor: pointer; transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            /* gpu-opt */ box-shadow: 0 6px 20px rgba(0,0,0,0.25); text-decoration: none;
             position: relative; overflow: hidden;
         }
         .hub-btn::before {
@@ -84,7 +86,7 @@ $header_theme_class = "header-theme-inventory";
 
         /* ── Comprehensive Analytical Visual Chart Hub ── */
         .chart-container {
-            background: var(--surface-card); backdrop-filter: blur(25px);
+            background: var(--surface-card); /* gpu-opt */
             border: 1.5px solid rgba(255, 255, 255, 0.1); border-radius: 20px;
             padding: 20px 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.45);
             margin-bottom: 20px; min-height: 560px; display: flex; flex-direction: column; gap: 16px;
@@ -109,7 +111,7 @@ $header_theme_class = "header-theme-inventory";
         .view-pill {
             background: transparent; border: none; color: #94a3b8; padding: 6px 14px;
             border-radius: 8px; font-family: inherit; font-size: 0.85rem; font-weight: 800;
-            cursor: pointer; transition: all 0.25s ease; display: flex; align-items: center; gap: 6px;
+            cursor: pointer; transition: transform 0.25s ease, opacity 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease; display: flex; align-items: center; gap: 6px;
         }
         .view-pill:hover { color: #fff; background: rgba(255, 255, 255, 0.06); }
         .view-pill.active {

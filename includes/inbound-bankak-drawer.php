@@ -7,118 +7,64 @@ global $GLOBAL_TENANT_ID;
 $currentActiveTenant = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '12';
 ?>
 <!-- Inbound Bankak Receipts Floating Drawer Overlay -->
-<div id="inbound-bankak-drawer-overlay" style="display:none; position:fixed; inset:0; background:rgba(2, 6, 23, 0.75); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); z-index:999999; justify-content:flex-end; align-items:stretch; transition:all 0.3s ease;" onclick="if(event.target===this) InboundBankakManager.closeDrawer()">
-    
-    <!-- Drawer Panel (Slides from Right in RTL) -->
-    <div id="inbound-bankak-drawer-panel" style="width:100%; max-width:650px; height:100vh; background:linear-gradient(145deg, rgba(15, 23, 42, 0.98) 0%, rgba(2, 6, 23, 0.99) 100%); border-left:2px solid rgba(56, 189, 248, 0.35); box-shadow:-15px 0 50px rgba(0,0,0,0.85), 0 0 30px rgba(56,189,248,0.2); display:flex; flex-direction:column; color:#fff; font-family:'Tajawal',sans-serif; direction:rtl; box-sizing:border-box; position:relative; overflow:hidden; animation:slideLeftDrawer 0.35s cubic-bezier(0.16, 1, 0.3, 1);">
-
-        <!-- Ambient Glow Elements -->
-        <div style="position:absolute; top:-100px; left:-100px; width:300px; height:300px; background:radial-gradient(circle, rgba(56,189,248,0.18) 0%, transparent 70%); border-radius:50%; pointer-events:none;"></div>
-        <div style="position:absolute; bottom:-100px; right:-100px; width:300px; height:300px; background:radial-gradient(circle, rgba(16,185,129,0.15) 0%, transparent 70%); border-radius:50%; pointer-events:none;"></div>
-
-        <!-- 1. Drawer Header -->
-        <div style="padding:14px 18px 10px 18px; border-bottom:1.5px solid rgba(255,255,255,0.1); background:rgba(15,23,42,0.75); display:flex; flex-direction:column; gap:9px; flex-shrink:0;">
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+<div id="inbound-bankak-drawer-overlay" style="display:none; position:fixed; inset:0; background:rgba(2, 6, 23, 0.62); backdrop-filter:blur(5px); z-index:999999; justify-content:center; align-items:center; padding:8px; transition:all 0.2s ease;" onclick="if(event.target===this) InboundBankakManager.closeDrawer()">
+    <div id="inbound-bankak-drawer-panel" style="width:min(98.5vw, 1780px); max-width:98.5vw; height:min(94vh, 920px); background:linear-gradient(155deg, #0b1222 0%, #0f172a 55%, #060b16 100%); border:2.2px solid rgba(56, 189, 248, 0.65); border-radius:20px; box-shadow:0 28px 70px rgba(0,0,0,0.92), 0 0 35px rgba(56,189,248,0.22); display:flex; flex-direction:column; color:#fff; font-family:'Cairo','Tajawal',sans-serif; direction:rtl; box-sizing:border-box; position:relative; overflow:hidden;">
+        <div id="inbound-platform-drag-header" onmousedown="InboundBankakManager.startDragPlatform(event)" style="padding:12px 20px 10px 20px; border-bottom:1.5px solid rgba(148,163,184,0.22); background:linear-gradient(90deg, rgba(15,23,42,0.97), rgba(30,41,59,0.94)); display:flex; flex-direction:column; gap:10px; flex-shrink:0; cursor:grab; user-select:none;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
                 <div style="display:flex; align-items:center; gap:12px;">
-                    <div style="width:42px; height:42px; border-radius:12px; background:linear-gradient(135deg, rgba(56,189,248,0.25), rgba(16,185,129,0.25)); border:1.8px solid #38bdf8; display:flex; align-items:center; justify-content:center; font-size:1.4rem; box-shadow:0 0 15px rgba(56,189,248,0.35);">
-                        📥
-                    </div>
+                    <div style="width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg, #0284c7, #10b981); border:1.8px solid #7dd3fc; display:flex; align-items:center; justify-content:center; font-size:1.4rem; box-shadow:0 0 16px rgba(56,189,248,0.45);">📥</div>
                     <div>
-                        <h3 style="margin:0; font-size:1.14rem; font-weight:900; color:#f8fafc; display:flex; align-items:center; gap:8px;">
-                            <span>صينية استلام ومراجعة وتمرير إشعارات الواتساب</span>
-                            <span id="drawer-live-pulse" style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981; animation:pulseScale 1.4s infinite alternate;"></span>
+                        <h3 style="margin:0; font-size:1.34rem; font-weight:900; color:#ffffff; display:flex; align-items:center; gap:8px;">
+                            <span>منصة تدقيق وترحيل الإشعارات</span>
+                            <span id="drawer-live-pulse" style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#10b981; box-shadow:0 0 10px #10b981;"></span>
                         </h3>
-                        <span style="font-size:0.76rem; color:#94a3b8; font-weight:700;">فحص فوري (≥ 6 أرقام + منع التكرار) • تحديد البنك المستلم • تمرير فردي أو جماعي</span>
+                        <span style="font-size:0.86rem; color:#cbd5e1; font-weight:800;">واجهة عريضة كاملة الرؤية • بحث فوري لاختيار الحساب المستلم (بنوك، موردين، عملاء، خزن، مصاريف)</span>
                     </div>
                 </div>
-                <div style="display:flex; align-items:center; gap:6px;">
-                    <a href="posting-accounts.php?filter=whatsapp" style="background:rgba(168,85,247,0.2); border:1px solid rgba(168,85,247,0.45); color:#e9d5ff; border-radius:8px; height:34px; padding:0 10px; text-decoration:none; display:inline-flex; align-items:center; gap:5px; font-size:0.76rem; font-weight:800;" title="فتح الإشعارات في شاشة الترحيل المحاسبية">
-                        <span>🚀</span> <span>شاشة الترحيل</span>
-                    </a>
-                    <button type="button" onclick="InboundBankakManager.refreshReceipts()" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#7dd3fc; border-radius:8px; width:34px; height:34px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.05rem;" title="تحديث القائمة الآن">
-                        🔄
+                <div style="display:flex; align-items:center; gap:6px;" onmousedown="event.stopPropagation()">
+                    <div style="display:inline-flex; background:rgba(2,6,23,0.65); border:1px solid rgba(148,163,184,0.3); border-radius:9px; padding:2px; gap:2px;" title="تحريك المنصة يميناً أو وسطاً أو يساراً">
+                        <button type="button" onclick="InboundBankakManager.dockPlatform('right')" style="height:32px; padding:0 10px; border:none; border-radius:7px; background:rgba(56,189,248,0.18); color:#7dd3fc; font-weight:900; font-size:0.84rem; cursor:pointer; font-family:inherit;">يمين ➡</button>
+                        <button type="button" onclick="InboundBankakManager.dockPlatform('center')" style="height:32px; padding:0 10px; border:none; border-radius:7px; background:rgba(16,185,129,0.2); color:#6ee7b7; font-weight:900; font-size:0.84rem; cursor:pointer; font-family:inherit;">⬌ وسط</button>
+                        <button type="button" onclick="InboundBankakManager.dockPlatform('left')" style="height:32px; padding:0 10px; border:none; border-radius:7px; background:rgba(56,189,248,0.18); color:#7dd3fc; font-weight:900; font-size:0.84rem; cursor:pointer; font-family:inherit;">⬅ يسار</button>
+                    </div>
+                    <a href="posting-accounts.php?filter=whatsapp" style="background:rgba(168,85,247,0.22); border:1.4px solid #c084fc; color:#f3e8ff; border-radius:9px; height:36px; padding:0 14px; text-decoration:none; display:inline-flex; align-items:center; gap:6px; font-size:0.90rem; font-weight:900;"><span>🚀</span> <span>شاشة الترحيل</span></a>
+                    <button type="button" onclick="InboundBankakManager.refreshReceipts()" style="background:rgba(56,189,248,0.14); border:1.4px solid #38bdf8; color:#7dd3fc; border-radius:9px; width:36px; height:36px; cursor:pointer; font-size:1.05rem;" title="تحديث الآن">🔄</button>
+                    <button type="button" onclick="InboundBankakManager.closeDrawer()" style="background:rgba(239,68,68,0.22); border:1.4px solid #ef4444; color:#fecaca; border-radius:9px; width:36px; height:36px; cursor:pointer; font-size:1.15rem; font-weight:900;" title="إغلاق المنصة">✕</button>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; background:rgba(2,6,23,0.72); border:1.5px solid rgba(56,189,248,0.38); padding:9px 14px; border-radius:12px;" onmousedown="event.stopPropagation()">
+                <div style="display:flex; align-items:center; gap:10px; flex:1; min-width:340px; position:relative;">
+                    <span style="font-size:0.98rem; color:#fde047; font-weight:900; white-space:nowrap;">📥 الحساب المستلم (إلى حساب):</span>
+                    <div style="position:relative; flex:1; max-width:560px;">
+                        <input type="text" id="drawer-target-acc-filter" autocomplete="off" onfocus="InboundBankakManager.openAccountSearchMenu(this, 'header')" oninput="InboundBankakManager.openAccountSearchMenu(this, 'header')" placeholder="🔍 اكتب للبحث واختيار اسم الحساب المستلم (بنك، مورد، عميل، خزنة، مصروف)..." style="width:100%; height:38px; box-sizing:border-box; background:#0f172a; color:#fde047; border:1.8px solid #f59e0b; border-radius:9px; padding:0 12px; font-family:'Cairo','Tajawal',sans-serif; font-size:0.96rem; font-weight:900; outline:none;">
+                        <input type="hidden" id="drawer-target-bank-select" value="">
+                    </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <button type="button" onclick="InboundBankakManager.approveAllPendingReceipts(this)" style="height:38px; padding:0 16px; border-radius:9px; background:linear-gradient(135deg, #10b981, #059669); border:1.6px solid #6ee7b7; color:#fff; font-family:inherit; font-weight:900; font-size:0.94rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 4px 14px rgba(16,185,129,0.35);">
+                        <span>✔️</span> <span>ترحيل الكل للحساب المستلم</span>
                     </button>
-                    <button type="button" onclick="InboundBankakManager.closeDrawer()" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#fca5a5; border-radius:8px; width:34px; height:34px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.15rem; font-weight:900;" title="إغلاق الصينية">
-                        ✕
+                    <button type="button" onclick="InboundBankakManager.openDirectUploadModal()" style="height:38px; padding:0 14px; border-radius:9px; background:rgba(56,189,248,0.18); border:1.4px solid #38bdf8; color:#e0f2fe; font-family:inherit; font-weight:900; font-size:0.92rem; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
+                        <span>➕</span> <span>رفع إشعار يدوي</span>
                     </button>
                 </div>
             </div>
-
-            <!-- Target Bank Selection & Bulk Pass Bar -->
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; background:rgba(15,23,42,0.9); border:1px solid rgba(245,158,11,0.35); padding:7px 10px; border-radius:10px;">
-                <div style="display:flex; align-items:center; gap:6px; flex:1; min-width:210px;">
-                    <span style="font-size:0.76rem; color:#fcd34d; font-weight:900; white-space:nowrap;">🏦 البنك المستلم:</span>
-                    <select id="drawer-target-bank-select" onchange="InboundBankakManager.onDefaultDrawerBankChange(this.value)" style="flex:1; height:30px; background:rgba(0,0,0,0.45); color:#fff; border:1px solid rgba(245,158,11,0.45); border-radius:7px; padding:0 8px; font-family:'Tajawal',sans-serif; font-size:0.78rem; font-weight:800;">
-                        <option value="">🏦 تلقائي (بنك الخرطوم / حسب حساب العميل)</option>
-                    </select>
-                </div>
-                <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                    <button type="button" onclick="InboundBankakManager.approveAllPendingReceipts(this)" style="height:30px; padding:0 10px; border-radius:7px; background:linear-gradient(135deg, #10b981, #059669); border:1px solid #34d399; color:#fff; font-weight:900; font-size:0.75rem; cursor:pointer; display:inline-flex; align-items:center; gap:4px; box-shadow:0 0 10px rgba(16,185,129,0.3);" title="تمرير وترحيل جميع الإشعارات السليمة التي بانتظار المراجعة إلى الحسابات والبنك المحدد">
-                        <span>✔️</span> <span>تمرير الكل للحسابات</span>
-                    </button>
-                    <button type="button" onclick="InboundBankakManager.loadBatchIntoMultiVoucher()" style="height:30px; padding:0 10px; border-radius:7px; background:rgba(56,189,248,0.2); border:1px solid #38bdf8; color:#e0f2fe; font-weight:800; font-size:0.75rem; cursor:pointer; display:inline-flex; align-items:center; gap:4px;" title="تفريغ دفعة الإشعارات دفعة واحدة داخل شاشة حركة مالية مجمعة (كأنك أدخلتها يدوياً)">
-                        <span>📥</span> <span>إدراج الدفعة في حركة مجمعة</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Stats Bar -->
-            <div style="display:flex; gap:6px; align-items:center; justify-content:space-between; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.08); padding:6px 10px; border-radius:10px; flex-wrap:wrap;">
-                <div style="display:flex; align-items:center; gap:4px; font-size:0.76rem; font-weight:800; color:#a7f3d0;">
-                    <span>🟢 معتمد ومرحّل:</span>
-                    <strong id="stat-verified-count" style="font-family:'Consolas',monospace; font-size:0.9rem;">0</strong>
-                </div>
-                <div style="display:flex; align-items:center; gap:4px; font-size:0.76rem; font-weight:800; color:#fcd34d;">
-                    <span>👁️ بانتظار التمرير:</span>
-                    <strong id="stat-awaiting-count" style="font-family:'Consolas',monospace; font-size:0.9rem;">0</strong>
-                </div>
-                <div style="display:flex; align-items:center; gap:4px; font-size:0.76rem; font-weight:800; color:#fca5a5;">
-                    <span>🔴 مكرر مرفوض:</span>
-                    <strong id="stat-duplicate-count" style="font-family:'Consolas',monospace; font-size:0.9rem;">0</strong>
-                </div>
-                <div style="display:flex; align-items:center; gap:4px; font-size:0.76rem; font-weight:800; color:#fef08a;">
-                    <span>🟡 قيد الفحص:</span>
-                    <strong id="stat-pending-count" style="font-family:'Consolas',monospace; font-size:0.9rem;">0</strong>
-                </div>
-            </div>
-
-            <!-- Tab Filters -->
-            <div style="display:flex; gap:5px; margin-top:2px; flex-wrap:wrap;">
-                <button type="button" class="drawer-tab-btn active" data-filter="all" onclick="InboundBankakManager.filterTab('all', this)" style="flex:1; min-width:80px; padding:6px 6px; border-radius:8px; border:1px solid rgba(56,189,248,0.4); background:rgba(56,189,248,0.2); color:#e0f2fe; font-weight:900; font-size:0.78rem; cursor:pointer;">
-                    الكل (<span id="tab-all-count">0</span>)
-                </button>
-                <button type="button" class="drawer-tab-btn" data-filter="awaiting_approval" onclick="InboundBankakManager.filterTab('awaiting_approval', this)" style="flex:1.2; min-width:110px; padding:6px 6px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04); color:#fcd34d; font-weight:800; font-size:0.78rem; cursor:pointer;">
-                    👁️ بانتظار التمرير (<span id="tab-awaiting-count">0</span>)
-                </button>
-                <button type="button" class="drawer-tab-btn" data-filter="verified" onclick="InboundBankakManager.filterTab('verified', this)" style="flex:1; min-width:95px; padding:6px 6px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04); color:#94a3b8; font-weight:800; font-size:0.78rem; cursor:pointer;">
-                    🟢 مرحّل بالحساب
-                </button>
-                <button type="button" class="drawer-tab-btn" data-filter="duplicate_rejected" onclick="InboundBankakManager.filterTab('duplicate_rejected', this)" style="flex:0.9; min-width:75px; padding:6px 6px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04); color:#94a3b8; font-weight:800; font-size:0.78rem; cursor:pointer;">
-                    🔴 مكرر
-                </button>
+            <div style="display:grid; grid-template-columns:repeat(5, minmax(0, 1fr)); gap:8px;" onmousedown="event.stopPropagation()">
+                <button type="button" class="drawer-tab-btn active" data-filter="all" onclick="InboundBankakManager.filterTab('all', this)" style="padding:8px 12px; border-radius:10px; border:1.8px solid #38bdf8; background:rgba(56,189,248,0.22); color:#ffffff; font-family:inherit; font-weight:900; font-size:0.94rem; cursor:pointer; display:flex; align-items:center; justify-content:space-between;"><span>📋 الكل</span><strong id="tab-all-count" style="font-size:1.05rem; color:#7dd3fc;">0</strong></button>
+                <button type="button" class="drawer-tab-btn" data-filter="awaiting_approval" onclick="InboundBankakManager.filterTab('awaiting_approval', this)" style="padding:8px 12px; border-radius:10px; border:1.4px solid rgba(245,158,11,0.45); background:rgba(245,158,11,0.12); color:#fde68a; font-family:inherit; font-weight:900; font-size:0.94rem; cursor:pointer; display:flex; align-items:center; justify-content:space-between;"><span>👁️ بانتظار الترحيل</span><strong id="stat-awaiting-count" style="font-size:1.05rem;">0</strong><span id="tab-awaiting-count" style="display:none;">0</span></button>
+                <button type="button" class="drawer-tab-btn" data-filter="pending_scan" onclick="InboundBankakManager.filterTab('pending_scan', this)" style="padding:8px 12px; border-radius:10px; border:1.4px solid rgba(250,204,21,0.4); background:rgba(250,204,21,0.1); color:#fef08a; font-family:inherit; font-weight:900; font-size:0.94rem; cursor:pointer; display:flex; align-items:center; justify-content:space-between;"><span>🟡 قيد الفحص</span><strong id="stat-pending-count" style="font-size:1.05rem;">0</strong></button>
+                <button type="button" class="drawer-tab-btn" data-filter="verified" onclick="InboundBankakManager.filterTab('verified', this)" style="padding:8px 12px; border-radius:10px; border:1.4px solid rgba(16,185,129,0.45); background:rgba(16,185,129,0.12); color:#a7f3d0; font-family:inherit; font-weight:900; font-size:0.94rem; cursor:pointer; display:flex; align-items:center; justify-content:space-between;"><span>🟢 مرحّل بالحساب</span><strong id="stat-verified-count" style="font-size:1.05rem;">0</strong></button>
+                <button type="button" class="drawer-tab-btn" data-filter="duplicate_rejected" onclick="InboundBankakManager.filterTab('duplicate_rejected', this)" style="padding:8px 12px; border-radius:10px; border:1.4px solid rgba(239,68,68,0.45); background:rgba(239,68,68,0.12); color:#fecaca; font-family:inherit; font-weight:900; font-size:0.94rem; cursor:pointer; display:flex; align-items:center; justify-content:space-between;"><span>🔴 مكرر ومرفوض</span><strong id="stat-duplicate-count" style="font-size:1.05rem;">0</strong></button>
             </div>
         </div>
-
-        <!-- 2. Drawer Body (Scrollable Receipts List) -->
-        <div id="inbound-receipts-list-container" style="flex:1; overflow-y:auto; padding:14px 18px; display:flex; flex-direction:column; gap:12px; scrollbar-width:thin;">
+        <div id="inbound-receipts-list-container" style="flex:1; overflow:auto; padding:12px 16px; scrollbar-width:thin;">
             <div style="display:flex; justify-content:center; align-items:center; padding:40px 0; color:#94a3b8;">
-                <span style="animation:spin 1s linear infinite; font-size:1.5rem; margin-left:8px;">🔄</span> جاري تحميل إشعارات التحصيل...
+                <span style="animation:spin 1s linear infinite; font-size:1.5rem; margin-left:8px;">🔄</span> جاري تحميل جدول منصة الإشعارات...
             </div>
         </div>
-
-        <!-- 3. Drawer Footer Actions -->
-        <div style="padding:12px 18px; border-top:1.5px solid rgba(255,255,255,0.1); background:rgba(15,23,42,0.8); display:flex; flex-direction:column; gap:8px; flex-shrink:0;">
-            <div style="display:flex; gap:8px;">
-                <button type="button" onclick="InboundBankakManager.openDirectUploadModal()" style="flex:1; height:38px; border-radius:10px; background:linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.4)); border:1.5px solid #10b981; color:#a7f3d0; font-weight:900; font-size:0.86rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 0 12px rgba(16,185,129,0.3);">
-                    <span>➕</span> <span>رفع إشعار تحويل يدوي</span>
-                </button>
-                <button type="button" onclick="InboundBankakManager.simulateIncomingReceipt()" style="flex:1.1; height:38px; border-radius:10px; background:linear-gradient(135deg, rgba(56,189,248,0.25), rgba(14,165,233,0.4)); border:1.5px solid #38bdf8; color:#e0f2fe; font-weight:900; font-size:0.84rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; box-shadow:0 0 12px rgba(56,189,248,0.3);" title="إرسال إشعار تجريبي فوري لمحاكاة وصول إشعار العميل حياً">
-                    <span>⚡</span> <span>محاكاة إشعار فوري (تجربة)</span>
-                </button>
-            </div>
-            <a href="send-receipt.php?tenant_id=<?php echo urlencode($currentActiveTenant); ?>" target="_blank" style="text-align:center; color:#38bdf8; font-size:0.78rem; text-decoration:none; font-weight:800; padding:2px;">
-                🔗 فتح بوابة الزبائن الخارجية (send-receipt.php)
-            </a>
+        <div style="padding:8px 16px; border-top:1px solid rgba(148,163,184,0.16); background:rgba(2,6,23,0.88); display:flex; align-items:center; justify-content:space-between; gap:10px; flex-shrink:0; font-size:0.78rem;">
+            <span style="color:#94a3b8; font-weight:700;">💡 انقر على أي سجل لمعاينة الإشعار أو ترحيله مباشرة إلى الحساب المختار</span>
+            <a href="send-receipt.php?tenant_id=<?php echo urlencode($currentActiveTenant); ?>" target="_blank" style="color:#38bdf8; text-decoration:none; font-weight:900;">🔗 فتح بوابة إرسال الزبائن الخارجية (send-receipt.php)</a>
         </div>
     </div>
 </div>
@@ -310,7 +256,7 @@ $currentActiveTenant = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '
     display: flex;
     flex-direction: column;
     gap: 8px;
-    transition: all 0.25s ease;
+    transition: transform 0.25s ease, opacity 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
     box-shadow: 0 4px 15px rgba(0,0,0,0.4);
 }
 .inbound-receipt-card:hover {

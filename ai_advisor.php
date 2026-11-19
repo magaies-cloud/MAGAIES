@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 // =========================================================================
 // نظام الأسكربت واللسيطرة ERP 2026
 // الحارس الأمين والمستشار الذكي الشامل 360° (Unified AI Guardian & Advisor Hub)
@@ -68,13 +70,12 @@ $initialServerPayload = json_encode([
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($page_title); ?> | مقاييس ERP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
+    <link rel="stylesheet" href="css/all.min.css?v=2027">
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
-    <link rel="stylesheet" href="css/sidebar-panoramic-flyout.css">
     <script src="js/elsajana-universal-ui-2027.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="js/vendor/chart.umd.min.js"></script>
     <style>
         :root {
             --ai-bg-card: rgba(15, 23, 42, 0.86);
@@ -171,7 +172,7 @@ $initialServerPayload = json_encode([
             border: 1px solid rgba(255,255,255,0.14);
             background: rgba(30, 41, 59, 0.85);
             color: #f8fafc;
-            transition: all 0.22s ease;
+            transition: transform 0.22s ease, opacity 0.22s ease, background-color 0.22s ease, border-color 0.22s ease, color 0.22s ease;
         }
         .g-btn:hover {
             transform: translateY(-2px);
@@ -210,7 +211,7 @@ $initialServerPayload = json_encode([
             font-family: 'Cairo', sans-serif;
             color: #cbd5e1;
             text-align: right;
-            transition: all 0.25s ease;
+            transition: transform 0.25s ease, opacity 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
             position: relative;
             overflow: hidden;
         }
@@ -340,7 +341,7 @@ $initialServerPayload = json_encode([
             flex-direction: column;
             justify-content: space-between;
             gap: 10px;
-            transition: all 0.22s ease;
+            transition: transform 0.22s ease, opacity 0.22s ease, background-color 0.22s ease, border-color 0.22s ease, color 0.22s ease;
         }
         .pillar-card:hover {
             transform: translateY(-3px);
@@ -434,7 +435,7 @@ $initialServerPayload = json_encode([
             font-size: 0.77rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s;
         }
         .prompt-chip:hover {
             background: rgba(34, 211, 238, 0.18);

@@ -1,4 +1,6 @@
-<?php $page_title = 'السيطرة (MAGAIEES) - كارت الصنف (حركة الأصناف)'; ?>
+<?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+ $page_title = 'السيطرة (MAGAIEES) - كارت الصنف (حركة الأصناف)'; ?>
 <!-- c:\mynewapp\frontend-pwa\item-ledger.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -13,7 +15,7 @@
 })();
 </script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>السيطرة (MAGAIEES) - كارت الصنف (حركة الأصناف)</title>
@@ -70,7 +72,7 @@
             display: flex; gap: 6px; flex-wrap: wrap; overflow: visible;
             background: var(--surface-card, rgba(15, 23, 42, 0.7)); padding: 6px 10px; border-radius: 14px; 
             border: 1px solid var(--glass-border); box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            backdrop-filter: blur(20px); align-items: center; width: 100%; z-index: 100; position: relative;
+            /* gpu-opt */ align-items: center; width: 100%; z-index: 100; position: relative;
             min-height: 48px; box-sizing: border-box;
         }
         .nav-tabs::-webkit-scrollbar { display: none; }
@@ -83,7 +85,7 @@
         .nav-tab {
             padding: 8px 15px; border-radius: 9px; text-decoration: none; font-weight: 700;
             color: var(--text-secondary); background: transparent; border: 1px solid transparent;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 6px; font-size: 0.88rem;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 6px; font-size: 0.88rem;
             position: relative; white-space: nowrap; flex-shrink: 0; cursor: pointer; height: 38px; box-sizing: border-box;
         }
         .nav-tab:hover {
@@ -115,7 +117,7 @@
         .nav-dropdown { position: relative; display: inline-block; }
         .nav-dropdown-content {
             display: none; position: absolute; top: calc(100% + 6px); right: 0; min-width: 240px;
-            background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(25px);
+            background: rgba(15, 23, 42, 0.98); /* gpu-opt */
             border: 1px solid var(--glass-border); border-radius: 12px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.65); padding: 6px; z-index: 10000;
             animation: dropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -131,7 +133,7 @@
         .nav-dropdown-item {
             padding: 9px 12px; border-radius: 8px; text-decoration: none;
             color: #cbd5e1; font-size: 0.82rem; font-weight: 700;
-            display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;
+            display: flex; align-items: center; gap: 8px; transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
         }
         .nav-dropdown-item:hover {
             background: rgba(56, 189, 248, 0.12); color: #38bdf8;
@@ -163,7 +165,7 @@
 
         /* Filters Bar style matching inventory-report */
         .filters-bar {
-            background: var(--panel-bg); backdrop-filter: blur(15px); border-radius: 16px; padding: 20px;
+            background: var(--panel-bg); /* gpu-opt */ border-radius: 16px; padding: 20px;
             border: 1px solid var(--glass-border); display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.3);
         }
@@ -179,7 +181,7 @@
         .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 8px; }
         .kpi-card {
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
-            backdrop-filter: blur(15px); border-radius: 10px; padding: 8px 12px;
+            /* gpu-opt */ border-radius: 10px; padding: 8px 12px;
             border: 1.5px solid rgba(255, 255, 255, 0.14); display: flex; flex-direction: column; justify-content: center;
             position: relative; overflow: hidden; transition: 0.2s; box-shadow: 0 3px 12px rgba(0,0,0,0.25);
         }
@@ -195,7 +197,7 @@
 
         /* Data Table style matching inventory-report */
         .table-panel {
-            background: var(--panel-bg); backdrop-filter: blur(15px); border-radius: 16px;
+            background: var(--panel-bg); /* gpu-opt */ border-radius: 16px;
             border: 1px solid var(--glass-border); box-shadow: 0 10px 40px rgba(0,0,0,0.4);
             overflow: hidden; display: flex; flex-direction: column;
         }
@@ -383,7 +385,7 @@
         <!-- Studio modals moved to preview-inventory-report.php -->
 
         <!-- Filters -->
-        <div class="filters-bar" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 15px; margin-bottom: 8px; flex-wrap: wrap; background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%); backdrop-filter: blur(16px); border-radius: 12px; border: 1.5px solid rgba(255, 255, 255, 0.12); box-shadow: 0 4px 18px rgba(0,0,0,0.3);">
+        <div class="filters-bar" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 15px; margin-bottom: 8px; flex-wrap: wrap; background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);  border-radius: 12px; border: 1.5px solid rgba(255, 255, 255, 0.12); box-shadow: 0 4px 18px rgba(0,0,0,0.3);">
             
             <!-- 1. الصنف -->
             <div style="display: flex; align-items: center; gap: 6px; flex: 2.0; min-width: 280px;">
@@ -482,7 +484,7 @@
     <!-- ═══════════════════════════════════════════════════════════ -->
     <!-- 🎨 ITEM LEDGER PREVIEW & DESIGN STUDIO MODAL                -->
     <!-- ═══════════════════════════════════════════════════════════ -->
-    <div id="item-ledger-preview-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 15, 30, 0.92); z-index: 12000; align-items: center; justify-content: center; direction: rtl; backdrop-filter: blur(12px);">
+    <div id="item-ledger-preview-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 15, 30, 0.92); z-index: 12000; align-items: center; justify-content: center; direction: rtl; ">
         <div class="glass-panel" style="width: 100%; max-width: 100%; height: 100vh; display: flex; flex-direction: column; padding: 18px 22px; border: none; background: #0b1120; border-radius: 0; color: #fff; box-shadow: 0 25px 60px rgba(0,0,0,0.6); overflow: hidden;">
             
             <!-- Top Toolbar Header -->

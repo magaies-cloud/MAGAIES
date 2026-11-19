@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 /**
  * ════════════════════════════════════════════════════════════════════════════
  * حركة مالية (سند مالي موحد) - الشاشة الذكية المتكاملة للهواتف والآيباد
@@ -1789,7 +1791,7 @@ $currenciesData = [
       background: #dc2626 !important;
       border-color: #fca5a5 !important;
       color: #fff !important;
-      animation: fieldMicPulse 1.2s infinite;
+      animation: none; /* cpu-opt */
     }
 
     /* ═════════════════════════════════════════════════════════════════
@@ -1821,8 +1823,8 @@ $currenciesData = [
       justify-content: center !important;
       gap: 14px !important;
       pointer-events: auto !important;
-      backdrop-filter: blur(25px) saturate(180%) !important;
-      -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
+      /* gpu-opt */
+      /* gpu-opt */
       box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.8), 0 0 35px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
       animation: toastCenterIn 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.275) both !important;
       font-family: 'Cairo', 'Tajawal', system-ui, sans-serif !important;
@@ -1949,8 +1951,8 @@ $currenciesData = [
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-      animation: downwardPulseBounce 1.1s infinite ease-in-out;
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: none; /* cpu-opt */
       user-select: none;
     }
     .kinetic-flow-capsule::before {
@@ -1960,7 +1962,7 @@ $currenciesData = [
       border-radius: 26px;
       background: radial-gradient(circle, rgba(245, 158, 11, 0.5) 0%, rgba(217, 119, 6, 0.2) 60%, transparent 80%);
       z-index: -1;
-      animation: auraGoldPulse 1.1s infinite alternate ease-in-out;
+      animation: none; /* cpu-opt */
     }
     .kinetic-flow-capsule:active {
       transform: scale(0.92) translateY(3px);
@@ -1986,8 +1988,8 @@ $currenciesData = [
       60% { opacity: 1; transform: translateY(0); color: #ffffff; }
       100% { opacity: 0.2; transform: translateY(3px); color: #fbbf24; }
     }
-    .chevron-stream-1 { animation: chevronCascade1 0.75s infinite ease-in-out; }
-    .chevron-stream-2 { animation: chevronCascade2 0.75s infinite ease-in-out; }
+    .chevron-stream-1 { animation: none; /* cpu-opt */ }
+    .chevron-stream-2 { animation: none; /* cpu-opt */ }
 
     /* خطوط المسار الجانبية المتدفقة للأسفل */
     .flow-stream-track {
@@ -2038,7 +2040,7 @@ $currenciesData = [
     .kinetic-glow-btn {
       position: relative;
       overflow: hidden;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .kinetic-glow-btn::after {
       content: '';
@@ -2066,7 +2068,7 @@ $currenciesData = [
     .action-btn-kinetic {
       position: relative;
       overflow: hidden;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
       box-shadow: 0 4px 15px -1px rgba(0, 0, 0, 0.5), inset 0 1px 1px 0 rgba(255, 255, 255, 0.2);
     }
     .action-btn-kinetic::after {
@@ -2077,7 +2079,7 @@ $currenciesData = [
       width: 100%;
       height: 100%;
       background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
-      animation: autoShimmerSweep 3.5s infinite ease-in-out;
+      animation: none; /* cpu-opt */
       pointer-events: none;
     }
     @keyframes autoShimmerSweep {
@@ -2093,7 +2095,7 @@ $currenciesData = [
     .glow-border-cyan {
       border: 2px solid rgba(6, 182, 212, 0.8) !important;
       box-shadow: 0 0 14px rgba(6, 182, 212, 0.35) !important;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
     .glow-border-cyan:hover {
       border-color: #22d3ee !important;
@@ -2107,7 +2109,7 @@ $currenciesData = [
     .glow-border-amber {
       border: 2px solid rgba(245, 158, 11, 0.8) !important;
       box-shadow: 0 0 14px rgba(245, 158, 11, 0.35) !important;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
     .glow-border-amber:hover {
       border-color: #fbbf24 !important;
@@ -2121,7 +2123,7 @@ $currenciesData = [
     .glow-border-emerald {
       border: 2px solid rgba(16, 185, 129, 0.8) !important;
       box-shadow: 0 0 14px rgba(16, 185, 129, 0.35) !important;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
     .glow-border-emerald:hover {
       border-color: #34d399 !important;
@@ -2135,7 +2137,7 @@ $currenciesData = [
     .glow-border-sky {
       border: 2px solid rgba(56, 189, 248, 0.8) !important;
       box-shadow: 0 0 14px rgba(56, 189, 248, 0.35) !important;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
     .glow-border-sky:hover {
       border-color: #38bdf8 !important;
@@ -2149,7 +2151,7 @@ $currenciesData = [
     .glow-border-indigo {
       border: 2px solid rgba(99, 102, 241, 0.8) !important;
       box-shadow: 0 0 14px rgba(99, 102, 241, 0.35) !important;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
     .glow-border-indigo:hover {
       border-color: #818cf8 !important;
@@ -2163,7 +2165,7 @@ $currenciesData = [
     .glow-border-red {
       border: 2px solid rgba(239, 68, 68, 0.8) !important;
       box-shadow: 0 0 14px rgba(239, 68, 68, 0.35) !important;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important, color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
     .glow-border-red:hover {
       border-color: #f87171 !important;
@@ -2179,11 +2181,11 @@ $currenciesData = [
       position: relative;
       overflow: hidden;
       background: rgba(30, 41, 59, 0.92) !important;
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      /* gpu-opt */
+      /* gpu-opt */
       border: 1.5px solid rgba(148, 163, 184, 0.45) !important;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .glass-pay-btn:hover {
       border-color: rgba(56, 189, 248, 0.8) !important;
@@ -2199,7 +2201,7 @@ $currenciesData = [
 
     /* زر الإرسال التلقائي المدمج */
     .auto-send-pill {
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       user-select: none;
     }
     .auto-send-pill.is-on {
@@ -2211,7 +2213,7 @@ $currenciesData = [
     .auto-send-pill.is-on .status-dot {
       background-color: #10b981;
       box-shadow: 0 0 8px #10b981;
-      animation: autoSendPulse 1.6s infinite;
+      animation: none; /* cpu-opt */
     }
     .auto-send-pill.is-off {
       background: rgba(30, 41, 59, 0.5);
@@ -2228,7 +2230,7 @@ $currenciesData = [
 
     .amount-display-card {
       user-select: none;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .amount-display-card.is-typing-sdg {
       border-color: #7dd3fc !important;
@@ -2286,7 +2288,7 @@ $currenciesData = [
 
     /* بطاقة الواتساب */
     .whatsapp-card {
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .whatsapp-card:hover, .whatsapp-card:active {
       transform: translateY(-2px);
@@ -3037,6 +3039,7 @@ $currenciesData = [
   <link rel="stylesheet" href="css/magaiees-royal-buttons.css?v=<?= file_exists(__DIR__ . '/css/magaiees-royal-buttons.css') ? filemtime(__DIR__ . '/css/magaiees-royal-buttons.css') : time() ?>">
   <script src="js/magaiees-royal-buttons.js?v=<?= file_exists(__DIR__ . '/js/magaiees-royal-buttons.js') ? filemtime(__DIR__ . '/js/magaiees-royal-buttons.js') : time() ?>" defer></script>
     <style id="global-zero-lag-css">.ambient-bg,.ambient-bg .orb,.preset-ribbon-btn::after,.preset-btn::after,.btn-action-hero::after,.btn-run::after,.action-tab.active::before,.sticky-footer::before{display:none!important;content:none!important}*,*::before,*::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important}button,a,input,select,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}button,.btn,.modern-btn,.preset-ribbon-btn,.preset-btn,.btn-action-hero,.btn-run,.action-tab,.fin-card,.pos-grid tbody tr{transition:background-color .08s ease,border-color .08s ease,opacity .08s ease!important}button:hover,.btn:hover,.modern-btn:hover,.preset-ribbon-btn:hover,.preset-btn:hover,.btn-action-hero:hover,.del-btn:hover,.modal-close:hover{transform:none!important}</style>
+    <link id="magaies-ophthalmic-ergo-css" rel="stylesheet" href="css/ophthalmic-ergonomics-2027.css?v=2027_gold_v8">
 </head>
 <body class="flex flex-col items-center justify-start antialiased selection:bg-blue-600 selection:text-white">
 
@@ -4954,6 +4957,6 @@ $currenciesData = [
       };
     })();
   </script>
-<script src="js/magaies-smart-guide.js" defer></script>
+<script>(function(){var l=0;window.loadMagaiesSmartGuide=function(c){if(l){if(c)c();return;}l=1;var s=document.createElement('script');s.src='js/magaies-smart-guide.js?v=<?= @filemtime(__DIR__."/js/magaies-smart-guide.js")?:2027 ?>';s.onload=function(){if(c)c();};document.body.appendChild(s);};window.addEventListener('keydown',function(e){if(e.key==='F1'){e.preventDefault();window.loadMagaiesSmartGuide();}});window.addEventListener('contextmenu',function(){window.loadMagaiesSmartGuide();},{once:true,passive:true});})();</script>
 </body>
 </html>

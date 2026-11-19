@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 // ====================================================================
 // نظام Al-Sajana Smart ERP 2026 - مصفوفة الرقابة والتنبيهات العالمية Titanium V8
 // أقوى منظومة رقابية استراتيجية متكاملة تضم 88 قاعدة تنبيه ورقابة جنائية ومنع تلاعب
@@ -1915,15 +1917,13 @@ foreach ($rules as $r) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مصفوفة الرقابة وإدارة التنبيهات العالمية Titanium (88 قاعدة) | Al-Sajana ERP</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="css/tailwind.min.css">
     <link rel="stylesheet" href="css/fontawesome/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="css/all.min.css?v=2027" crossorigin="anonymous" referrerpolicy="no-referrer">
 
     <style>
         :root {
@@ -1978,10 +1978,10 @@ foreach ($rules as $r) {
             border-radius: 20px;
             padding: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             overflow: hidden;
-            backdrop-filter: blur(20px);
+            /* gpu-opt */
         }
 
         .stat-card-v4:hover {
@@ -2002,7 +2002,7 @@ foreach ($rules as $r) {
             border-radius: 22px;
             min-height: 135px;
             cursor: pointer;
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -2014,7 +2014,7 @@ foreach ($rules as $r) {
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.15), 0 0 15px var(--p-glow, transparent);
             position: relative;
             overflow: hidden;
-            backdrop-filter: blur(15px);
+            /* gpu-opt */
         }
 
         .pillar-card:hover {
@@ -2037,7 +2037,7 @@ foreach ($rules as $r) {
             align-items: center;
             justify-content: center;
             filter: drop-shadow(0 4px 10px var(--p-color, #38bdf8));
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
 
         .pillar-card:hover .pillar-icon-box {
@@ -2081,8 +2081,8 @@ foreach ($rules as $r) {
             padding: 20px;
             margin-bottom: 16px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            transition: all 0.25s ease;
-            backdrop-filter: blur(15px);
+            transition: transform 0.25s ease, opacity 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+            /* gpu-opt */
         }
 
         .alert-detail-card:hover {
@@ -2151,9 +2151,9 @@ foreach ($rules as $r) {
             border-radius: 24px;
             padding: 24px;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(20px);
+            /* gpu-opt */
             margin-bottom: 26px;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
 
         /* ═══════════════════════════════════════════════════════════════════
@@ -2166,8 +2166,8 @@ foreach ($rules as $r) {
                 linear-gradient(135deg, rgba(244, 63, 94, 0.75) 0%, rgba(139, 92, 246, 0.55) 35%, rgba(56, 189, 248, 0.45) 70%, rgba(16, 185, 129, 0.45) 100%) border-box;
             border: 2px solid transparent;
             border-radius: 22px;
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
+            /* gpu-opt */
+            /* gpu-opt */
             padding: 18px 24px;
             box-shadow: 
                 0 18px 45px rgba(0, 0, 0, 0.65),
@@ -2183,7 +2183,7 @@ foreach ($rules as $r) {
             margin-bottom: 24px;
             z-index: 10;
             overflow: hidden;
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .alarm-command-bar::before {
@@ -2340,7 +2340,7 @@ foreach ($rules as $r) {
             padding: 9px 15px;
             border-radius: 13px;
             cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             white-space: nowrap;
             user-select: none;
             outline: none;
@@ -3339,7 +3339,7 @@ foreach ($rules as $r) {
         let modal = document.getElementById('alarm-ai-predictive-modal');
         if (!modal) {
             document.body.insertAdjacentHTML('beforeend', `
-                <div id="alarm-ai-predictive-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(2,6,23,0.88); backdrop-filter:blur(10px); align-items:center; justify-content:center; padding:16px; direction:rtl; font-family:'Cairo','Tajawal',sans-serif;">
+                <div id="alarm-ai-predictive-modal" style="display:none; position:fixed; inset:0; z-index:999999; background:rgba(2,6,23,0.88);  align-items:center; justify-content:center; padding:16px; direction:rtl; font-family:'Cairo','Tajawal',sans-serif;">
                     <div style="width:100%; max-width:920px; max-height:90vh; background:#0f172a; border:2px solid #f43f5e; border-radius:20px; overflow:hidden; box-shadow:0 25px 70px rgba(0,0,0,0.85); display:flex; flex-direction:column;">
                         <div style="padding:14px 20px; background:linear-gradient(135deg,rgba(244,63,94,0.25),rgba(139,92,246,0.2)); border-bottom:1.5px solid rgba(244,63,94,0.4); display:flex; justify-content:space-between; align-items:center;">
                             <h3 style="margin:0; font-size:1.08rem; font-weight:900; color:#fda4af;">🛡️ الحارس الأمين ومركز الذكاء الاصطناعي للتنبؤ بالمخاطر الشامل (40 مؤشراً استباقياً)</h3>

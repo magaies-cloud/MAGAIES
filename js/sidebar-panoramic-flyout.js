@@ -214,6 +214,13 @@
                     href: 'posting-accounts.php'
                 },
                 {
+                    title: 'منصة الإشعارات',
+                    icon: '📥',
+                    color: '#10b981',
+                    rgb: '16, 185, 129',
+                    href: 'posting-accounts.php?open_platform=1'
+                },
+                {
                     title: 'دورة الشيكات',
                     icon: '💳',
                     color: '#fbbf24',
@@ -740,9 +747,11 @@
                ═══════════════════════════════════════════════════════════════════ */
             #magaiees-panoramic-flyout {
                 position: fixed;
-                right: 246px;
+                right: 244px;
                 top: 18px;
-                width: min(470px, calc(100vw - 258px));
+                width: max-content !important;
+                min-width: 215px !important;
+                max-width: min(310px, calc(100vw - 256px)) !important;
                 z-index: 2147483600 !important;
                 direction: rtl;
                 font-family: 'Tajawal', 'Cairo', sans-serif;
@@ -888,8 +897,8 @@
             /* ── Compact 2-Column × 5-Row Shortcuts Grid (10 initial items, Featherlight) ── */
             .pf-bento-grid {
                 display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 6px;
+                grid-template-columns: 1fr;
+                gap: 5px;
                 max-height: calc(100vh - 96px);
                 overflow-y: auto;
                 padding: 2px;
@@ -1217,17 +1226,7 @@
     }
 
     let lastPtrX = -999, lastPtrY = -999;
-    document.addEventListener('mousemove', (ev) => {
-        lastPtrX = ev.clientX;
-        lastPtrY = ev.clientY;
-        if (document.body.classList.contains('sidebar-open') || (flyoutEl && flyoutEl.classList.contains('is-visible'))) {
-            if (isCursorInSafeZone()) {
-                clearTimeout(closeTimer);
-            } else {
-                scheduleCloseFlyout(140);
-            }
-        }
-    }, { passive: true });
+    /* Click-Only Mode: mousemove auto-close removed for zero CPU lag & strict click control */
 
     function isCursorInSafeZone() {
         if (lastPtrX < 0 || lastPtrY < 0) return false;
@@ -1316,12 +1315,18 @@
         if (window.__pfGlobalDelegatedBound) return;
         window.__pfGlobalDelegatedBound = true;
 
-        // Click-to-Open Sidebar + Ultra-Smooth Hover Gliding ONLY While Open
+        // Click-to-Open Sidebar ONLY, then Smooth Glide Switching While Open (Zero Hover-Open!)
         document.addEventListener('mouseover', (e) => {
-            if (!document.body.classList.contains('sidebar-open') && (!flyoutEl || !flyoutEl.classList.contains('is-visible'))) return;
+            if (!document.body.classList.contains('sidebar-open')) return;
             const item = e.target && e.target.closest ? e.target.closest('.global-sidebar .sidebar-nav .sidebar-item') : null;
             if (!item) return;
             clearTimeout(closeTimer);
+            const rawHref = (item.getAttribute('data-href') || item.getAttribute('href') || '').split('?')[0].trim();
+            if (!PANORAMIC_MENUS[rawHref]) {
+                if (flyoutEl) flyoutEl.classList.remove('is-visible');
+                activeSidebarLink = null;
+                return;
+            }
             if (!item.querySelector('.sb-panoramic-chevron')) decorateSidebarChevrons(item.closest('.global-sidebar'));
             if (activeSidebarLink !== item || !flyoutEl || !flyoutEl.classList.contains('is-visible')) {
                 renderFlyoutForLink(item);

@@ -1,4 +1,6 @@
-<?php $page_title = 'بوابة الاستلام والتسليم الذكية الموحدة — الأيقونة اللوجستية الشاملة (GRN ⇄ GDN)'; ?>
+<?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+ $page_title = 'بوابة الاستلام والتسليم الذكية الموحدة — الأيقونة اللوجستية الشاملة (GRN ⇄ GDN)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" class="has-sidebar">
 <script src="js/lang.js"></script>
@@ -20,9 +22,7 @@
 })();
 </script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Cairo:wght@400;600;700;800;900&family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>بوابة الاستلام والتسليم الذكية الموحدة (GRN ⇄ GDN) — ELSAJANA ERP</title>
@@ -200,7 +200,7 @@
             cursor: pointer;
             border: 1.5px solid transparent;
             background: #0f1d33;
-            transition: all 0.22s ease;
+            transition: transform 0.22s ease, opacity 0.22s ease, background-color 0.22s ease, border-color 0.22s ease, color 0.22s ease;
         }
         .sl-mode-tab::after {
             display: none !important;
@@ -244,7 +244,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            transition: all 0.2s ease;
+            transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
         }
         .sl-kpi-card:hover {
             transform: translateY(-2px);
@@ -281,7 +281,7 @@
             padding: 8px 10px;
             width: 236px;
             min-width: 236px;
-            transition: all 0.2s ease;
+            transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
         }
         .sl-unit-box::after {
@@ -351,7 +351,7 @@
             justify-content: space-between;
             flex-wrap: wrap;
             gap: 14px;
-            transition: all 0.25s ease;
+            transition: transform 0.25s ease, opacity 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
         }
 
         /* ── PULSE DOT ── */
@@ -364,7 +364,7 @@
             height: 10px;
             border-radius: 50%;
             display: inline-block;
-            animation: slPulseGlow 2s infinite ease-in-out;
+            animation: none; /* cpu-opt */
         }
 
         /* ── STATUS BADGES ── */
@@ -400,7 +400,7 @@
             border: 1px solid transparent;
             background: transparent;
             color: #cbd5e1;
-            transition: all 0.2s ease;
+            transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
             display: inline-flex;
             align-items: center;
             gap: 4px;
@@ -429,6 +429,7 @@
 .sl-table thead th, .sl-table tbody td { min-height: 46px !important; padding-top: 11px !important; padding-bottom: 11px !important; }
 </style>
     <style id="global-zero-lag-css">.ambient-bg,.ambient-bg .orb,.preset-ribbon-btn::after,.preset-btn::after,.btn-action-hero::after,.btn-run::after,.action-tab.active::before,.sticky-footer::before{display:none!important;content:none!important}*,*::before,*::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important}button,a,input,select,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}button,.btn,.modern-btn,.preset-ribbon-btn,.preset-btn,.btn-action-hero,.btn-run,.action-tab,.fin-card,.pos-grid tbody tr{transition:background-color .08s ease,border-color .08s ease,opacity .08s ease!important}button:hover,.btn:hover,.modern-btn:hover,.preset-ribbon-btn:hover,.preset-btn:hover,.btn-action-hero:hover,.del-btn:hover,.modal-close:hover{transform:none!important}</style>
+    <link id="magaies-ophthalmic-ergo-css" rel="stylesheet" href="css/ophthalmic-ergonomics-2027.css?v=2027_gold_v8">
 </head>
 <body class="has-sidebar" data-logistics-mode="<?php echo (isset($_GET['mode']) && (!isset($_GET['mode']) || $_GET['mode'] === 'purchases')) ? 'purchases' : 'sales'; ?>">
 
@@ -437,7 +438,7 @@
     window.ensureHtml5QrCodeLoaded = function(cb) {
         if (window.Html5Qrcode) { if (cb) cb(); return; }
         var s = document.createElement('script');
-        s.src = 'https://unpkg.com/html5-qrcode';
+        s.src = 'js/vendor/html5-qrcode.min.js';
         s.async = true;
         s.onload = function() { if (cb) cb(); };
         document.head.appendChild(s);
@@ -802,7 +803,7 @@
     <!-- ═══════════════════════════════════════════════════════════════════
          MODAL 1: MOBILE CAMERA DIRECT BRIDGE (ربط كاميرا الجوال باللابتوب)
          ═══════════════════════════════════════════════════════════════════ -->
-    <div id="sl-mobile-bridge-modal" style="display:none; position:fixed; inset:0; background:rgba(2,6,23,0.88); backdrop-filter:blur(14px); z-index:99999; align-items:center; justify-content:center; padding:16px;">
+    <div id="sl-mobile-bridge-modal" style="display:none; position:fixed; inset:0; background:rgba(2,6,23,0.88);  z-index:99999; align-items:center; justify-content:center; padding:16px;">
         <div class="sl-glass-card" style="width:100%; max-width:640px; border:2px solid var(--sl-primary-light); padding:0;">
             <div style="background:linear-gradient(135deg, #064e3b, #0284c7); padding:16px 22px; display:flex; justify-content:space-between; align-items:center;">
                 <div style="display:flex; align-items:center; gap:12px;">
@@ -842,7 +843,7 @@
     <!-- ═══════════════════════════════════════════════════════════════════
          MODAL 2: FONT SIZE & COLOR CUSTOMIZER (مأخوذة من شاشة المشتريات ومطورة)
          ═══════════════════════════════════════════════════════════════════ -->
-    <div id="sl-font-modal" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(2,6,23,0.85); backdrop-filter:blur(10px); z-index:99999; align-items:center; justify-content:center; padding:16px;">
+    <div id="sl-font-modal" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(2,6,23,0.85);  z-index:99999; align-items:center; justify-content:center; padding:16px;">
         <div class="sl-glass-card modal-card" style="width:100%; max-width:480px; padding:22px; border:2px solid #a855f7;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
                 <h3 style="margin:0; font-size:1.1rem; font-weight:900; color:#fff;">🎨 تخصيص حجم ولون الخط والأعمدة (حفظ نهائي)</h3>
@@ -913,9 +914,9 @@
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=20261016_v28"></script>
     <script defer src="js/print-engine.js"></script>
-    <script defer src="js/magaies-smart-guide.js?v=<?php echo file_exists('js/magaies-smart-guide.js') ? filemtime('js/magaies-smart-guide.js') : '20261104_v5'; ?>"></script>
+    <script>(function(){var l=0,v="<?php echo file_exists('js/magaies-smart-guide.js') ? filemtime('js/magaies-smart-guide.js') : '2027'; ?>";window.loadMagaiesSmartGuide=function(c){if(l){if(c)c();return;}l=1;var s=document.createElement('script');s.src='js/magaies-smart-guide.js?v='+v;s.onload=function(){if(c)c();};document.body.appendChild(s);};window.addEventListener('keydown',function(e){if(e.key==='F1'){e.preventDefault();window.loadMagaiesSmartGuide();}});window.addEventListener('contextmenu',function(){window.loadMagaiesSmartGuide();},{once:true,passive:true});})();</script>
     <script defer src="js/smart-logistics.js?v=<?php echo file_exists('js/smart-logistics.js') ? filemtime('js/smart-logistics.js') : '20261104_v5'; ?>"></script>
-    <script src="js/global_background_media.js?v=20261022_v23" defer></script>
+    <script>(function(){var l=0,q=[];window.ensureGlobalBgMedia=function(c){if(l&&typeof window.quickHeaderPlay==='function'){if(c)c();return;}if(c)q.push(c);if(document.querySelector('script[data-lazy-bgm]'))return;var s=document.createElement('script');s.src='js/global_background_media.js?v=<?= @filemtime(__DIR__."/js/global_background_media.js")?:2027 ?>';s.dataset.lazyBgm='1';s.onload=function(){l=1;q.splice(0).forEach(function(fn){try{fn();}catch(_){}});};document.body.appendChild(s);};['quickHeaderPlay','setHeaderMediaVolume','quickHeaderStop','openBackgroundPopout','toggleHeaderMediaDropdown','playPersistentMedia'].forEach(function(fn){if(typeof window[fn]!=='function')window[fn]=function(){var a=arguments;window.ensureGlobalBgMedia(function(){if(typeof window[fn]==='function')window[fn].apply(window,a);});};});try{if(localStorage.getItem('erp_bg_media_playing')==='1'||localStorage.getItem('magaies_live_tv_active')==='1')window.addEventListener('DOMContentLoaded',function(){setTimeout(function(){window.ensureGlobalBgMedia();},300);},{once:true});}catch(_){}})();</script>
     <script src="js/magaiees_back.js?v=20261022_v23" defer></script>
     <script defer src="js/elsajana-universal-ui-2027.js?v=<?php echo file_exists('js/elsajana-universal-ui-2027.js') ? filemtime('js/elsajana-universal-ui-2027.js') : 1; ?>"></script>
     <!-- ═══════════════════════════════════════════════════════════════════
@@ -942,7 +943,7 @@
         html:not(.light-theme):not([data-theme="ultra_white"]):not([data-theme="warm_cream"]):not([data-theme="exec_gray"]) .sl-floating-summary {
             background-image: linear-gradient(115deg, transparent 36%, rgba(255,255,255,0.08) 48%, rgba(56,189,248,0.14) 50%, transparent 64%), linear-gradient(145deg, #1b3159 0%, #132341 100%) !important;
             background-size: 250% 100%, 100% 100% !important; border: 2px solid rgba(56,189,248,0.80) !important; border-radius: 15px !important;
-            box-shadow: 0 12px 32px rgba(0,0,0,0.92), inset 0 1.5px 1px rgba(255,255,255,0.28) !important; animation: purGlassWaveSweep 7.5s infinite !important;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.92), inset 0 1.5px 1px rgba(255,255,255,0.28) !important; animation: none; /* cpu-opt */
         }
         html:not(.light-theme):not([data-theme="ultra_white"]):not([data-theme="warm_cream"]):not([data-theme="exec_gray"]) .sl-glass-card:hover,
         html:not(.light-theme):not([data-theme="ultra_white"]):not([data-theme="warm_cream"]):not([data-theme="exec_gray"]) .sl-glass-card:focus-within {
@@ -963,7 +964,7 @@
         :root.light-theme .sl-glass-card, :root.light-theme .sl-floating-summary, :root.light-theme #sl-cols-drawer {
             background-image: linear-gradient(115deg, transparent 36%, rgba(255,255,255,0.88) 48%, rgba(255,253,245,0.96) 50%, transparent 64%), linear-gradient(145deg, var(--lt-card-1, #ffffff) 0%, var(--lt-card-2, #fcf7ee) 100%) !important;
             background-size: 250% 100%, 100% 100% !important; border: 3px solid var(--lt-border, #5c2808) !important; border-radius: 15px !important;
-            box-shadow: 0 12px 28px rgba(43,17,3,0.14), inset 0 2px 0 #ffffff !important; color: var(--lt-ink, #120500) !important; animation: purGlassWaveSweep 8s infinite !important;
+            box-shadow: 0 12px 28px rgba(43,17,3,0.14), inset 0 2px 0 #ffffff !important; color: var(--lt-ink, #120500) !important; animation: none; /* cpu-opt */
         }
         :root.light-theme #sl-top-cockpit-bar {
             background-image: linear-gradient(115deg, transparent 34%, rgba(255,255,255,0.9) 50%, transparent 66%), linear-gradient(160deg, var(--lt-hdr-1, #f5ebd6) 0%, var(--lt-hdr-2, #ecdec2) 52%, var(--lt-hdr-3, #e2cfa9) 100%) !important;

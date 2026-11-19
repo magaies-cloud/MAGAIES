@@ -1,10 +1,10 @@
-<?php $page_title = 'جاري التطوير'; ?>
+<?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+ $page_title = 'جاري التطوير'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>جاري التطوير | Al-Sajana ERP</title>
@@ -28,7 +28,7 @@
         }
         .orb {
             position: absolute; border-radius: 50%; filter: blur(80px);
-            animation: pulse 10s infinite alternate;
+            animation: none; /* cpu-opt */
         }
         .orb-1 { width: 400px; height: 400px; background: rgba(56,189,248,0.2); top: -100px; right: -100px; }
         .orb-2 { width: 300px; height: 300px; background: rgba(168,85,247,0.2); bottom: -100px; left: -100px; }
@@ -40,7 +40,7 @@
 
         .dev-container {
             background: rgba(30,41,59,0.7);
-            backdrop-filter: blur(20px);
+            /* gpu-opt */
             border: 1px solid rgba(255,255,255,0.1);
             padding: 60px 40px;
             border-radius: 30px;
@@ -59,7 +59,7 @@
             font-size: 5rem;
             margin-bottom: 20px;
             display: inline-block;
-            animation: float 3s ease-in-out infinite;
+            animation: none; /* cpu-opt */
         }
 
         @keyframes float {
@@ -95,7 +95,7 @@
             font-weight: 700;
             font-size: 1.1rem;
             border: 1px solid rgba(255,255,255,0.1);
-            transition: all 0.3s;
+            transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
         }
 
         .btn-back:hover {
@@ -182,6 +182,7 @@
         :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
 \n</style>
     <style id="global-zero-lag-css">.ambient-bg,.ambient-bg .orb,.preset-ribbon-btn::after,.preset-btn::after,.btn-action-hero::after,.btn-run::after,.action-tab.active::before,.sticky-footer::before{display:none!important;content:none!important}*,*::before,*::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important}button,a,input,select,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}button,.btn,.modern-btn,.preset-ribbon-btn,.preset-btn,.btn-action-hero,.btn-run,.action-tab,.fin-card,.pos-grid tbody tr{transition:background-color .08s ease,border-color .08s ease,opacity .08s ease!important}button:hover,.btn:hover,.modern-btn:hover,.preset-ribbon-btn:hover,.preset-btn:hover,.btn-action-hero:hover,.del-btn:hover,.modal-close:hover{transform:none!important}</style>
+    <link id="magaies-ophthalmic-ergo-css" rel="stylesheet" href="css/ophthalmic-ergonomics-2027.css?v=2027_gold_v8">
 </head>
 <body>
     <div class="ambient-bg">
@@ -199,7 +200,7 @@
         </a>
     </div>
 
-<script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
+<script>(function(){var l=0,q=[];window.ensureGlobalBgMedia=function(c){if(l&&typeof window.quickHeaderPlay==='function'){if(c)c();return;}if(c)q.push(c);if(document.querySelector('script[data-lazy-bgm]'))return;var s=document.createElement('script');s.src='js/global_background_media.js?v=<?= @filemtime(__DIR__."/js/global_background_media.js")?:2027 ?>';s.dataset.lazyBgm='1';s.onload=function(){l=1;q.splice(0).forEach(function(fn){try{fn();}catch(_){}});};document.body.appendChild(s);};['quickHeaderPlay','setHeaderMediaVolume','quickHeaderStop','openBackgroundPopout','toggleHeaderMediaDropdown','playPersistentMedia'].forEach(function(fn){if(typeof window[fn]!=='function')window[fn]=function(){var a=arguments;window.ensureGlobalBgMedia(function(){if(typeof window[fn]==='function')window[fn].apply(window,a);});};});try{if(localStorage.getItem('erp_bg_media_playing')==='1'||localStorage.getItem('magaies_live_tv_active')==='1')window.addEventListener('DOMContentLoaded',function(){setTimeout(function(){window.ensureGlobalBgMedia();},300);},{once:true});}catch(_){}})();</script>
 <script src="js/magaiees_back.js?v=2026_back_v2" defer></script>
 </body>
 </html>

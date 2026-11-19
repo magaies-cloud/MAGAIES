@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 $channel = preg_replace('/[^a-zA-Z0-9_-]/', '', $_GET['channel'] ?? 'fin_qr_default');
 ?><!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -6,7 +8,7 @@ $channel = preg_replace('/[^a-zA-Z0-9_-]/', '', $_GET['channel'] ?? 'fin_qr_defa
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>رفع الإشعارات الفوري للكمبيوتر</title>
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/local-fonts.css?v=2027">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Tajawal',sans-serif}
 body{background:#020617;color:#f8fafc;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px}
@@ -26,17 +28,18 @@ p.sub{color:#cbd5e1;font-size:0.95rem;font-weight:700;margin-bottom:22px;line-he
 .preview-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
 .preview-row img{width:68px;height:68px;object-fit:cover;border-radius:10px;border:2px solid #22d3ee}
 </style>
+    <link id="magaies-ophthalmic-ergo-css" rel="stylesheet" href="css/ophthalmic-ergonomics-2027.css?v=2027_gold_v8">
 </head>
 <body>
 <div class="card">
     <div class="badge"><span class="dot"></span> <span>متصل بشاشة الحركة المالية</span></div>
     <h1>📱 إرسال الإشعار للكمبيوتر</h1>
-    <p class="sub">اختر صورة التحويل (بنكك / فوري / واتساب) من الاستوديو أو صوّرها بالكاميرا ليتم فحصها وإدراجها فوراً في الكمبيوتر.</p>
+    <p class="sub">اختر صورة التحويل (بنكك / فوري / أوكاش) من الاستوديو أو صوّرها بالكاميرا ليتم فحصها وإدراجها فوراً في الكمبيوتر.</p>
 
     <input type="file" id="inp-gallery" accept="image/*" multiple style="display:none">
     <input type="file" id="inp-cam" accept="image/*" capture="environment" style="display:none">
 
-    <button type="button" class="btn btn-gallery" id="btn-gal" onclick="document.getElementById('inp-gallery').click()">🖼️ اختيار من الاستوديو / الواتساب</button>
+    <button type="button" class="btn btn-gallery" id="btn-gal" onclick="document.getElementById('inp-gallery').click()">🖼️ اختيار من الاستوديو</button>
     <button type="button" class="btn btn-cam" id="btn-cm" onclick="document.getElementById('inp-cam').click()">📷 تصوير الإشعار بالكاميرا</button>
     <button type="button" class="btn" id="btn-disc" onclick="disconnectPhone()" style="background:rgba(239,68,68,0.18);border:1.8px solid #ef4444;color:#fca5a5;padding:12px;font-size:1.02rem;margin-bottom:4px;">🔌 إلغاء ربط الجوال</button>
 

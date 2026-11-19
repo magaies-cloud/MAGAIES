@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 // ====================================================================
 // نظام Al-Sajana Smart ERP 2026 - محلل ربحية وهامش مساهمة الأصناف
 // ====================================================================
@@ -429,13 +431,11 @@ foreach ($chart_products as $cp) {
 <head>
     <meta charset="UTF-8">
     <title>محلل الربحية وهامش المساهمة | Al-Sajana ERP</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;800&family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="js/vendor/chart.umd.min.js"></script>
     <style>
         :root {
             --bg-dark: #040209;
@@ -465,7 +465,7 @@ foreach ($chart_products as $cp) {
         }
         .glass-panel { 
             background: var(--panel-bg); 
-            backdrop-filter: blur(15px); 
+            /* gpu-opt */ 
             border: 1px solid var(--border-neon); 
             border-radius: 24px; 
             padding: 30px; 
@@ -509,7 +509,7 @@ foreach ($chart_products as $cp) {
             border: 1px solid rgba(255, 255, 255, 0.1); 
             padding: 8px 16px; border-radius: 12px; 
             text-decoration: none; font-size: 13px; 
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
             font-family: 'Cairo', sans-serif;
         }
         .btn-back:hover { background: rgba(157, 78, 221, 0.15); border-color: #9d4edd; color: #fff; }
@@ -534,7 +534,7 @@ foreach ($chart_products as $cp) {
             background: rgba(255,255,255,0.05); color: #fff;
             border: 1px solid rgba(157, 78, 221, 0.2); border-radius: 10px;
             padding: 8px 14px; font-family: 'Cairo', sans-serif; font-size: 13px;
-            outline: none; transition: all 0.3s ease;
+            outline: none; transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
         .filter-group input:focus, .filter-group select:focus {
             border-color: #9d4edd; box-shadow: 0 0 10px rgba(157, 78, 221, 0.3);
@@ -544,14 +544,14 @@ foreach ($chart_products as $cp) {
             background: linear-gradient(135deg, #9d4edd, #6930c3);
             color: #fff; border: none; padding: 8px 20px; border-radius: 10px;
             font-family: 'Cairo', sans-serif; font-size: 13px; font-weight: 700;
-            cursor: pointer; transition: all 0.3s ease;
+            cursor: pointer; transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
         .btn-filter:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(157, 78, 221, 0.4); }
         .btn-reset {
             background: transparent; color: var(--text-muted);
             border: 1px solid rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 10px;
             font-family: 'Cairo', sans-serif; font-size: 13px; cursor: pointer;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
         .btn-reset:hover { border-color: #ff6b6b; color: #ff6b6b; }
 
@@ -564,7 +564,7 @@ foreach ($chart_products as $cp) {
             padding: 20px; 
             text-align: center; 
             box-shadow: inset 0 0 10px rgba(157, 78, 221, 0.05);
-            transition: all 0.4s ease;
+            transition: transform 0.4s ease, opacity 0.4s ease, background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
             position: relative;
             overflow: hidden;
         }
@@ -578,7 +578,7 @@ foreach ($chart_products as $cp) {
         .metric-card:hover { 
             transform: translateY(-5px); 
             border-color: rgba(157, 78, 221, 0.3);
-            animation: pulseGlow 2s ease-in-out infinite;
+            animation: none; /* cpu-opt */
         }
         .metric-card:hover::before { opacity: 1; }
         .metric-value {
@@ -600,7 +600,7 @@ foreach ($chart_products as $cp) {
         th { text-align: right; padding: 12px; color: var(--text-muted); font-size: 13px; border-bottom: 2px solid var(--border-neon); }
         td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13.5px; }
         tbody tr {
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
         tbody tr:hover { background: rgba(157, 78, 221, 0.08); }
         .badge-percent { 

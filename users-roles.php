@@ -1,4 +1,6 @@
-<?php $page_title = 'السيطرة (MAGAIEES) - إدارة المستخدمين والصلاحيات'; ?>
+<?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+ $page_title = 'السيطرة (MAGAIEES) - إدارة المستخدمين والصلاحيات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -12,14 +14,14 @@
 })();
 </script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>السيطرة (MAGAIEES) - إدارة المستخدمين والصلاحيات</title>
     <link rel="stylesheet" href="css/theme.css?v=neon2">
     <link rel="stylesheet" href="css/components.css?v=neon2">
     <link rel="stylesheet" href="css/leaflet.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="css/all.min.css?v=2027" crossorigin="anonymous" referrerpolicy="no-referrer">
         <style>
         /* SCROLL ALLOWED */
         html { background: var(--bg-color); scroll-behavior: smooth; }
@@ -31,7 +33,7 @@
         
         .md-container { display: flex; flex-direction: column; height: auto; min-height: calc(100vh - 80px); background: var(--bg-color); }
         .md-tabs-sidebar { width: 100%; background: var(--surface-color); border-bottom: 1px solid var(--glass-border); padding: 0 20px; display: flex; flex-direction: row; align-items: center; box-shadow: var(--shadow-sm); z-index: 10; overflow-x: auto; position: sticky; top: 80px; }
-        .md-tab-btn { background: none; border: none; text-align: center; padding: 15px 20px; font-size: 0.95rem; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px; white-space: nowrap; border-bottom: 4px solid transparent; }
+        .md-tab-btn { background: none; border: none; text-align: center; padding: 15px 20px; font-size: 0.95rem; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s; display: flex; align-items: center; gap: 8px; white-space: nowrap; border-bottom: 4px solid transparent; }
         .md-tab-btn:hover { background: rgba(15, 76, 129, 0.05); color: var(--primary-accent); }
         .md-tab-btn.active { color: var(--primary-accent); border-bottom: 4px solid var(--primary-accent); font-weight: 800; background: rgba(15, 76, 129, 0.05); }
         
@@ -55,7 +57,7 @@
         .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 20px; }
         .input-group { position: relative; }
         .input-group label { display: block; margin-bottom: 8px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 700; transition: color 0.3s; }
-        .input-group input, .input-group select { width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid var(--glass-border); background: var(--bg-color); color: var(--text-primary); font-size: 1rem; outline: none; box-sizing: border-box; transition: all 0.3s; }
+        .input-group input, .input-group select { width: 100%; padding: 12px 15px; border-radius: 10px; border: 1px solid var(--glass-border); background: var(--bg-color); color: var(--text-primary); font-size: 1rem; outline: none; box-sizing: border-box; transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s; }
         .input-group input:focus, .input-group select:focus { border-color: var(--primary-accent); background: var(--surface-color); box-shadow: 0 0 0 3px var(--primary-glow); }
         .input-group:focus-within label { color: var(--primary-accent); }
         
@@ -79,7 +81,7 @@
         .pro-table { width: 100%; border-collapse: separate; border-spacing: 0; }
         .pro-table th, .pro-table td { padding: 15px; text-align: right; border-bottom: 1px solid var(--glass-border); color: var(--text-primary); }
         .pro-table th { color: var(--text-secondary); font-weight: 700; background: rgba(128,128,128,0.05); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.5px; }
-        .pro-table tbody tr { transition: all 0.2s; }
+        .pro-table tbody tr { transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s; }
         .pro-table tbody tr:hover { background: rgba(128,128,128,0.02); transform: scale(1.002); }
         
         /* Floating Brain & Numbers Animation */
@@ -93,7 +95,7 @@
             height: 70px;
             border-radius: 50%;
             object-fit: cover;
-            animation: floatBrain 4s ease-in-out infinite;
+            animation: none; /* cpu-opt */
             border: 2px solid var(--glass-border);
             box-shadow: var(--shadow-sm);
         }

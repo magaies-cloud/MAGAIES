@@ -1393,15 +1393,16 @@ function initGeneralLedgerApp() {
                 }
                 if (!found && nameParam) {
                     const normName = String(nameParam).trim().toLowerCase();
-                    found = ALL_ACCOUNTS.find(a => String(a.name).trim().toLowerCase() === normName || String(a.name).includes(nameParam));
+                    found = ALL_ACCOUNTS.find(a => String(a.name).trim().toLowerCase() === normName)
+                         || ( !accountIdParam && normName.length >= 4 ? ALL_ACCOUNTS.find(a => String(a.name).trim().toLowerCase().includes(normName)) : null );
                 }
 
                 if (found) {
                     selectAccount(found.id, found.name, found.icon);
                 } else if (accountIdParam || nameParam) {
                     const targetId = accountIdParam || nameParam;
-                    const targetName = nameParam || accountIdParam;
-                    selectAccount(targetId, targetName, '👤');
+                    const cleanFallbackName = (nameParam && !/^(cust|supp|bank|safe|exp)-/i.test(nameParam)) ? nameParam : (getAccountName(targetId) || targetId);
+                    selectAccount(targetId, cleanFallbackName, '👤');
                 }
             }
         } catch (e) {
@@ -2203,13 +2204,9 @@ function runReport() {
                     t.balanceForeign = runningBalFc;
                 }
                 
-                if (t.balance !== undefined && t.balanceForeign !== undefined) {
-                    if (t.balance < 0) {
-                        t.balanceForeign = -Math.abs(t.balanceForeign);
-                    } else if (t.balance > 0) {
-                        t.balanceForeign = Math.abs(t.balanceForeign);
-                    }
-                }
+                // Keep true independent mathematical sign for both Local (SDG) and Foreign (USD) balances
+                t.balance = runningBal;
+                t.balanceForeign = runningBalFc;
             } else {
                 t.balance = undefined;
                 t.balanceForeign = undefined;
@@ -2218,6 +2215,31 @@ function runReport() {
 
         // Set display order to Chronological (Oldest first at top, newest created at bottom)
         currentTxns = chronological;
+        if (accVal !== 'ALL' && currentDateMode !== 'range' && currencyFilter === 'ALL' && typeFilter === 'ALL' && ccFilter === 'ALL' && postedFilter === 'ALL' && !smartSearch) {
+            try {
+                const lastRow = chronological.length ? chronological[chronological.length - 1] : null;
+                const finalLoc = lastRow && lastRow.balance !== undefined ? lastRow.balance : runningBal;
+                const finalFc = lastRow && lastRow.balanceForeign !== undefined ? lastRow.balanceForeign : runningBalFc;
+                const getTK = window.getTenantKey || ((k) => k);
+                const pfx = (String(accVal).match(/^(cust|supp|bank|safe|exp)-/i) || [''])[0].toLowerCase();
+                const mapStore = { 'cust-': 'erp_customers_v1', 'supp-': 'erp_suppliers_v1', 'bank-': 'erp_banks_v1', 'safe-': 'erp_safes_v1', 'exp-': 'erp_accounts_v1' }[pfx];
+                if (mapStore) {
+                    const bare = String(accVal).replace(/^(cust-|supp-|bank-|safe-|exp-)+/i, '').trim().toLowerCase();
+                    const tk = getTK(mapStore);
+                    let arr = JSON.parse(localStorage.getItem(tk) || localStorage.getItem(mapStore) || '[]') || [];
+                    let mod = false;
+                    arr.forEach(r => {
+                        if (r && String(r.id || '').replace(/^(cust-|supp-|bank-|safe-|exp-)+/i, '').trim().toLowerCase() === bare) {
+                            const expCb = pfx === 'supp-' ? -finalLoc : finalLoc;
+                            if (Math.abs((parseFloat(r.currentBalance) || 0) - expCb) > 0.005 || Math.abs((parseFloat(r.currentBalanceForeign) || 0) - finalFc) > 0.005) {
+                                r.currentBalance = expCb; r.currentBalanceForeign = finalFc; mod = true;
+                            }
+                        }
+                    });
+                    if (mod) { const s = JSON.stringify(arr); localStorage.setItem(mapStore, s); if (tk !== mapStore) localStorage.setItem(tk, s); }
+                }
+            } catch (_) {}
+        }
 
         let totalDebit = 0;
         let totalCredit = 0;
@@ -2263,13 +2285,7 @@ function runReport() {
         }
         
         if (tdBalanceFc) {
-            let bal = (totalDebit + openingDebit) - (totalCredit + openingCredit);
             let balFc = (totalDebitFc + openingDebitFc) - (totalCreditFc + openingCreditFc);
-            if (bal < 0) {
-                balFc = -Math.abs(balFc);
-            } else if (bal > 0) {
-                balFc = Math.abs(balFc);
-            }
             tdBalanceFc.innerText = typeof fmtNum === 'function' ? fmtNum(balFc) : balFc.toLocaleString();
         }
 

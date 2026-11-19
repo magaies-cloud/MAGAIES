@@ -1,4 +1,6 @@
-<?php $page_title = 'الحسابات'; ?>
+<?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+ $page_title = 'الحسابات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -47,7 +49,7 @@
   });
 })();
 </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الحسابات | Al-Sajana ERP</title>
@@ -101,7 +103,7 @@
             border-radius: 50%;
             filter: blur(120px);
             opacity: 0.15;
-            animation: floatOrb 20s infinite alternate ease-in-out;
+            animation: none; /* cpu-opt */
         }
 
         .orb-1 { width: 600px; height: 600px; background: #10b981; top: -10%; right: -5%; }
@@ -134,13 +136,13 @@
         .premium-header {
             background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(139, 92, 246, 0.15), rgba(168, 85, 247, 0.15), rgba(217, 70, 239, 0.15));
             background-size: 300% 300%;
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            /* gpu-opt */ /* gpu-opt */
             border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 12px 20px;
             display: flex; justify-content: space-between; align-items: center;
             height: 110px; box-sizing: border-box;
             margin-bottom: 20px; width: 100%;
             box-shadow: 0 15px 30px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 1px rgba(0,0,0,0.3);
-            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1), animateGradient 12s ease infinite;
+            animation: none; /* cpu-opt */
             position: relative;
             overflow: hidden;
             margin: 0;
@@ -153,7 +155,7 @@
             width: 40%; height: 100%;
             background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%);
             transform: skewX(-25deg);
-            animation: shimmer 8s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
+            animation: none; /* cpu-opt */
             pointer-events: none;
         }
 
@@ -261,7 +263,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
 
         .icon-btn:hover {
@@ -293,8 +295,8 @@
         /* Premium Card Design */
         .premium-card {
             background: var(--surface);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            /* gpu-opt */
+            /* gpu-opt */
             border: 1px solid var(--border);
             border-radius: 20px;
             padding: 16px 18px;
@@ -303,7 +305,7 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
             height: 100%;
             min-height: 145px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.03);
@@ -372,7 +374,7 @@
             font-size: 1.5rem;
             margin-bottom: 12px;
             box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.2);
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
         }
         
@@ -422,7 +424,7 @@
             margin-top: auto;
             padding-top: 4px;
             border-top: none;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
 
         .premium-card:hover .v-footer {
@@ -444,7 +446,7 @@
             font-size: 1rem;
             transform: translateX(8px) scale(0.8);
             opacity: 0;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             font-family: 'Inter', sans-serif;
         }
 
@@ -612,6 +614,13 @@
                     <span class="v-arrow" style="background: #a855f7; color: #fff;">←</span>
                 </div>
             </div>
+        </a>
+
+        <!-- Notifications Audit Platform -->
+        <a href="posting-accounts.php?open_platform=1" data-href="posting-accounts.php?open_platform=1" onclick="window.location.href='posting-accounts.php?open_platform=1'" class="premium-card" style="--card-color: #10b981; --card-rgb: 16, 185, 129;">
+            <div class="card-glow"></div>
+            <div class="flow-badge" style="background: rgba(16,185,129,0.12); color: #34d399; border: 1px solid rgba(16,185,129,0.28);"><span>📥</span> فحص وترحيل</div>
+            <div class="card-content"><div class="icon-wrapper"><span class="v-icon">📥</span></div><h3 class="v-title">منصة الإشعارات</h3><div class="v-footer"><span class="v-arrow" style="background: #10b981; color: #fff;">←</span></div></div>
         </a>
 
         <!-- Checks Cycle -->
@@ -1109,7 +1118,7 @@
             100% { transform: rotate(-1deg); }
         }
         .vouchers-grid.edit-mode .premium-card {
-            animation: shakeEdit 0.4s infinite;
+            animation: none; /* cpu-opt */
             cursor: grab !important;
             box-shadow: 0 0 15px rgba(234,179,8,0.5);
             /* Disable normal hover effects during edit mode */
@@ -1200,7 +1209,7 @@
         :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
 \n</style>
     <!-- SortableJS for Drag and Drop -->
-    <script defer src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script defer src="js/vendor/Sortable.min.js"></script>
     <script>
         let isEditMode = false;
         let sortableInstance = null;

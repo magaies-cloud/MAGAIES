@@ -96,13 +96,15 @@
                 { label: '🗄️ الخزن والصناديق', items: readArr('erp_safes_v1').map(x => ({ id: normId(x.id, 'safe'), name: x.name })) },
                 { label: '💸 المصروفات والحسابات العامة', items: [...readArr('erp_expenses_v1').map(x => ({ id: normId(x.id, 'exp'), name: x.name || x.title })), ...readArr('erp_accounts_v1').map(x => ({ id: String(x.id || x.code || ''), name: x.name || x.title }))] }
             ];
-            if (Array.isArray(window.ACCOUNTS)) {
+            const domExtra = Array.from(document.querySelectorAll('#from-account option, #to-account option, #main-account option')).filter(o => o.value).map(o => ({ id: String(o.value), name: o.textContent.trim() }));
+            const mergedPool = [...(Array.isArray(window.ACCOUNTS) ? window.ACCOUNTS.filter(a => a && a.id && a.name).map(a => ({ id: String(a.id), name: a.name })) : []), ...domExtra];
+            if (mergedPool.length) {
                 const seen = new Set(groups.flatMap(g => g.items.map(i => i.id)));
-                const extra = window.ACCOUNTS.filter(a => a && a.id && a.name && !seen.has(String(a.id))).map(a => ({ id: String(a.id), name: a.name }));
-                if (extra.length) groups[4].items.push(...extra);
+                mergedPool.forEach(a => { if (!seen.has(a.id)) { seen.add(a.id); groups[4].items.push(a); } });
             }
             return groups;
         },
+        _normArSearch(s) { return String(s || '').toLowerCase().replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/[\u064B-\u065F]/g, '').trim(); },
         async openMobileQRBridge(options = {}) {
             this.activeContext = Object.assign({ target: 'single', blockId: null, docHint: 'auto' }, options);
             const ch = this.getMobileQRChannel();
@@ -121,70 +123,76 @@
             if (!modal) {
                 modal = document.createElement('div');
                 modal.id = 'fin-mobile-qr-modal';
-                modal.style.cssText = 'position:fixed;inset:0;z-index:9999999;background:rgba(2,6,23,0.82);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:16px;direction:rtl;font-family:Tajawal,sans-serif;';
-                modal.onclick = (ev) => { if (ev.target === modal) modal.style.display = 'none'; };
+                modal.style.cssText = 'position:fixed;inset:0;z-index:9999999;background:rgba(2,6,23,0.82);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:10px;overflow-y:auto;direction:rtl;font-family:Tajawal,sans-serif;';
                 document.body.appendChild(modal);
             }
+            modal.onmousedown = (ev) => {
+                modal._bgDown = (ev.target === modal);
+                if (!ev.target.closest('.fin-sess-smart-wrap')) document.querySelectorAll('.fin-sess-smart-dd').forEach(d => d.style.display = 'none');
+            };
+            modal.onclick = (ev) => {
+                ev.stopPropagation();
+                if (!ev.target.closest('.fin-sess-smart-wrap')) document.querySelectorAll('.fin-sess-smart-dd').forEach(d => d.style.display = 'none');
+                modal._bgDown = false;
+            };
             const portalUrl = ((location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? 'https://c.elsajana.com' : location.origin) + '/send-receipt.php?t=' + encodeURIComponent((window.SERVER_TENANT && window.SERVER_TENANT.id) || '12');
             const portalQrSrc = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=6&data=' + encodeURIComponent(portalUrl);
             const meta = this.getScreenSessionMeta();
             const isLight = document.documentElement.classList.contains('light-theme');
             const bgCard = isLight ? '#ffffff' : 'linear-gradient(155deg,#0f172a,#162238)';
             const txtMain = isLight ? '#0f172a' : '#f8fafc';
-            const subBg = isLight ? '#f8fafc' : 'rgba(2,6,23,0.6)';
+            const subBg = isLight ? '#f8fafc' : 'rgba(2,6,23,0.62)';
             const bdrMain = isLight ? '#0284c7' : '#38bdf8';
             const groups = this._collectUniversalAccountGroups();
-            const curFrom = (this.activeSessionBinding && this.activeSessionBinding.fromId) || document.getElementById('from-account')?.value || '';
-            const curTo = (this.activeSessionBinding && this.activeSessionBinding.toId) || document.getElementById('to-account')?.value || document.getElementById('main-account')?.value || '';
-            const buildAccOpts = (selVal, placeholder) => `<option value="">${placeholder}</option>` + groups.filter(g => g.items.length).map(g => `<optgroup label="${g.label}">${g.items.map(it => `<option value="${it.id.replace(/"/g,'&quot;')}" ${selVal===it.id?'selected':''}>${it.name}</option>`).join('')}</optgroup>`).join('');
-            this._qrUrls = { studioQr: qrSrc, portalUrl, portalQr: portalQrSrc, ch, screenLabel: meta.label };
-            modal.innerHTML = `<div style="width:100%;max-width:720px;background:${bgCard};border:2.5px solid ${bdrMain};border-radius:22px;padding:20px 24px;color:${txtMain};text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.45);">
-                <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:12px;margin-bottom:14px;border-bottom:1.5px solid rgba(148,163,184,0.25);flex-wrap:wrap;">
-                    <div style="text-align:right;">
-                        <div style="font-size:1.22rem;font-weight:900;color:${isLight?'#0369a1':'#38bdf8'};">📱 مركز ربط الجوال والجلسات المستقلة</div>
-                        <div style="font-size:0.82rem;font-weight:900;color:${isLight?'#047857':'#34d399'};margin-top:2px;">📌 معزولة ومرتبطة بهذه الشاشة فقط: ${meta.label}</div>
+            this._sessAccountFlat = groups.flatMap(g => g.items.map(it => ({ id: it.id, name: it.name, grp: g.label, norm: this._normArSearch(it.name + ' ' + g.label) })));
+            const curFrom = '';
+            const curTo = '';
+            const curFromName = '';
+            const curToName = '';
+            const mkSmartBox = (side, idVal, nameVal, bdr, ph) => `<div class="fin-sess-smart-wrap" style="position:relative;" onclick="event.stopPropagation()" onmousedown="event.stopPropagation()"><input type="hidden" id="fin-sess-${side}" value="${String(idVal).replace(/"/g,'&quot;')}"><div style="position:relative;display:flex;align-items:center;"><input type="text" id="fin-sess-${side}-txt" value="${String(nameVal).replace(/"/g,'&quot;')}" autocomplete="off" placeholder="${ph}" onfocus="FinancialOCR.renderSessSmartDD('${side}',this.value)" oninput="FinancialOCR.onSessSmartInput('${side}',this.value)" onkeydown="event.stopPropagation();FinancialOCR.navSessSmartDD(event,'${side}')" onkeyup="event.stopPropagation()" style="width:100%;box-sizing:border-box;padding:9px 12px 9px 30px;border-radius:10px;background:${isLight?'#fff':'#0b1120'};color:${txtMain};border:2px solid ${bdr};font-weight:900;font-size:0.88rem;font-family:Tajawal,sans-serif;outline:none;"><button type="button" onclick="event.stopPropagation();FinancialOCR.clearSessSmart('${side}')" title="مسح" style="position:absolute;left:6px;background:transparent;border:none;color:#94a3b8;font-weight:900;font-size:0.9rem;cursor:pointer;padding:2px 5px;">✕</button></div><div id="fin-sess-${side}-dd" class="fin-sess-smart-dd" style="display:none;position:absolute;top:calc(100% + 4px);right:0;left:0;max-height:200px;overflow-y:auto;background:${isLight?'#ffffff':'#0f172a'};border:2px solid ${bdr};border-radius:12px;box-shadow:0 16px 36px rgba(0,0,0,0.5);z-index:99999999;text-align:right;"></div></div>`;
+            this._qrUrls = { studioQr: qrSrc, portalUrl, portalQr: portalQrSrc, ch, screenLabel: meta.label, isLight };
+            modal.innerHTML = `<style>@media(max-width:700px){#fin-qr-stage-grid{grid-template-columns:1fr!important;}#fin-qr-sess-row{grid-template-columns:1fr!important;}}</style><div style="width:min(96vw,980px);max-height:calc(100vh - 20px);overflow:visible;background:${bgCard};border:2.5px solid ${bdrMain};border-radius:20px;padding:14px 20px;color:${txtMain};text-align:center;box-shadow:0 24px 60px rgba(0,0,0,0.5);">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:8px;margin-bottom:10px;border-bottom:1.5px solid rgba(148,163,184,0.22);flex-wrap:wrap;">
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;text-align:right;">
+                        <span style="font-size:1.12rem;font-weight:900;color:${isLight?'#0369a1':'#38bdf8'};">📱 مركز ربط الجوال والجلسات</span>
+                        <span style="font-size:0.76rem;font-weight:900;padding:3px 10px;border-radius:999px;background:${isLight?'#ecfdf5':'rgba(16,185,129,0.15)'};border:1px solid #10b981;color:${isLight?'#047857':'#34d399'};">📌 ${meta.label}</span>
+                        <span id="fin-qr-conn-pill" style="font-size:0.8rem;font-weight:900;padding:4px 12px;border-radius:999px;background:${isLight?'#fef2f2':'rgba(239,68,68,0.2)'};border:1.5px solid #ef4444;color:${isLight?'#b91c1c':'#fca5a5'};">🔴 الجلسة غير مرتبطة بعد (امسح الباركود)</span>
                     </div>
-                    <button type="button" onclick="document.getElementById('fin-mobile-qr-modal').style.display='none'" style="background:rgba(239,68,68,0.14);border:1.5px solid #ef4444;color:#ef4444;padding:6px 14px;border-radius:10px;font-weight:900;font-size:0.9rem;cursor:pointer;">✕ إغلاق</button>
+                    <button type="button" onclick="document.getElementById('fin-mobile-qr-modal').style.display='none'" style="background:rgba(239,68,68,0.14);border:1.5px solid #ef4444;color:#ef4444;padding:5px 14px;border-radius:10px;font-weight:900;font-size:0.86rem;cursor:pointer;">✕ إغلاق</button>
                 </div>
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;">
-                    <button type="button" id="fin-qr-tab-studio" onclick="FinancialOCR.showRequestedQR('studio')" style="padding:12px 10px;border-radius:14px;background:${isLight?'#fffbeb':'rgba(245,158,11,0.16)'};border:2px solid #f59e0b;color:${isLight?'#92400e':'#fde68a'};font-weight:900;font-size:0.88rem;cursor:pointer;line-height:1.45;transition:all 0.2s;">📷 QR استوديو الهاتف<div style="font-size:0.74rem;opacity:0.9;margin-top:3px;">بالكاميرا العادية وليس الواتساب</div></button>
-                    <button type="button" id="fin-qr-tab-session" onclick="FinancialOCR.showRequestedQR('session')" style="padding:12px 10px;border-radius:14px;background:${isLight?'#faf5ff':'rgba(168,85,247,0.18)'};border:2px solid #a855f7;color:${isLight?'#6b21a8':'#f3e8ff'};font-weight:900;font-size:0.88rem;cursor:pointer;line-height:1.45;transition:all 0.2s;">🔗 QR ربط الجلسة<div style="font-size:0.74rem;opacity:0.9;margin-top:3px;">تحويل من حساب ⬅ إلى حساب</div></button>
-                    <button type="button" id="fin-qr-tab-icon" onclick="FinancialOCR.showRequestedQR('icon')" style="padding:12px 10px;border-radius:14px;background:${isLight?'#ecfdf5':'rgba(16,185,129,0.16)'};border:2px solid #10b981;color:${isLight?'#065f46':'#a7f3d0'};font-weight:900;font-size:0.88rem;cursor:pointer;line-height:1.45;transition:all 0.2s;">🛡️ QR أيقونة السيطرة<div style="font-size:0.74rem;opacity:0.9;margin-top:3px;">رابط وباركود للعملاء</div></button>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;">
+                    <button type="button" id="fin-qr-tab-studio" onclick="FinancialOCR.showRequestedQR('studio')" style="padding:9px 10px;border-radius:12px;background:${isLight?'#fffbeb':'rgba(245,158,11,0.16)'};border:2px solid #f59e0b;color:${isLight?'#92400e':'#fde68a'};font-weight:900;font-size:0.86rem;cursor:pointer;line-height:1.35;transition:all 0.2s;">📷 QR استوديو الهاتف<div style="font-size:0.72rem;opacity:0.9;margin-top:2px;">بالكاميرا العادية وليس الواتساب</div></button>
+                    <button type="button" id="fin-qr-tab-session" onclick="FinancialOCR.showRequestedQR('session')" style="padding:9px 10px;border-radius:12px;background:${isLight?'#faf5ff':'rgba(168,85,247,0.18)'};border:2px solid #a855f7;color:${isLight?'#6b21a8':'#f3e8ff'};font-weight:900;font-size:0.86rem;cursor:pointer;line-height:1.35;transition:all 0.2s;">🔗 QR ربط الجلسة<div style="font-size:0.72rem;opacity:0.9;margin-top:2px;">تحويل من حساب ⬅ إلى حساب</div></button>
+                    <button type="button" id="fin-qr-tab-icon" onclick="FinancialOCR.showRequestedQR('icon')" style="padding:9px 10px;border-radius:12px;background:${isLight?'#ecfdf5':'rgba(16,185,129,0.16)'};border:2px solid #10b981;color:${isLight?'#065f46':'#a7f3d0'};font-weight:900;font-size:0.86rem;cursor:pointer;line-height:1.35;transition:all 0.2s;">🛡️ QR أيقونة السيطرة<div style="font-size:0.72rem;opacity:0.9;margin-top:2px;">رابط وباركود للعملاء</div></button>
                 </div>
-                <div id="fin-qr-dynamic-stage" style="display:none;margin-bottom:14px;padding:14px 16px;border-radius:16px;background:${subBg};border:2.5px solid rgba(56,189,248,0.65);">
-                    <div id="fin-qr-mode-ribbon" style="display:inline-block;margin-bottom:8px;padding:5px 16px;border-radius:999px;font-weight:900;font-size:0.88rem;color:#fff;background:#0284c7;"></div>
-                    <div id="fin-qr-live-status" style="margin-bottom:10px;padding:8px 12px;border-radius:10px;background:${isLight?'#fef3c7':'rgba(245,158,11,0.16)'};border:1px solid #f59e0b;color:${isLight?'#92400e':'#fde68a'};font-weight:900;font-size:0.86rem;line-height:1.5;"></div>
-                    <div id="fin-qr-session-controls" style="display:none;margin-bottom:12px;text-align:right;">
-                        <input type="text" id="fin-sess-filter" oninput="FinancialOCR.filterSessionAccountSelects(this.value)" placeholder="🔍 بحث سريع في كل الحسابات (العملاء، الموردين، البنوك، الخزن، المصروفات)..." style="width:100%;box-sizing:border-box;margin-bottom:8px;padding:8px 12px;border-radius:10px;border:1.5px solid #94a3b8;background:${isLight?'#fff':'#0f172a'};color:${txtMain};font-weight:800;font-size:0.84rem;font-family:Tajawal,sans-serif;">
-                        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:end;">
-                            <div>
-                                <label style="display:block;font-size:0.8rem;font-weight:900;color:${isLight?'#0369a1':'#7dd3fc'};margin-bottom:4px;">📤 من حساب (الدافع / المرسل):</label>
-                                <select id="fin-sess-from" onchange="FinancialOCR.updateWaSessionQR()" style="width:100%;padding:9px 10px;border-radius:10px;background:${isLight?'#fff':'#0f172a'};color:${txtMain};border:2px solid #0284c7;font-weight:900;font-size:0.86rem;font-family:Tajawal,sans-serif;">${buildAccOpts(curFrom, '-- اختر حساب (من): عميل / مورد / بنك / خزينة / مصروف --')}</select>
-                            </div>
-                            <button type="button" onclick="FinancialOCR.swapSessionAccounts()" title="عكس الحسابين (من ⇄ إلى)" style="height:40px;padding:0 12px;border-radius:10px;background:rgba(168,85,247,0.18);border:1.5px solid #a855f7;color:${isLight?'#6b21a8':'#e9d5ff'};font-weight:900;cursor:pointer;">⇄</button>
-                            <div>
-                                <label style="display:block;font-size:0.8rem;font-weight:900;color:${isLight?'#047857':'#6ee7b7'};margin-bottom:4px;">📥 إلى حساب (المستلم / المودع فيه):</label>
-                                <select id="fin-sess-to" onchange="FinancialOCR.updateWaSessionQR()" style="width:100%;padding:9px 10px;border-radius:10px;background:${isLight?'#fff':'#0f172a'};color:${txtMain};border:2px solid #10b981;font-weight:900;font-size:0.86rem;font-family:Tajawal,sans-serif;">${buildAccOpts(curTo, '-- اختر حساب (إلى): بنك / خزينة / مورد / عميل / مصروف --')}</select>
-                            </div>
+                <div id="fin-qr-dynamic-stage" style="display:none;margin-bottom:10px;padding:12px 16px;border-radius:16px;background:${subBg};border:2.5px solid rgba(56,189,248,0.65);">
+                    <div id="fin-qr-stage-grid" style="display:grid;grid-template-columns:minmax(0,1fr) 184px;gap:16px;align-items:center;">
+                        <div style="text-align:right;min-width:0;">
+                            <div id="fin-qr-mode-ribbon" style="display:inline-block;margin-bottom:7px;padding:4px 14px;border-radius:999px;font-weight:900;font-size:0.84rem;color:#fff;background:#0284c7;"></div>
+                            <div id="fin-qr-live-status" style="margin-bottom:10px;padding:8px 12px;border-radius:10px;background:${isLight?'#fef3c7':'rgba(245,158,11,0.16)'};border:1px solid #f59e0b;color:${isLight?'#92400e':'#fde68a'};font-weight:900;font-size:0.84rem;line-height:1.45;"></div>
+                            <div id="fin-qr-session-controls" style="display:none;"></div>
+                            <div id="fin-qr-icon-copy-row" style="display:none;margin-top:8px;gap:8px;flex-wrap:wrap;"><span id="fin-portal-icon-url" style="display:none;">${portalUrl}</span><button type="button" onclick="FinancialOCR.copyCustomerPortalIconLink()" style="background:linear-gradient(135deg,#10b981,#059669);border:none;color:#fff;padding:8px 16px;border-radius:10px;font-weight:900;font-size:0.84rem;cursor:pointer;">📋 نسخ رابط الأيقونة</button> <a href="https://wa.me/?text=${encodeURIComponent('📲 بوابة إرسال إشعارات السداد المباشرة لـ (السيطرة):\n' + portalUrl)}" target="_blank" rel="noopener" style="display:inline-block;text-decoration:none;background:linear-gradient(135deg,#25D366,#16a34a);color:#fff;padding:8px 16px;border-radius:10px;font-weight:900;font-size:0.84rem;">🟢 إرسال الرابط عبر واتساب</a></div>
                         </div>
-                    </div>
-                    <div style="background:#fff;padding:10px;border-radius:16px;display:inline-block;border:2px solid #cbd5e1;"><img id="fin-qr-main-img" src="" alt="QR" style="width:190px;height:190px;display:block;"></div>
-                    <div id="fin-qr-icon-copy-row" style="display:none;margin-top:10px;">
-                        <span id="fin-portal-icon-url" style="display:none;">${portalUrl}</span>
-                        <button type="button" onclick="FinancialOCR.copyCustomerPortalIconLink()" style="background:linear-gradient(135deg,#10b981,#059669);border:none;color:#fff;padding:9px 20px;border-radius:10px;font-weight:900;font-size:0.88rem;cursor:pointer;">📋 نسخ رابط أيقونة السيطرة</button>
+                        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;"><div style="background:#fff;padding:8px;border-radius:14px;border:2px solid #cbd5e1;box-shadow:0 8px 20px rgba(0,0,0,0.22);"><img id="fin-qr-main-img" src="" alt="QR" style="width:156px;height:156px;display:block;"></div><button type="button" onclick="FinancialOCR.refreshActiveQRCode()" style="margin-top:6px;padding:4px 12px;border-radius:8px;background:rgba(56,189,248,0.18);border:1.2px solid #38bdf8;color:${isLight?'#0369a1':'#7dd3fc'};font-weight:900;font-size:0.75rem;cursor:pointer;">🔄 تحديث الباركود</button></div>
                     </div>
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
-                    <button type="button" onclick="document.getElementById('fin-mobile-qr-modal').style.display='none';FinancialOCR.pasteFromClipboardDirect();" style="background:${isLight?'#ecfdf5':'rgba(16,185,129,0.2)'};border:2px solid #10b981;color:${isLight?'#065f46':'#a7f3d0'};padding:11px 8px;border-radius:12px;font-weight:900;font-size:0.92rem;cursor:pointer;">📋 لصق</button>
-                    <button type="button" onclick="document.getElementById('fin-mobile-qr-modal').style.display='none';FinancialOCR.triggerUploadAgain();" style="background:${isLight?'#f0f9ff':'rgba(56,189,248,0.2)'};border:2px solid #0284c7;color:${isLight?'#075985':'#e0f2fe'};padding:11px 8px;border-radius:12px;font-weight:900;font-size:0.92rem;cursor:pointer;">💻 اللابتوب</button>
-                    <button type="button" onclick="document.getElementById('fin-mobile-qr-modal').style.display='none';if(typeof openWAModal==='function'){openWAModal();}else if(window.InboundBankakManager){InboundBankakManager.toggleDrawer();}" style="background:${isLight?'#f0fdf4':'rgba(37,211,102,0.2)'};border:2px solid #16a34a;color:${isLight?'#166534':'#86efac'};padding:11px 8px;border-radius:12px;font-weight:900;font-size:0.92rem;cursor:pointer;">🟢 واتساب</button>
-                    <button type="button" id="fin-qr-disconnect-btn" onclick="FinancialOCR.disconnectMobileQRBridge();" style="background:${isLight?'#fef2f2':'rgba(239,68,68,0.2)'};border:2px solid #ef4444;color:${isLight?'#991b1b':'#fca5a5'};padding:11px 8px;border-radius:12px;font-weight:900;font-size:0.92rem;cursor:pointer;">🔌 إلغاء</button>
+                    <button type="button" onclick="document.getElementById('fin-mobile-qr-modal').style.display='none';FinancialOCR.pasteFromClipboardDirect();" style="background:${isLight?'#ecfdf5':'rgba(16,185,129,0.2)'};border:2px solid #10b981;color:${isLight?'#065f46':'#a7f3d0'};padding:9px 8px;border-radius:12px;font-weight:900;font-size:0.9rem;cursor:pointer;">📋 لصق</button>
+                    <button type="button" onclick="document.getElementById('fin-mobile-qr-modal').style.display='none';FinancialOCR.triggerUploadAgain();" style="background:${isLight?'#f0f9ff':'rgba(56,189,248,0.2)'};border:2px solid #0284c7;color:${isLight?'#075985':'#e0f2fe'};padding:9px 8px;border-radius:12px;font-weight:900;font-size:0.9rem;cursor:pointer;">💻 اللابتوب</button>
+                    <button type="button" onclick="document.getElementById('fin-mobile-qr-modal').style.display='none';if(typeof openWAModal==='function'){openWAModal();}else if(window.InboundBankakManager){InboundBankakManager.toggleDrawer();}" style="background:${isLight?'#f0fdf4':'rgba(37,211,102,0.2)'};border:2px solid #16a34a;color:${isLight?'#166534':'#86efac'};padding:9px 8px;border-radius:12px;font-weight:900;font-size:0.9rem;cursor:pointer;">🟢 واتساب</button>
+                    <button type="button" id="fin-qr-disconnect-btn" onclick="FinancialOCR.disconnectMobileQRBridge();" style="background:${isLight?'#fef2f2':'rgba(239,68,68,0.2)'};border:2px solid #ef4444;color:${isLight?'#991b1b':'#fca5a5'};padding:9px 8px;border-radius:12px;font-weight:900;font-size:0.9rem;cursor:pointer;">🔌 إلغاء وتجديد</button>
                 </div>
             </div>`;
             modal.style.display = 'flex';
             this.startMobileQRPoll();
+            if (this._lastQrMode) this.showRequestedQR(this._lastQrMode);
+        },
+        refreshActiveQRCode() {
+            this.disconnectMobileQRBridge();
         },
         async showRequestedQR(mode) {
+            const prevMode = this._lastQrMode;
+            this._lastQrMode = mode;
             const stage = document.getElementById('fin-qr-dynamic-stage');
             const ribbon = document.getElementById('fin-qr-mode-ribbon');
             const img = document.getElementById('fin-qr-main-img');
@@ -192,7 +200,16 @@
             const sessBox = document.getElementById('fin-qr-session-controls');
             const copyRow = document.getElementById('fin-qr-icon-copy-row');
             if (!stage || !img || !st || !this._qrUrls) return;
-            const tabTheme = { studio: { color: '#f59e0b', title: '✓ النشط الآن: 📷 باركود استوديو الهاتف' }, session: { color: '#9333ea', title: '✓ النشط الآن: 🔗 باركود ربط الجلسة (من ⬅ إلى)' }, icon: { color: '#059669', title: '✓ النشط الآن: 🛡️ باركود أيقونة السيطرة للعملاء' } };
+            if (mode === 'session' && prevMode !== 'session') {
+                ['from', 'to'].forEach(s => {
+                    const h = document.getElementById('fin-sess-' + s), t = document.getElementById('fin-sess-' + s + '-txt'), d = document.getElementById('fin-sess-' + s + '-dd');
+                    if (h) h.value = '';
+                    if (t) t.value = '';
+                    if (d) d.style.display = 'none';
+                });
+                this.activeSessionBinding = null;
+            }
+            const tabTheme = { studio: { color: '#f59e0b', title: '📷 وضع استوديو الهاتف (امسح بالكاميرا للاتصال)' }, session: { color: '#9333ea', title: '🔗 وضع ربط الجلسة (اختر من ⬅ إلى ثم امسح الباركود)' }, icon: { color: '#059669', title: '🛡️ وضع أيقونة السيطرة للعملاء' } };
             ['studio', 'session', 'icon'].forEach(m => {
                 const b = document.getElementById('fin-qr-tab-' + m);
                 if (!b) return;
@@ -214,31 +231,66 @@
                 await this.updateWaSessionQR();
             }
         },
-        filterSessionAccountSelects(q) {
-            const needle = String(q || '').trim().toLowerCase();
-            ['fin-sess-from', 'fin-sess-to'].forEach(id => {
-                const sel = document.getElementById(id);
-                if (!sel) return;
-                Array.from(sel.querySelectorAll('option')).forEach((opt, idx) => {
-                    if (idx === 0) return;
-                    opt.hidden = needle ? !opt.textContent.toLowerCase().includes(needle) : false;
-                });
-            });
+        renderSessSmartDD(side, q) {
+            const other = side === 'from' ? 'to' : 'from';
+            const odd = document.getElementById('fin-sess-' + other + '-dd');
+            if (odd) odd.style.display = 'none';
+            const dd = document.getElementById('fin-sess-' + side + '-dd');
+            if (!dd) return;
+            const isLight = !!(this._qrUrls && this._qrUrls.isLight);
+            const terms = this._normArSearch(q).split(/\s+/).filter(Boolean);
+            const list = (this._sessAccountFlat || []).filter(it => !terms.length || terms.every(t => it.norm.includes(t))).slice(0, 60);
+            this['_ddList_' + side] = list;
+            this['_ddIdx_' + side] = list.length ? 0 : -1;
+            const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+            dd.innerHTML = list.length ? list.map((it, i) => `<div class="fin-sess-dd-item" data-idx="${i}" onmousedown="event.preventDefault();event.stopPropagation();FinancialOCR.pickSessSmart('${side}',${i})" onclick="event.stopPropagation()" style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;border-bottom:1px solid ${isLight?'#f1f5f9':'rgba(148,163,184,0.12)'};background:${i===0?(isLight?'#e0f2fe':'rgba(56,189,248,0.18)'):'transparent'};font-size:0.86rem;font-weight:900;color:${isLight?'#0f172a':'#f8fafc'};"><span>${esc(it.name)}</span><span style="font-size:0.72rem;padding:2px 8px;border-radius:999px;background:${isLight?'#f1f5f9':'rgba(148,163,184,0.18)'};color:${isLight?'#475569':'#cbd5e1'};white-space:nowrap;">${esc(it.grp)}</span></div>`).join('') : `<div style="padding:10px 12px;font-size:0.82rem;font-weight:800;color:#94a3b8;text-align:center;">لا توجد نتائج مطابقة</div>`;
+            dd.style.display = 'block';
+        },
+        onSessSmartInput(side, val) {
+            const hid = document.getElementById('fin-sess-' + side);
+            if (hid && !val.trim()) { hid.value = ''; this.updateWaSessionQR(); }
+            this.renderSessSmartDD(side, val);
+        },
+        pickSessSmart(side, idx) {
+            const it = (this['_ddList_' + side] || [])[idx];
+            const hid = document.getElementById('fin-sess-' + side), txt = document.getElementById('fin-sess-' + side + '-txt'), dd = document.getElementById('fin-sess-' + side + '-dd');
+            if (it && hid && txt) { hid.value = it.id; txt.value = it.name; }
+            if (dd) dd.style.display = 'none';
+            this.updateWaSessionQR();
+        },
+        clearSessSmart(side) {
+            const hid = document.getElementById('fin-sess-' + side), txt = document.getElementById('fin-sess-' + side + '-txt');
+            if (hid) hid.value = '';
+            if (txt) { txt.value = ''; txt.focus(); }
+            this.renderSessSmartDD(side, '');
+            this.updateWaSessionQR();
+        },
+        navSessSmartDD(ev, side) {
+            const dd = document.getElementById('fin-sess-' + side + '-dd'), list = this['_ddList_' + side] || [];
+            if (!dd || dd.style.display === 'none' || !list.length) { if (ev.key === 'ArrowDown') this.renderSessSmartDD(side, ev.target.value); return; }
+            const isLight = !!(this._qrUrls && this._qrUrls.isLight);
+            if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
+                ev.preventDefault();
+                this['_ddIdx_' + side] = (this['_ddIdx_' + side] + (ev.key === 'ArrowDown' ? 1 : -1) + list.length) % list.length;
+                Array.from(dd.children).forEach((el, i) => { el.style.background = i === this['_ddIdx_' + side] ? (isLight ? '#e0f2fe' : 'rgba(56,189,248,0.18)') : 'transparent'; if (i === this['_ddIdx_' + side]) el.scrollIntoView({ block: 'nearest' }); });
+            } else if (ev.key === 'Enter') { ev.preventDefault(); this.pickSessSmart(side, Math.max(0, this['_ddIdx_' + side] || 0)); }
+            else if (ev.key === 'Escape') { dd.style.display = 'none'; }
         },
         swapSessionAccounts() {
             const f = document.getElementById('fin-sess-from'), t = document.getElementById('fin-sess-to');
-            if (f && t) { const tmp = f.value; f.value = t.value; t.value = tmp; this.updateWaSessionQR(); }
+            const ft = document.getElementById('fin-sess-from-txt'), tt = document.getElementById('fin-sess-to-txt');
+            if (f && t) { const v = f.value; f.value = t.value; t.value = v; }
+            if (ft && tt) { const s = ft.value; ft.value = tt.value; tt.value = s; }
+            this.updateWaSessionQR();
         },
         async updateWaSessionQR() {
             const img = document.getElementById('fin-qr-main-img');
             const st = document.getElementById('fin-qr-live-status');
-            const fSel = document.getElementById('fin-sess-from');
-            const tSel = document.getElementById('fin-sess-to');
             const ch = (this._qrUrls && this._qrUrls.ch) || this.getMobileQRChannel();
-            const fromId = fSel ? fSel.value : '';
-            const fromName = (fSel && fSel.selectedIndex > 0) ? fSel.options[fSel.selectedIndex].text : '';
-            const toId = tSel ? tSel.value : '';
-            const toName = (tSel && tSel.selectedIndex > 0) ? tSel.options[tSel.selectedIndex].text : '';
+            const fromId = document.getElementById('from-account')?.value || '';
+            const fromName = (document.getElementById('from-account-search')?.value || '').trim();
+            const toId = document.getElementById('to-account')?.value || document.getElementById('main-account')?.value || '';
+            const toName = (document.getElementById('to-account-search')?.value || document.getElementById('main-account-search')?.value || '').trim();
             this.activeSessionBinding = { fromId, fromName, toId, toName, customerId: fromId, customerName: fromName, bankId: toId, bankName: toName, channel: ch };
             let waPhone = '';
             try {
@@ -248,10 +300,9 @@
             } catch (_) {}
             const sessUrl = waPhone ? `https://wa.me/${waPhone}?text=${encodeURIComponent('#SESSION_' + ch)}` : this._qrUrls.studioQr;
             if (img) img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=6&data=' + encodeURIComponent(sessUrl);
-            const routeDesc = (fromName || toName) ? `(${fromName || 'من غير محدد'} ⬅ ${toName || 'إلى غير محدد'})` : '(اختر الحسابين من وإلى أعلاه)';
             if (st) st.innerHTML = waPhone
-                ? `🔗 <b>جلسة واتساب معزولة لهذه الشاشة ${routeDesc}:</b> امسح الكود بالكاميرا العادية وأرسل رسالة الربط، ثم حوّل دفعة الإشعارات لواتساب المؤسسة لتفتح هنا في الشاشة ثلاثية الأعمدة!`
-                : `⚠️ اربط واتساب المؤسسة من زر <b>🟢 واتساب</b> لتفعيل جلسة الواتساب، أو امسح هذا الكود لرفع دفعة الجلسة مباشرة من الجوال ${routeDesc}.`;
+                ? `🔗 <b>جلسة واتساب مرتبطة بالشاشة الحالية:</b> امسح الكود بالكاميرا وأرسل رسالة الربط، ثم حوّل الإشعارات من أي محادثة لواتساب المؤسسة لتفتح هنا فوراً!`
+                : `⚠️ اربط واتساب المؤسسة من زر <b>🟢 واتساب</b> لتفعيل جلسة الواتساب، أو امسح هذا الكود لرفع دفعة الجلسة مباشرة من الجوال.`;
         },
         togglePortalIconQR() {
             const box = document.getElementById('fin-portal-qr-expand');
@@ -281,37 +332,124 @@
         startMobileQRPoll() {
             if (this._qrBridgePollTimer) return;
             this._qrBridgePollTimer = setInterval(async () => {
+                if (this._qrPollBusy) return;
+                this._qrPollBusy = true;
                 try {
                     const ch = this.getMobileQRChannel();
                     const res = await fetch('api/qr_live_bridge.php?action=poll&channel=' + encodeURIComponent(ch));
                     const d = await res.json();
                     if (!d || !d.ok) return;
+                    const pill = document.getElementById('fin-qr-conn-pill');
+                    if (pill) {
+                        const isLight = !!(this._qrUrls && this._qrUrls.isLight);
+                        if (d.mobileConnected) {
+                            pill.style.background = isLight ? '#dcfce7' : 'rgba(16,185,129,0.28)';
+                            pill.style.borderColor = '#22c55e';
+                            pill.style.color = isLight ? '#14532d' : '#86efac';
+                            pill.style.boxShadow = '0 0 12px rgba(34,197,94,0.6)';
+                            const srcType = (d.studioConnected && d.waBound) ? 'استوديو الهاتف + جلسة الواتساب' : (d.waBound ? `جلسة الواتساب ${d.waBoundPhone ? '(' + d.waBoundPhone + ')' : ''}` : 'استوديو الهاتف');
+                            pill.innerHTML = `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#22c55e;box-shadow:0 0 10px #22c55e;margin-left:5px;vertical-align:middle;"></span>مرتبط الآن مع: ${srcType}`;
+                        } else {
+                            pill.style.background = isLight ? '#fef2f2' : 'rgba(239,68,68,0.2)';
+                            pill.style.borderColor = '#ef4444';
+                            pill.style.color = isLight ? '#b91c1c' : '#fca5a5';
+                            pill.style.boxShadow = 'none';
+                            pill.textContent = '🔴 غير مرتبط بعد (امسح الباركود)';
+                        }
+                    }
                     const st = document.getElementById('fin-qr-live-status');
                     if (st && d.mobileConnected) {
                         st.style.background = 'rgba(16,185,129,0.2)'; st.style.borderColor = '#10b981'; st.style.color = '#6ee7b7';
-                        st.textContent = '🟢 الجوال متصل الآن! اختر الإشعار من استوديو الجوال...';
+                        st.textContent = d.waBound ? `🟢 جلسة الواتساب مرتبطة ونشطة (${d.waBoundPhone || ''})! أرسل أو حوّل الإشعارات لواتساب المؤسسة لتفتح هنا فوراً.` : '🟢 الجوال متصل الآن! اختر الإشعار من الهاتف ليفتح هنا فوراً...';
                     }
                     const dot = document.getElementById('btn-fin-qr-dot');
                     if (dot) { dot.style.background = d.mobileConnected ? '#22c55e' : '#f59e0b'; dot.style.boxShadow = d.mobileConnected ? '0 0 8px #22c55e' : 'none'; }
-                    const recs = Array.isArray(d.unprocessedReceipts) ? d.unprocessedReceipts : [];
+                    const recs = (Array.isArray(d.unprocessedReceipts) ? d.unprocessedReceipts : []).filter(r => r.receiptId && !this._qrProcessedIds[r.receiptId]);
                     if (!recs.length) return;
-                    const files = [];
-                    for (const rec of recs) {
-                        if (!rec.receiptId || this._qrProcessedIds[rec.receiptId]) continue;
-                        this._qrProcessedIds[rec.receiptId] = true;
-                        fetch('api/qr_live_bridge.php?action=ack_receipt&channel=' + encodeURIComponent(ch) + '&receiptId=' + encodeURIComponent(rec.receiptId)).catch(() => {});
-                        const imgRes = await fetch(rec.fileUrl + '?_t=' + Date.now());
-                        const blob = await imgRes.blob();
-                        files.push(new File([blob], rec.fileName || 'mobile_receipt.jpg', { type: rec.mimeType || blob.type || 'image/jpeg' }));
-                    }
+                    recs.forEach(r => { this._qrProcessedIds[r.receiptId] = true; fetch('api/qr_live_bridge.php?action=ack_receipt&channel=' + encodeURIComponent(ch) + '&receiptId=' + encodeURIComponent(r.receiptId)).catch(() => {}); });
+                    const fetched = await Promise.all(recs.map(async (rec) => {
+                        try {
+                            const sep = rec.fileUrl.includes('?') ? '&' : '?';
+                            const imgRes = await fetch(rec.fileUrl + sep + '_t=' + Date.now());
+                            const blob = await imgRes.blob();
+                            return new File([blob], rec.fileName || 'mobile_receipt.jpg', { type: rec.mimeType || blob.type || 'image/jpeg' });
+                        } catch (_) { return null; }
+                    }));
+                    const files = fetched.filter(Boolean);
                     if (files.length) {
                         const m = document.getElementById('fin-mobile-qr-modal');
                         if (m) m.style.display = 'none';
                         this.activeContext = Object.assign({ target: 'single', blockId: null, docHint: 'auto' }, this.activeContext || {});
-                        await this.handleFileSelected({ files });
+                        this.enqueueBridgeFiles(files);
                     }
-                } catch (e) {}
-            }, 1500);
+                } catch (e) {} finally { this._qrPollBusy = false; }
+            }, 650);
+        },
+
+        enqueueBridgeFiles(files) {
+            if (!files || !files.length) return;
+            this._bridgeQueue = (this._bridgeQueue || []).concat(files);
+            if (this._bridgeAuditTimer) { clearTimeout(this._bridgeAuditTimer); this._bridgeAuditTimer = null; }
+            if (this._bridgeCoalesceTimer) clearTimeout(this._bridgeCoalesceTimer);
+            const isOpen = (document.getElementById('financial-ocr-review-modal')?.style.display === 'flex');
+            this._bridgeCoalesceTimer = setTimeout(() => {
+                this._bridgeCoalesceTimer = null;
+                const batch = (this._bridgeQueue || []).splice(0);
+                if (batch.length) this._drainBridgeBatch(batch);
+            }, isOpen ? 120 : 550);
+        },
+
+        async _drainBridgeBatch(files) {
+            this._bridgeStreamActive = true;
+            try {
+                const isOpen = (document.getElementById('financial-ocr-review-modal')?.style.display === 'flex');
+                if (!isOpen || !this.batchItems || !this.batchItems.length) {
+                    await this.handleFileSelected({ files, _fromBridge: true });
+                } else {
+                    this.totalFilesCount = (this.batchItems.length || 0) + files.length + ((this._bridgeQueue && this._bridgeQueue.length) || 0);
+                    this.isStreamingInBackground = true;
+                    this.showStreamingIndicator(true, this.batchItems.length, this.totalFilesCount);
+                    const q = files.slice();
+                    const workers = Array.from({ length: Math.min(4, q.length) }, async () => {
+                        while (q.length) {
+                            const f = q.shift();
+                            if (!f) break;
+                            try {
+                                const item = f.base64 ? f : await this.compressImage(f);
+                                const extracted = await this.requestOCRData(item.base64, 0, 0, false, false);
+                                this.batchItems.push({ id: 'doc_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6), fileName: item.fileName, base64: item.base64, data: extracted, originalData: JSON.parse(JSON.stringify(extracted)), applied: false });
+                                this.updateStreamingProgress(this.batchItems.length, Math.max(this.totalFilesCount, this.batchItems.length));
+                                this.renderBatchTabs();
+                            } catch (_) {}
+                        }
+                    });
+                    await Promise.all(workers);
+                    if (!this._bridgeQueue || !this._bridgeQueue.length) {
+                        this.isStreamingInBackground = false;
+                        this.showStreamingIndicator(false, this.batchItems.length, this.batchItems.length);
+                        this.renderBatchTabs();
+                        this.updateReferenceValidationUI(this.batchItems[this.currentBatchIndex]?.data || {});
+                    }
+                }
+            } finally {
+                this._bridgeStreamActive = false;
+                this.scheduleSettledBatchAudit();
+            }
+        },
+
+        scheduleSettledBatchAudit() {
+            if (this._bridgeAuditTimer) clearTimeout(this._bridgeAuditTimer);
+            const curModal = document.getElementById('financial-ocr-batch-alert-modal');
+            if (curModal) curModal.style.display = 'none';
+            this._bridgeAuditTimer = setTimeout(() => {
+                const anyRefreshing = Array.isArray(this.batchItems) && this.batchItems.some(it => it && it.isAutoRefreshing);
+                if (this.isStreamingInBackground || this._bridgeStreamActive || anyRefreshing || (this._bridgeQueue && this._bridgeQueue.length)) {
+                    this.scheduleSettledBatchAudit();
+                    return;
+                }
+                this._bridgeAuditTimer = null;
+                this.checkBatchAuditAlerts();
+            }, 6500);
         },
 
         async inspectReceiptDirect(receipt, blockId = '1') {
@@ -848,8 +986,10 @@
 
         toggleFullSizeView() {
             if (this.previewZoom.scale > 1.05) {
+                this._userManualZoomed = true;
                 this.resetToFullSize();
             } else {
+                this._userManualZoomed = false;
                 this.focusDataRegion();
             }
         },
@@ -1071,7 +1211,6 @@
                 // Step 2: Scan the initial documents with a smooth stagger to avoid burst rate limits
                 let completedCount = 0;
                 const scanPromises = firstChunk.map(async (item, idx) => {
-                    if (idx > 0) await new Promise(r => setTimeout(r, idx * 220));
                     const extracted = await this.requestOCRData(item.base64, 0, 0, false, false);
                     completedCount++;
                     const percent = Math.round((completedCount / initialBatchSize) * 100);
@@ -1112,12 +1251,13 @@
                         this.showToast(`⚡ تم مسح أول ${firstResults.length} مستندات بنجاح والشاشة مفتوحة، والبقية تنزل بالتوازي في الخلفية!`, 'success');
                     } else {
                         this.showToast(`⚡ تم فحص ${this.batchItems.length} ${this.batchItems.length === 1 ? 'مستند' : 'مستندات'} بنجاح فائق!`, 'success');
-                        this.checkBatchAuditAlerts();
+                        if (input && input._fromBridge) this.scheduleSettledBatchAudit();
+                        else this.checkBatchAuditAlerts();
                     }
                     this.triggerGoldenAutoRefresh();
                 }
 
-                // Step 4: Background Stream the remaining documents using a 2-worker concurrent pool with adaptive pacing
+                // Step 4: Background Stream the remaining documents using a 4-worker concurrent pool
                 if (remainingFiles.length > 0) {
                     this.isStreamingInBackground = true;
                     this.showStreamingIndicator(true, firstResults.length, total);
@@ -1125,14 +1265,12 @@
                     let processedCount = firstResults.length;
                     const queue = remainingFiles.map((file, idx) => ({ file, globalIndex: initialBatchSize + idx }));
 
-                    const CONCURRENT_WORKERS = Math.min(2, remainingFiles.length);
+                    const CONCURRENT_WORKERS = Math.min(4, remainingFiles.length);
                     const runWorker = async () => {
                         while (queue.length > 0) {
                             const task = queue.shift();
                             if (!task) break;
                             try {
-                                // Adaptive throttle pause between tasks to protect RPM limits
-                                await new Promise(r => setTimeout(r, 450));
                                 const item = task.file.base64 ? task.file : await this.compressImage(task.file);
                                 const extracted = await this.requestOCRData(item.base64, 0, 0, false, false);
                                 const docObj = {
@@ -1170,7 +1308,8 @@
                         this.renderBatchTabs();
                         this.playSuccessSound();
                         this.showToast(`⚡ اكتمل مسح جميع الـ ${total} مستندات بنجاح فائق!`, 'success');
-                        this.checkBatchAuditAlerts();
+                        if (input && input._fromBridge) this.scheduleSettledBatchAudit();
+                        else this.checkBatchAuditAlerts();
                         this.triggerGoldenAutoRefresh();
                     }).catch(streamErr => {
                         this.isStreamingInBackground = false;
@@ -1426,7 +1565,8 @@
             this.lastExtractedData = item.data;
             this.originalExtractedData = item.originalData;
             this.previewRotation = 0;
-            this.focusDataRegion();
+            if (!this._userManualZoomed) this.focusDataRegion();
+            else this.updatePreviewTransform();
 
             this.showReviewModal(item.data);
             this.updateReferenceValidationUI(item.data);
@@ -1898,6 +2038,23 @@
         },
 
         // Re-scan ALL Items in Batch
+        promptModernConfirm(title, subtitle, confirmLabel = '⚡ نعم، إعادة القراءة الآن') {
+            return new Promise((resolve) => {
+                let dlg = document.getElementById('ocr-modern-confirm-dlg');
+                if (!dlg) {
+                    dlg = document.createElement('div');
+                    dlg.id = 'ocr-modern-confirm-dlg';
+                    dlg.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:rgba(2,6,23,0.82);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:16px;direction:rtl;font-family:Tajawal,sans-serif;';
+                    document.body.appendChild(dlg);
+                }
+                dlg.innerHTML = `<div style="width:100%;max-width:460px;background:linear-gradient(145deg,#0f172a,#1e293b);border:2px solid #38bdf8;border-radius:22px;padding:22px 24px;color:#fff;text-align:center;box-shadow:0 25px 60px rgba(0,0,0,0.85),0 0 35px rgba(56,189,248,0.3);"><div style="width:54px;height:54px;margin:0 auto 12px;border-radius:16px;background:linear-gradient(135deg,rgba(56,189,248,0.28),rgba(16,185,129,0.28));border:2px solid #38bdf8;display:flex;align-items:center;justify-content:center;font-size:1.7rem;box-shadow:0 0 20px rgba(56,189,248,0.4);">🔄</div><h3 style="margin:0 0 8px;font-size:1.22rem;font-weight:900;color:#7dd3fc;">${title}</h3><p style="margin:0 0 18px;font-size:0.92rem;font-weight:700;color:#e2e8f0;line-height:1.6;">${subtitle}</p><div style="display:flex;gap:10px;"><button type="button" id="ocr-mconf-yes" style="flex:1.4;height:44px;border-radius:12px;border:1.5px solid #34d399;background:linear-gradient(135deg,#059669,#10b981);color:#fff;font-weight:900;font-size:0.95rem;cursor:pointer;box-shadow:0 6px 20px rgba(16,185,129,0.45);">${confirmLabel}</button><button type="button" id="ocr-mconf-no" style="flex:1;height:44px;border-radius:12px;border:1.5px solid rgba(248,113,113,0.6);background:rgba(239,68,68,0.16);color:#fecaca;font-weight:900;font-size:0.92rem;cursor:pointer;">✕ إلغاء</button></div></div>`;
+                dlg.style.display = 'flex';
+                const done = (v) => { dlg.style.display = 'none'; resolve(v); };
+                document.getElementById('ocr-mconf-yes').onclick = () => done(true);
+                document.getElementById('ocr-mconf-no').onclick = () => done(false);
+                dlg.onclick = (e) => { if (e.target === dlg) done(false); };
+            });
+        },
         async rescanAllBatchItems(fraudCheck = false) {
             const items = this.batchItems;
             if (!items || items.length === 0) {
@@ -1908,9 +2065,8 @@
                 const proceed = await this.promptFraudDisclaimer(true, items.length);
                 if (!proceed) return;
             } else {
-                if (!confirm(`هل ترغب في إعادة قراءة جميع مستندات الدفعة (${items.length} مستند) بالذكاء الاصطناعي؟`)) {
-                    return;
-                }
+                const ok = await this.promptModernConfirm('إعادة القراءة بالذكاء الاصطناعي ⚡', `هل ترغب في إعادة فحص وقراءة جميع مستندات الدفعة (<b style="color:#fde047;">${items.length} مستند</b>) بأعلى دقة؟`);
+                if (!ok) return;
             }
 
             const fraudAllBtn = document.getElementById('btn-batch-fraud-all');
@@ -2296,9 +2452,7 @@
                     applySingleBtn.style.opacity = '0.9';
                 }
                 if (applySingleText) {
-                    applySingleText.textContent = isApiErr 
-                        ? '🔄 تعذر الفحص' 
-                        : '⚠️ محظور من الاعتماد';
+                    applySingleText.textContent = isApiErr ? '🔄 فحص' : 'محظور';
                 }
 
                 // Batch Save Button State
@@ -2312,7 +2466,7 @@
                         applyBtn.style.boxShadow = 'none';
                         applyBtn.style.opacity = '0.85';
                     }
-                    if (applyText) applyText.textContent = 'محظور (0 معتمد)';
+                    if (applyText) applyText.textContent = 'محظور';
                 } else {
                     if (applyBtn) {
                         applyBtn.disabled = false;
@@ -2387,7 +2541,7 @@
                     applySingleBtn.style.opacity = '0.9';
                 }
                 if (applySingleText) {
-                    applySingleText.textContent = '🚨 محظور: مكرر';
+                    applySingleText.textContent = 'محظور';
                 }
 
                 this.playWarningBeep();
@@ -2401,7 +2555,7 @@
                         applyBtn.style.boxShadow = 'none';
                         applyBtn.style.opacity = '0.85';
                     }
-                    if (applyText) applyText.textContent = 'محظور (0 معتمد)';
+                    if (applyText) applyText.textContent = 'محظور';
                 } else {
                     if (applyBtn) {
                         applyBtn.disabled = false;
@@ -2562,7 +2716,7 @@
                     applySingleBtn.style.opacity = '1';
                 }
                 if (applySingleText) {
-                    applySingleText.textContent = 'حفظ هذا السند';
+                    applySingleText.textContent = 'حفظ السند';
                 }
 
                 // Batch save button enabled
@@ -2624,7 +2778,7 @@
                 applySingleBtn.style.opacity = '1';
             }
             if (applySingleText) {
-                applySingleText.textContent = 'حفظ هذا السند';
+                applySingleText.textContent = 'حفظ السند';
             }
 
             // Batch save button enabled
@@ -2674,8 +2828,10 @@
 
             const dateInput = document.getElementById('ocr-field-date');
             if (dateInput) {
-                data.date = dateInput.value;
-                this.updateFiscalDateUI(dateInput.value);
+                const isoD = this._toIsoYMD(dateInput.value);
+                data.date = isoD;
+                this.updateFiscalDateUI(isoD);
+                this._updateDaysBadgeFromIso(isoD);
             }
 
             const dueDateInput = document.getElementById('ocr-field-due-date');
@@ -3237,14 +3393,16 @@
 
         setFocusMode(active) {
             this.isFocusMode = !!active;
+            const colMid = document.getElementById('ocr-col-middle');
             const btnFocus = document.getElementById('btn-ocr-focus-mode');
             const btnAll = document.getElementById('btn-ocr-filter-all');
             const statusText = document.getElementById('ocr-focus-status-text');
+            if (colMid) colMid.classList.toggle('ocr-focus-max', this.isFocusMode);
 
             if (this.isFocusMode) {
                 if (btnFocus) {
                     btnFocus.style.background = 'linear-gradient(135deg, rgba(6,182,212,0.35), rgba(14,165,233,0.45))';
-                    btnFocus.style.border = '1.5px solid #22d3ee';
+                    btnFocus.style.border = '1.2px solid #22d3ee';
                     btnFocus.style.color = '#67e8f9';
                     btnFocus.style.boxShadow = '0 0 10px rgba(6,182,212,0.4)';
                 }
@@ -3253,7 +3411,7 @@
                     btnAll.style.border = '1px solid rgba(255,255,255,0.2)';
                     btnAll.style.color = '#cbd5e1';
                 }
-                if (statusText) statusText.textContent = '⚡ وضع التركيز نشط (المشاكل فقط)';
+                if (statusText) statusText.textContent = '⚡ وضع التركيز نشط';
             } else {
                 if (btnFocus) {
                     btnFocus.style.background = 'rgba(255,255,255,0.08)';
@@ -3263,7 +3421,7 @@
                 }
                 if (btnAll) {
                     btnAll.style.background = 'rgba(56,189,248,0.25)';
-                    btnAll.style.border = '1px solid #38bdf8';
+                    btnAll.style.border = '1.2px solid #38bdf8';
                     btnAll.style.color = '#e0f2fe';
                 }
                 if (statusText) statusText.textContent = 'معروض الكل';
@@ -3272,7 +3430,31 @@
             this.renderBatchTabs();
         },
 
-        // ═══ Fiscal Date Validation (صلاحية التاريخ والفترة المحاسبية) ═══
+        _toDisplayDMY(isoOrDmy) {
+            const s = String(isoOrDmy || '').trim();
+            const mIso = s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
+            if (mIso) return `${mIso[3].padStart(2,'0')}/${mIso[2].padStart(2,'0')}/${mIso[1]}`;
+            const mDmy = s.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+            if (mDmy) return `${mDmy[1].padStart(2,'0')}/${mDmy[2].padStart(2,'0')}/${mDmy[3]}`;
+            const n = new Date();
+            return `${String(n.getDate()).padStart(2,'0')}/${String(n.getMonth()+1).padStart(2,'0')}/${n.getFullYear()}`;
+        },
+        _toIsoYMD(str) {
+            const s = String(str || '').trim();
+            const mDmy = s.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
+            if (mDmy) return `${mDmy[3]}-${mDmy[2].padStart(2,'0')}-${mDmy[1].padStart(2,'0')}`;
+            const mIso = s.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
+            if (mIso) return `${mIso[1]}-${mIso[2].padStart(2,'0')}-${mIso[3].padStart(2,'0')}`;
+            return new Date().toISOString().split('T')[0];
+        },
+        _updateDaysBadgeFromIso(isoDate) {
+            const daysEl = document.getElementById('ocr-field-days-ago');
+            if (!daysEl) return;
+            const t0 = new Date(); t0.setHours(0,0,0,0);
+            const td = new Date(String(isoDate) + 'T00:00:00');
+            const dDiff = isNaN(td.getTime()) ? 0 : Math.round((t0 - td) / 86400000);
+            daysEl.textContent = dDiff === 0 ? 'اليوم' : `${Math.abs(dDiff)} يوم`;
+        },
         validateFiscalDate(dateStr) {
             if (!dateStr) return { valid: true, isOld: false, isClosed: false, isFuture: false, msg: '', daysDiff: 0 };
             
@@ -3835,7 +4017,7 @@
                 }
             } else {
                 if (counterBadge) {
-                    counterBadge.textContent = `إجمالي السند (${itemsCount} سند):`;
+                    counterBadge.textContent = `إجمالي (${itemsCount} سند):`;
                 }
                 if (cleanCount === 0) {
                     // All documents are unapproved, unclear/zero, or duplicate -> Block approval button completely!
@@ -3848,7 +4030,7 @@
                         applyBtn.style.boxShadow = 'none';
                     }
                     if (applyText) {
-                        applyText.textContent = 'محظور (0 معتمد)';
+                        applyText.textContent = 'محظور';
                     }
                 } else {
                     if (applyBtn) {
@@ -3935,19 +4117,6 @@
             if (tabsList) {
                 tabsList.innerHTML = '';
 
-                if (this.isFocusMode && issueCount === 0 && totalCount > 0) {
-                    tabsList.innerHTML = `
-                        <div style="grid-column: 1 / -1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 16px; text-align:center; background:linear-gradient(135deg, rgba(6,78,59,0.35), rgba(15,23,42,0.9)); border:1.8px solid #10b981; border-radius:12px; gap:8px; box-shadow:0 0 20px rgba(16,185,129,0.3);">
-                            <span style="font-size:2.5rem; filter:drop-shadow(0 0 10px #10b981);">🎉</span>
-                            <h4 style="margin:0; color:#34d399; font-size:1.18rem; font-weight:900;">ما شاء الله! كافة إشعارات الدفعة (${totalCount}) سليمة ومكتملة 100%</h4>
-                            <p style="margin:0; color:#cbd5e1; font-size:0.86rem; font-weight:700;">لا توجد أي إشعارات مكررة أو مقطوعة أو غير واضحة. تم تدقيق الدفعة بالكامل وجاهزة للاعتماد المباشر!</p>
-                            <button type="button" onclick="FinancialOCR.setFocusMode(false)" style="margin-top:6px; background:rgba(56,189,248,0.25); border:1.2px solid #38bdf8; color:#e0f2fe; padding:5px 16px; border-radius:6px; font-size:0.84rem; font-weight:900; cursor:pointer;">عرض الكل مجدداً</button>
-                        </div>
-                    `;
-                    this.updateReconciliationStatus();
-                    return;
-                }
-
                 displayItems.forEach((item, idx) => {
                     if (!item.data.bank_name || item.data.bank_name === 'غير محدد' || item.data.bank_name === 'غير متوفر') {
                         item.data.bank_name = (item.data.app_name && item.data.app_name.includes('فوري')) ? 'بنك فيصل الإسلامي' : 'بنك الخرطوم';
@@ -3970,11 +4139,6 @@
                     const isRefMissing = (!refVal || refVal === '---' || refVal.length < 6 || /^(null|none|n\/?a|غير\s*متوفر|لا\s*يوجد|-)$/i.test(refVal));
                     const isCroppedOrMissingRef = !isDuplicate && !isSuspicious && !isGolden && (isRefMissing || Boolean(item.data.is_cropped));
                     const isClean = !isDuplicate && !isSuspicious && !isGolden && !isCroppedOrMissingRef;
-
-                    // Focus Mode: Skip clean items when focus mode is active
-                    if (this.isFocusMode && isClean) {
-                        return;
-                    }
 
                     // Status Indicator: Square hazard lamp / purple suspicion badge / golden warning button / cropped button / clean checkmark badge
                     // وضع علامة صح على العلامة الملونة وإنزالها إلى تحت قليلاً
@@ -4071,36 +4235,19 @@
                         `;
                     }
 
-                    // Individual Square Refresh Button - ملموم ومصغر وبداخله أيقونة صغيرة
+                    // أيقونات مصغرة جداً (16px) لتوفير أقصى مساحة للمبلغ
                     const isCardAutoRefreshing = Boolean(item.isAutoRefreshing);
                     const refreshBtnHtml = `
-                        <button type="button" 
-                                onclick="event.stopPropagation(); FinancialOCR.rescanItemByIndex(${idx}, false)" 
-                                id="card-refresh-btn-${idx}" 
-                                style="width:${isCardAutoRefreshing ? 'auto' : '24px'}; height:24px; min-width:24px; padding:${isCardAutoRefreshing ? '0 5px' : '0'}; border-radius:5px; 
-                                       background:${isCardAutoRefreshing ? 'linear-gradient(135deg, #0284c7, #0369a1)' : (isAmtZero ? 'linear-gradient(135deg, rgba(245,158,11,0.5), rgba(217,119,6,0.7))' : 'rgba(56,189,248,0.22)')}; 
-                                       border:1.2px solid ${isCardAutoRefreshing ? '#38bdf8' : (isAmtZero ? '#fbbf24' : 'rgba(56,189,248,0.5)')}; 
-                                       color:${isCardAutoRefreshing ? '#ffffff' : (isAmtZero ? '#fef08a' : '#7dd3fc')}; 
-                                       cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:2px;
-                                       font-size:0.78rem; transition:all 0.15s ease; 
-                                       box-shadow:${isCardAutoRefreshing ? '0 0 10px rgba(56,189,248,0.85)' : (isAmtZero ? '0 0 8px rgba(251,191,36,0.6)' : 'none')};" 
-                                title="🔄 إعادة فحص وقراءة هذا المستند بالذكاء الاصطناعي (Refresh)">
+                        <button type="button" onclick="event.stopPropagation(); FinancialOCR.rescanItemByIndex(${idx}, false)" id="card-refresh-btn-${idx}"
+                                style="width:16px; height:16px; min-width:16px; padding:0; border-radius:4px; background:rgba(56,189,248,0.2); border:1px solid rgba(56,189,248,0.45); color:#7dd3fc; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-size:0.58rem; line-height:1;"
+                                title="🔄 إعادة قراءة المستند">
                             <span style="${isCardAutoRefreshing ? 'display:inline-block; animation:ocrSpinRing 1s linear infinite;' : ''}">🔄</span>
-                            ${isCardAutoRefreshing ? '<span style="font-size:0.60rem; font-weight:900;">تدقيق...</span>' : ''}
                         </button>
                     `;
-
-                    // Delete button - ملموم ومصغر وبداخله أيقونة صغيرة
                     const deleteBtnHtml = (itemsCount > 1) ? `
-                        <button type="button" 
-                                onclick="event.stopPropagation(); FinancialOCR.deleteItemByIndex(${idx})" 
-                                style="width:24px; height:24px; min-width:24px; border-radius:5px; 
-                                       background:rgba(239,68,68,0.25); border:1.2px solid rgba(239,68,68,0.5); 
-                                       color:#fca5a5; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; 
-                                       font-size:0.78rem; font-weight:900; padding:0; transition:all 0.15s ease;" 
-                                title="استبعاد هذا المستند من الدفعة">
-                            ✕
-                        </button>
+                        <button type="button" onclick="event.stopPropagation(); FinancialOCR.deleteItemByIndex(${idx})"
+                                style="width:16px; height:16px; min-width:16px; border-radius:4px; background:rgba(239,68,68,0.22); border:1px solid rgba(239,68,68,0.48); color:#fca5a5; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; font-size:0.58rem; font-weight:900; padding:0; line-height:1;"
+                                title="استبعاد المستند">✕</button>
                     ` : '';
 
                     // Distinct Functional Color Themes for Cards:
@@ -4114,56 +4261,51 @@
                     let baseShadow = '';
 
                     if (isDuplicate) {
-                        cardBg = 'linear-gradient(135deg, rgba(185,28,28,0.58), rgba(127,29,29,0.75))';
-                        cardBorderColor = '#ef4444';
-                        baseShadow = '0 0 14px rgba(239,68,68,0.55)';
+                        cardBg = 'linear-gradient(135deg, rgba(185,28,28,0.55), rgba(127,29,29,0.72))';
+                        cardBorderColor = '#fda4af';
+                        baseShadow = '0 2px 8px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,228,230,0.22)';
                     } else if (isSuspicious) {
-                        // اللون البنفسجي الملكي المميز للشيكات والإشعارات المشتبه في تزويرها
                         cardBg = 'linear-gradient(135deg, rgba(88,28,135,0.75), rgba(59,7,100,0.88))';
-                        cardBorderColor = '#a855f7';
-                        baseShadow = '0 0 16px rgba(168,85,247,0.65)';
+                        cardBorderColor = '#e9d5ff';
+                        baseShadow = '0 2px 8px rgba(0,0,0,0.45)';
                     } else if (isGolden) {
-                        // اللون الذهبي الأنيق للمستندات غير المعتمدة في النماذج أو غير الواضحة أو صور السيارات
                         cardBg = 'linear-gradient(135deg, rgba(180,83,9,0.58), rgba(120,53,15,0.78))';
-                        cardBorderColor = '#f59e0b';
-                        baseShadow = '0 0 14px rgba(245,158,11,0.55)';
+                        cardBorderColor = '#fde68a';
+                        baseShadow = '0 2px 8px rgba(0,0,0,0.45)';
                     } else if (isCroppedOrMissingRef) {
-                        // اللون الأزرق الفيروزي / السماوي للإشعار السليم والمار ولكنه مقطوع في التصوير أو ناقص رقم العملية
                         cardBg = 'linear-gradient(135deg, rgba(8,145,178,0.65), rgba(14,116,144,0.82))';
-                        cardBorderColor = '#06b6d4';
-                        baseShadow = '0 0 14px rgba(6,182,212,0.6)';
+                        cardBorderColor = '#a5f3fc';
+                        baseShadow = '0 2px 8px rgba(0,0,0,0.45)';
                     } else {
-                        // سليم مار طوالي (أخضر زمردي)
                         cardBg = 'linear-gradient(135deg, rgba(6,78,59,0.58), rgba(4,120,87,0.48))';
-                        cardBorderColor = 'rgba(16,185,129,0.85)';
-                        baseShadow = '0 2px 8px rgba(0,0,0,0.35)';
+                        cardBorderColor = '#6ee7b7';
+                        baseShadow = '0 2px 8px rgba(0,0,0,0.38)';
                     }
 
                     // Highlight Active/Selected Card: خطين أزرق وفي منتصفهما خط أصفر مشع/مضيء لتمييز فائق واستثنائي
                     let cardOutline = '';
                     let cardShadow = baseShadow;
                     if (isSelected) {
-                        cardBorderColor = '#0284c7';
-                        cardOutline = 'outline: 2.5px solid #facc15; outline-offset: 1px;';
-                        cardShadow = `${baseShadow}, 0 0 0 3.5px #0284c7, 0 0 20px rgba(250,204,21,0.95), 0 0 32px rgba(56,189,248,0.8), inset 0 0 12px rgba(250,204,21,0.25)`;
+                        cardOutline = 'outline: 2px solid #ffffff; outline-offset: 0px;';
+                        cardShadow = `${baseShadow}, 0 0 0 2px rgba(255,255,255,0.85), 0 0 14px rgba(250,204,21,0.55)`;
                     }
 
                     const card = document.createElement('div');
                     card.style.cssText = `
                         background: ${cardBg};
-                        border: 2px solid ${cardBorderColor};
+                        border: 1.6px solid ${cardBorderColor};
                         ${cardOutline}
-                        border-radius: 8px;
-                        padding: 4px 6px;
+                        border-radius: 7px;
+                        padding: 2px 5px;
                         cursor: pointer;
                         display: flex;
                         align-items: center;
                         justify-content: space-between;
-                        height: 58px;
-                        min-height: 52px;
-                        max-height: 58px;
+                        height: 38px;
+                        min-height: 36px;
+                        max-height: 40px;
                         box-sizing: border-box;
-                        transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+                        transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
                         position: relative;
                         box-shadow: ${cardShadow};
                     `;
@@ -4211,72 +4353,32 @@
                     }
 
                     const hasSeqAnomaly = Boolean(item.data.sequence_anomaly && item.data.sequence_anomaly.hasAnomaly);
+                    const cardDays = (() => {
+                        const ds = item.data.date;
+                        if (!ds) return 0;
+                        const t0 = new Date(); t0.setHours(0,0,0,0);
+                        const td = new Date(ds + 'T00:00:00');
+                        return isNaN(td.getTime()) ? 0 : Math.round((t0 - td) / 86400000);
+                    })();
+                    const daysLbl = cardDays === 0 ? 'اليوم' : (cardDays > 0 ? `منذ ${cardDays} يوم` : `مستقبلي`);
+                    card.className = 'ocr-batch-card';
+                    card.title = `🔖 رقم العملية: ${refVal || 'غير متوفر'} | 📅 ${daysLbl} | المبلغ: ${Math.round(amt).toLocaleString('en-US')} SDG`;
 
                     card.innerHTML = `
-                        <!-- الطرف الأيمن: رقم البطاقة جالس لوحده بدون مربع ومصغر بتباين عالي جداً + تمييز الشيك وشارة الحالة الملونة وأسفلها مباشرة كتابة SDG بلون فاقع وواضح -->
-                        <div style="display:flex; align-items:center; gap:3px; flex-shrink:0;">
-                            <span style="font-size:0.82rem; font-weight:900; color:#38bdf8; text-shadow:0 0 8px rgba(56,189,248,0.95), 0 1px 2px #000; font-family:'Bahnschrift','Segoe UI','Tajawal',sans-serif; font-variant-numeric:tabular-nums; line-height:1; display:inline-block; flex-shrink:0; pointer-events:none;" title="المستند رقم ${idx + 1}">
-                                #${idx + 1}
-                            </span>
-                            ${isCheque ? '<span style="font-size:0.80rem;" title="شيك مصرفي">✍️</span>' : ''}
-                            ${isSuspicious ? '<span style="font-size:0.80rem;" title="اشتباه تزوير وتلاعب">🕵️‍♂️</span>' : ''}
-                            ${hasSeqAnomaly ? `<span style="background:rgba(192,38,211,0.35); border:1px solid #d946ef; color:#f5d0fe; font-size:0.60rem; font-weight:900; padding:1px 3px; border-radius:3px; white-space:nowrap; line-height:1;" title="${item.data.sequence_anomaly ? item.data.sequence_anomaly.message : 'شذوذ تسلسل رقم العملية مع التاريخ'}">📉 شذوذ</span>` : ''}
-                            ${fiscalBadgeHtml}
-                            
-                            <!-- شارة الحالة الملونة وأسفلها تماماً كتابة SDG بلون فاقع ومشع واضح جداً -->
-                            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; line-height:1; flex-shrink:0;">
-                                ${statusSquareBtnHtml}
-                                <span style="font-size:0.55rem; font-weight:900; font-family:'Tajawal',sans-serif; text-transform:uppercase; letter-spacing:0.5px; color:${isSelected ? '#fef08a' : '#ffffff'}; text-shadow:${isSelected ? '0 0 8px rgba(250,204,21,0.95), 0 1px 2px #000' : '0 0 8px rgba(16,185,129,0.95), 0 1px 2px #000'}; line-height:1; margin-top:2px;" title="العملة: SDG">
-                                    SDG
+                        <div class="ocr-hover-ref-pill" style="position:absolute; top:-3px; left:50%; transform:translateX(-50%); background:rgba(2,6,23,0.96); border:1px solid #38bdf8; color:#7dd3fc; padding:1px 7px; border-radius:999px; font-size:0.68rem; font-weight:900; font-family:'Consolas','Bahnschrift',monospace; direction:ltr; white-space:nowrap; z-index:15; box-shadow:0 4px 10px rgba(0,0,0,0.8);">🔖 ${refVal || '---'} • ${daysLbl}</div>
+                        <span style="font-size:0.72rem; font-weight:900; color:#7dd3fc; font-family:'Bahnschrift','Segoe UI',sans-serif; line-height:1; flex-shrink:0; pointer-events:none;">#${idx + 1}</span>
+                        <div style="display:flex; align-items:center; justify-content:center; flex:1; min-width:0; padding:0 3px; overflow:hidden;">
+                            ${ isNonFinancial ? `
+                                <span style="color:#fef08a; font-size:0.70rem; font-weight:900; white-space:nowrap;">غير مالي 🚫</span>
+                            ` : (isAmtZero ? `
+                                <span style="color:#fca5a5; font-size:1.10rem; font-weight:900; font-family:'Bahnschrift',sans-serif; line-height:1; white-space:nowrap;">0.00</span>
+                            ` : `
+                                <span class="ocr-card-amt-txt" style="color:#fef08a; font-size:${(() => { const l = Math.round(amt).toLocaleString('en-US').length; return l > 12 ? '0.88rem' : l > 9 ? '1.00rem' : l > 7 ? '1.12rem' : '1.22rem'; })()}; font-weight:900; font-family:'Inter','Bahnschrift','Segoe UI','Tajawal',sans-serif; font-variant-numeric:tabular-nums; line-height:1; letter-spacing:-0.2px; text-shadow:0 1px 2px #000; white-space:nowrap;">
+                                    ${Math.round(amt).toLocaleString('en-US')}
                                 </span>
-                            </div>
+                            `)}
                         </div>
-
-                        <!-- المنتصف: كل المساحة المتبقية من علامة الصح إلى رقم التحويلة مخصصة بالكامل للمبلغ بحجم كبير وواضح جداً، ورقم التحويلة مكبر درجة إضافية -->
-                        <div style="display:flex; align-items:center; justify-content:space-between; flex:1; min-width:0; padding:0 2px; gap:4px; overflow:hidden;">
-                            
-                            <!-- المبلغ: يكبر ويشغل كل المساحة ما بين رقم التحويلة وبين مربع الصح بحجم كبير وواضح وبارز -->
-                            <div style="display:flex; align-items:center; justify-content:center; flex:1; min-width:0; line-height:1; margin:0 2px; padding:0; overflow:hidden;">
-                                ${ isNonFinancial ? `
-                                    <span style="color:#fef08a; background:rgba(217,119,6,0.35); border:1px solid #f59e0b; padding:2px 6px; border-radius:4px; font-size:0.75rem; font-weight:800; white-space:nowrap;">
-                                        ${(item.data.rejection_reason && item.data.rejection_reason.includes('سيارة')) ? 'صورة سيارة ⚠️' : 'غير مالي 🚫'}
-                                    </span>
-                                ` : (isAmtZero ? `
-                                    <span style="color:#fca5a5; font-size:1.58rem; font-weight:900; font-family:'Bahnschrift','Segoe UI','Tajawal',sans-serif; font-variant-numeric:tabular-nums; line-height:1; letter-spacing:-0.4px; white-space:nowrap;" title="0.00 SDG ⚠️ المبلغ غير ظاهر - صفر">
-                                        0.00
-                                    </span>
-                                ` : `
-                                    <span style="color:#fef08a; font-size:${Math.round(amt).toLocaleString('en-US').length > 9 ? '1.50rem' : '1.70rem'}; font-weight:900; font-family:'Bahnschrift Condensed','Bahnschrift','Segoe UI','Tajawal',sans-serif; font-variant-numeric:tabular-nums; line-height:1; letter-spacing:-0.5px; text-shadow:0 0 10px rgba(251,191,36,0.7), 0 1px 2px #000; white-space:nowrap;" title="المبلغ المالي">
-                                        ${Math.round(amt).toLocaleString('en-US')}
-                                    </span>
-                                `)}
-                            </div>
-
-                            <!-- رقم التحويلة: يبدأ مباشرة من عند أيقونة ريفريش على اليسار، ومكبر درجة إضافية ويتسع لـ 12 رقماً كاملاً بدون أي بتر -->
-                            <div style="display:flex; align-items:center; justify-content:flex-start; flex-shrink:0; min-width:0; overflow:hidden; direction:ltr; margin-left:2px;">
-                                ${isSuspicious ? `
-                                    <span style="background:rgba(88,28,135,0.65); border:1.2px solid rgba(192,132,252,0.6); border-radius:5px; padding:2px 5px; color:#f5d0fe; font-size:0.75rem; font-weight:800; font-family:'Tajawal',sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; direction:rtl;" title="${item.data.tampering_reasons || 'اشتباه تزوير وتلاعب'}">
-                                        ${hasSeqAnomaly ? '📉 شذوذ تسلسل' : `🕵️ شك: ${tamperingScore}%`}
-                                    </span>
-                                ` : (isGolden ? `
-                                    <span style="background:${isCardAutoRefreshing ? 'rgba(2,132,199,0.5)' : ((item.data?.is_api_error || item.data?.is_quota_exceeded) ? 'rgba(30,58,138,0.65)' : 'rgba(120,53,15,0.45)')}; border:1.2px solid ${isCardAutoRefreshing ? '#38bdf8' : ((item.data?.is_api_error || item.data?.is_quota_exceeded) ? '#60a5fa' : 'rgba(245,158,11,0.5)')}; border-radius:5px; padding:2px 6px; color:${isCardAutoRefreshing ? '#e0f2fe' : ((item.data?.is_api_error || item.data?.is_quota_exceeded) ? '#bfdbfe' : '#fef3c7')}; font-size:0.75rem; font-weight:800; font-family:'Tajawal',sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; direction:rtl;" title="${item.data.rejection_reason || (isAmtZero ? 'المستند غير واضح، المبلغ غير ظاهر' : 'المستند غير معتمد في النماذج')}">
-                                        ${isCardAutoRefreshing ? '🔄 تدقيق تلقائي...' : ((item.data?.is_api_error || item.data?.is_quota_exceeded) ? '⚡ ضغط مؤقت (اضغط 🔄)' : ((item.autoRefreshAttempts >= 2 ? '⚠️ غير واضح (تم التدقيق)' : 'تنبيه: ' + (item.data.rejection_reason || (isAmtZero ? 'المستند غير واضح، المبلغ غير ظاهر' : 'المستند غير معتمد')))))}
-                                    </span>
-                                ` : (isCroppedOrMissingRef ? `
-                                    <span style="background:rgba(8,145,178,0.65); border:1.2px solid #22d3ee; border-radius:5px; padding:2px 5px; color:#cffafe; font-size:0.78rem; font-weight:800; font-family:'Tajawal',sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; direction:rtl;" title="إشعار سليم ومار (مقطوع في التصوير أو ناقص رقم العملية)">
-                                        ✂️ ${refVal || 'مقطوع / ناقص'}
-                                    </span>
-                                ` : `
-                                    <span style="background:rgba(15,23,42,0.70); border:1.2px solid ${isSelected ? '#38bdf8' : 'rgba(56,189,248,0.35)'}; border-radius:5px; padding:2px 5px; color:${isSelected ? '#7dd3fc' : '#38bdf8'}; font-size:${(refVal && refVal.length > 13) ? '1.04rem' : (refVal && refVal.length > 11) ? '1.15rem' : '1.22rem'}; font-weight:800; font-family:'Bahnschrift','Segoe UI','Tajawal',sans-serif; font-variant-numeric:tabular-nums; line-height:1.15; letter-spacing:-0.25px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; direction:ltr; text-align:left; box-shadow:${isSelected ? '0 0 8px rgba(56,189,248,0.5)' : 'none'};" title="رقم العملية / الشيك: ${refVal || '---'}">
-                                        ${refVal || '---'}
-                                    </span>
-                                `))}
-                            </div>
-
-                        </div>
-
-                        <!-- الطرف الأيسر: أيقونة ريفريش وبجوارها زر الحذف (رقم الإشعار يبدأ مباشرة من عند أيقونة ريفريش) -->
-                        <div style="display:flex; align-items:center; gap:3px; flex-shrink:0;">
+                        <div style="display:flex; align-items:center; gap:2px; flex-shrink:0;">
                             ${refreshBtnHtml}
                             ${deleteBtnHtml}
                         </div>
@@ -4284,6 +4386,7 @@
 
                     tabsList.appendChild(card);
                 });
+                requestAnimationFrame(() => this.fitOcrDynamicFields());
             }
             this.updateReconciliationStatus();
         },
@@ -4298,6 +4401,45 @@
             }
             this.currentBatchIndex = Math.max(0, Math.min(this.currentBatchIndex, this.batchItems.length - 1));
             this.selectBatchItem(this.currentBatchIndex);
+        },
+
+        fitOcrDynamicFields() {
+            const fitPx = (id, maxPx, minPx) => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const val = String(el.value || '');
+                let px = maxPx;
+                if (val.length > 10) px = Math.max(minPx, Math.round(maxPx * (11 / Math.max(11, val.length * 0.86))));
+                el.style.setProperty('font-size', px + 'px', 'important');
+                if (el.clientWidth > 20) {
+                    while (el.scrollWidth > el.clientWidth + 2 && px > minPx) {
+                        px -= 1;
+                        el.style.setProperty('font-size', px + 'px', 'important');
+                    }
+                }
+            };
+            fitPx('ocr-field-date', 16, 11);
+            fitPx('ocr-field-bank-name', 17, 11);
+            fitPx('ocr-field-ref-no', 21, 11);
+            fitPx('ocr-field-amount', 32, 13);
+            fitPx('ocr-field-sender-acc', 22, 11);
+            fitPx('ocr-field-receiver-acc', 22, 11);
+            fitPx('ocr-field-receiver', 19, 11);
+            fitPx('ocr-field-phone', 19, 11);
+            ['ocr-field-ref-no', 'ocr-field-sender-acc', 'ocr-field-receiver-acc'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.style.setProperty('color', id === 'ocr-field-receiver-acc' ? '#6ee7b7' : '#ffffff', 'important');
+            });
+            document.querySelectorAll('.ocr-card-amt-txt').forEach(sp => {
+                const p = sp.parentElement;
+                if (!p || p.clientWidth < 20) return;
+                let px = 20;
+                sp.style.setProperty('font-size', px + 'px', 'important');
+                while (sp.scrollWidth > p.clientWidth - 2 && px > 9) {
+                    px -= 1;
+                    sp.style.setProperty('font-size', px + 'px', 'important');
+                }
+            });
         },
 
         // 6. Show Review & Confirmation Modal
@@ -4372,8 +4514,16 @@
 
             const dateInput = document.getElementById('ocr-field-date');
             if (dateInput) {
-                dateInput.value = data.date || new Date().toISOString().split('T')[0];
-                this.updateFiscalDateUI(dateInput.value);
+                const isoVal = this._toIsoYMD(data.date || new Date().toISOString().split('T')[0]);
+                dateInput.value = this._toDisplayDMY(isoVal);
+                this.updateFiscalDateUI(isoVal);
+                this._updateDaysBadgeFromIso(isoVal);
+            }
+            const timeEl = document.getElementById('ocr-field-time');
+            if (timeEl) {
+                const tv = (data.time && String(data.time).trim() && !/^--/.test(String(data.time).trim())) ? String(data.time).trim() : '';
+                timeEl.textContent = tv;
+                timeEl.style.display = tv ? 'inline-block' : 'none';
             }
 
             const dueDateInput = document.getElementById('ocr-field-due-date');
@@ -4420,6 +4570,7 @@
                 notesInput.value = noteText;
                 notesInput.placeholder = '';
             }
+            this.fitOcrDynamicFields();
 
             // Summary text & Cheque Arabic Words Display
             const summaryElem = document.getElementById('ocr-doc-summary');
@@ -4544,14 +4695,15 @@
             if (side === 'swapped' || side === 'image-left') {
                 formCol.style.order = '1'; // Details on Right
                 midCol.style.order = '3';  // Batch on Left
-                grid.style.gridTemplateColumns = 'minmax(0, 0.765fr) minmax(0, 1.255fr) minmax(0, 1.98fr)';
+                grid.style.setProperty('grid-template-columns', 'minmax(0, 0.965fr) minmax(0, 1.255fr) minmax(0, 1.78fr)', 'important');
                 if (indicator) indicator.textContent = '📋 البيانات باليمين • 📷 الشيك بالوسط • 💳 الدفعة باليسار';
             } else {
                 midCol.style.order = '1';  // Batch on Right
                 formCol.style.order = '3'; // Details on Left
-                grid.style.gridTemplateColumns = 'minmax(0, 1.98fr) minmax(0, 1.255fr) minmax(0, 0.765fr)';
+                grid.style.setProperty('grid-template-columns', 'minmax(0, 1.78fr) minmax(0, 1.255fr) minmax(0, 0.965fr)', 'important');
                 if (indicator) indicator.textContent = '💳 الدفعة باليمين • 📷 الشيك بالوسط • 📋 البيانات باليسار';
             }
+            requestAnimationFrame(() => this.fitOcrDynamicFields());
         },
 
         handleTypeChange(type) {
@@ -5346,6 +5498,7 @@
                     this.formatElementValue(key, el, props);
                 }
             }
+            requestAnimationFrame(() => this.fitOcrDynamicFields());
         },
 
         closeReviewModal() {
@@ -5401,7 +5554,39 @@
         },
 
         // 7. Apply Extracted Data to Active Screen (Safe Clean-Only Batch Commit)
-        applyToActiveScreen() {
+        showModernSafetyModal({ title, cleanCount = 0, dupCount = 0, badCount = 0, mode = 'confirm' }) {
+            return new Promise(resolve => {
+                let ov = document.getElementById('ocr-modern-safety-modal');
+                if (ov) ov.remove();
+                ov = document.createElement('div');
+                ov.id = 'ocr-modern-safety-modal';
+                ov.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:rgba(2,6,23,0.82);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;padding:14px;direction:rtl;font-family:Tajawal,Cairo,sans-serif;';
+                const isBlock = (mode === 'block');
+                const accent = isBlock ? '#ef4444' : '#10b981';
+                ov.innerHTML = `<div style="width:min(94vw,460px);background:linear-gradient(155deg,#0f172a,#1e293b);border:2.2px solid ${accent};border-radius:20px;padding:18px 20px;color:#f8fafc;box-shadow:0 24px 60px rgba(0,0,0,0.85),0 0 30px ${isBlock?'rgba(239,68,68,0.35)':'rgba(16,185,129,0.3)'};">
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(148,163,184,0.2);">
+                        <div style="width:42px;height:42px;border-radius:12px;background:${isBlock?'rgba(239,68,68,0.2)':'rgba(16,185,129,0.2)'};border:1.5px solid ${accent};display:flex;align-items:center;justify-content:center;font-size:1.35rem;">${isBlock?'🚫':'🛡️'}</div>
+                        <div><div style="font-size:1.08rem;font-weight:900;color:#fff;">${title}</div><div style="font-size:0.76rem;color:#94a3b8;font-weight:700;">فحص الاعتماد الذكي وحماية القيود المالية</div></div>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+                        ${cleanCount > 0 ? `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:12px;background:rgba(16,185,129,0.16);border:1.5px solid #10b981;color:#a7f3d0;font-weight:900;font-size:0.9rem;"><span>✅ سندات سليمة جاهزة للاعتماد</span><span style="background:#059669;color:#fff;padding:2px 10px;border-radius:999px;font-size:0.86rem;">${cleanCount} سند</span></div>` : ''}
+                        ${dupCount > 0 ? `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:12px;background:rgba(239,68,68,0.16);border:1.5px solid #ef4444;color:#fecaca;font-weight:900;font-size:0.88rem;"><span>🚨 إشعارات مكررة مستبعدة تلقائياً</span><span style="background:#dc2626;color:#fff;padding:2px 10px;border-radius:999px;font-size:0.84rem;">${dupCount} مكرر</span></div>` : ''}
+                        ${badCount > 0 ? `<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;border-radius:12px;background:rgba(245,158,11,0.16);border:1.5px solid #f59e0b;color:#fde68a;font-weight:900;font-size:0.88rem;"><span>⚠️ مستندات غير واضحة / غير مالية مستبعدة</span><span style="background:#d97706;color:#fff;padding:2px 10px;border-radius:999px;font-size:0.84rem;">${badCount} مستند</span></div>` : ''}
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        ${isBlock
+                            ? `<button type="button" id="ocr-saf-ok" style="flex:1;height:42px;border:none;border-radius:12px;background:linear-gradient(135deg,#ef4444,#b91c1c);color:#fff;font-weight:900;font-size:0.94rem;cursor:pointer;">حسناً، مراجعة وتصحيح</button>`
+                            : `<button type="button" id="ocr-saf-ok" style="flex:1.5;height:42px;border:none;border-radius:12px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:900;font-size:0.94rem;cursor:pointer;box-shadow:0 6px 20px rgba(16,185,129,0.4);">✅ اعتماد السليمة (${cleanCount})</button><button type="button" id="ocr-saf-no" style="flex:1;height:42px;border:1.5px solid rgba(148,163,184,0.35);border-radius:12px;background:rgba(255,255,255,0.06);color:#e2e8f0;font-weight:800;font-size:0.9rem;cursor:pointer;">✕ تراجع</button>`}
+                    </div>
+                </div>`;
+                document.body.appendChild(ov);
+                const done = (v) => { ov.remove(); resolve(v); };
+                ov.querySelector('#ocr-saf-ok').onclick = () => done(true);
+                if (ov.querySelector('#ocr-saf-no')) ov.querySelector('#ocr-saf-no').onclick = () => done(false);
+            });
+        },
+
+        async applyToActiveScreen() {
             this.syncCurrentItemFromForm();
 
             // Strict Accounting Safety Lock: Strictly block premature commits while background scan is in progress
@@ -5445,32 +5630,13 @@
             // "وزر اعتماد لا يعتمد، أي لا يعتمد في هذه الحالة نهائيا"
             if (cleanItems.length === 0) {
                 this.playWarningBeep();
-                let haltMsg = `🚫 حظر محاسبي قطعي (زر الاعتماد لا يعتمد نهائياً):\n\n`;
-                if (unapprovedOrUnclearItems.length > 0) {
-                    haltMsg += `• تم رصد (${unapprovedOrUnclearItems.length}) مستند غير واضح والمبلغ غير ظاهر (0.00 SDG)، أو صورة سيارة.\n`;
-                }
-                if (duplicateItems.length > 0) {
-                    haltMsg += `• تم رصد (${duplicateItems.length}) إشعار مكرر مسجل مسبقاً بالنظام.\n`;
-                }
-                haltMsg += `\n❌ زر الاعتماد لا يعتمد هذه المستندات نهائياً لحماية الحسابات المالية ومنع ترحيل قيود غير مكتملة أو مكررة.\nيرجى استبعاد المستندات غير المعتمدة أو تصحيح المبالغ يدوياً للمتابعة.`;
-                alert(haltMsg);
+                await this.showModernSafetyModal({ title: 'لا توجد سندات مكتملة للاعتماد', cleanCount: 0, dupCount: duplicateItems.length, badCount: unapprovedOrUnclearItems.length, mode: 'block' });
                 return;
             }
 
-            // If some duplicates or unapproved/unclear items were detected, alert the accountant that only clean items are saved
             if (duplicateItems.length > 0 || unapprovedOrUnclearItems.length > 0) {
-                let infoMsg = `🛡️ صمام الأمان المحاسبي:\n\n`;
-                infoMsg += `✅ سيتم حفظ واعتماد (${cleanItems.length}) سند مالي سليم ومعتمد فقط.\n\n`;
-                if (unapprovedOrUnclearItems.length > 0) {
-                    infoMsg += `⚠️ تم استبعاد وحظر (${unapprovedOrUnclearItems.length}) مستند (المبلغ غير ظاهر أو صورة سيارة) - زر الاعتماد لا يعتمده نهائياً.\n`;
-                }
-                if (duplicateItems.length > 0) {
-                    infoMsg += `🚨 تم استبعاد وحظر (${duplicateItems.length}) سند مكرر حمايةً للحسابات ومنعاً لتكرار الصرف.\n`;
-                }
-                infoMsg += `\nهل تريد تأكيد اعتماد السندات السليمة واستبعاد غير المعتمد والمكرر تلقائياً؟`;
-                if (!confirm(infoMsg)) {
-                    return;
-                }
+                const ok = await this.showModernSafetyModal({ title: 'صمام الأمان المحاسبي الذكي', cleanCount: cleanItems.length, dupCount: duplicateItems.length, badCount: unapprovedOrUnclearItems.length, mode: 'confirm' });
+                if (!ok) return;
             }
 
             const target = this.activeContext.target || 'purchase';
@@ -5816,10 +5982,18 @@
             const cheques = items.filter(d => d.doc_type === 'cheque');
             const transfers = items.filter(d => d.doc_type !== 'cheque');
 
-            // 1. Transfers
+            // 1. Transfers — Ensure Bank Transfer section is explicitly OPEN (never toggled off!)
             if (transfers.length > 0) {
-                if (typeof window.togglePaymentSection === 'function') {
+                const btnBank = document.getElementById('toggle-bank');
+                const btnCash = document.getElementById('toggle-cash');
+                if (btnBank && !btnBank.classList.contains('active') && typeof window.togglePaymentSection === 'function') {
                     window.togglePaymentSection('bank');
+                } else {
+                    if (btnCash) btnCash.classList.remove('active');
+                    if (btnBank) btnBank.classList.add('active');
+                    const rMob = document.getElementById('radio-mobile'); if (rMob) rMob.checked = true;
+                    const cashSec = document.getElementById('pay-cash-section'); if (cashSec) cashSec.style.display = 'none';
+                    const bankSec = document.getElementById('pay-bank-section'); if (bankSec) { bankSec.style.display = 'flex'; setTimeout(() => { try { bankSec.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch(_){} }, 80); }
                 }
                 const container = document.getElementById('transfers-container');
                 if (container) {

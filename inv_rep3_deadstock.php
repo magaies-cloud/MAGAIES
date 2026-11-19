@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -37,8 +39,8 @@ usort($report_data, function($a, $b) { return $b['days_dormant'] <=> $a['days_do
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="css/tailwind.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="css/all.min.css?v=2027">
+    <script src="js/vendor/chart.umd.min.js"></script>
 <!-- tessans-table-compat -->
     <style>
         body {
@@ -72,7 +74,7 @@ usort($report_data, function($a, $b) { return $b['days_dormant'] <=> $a['days_do
         /* طھظ†ط³ظٹظ‚ط§طھ ط§ظ„ط¬ط¯ط§ظˆظ„ ط§ظ„ظ…طھظˆط§ظپظ‚ط© ظ…ط¹ ط§ظ„ظˆط¶ط¹ظٹظ† ط§ظ„ظپط§طھط­ ظˆط§ظ„ط¯ط§ظƒظ† */
         .bg-slate-900\/40 {
             background-color: rgba(30, 41, 59, 0.2) !important;
-            backdrop-filter: blur(16px);
+            /* gpu-opt */
             border: 1px solid rgba(255, 255, 255, 0.05) !important;
         }
 

@@ -10154,6 +10154,7 @@ window.applySmartDefaultMainAccount = function() {
     }
 
     window.addEventListener('wheel', function(e) {
+        return; // Native browser Ctrl+Wheel zoom unblocked across all screens (25%–500%)
         if (e.ctrlKey) {
             e.preventDefault();
             const delta = e.deltaY < 0 ? 0.04 : -0.04;

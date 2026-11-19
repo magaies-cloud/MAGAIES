@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 // ====================================================================
 // نظام Al-Sajana Smart ERP 2026 - بوابة التقارير الذكية العالمية V2
 // تم تصميمها وهندستها لتكون مستقلة تماماً لحماية نظامك القديم من الأخطاء
@@ -27,10 +29,10 @@ $header_theme_class = 'header-theme-reports';
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/all.min.css?v=2027">
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=20261016_v28"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <style>
         :root {
             --bg-dark: #090514;
@@ -103,7 +105,7 @@ $header_theme_class = 'header-theme-reports';
             padding: 30px;
             text-decoration: none;
             color: var(--text-main);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -122,7 +124,7 @@ $header_theme_class = 'header-theme-reports';
             width: 100%;
             height: 4px;
             background: linear-gradient(90deg, transparent, var(--accent-color), transparent);
-            transition: all 0.5s;
+            transition: transform 0.5s, opacity 0.5s, background-color 0.5s, border-color 0.5s, color 0.5s;
         }
 
         .report-card:hover {
@@ -183,7 +185,7 @@ $header_theme_class = 'header-theme-reports';
             text-decoration: none;
             font-weight: bold;
             font-size: 13px;
-            transition: all 0.3s;
+            transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
         }
 
         .curr-btn.active {
@@ -214,7 +216,7 @@ $header_theme_class = 'header-theme-reports';
             height: 6px;
             background-color: #00ff7f;
             border-radius: 50%;
-            animation: pulse 1.8s infinite ease-in-out;
+            animation: none; /* cpu-opt */
         }
 
         @keyframes pulse {
@@ -276,14 +278,14 @@ $header_theme_class = 'header-theme-reports';
 
         /* توهج الأيقونة عند التحويم */
         .report-card:hover .card-icon {
-            animation: float 2s ease-in-out infinite;
+            animation: none; /* cpu-opt */
         }
 
         /* بريق متحرك على الشارة */
         .report-card:hover .ai-badge {
             background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%);
             background-size: 200% 100%;
-            animation: shimmer 2s infinite linear;
+            animation: none; /* cpu-opt */
         }
 
         /* تأثير توهج نيون خلف الكرت */
@@ -300,7 +302,7 @@ $header_theme_class = 'header-theme-reports';
 
         /* زر العملة - انتقال سلس */
         .curr-btn {
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .curr-btn:hover:not(.active) {
             background: rgba(255, 255, 255, 0.06);
@@ -316,7 +318,7 @@ $header_theme_class = 'header-theme-reports';
             position: absolute;
             border-radius: 50%;
             opacity: 0.3;
-            animation: particleFloat linear infinite;
+            animation: none; /* cpu-opt */
             filter: blur(1px);
         }
         @keyframes particleFloat {
@@ -377,7 +379,7 @@ $header_theme_class = 'header-theme-reports';
             text-decoration: none;
             font-weight: bold;
             font-size: 13px;
-            transition: all 0.3s;
+            transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
         }
 
         .curr-btn.active {
@@ -408,7 +410,7 @@ $header_theme_class = 'header-theme-reports';
             height: 6px;
             background-color: #00ff7f;
             border-radius: 50%;
-            animation: pulse 1.8s infinite ease-in-out;
+            animation: none; /* cpu-opt */
         }
 
         @keyframes pulse {
@@ -471,14 +473,14 @@ $header_theme_class = 'header-theme-reports';
 
         /* توهج الأيقونة عند التحويم */
         .report-card:hover .card-icon {
-            animation: float 2s ease-in-out infinite;
+            animation: none; /* cpu-opt */
         }
 
         /* بريق متحرك على الشارة */
         .report-card:hover .ai-badge {
             background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0) 100%);
             background-size: 200% 100%;
-            animation: shimmer 2s infinite linear;
+            animation: none; /* cpu-opt */
         }
 
         /* تأثير توهج نيون خلف الكرت */
@@ -495,7 +497,7 @@ $header_theme_class = 'header-theme-reports';
 
         /* زر العملة - انتقال سلس */
         .curr-btn {
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .curr-btn:hover:not(.active) {
             background: rgba(255, 255, 255, 0.06);

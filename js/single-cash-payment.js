@@ -4175,6 +4175,8 @@ window.saveNumberProperties = function() {
     const rawKey = fullKey.replace('num_prop_', '');
     const props = {
         fontSize: input.style.fontSize,
+        fontWeight: input.style.fontWeight,
+        color: input.dataset.lockedColor || input.style.color || '',
         thousands: input.getAttribute('data-thousands') !== 'false',
         decimals: parseInt(input.getAttribute('data-decimals') || '0'),
         font: input.getAttribute('data-font') || 'inter'
@@ -4216,6 +4218,13 @@ function applyPropsToElement(input, props) {
     if (props.fontSize) {
         input.style.setProperty('font-size', props.fontSize, 'important');
         input.setAttribute('data-manual-font', 'true');
+    }
+    if (props.fontWeight) input.style.setProperty('font-weight', props.fontWeight, 'important');
+    if (props.color) {
+        input.dataset.lockedColor = props.color;
+        input.style.setProperty('color', props.color, 'important');
+        input.style.setProperty('-webkit-text-fill-color', props.color, 'important');
+        if (typeof window.__applyLockedFieldStyleSheet === 'function') window.__applyLockedFieldStyleSheet();
     }
     input.setAttribute('data-thousands', props.thousands ? 'true' : 'false');
     input.setAttribute('data-decimals', props.decimals);
@@ -4541,7 +4550,7 @@ window.getPartyAccountBalance = function(partyId, partyName, targetRole = 'debto
         const normName = effectiveName ? effectiveName.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/\s+/g, ' ').toLowerCase() : '';
 
         glTxns.forEach(t => {
-            if (!t || t.isOpening || t.type === 'opening') return;
+            if (!t || t.isOpening || t.type === 'opening' || t.ref === 'OPENING' || t.ref === 'OPEN-BAL') return;
             const tAcc = String(t.account || '').trim();
             const cleanTAcc = tAcc.replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '').trim();
             let matches = false;

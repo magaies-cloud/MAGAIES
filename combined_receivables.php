@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 $page_title = 'حساب مديونية الأرصدة الشامل';
 $header_theme_class = 'header-theme-reports';
 
@@ -139,18 +141,16 @@ if (!function_exists('convertReportAmount')) {
 </script>
 
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;800&family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
 
     <meta charset="UTF-8">
     <title>تقرير مديونية الأرصدة الشامل | Al-Sajana ERP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    
     <link rel="stylesheet" href="css/tailwind.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/all.min.css?v=2027">
     <style>
         body {
             margin: 0 !important;
@@ -180,7 +180,7 @@ if (!function_exists('convertReportAmount')) {
         }
         .premium-card {
             background: rgba(18, 14, 30, 0.7);
-            backdrop-filter: blur(15px);
+            /* gpu-opt */
             border: 1px solid rgba(255, 255, 255, 0.06);
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
         }

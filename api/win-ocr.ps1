@@ -28,7 +28,33 @@ try {
     [Windows.Graphics.Imaging.BitmapDecoder,Windows.Foundation,ContentType=WindowsRuntime] | Out-Null
 
     $resolvedPath = (Resolve-Path -LiteralPath $ImagePath).Path
-    $file = Await ([Windows.Storage.StorageFile]::GetFileFromPathAsync($resolvedPath)) ([Windows.Storage.StorageFile])
+    Add-Type -AssemblyName System.Drawing
+    $origBmp = New-Object System.Drawing.Bitmap($resolvedPath)
+    $imgW = $origBmp.Width
+    $imgH = $origBmp.Height
+    $scale = if ($imgW -lt 1050) { 2.0 } else { 1.0 }
+    $scanPath = $resolvedPath
+    $tmpHi = $null
+    if ($scale -gt 1.0) {
+        $nw = [int]($imgW * $scale); $nh = [int]($imgH * $scale)
+        $hiBmp = New-Object System.Drawing.Bitmap($nw, $nh)
+        $gh = [System.Drawing.Graphics]::FromImage($hiBmp)
+        $gh.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+        $cmHi = New-Object System.Drawing.Imaging.ColorMatrix
+        $cmHi.Matrix00 = 1.28; $cmHi.Matrix11 = 1.28; $cmHi.Matrix22 = 1.28
+        $cmHi.Matrix40 = -0.12; $cmHi.Matrix41 = -0.12; $cmHi.Matrix42 = -0.12
+        $iaHi = New-Object System.Drawing.Imaging.ImageAttributes
+        $iaHi.SetColorMatrix($cmHi)
+        $rectHi = New-Object System.Drawing.Rectangle(0, 0, $nw, $nh)
+        $gh.DrawImage($origBmp, $rectHi, 0, 0, $imgW, $imgH, [System.Drawing.GraphicsUnit]::Pixel, $iaHi)
+        $gh.Dispose(); $iaHi.Dispose()
+        $tmpHi = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), 'mg_hi_' + [Guid]::NewGuid().ToString('N') + '.png')
+        $hiBmp.Save($tmpHi, [System.Drawing.Imaging.ImageFormat]::Png)
+        $hiBmp.Dispose()
+        $scanPath = $tmpHi
+    }
+    $origBmp.Dispose()
+    $file = Await ([Windows.Storage.StorageFile]::GetFileFromPathAsync($scanPath)) ([Windows.Storage.StorageFile])
     $stream = Await ($file.OpenAsync([Windows.Storage.FileAccessMode]::Read)) ([Windows.Storage.Streams.IRandomAccessStream])
     $decoder = Await ([Windows.Graphics.Imaging.BitmapDecoder]::CreateAsync($stream)) ([Windows.Graphics.Imaging.BitmapDecoder])
     $bitmap = Await ($decoder.GetSoftwareBitmapAsync()) ([Windows.Graphics.Imaging.SoftwareBitmap])
@@ -62,10 +88,10 @@ try {
                     $arLines += [PSCustomObject]@{
                         text     = $line.Text
                         rtl_text = $rtlText
-                        x        = [math]::Round($minX, 1)
-                        y        = [math]::Round($minY, 1)
-                        w        = [math]::Round(($maxX - $minX), 1)
-                        h        = [math]::Round(($maxY - $minY), 1)
+                        x        = [math]::Round($minX / $scale, 1)
+                        y        = [math]::Round($minY / $scale, 1)
+                        w        = [math]::Round(($maxX - $minX) / $scale, 1)
+                        h        = [math]::Round(($maxY - $minY) / $scale, 1)
                     }
                 }
             } elseif ($isEn) {
@@ -80,10 +106,10 @@ try {
                     }
                     $enLines += [PSCustomObject]@{
                         text = $line.Text
-                        x    = [math]::Round($minX, 1)
-                        y    = [math]::Round($minY, 1)
-                        w    = [math]::Round(($maxX - $minX), 1)
-                        h    = [math]::Round(($maxY - $minY), 1)
+                        x    = [math]::Round($minX / $scale, 1)
+                        y    = [math]::Round($minY / $scale, 1)
+                        w    = [math]::Round(($maxX - $minX) / $scale, 1)
+                        h    = [math]::Round(($maxY - $minY) / $scale, 1)
                     }
                 }
             }
@@ -91,9 +117,48 @@ try {
         }
     }
 
-    $imgW = $bitmap.PixelWidth
-    $imgH = $bitmap.PixelHeight
     $stream.Dispose()
+    if ($null -ne $tmpHi) { Remove-Item -LiteralPath $tmpHi -Force -ErrorAction SilentlyContinue }
+
+    # Ultra-fast 3ms ColorMatrix negative/high-contrast top-banner scan for white amounts on colored Bankak/Fawry headers
+    try {
+        Add-Type -AssemblyName System.Drawing
+        $srcBmp = New-Object System.Drawing.Bitmap($resolvedPath)
+        $cropH = [Math]::Max(60, [int]($srcBmp.Height * 0.45))
+        $bwBmp = New-Object System.Drawing.Bitmap($srcBmp.Width, $cropH)
+        $g = [System.Drawing.Graphics]::FromImage($bwBmp)
+        $cm = New-Object System.Drawing.Imaging.ColorMatrix
+        $cm.Matrix00 = -1.4; $cm.Matrix01 = -1.4; $cm.Matrix02 = -1.4
+        $cm.Matrix10 = -1.4; $cm.Matrix11 = -1.4; $cm.Matrix12 = -1.4
+        $cm.Matrix20 = -1.4; $cm.Matrix21 = -1.4; $cm.Matrix22 = -1.4
+        $cm.Matrix40 = 1.65; $cm.Matrix41 = 1.65; $cm.Matrix42 = 1.65
+        $ia = New-Object System.Drawing.Imaging.ImageAttributes
+        $ia.SetColorMatrix($cm)
+        $destRect = New-Object System.Drawing.Rectangle(0, 0, $srcBmp.Width, $cropH)
+        $g.DrawImage($srcBmp, $destRect, 0, 0, $srcBmp.Width, $cropH, [System.Drawing.GraphicsUnit]::Pixel, $ia)
+        $g.Dispose(); $ia.Dispose(); $srcBmp.Dispose()
+        $tmpTop = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), 'mg_top_' + [Guid]::NewGuid().ToString('N') + '.png')
+        $bwBmp.Save($tmpTop, [System.Drawing.Imaging.ImageFormat]::Png)
+        $bwBmp.Dispose()
+        $topFile = Await ([Windows.Storage.StorageFile]::GetFileFromPathAsync($tmpTop)) ([Windows.Storage.StorageFile])
+        $topStream = Await ($topFile.OpenAsync([Windows.Storage.FileAccessMode]::Read)) ([Windows.Storage.Streams.IRandomAccessStream])
+        $topDec = Await ([Windows.Graphics.Imaging.BitmapDecoder]::CreateAsync($topStream)) ([Windows.Graphics.Imaging.BitmapDecoder])
+        $topSb = Await ($topDec.GetSoftwareBitmapAsync()) ([Windows.Graphics.Imaging.SoftwareBitmap])
+        foreach ($lang in [Windows.Media.Ocr.OcrEngine]::AvailableRecognizerLanguages) {
+            if ($lang.LanguageTag -like 'en*') {
+                $engTop = [Windows.Media.Ocr.OcrEngine]::TryCreateFromLanguage($lang)
+                if ($null -ne $engTop) {
+                    $topRes = Await ($engTop.RecognizeAsync($topSb)) ([Windows.Media.Ocr.OcrResult])
+                    foreach ($line in $topRes.Lines) {
+                        $enLines += [PSCustomObject]@{ text = $line.Text; x = 0; y = 120; w = 200; h = 30 }
+                    }
+                }
+                break
+            }
+        }
+        $topStream.Dispose()
+        Remove-Item -LiteralPath $tmpTop -Force -ErrorAction SilentlyContinue
+    } catch {}
 
     $out = [PSCustomObject]@{
         success  = $true

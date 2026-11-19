@@ -1,4 +1,4 @@
-<?php if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() === 0) { @ob_start('ob_gzhandler'); } ?>
+<?php if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); } ?>
 <?php $page_title = 'المخازن'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -13,7 +13,7 @@
 })();
 </script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>السيطرة (MAGAIEES) - تقارير وجرد المخازن</title>
@@ -79,7 +79,7 @@
             display: flex; gap: 5px; flex-wrap: wrap; overflow: visible;
             background: var(--surface-card); padding: 4px 6px; border-radius: 12px; 
             border: 1px solid var(--glass-border); box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            backdrop-filter: blur(20px); align-items: center; width: 100%; z-index: 100; position: relative;
+            /* gpu-opt */ align-items: center; width: 100%; z-index: 100; position: relative;
         }
         .nav-tabs::-webkit-scrollbar { display: none; }
         .nav-cluster {
@@ -91,7 +91,7 @@
         .nav-tab {
             padding: 5px 12px; border-radius: 8px; text-decoration: none; font-weight: 700;
             color: var(--text-secondary); background: transparent; border: 1px solid transparent;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 5px; font-size: 0.82rem;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 5px; font-size: 0.82rem;
             position: relative; white-space: nowrap; flex-shrink: 0; cursor: pointer;
         }
         .nav-tab:hover {
@@ -123,7 +123,7 @@
         .nav-dropdown { position: relative; display: inline-block; }
         .nav-dropdown-content {
             display: none; position: absolute; top: calc(100% + 6px); right: 0; min-width: 240px;
-            background: rgba(15, 23, 42, 0.96); backdrop-filter: blur(25px);
+            background: rgba(15, 23, 42, 0.96); /* gpu-opt */
             border: 1px solid var(--glass-border); border-radius: 12px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.65); padding: 5px; z-index: 1000;
             animation: dropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -132,13 +132,13 @@
         .nav-dropdown:hover .nav-dropdown-content, .nav-dropdown:focus-within .nav-dropdown-content { display: block; }
         .nav-dropdown-item {
             display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #cbd5e1;
-            text-decoration: none; font-size: 0.84rem; font-weight: 700; border-radius: 8px; transition: all 0.2s ease;
+            text-decoration: none; font-size: 0.84rem; font-weight: 700; border-radius: 8px; transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
         }
         .nav-dropdown-item:hover { background: rgba(236, 72, 153, 0.15); color: #f472b6; transform: translateX(-3px); }
 
         /* Unified Filter Hub (Ultra-Compact Single Unit) */
         .filters-hub {
-            background: var(--surface-card); backdrop-filter: blur(20px); border-radius: 12px;
+            background: var(--surface-card); /* gpu-opt */ border-radius: 12px;
             border: 1px solid var(--glass-border); padding: 8px 12px; display: flex; flex-direction: column; gap: 6px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.18);
         }
@@ -175,14 +175,14 @@
         .quick-pill {
             padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; cursor: pointer;
             background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--text-secondary);
-            transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 5px;
+            transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; display: inline-flex; align-items: center; gap: 5px;
         }
         .quick-pill:hover { background: rgba(255,255,255,0.08); color: #fff; transform: translateY(-1px); }
         .quick-pill.active { background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; font-weight: 800; }
 
         /* Executive Data Table (Maximized Visible Height) */
         .table-panel {
-            background: var(--surface-card); backdrop-filter: blur(20px); border-radius: 14px;
+            background: var(--surface-card); /* gpu-opt */ border-radius: 14px;
             border: 1px solid var(--glass-border); box-shadow: 0 8px 30px rgba(0,0,0,0.3);
             overflow: hidden; display: flex; flex-direction: column;
         }
@@ -192,14 +192,14 @@
         .dash-table th {
             background: rgba(15, 23, 42, 0.98); padding: 11px 14px; text-align: right;
             font-size: 0.74rem; font-weight: 800; color: var(--text-secondary); border-bottom: 2px solid var(--glass-border);
-            text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; backdrop-filter: blur(10px);
+            text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; /* gpu-opt */
         }
         .dash-table td {
             padding: 10px 14px; font-size: 0.85rem; border-bottom: 1px solid var(--glass-border-subtle);
-            vertical-align: middle; transition: all 0.15s ease;
+            vertical-align: middle; transition: transform 0.15s ease, opacity 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
         }
         .dash-table tbody tr {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
         }
         .dash-table tbody tr:hover td {
@@ -238,7 +238,7 @@
         .btn-link {
             background: rgba(255, 255, 255, 0.04); color: #cbd5e1; padding: 6px 12px; border-radius: 8px;
             text-decoration: none; font-size: 0.78rem; font-weight: 700; border: 1px solid var(--glass-border);
-            transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 6px;
+            transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; display: inline-flex; align-items: center; gap: 6px;
         }
         .btn-link:hover {
             background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(37, 99, 235, 0.2));
@@ -249,18 +249,18 @@
         .action-island {
             display: flex; justify-content: space-between; align-items: center; background: var(--surface-card);
             border: 1px solid var(--glass-border); border-radius: 14px; padding: 10px 18px;
-            box-shadow: 0 6px 25px rgba(0,0,0,0.25); backdrop-filter: blur(20px); flex-wrap: wrap; gap: 10px;
+            box-shadow: 0 6px 25px rgba(0,0,0,0.25); /* gpu-opt */ flex-wrap: wrap; gap: 10px;
         }
         .btn-action-tool {
             padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 0.84rem; cursor: pointer;
-            border: 1px solid transparent; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid transparent; transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-flex; align-items: center; gap: 7px; color: #fff;
         }
         .btn-action-tool:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 
         /* Summary Strip Hub (Clean Linear Summary Bar - No Bulky Boxes) */
         .summary-strip-hub {
-            background: var(--surface-card); backdrop-filter: blur(20px); border-radius: 14px;
+            background: var(--surface-card); /* gpu-opt */ border-radius: 14px;
             border: 1px solid var(--glass-border); padding: 12px 20px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: space-between;
             flex-wrap: wrap; gap: 12px; margin-bottom: 8px;
@@ -1676,7 +1676,7 @@
     </script>
 
         <!-- AI Inventory Modal -->
-        <div id="aiInv-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center; direction: rtl; backdrop-filter: blur(8px);">
+        <div id="aiInv-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center; direction: rtl; ">
             <div class="glass-panel" style="width: 95%; max-width: 800px; max-height: 85vh; overflow-y: auto; padding: 30px; position: relative; border: 1px solid rgba(236, 72, 153, 0.4); background: #0f172a; border-radius: 16px;">
                 <button onclick="document.getElementById('aiInv-modal').style.display='none'" style="position: absolute; top: 15px; left: 15px; background: none; border: none; color: #94a3b8; font-size: 1.8rem; cursor: pointer; transition: 0.3s;" onmouseover="this.style.color='#ec4899'" onmouseout="this.style.color='#94a3b8'">&times;</button>
                 <h3 style="color: #ec4899; margin-bottom: 25px; font-weight: 900; border-bottom: 1px solid rgba(236, 72, 153, 0.2); padding-bottom: 15px; display: flex; align-items: center; gap: 10px;">
@@ -1692,7 +1692,7 @@
         </div>
 
         <!-- Stocktake Modal -->
-        <div id="stocktake-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center; direction: rtl; backdrop-filter: blur(8px);">
+        <div id="stocktake-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center; direction: rtl; ">
             <div class="glass-panel" style="width: 95%; max-width: 1100px; max-height: 90vh; display: flex; flex-direction: column; padding: 25px; position: relative; border: 1px solid rgba(16, 185, 129, 0.4); background: #0f172a; border-radius: 16px;">
                 <button onclick="closeStocktakeModal()" style="position: absolute; top: 15px; left: 15px; background: none; border: none; color: #94a3b8; font-size: 1.8rem; cursor: pointer; transition: 0.3s;" onmouseover="this.style.color='#10b981'" onmouseout="this.style.color='#94a3b8'">&times;</button>
                 

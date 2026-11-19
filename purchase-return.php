@@ -1,4 +1,6 @@
-<?php $page_title = 'مردودات المشتريات'; ?>
+<?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+ $page_title = 'مردودات المشتريات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -12,9 +14,7 @@
 })();
 </script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مردودات المشتريات | Al-Sajana ERP</title>
@@ -50,7 +50,7 @@
         }
         .orb {
             position: absolute; border-radius: 50%; filter: blur(120px);
-            animation: floatOrb 20s infinite alternate ease-in-out; opacity: 0.15;
+            animation: none; /* cpu-opt */ opacity: 0.15;
         }
         .orb-1 { width: 600px; height: 600px; background: #f43f5e; top: -10%; right: -10%; }
         .orb-2 { width: 500px; height: 500px; background: #9f1239; bottom: -10%; left: -10%; animation-delay: -5s; }
@@ -71,7 +71,7 @@
         .premium-header {
             background: linear-gradient(135deg, rgba(244, 63, 94, 0.15), rgba(159, 18, 57, 0.15), rgba(225, 29, 72, 0.15));
             background-size: 300% 300%;
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            /* gpu-opt */ /* gpu-opt */
             border-bottom: 1px solid rgba(255, 255, 255, 0.15); padding: 12px 25px;
             display: flex; justify-content: space-between; align-items: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.4);
@@ -92,7 +92,7 @@
         .brand-text p { margin: 0; font-size: 0.85rem; color: #fda4af; font-weight: 500; }
         
         .header-controls { display: flex; align-items: center; gap: 15px; }
-        .icon-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); width: 46px; height: 46px; border-radius: 14px; color: #fff; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; }
+        .icon-btn { background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); width: 46px; height: 46px; border-radius: 14px; color: #fff; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
         .icon-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
 
         /* Container Views */
@@ -107,7 +107,7 @@
         /* Hub View (Invoice Selection) */
         .neo-card {
             background: rgba(18, 15, 25, 0.65); border: 1px solid var(--glass-border); border-radius: 20px;
-            padding: 20px; display: flex; flex-direction: column; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            padding: 20px; display: flex; flex-direction: column; /* gpu-opt */ /* gpu-opt */
             box-shadow: 0 10px 30px rgba(0,0,0,0.3); flex: 1;
         }
         .neo-card-title { font-size: 1.2rem; font-weight: 800; color: #fff; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
@@ -130,7 +130,7 @@
             border-bottom: 2px solid rgba(255,255,255,0.05); text-transform: uppercase; letter-spacing: 0.5px;
         }
         .pos-grid tbody tr {
-            background: rgba(0,0,0,0.2); transition: all 0.3s ease;
+            background: rgba(0,0,0,0.2); transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
         .pos-grid tbody tr:hover {
             background: rgba(255,255,255,0.05); transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.3);
@@ -156,7 +156,7 @@
 
         /* Return Editor View */
         .editor-layout { display: flex; gap: 20px; height: 100%; }
-        .editor-left { flex: 1; display: flex; flex-direction: column; background: rgba(18, 15, 25, 0.65); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); overflow: hidden; }
+        .editor-left { flex: 1; display: flex; flex-direction: column; background: rgba(18, 15, 25, 0.65); border: 1px solid var(--glass-border); border-radius: 20px; padding: 20px; /* gpu-opt */ /* gpu-opt */ box-shadow: 0 10px 30px rgba(0,0,0,0.3); overflow: hidden; }
         .editor-right { width: 350px; display: flex; flex-direction: column; gap: 20px; }
         
         .info-card { background: rgba(0,0,0,0.4); border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); padding: 20px; }
@@ -168,7 +168,7 @@
         .return-input {
             width: 80px; text-align: center; background: rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.1);
             color: #fff; padding: 10px; border-radius: 10px; font-weight: 800; font-size: 1.1rem; font-family: 'Outfit', sans-serif;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); outline: none;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1); outline: none;
         }
         .return-input:focus { border-color: #10b981; box-shadow: 0 0 15px rgba(16,185,129,0.3); background: rgba(16,185,129,0.1); transform: scale(1.05); }
         .return-input.error { border-color: #ef4444; box-shadow: 0 0 15px rgba(239,68,68,0.3); background: rgba(239,68,68,0.1); }

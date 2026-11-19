@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 // preview-inventory-report.php
 // Universal Studio Preview Page for ALL Inventory Reports
 ?>
@@ -87,9 +89,9 @@
             border-bottom: 2px solid #0284c7;
             flex-wrap: nowrap; gap: 8px; overflow-x: auto;
         }
-        .ribbon-btn, .preset-btn { position: relative; overflow: hidden; background: linear-gradient(135deg, color-mix(in srgb, var(--btn-color, #fff) 8%, rgba(255,255,255,0.05)), rgba(0,0,0,0.2)); background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(135deg, color-mix(in srgb, var(--btn-color, #fff) 10%, rgba(255,255,255,0.05)), rgba(0,0,0,0.2)); background-size: 3px 3px, auto; border: 1px solid color-mix(in srgb, var(--btn-color, #fff) 40%, rgba(255,255,255,0.2)); backdrop-filter: blur(12px) saturate(150%); color: #f8fafc; padding: 4px 12px; border-radius: 10px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); font-family: inherit; font-size: 0.8rem; height: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 1; white-space: nowrap; flex-shrink: 0; }
+        .ribbon-btn, .preset-btn { position: relative; overflow: hidden; background: linear-gradient(135deg, color-mix(in srgb, var(--btn-color, #fff) 8%, rgba(255,255,255,0.05)), rgba(0,0,0,0.2)); background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(135deg, color-mix(in srgb, var(--btn-color, #fff) 10%, rgba(255,255,255,0.05)), rgba(0,0,0,0.2)); background-size: 3px 3px, auto; border: 1px solid color-mix(in srgb, var(--btn-color, #fff) 40%, rgba(255,255,255,0.2)); /* gpu-opt */ color: #f8fafc; padding: 4px 12px; border-radius: 10px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); font-family: inherit; font-size: 0.8rem; height: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 1; white-space: nowrap; flex-shrink: 0; }
         .ribbon-btn::before, .preset-btn::before { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 2px; background: linear-gradient(135deg, var(--btn-color, rgba(255,255,255,0.8)), transparent 40%, var(--btn-color, rgba(255,255,255,0.5))); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0.9; transition: opacity 0.4s; }
-        .ribbon-btn::after, .preset-btn::after { content: ''; position: absolute; top: 0; left: -100%; width: 75%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.65), transparent); transform: skewX(-25deg); animation: luxurySweep 4s cubic-bezier(0.4, 0, 0.2, 1) infinite; z-index: -1; }
+        .ribbon-btn::after, .preset-btn::after { content: ''; position: absolute; top: 0; left: -100%; width: 75%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.65), transparent); transform: skewX(-25deg); animation: none; /* cpu-opt */ z-index: -1; }
         .ribbon-btn:hover, .preset-btn:hover:not(.active) { transform: translateY(-2px); border-color: var(--btn-color, #fff); box-shadow: 0 6px 16px rgba(0,0,0,0.3); color: #fff !important; text-shadow: 0 0 8px rgba(255,255,255,0.6); }
         .ribbon-btn:active, .preset-btn:active { transform: translateY(0); }
         .preset-btn.active { background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(5,150,105,0.3)); border-color: rgba(16,185,129,0.4); color: #ffffff !important; --btn-color: #10b981; box-shadow: 0 4px 14px rgba(16,185,129,0.3), 0 0 15px rgba(16,185,129,0.5); animation: none; }
@@ -106,7 +108,7 @@
             background: var(--table-bg); color: var(--text-color);
             border: 1px solid var(--table-border); border-radius: 4px;
             box-shadow: 0 12px 40px rgba(0,0,0,0.15);
-            transition: all 0.3s ease; box-sizing: border-box; position: relative;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; box-sizing: border-box; position: relative;
         }
         body.dark-mode .print-area { border-color: #334155; box-shadow: 0 12px 40px rgba(0,0,0,0.6); }
         .print-area.paper-portrait { max-width: 1000px; width: 94%; }
@@ -504,8 +506,8 @@ window.renderTable = function() { applyColumnSettings(); };
 </script>
 <script src="js/universal-report-studio.js?v=20261029_fast"></script>
 
-<script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
+<!-- bg-media lazy-loaded via includes/header.php -->
 <script src="js/magaiees_back.js?v=2026_back_v2" defer></script>
-<script src="js/magaies-smart-guide.js" defer></script>
+<!-- smart-guide lazy-loaded via includes/header.php -->
 </body>
 </html>

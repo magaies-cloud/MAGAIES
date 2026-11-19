@@ -149,14 +149,21 @@ if ($action === 'report') {
     exit;
 }
 
-$items = array_values(array_filter($items, function ($it) use ($blacklist) {
+$isCommercialMarketMsg = function ($txt) {
+    $t = trim((string)$txt);
+    if ($t === '') return false;
+    if (preg_match('/(?:الأمم\s*المتحدة|النسوية|حركة\s*بكين|ترشيح\s*الأمين|جوهانسبرغ|أطلقتُ?\s*قناة|ترجمات_الكرامة|يوسف_يترجم|الأخبار\s*الكبرى|مقابلات|بيان\s*حركة|بيان\s*سياسي|حزب|انتخابات|دبلوماس|رئيس\s*الوزراء|مجلس\s*الأمن|برلمان|حقوق\s*المرأة|قصف|اشتباكات|مليشيا|الدعم\s*السريع|الجيش\s*السوداني|وظائف\s*شاغرة|روابط\s*قنوات|اشترك\s*في\s*القناة)/iu', $t)) return false;
+    return (bool)preg_match('/(?:سيخ|حديد|أسمنت|اسمنت|طن|لينية|لينيه|مواسير|ماسورة|كمر|زنك|بلاط|سيراميك|خشب|بويات|بوية|دهان|سلك|رباط|صاج|بلك|طوب|رمل|خرسانة|مغلق|مواد\s*بناء|سباكة|كهرباء|كابل|كيبل|أدوات\s*صحية|سعر|أسعار|اسعار|للبيع|مطلوب|شراء|توريد|متوفر|بضاعة|دولار|جنيه|ج\.س|بنكك|أوكاش|تسليم|مخزن|مخازن|فاتورة|شوال|جوال|كرتون|باكت|قطعة|ربطة|مصور\s*بالبورصة|مقاولات|بناء)/iu', $t);
+};
+
+$items = array_values(array_filter($items, function ($it) use ($blacklist, $isCommercialMarketMsg) {
     $id = $it['id'] ?? '';
     $sKey = $it['phone'] ?? ($it['sender_name'] ?? '');
     $pts = max((int)($it['black_points'] ?? 0), (int)($blacklist['items'][$id] ?? 0), (int)($blacklist['senders'][$sKey] ?? 0));
-    return $pts < 3;
+    return $pts < 3 && $isCommercialMarketMsg($it['text'] ?? '');
 }));
 
-if ($action === 'add' || $_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($action === 'add' || (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST')) {
     $input = json_decode(file_get_contents('php://input'), true) ?: $_POST;
     $rawText = trim((string)($input['text'] ?? $input['message'] ?? ''));
     $senderName = trim((string)($input['sender_name'] ?? $input['pushName'] ?? ''));
@@ -297,6 +304,12 @@ if ($action === 'add' || $_SERVER['REQUEST_METHOD'] === 'POST') {
                 ? "🚫 *تم تسجيل البلاغ الثالث على الصفقة (#{$repCode}) وحظر صاحبها تلقائياً من البورصة.*"
                 : "⚠️ *تم تسجيل بلاغ مخالفة على الصفقة (#{$repCode}):* حصل المعلن على نقطة سوداء ({$repPts}/3). عند وصوله لـ 3 نقاط يُحظر تلقائياً.";
             echo json_encode(['success' => true, 'mode' => 'reported', 'reply' => $repMsg, 'black_points' => $repPts], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        // 4. فلتر تجاري صارم: منع أي أخبار أو بيانات سياسية أو إعلانات قنوات غير تجارية من الدخول لشريط البورصة
+        if (empty($imagesList) && !$isCommercialMarketMsg($rawText)) {
+            echo json_encode(['success' => false, 'ignored' => true, 'reason' => 'non_commercial_content'], JSON_UNESCAPED_UNICODE);
             exit;
         }
 

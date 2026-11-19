@@ -9,7 +9,7 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2027.99-11-18-unified-screens-v17';
+const CACHE_NAME = 'magaiees-pwa-v2027.99-11-19-ultra2g-v33';
 
 const PRECACHE_ASSETS = [
     './',
@@ -33,7 +33,10 @@ const PRECACHE_ASSETS = [
     './assets/favicon.ico',
     './css/tailwind.min.css',
     './css/all.min.css',
+    './css/local-fonts.css?v=2027',
+    './css/local-fonts.css',
     './css/design-system.css',
+    './css/header-enterprise-bundle.css',
     './css/theme.css',
     './css/components.css',
     './css/magaiees-royal-buttons.css?v2027.99_royal_v2027.99',
@@ -209,7 +212,10 @@ self.addEventListener('fetch', (event) => {
                 const isExplicitlyOffline = (self.navigator && self.navigator.onLine === false);
 
                 if (!isExplicitlyOffline) {
-                    const freshResponse = await fetchWithTimeout(request, 8000)
+                    const conn = self.navigator && self.navigator.connection;
+                    const isSlow2G = !!(conn && (conn.saveData || /2g/i.test(conn.effectiveType || '')));
+                    const navTimeout = isSlow2G ? 2500 : 4500;
+                    const freshResponse = await fetchWithTimeout(request, navTimeout)
                         .then((networkResponse) => {
                             if (isValidCacheableResponse(networkResponse, true)) {
                                 const copy1 = networkResponse.clone();
@@ -254,6 +260,7 @@ self.addEventListener('fetch', (event) => {
         url.hostname.includes('unpkg.com')
     ) {
         const isLocalCodeAsset = (url.origin === self.location.origin) && /\.(css|js|json)(\?.*)?$/i.test(url.pathname);
+        const isVersionedAsset = url.search.includes('v=');
         event.respondWith(
             (async () => {
                 if (self.navigator && self.navigator.onLine === false) {
@@ -264,16 +271,27 @@ self.addEventListener('fetch', (event) => {
                     return new Response('', { status: 408 });
                 }
 
-                // For local CSS/JS/JSON when online: fetch latest first so code updates appear immediately
-                if (isLocalCodeAsset) {
-                    try {
-                        const networkResponse = await fetchWithTimeout(request, 1500);
-                        if (isValidCacheableResponse(networkResponse)) {
-                            const copy = networkResponse.clone();
-                            caches.open(CACHE_NAME).then((cache) => storeInCache(cache, request.url, copy));
-                            return networkResponse;
+                // Versioned (?v=...) CSS/JS/Media: Cache-First (0ms, 0 bytes on 2G!)
+                if (isVersionedAsset) {
+                    const cachedVer = await caches.match(request);
+                    if (cachedVer) return cachedVer;
+                }
+
+                // Unversioned local CSS/JS/JSON: Stale-While-Revalidate (instant cache hit, quiet refresh on fast networks)
+                if (isLocalCodeAsset && !isVersionedAsset) {
+                    const cachedUnver = await caches.match(request);
+                    if (cachedUnver) {
+                        const conn = self.navigator && self.navigator.connection;
+                        const skipBg = !!(conn && (conn.saveData || /2g/i.test(conn.effectiveType || '')));
+                        if (!skipBg) {
+                            fetchWithTimeout(request, 2500).then((netRes) => {
+                                if (isValidCacheableResponse(netRes)) {
+                                    caches.open(CACHE_NAME).then((cache) => storeInCache(cache, request.url, netRes));
+                                }
+                            }).catch(() => {});
                         }
-                    } catch (e) {}
+                        return cachedUnver;
+                    }
                 }
 
                 const exactCached = await caches.match(request);
@@ -282,7 +300,7 @@ self.addEventListener('fetch', (event) => {
                 }
 
                 try {
-                    const networkResponse = await fetchWithTimeout(request, 2000);
+                    const networkResponse = await fetchWithTimeout(request, 3500);
                     if (isValidCacheableResponse(networkResponse)) {
                         const copy = networkResponse.clone();
                         caches.open(CACHE_NAME).then((cache) => storeInCache(cache, request.url, copy));

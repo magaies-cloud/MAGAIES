@@ -1,0 +1,1302 @@
+/* ============================================================================
+ * ELSAJANA 2027 — TRUE OPHTHALMIC GOLD STANDARD (V10)
+ * Scientifically Calibrated for Zero Retinal Fatigue, Clear Hierarchy,
+ * Unified 1440px Golden Frame, Crisp Tabular Numerals & Cross-Browser Stability
+ * ============================================================================ */
+@media screen {
+  :root {
+    --ophth-font: var(--magaiees-active-font, 'Cairo', 'Tajawal', system-ui, -apple-system, 'Segoe UI', sans-serif);
+    --ophth-base: 16px;
+    --ophth-lh-body: 1.58;
+    --ophth-lh-head: 1.36;
+    --ophth-lh-cell: 1.48;
+    /* True 0px Flush Edge-to-Edge Frame (Touches Sidebar on Right & Screen Edge on Left at 100% & 150%) */
+    --ophth-unified-w: 100%;
+    --erp-ergo-max-w: 100%;
+    --erp-ergo-wide-w: 100%;
+    --ophth-row-py: 3px;
+    --ophth-row-px: 10px;
+    --ophth-ctrl-h: 32px;
+    --ophth-btn-h: 30px;
+    --ophth-hdr-ctrl-h: 36px;
+    --ophth-radius: 12px;
+    --global-master-font-px: 16px;
+  }
+
+  /* 1. Cross-Browser Ophthalmic Rendering (Exact 16px = 1rem W3C/Tailwind Baseline) */
+  html {
+    font-size: 16px !important;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    font-kerning: normal;
+    scrollbar-gutter: stable;
+  }
+
+  html body,
+  html.inner-report-page body,
+  html.inventory-hub-page body,
+  html.hub-report-page body {
+    font-family: var(--ophth-font) !important;
+    font-size: 1rem !important;
+    line-height: var(--ophth-lh-body) !important;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+
+  /* 2. ONE IDENTICAL GOLDEN FRAME ACROSS ALL 116 SCREENS */
+  html body > .dash-main,
+  html body > .pos-wrapper,
+  html body > .sgl-master-container,
+  html body > .report-master-container,
+  html body > .report-container,
+  html body > .hub-container,
+  html body > .vouchers-container,
+  html body > .main-container,
+  html body > .page-container,
+  html body > .page-wrapper,
+  html body > .dashboard-container,
+  html body > .analytics-container,
+  html body > .eng-container,
+  html body > .settings-container,
+  html body > .settings-layout,
+  html body > .alarm-master-wrapper,
+  html body > .audit-page-wrap,
+  html body > .backup-container,
+  html body > .barcode-container,
+  html body > .bs-wrap,
+  html body > .cashflow-container,
+  html body > .checks-wrapper,
+  html body > .crs-wrap,
+  html body > .dr-wrap,
+  html body > .goods-ai-shell,
+  html body > .money-ai-shell,
+  html body > .guardian-shell,
+  html body > .jobs-wrapper,
+  html body > .jv-master-wrap,
+  html body > .md-container,
+  html body > .next-gen-master-wrapper,
+  html body > .price-variance-wrapper,
+  html body > .profitability-container,
+  html body > .sa-wrap,
+  html body > .seasonal-master-wrapper,
+  html body > .split-layout-wrapper,
+  html body > .steel-master-wrapper,
+  html body > .tools-master-wrapper,
+  html body > .transfer-container,
+  html body > .ub-page-container,
+  html body > .verify-wrap,
+  html body > .view-container,
+  html body > .workspace,
+  html body > main,
+  html body > .container,
+  html body .dash-main#pur-proportional-root,
+  html body .dash-main#sales-proportional-root,
+  html body .dash-main#grn-proportional-root,
+  html body #pur-proportional-root#pur-proportional-root,
+  html body #sales-proportional-root#sales-proportional-root,
+  html body #grn-proportional-root#grn-proportional-root,
+  html body #scp-proportional-root#scp-proportional-root,
+  html body #mcp-proportional-root#mcp-proportional-root,
+  html body #pa-proportional-root#pa-proportional-root,
+  html body #mb-proportional-root#mb-proportional-root,
+  html body #dmr-proportional-root#dmr-proportional-root,
+  html body #gl-proportional-root#gl-proportional-root,
+  html body #md-proportional-root#md-proportional-root,
+  html body #sl-main-wrapper#sl-main-wrapper,
+  html body #main-content,
+  html body .report-master-container,
+  html body .sgl-master-container,
+  html body .pos-wrapper,
+  html body .hub-container,
+  html body .checks-wrapper,
+  html body .jv-master-wrap {
+    width: var(--magaies-100w-px, 100%) !important;
+    min-width: var(--magaies-100w-px, 0) !important;
+    max-width: var(--magaies-100w-px, 100%) !important;
+    margin-top: 0 !important;
+    margin-bottom: 12px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-inline: auto !important;
+    padding: 4px 14px 10px 14px !important;
+    border-radius: 0 0 12px 12px !important;
+    transform-origin: top center !important;
+    border: 4px solid #38bdf8 !important;
+    background: #02050d !important;
+    box-shadow: none !important;
+    display: flex;
+    flex-direction: column;
+    gap: 5px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Ultra-Deep Pure Dark Canvas + Zero Ambient Fog/Blur Orbs (Sharpest Possible Contrast!) */
+  html:not(.light-theme),
+  html:not(.light-theme) body {
+    background: #010207 !important;
+    background-color: #010207 !important;
+  }
+
+  .ambient-bg,
+  .ambient-bg .orb,
+  .orb-1, .orb-2, .orb-3 {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+
+  /* Equal 5px Crisp Vertical Rhythm (-10% Extra Trim, NEVER override display:none on toggled hub/editor views!) */
+  html body #new-unified-dashboard-design {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 5px !important;
+  }
+  html body #purchase-editor-view > :not([style*="display: none"]):not([style*="display:none"]) + :not([style*="display: none"]):not([style*="display:none"]),
+  html body #sales-editor-view > :not([style*="display: none"]):not([style*="display:none"]) + :not([style*="display: none"]):not([style*="display:none"]) {
+    margin-top: 5px !important;
+  }
+  html body #purchase-editor-view #form-fields-card,
+  html body #sales-editor-view #form-fields-card {
+    padding: 5px 10px !important;
+    gap: 4px !important;
+  }
+  html body #purchase-editor-view #form-fields-card input.v-input:not([type="hidden"]),
+  html body #purchase-editor-view #form-fields-card select.v-input,
+  html body #sales-editor-view #form-fields-card input.v-input:not([type="hidden"]),
+  html body #sales-editor-view #form-fields-card select.v-input {
+    height: 36px !important;
+    min-height: 36px !important;
+  }
+  html body #purchase-editor-view #btn-quick-add-supplier,
+  html body #purchase-editor-view #btn-clone-last-supplier-inv,
+  html body #sales-editor-view #btn-quick-add-customer {
+    height: 34px !important;
+    min-height: 34px !important;
+  }
+  html body #purchase-editor-view .panel-header-row,
+  html body #sales-editor-view .panel-header-row {
+    padding: 3px 10px !important;
+    margin-bottom: 4px !important;
+  }
+  html body #purchase-editor-view #pos-grid thead th,
+  html body #sales-editor-view #pos-grid thead th {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+  }
+  html body #purchase-editor-view #pos-grid tbody td,
+  html body #sales-editor-view #pos-grid tbody td {
+    padding-top: 3px !important;
+    padding-bottom: 3px !important;
+  }
+  html body #purchase-editor-view #pos-grid tbody td input.g-input,
+  html body #purchase-editor-view #pos-grid tbody td select.g-select,
+  html body #sales-editor-view #pos-grid tbody td input.g-input,
+  html body #sales-editor-view #pos-grid tbody td select.g-select,
+  html body #invoice-editor-view #pos-grid tbody td input.g-input,
+  html body #invoice-editor-view #pos-grid tbody td select.g-select {
+    height: 34px !important;
+    min-height: 34px !important;
+  }
+  /* Center 'الصنف' Column Header & Input + Zero-Lag 120fps Cursor + Complete Removal of Payment Panel White Arc/Glow */
+  html body #pos-grid th[data-col-id="item"],
+  html body #pos-grid th[data-col-id="col_item"],
+  html body #pos-grid td[data-col-id="item"],
+  html body #pos-grid td[data-col-id="col_item"],
+  html body #pos-grid td[data-col-id="item"] input,
+  html body #pos-grid td[data-col-id="col_item"] input {
+    text-align: center !important;
+    justify-content: center !important;
+  }
+  html body #payment-panel,
+  html body #payment-panel:hover,
+  html body #payment-panel .panel-header-row,
+  html body #payment-panel .panel-title,
+  html body #payment-panel .payment-method-box {
+    transform: none !important;
+    box-shadow: none !important;
+    animation: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  html body #payment-panel::before,
+  html body #payment-panel::after,
+  html body #payment-panel .panel-header-row::before,
+  html body #payment-panel .panel-header-row::after,
+  html body #payment-panel .panel-title::before,
+  html body #payment-panel .panel-title::after,
+  html body .pro-panel::before,
+  html body .pro-panel::after {
+    display: none !important;
+    content: none !important;
+    background: none !important;
+    box-shadow: none !important;
+    opacity: 0 !important;
+  }
+  html body #form-fields-card,
+  html body #invoice-editor-view .panel,
+  html body #purchase-editor-view .panel,
+  html body #invoice-editor-view .table-container,
+  html body #purchase-editor-view .table-container,
+  html body #pos-grid td,
+  html body #pos-grid td input,
+  html body #pos-grid td select {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transition: border-color 0.12s ease !important;
+  }
+  html body #form-fields-card:hover,
+  html body #invoice-editor-view .panel:hover,
+  html body #purchase-editor-view .panel:hover,
+  html body #invoice-editor-view .table-container:hover,
+  html body #purchase-editor-view .table-container:hover,
+  html body #pos-grid td input:hover,
+  html body #pos-grid td select:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  html body #invoice-info-box .pro-serial-container {
+    gap: 2px !important;
+    padding: 0 3px !important;
+  }
+  html body #invoice-info-box .pro-serial-container .pro-serial-btn {
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 20px !important;
+    height: 22px !important;
+    min-width: 20px !important;
+    min-height: 22px !important;
+    font-size: 0.78rem !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important;
+  }
+  html body #fin-strip-currency-btn {
+    display: none !important;
+  }
+  /* Crisp Pure White Text (Zero Faded Gray) on Date, Labels, Inputs & Placeholders in Dark Mode */
+  html:not(.light-theme) body #hdr-date,
+  html:not(.light-theme) body #hdr-date-label,
+  html:not(.light-theme) body #form-fields-card .h-label,
+  html:not(.light-theme) body #form-fields-card input.v-input:not([type="hidden"]),
+  html:not(.light-theme) body #form-fields-card select.v-input,
+  html:not(.light-theme) body #pos-grid tbody td input.g-input,
+  html:not(.light-theme) body #pos-grid tbody td select.g-select,
+  html:not(.light-theme) body #pos-grid tbody td .g-readonly,
+  html:not(.light-theme) body #pos-grid tbody td .total-val,
+  html:not(.light-theme) body #pos-grid tbody td .avail-val,
+  html:not(.light-theme) body #payment-panel label,
+  html:not(.light-theme) body #payment-panel input,
+  html:not(.light-theme) body #payment-panel select {
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    opacity: 1 !important;
+  }
+  html:not(.light-theme) body #hdr-date::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(2) !important;
+    opacity: 1 !important;
+  }
+  html:not(.light-theme) body #form-fields-card input::placeholder,
+  html:not(.light-theme) body #pos-grid input::placeholder,
+  html:not(.light-theme) body #payment-panel input::placeholder {
+    color: rgba(255, 255, 255, 0.78) !important;
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.78) !important;
+    opacity: 1 !important;
+  }
+  html:not(.light-theme) body .is-zero-val {
+    opacity: 0.85 !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+  }
+  /* Unified Crisp Numeral Font Across Every Invoice Number, Date, Financial Strip, Exchange Rate, Grid & Total */
+  html body #inv-number,
+  html body .pro-serial-number,
+  html body #hdr-date,
+  html body input[type="date"],
+  html body #customer-financial-card .fin-val,
+  html body #hdr-exchange-rate,
+  html body #pos-grid tbody td .total-val,
+  html body #pos-grid tbody td .avail-val,
+  html body #pos-grid tbody td input[type="number"],
+  html body #pos-grid tbody td input[inputmode="decimal"],
+  html body #grid-foot #t-grand-dynamic-loc,
+  html body #grid-foot #t-grand-dynamic-fc,
+  html body #payment-panel input[type="number"],
+  html body .amount {
+    font-family: 'Outfit', 'Cairo', 'Tajawal', sans-serif !important;
+    font-variant-numeric: tabular-nums lining-nums !important;
+    font-feature-settings: "tnum" 1, "lnum" 1 !important;
+    letter-spacing: 0.2px !important;
+  }
+  html body #invoice-info-box #inv-number,
+  html body #invoice-info-box #hdr-date,
+  html body #invoice-info-box #hdr-date::-webkit-datetime-edit,
+  html body #invoice-info-box #hdr-date::-webkit-datetime-edit-fields-wrapper,
+  html body #invoice-info-box #hdr-date::-webkit-datetime-edit-day-field,
+  html body #invoice-info-box #hdr-date::-webkit-datetime-edit-month-field,
+  html body #invoice-info-box #hdr-date::-webkit-datetime-edit-year-field,
+  html body #invoice-info-box #hdr-date::-webkit-datetime-edit-text,
+  html body #customer-financial-card .fin-val {
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    font-family: 'Outfit', 'Cairo', 'Tajawal', sans-serif !important;
+    line-height: 1.2 !important;
+  }
+  html body #invoice-editor-view #form-fields-card input.v-input:not([type="hidden"]),
+  html body #invoice-editor-view #form-fields-card select.v-input {
+    height: 36px !important;
+    min-height: 36px !important;
+  }
+  html body #invoice-editor-view #btn-quick-add-customer {
+    height: 36px !important;
+    min-height: 36px !important;
+  }
+
+  html body .dash-main > header.premium-header,
+  html body .dash-main > #market-broker-ticker-wrap,
+  html body .dash-main > #qa-bar-container,
+  html body .dash-main > #exec-sticky-command-bar,
+  html body .dash-main > #dash-today-harvest-strip,
+  html body #new-unified-dashboard-design > div:not(#exec-sticky-command-placeholder),
+  html body #new-unified-dashboard-design > section,
+  html body #new-unified-dashboard-design > header {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Light Theme Master Outer Frame — Sculpted 4px Border & Distinct Mid-Tone Tray behind Luminous Boxes */
+  html.light-theme body > .dash-main,
+  html.light-theme body > .pos-wrapper,
+  html.light-theme body > .sgl-master-container,
+  html.light-theme body > .report-master-container,
+  html.light-theme body > .report-container,
+  html.light-theme body > .hub-container,
+  html.light-theme body > .vouchers-container,
+  html.light-theme body > .main-container,
+  html.light-theme body > .page-container,
+  html.light-theme body > .page-wrapper,
+  html.light-theme body > .dashboard-container,
+  html.light-theme body > .settings-container,
+  html.light-theme body > .checks-wrapper,
+  html.light-theme body > .jv-master-wrap,
+  html.light-theme body .dash-main#pur-proportional-root,
+  html.light-theme body .dash-main#sales-proportional-root,
+  html.light-theme body .dash-main#grn-proportional-root,
+  html.light-theme body #pur-proportional-root#pur-proportional-root,
+  html.light-theme body #sales-proportional-root#sales-proportional-root,
+  html.light-theme body #grn-proportional-root#grn-proportional-root,
+  html.light-theme body #scp-proportional-root#scp-proportional-root,
+  html.light-theme body #mcp-proportional-root#mcp-proportional-root,
+  html.light-theme body #pa-proportional-root#pa-proportional-root,
+  html.light-theme body #mb-proportional-root#mb-proportional-root,
+  html.light-theme body #dmr-proportional-root#dmr-proportional-root,
+  html.light-theme body #gl-proportional-root#gl-proportional-root,
+  html.light-theme body #md-proportional-root#md-proportional-root,
+  html.light-theme body #sl-main-wrapper#sl-main-wrapper {
+    border: 4px solid var(--lt-border, #5c2808) !important;
+    background: var(--lt-canvas-2, #d2be9a) !important;
+    box-shadow: none !important;
+  }
+
+  /* Razor-Sharp High-Contrast Boxes — ZERO Outer Colored Glow/Rays Bleed Into Background! */
+  html:not(.light-theme) body header.premium-header,
+  html:not(.light-theme) body #market-broker-ticker-wrap,
+  html:not(.light-theme) body #qa-bar-container,
+  html:not(.light-theme) body #dash-today-harvest-strip,
+  html:not(.light-theme) body #purchase-top-container,
+  html:not(.light-theme) body .purchase-bottom,
+  html:not(.light-theme) body #sales-top-container,
+  html:not(.light-theme) body .report-header,
+  html:not(.light-theme) body .filters-panel,
+  html:not(.light-theme) body .section-card,
+  html:not(.light-theme) body .section-block-card,
+  html:not(.light-theme) body .account-block,
+  html:not(.light-theme) body .glass-container,
+  html:not(.light-theme) body .card,
+  html:not(.light-theme) body .panel,
+  html:not(.light-theme) body .summary-card,
+  html:not(.light-theme) body .gl-kpi-card {
+    background: #14223d !important;
+    border: 2px solid rgba(148, 197, 255, 0.36) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.55) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Kill Blurry Neon Halos/Rays on Quick-Action Ribbon, Audit Log, Smart Guardian & Golden Bar */
+  html body #qa-bar-container,
+  html body #qa-bar-container *,
+  html body .qa-master-btn,
+  html body .qa-ribbon-btn,
+  html body .radar-glow-btn,
+  html body #exec-sticky-command-bar,
+  html body #exec-sticky-command-bar .exec-period-pill,
+  html body #exec-sticky-command-bar .exec-royal-action {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.42) !important;
+    animation: none !important;
+  }
+
+  html.light-theme body header.premium-header,
+  html.light-theme body #market-broker-ticker-wrap,
+  html.light-theme body #qa-bar-container,
+  html.light-theme body #dash-today-harvest-strip,
+  html.light-theme body #purchase-top-container,
+  html.light-theme body .purchase-bottom,
+  html.light-theme body #sales-top-container,
+  html.light-theme body .report-header,
+  html.light-theme body .filters-panel,
+  html.light-theme body .section-card,
+  html.light-theme body .section-block-card,
+  html.light-theme body .account-block,
+  html.light-theme body .glass-container,
+  html.light-theme body .card,
+  html.light-theme body .panel,
+  html.light-theme body .summary-card,
+  html.light-theme body .gl-kpi-card {
+    background: linear-gradient(155deg, var(--lt-card-1, #ffffff) 0%, var(--lt-card-2, #f8f1e4) 100%) !important;
+    border: 2.2px solid var(--lt-border, #5c2808) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.12) !important;
+  }
+
+  /* Global 120fps Hardware Acceleration Across ALL 116 Screens (Zero GPU Blur Lag, Instant Cursor & Scroll) */
+  html body *,
+  html body *::before,
+  html body *::after {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  html body .glass-panel,
+  html body .panel,
+  html body .card,
+  html body .bento-card,
+  html body .modal-content {
+    will-change: auto !important;
+  }
+  /* Never Clip or Push Content Off the Left Edge at Any Zoom */
+  html {
+    overflow-x: auto !important;
+  }
+  html body {
+    overflow-x: visible !important;
+  }
+
+  /* Rock-Solid Single-Line Top-Pinned Golden Command Bar (Exact 50px Height — Never Bloats or Splits!) */
+  html body #exec-sticky-command-bar,
+  html body #exec-sticky-command-bar.is-pinned-fixed {
+    box-sizing: border-box !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    padding: 4px 10px !important;
+    flex-wrap: nowrap !important;
+    overflow: hidden !important;
+    gap: 5px !important;
+    align-items: center !important;
+  }
+
+  html body #exec-sticky-command-bar .exec-period-pill,
+  html body #exec-sticky-command-bar .exec-royal-action {
+    height: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
+    padding: 0 clamp(6px, 0.65vw, 11px) !important;
+    font-size: clamp(11px, 0.86vw, 13.5px) !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    flex-shrink: 1 !important;
+  }
+
+  /* Nested inner wrappers fill 100% cleanly without double-shrinking */
+  html body .dash-main #purchase-editor-view,
+  html body .dash-main #purchase-hub-view,
+  html body .dash-main #sales-hub-view,
+  html body .dash-main #new-unified-dashboard-design,
+  html body .dash-main .pos-wrapper,
+  html body #scp-proportional-root #main-layout-wrapper,
+  html body #mcp-proportional-root #main-layout-wrapper,
+  html body #scp-proportional-root .single-unified-form,
+  html body #mcp-proportional-root #main-form-panel,
+  html body .sgl-master-container .report-header,
+  html body .report-master-container > div {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-inline: auto !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 3. SINGLE-LINE ROW 0 & PURCHASE/SALES GOLDEN FIELD PROPORTIONS */
+  html body #purchase-screen-title-badge,
+  html body #sales-screen-title-badge {
+    display: none !important;
+  }
+
+  html body #purchase-editor-view #purchase-row0-bar,
+  html body #sales-editor-view #sales-row0-bar,
+  html body #sales-row0-bar {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 6px !important;
+    width: 100% !important;
+    overflow: visible !important;
+  }
+
+  html body #purchase-editor-view #invoice-info-box,
+  html body #sales-editor-view #invoice-info-box,
+  html body #invoice-info-box {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    min-height: 44px !important;
+    max-height: none !important;
+    padding: 4px 8px !important;
+    gap: 6px !important;
+    flex-shrink: 0 !important;
+  }
+
+  html body #invoice-info-box .group-invoice,
+  html body #invoice-info-box .group-date {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    height: 38px !important;
+    min-height: 38px !important;
+    max-height: none !important;
+    flex-shrink: 0 !important;
+  }
+
+  html body #invoice-info-box .pro-serial-container {
+    height: 38px !important;
+    min-height: 38px !important;
+    min-width: 78px !important;
+    max-width: 110px !important;
+    padding: 0 4px !important;
+    gap: 6px !important;
+    width: max-content !important;
+    min-width: 190px !important;
+    max-width: none !important;
+    overflow: visible !important;
+    padding: 2px 8px !important;
+    height: 36px !important;
+    box-sizing: border-box !important;
+    flex: 0 0 auto !important;
+  }
+
+  html body #invoice-info-box .pro-serial-btn {
+    width: 18px !important;
+    height: 20px !important;
+    min-width: 18px !important;
+    min-height: 20px !important;
+    padding: 0 !important;
+    font-size: 0.68rem !important;
+    line-height: 1 !important;
+    flex-shrink: 0 !important;
+    display: inline-flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+  }
+
+  html body #invoice-info-box #inv-number {
+    font-size: 14px !important;
+    font-weight: 800 !important;
+    line-height: 1.2 !important;
+    width: auto !important;
+    min-width: 120px !important;
+    max-width: none !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+    padding: 0 4px !important;
+    flex: 0 0 auto !important;
+  }
+  /* Compact Vivid Strong-Border Extra-Cost Buttons (ترحيل / عمالة / إضافات / ضريبة / خصم — بدون رموز وبارتفاع واضح 34px بدون أي قصّ) */
+  html body #grid-foot .pur-compact-tot-card {
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 8px 12px !important;
+    min-height: 50px !important;
+    overflow: visible !important;
+  }
+  html body #grid-foot .pur-compact-tot-card #toggles-area,
+  html body #toggles-area {
+    overflow: visible !important;
+    min-height: 36px !important;
+    align-items: center !important;
+  }
+  html body #grid-foot .pur-compact-tot-card .tot-toggle-btn,
+  html body #toggles-area .tot-toggle-btn,
+  html body #toggles-area #btn-landed-cost-mode {
+    height: 34px !important;
+    min-height: 34px !important;
+    max-height: 36px !important;
+    padding: 0 11px !important;
+    font-size: 0.84rem !important;
+    font-weight: 900 !important;
+    border-radius: 8px !important;
+    gap: 4px !important;
+    line-height: 30px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    box-shadow: none !important;
+  }
+  html body #btn-toggle-transport { background: #c2410c !important; border: 2px solid #fb923c !important; border-bottom-width: 2px !important; }
+  html body #btn-toggle-labor     { background: #1d4ed8 !important; border: 2px solid #60a5fa !important; border-bottom-width: 2px !important; }
+  html body #btn-toggle-additions { background: #a16207 !important; border: 2px solid #facc15 !important; border-bottom-width: 2px !important; }
+  html body #btn-toggle-tax       { background: #b91c1c !important; border: 2px solid #f87171 !important; border-bottom-width: 2px !important; }
+  html body #btn-toggle-discount  { background: #047857 !important; border: 2px solid #34d399 !important; border-bottom-width: 2px !important; }
+  html body #btn-landed-cost-mode { background: #0369a1 !important; border: 2px solid #38bdf8 !important; border-bottom-width: 2px !important; }
+  html body #grid-foot #t-grand-dynamic-loc,
+  html body #grid-foot #t-grand-dynamic-fc {
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 0 14px !important;
+    flex-shrink: 0 !important;
+  }
+  /* Compact Panoramic Flyout hugging text width */
+  html body #magaiees-panoramic-flyout {
+    width: max-content !important;
+    min-width: 215px !important;
+    max-width: min(310px, calc(100vw - 256px)) !important;
+  }
+  html body #magaiees-panoramic-flyout .pf-bento-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  html body #invoice-info-box #hdr-inv-label,
+  html body #invoice-info-box #hdr-date-label {
+    display: none !important;
+  }
+
+  html body #invoice-info-box #hdr-date {
+    height: 34px !important;
+    min-height: 34px !important;
+    width: 108px !important;
+    min-width: 104px !important;
+    max-width: 112px !important;
+    font-size: 0.88rem !important;
+    font-weight: 800 !important;
+    padding: 0 4px !important;
+  }
+
+  html body #customer-financial-card {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+
+  html body #customer-financial-card .fin-strip-inner {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 3px !important;
+    width: 100% !important;
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  html body #customer-financial-card .fin-sep { display: none !important; }
+
+  html body #customer-financial-card .fin-metric-pill {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 3px !important;
+    padding: 2px 4px !important;
+    min-height: 34px !important;
+    white-space: nowrap !important;
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+  }
+
+  html body #customer-financial-card .fin-lbl {
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    line-height: 1.15 !important;
+  }
+
+  html body #customer-financial-card .fin-val {
+    font-size: 0.86rem !important;
+    font-weight: 800 !important;
+    line-height: 1.15 !important;
+  }
+
+  html body #customer-financial-card #fin-strip-currency-btn {
+    min-height: 38px !important;
+    height: 38px !important;
+    min-width: 72px !important;
+    padding: 0 9px !important;
+    font-size: 0.86rem !important;
+    font-weight: 800 !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Row 1 & Row 2: Wide Supplier/Customer + Compact Currency + Sleek Warehouse (48px Golden Height) */
+  html body #purchase-row1-bar,
+  html body #purchase-row2-bar,
+  html body #sales-row1-bar,
+  html body #sales-row2-bar {
+    gap: 10px !important;
+    align-items: center !important;
+    min-height: var(--ophth-hdr-ctrl-h) !important;
+    margin-bottom: 5px !important;
+  }
+
+  html body #purchase-row1-bar .h-form-group,
+  html body #purchase-row2-bar .h-form-group,
+  html body #sales-row1-bar .h-form-group,
+  html body #sales-row2-bar .h-form-group {
+    height: auto !important;
+    min-height: var(--ophth-hdr-ctrl-h) !important;
+    max-height: none !important;
+    gap: 8px !important;
+  }
+
+  html body #purchase-row1-bar .group-supplier,
+  html body #sales-row1-bar .group-supplier,
+  html body #sales-row1-bar .group-customer {
+    flex: 4.8 1 0% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+  }
+
+  html body #purchase-row1-bar .group-currency,
+  html body #sales-row1-bar .group-currency {
+    flex: 1.55 1 0% !important;
+    min-width: 0 !important;
+    max-width: 225px !important;
+  }
+
+  html body #purchase-row1-bar .group-warehouse,
+  html body #sales-row1-bar .group-warehouse {
+    flex: 2.0 1 0% !important;
+    min-width: 0 !important;
+    max-width: 310px !important;
+  }
+
+  html body #purchase-row2-bar .group-description,
+  html body #sales-row2-bar .group-description {
+    flex: 3.2 1 0% !important;
+    min-width: 0 !important;
+  }
+
+  html body #purchase-row2-bar .group-cost-center,
+  html body #sales-row2-bar .group-cost-center {
+    flex: 1.65 1 0% !important;
+    min-width: 0 !important;
+  }
+
+  html body #purchase-row1-bar .group-currency select,
+  html body #purchase-row1-bar .group-currency input,
+  html body #sales-row1-bar .group-currency select,
+  html body #sales-row1-bar .group-currency input {
+    min-width: 0 !important;
+    flex: 1 1 0% !important;
+  }
+
+  html body #invoice-info-box .pro-serial-container {
+    min-width: 68px !important;
+    max-width: 112px !important;
+  }
+
+  html body #invoice-info-box #hdr-date {
+    width: clamp(104px, 9.5vw, 132px) !important;
+    min-width: 0 !important;
+    max-width: 136px !important;
+  }
+
+  html body #purchase-editor-view #purchase-row0-bar,
+  html body #sales-editor-view #sales-row0-bar,
+  html body #sales-row0-bar {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  html body #customer-financial-card .fin-lbl {
+    font-size: clamp(0.72rem, 0.72vw, 0.84rem) !important;
+  }
+
+  html body #customer-financial-card .fin-val {
+    font-size: clamp(0.80rem, 0.84vw, 0.98rem) !important;
+  }
+
+  html body #customer-financial-card .fin-metric-pill {
+    padding: 4px clamp(4px, 0.45vw, 8px) !important;
+  }
+
+  html body #customer-financial-card #fin-strip-currency-btn {
+    min-width: 58px !important;
+    padding: 0 7px !important;
+    font-size: clamp(0.76rem, 0.76vw, 0.88rem) !important;
+  }
+
+  html body #purchase-row1-bar .h-input-wrapper,
+  html body #purchase-row2-bar .h-input-wrapper,
+  html body #purchase-row1-bar .custom-dropdown,
+  html body #purchase-row1-bar .custom-dropdown-input-wrap,
+  html body #sales-row1-bar .h-input-wrapper,
+  html body #sales-row2-bar .h-input-wrapper,
+  html body #sales-row1-bar .custom-dropdown,
+  html body #sales-row1-bar .custom-dropdown-input-wrap {
+    height: var(--ophth-hdr-ctrl-h) !important;
+    min-height: var(--ophth-hdr-ctrl-h) !important;
+    max-height: none !important;
+  }
+
+  html body #purchase-row1-bar .ctrl-input,
+  html body #purchase-row2-bar .ctrl-input,
+  html body #sales-row1-bar .ctrl-input,
+  html body #sales-row2-bar .ctrl-input,
+  html body #hdr-customer-search,
+  html body #hdr-currency,
+  html body #hdr-exchange-rate,
+  html body #hdr-warehouse,
+  html body #hdr-description,
+  html body #hdr-cost-center {
+    height: var(--ophth-hdr-ctrl-h) !important;
+    min-height: var(--ophth-hdr-ctrl-h) !important;
+    max-height: 52px !important;
+    font-family: var(--ophth-font) !important;
+    font-size: 1.02rem !important;
+    line-height: 1.42 !important;
+    font-weight: 700 !important;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    border-radius: 9px !important;
+  }
+
+  html body #hdr-customer-search {
+    font-size: 1.10rem !important;
+    font-weight: 800 !important;
+    padding-right: 12px !important;
+    padding-left: 84px !important;
+  }
+
+  html body #purchase-row1-bar .h-label,
+  html body #purchase-row2-bar .h-label,
+  html body #sales-row1-bar .h-label,
+  html body #sales-row2-bar .h-label {
+    font-family: var(--ophth-font) !important;
+    font-size: 0.96rem !important;
+    font-weight: 700 !important;
+    line-height: 1.35 !important;
+  }
+
+  html body #hdr-customer-ledger-btn.ledger-btn-2027,
+  html body #hdr-supplier-ledger-btn {
+    height: 32px !important;
+    min-height: 32px !important;
+    max-height: 34px !important;
+    padding: 0 10px !important;
+    font-size: 0.86rem !important;
+    font-weight: 800 !important;
+    border-radius: 7px !important;
+  }
+
+  html body #btn-quick-add-supplier,
+  html body #btn-clone-last-supplier-inv,
+  html body #btn-quick-add-customer,
+  html body #btn-clone-last-customer-inv {
+    height: var(--ophth-hdr-ctrl-h) !important;
+    min-height: var(--ophth-hdr-ctrl-h) !important;
+    font-size: 0.94rem !important;
+    font-weight: 700 !important;
+  }
+
+  /* 4. Natural Vertical Rhythm (Zero Artificial Blank Voids Between Cards/Tables) */
+  html body #items-grid-wrapper {
+    min-height: 46vh;
+    min-height: 46dvh;
+  }
+
+  html body .table-responsive,
+  html body .table-wrapper,
+  html body .report-table-wrap,
+  html body .grid-scroll-wrap {
+    overflow-x: auto;
+  }
+
+  html body .card,
+  html body .panel,
+  html body .section-card,
+  html body .section-block-card,
+  html body .account-block,
+  html body .report-header,
+  html body .filter-bar,
+  html body .filters-panel,
+  html body .kpi-card,
+  html body .stat-card,
+  html body .summary-card,
+  html body .gl-kpi-card {
+    border-radius: var(--ophth-radius);
+  }
+
+  /* 5. Scientifically Calibrated Typography Hierarchy (Zero Retinal Halation!) */
+  html body h1, html body .page-title, html.inner-report-page h1 {
+    font-family: var(--ophth-font) !important;
+    font-size: clamp(1.32rem, 1.22rem + 0.30vw, 1.52rem) !important;
+    line-height: var(--ophth-lh-head) !important;
+    font-weight: 800 !important;
+    letter-spacing: 0 !important;
+  }
+
+  html body h2, html body .section-title, html body .modal-title,
+  html body .modal-header h2, html body .modal-header h3, html.inner-report-page h2 {
+    font-family: var(--ophth-font) !important;
+    font-size: clamp(1.14rem, 1.06rem + 0.20vw, 1.28rem) !important;
+    line-height: 1.40 !important;
+    font-weight: 800 !important;
+  }
+
+  html body h3, html body h4, html body .card-title, html body .panel-title,
+  html.inner-report-page h3, html.inner-report-page h4 {
+    font-family: var(--ophth-font) !important;
+    font-size: clamp(1.02rem, 0.98rem + 0.12vw, 1.12rem) !important;
+    line-height: 1.46 !important;
+    font-weight: 700 !important;
+  }
+
+  html body label, html body .form-label, html body .field-label, html body .filter-label,
+  html body .pos-wrapper label,
+  html body .report-master-container label,
+  html body .sgl-master-container label,
+  html body .checks-wrapper label,
+  html body .jv-master-wrap label,
+  html body #mb-proportional-root#mb-proportional-root .report-header .filter-row:first-child .filter-group label,
+  html body .kpi-title {
+    font-family: var(--ophth-font) !important;
+    font-size: 0.92rem !important;
+    line-height: 1.42 !important;
+    font-weight: 700 !important;
+  }
+
+  html body .kpi-desc {
+    font-family: var(--ophth-font) !important;
+    font-size: 0.84rem !important;
+    line-height: 1.40 !important;
+    font-weight: 600 !important;
+  }
+
+  /* Surgical Button Proportions (Standard Buttons = 40px; Inline Table & Icon Buttons stay Sleek!) */
+  html body button:not(.icon-only):not(.icon-btn):not(.btn-xs):not(.btn-sm):not(.pro-serial-btn):not(.del-btn):not(.edit-btn):not(.action-btn):not(.preset-ribbon-btn):not(#inv-number):not(.mg-close-x):not(.ledger-btn-2027):not(.header-btn),
+  html body .btn:not(.btn-xs):not(.btn-sm),
+  html body .tab-btn, html body .action-tab, html body .filter-btn,
+  html body .toolbar-btn, html body .nav-tab {
+    font-family: var(--ophth-font) !important;
+    font-size: 0.94rem;
+    line-height: 1.38;
+    font-weight: 700;
+    min-height: var(--ophth-btn-h);
+    padding-top: 6px;
+    padding-bottom: 6px;
+    border-radius: 9px;
+  }
+
+  html body td button, html body .dmr-btn, html body .btn-sm, html body .action-btn {
+    font-family: var(--ophth-font) !important;
+    font-size: 0.86rem !important;
+    font-weight: 700 !important;
+    min-height: 32px !important;
+    line-height: 1.3 !important;
+  }
+
+  /* Standard Inputs & Selects (42px Golden Comfort, Crisp 700 Weight) */
+  html body input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="hidden"]):not(.pur-pay-input):not(#inv-number):not(#hdr-exchange-rate):not(#hdr-date),
+  html body select:not(.compact-select),
+  html body textarea,
+  html body #mb-proportional-root#mb-proportional-root .report-header .filter-row:first-child select.filter-input,
+  html body #mb-proportional-root#mb-proportional-root .report-header .filter-row:first-child input.filter-input {
+    font-family: var(--ophth-font) !important;
+    font-size: 0.98rem !important;
+    line-height: 1.44 !important;
+    font-weight: 700 !important;
+    min-height: var(--ophth-ctrl-h) !important;
+    max-height: none;
+    box-sizing: border-box;
+  }
+
+  html body #pos-grid tbody td input:not([type="checkbox"]):not([type="radio"]),
+  html body #pos-grid tbody td select,
+  html body .pos-grid tbody td input:not([type="checkbox"]):not([type="radio"]),
+  html body .pos-grid tbody td select {
+    height: 40px !important;
+    min-height: 40px !important;
+    font-size: 0.98rem !important;
+    font-weight: 700 !important;
+  }
+
+  input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible {
+    outline: 2.5px solid #38bdf8 !important;
+    outline-offset: 2px !important;
+  }
+
+  /* 6. Tables — Clear SemiBold 600 Text + Bold 700 Headers + Soft Eye-Tracking Hover */
+  html body table {
+    font-family: var(--ophth-font) !important;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  html body table thead th,
+  html body .pos-grid thead th,
+  html.inner-report-page table thead th {
+    font-family: var(--ophth-font) !important;
+    font-size: 0.93rem !important;
+    line-height: 1.42 !important;
+    font-weight: 800 !important;
+    padding: 10px var(--ophth-row-px) !important;
+    vertical-align: middle !important;
+  }
+
+  html body table tbody td,
+  html body table tfoot td,
+  html body .pos-grid tbody td,
+  html.inner-report-page table tbody td {
+    font-family: var(--ophth-font) !important;
+    font-size: 0.96rem !important;
+    line-height: var(--ophth-lh-cell) !important;
+    font-weight: 600 !important;
+    padding: var(--ophth-row-py) var(--ophth-row-px) !important;
+    vertical-align: middle !important;
+  }
+
+  html.light-theme table tbody tr:hover td { background-color: rgba(245, 158, 11, 0.11) !important; }
+  html:not(.light-theme) table tbody tr:hover td { background-color: rgba(56, 189, 248, 0.10) !important; }
+
+  /* 7. Razor-Sharp Tabular Financial Numbers (Instant Visual Differentiation from Text!) */
+  table td, table th,
+  input[type="number"], input[inputmode="decimal"], input[inputmode="numeric"],
+  .num, .number, .amount, .balance, .total, .price, .qty, .rate, .fin-val,
+  .kpi-val, .kpi-value, .kpi-stat-val, .stat-value, .metric-value, .summary-val, .grand-total,
+  [class*="amount"], [class*="balance"], [class*="total"], [class*="price"],
+  [class*="kpi-val"], [class*="kpi-stat"], [class*="stat-val"], [class*="num"],
+  [id*="total"], [id*="balance"], [id*="amount"] {
+    font-variant-numeric: tabular-nums lining-nums !important;
+    font-feature-settings: "tnum" 1, "lnum" 1 !important;
+    letter-spacing: 0.015em;
+  }
+
+  .num, .amount, .balance, .total, .price, .fin-val,
+  input[type="number"]:not(.pur-pay-input),
+  input[inputmode="decimal"]:not(.pur-pay-input),
+  td.num, td.amount, td.balance, td.total, td[data-col-id="total"],
+  td[data-col-id="price"], td[data-col-id="qty"], td[data-col-id="debit"], td[data-col-id="credit"] {
+    font-weight: 800 !important;
+    font-size: 1.02rem !important;
+  }
+
+  .kpi-val, .kpi-value, .kpi-stat-val, .stat-value, .metric-value, .summary-val, .grand-total {
+    font-weight: 900 !important;
+    font-size: clamp(1.24rem, 1.14rem + 0.32vw, 1.52rem) !important;
+    line-height: 1.30 !important;
+  }
+
+  /* 8. Modals, Popups, Alerts, Warnings, Toasts & Info Dialogs */
+  html body .modal-card, html body .modal-content, html body .modal-box, html body .modal-dialog,
+  html body .md-child-modal, html body .pa-c1-modal-box, html body .scp-fc1-modal-card,
+  html body .mcp-fc1-modal-card, html body .mcp-fc2-modal-card, html body .mg-c14-modal-card,
+  html body .dmr-modal-box, html body .custom-modal-content, html body .popup-card, html body .popup-box,
+  html body [role="dialog"], html body [role="alertdialog"], html body .swal2-popup {
+    font-family: var(--ophth-font) !important;
+    font-size: 1rem !important;
+    line-height: var(--ophth-lh-body) !important;
+    max-width: min(92vw, 1020px);
+    max-height: 90vh;
+    max-height: 90dvh;
+    border-radius: 15px !important;
+    box-sizing: border-box !important;
+  }
+
+  html body .toast, html body .toast-item, html body .toast-msg,
+  html body .alert, html body .alert-box, html body .warning-box,
+  html body .warning-banner, html body .info-banner, html body .notice-card {
+    font-family: var(--ophth-font) !important;
+    font-size: 0.95rem !important;
+    line-height: 1.52 !important;
+    font-weight: 700 !important;
+    padding: 11px 16px !important;
+    border-radius: 11px !important;
+    box-sizing: border-box !important;
+  }
+
+  /* 9. Zero-Jitter Overlay Sidebar & Golden Navigation Menus */
+  html.has-sidebar body:not(.no-sidebar),
+  body.has-sidebar:not(.no-sidebar),
+  html.has-sidebar body.sidebar-open:not(.no-sidebar),
+  body.has-sidebar.sidebar-open:not(.no-sidebar) {
+    margin-right: var(--sb-collapsed, 62px) !important;
+    margin-inline-start: var(--sb-collapsed, 62px) !important;
+    width: auto !important;
+    min-width: calc(100% - var(--sb-collapsed, 62px)) !important;
+    max-width: none !important;
+    transition: none !important;
+  }
+
+  .global-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 1000000 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    contain: layout style;
+    transition: width 0.18s ease-out !important;
+  }
+
+  .global-sidebar,
+  #magaies-panoramic-flyout,
+  .panoramic-flyout-panel,
+  #panoramic-flyout-overlay .flyout-card {
+    font-family: var(--ophth-font) !important;
+  }
+
+  .global-sidebar .sidebar-item {
+    height: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    gap: 10px !important;
+    line-height: 1.38 !important;
+    box-sizing: border-box !important;
+    transform: none !important;
+  }
+
+  .global-sidebar .sidebar-item:hover,
+  .global-sidebar .sidebar-item.panoramic-hovered,
+  .global-sidebar .sidebar-item.panoramic-hovered .sb-panoramic-chevron {
+    transform: none !important;
+  }
+
+  #magaies-panoramic-flyout,
+  .panoramic-flyout-panel {
+    border-radius: 15px !important;
+    padding: 15px !important;
+    max-height: 90vh;
+    max-height: 90dvh;
+    overflow-y: auto;
+  }
+
+  #magaies-panoramic-flyout .flyout-item,
+  #magaies-panoramic-flyout .pf-bento-card,
+  .panoramic-flyout-panel a,
+  .panoramic-flyout-panel button {
+    min-height: 32px !important;
+    padding: 5px 9px !important;
+    gap: 6px !important;
+    line-height: 1.32 !important;
+    border-radius: 8px !important;
+  }
+
+  .global-sidebar .sidebar-item,
+  .global-sidebar .sidebar-text {
+    font-family: var(--ophth-font) !important;
+    font-size: 0.94rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
+  }
+
+  #magaies-panoramic-flyout .flyout-item,
+  #magaies-panoramic-flyout .flyout-title,
+  #magaies-panoramic-flyout .pf-card-title,
+  #magaiees-panoramic-flyout .pf-card-title,
+  #magaiees-panoramic-flyout .pf-header-title,
+  .panoramic-flyout-panel .flyout-link {
+    font-family: var(--ophth-font) !important;
+    font-size: 1.04rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0 !important;
+  }
+
+  /* Readable Floor for Badges & Captions */
+  html body .badge, html body .pill, html body .status-badge, html body .sub-label,
+  html body small:not(.keep-micro) {
+    font-family: var(--ophth-font) !important;
+    font-size: max(0.84rem, 13.5px) !important;
+    line-height: 1.38 !important;
+    font-weight: 700 !important;
+  }
+
+  /* 10. Mobile Golden Ergonomics (Phones & Mobile Suite — Exact Same Deep Dark Contrast, Equal 12px Gaps & Zero-Glow Cards) */
+  @media (max-width: 768px) and (hover: none) and (pointer: coarse) {
+    :root {
+      --magaies-100w-px: 100%;
+      --ophth-unified-w: 100%;
+      --erp-ergo-max-w: 100%;
+      --erp-ergo-wide-w: 100%;
+      --ophth-ctrl-h: 44px;
+      --ophth-btn-h: 44px;
+    }
+    html.has-sidebar body:not(.no-sidebar),
+    body.has-sidebar:not(.no-sidebar),
+    html.has-sidebar body.sidebar-open:not(.no-sidebar),
+    body.has-sidebar.sidebar-open:not(.no-sidebar) {
+      margin-right: 0 !important;
+      margin-inline-start: 0 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+    html body > .dash-main, html body #mobileContainer {
+      border-width: 3px !important;
+      padding: 10px 10px 20px 10px !important;
+      gap: 12px !important;
+    }
+    html body #purchase-editor-view #purchase-row0-bar,
+    html body #sales-editor-view #sales-row0-bar,
+    html body #sales-row0-bar,
+    html body #customer-financial-card .fin-strip-inner,
+    html body #purchase-row1-bar,
+    html body #purchase-row2-bar,
+    html body #sales-row1-bar,
+    html body #sales-row2-bar,
+    html body #exec-sticky-command-bar {
+      flex-wrap: wrap !important;
+    }
+    html body #purchase-row1-bar .h-form-group,
+    html body #purchase-row2-bar .h-form-group,
+    html body #sales-row1-bar .h-form-group,
+    html body #sales-row2-bar .h-form-group {
+      flex: 1 1 100% !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+    }
+  }
+
+  /* 11. MAIN SCREEN VISUAL PARITY & PROPORTIONAL RATIO HARMONY 2027 */
+  @media (min-width: 769px) {
+    html { font-size: 16px !important; }
+    body { font-family: var(--ophth-font) !important; font-size: 1rem; line-height: 1.5; }
+    h1, .page-title { font-size: 1.35rem; font-weight: 800; line-height: 1.35; }
+    h2, .section-title, .card-title { font-size: 1.08rem; font-weight: 800; line-height: 1.35; }
+    label, .form-label, .field-label, .filter-label { font-size: 0.90rem; font-weight: 700; }
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="hidden"]):not(.g-input):not(#inv-number):not(#hdr-exchange-rate):not(.pro-serial-number),
+    select:not(.g-select) {
+      font-size: 0.96rem; min-height: 40px; padding: 6px 12px; border-radius: 10px; box-sizing: border-box;
+    }
+    .btn, .action-btn, .filter-btn, .btn-primary, .btn-secondary, .btn-success, .btn-danger {
+      font-size: 0.94rem; font-weight: 800; min-height: 38px; padding: 6px 14px; border-radius: 10px; line-height: 1.25; box-sizing: border-box;
+    }
+    table:not(#pos-grid) thead th,
+    table:not(#pos-grid) tbody td { font-size: 0.94rem; line-height: 1.45; font-variant-numeric: tabular-nums; }
+    .modal-content, .modal-box, .modal-card { max-width: min(94vw, 1080px); max-height: 92vh; border-radius: 14px; box-sizing: border-box; }
+    body > .container, body > .main-wrapper, body > .content-wrapper, body > .report-wrapper, body > .statement-container {
+      width: 100%; max-width: 100%; margin-inline: auto; box-sizing: border-box;
+    }
+  }
+}

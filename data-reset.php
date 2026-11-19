@@ -1,4 +1,6 @@
-<?php $page_title = 'تصفير بيانات التطبيق'; ?>
+<?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+ $page_title = 'تصفير بيانات التطبيق'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -12,7 +14,7 @@
 })();
 </script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تصفير بيانات التطبيق | Al-Sajana ERP</title>
@@ -27,14 +29,14 @@
         .data-item label { display:flex; align-items:center; gap:10px; color:#e2e8f0; font-weight:600; cursor:pointer; }
         .data-item .count-badge { font-size:0.8rem; color:#64748b; background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:6px; }
         .checkbox { width:18px; height:18px; accent-color:#ef4444; cursor:pointer; }
-        .btn-reset { width:100%; padding:15px; border:none; border-radius:12px; font-size:1.1rem; font-weight:800; cursor:pointer; transition:all 0.3s; font-family:inherit; margin-top:20px; }
+        .btn-reset { width:100%; padding:15px; border:none; border-radius:12px; font-size:1.1rem; font-weight:800; cursor:pointer; transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s; font-family:inherit; margin-top:20px; }
         .btn-do-reset { background:linear-gradient(135deg,#ef4444,#b91c1c); color:#fff; box-shadow:0 6px 20px rgba(239,68,68,0.5); }
         .btn-do-reset:hover { box-shadow:0 8px 30px rgba(239,68,68,0.8); transform:translateY(-2px); }
         .btn-cancel { background:rgba(255,255,255,0.05); color:#94a3b8; border:1px solid rgba(255,255,255,0.1) !important; margin-top:10px; }
         .btn-cancel:hover { background:rgba(255,255,255,0.1); color:#f8fafc; }
         .warning-box { background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.3); border-radius:10px; padding:12px 16px; margin-bottom:20px; color:#fca5a5; font-size:0.88rem; line-height:1.6; }
         .select-all-row { display:flex; gap:15px; margin-bottom:15px; }
-        .btn-select { background:none; border:1px solid rgba(255,255,255,0.1); color:#94a3b8; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:0.82rem; font-family:inherit; transition:all 0.2s; }
+        .btn-select { background:none; border:1px solid rgba(255,255,255,0.1); color:#94a3b8; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:0.82rem; font-family:inherit; transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s; }
         .btn-select:hover { border-color:rgba(239,68,68,0.4); color:#f87171; }
         .result-toast { display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.5); color:#4ade80; padding:12px 25px; border-radius:12px; font-weight:700; z-index:999; }
     
@@ -115,6 +117,7 @@
         :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
 \n</style>
     <style id="global-zero-lag-css">.ambient-bg,.ambient-bg .orb,.preset-ribbon-btn::after,.preset-btn::after,.btn-action-hero::after,.btn-run::after,.action-tab.active::before,.sticky-footer::before{display:none!important;content:none!important}*,*::before,*::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important}button,a,input,select,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}button,.btn,.modern-btn,.preset-ribbon-btn,.preset-btn,.btn-action-hero,.btn-run,.action-tab,.fin-card,.pos-grid tbody tr{transition:background-color .08s ease,border-color .08s ease,opacity .08s ease!important}button:hover,.btn:hover,.modern-btn:hover,.preset-ribbon-btn:hover,.preset-btn:hover,.btn-action-hero:hover,.del-btn:hover,.modal-close:hover{transform:none!important}</style>
+    <link id="magaies-ophthalmic-ergo-css" rel="stylesheet" href="css/ophthalmic-ergonomics-2027.css?v=2027_gold_v8">
 </head>
 <body>
 
@@ -221,8 +224,8 @@ function doReset() {
 renderList();
 </script>
 
-<script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
+<script>(function(){var l=0,q=[];window.ensureGlobalBgMedia=function(c){if(l&&typeof window.quickHeaderPlay==='function'){if(c)c();return;}if(c)q.push(c);if(document.querySelector('script[data-lazy-bgm]'))return;var s=document.createElement('script');s.src='js/global_background_media.js?v=<?= @filemtime(__DIR__."/js/global_background_media.js")?:2027 ?>';s.dataset.lazyBgm='1';s.onload=function(){l=1;q.splice(0).forEach(function(fn){try{fn();}catch(_){}});};document.body.appendChild(s);};['quickHeaderPlay','setHeaderMediaVolume','quickHeaderStop','openBackgroundPopout','toggleHeaderMediaDropdown','playPersistentMedia'].forEach(function(fn){if(typeof window[fn]!=='function')window[fn]=function(){var a=arguments;window.ensureGlobalBgMedia(function(){if(typeof window[fn]==='function')window[fn].apply(window,a);});};});try{if(localStorage.getItem('erp_bg_media_playing')==='1'||localStorage.getItem('magaies_live_tv_active')==='1')window.addEventListener('DOMContentLoaded',function(){setTimeout(function(){window.ensureGlobalBgMedia();},300);},{once:true});}catch(_){}})();</script>
 <script src="js/magaiees_back.js?v=2026_back_v2" defer></script>
-<script src="js/magaies-smart-guide.js" defer></script>
+<script>(function(){var l=0;window.loadMagaiesSmartGuide=function(c){if(l){if(c)c();return;}l=1;var s=document.createElement('script');s.src='js/magaies-smart-guide.js?v=<?= @filemtime(__DIR__."/js/magaies-smart-guide.js")?:2027 ?>';s.onload=function(){if(c)c();};document.body.appendChild(s);};window.addEventListener('keydown',function(e){if(e.key==='F1'){e.preventDefault();window.loadMagaiesSmartGuide();}});window.addEventListener('contextmenu',function(){window.loadMagaiesSmartGuide();},{once:true,passive:true});})();</script>
 </body>
 </html>

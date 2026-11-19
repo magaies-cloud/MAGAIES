@@ -1,4 +1,6 @@
-<?php $page_title = 'القوائم الختامية والمحاسبية'; ?>
+<?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+ $page_title = 'القوائم الختامية والمحاسبية'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -12,9 +14,7 @@
 })();
 </script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>القوائم الختامية والمحاسبية | Al-Sajana ERP</title>
@@ -90,7 +90,7 @@
         }
         .orb {
             position: absolute; border-radius: 50%; filter: blur(120px);
-            animation: floatOrb 20s infinite alternate ease-in-out; opacity: 0.15;
+            animation: none; /* cpu-opt */ opacity: 0.15;
         }
         .orb-1 { width: 600px; height: 600px; background: #38bdf8; top: -10%; right: -10%; }
         .orb-2 { width: 500px; height: 500px; background: #c084fc; bottom: -10%; left: -10%; animation-delay: -5s; }
@@ -126,7 +126,7 @@
         .clock-widget { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); padding: 8px 20px; border-radius: 14px; text-align: center; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); }
         .clock-widget #header-clock { color: #e2e8f0; font-size: 1.25rem; font-weight: 800; letter-spacing: 1.5px; font-family: 'Outfit', sans-serif; }
         .clock-widget #header-date-mini { color: #64748b; font-size: 0.7rem; display: block; margin-top: 2px; font-weight: 600; }
-        .icon-btn { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); width: 46px; height: 46px; border-radius: 14px; color: #fff; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; }
+        .icon-btn { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); width: 46px; height: 46px; border-radius: 14px; color: #fff; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease; }
         .icon-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
 
         /* Section Headings */
@@ -166,7 +166,7 @@
         /* Bento Card Ultra Premium */
         .bento-card {
             background: rgba(15, 23, 42, 0.45);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            /* gpu-opt */ /* gpu-opt */
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 24px;
             padding: 25px;
@@ -178,7 +178,7 @@
             flex-direction: column;
             justify-content: center;
             gap: 15px;
-            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
             transform-style: preserve-3d;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
@@ -215,7 +215,7 @@
             display: flex; align-items: center; justify-content: center;
             font-size: 2.2rem;
             box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative; z-index: 2;
         }
 

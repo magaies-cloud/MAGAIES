@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 // preview-balances-design.php
 // Excel-Style Preview Page for Balances - Pro Edition with Studio Tabs & Page Setup
 ?>
@@ -9,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>معاينة وتصميم الأرصدة | Al-Sajana ERP</title>
     <!-- Non-blocking font load for weak/offline internet + instant zero-animation popup render -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;800;900&family=Tajawal:wght@500;700;900&family=Inter:wght@600;800&display=swap" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <style id="popup-zero-lag">*,*::before,*::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important;}</style>
     
     <style id="dynamic-paper-style">
@@ -162,9 +164,9 @@
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(30, 41, 59, 0.7));
             border: 1px solid rgba(255, 255, 255, 0.25);
             color: white; padding: 8px 18px; border-radius: 22px; font-family: inherit; font-weight: 900;
-            cursor: pointer; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); font-size: 0.88rem; display: inline-flex; align-items: center; gap: 6px;
+            cursor: pointer; transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); font-size: 0.88rem; display: inline-flex; align-items: center; gap: 6px;
             box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(14px);
+            /* gpu-opt */
         }
         .ribbon-btn::after {
             content: ''; position: absolute; top: 0; left: 0; width: 50%; height: 100%;
@@ -185,9 +187,9 @@
             background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(15,23,42,0.8));
             border: 1.5px solid rgba(255,255,255,0.25);
             color: #f1f5f9; padding: 8px 18px; border-radius: 24px; font-family: inherit; font-size: 0.92rem;
-            cursor: pointer; transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); font-weight: 900; display: inline-flex; align-items: center; gap: 8px;
+            cursor: pointer; transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.35s cubic-bezier(0.34, 1.56, 0.64, 1); font-weight: 900; display: inline-flex; align-items: center; gap: 8px;
             box-shadow: 0 6px 18px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.3);
-            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            /* gpu-opt */ /* gpu-opt */
         }
         .preset-btn::after {
             content: ''; position: absolute; top: 0; left: 0; width: 50%; height: 100%;
@@ -218,7 +220,7 @@
             border: 2px solid #2b1d0e;
             border-radius: 4px;
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
             box-sizing: border-box;
             position: relative;
         }
@@ -251,7 +253,7 @@
         .company-header {
             display: flex; justify-content: space-between; align-items: flex-start; height: 3.5cm;
             border-bottom: 3px solid var(--text-color); margin-bottom: 15px; padding-bottom: 10px;
-            transition: all 0.3s;
+            transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
         }
         .company-logo-wrap { width: 3.5cm; height: 100%; border: 1px solid var(--table-border); display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: 8px; }
         .company-logo-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; }
@@ -365,7 +367,7 @@
             font-size: 0.95rem;
             opacity: 0;
             transform: translateY(-20px) scale(0.95);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -395,8 +397,8 @@
             width: 100vw;
             height: 100vh;
             background: rgba(15, 23, 42, 0.45);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            /* gpu-opt */
+            /* gpu-opt */
             z-index: 100000;
             display: flex;
             align-items: center;
@@ -411,8 +413,8 @@
         }
         .reset-modal-container {
             background: rgba(30, 41, 59, 0.65);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            /* gpu-opt */
+            /* gpu-opt */
             border: 1px solid rgba(255, 255, 255, 0.15);
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
             border-radius: 20px;
@@ -432,7 +434,7 @@
         .reset-modal-icon {
             font-size: 3rem;
             margin-bottom: 15px;
-            animation: pulse-warn 2s infinite;
+            animation: none; /* cpu-opt */
         }
         @keyframes pulse-warn {
             0% { transform: scale(1); }
@@ -463,7 +465,7 @@
             padding: 10px 24px;
             border-radius: 14px;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: transform 0.25s ease, opacity 0.25s ease, background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
             border: none;
             display: flex;
             align-items: center;
@@ -609,7 +611,7 @@
 </div>
 
 <!-- Right-Click Context Menu for Partner Rows in Preview Page -->
-<div id="partnerContextMenu" style="display:none; position:fixed; z-index:1000000; background:rgba(15, 23, 42, 0.98); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(56, 189, 248, 0.4); border-radius:12px; box-shadow:0 20px 50px rgba(0,0,0,0.8), 0 0 20px rgba(56,189,248,0.3); padding:8px; width:260px; color:#f8fafc; font-family:'Tajawal', sans-serif; text-align:right;">
+<div id="partnerContextMenu" style="display:none; position:fixed; z-index:1000000; background:rgba(15, 23, 42, 0.98);   border:1px solid rgba(56, 189, 248, 0.4); border-radius:12px; box-shadow:0 20px 50px rgba(0,0,0,0.8), 0 0 20px rgba(56,189,248,0.3); padding:8px; width:260px; color:#f8fafc; font-family:'Tajawal', sans-serif; text-align:right;">
     <div id="partnerMenuHeader" style="font-weight:bold; font-size:0.88rem; color:#38bdf8; padding:8px 12px; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">اسم الحساب</div>
     <div id="gotoLedgerItem" onclick="window.goToPartnerLedgerFromPreview()" style="display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:0.9rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.2)'; this.style.color='#38bdf8';" onmouseout="this.style.background='transparent'; this.style.color='#f8fafc';">
         <span style="font-size:1.2rem;">📖</span>
@@ -624,8 +626,8 @@
 <script src="js/app.js?v=<?= file_exists(__DIR__ . '/js/app.js') ? filemtime(__DIR__ . '/js/app.js') : time() ?>_v30"></script>
 <script src="js/preview-balances.js?v=<?= file_exists(__DIR__ . '/js/preview-balances.js') ? filemtime(__DIR__ . '/js/preview-balances.js') : time() ?>_v30"></script>
 
-<script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
+<!-- bg-media lazy-loaded via includes/header.php -->
 <script src="js/magaiees_back.js?v=2026_back_v2" defer></script>
-<script src="js/magaies-smart-guide.js" defer></script>
+<!-- smart-guide lazy-loaded via includes/header.php -->
 </body>
 </html>

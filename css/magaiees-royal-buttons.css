@@ -175,7 +175,7 @@
         rgba(255, 255, 255, 0) 100%
     ) !important;
     transform: translateX(-160%) skewX(-25deg);
-    animation: royalGlassSweep 5.5s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+    animation: none; /* cpu-opt */
     animation-delay: var(--shimmer-delay, 0s) !important;
     pointer-events: none !important;
     z-index: 2 !important;
@@ -293,7 +293,7 @@
     color: #ffffff !important;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45) !important;
     font-weight: 900 !important;
-    animation: royalAuraBreath 3s infinite ease-in-out;
+    animation: none; /* cpu-opt */
 }
 
 /* 2. NEW / CLEAR FORM (أزرق سماوي سيان موحد لزر جديد في كل الشاشات) */
@@ -438,7 +438,7 @@
     font-weight: 900 !important;
     cursor: pointer !important;
     box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35), inset 0 1px 1px rgba(255,255,255,0.35) !important;
-    transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) !important, opacity 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) !important, background-color 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) !important, border-color 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) !important, color 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
     flex-shrink: 0 !important;
 }
 .royal-modal-close-x:hover {

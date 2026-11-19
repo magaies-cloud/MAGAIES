@@ -1,4 +1,6 @@
-<?php $page_title = 'التقارير'; ?>
+<?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+ $page_title = 'التقارير'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -12,18 +14,18 @@
 })();
 </script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>السيطرة 2026 - التقارير</title>
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
-    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="js/vendor/chart.umd.min.js"></script>
     <!-- استدعاء وتفعيل مكتبة Tailwind CSS للتنسيق والألوان -->
     <link rel="stylesheet" href="css/tailwind.min.css">
     <!-- استدعاء مكتبة الأيقونات الشهيرة FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/all.min.css?v=2027">
     <style>
     
 
@@ -52,7 +54,7 @@
             border-radius: 12px !important; /* Sharper rounded corners (تقليل الحواف) */
             color: #000000 !important;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important, opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important, background-color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important, border-color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important, color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
         }
         
         :root.light-theme .glass-panel:hover,
@@ -178,7 +180,7 @@
             border-radius: 50%;
             filter: blur(120px);
             opacity: 0.15;
-            animation: floatOrb 20s infinite alternate ease-in-out;
+            animation: none; /* cpu-opt */
         }
 
         .orb-1 { width: 500px; height: 500px; background: var(--theme-pink); top: -5%; right: -5%; }
@@ -196,10 +198,10 @@
         .strategic-btn {
             position: relative;
             overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             background: linear-gradient(135deg, rgba(20, 16, 40, 0.6) 0%, rgba(10, 8, 24, 0.8) 100%) !important;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            /* gpu-opt */
+            /* gpu-opt */
             border: 1.5px solid rgba(255, 255, 255, 0.08) !important;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
             border-radius: 16px !important;
@@ -224,7 +226,7 @@
                 rgba(255, 255, 255, 0) 100%
             );
             transform: rotate(30deg);
-            transition: all 0.6s ease;
+            transition: transform 0.6s ease, opacity 0.6s ease, background-color 0.6s ease, border-color 0.6s ease, color 0.6s ease;
             opacity: 0;
             pointer-events: none;
         }
@@ -232,7 +234,7 @@
         .strategic-btn:hover::after {
             left: 100%;
             opacity: 1;
-            transition: all 0.8s ease-in-out;
+            transition: transform 0.8s ease-in-out, opacity 0.8s ease-in-out, background-color 0.8s ease-in-out, border-color 0.8s ease-in-out, color 0.8s ease-in-out;
         }
 
         .strategic-btn:hover {
@@ -284,11 +286,11 @@
         .premium-header {
             background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(79, 70, 229, 0.15), rgba(139, 92, 246, 0.15), rgba(99, 102, 241, 0.15));
             background-size: 300% 300%;
-            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            /* gpu-opt */ /* gpu-opt */
             border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 12px 20px;
             display: flex; justify-content: space-between; align-items: center;
             box-shadow: 0 15px 30px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 1px rgba(0,0,0,0.3);
-            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1), animateGradient 12s ease infinite;
+            animation: none; /* cpu-opt */
             position: relative;
             overflow: hidden;
             margin: 0;
@@ -301,7 +303,7 @@
             width: 40%; height: 100%;
             background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%);
             transform: skewX(-25deg);
-            animation: shimmer 8s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
+            animation: none; /* cpu-opt */
             pointer-events: none;
         }
 
@@ -409,7 +411,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
 
         .icon-btn:hover {
@@ -422,12 +424,12 @@
         /* Glass Panel Styling for all cards */
         .glass-panel {
             background: var(--surface);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            /* gpu-opt */
+            /* gpu-opt */
             border: 1px solid var(--border);
             border-radius: 24px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.03);
-            transition: all 0.4s ease;
+            transition: transform 0.4s ease, opacity 0.4s ease, background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
             position: relative;
             overflow: hidden;
         }
@@ -588,7 +590,7 @@
             border-radius: 8px;
             font-size: 0.85rem;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s;
             font-family: 'Tajawal', sans-serif;
             font-weight: 600;
         }
@@ -632,7 +634,7 @@
         /* Compact Bento Card */
         .quick-report-card {
             background: rgba(15, 23, 42, 0.45);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            /* gpu-opt */ /* gpu-opt */
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 16px;
             padding: 15px 20px;
@@ -641,7 +643,7 @@
             gap: 15px;
             color: #fff;
             text-decoration: none;
-            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), background-color 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), color 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             position: relative;
             overflow: hidden;
             cursor: pointer;
@@ -681,7 +683,7 @@
             display: flex; align-items: center; justify-content: center;
             font-size: 1.5rem;
             box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background-color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), border-color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative; z-index: 2;
             flex-shrink: 0;
         }
@@ -1028,7 +1030,7 @@
     </div>
 
     <style>
-        .rep-filter-pill { padding: 7px 14px; border-radius: 10px; border: 1.5px solid rgba(148,163,184,0.28); background: rgba(15,23,42,0.65); color: #cbd5e1; font-family: 'Tajawal', sans-serif; font-size: 0.83rem; font-weight: 800; cursor: pointer; transition: all 0.2s ease; }
+        .rep-filter-pill { padding: 7px 14px; border-radius: 10px; border: 1.5px solid rgba(148,163,184,0.28); background: rgba(15,23,42,0.65); color: #cbd5e1; font-family: 'Tajawal', sans-serif; font-size: 0.83rem; font-weight: 800; cursor: pointer; transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
         .rep-filter-pill:hover { border-color: #38bdf8; color: #fff; transform: translateY(-1px); }
         .rep-filter-pill.active { background: linear-gradient(135deg, #0284c7, #2563eb); border-color: #38bdf8; color: #fff !important; box-shadow: 0 4px 14px rgba(37,99,235,0.35); }
         :root.light-theme .rep-filter-pill { background: #f8fafc; color: #0f172a; border: 2px solid #000; }
@@ -1068,7 +1070,7 @@
         /* ── المصفوفة التحليلية المدمجة (التحليل المرئي + الجرد الشامل + ملخص الحركات) ── */
         .unified-matrix-panel { background: rgba(15, 23, 42, 0.82); border: 1.5px solid rgba(56, 189, 248, 0.3); border-radius: 18px; padding: 18px 20px; box-shadow: 0 12px 32px rgba(0,0,0,0.35); }
         :root.light-theme .unified-matrix-panel { background: #fff !important; border: 3.5px solid #000 !important; }
-        .matrix-tab-btn { padding: 9px 18px; border-radius: 11px; border: 1.5px solid rgba(148,163,184,0.25); background: rgba(0,0,0,0.28); color: #cbd5e1; font-family: 'Tajawal', sans-serif; font-size: 0.88rem; font-weight: 800; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 7px; }
+        .matrix-tab-btn { padding: 9px 18px; border-radius: 11px; border: 1.5px solid rgba(148,163,184,0.25); background: rgba(0,0,0,0.28); color: #cbd5e1; font-family: 'Tajawal', sans-serif; font-size: 0.88rem; font-weight: 800; cursor: pointer; transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; display: inline-flex; align-items: center; gap: 7px; }
         .matrix-tab-btn:hover { border-color: #38bdf8; color: #fff; }
         .matrix-tab-btn.active { background: linear-gradient(135deg, #7c3aed, #2563eb); border-color: #c084fc; color: #fff !important; box-shadow: 0 4px 15px rgba(124,58,237,0.35); }
         :root.light-theme .matrix-tab-btn { background: #f1f5f9; color: #000; border: 2px solid #000; }
@@ -1778,7 +1780,7 @@
 </script>
 
 <!-- مكتبة السحب والإفلات -->
-<script defer src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script defer src="js/vendor/Sortable.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // High Performance 3D Parallax effect on Quick Report Cards
@@ -2129,7 +2131,7 @@
 </script>
 
 <!-- Daily Report Modal -->
-<div id="dailyReport-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,3,8,0.85); backdrop-filter: blur(10px); z-index: 10000; align-items: center; justify-content: center; direction: rtl;">
+<div id="dailyReport-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,3,8,0.85);  z-index: 10000; align-items: center; justify-content: center; direction: rtl;">
     <div class="glass-panel" style="width: 95%; max-width: 900px; max-height: 90vh; overflow-y: auto; padding: 30px; position: relative; border: 1px solid rgba(255,255,255,0.12); border-radius: 24px; box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
         <button onclick="document.getElementById('dailyReport-modal').style.display='none'" style="position: absolute; top: 15px; left: 15px; background: none; border: none; color: #f87171; font-size: 1.8rem; cursor: pointer; transition: 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'">&times;</button>
         <h3 style="color: #a855f7; margin-bottom: 20px; font-weight: 800; border-bottom: 1px dashed rgba(255,255,255,0.15); padding-bottom: 12px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">

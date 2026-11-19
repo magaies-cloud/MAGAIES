@@ -82,7 +82,6 @@ try {
 include 'includes/header.php';
 if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes/sidebar.php';
 ?>
-<link rel="stylesheet" href="css/unified-design-tokens.css">
 
 <style>
     .pf-master-wrap {
@@ -166,7 +165,7 @@ if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes
         background: rgba(30, 41, 59, 0.88);
         color: #f8fafc;
         text-decoration: none;
-        transition: all 0.2s ease;
+        transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     }
 
     .pf-btn:hover {
@@ -194,7 +193,7 @@ if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes
         border-radius: 16px;
         padding: 15px 18px;
         cursor: pointer;
-        transition: all 0.2s ease;
+        transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     }
 
     .pf-kpi-card:hover {
@@ -235,7 +234,7 @@ if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes
         align-items: center;
         justify-content: center;
         gap: 8px;
-        transition: all 0.2s ease;
+        transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     }
 
     .pf-tab-btn.active {
@@ -745,7 +744,7 @@ if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes
 </main>
 
 <script src="js/localforage.min.js"></script>
-<script src="js/permissions-manager.js"></script>
+<script defer src="js/permissions-manager.js"></script>
 <script src="js/app.js"></script>
 
 <script>

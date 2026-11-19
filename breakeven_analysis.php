@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 $page_title = 'تحليل نقطة التعادل الفوري (Break-Even)';
 $header_theme_class = 'header-theme-reports';
 
@@ -279,9 +281,7 @@ if (!function_exists('convertReportAmount')) {
 </script>
 
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;800&family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -289,8 +289,8 @@ if (!function_exists('convertReportAmount')) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>تحليل نقطة التعادل | Al-Sajana ERP</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script defer src="js/vendor/chart.umd.min.js"></script>
     <style>
         body {
             margin: 0 !important;
@@ -363,7 +363,7 @@ if (!function_exists('convertReportAmount')) {
         /* ========== لوح الزجاج الرئيسي ========== */
         .glass-panel {
             background: var(--panel-bg);
-            backdrop-filter: blur(15px);
+            /* gpu-opt */
             border: 1px solid var(--border-neon);
             border-radius: 24px;
             padding: 30px;
@@ -400,7 +400,7 @@ if (!function_exists('convertReportAmount')) {
             text-decoration: none;
             font-size: 13px;
             font-family: 'Cairo', sans-serif;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
         .btn-back:hover {
             background: rgba(255, 165, 0, 0.1);
@@ -467,7 +467,7 @@ if (!function_exists('convertReportAmount')) {
             font-weight: 700;
             font-size: 13px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
         .btn-filter:hover {
             transform: translateY(-2px);
@@ -484,7 +484,7 @@ if (!function_exists('convertReportAmount')) {
             font-size: 13px;
             cursor: pointer;
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
         .btn-reset:hover {
             border-color: rgba(255, 0, 85, 0.4);
@@ -505,7 +505,7 @@ if (!function_exists('convertReportAmount')) {
             border-radius: 16px;
             padding: 22px;
             text-align: center;
-            transition: all 0.4s ease;
+            transition: transform 0.4s ease, opacity 0.4s ease, background-color 0.4s ease, border-color 0.4s ease, color 0.4s ease;
             animation: slideUp 0.6s ease-out both;
             position: relative;
             overflow: hidden;

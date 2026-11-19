@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 // =============================================================
 // نظام MAGAIEES ERP 2026 - البوابة المركزية الكاملة لتقارير المخزون الـ 20
 // =============================================================
@@ -47,9 +49,9 @@ try {
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="css/tailwind.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/all.min.css?v=2027">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&family=Tajawal:wght@300;500;700;900&display=swap');
+        @import url('css/local-fonts.css?v=2027');
         
         body {
             font-family: 'Inter', 'Tajawal', sans-serif;
@@ -82,9 +84,9 @@ try {
         /* كروت الإحصائيات الفخمة */
         .stat-card {
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.15) 0%, rgba(15, 23, 42, 0.45) 100%) !important;
-            backdrop-filter: blur(16px);
+            /* gpu-opt */
             border: 1px solid rgba(255, 255, 255, 0.05) !important;
-            transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.4s cubic-bezier(0.25, 0.8, 0.25, 1), color 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
             position: relative;
             overflow: hidden;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2) !important;
@@ -122,8 +124,8 @@ try {
             overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.04) !important;
             background: linear-gradient(135deg, rgba(20, 30, 48, 0.25) 0%, rgba(15, 23, 42, 0.45) 100%) !important;
-            backdrop-filter: blur(12px);
-            transition: all 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
+            /* gpu-opt */
+            transition: transform 0.45s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.45s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.45s cubic-bezier(0.25, 0.8, 0.25, 1), border-color 0.45s cubic-bezier(0.25, 0.8, 0.25, 1), color 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
             border-radius: 1.5rem;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
             height: 8.5rem !important;
@@ -236,7 +238,7 @@ try {
     </div>
 
     <!-- كارت مستشعر الـ AI الاستراتيجي للبضائع -->
-    <div class="mb-10 p-6 rounded-3xl relative overflow-hidden" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(15, 23, 42, 0.85) 50%, rgba(236, 72, 153, 0.15) 100%); border: 1px solid rgba(56, 189, 248, 0.35); backdrop-filter: blur(20px); box-shadow: 0 15px 40px rgba(0,0,0,0.4);">
+    <div class="mb-10 p-6 rounded-3xl relative overflow-hidden" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(15, 23, 42, 0.85) 50%, rgba(236, 72, 153, 0.15) 100%); border: 1px solid rgba(56, 189, 248, 0.35);  box-shadow: 0 15px 40px rgba(0,0,0,0.4);">
         <div class="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
             <div class="flex items-center gap-5 text-right">
                 <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-xl flex-shrink-0" style="background: linear-gradient(135deg, #06b6d4, #3b82f6); box-shadow: 0 0 25px rgba(6, 182, 212, 0.45);">

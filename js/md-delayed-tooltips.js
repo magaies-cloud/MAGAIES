@@ -1043,11 +1043,13 @@
             if (!numTarget || !numTarget.id) return;
             try {
                 const map = JSON.parse(localStorage.getItem('erp_unified_field_props_v1') || '{}');
+                const colVal = numTarget.dataset.lockedColor || numTarget.style.color || '';
                 map[location.pathname + '#' + numTarget.id] = {
-                    fs: numTarget.style.fontSize, fw: numTarget.style.fontWeight, col: numTarget.style.color,
+                    fs: numTarget.style.fontSize, fw: numTarget.style.fontWeight, col: colVal,
                     ff: numTarget.style.fontFamily, comma: numTarget.dataset.useComma || '1', dec: numTarget.dataset.decPlaces || '2'
                 };
                 localStorage.setItem('erp_unified_field_props_v1', JSON.stringify(map));
+                if (typeof window.__applyLockedFieldStyleSheet === 'function') window.__applyLockedFieldStyleSheet();
             } catch (_) {}
         };
         m.querySelectorAll('button[data-rc-num]').forEach(nb => {
@@ -1071,6 +1073,7 @@
         });
         const applyCol = (c) => {
             if (!numTarget || !c) return;
+            numTarget.dataset.lockedColor = c;
             numTarget.style.setProperty('color', c, 'important');
             numTarget.style.setProperty('-webkit-text-fill-color', c, 'important');
             const pk = m.querySelector('#rc-color-picker'); if (pk && c.startsWith('#') && c.length === 7) pk.value = c;
@@ -1160,6 +1163,33 @@
         m.style.left = Math.round(left) + 'px';
         m.style.top = Math.round(top) + 'px';
     };
+
+    window.__applyLockedFieldStyleSheet = function () {
+        try {
+            const map = JSON.parse(localStorage.getItem('erp_unified_field_props_v1') || '{}');
+            let css = '';
+            Object.entries(map).forEach(([k, p]) => {
+                if (!p || !k.startsWith(location.pathname + '#')) return;
+                const id = k.split('#')[1];
+                if (!id || !/^[a-zA-Z0-9_-]+$/.test(id)) return;
+                const el = document.getElementById(id);
+                if (el) {
+                    if (p.fs) el.style.setProperty('font-size', p.fs, 'important');
+                    if (p.fw) el.style.setProperty('font-weight', p.fw, 'important');
+                    if (p.ff) el.style.setProperty('font-family', p.ff, 'important');
+                    if (p.col) { el.dataset.lockedColor = p.col; el.style.setProperty('color', p.col, 'important'); el.style.setProperty('-webkit-text-fill-color', p.col, 'important'); }
+                }
+                if (p.col) css += `html body input#${id}[id], html body #${id}[id], html body #${id}[id]:focus, html body #${id}[id]:hover, html:not(.light-theme) body #scp-proportional-root input#${id}[id], html body #scp-proportional-root #${id}[id], html body #scp-proportional-root #${id}[id]:focus, html body #scp-proportional-root #${id}[id]:hover { color: ${p.col} !important; -webkit-text-fill-color: ${p.col} !important; caret-color: ${p.col} !important; }\n`;
+            });
+            let st = document.getElementById('erp-locked-field-colors');
+            if (!st) { st = document.createElement('style'); st.id = 'erp-locked-field-colors'; }
+            (document.body || document.documentElement).appendChild(st);
+            st.textContent = css;
+        } catch (_) {}
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', window.__applyLockedFieldStyleSheet);
+    else window.__applyLockedFieldStyleSheet();
+    window.addEventListener('load', window.__applyLockedFieldStyleSheet);
 
     if (!window.__erpRcChoiceListenerBound) {
         window.__erpRcChoiceListenerBound = true;

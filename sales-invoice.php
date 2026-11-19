@@ -1,4 +1,6 @@
-<?php $page_title = 'مرتجع مبيعات'; ?>
+<?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+ $page_title = 'مرتجع مبيعات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js?v=20261029_fast"></script>
@@ -47,7 +49,7 @@
   });
 })();
 </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مرتجع مبيعات | Al-Sajana ERP</title>
@@ -61,7 +63,7 @@
         .toast {
             padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem;
             display:flex; align-items:center; gap:8px; pointer-events:auto;
-            backdrop-filter:blur(20px); box-shadow:0 12px 40px rgba(0,0,0,0.5);
+            /* gpu-opt */ box-shadow:0 12px 40px rgba(0,0,0,0.5);
             animation:toastIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
             font-family:'Cairo',sans-serif; max-width:90vw;
         }
@@ -181,10 +183,10 @@
         :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
         :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
         
-        .tot-toggle-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #e2e8f0; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+        .tot-toggle-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #e2e8f0; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s; }
         .tot-toggle-btn:hover { background: rgba(255, 255, 255, 0.1); }
         .tot-toggle-btn.active { background: rgba(56, 189, 248, 0.2); border-color: rgba(56, 189, 248, 0.5); color: #38bdf8; font-weight: bold; }
-        .tot-input { transition: all 0.2s; }
+        .tot-input { transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s; }
         body.cur-sdg .hide-if-sdg { display: none !important; }
         /* ── World-Class Sales Return Hub & 7-Theme Support ── */
         .sr-mode-bar {
@@ -212,7 +214,7 @@
             border: 1px solid rgba(255,255,255,0.12);
             background: rgba(255,255,255,0.05);
             color: var(--text-primary, #f8fafc);
-            transition: all 0.2s ease;
+            transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
         }
         .sr-mode-btn:hover, .sr-mode-btn.active {
             background: rgba(16, 185, 129, 0.22);

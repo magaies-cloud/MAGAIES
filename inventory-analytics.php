@@ -1,4 +1,6 @@
-<?php 
+<?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+ 
 $page_title = "التحليل الاستراتيجي للمخزون"; 
 $header_theme_class = "header-theme-inventory";
 ?>
@@ -10,7 +12,7 @@ $header_theme_class = "header-theme-inventory";
     <title><?php echo $page_title; ?> - نظام السيطرة</title>
     
     <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     
     <!-- Base CSS -->
     <link rel="stylesheet" href="css/theme.css?v=20261029_fast">
@@ -26,13 +28,13 @@ $header_theme_class = "header-theme-inventory";
             display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
             background: rgba(15, 23, 42, 0.7); padding: 12px 15px; border-radius: 16px; 
             border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: inset 0 2px 20px rgba(0,0,0,0.4);
-            backdrop-filter: blur(15px);
+            /* gpu-opt */
         }
         .nav-tabs::-webkit-scrollbar { display: none; }
         .nav-tab {
             padding: 12px 25px; border-radius: 12px; text-decoration: none; font-weight: 700;
             color: #94a3b8; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.03);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 8px; font-size: 0.95rem;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.4s cubic-bezier(0.4, 0, 0.2, 1), color 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 8px; font-size: 0.95rem;
             position: relative; overflow: hidden; white-space: nowrap; flex-shrink: 0;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
@@ -90,13 +92,13 @@ $header_theme_class = "header-theme-inventory";
 
         /* Sub-Navigation for Analytics */
         .sub-nav { display: flex; gap: 15px; margin-bottom: 25px; }
-        .sub-btn { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--glass-border); color: #94a3b8; padding: 12px 25px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; backdrop-filter: blur(10px); flex: 1; font-size: 1.05rem; }
+        .sub-btn { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--glass-border); color: #94a3b8; padding: 12px 25px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; /* gpu-opt */ flex: 1; font-size: 1.05rem; }
         .sub-btn:hover { background: rgba(255,255,255,0.05); color: #fff; }
         .sub-btn.active { background: linear-gradient(135deg, #8b5cf6, #d946ef); color: #fff; border: none; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); }
 
         /* KPIs */
         .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .kpi-card { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; position: relative; overflow: hidden; backdrop-filter: blur(10px); }
+        .kpi-card { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--glass-border); padding: 20px; border-radius: 16px; position: relative; overflow: hidden; /* gpu-opt */ }
         .kpi-card::before { content: ''; position: absolute; top: 0; right: 0; width: 4px; height: 100%; }
         .kpi-title { font-size: 0.9rem; color: #94a3b8; font-weight: 700; margin-bottom: 10px; }
         .kpi-val { font-size: 1.8rem; font-weight: 900; color: #f8fafc; }
@@ -109,10 +111,10 @@ $header_theme_class = "header-theme-inventory";
         .kpi-card.c-amber::before { background: #f59e0b; }
 
         /* Tables */
-        .table-panel { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--glass-border); border-radius: 16px; overflow: hidden; backdrop-filter: blur(10px); margin-bottom: 20px;}
+        .table-panel { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--glass-border); border-radius: 16px; overflow: hidden; /* gpu-opt */ margin-bottom: 20px;}
         .table-wrapper { overflow-x: auto; max-height: 60vh; }
         .report-table { width: 100%; border-collapse: collapse; min-width: 900px; }
-        .report-table th { background: rgba(0,0,0,0.2); padding: 15px; text-align: right; color: #94a3b8; font-weight: 700; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 10; backdrop-filter: blur(5px); }
+        .report-table th { background: rgba(0,0,0,0.2); padding: 15px; text-align: right; color: #94a3b8; font-weight: 700; font-size: 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.05); position: sticky; top: 0; z-index: 10; /* gpu-opt */ }
         .report-table td { padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); color: #cbd5e1; font-size: 0.95rem; vertical-align: middle; }
         .report-table tr:hover td { background: rgba(255,255,255,0.02); }
         
@@ -139,7 +141,7 @@ $header_theme_class = "header-theme-inventory";
         :root.light-theme .kpi-title { color: #334155 !important; }
         :root.light-theme .sub-btn.active { color: #fff !important; }
     </style>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script defer src="js/vendor/chart.umd.min.js"></script>
 </head>
 <body class="no-page-transition">
     <div class="ambient-bg"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>

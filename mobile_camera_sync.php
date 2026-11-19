@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 // ====================================================================
 // MAGAIEES ERP - Mobile Live Camera & WhatsApp Sync Bridge 2026
 // جسر الكاميرا المباشر لمزامنة صور الهاتف والواتساب مع شاشة اللابتوب
@@ -199,8 +201,8 @@ $sideLabel = $side === 'A' ? 'الطرف الأول (كشف حسابنا)' : 'ا
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>جسر كاميرا الجوال | Al-Sajana ERP</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/all.min.css?v=2027">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <link rel="stylesheet" href="css/tailwind.min.css">
     <style>
         body {
@@ -212,13 +214,13 @@ $sideLabel = $side === 'A' ? 'الطرف الأول (كشف حسابنا)' : 'ا
         }
         .neon-glow-btn {
             box-shadow: 0 0 25px rgba(244, 63, 94, 0.4), 0 10px 30px rgba(0, 0, 0, 0.5);
-            transition: all 0.2s ease;
+            transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
         }
         .neon-glow-btn:active {
             transform: scale(0.96);
         }
         .pulse-beacon {
-            animation: pulseBeacon 2s infinite;
+            animation: none; /* cpu-opt */
         }
         @keyframes pulseBeacon {
             0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); }
@@ -234,6 +236,7 @@ $sideLabel = $side === 'A' ? 'الطرف الأول (كشف حسابنا)' : 'ا
         }
     </style>
     <style id="global-zero-lag-css">.ambient-bg,.ambient-bg .orb,.preset-ribbon-btn::after,.preset-btn::after,.btn-action-hero::after,.btn-run::after,.action-tab.active::before,.sticky-footer::before{display:none!important;content:none!important}*,*::before,*::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important}button,a,input,select,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}button,.btn,.modern-btn,.preset-ribbon-btn,.preset-btn,.btn-action-hero,.btn-run,.action-tab,.fin-card,.pos-grid tbody tr{transition:background-color .08s ease,border-color .08s ease,opacity .08s ease!important}button:hover,.btn:hover,.modern-btn:hover,.preset-ribbon-btn:hover,.preset-btn:hover,.btn-action-hero:hover,.del-btn:hover,.modal-close:hover{transform:none!important}</style>
+    <link id="magaies-ophthalmic-ergo-css" rel="stylesheet" href="css/ophthalmic-ergonomics-2027.css?v=2027_gold_v8">
 </head>
 <body class="p-4 flex flex-col justify-between max-w-md mx-auto">
 
@@ -604,6 +607,6 @@ $sideLabel = $side === 'A' ? 'الطرف الأول (كشف حسابنا)' : 'ا
         // Run connectivity test on load
         window.addEventListener('DOMContentLoaded', testSyncConnection);
     </script>
-<script src="js/magaies-smart-guide.js" defer></script>
+<script>(function(){var l=0;window.loadMagaiesSmartGuide=function(c){if(l){if(c)c();return;}l=1;var s=document.createElement('script');s.src='js/magaies-smart-guide.js?v=<?= @filemtime(__DIR__."/js/magaies-smart-guide.js")?:2027 ?>';s.onload=function(){if(c)c();};document.body.appendChild(s);};window.addEventListener('keydown',function(e){if(e.key==='F1'){e.preventDefault();window.loadMagaiesSmartGuide();}});window.addEventListener('contextmenu',function(){window.loadMagaiesSmartGuide();},{once:true,passive:true});})();</script>
 </body>
 </html>

@@ -1,4 +1,6 @@
-<?php 
+<?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+ 
 $page_title = "تسوية جردية ومناقلات المخازن (Inventory Adjustment & Transfers)"; 
 $header_theme_class = "header-theme-inventory";
 ?>
@@ -19,7 +21,7 @@ $header_theme_class = "header-theme-inventory";
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $page_title; ?> - نظام السيطرة</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <link rel="stylesheet" href="css/theme.css?v=20261029_fast">
     <link rel="stylesheet" href="css/components.css?v=20261029_fast">
     
@@ -44,7 +46,7 @@ $header_theme_class = "header-theme-inventory";
                               radial-gradient(circle at 10% 90%, rgba(56, 189, 248, 0.04), transparent 40%);
         }
         .ambient-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 0; overflow: hidden; }
-        .orb { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.25; animation: floatOrb 18s ease-in-out infinite alternate; }
+        .orb { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.25; animation: none; /* cpu-opt */ }
         .orb-1 { width: 450px; height: 450px; background: #f97316; top: -80px; left: -80px; }
         .orb-2 { width: 500px; height: 500px; background: #38bdf8; bottom: -100px; right: -100px; animation-duration: 22s; }
         @keyframes floatOrb { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(60px, 40px) scale(1.08); } }
@@ -52,7 +54,7 @@ $header_theme_class = "header-theme-inventory";
         .dashboard-container { position: relative; z-index: 10; padding: 15px; max-width: 1650px; margin: 0 auto; display: flex; flex-direction: column; min-height: calc(100vh - 30px); gap: 16px; }
         
         .main-card {
-            background: var(--surface-card); backdrop-filter: blur(25px);
+            background: var(--surface-card); /* gpu-opt */
             border: 1.5px solid rgba(255, 255, 255, 0.1); border-radius: 20px;
             box-shadow: 0 15px 40px rgba(0,0,0,0.45); overflow: hidden;
             display: flex; flex-direction: column; gap: 18px; padding: 22px;
@@ -65,7 +67,7 @@ $header_theme_class = "header-theme-inventory";
         }
         .mode-tab-btn {
             background: transparent; border: none; color: #94a3b8; padding: 9px 18px; border-radius: 10px;
-            font-family: inherit; font-size: 0.92rem; font-weight: 800; cursor: pointer; transition: all 0.3s;
+            font-family: inherit; font-size: 0.92rem; font-weight: 800; cursor: pointer; transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
             display: flex; align-items: center; gap: 8px;
         }
         .mode-tab-btn:hover { color: #fff; background: rgba(255,255,255,0.05); }

@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
@@ -34,13 +36,13 @@ $page_title = 'حساب الأرصدة الأساسية';
         } catch (e) {}
     })();
     </script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;800;900&family=Tajawal:wght@500;700;900&display=swap" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <link rel="stylesheet" href="css/design-system.css?v=<?php echo file_exists('css/design-system.css') ? filemtime('css/design-system.css') : 1; ?>">
     <link rel="stylesheet" href="css/theme.css?v=<?php echo file_exists('css/theme.css') ? filemtime('css/theme.css') : 1; ?>">
     <link rel="stylesheet" href="css/components.css?v=<?php echo file_exists('css/components.css') ? filemtime('css/components.css') : 1; ?>">
     <link rel="stylesheet" href="css/sales-invoice.css?v=<?php echo file_exists('css/sales-invoice.css') ? filemtime('css/sales-invoice.css') : 1; ?>">
-    <script defer src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script defer src="js/vendor/apexcharts.min.js"></script>
+    <script defer src="js/vendor/Sortable.min.js"></script>
     <style>
         /* Motion Engine & Dynamic Animation System */
         @keyframes fadeIn {
@@ -78,7 +80,7 @@ $page_title = 'حساب الأرصدة الأساسية';
         .pos-grid th, .pos-grid td {
             font-size: 0.8rem !important;
             padding: 8px 10px !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .pos-grid .g-input, .pos-grid .g-select, .pos-grid .g-readonly {
             font-size: 0.85rem !important;
@@ -87,12 +89,12 @@ $page_title = 'حساب الأرصدة الأساسية';
             color: #f8fafc !important;
             border: 1px solid rgba(255, 255, 255, 0.08) !important;
             border-radius: 8px !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .grid-scroll-wrap {
             background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            /* gpu-opt */
+            /* gpu-opt */
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
@@ -100,7 +102,7 @@ $page_title = 'حساب الأرصدة الأساسية';
         }
         .pos-grid thead th {
             background: rgba(15, 23, 42, 0.8) !important;
-            backdrop-filter: blur(10px);
+            /* gpu-opt */
             border-bottom: 2px solid #eab308 !important; /* gold-primary fallback */
             color: #eab308 !important;
             font-weight: 800 !important;
@@ -112,7 +114,7 @@ $page_title = 'حساب الأرصدة الأساسية';
         .pos-grid tbody tr {
             background: rgba(255, 255, 255, 0.02) !important;
             border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
         .pos-grid tbody tr:hover td {
             background-color: rgba(56, 189, 248, 0.08) !important;
@@ -139,7 +141,7 @@ $page_title = 'حساب الأرصدة الأساسية';
             border-radius: 20px;
             padding: 30px;
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(16px);
+            /* gpu-opt */
             margin-top: 35px;
             font-family: 'Tajawal', sans-serif;
             color: #f8fafc;
@@ -160,7 +162,7 @@ $page_title = 'حساب الأرصدة الأساسية';
             font-size: 0.85rem;
             font-weight: 800;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             font-family: inherit;
         }
         .hub-tab-btn:hover {
@@ -192,7 +194,7 @@ $page_title = 'حساب الأرصدة الأساسية';
             padding: 20px;
             position: relative;
             overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .v-card:hover {
             transform: translateY(-4px);
@@ -236,7 +238,7 @@ $page_title = 'حساب الأرصدة الأساسية';
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 18px;
             padding: 22px;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
         .v-chart-card:hover {
             border-color: rgba(56, 189, 248, 0.3);
@@ -257,7 +259,7 @@ $page_title = 'حساب الأرصدة الأساسية';
             100% { transform: scale(0.95); opacity: 0.7; }
         }
         .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
-        .toast { padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem; display:flex; align-items:center; gap:8px; pointer-events:auto; backdrop-filter:blur(20px); box-shadow:0 12px 40px rgba(0,0,0,0.5); animation:toastIn 0.4s cubic-bezier(0.16,1,0.3,1) both; font-family:'Cairo',sans-serif; }
+        .toast { padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem; display:flex; align-items:center; gap:8px; pointer-events:auto; /* gpu-opt */ box-shadow:0 12px 40px rgba(0,0,0,0.5); animation:toastIn 0.4s cubic-bezier(0.16,1,0.3,1) both; font-family:'Cairo',sans-serif; }
         .toast.success { background:rgba(52,211,153,0.15); border:1px solid rgba(52,211,153,0.4); color:#34d399; }
         .toast.warning { background:rgba(251,191,36,0.15); border:1px solid rgba(251,191,36,0.4); color:#fbbf24; }
         @keyframes toastIn { from { opacity:0; transform:translateY(-20px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
@@ -266,16 +268,16 @@ $page_title = 'حساب الأرصدة الأساسية';
         .report-header { background: linear-gradient(135deg, rgba(56,189,248,0.15), rgba(15,23,42,0.9)); border: 1px solid rgba(56,189,248,0.2); border-radius: 14px; padding: 14px 18px; margin-bottom: 12px; }
         .filter-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; margin-bottom: 10px; }
         .filter-group label { display: block; color: #94a3b8; font-size: 0.78rem; margin-bottom: 3px; font-weight: bold; }
-        .filter-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #f8fafc; padding: 7px 10px; border-radius: 8px; font-family: inherit; font-size: 0.9rem; transition: all 0.2s; }
+        .filter-input { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #f8fafc; padding: 7px 10px; border-radius: 8px; font-family: inherit; font-size: 0.9rem; transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s; }
         .filter-input:focus { border-color: #38bdf8; outline: none; background: rgba(0,0,0,0.5); }
 
         .badge-sgl { background: #38bdf8; color: #0f172a; padding: 3px 8px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; letter-spacing: 1px; }
         .badge-active { background: rgba(52,211,153,0.15); color: #34d399; padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; border: 1px solid rgba(52,211,153,0.3); }
 
-        .btn-run { background: linear-gradient(135deg, #38bdf8, #0284c7); color: #ffffff; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); font-family: inherit; font-size: 0.9rem; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3); }
+        .btn-run { background: linear-gradient(135deg, #38bdf8, #0284c7); color: #ffffff; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 900; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1); font-family: inherit; font-size: 0.9rem; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.3); }
         .btn-run:hover { background: linear-gradient(135deg, #0ea5e9, #0369a1); transform: translateY(-2px) scale(1.02); box-shadow: 0 8px 20px rgba(2, 132, 199, 0.5); }
         .btn-run:active { transform: translateY(1px) scale(0.98); }
-        .btn-action { background: rgba(255,255,255,0.05); color: #f8fafc; border: 1px solid rgba(255,255,255,0.1); padding: 7px 14px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; font-family: inherit; }
+        .btn-action { background: rgba(255,255,255,0.05); color: #f8fafc; border: 1px solid rgba(255,255,255,0.1); padding: 7px 14px; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s; font-family: inherit; }
         .btn-action:hover { background: rgba(255,255,255,0.1); }
 
         .audit-stamp {
@@ -292,7 +294,7 @@ $page_title = 'حساب الأرصدة الأساسية';
         #v-classic-ent td.num { 
             text-align: center;
             font-size: var(--fs-num); 
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
             font-family: var(--font-num);
             font-weight: 600;
             letter-spacing: 0px;
@@ -441,10 +443,10 @@ $page_title = 'حساب الأرصدة الأساسية';
         .num-font-poppins { font-family: 'Poppins', sans-serif !important; }
 
         /* ─── SETTINGS SIDEBAR CSS (Copied from General Ledger) ─── */
-        .sidebar-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); backdrop-filter: blur(4px); z-index: 10000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .sidebar-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); /* gpu-opt */ z-index: 10000; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .sidebar-overlay.active { opacity: 1; pointer-events: all; }
         
-        .settings-sidebar { position: fixed; top: 10%; left: 50%; transform: translateX(-50%); width:450px; height:80%; background: rgba(15,23,42,0.95); border: 1px solid rgba(168,85,247,0.5); box-shadow: 0 15px 50px rgba(0,0,0,0.7); z-index: 10001; display: none; flex-direction: column; backdrop-filter: blur(20px); border-radius: 12px; resize: both; overflow: hidden; min-width: 300px; min-height: 400px; }
+        .settings-sidebar { position: fixed; top: 10%; left: 50%; transform: translateX(-50%); width:450px; height:80%; background: rgba(15,23,42,0.95); border: 1px solid rgba(168,85,247,0.5); box-shadow: 0 15px 50px rgba(0,0,0,0.7); z-index: 10001; display: none; flex-direction: column; /* gpu-opt */ border-radius: 12px; resize: both; overflow: hidden; min-width: 300px; min-height: 400px; }
         .settings-sidebar.active { display: flex; animation: windowPop 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         @keyframes windowPop { from { opacity:0; transform: translate(-50%, -40%) scale(0.95); } to { opacity:1; transform: translate(-50%, 0) scale(1); } }
         
@@ -498,7 +500,7 @@ $page_title = 'حساب الأرصدة الأساسية';
             align-items: center;
             justify-content: center;
             gap: 6px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1), color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             height: 38px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
@@ -516,8 +518,8 @@ $page_title = 'حساب الأرصدة الأساسية';
             border: 1px solid rgba(255, 255, 255, 0.12);
             padding: 4px 12px;
             border-radius: 10px;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            /* gpu-opt */
+            /* gpu-opt */
             display: flex;
             align-items: center;
             gap: 8px;
@@ -535,7 +537,7 @@ $page_title = 'حساب الأرصدة الأساسية';
             padding: 12px 22px;
             margin-top: 25px;
             margin-bottom: 20px;
-            backdrop-filter: blur(16px);
+            /* gpu-opt */
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45), 0 0 25px rgba(56, 189, 248, 0.2);
         }
         .v-section-title {
@@ -588,7 +590,7 @@ $page_title = 'حساب الأرصدة الأساسية';
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important, opacity 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important, background-color 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important, border-color 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important, color 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
             font-family: inherit;
             font-size: 0.95rem !important;
             box-shadow: 0 0 20px rgba(0, 243, 255, 0.7), inset 0 1px 3px rgba(255, 255, 255, 0.8) !important;
@@ -615,7 +617,7 @@ $page_title = 'حساب الأرصدة الأساسية';
             transform: scale(1.5, 1.1) !important;
             transform-origin: center center;
             filter: drop-shadow(0 0 8px #00f3ff) drop-shadow(0 0 15px rgba(0, 243, 255, 0.8));
-            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important, opacity 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important, background-color 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important, border-color 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important, color 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
             flex-shrink: 0;
         }
 
@@ -640,11 +642,11 @@ $page_title = 'حساب الأرصدة الأساسية';
             font-family: inherit;
             cursor: pointer;
             user-select: none;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            /* gpu-opt */
+            /* gpu-opt */
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important, opacity 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important, background-color 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important, border-color 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important, color 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
             letter-spacing: 0.2px;
-            animation: neon-luminous-pulse 4s infinite ease-in-out;
+            animation: none; /* cpu-opt */
             white-space: nowrap;
         }
 
@@ -778,7 +780,7 @@ $page_title = 'حساب الأرصدة الأساسية';
         .actions-panel {
             padding: 8px 14px !important;
             background: rgba(15, 23, 42, 0.85) !important;
-            backdrop-filter: blur(16px);
+            /* gpu-opt */
             border-radius: 20px !important;
             border: 1px solid rgba(255, 255, 255, 0.15) !important;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
@@ -797,9 +799,9 @@ $page_title = 'حساب الأرصدة الأساسية';
             font-family: inherit;
             cursor: pointer;
             user-select: none;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            /* gpu-opt */
+            /* gpu-opt */
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important, opacity 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important, background-color 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important, border-color 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important, color 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
             box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.4);
         }
 
@@ -916,7 +918,7 @@ $page_title = 'حساب الأرصدة الأساسية';
 <div class="toast-container" id="toast-container"></div>
 
 <!-- Unified Context Menu for Columns & Data Formatting -->
-<div id="columnContextMenu" style="display:none; position:fixed; z-index:1000000; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(15, 23, 42, 0.98); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:2px solid rgba(56, 189, 248, 0.5); border-radius:18px; box-shadow:0 25px 70px rgba(0,0,0,0.85), 0 0 35px rgba(56, 189, 248, 0.3); padding:16px 20px 20px 20px; width:580px; color:#f8fafc; font-family:'Tajawal', 'Inter', sans-serif; max-height:88vh; overflow:auto; resize:both; min-width:340px; min-height:200px; direction:rtl; text-align:right;">
+<div id="columnContextMenu" style="display:none; position:fixed; z-index:1000000; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(15, 23, 42, 0.98);   border:2px solid rgba(56, 189, 248, 0.5); border-radius:18px; box-shadow:0 25px 70px rgba(0,0,0,0.85), 0 0 35px rgba(56, 189, 248, 0.3); padding:16px 20px 20px 20px; width:580px; color:#f8fafc; font-family:'Tajawal', 'Inter', sans-serif; max-height:88vh; overflow:auto; resize:both; min-width:340px; min-height:200px; direction:rtl; text-align:right;">
     <!-- Draggable Header -->
     <div id="columnContextMenuHeader" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.15); cursor:move; user-select:none; background:rgba(255,255,255,0.05); margin:-16px -20px 14px -20px; padding:14px 20px; border-top-left-radius:16px; border-top-right-radius:16px;">
         <div style="font-weight:900; font-size:1.1rem; color:#38bdf8; display:flex; align-items:center; gap:8px;">
@@ -1025,7 +1027,7 @@ $page_title = 'حساب الأرصدة الأساسية';
 </div>
 
 <!-- Custom Context Menu for Partner Rows -->
-<div id="partnerContextMenu" style="display:none; position:fixed; z-index:100000; background:rgba(15, 23, 42, 0.98); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(56, 189, 248, 0.4); border-radius:12px; box-shadow:0 20px 50px rgba(0,0,0,0.8), 0 0 20px rgba(56,189,248,0.3); padding:8px; width:260px; color:#f8fafc; font-family:'Tajawal', sans-serif;">
+<div id="partnerContextMenu" style="display:none; position:fixed; z-index:100000; background:rgba(15, 23, 42, 0.98);   border:1px solid rgba(56, 189, 248, 0.4); border-radius:12px; box-shadow:0 20px 50px rgba(0,0,0,0.8), 0 0 20px rgba(56,189,248,0.3); padding:8px; width:260px; color:#f8fafc; font-family:'Tajawal', sans-serif;">
     <div id="partnerMenuHeader" style="font-weight:bold; font-size:0.88rem; color:#38bdf8; padding:8px 12px; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">اسم الحساب</div>
     <div id="gotoLedgerItem" onclick="window.goToPartnerLedger()" style="display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:0.9rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.2)'; this.style.color='#38bdf8';" onmouseout="this.style.background='transparent'; this.style.color='';">
         <span style="font-size:1.2rem;">📖</span>
@@ -1875,7 +1877,7 @@ $page_title = 'حساب الأرصدة الأساسية';
 </div>
 
 <!-- Include html2pdf library to export PDF -->
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script defer src="js/html2pdf.bundle.min.js"></script>
 
 <script defer src="js/localforage.min.js"></script>
 <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : 1; ?>"></script>

@@ -1,4 +1,6 @@
-<?php 
+<?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+ 
 $page_title = 'العقل الذكي الموحد'; 
 ?>
 <!DOCTYPE html>
@@ -18,18 +20,16 @@ $page_title = 'العقل الذكي الموحد';
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>العقل الذكي الموحد - MAGAIEES ERP</title>
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/all.min.css?v=2027">
     
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/unified-brain.css?v=20260722">
     
-    <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="js/vendor/chart.umd.min.js"></script>
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=20261016_v28"></script>
     
@@ -84,18 +84,18 @@ $page_title = 'العقل الذكي الموحد';
             border: 1px solid rgba(168, 85, 247, 0.2);
             border-radius: 20px;
             padding: 24px 30px;
-            backdrop-filter: blur(20px);
+            /* gpu-opt */
         }
         
         .glass-panel {
             background: var(--surface, rgba(18, 15, 25, 0.65));
             border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
             border-radius: 20px;
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
+            /* gpu-opt */
+            /* gpu-opt */
             padding: 26px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.05);
-            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.3s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.3s cubic-bezier(0.25, 1, 0.5, 1), border-color 0.3s cubic-bezier(0.25, 1, 0.5, 1), color 0.3s cubic-bezier(0.25, 1, 0.5, 1);
         }
         
         .glass-panel:hover {
@@ -135,7 +135,7 @@ $page_title = 'العقل الذكي الموحد';
             font-family: 'Tajawal'; 
             font-size: 1rem;
             outline: none;
-            transition: all 0.3s;
+            transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
         }
         
         .ub-chat-input:focus {
@@ -153,7 +153,7 @@ $page_title = 'العقل الذكي الموحد';
             font-weight: 800; 
             font-family: 'Tajawal';
             font-size: 1rem;
-            transition: all 0.3s;
+            transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
             display: flex;
             align-items: center;
             gap: 8px;

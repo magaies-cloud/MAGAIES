@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 require_once __DIR__ . '/db_bridge.php';
 $page_title = 'مركز إدارة المهام والأعمال التنفيذية وأوامر الشغل 360°';
 $header_theme_class = 'header-theme-dashboard';
@@ -9,10 +11,8 @@ $header_theme_class = 'header-theme-dashboard';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مركز إدارة المهام والأعمال التنفيذية 360° | Magaiees ERP</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
+    <link rel="stylesheet" href="css/all.min.css?v=2027">
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=<?php echo file_exists('css/theme.css') ? filemtime('css/theme.css') : '12'; ?>">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -41,7 +41,7 @@ $header_theme_class = 'header-theme-dashboard';
             border: 1px solid var(--border-glass);
             border-radius: 16px;
             padding: 16px 20px;
-            backdrop-filter: blur(16px);
+            /* gpu-opt */
             box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
             margin-bottom: 16px;
         }
@@ -95,7 +95,7 @@ $header_theme_class = 'header-theme-dashboard';
             font-size: 0.84rem;
             cursor: pointer;
             border: 1px solid rgba(255,255,255,0.14);
-            transition: all 0.2s;
+            transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s;
             color: #fff;
             text-decoration: none;
         }
@@ -118,7 +118,7 @@ $header_theme_class = 'header-theme-dashboard';
             font-size: 0.78rem;
             font-weight: 800;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s;
         }
         .sop-chip:hover {
             background: rgba(56, 189, 248, 0.22);
@@ -144,7 +144,7 @@ $header_theme_class = 'header-theme-dashboard';
             min-height: 520px;
             display: flex;
             flex-direction: column;
-            transition: all 0.2s;
+            transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s;
         }
         .kanban-col.drag-over {
             border-color: #38bdf8;
@@ -175,7 +175,7 @@ $header_theme_class = 'header-theme-dashboard';
             padding: 13px 14px;
             position: relative;
             cursor: grab;
-            transition: all 0.2s;
+            transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s;
             box-shadow: 0 6px 16px rgba(0,0,0,0.25);
         }
         .job-card:hover {
@@ -246,7 +246,7 @@ $header_theme_class = 'header-theme-dashboard';
             position: fixed;
             inset: 0;
             background: rgba(4, 8, 18, 0.85);
-            backdrop-filter: blur(8px);
+            /* gpu-opt */
             z-index: 99999;
             align-items: center;
             justify-content: center;
@@ -1279,7 +1279,7 @@ $header_theme_class = 'header-theme-dashboard';
             w.document.write(`
                 <!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">
                 <title>أمر تكليف رسمي #${j.id}</title>
-                <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+                
                 <style>
                     body { font-family:'Tajawal',sans-serif; padding:30px; color:#0f172a; }
                     .box { border:2px solid #0f172a; border-radius:14px; padding:24px; }
@@ -1349,7 +1349,7 @@ $header_theme_class = 'header-theme-dashboard';
             }
         }
     </script>
-    <script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
+    <!-- bg-media lazy-loaded via includes/header.php -->
     <script src="js/magaiees_back.js?v=2026_back_v2" defer></script>
 </body>
 </html>

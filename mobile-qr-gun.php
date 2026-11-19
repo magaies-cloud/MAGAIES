@@ -1,4 +1,6 @@
 <?php
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); }
+
 $channel = preg_replace('/[^a-zA-Z0-9_-]/', '', $_GET['channel'] ?? 'default_gate');
 if ($channel === '') $channel = 'default_gate';
 ?>
@@ -8,8 +10,8 @@ if ($channel === '') $channel = 'default_gate';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>📱 عدسة الجوال الليزرية المباشرة | ربط اللابتوب الفوري</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Outfit:wght@700;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <link rel="stylesheet" href="css/local-fonts.css?v=2027">
+    <script src="js/vendor/html5-qrcode.min.js" type="text/javascript"></script>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
@@ -30,7 +32,7 @@ if ($channel === '') $channel = 'default_gate';
             width: 11px; height: 11px; border-radius: 50%;
             background: #10b981; display: inline-block;
             box-shadow: 0 0 12px #10b981;
-            animation: pulseDot 1.2s infinite;
+            animation: none; /* cpu-opt */
         }
         @keyframes pulseDot {
             0%, 100% { transform: scale(1); opacity: 1; }
@@ -65,7 +67,7 @@ if ($channel === '') $channel = 'default_gate';
             background: linear-gradient(90deg, transparent, #10b981, #34d399, #10b981, transparent);
             box-shadow: 0 0 14px #10b981;
             z-index: 20; pointer-events: none;
-            animation: scanLaser 2s ease-in-out infinite;
+            animation: none; /* cpu-opt */
         }
         @keyframes scanLaser {
             0%, 100% { top: 15%; }
@@ -80,7 +82,7 @@ if ($channel === '') $channel = 'default_gate';
             font-size: 1.05rem;
             border: 2px solid rgba(56,189,248,0.4);
             background: rgba(15,23,42,0.92);
-            transition: all 0.2s ease;
+            transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
         }
         .status-banner.ok {
             background: linear-gradient(135deg, rgba(6,78,59,0.95), rgba(5,150,105,0.9));
@@ -122,6 +124,7 @@ if ($channel === '') $channel = 'default_gate';
         }
     </style>
     <style id="global-zero-lag-css">.ambient-bg,.ambient-bg .orb,.preset-ribbon-btn::after,.preset-btn::after,.btn-action-hero::after,.btn-run::after,.action-tab.active::before,.sticky-footer::before{display:none!important;content:none!important}*,*::before,*::after{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important}button,a,input,select,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}button,.btn,.modern-btn,.preset-ribbon-btn,.preset-btn,.btn-action-hero,.btn-run,.action-tab,.fin-card,.pos-grid tbody tr{transition:background-color .08s ease,border-color .08s ease,opacity .08s ease!important}button:hover,.btn:hover,.modern-btn:hover,.preset-ribbon-btn:hover,.preset-btn:hover,.btn-action-hero:hover,.del-btn:hover,.modal-close:hover{transform:none!important}</style>
+    <link id="magaies-ophthalmic-ergo-css" rel="stylesheet" href="css/ophthalmic-ergonomics-2027.css?v=2027_gold_v8">
 </head>
 <body>
 
@@ -421,6 +424,6 @@ function restartMobileCamera() {
 
 window.addEventListener('DOMContentLoaded', startContinuousMobileCamera);
 </script>
-<script src="js/magaies-smart-guide.js" defer></script>
+<script>(function(){var l=0;window.loadMagaiesSmartGuide=function(c){if(l){if(c)c();return;}l=1;var s=document.createElement('script');s.src='js/magaies-smart-guide.js?v=<?= @filemtime(__DIR__."/js/magaies-smart-guide.js")?:2027 ?>';s.onload=function(){if(c)c();};document.body.appendChild(s);};window.addEventListener('keydown',function(e){if(e.key==='F1'){e.preventDefault();window.loadMagaiesSmartGuide();}});window.addEventListener('contextmenu',function(){window.loadMagaiesSmartGuide();},{once:true,passive:true});})();</script>
 </body>
 </html>

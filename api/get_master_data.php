@@ -341,7 +341,7 @@ try {
         $response['accounts'] = [];
     }
 
-    echo json_encode([
+    $payload = json_encode([
         'success' => true,
         'status' => 'success',
         'tenant_id' => $tenant_id,
@@ -349,6 +349,15 @@ try {
         'suppliers' => $response['suppliers'] ?? [],
         'data' => $response
     ], JSON_UNESCAPED_UNICODE);
+    $etag = '"' . md5($payload) . '"';
+    header('ETag: ' . $etag);
+    header('Cache-Control: private, max-age=30, must-revalidate');
+    header('Vary: Accept-Encoding, Authorization, X-Tenant-Id');
+    if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && trim($_SERVER['HTTP_IF_NONE_MATCH']) === $etag) {
+        http_response_code(304);
+        exit;
+    }
+    echo $payload;
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => $e->getMessage()]);
