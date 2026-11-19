@@ -21,6 +21,8 @@
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css">
+    <script src="js/localforage.min.js"></script>
+    <script src="js/app.js?v=<?= @filemtime(__DIR__ . '/js/app.js') ?: '2027' ?>"></script>
     
     <!-- مكتبة PDF -->
     <script defer src="js/html2pdf.bundle.min.js"></script>
@@ -2072,12 +2074,38 @@ input:checked + .slider:before { transform: translateX(20px); }
         updateFontUI();
         
         // Auto-select partner/account and template from URL if present
+        const applyUrlPartnerAndRefresh = (preserveCurrent = false) => {
+            const prevId = preserveCurrent ? (document.getElementById('accountSelect')?.value || '') : '';
+            loadAccountsFromDB();
+            const dd = document.getElementById('cs-dropdown');
+            if (dd) {
+                let html = '';
+                const groups = [...new Set(accountsData.map(a => a.group))];
+                groups.forEach(g => {
+                    html += `<div class="cs-group" data-group="${g}">${g}</div>`;
+                    accountsData.filter(a => a.group === g).forEach(a => {
+                        const desc = a.phone ? `<div class="cs-option-desc">رقم التواصل: ${a.phone}</div>` : '';
+                        const safeName = String(a.name || '').replace(/'/g, "\\'");
+                        html += `<div class="cs-option" data-id="${a.id}" data-name="${a.name}" onclick="selectCsOption('${a.id}', '${safeName}')">${a.name}${desc}</div>`;
+                    });
+                });
+                dd.innerHTML = html;
+            }
+            const urlParams = new URLSearchParams(window.location.search);
+            const partnerParam = urlParams.get('partner') || urlParams.get('id') || urlParams.get('account');
+            if (!preserveCurrent && partnerParam && Array.isArray(accountsData)) {
+                const matchedAcc = accountsData.find(a => String(a.id) === String(partnerParam) || String(a.name || '').trim() === String(partnerParam).trim());
+                if (matchedAcc && typeof selectCsOption === 'function') selectCsOption(matchedAcc.id, matchedAcc.name);
+            } else if (preserveCurrent && prevId) {
+                const curAcc = accountsData.find(a => String(a.id) === String(prevId));
+                if (curAcc) document.getElementById('cs-input').value = curAcc.name;
+                generateSimpleReport();
+            }
+        };
+        applyUrlPartnerAndRefresh(false);
+        document.addEventListener('DBReady', () => applyUrlPartnerAndRefresh(Boolean(document.getElementById('accountSelect')?.value && document.getElementById('accountSelect').value !== 'all_accounts')));
+        window.addEventListener('magaiesDataUpdated', () => applyUrlPartnerAndRefresh(true));
         const urlParams = new URLSearchParams(window.location.search);
-        const partnerParam = urlParams.get('partner') || urlParams.get('id') || urlParams.get('account');
-        if (partnerParam && Array.isArray(accountsData)) {
-            const matchedAcc = accountsData.find(a => String(a.id) === String(partnerParam) || String(a.name || '').trim() === String(partnerParam).trim());
-            if (matchedAcc && typeof selectCsOption === 'function') selectCsOption(matchedAcc.id, matchedAcc.name);
-        }
         const modelId = urlParams.get('model');
         if (modelId) {
             changeView(modelId, null);

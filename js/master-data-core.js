@@ -498,6 +498,10 @@
                 } else if (result && result.error) {
                     console.warn(`[Master Data Sync] Server responded with error for ${type}:`, result.error);
                     if (!String(type).startsWith('check_') && !String(type).startsWith('delete_')) {
+                        if (res.status >= 500 && !opts.isRetry) {
+                            enqueueMasterOfflineSync(type, data);
+                            broadcastMasterDataInstantSync(type, data);
+                        }
                         updateMasterSyncStatusBadge('error', `⚠️ ${result.error}`);
                         if (typeof showToast === 'function') showToast(`🚫 ${result.error}`, 'error', 2000);
                     }

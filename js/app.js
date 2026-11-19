@@ -1101,6 +1101,7 @@ JSON.parse = function(val) {
                     const _mdJson = await _mdRes.json();
                     const _md = (_mdJson && _mdJson.data) ? _mdJson.data : null;
                     if (_md) {
+                        let _anyMdChanged = false;
                         const _syncEntityStore = (baseKey, srvArr) => {
                             if (!Array.isArray(srvArr) || srvArr.length === 0) return;
                             const tKey = window.getTenantKey(baseKey);
@@ -1113,6 +1114,7 @@ JSON.parse = function(val) {
                             srvArr.forEach(x => { if (x && !x.deleted) byId.set(String(x.id || x.code || x.name || ''), x); });
                             const mergedStr = JSON.stringify(Array.from(byId.values()));
                             if (mergedStr === existingStr && window.DB_STORE[tKey]) return;
+                            _anyMdChanged = true;
                             window.DB_STORE[tKey] = mergedStr;
                             window.DB_STORE[baseKey] = mergedStr;
                             localSetItem(tKey, mergedStr);
@@ -1134,6 +1136,9 @@ JSON.parse = function(val) {
                             _syncEntityStore('erp_jobs_v1', _md.cost_centers);
                         }
                         try { sessionStorage.setItem('magaies_md_sync_ts', String(Date.now())); } catch (_) {}
+                        if (_anyMdChanged) {
+                            try { window.dispatchEvent(new CustomEvent('magaiesDataUpdated', { detail: { source: 'master_sync' } })); } catch (_) {}
+                        }
                     }
                 }
             } catch (_mdErr) {}
