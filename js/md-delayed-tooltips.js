@@ -1007,6 +1007,74 @@
         const curDim = (window.MagaiesScreenDimensions && window.MagaiesScreenDimensions.getCurrent) ? window.MagaiesScreenDimensions.getCurrent() : { w: 100, h: 100 };
         let liveW = Number(curDim.w) || 100, liveH = (!curDim.h || Number(curDim.h) < 30) ? 100 : Number(curDim.h);
 
+        // ── Universal Account Detection Across All 179 Screens (Customer, Supplier, Bank, Safe, Expense/Account, Warehouse, Employee) ──
+        const resolveAccountForRc = (el) => {
+            if (!el || !el.closest) return null;
+            const rdStore = (k) => { try { const tk = typeof window.getTenantKey === 'function' ? window.getTenantKey(k) : k; const a = JSON.parse(localStorage.getItem(tk) || localStorage.getItem(k) || '[]'); return Array.isArray(a) ? a.filter(x => x && !x.deleted) : []; } catch (_) { return []; } };
+            const allEntities = [
+                ...rdStore('erp_customers_v1').map(x => ({ id: 'cust-' + String(x.id).replace(/^cust-/, ''), rawId: String(x.id), name: String(x.name || '').trim(), phone: String(x.phone || x.whatsapp || '').trim(), type: 'customer', ico: '👤 عميل' })),
+                ...rdStore('erp_suppliers_v1').map(x => ({ id: 'supp-' + String(x.id).replace(/^supp-/, ''), rawId: String(x.id), name: String(x.name || '').trim(), phone: String(x.phone || x.whatsapp || '').trim(), type: 'supplier', ico: '🚚 مورد' })),
+                ...rdStore('erp_banks_v1').map(x => ({ id: 'bank-' + String(x.id).replace(/^bank-/, ''), rawId: String(x.id), name: String(x.name || x.bankName || '').trim(), phone: String(x.accountNumber || '').trim(), type: 'bank', ico: '🏦 بنك' })),
+                ...rdStore('erp_safes_v1').map(x => ({ id: 'safe-' + String(x.id).replace(/^safe-/, ''), rawId: String(x.id), name: String(x.name || x.safeName || '').trim(), phone: '', type: 'safe', ico: '🗄️ خزنة' })),
+                ...rdStore('erp_accounts_v1').map(x => ({ id: 'exp-' + String(x.id).replace(/^exp-/, ''), rawId: String(x.id), name: String(x.name || x.accountName || '').trim(), phone: '', type: 'expense', ico: '💸 حساب' })),
+                ...rdStore('erp_warehouses_v1').map(x => ({ id: 'wh-' + String(x.id).replace(/^wh-/, ''), rawId: String(x.id), name: String(x.name || x.warehouseName || '').trim(), phone: '', type: 'warehouse', ico: '🏬 مخزن' })),
+                ...rdStore('erp_employees_v1').map(x => ({ id: 'emp-' + String(x.id).replace(/^emp-/, ''), rawId: String(x.id), name: String(x.name || x.fullName || x.username || '').trim(), phone: String(x.phone || '').trim(), type: 'employee', ico: '👔 موظف' }))
+            ].filter(x => x.name);
+            const cleanStr = (s) => String(s || '').replace(/^[🏦🚚👥🗄️🏬💸👔👤🌟🔍]+\s*/, '').replace(/\s*\[.*?\]\s*$/g, '').trim();
+            const findEnt = (idVal, nmVal) => {
+                const cId = String(idVal || '').trim(), cNm = cleanStr(nmVal).toLowerCase();
+                return allEntities.find(x => (cId && cId !== 'all_accounts' && (x.id === cId || x.rawId === cId.replace(/^(cust|supp|bank|safe|exp|wh|emp)-/, ''))) || (cNm && x.name.toLowerCase() === cNm)) || null;
+            };
+            const attrEl = el.closest('[data-rc-account-id],[data-rc-account-name],[data-account-id],[data-acc-val],[data-val][data-lbl],.cs-option[data-id]');
+            if (attrEl) {
+                const aId = attrEl.getAttribute('data-rc-account-id') || attrEl.getAttribute('data-account-id') || attrEl.getAttribute('data-acc-val') || attrEl.getAttribute('data-val') || attrEl.getAttribute('data-id') || '';
+                const aNm = attrEl.getAttribute('data-rc-account-name') || attrEl.getAttribute('data-acc-name') || attrEl.getAttribute('data-name') || attrEl.getAttribute('data-lbl') || attrEl.textContent || '';
+                const aPh = attrEl.getAttribute('data-rc-account-phone') || '';
+                const aTp = attrEl.getAttribute('data-rc-account-type') || '';
+                if (aId !== 'all_accounts') {
+                    const hit = findEnt(aId, aNm);
+                    if (hit) return { ...hit, phone: hit.phone || aPh };
+                    if (cleanStr(aNm)) return { id: aId || cleanStr(aNm), name: cleanStr(aNm), phone: aPh, type: aTp || (/^(cust|supp)-/.test(aId) ? (aId.startsWith('cust-') ? 'customer' : 'supplier') : 'account'), ico: '📒 حساب' };
+                }
+            }
+            const inpEl = el.closest('input, select');
+            if (inpEl) {
+                if (inpEl.tagName === 'SELECT' && inpEl.selectedIndex >= 0) {
+                    const opt = inpEl.options[inpEl.selectedIndex];
+                    const hit = findEnt(inpEl.value, opt ? opt.text : '');
+                    if (hit) return hit;
+                } else if (inpEl.value) {
+                    const hidCand = inpEl.parentElement && inpEl.parentElement.querySelector('input[type="hidden"]');
+                    const hit = findEnt(hidCand ? hidCand.value : '', inpEl.value);
+                    if (hit) return hit;
+                }
+            }
+            const cellEl = el.closest('td, li, .custom-dropdown-item, [onclick*="selectCustomer"], [onclick*="selectSupplier"], [onclick*="openLedger"]');
+            if (cellEl) {
+                const txt = cleanStr((cellEl.innerText || cellEl.textContent || '').split('\n')[0]);
+                if (txt && txt.length >= 2 && txt.length <= 90) {
+                    const hit = findEnt('', txt);
+                    if (hit) return hit;
+                }
+            }
+            return null;
+        };
+        const rcAcc = resolveAccountForRc(raw);
+        const isPartyWithPhone = rcAcc && (rcAcc.type === 'customer' || rcAcc.type === 'supplier');
+        const escRc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+        const rcAccHtml = rcAcc ? (
+            '<div style="border-top:1px solid ' + divBdr + ';margin:5px 0 6px;padding-top:6px;">' +
+                '<div style="padding:2px 8px 5px;font-size:11.5px;font-weight:900;color:' + accTxt + ';display:flex;align-items:center;justify-content:space-between;gap:6px;"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escRc(rcAcc.ico + ': ' + rcAcc.name) + '</span></div>' +
+                (isPartyWithPhone
+                    ? '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 9px;margin-bottom:5px;border-radius:8px;background:' + (isLight ? '#f0fdf4' : 'rgba(16,185,129,0.14)') + ';border:1.5px solid ' + (isLight ? '#059669' : 'rgba(52,211,153,0.45)') + ';font-size:12px;font-weight:900;color:' + fgTxt + ';">' +
+                        '<span>📱 الهاتف: <b style="direction:ltr;display:inline-block;color:' + (isLight ? '#065f46' : '#fde047') + ';">' + escRc(rcAcc.phone || 'غير مسجل') + '</b></span>' +
+                        (rcAcc.phone ? '<button type="button" id="rc-copy-acc-phone" data-ph="' + escRc(rcAcc.phone) + '" style="padding:2px 7px;border-radius:5px;border:1px solid #10b981;background:#059669;color:#fff;font-size:10.5px;font-weight:900;cursor:pointer;">نسخ</button>' : '') +
+                      '</div>'
+                    : '') +
+                '<button type="button" id="rc-goto-general-ledger" style="width:100%;display:flex;align-items:center;justify-content:center;gap:7px;padding:8px 10px;border-radius:8px;border:1.8px solid ' + (isLight ? '#047857' : '#34d399') + ';background:linear-gradient(135deg,#059669,#0284c7);color:#ffffff;font-family:inherit;font-size:12.5px;font-weight:900;cursor:pointer;box-shadow:0 4px 12px rgba(5,150,105,0.35);"><span>📒</span><span>الذهاب إلى دفتر الأستاذ العام</span></button>' +
+            '</div>'
+        ) : '';
+
         m.style.minWidth = '272px';
         m.style.background = isLight ? 'var(--lt-card-1, #ffffff)' : 'linear-gradient(165deg,#0f1d3a 0%,#060c1d 100%)';
         m.style.border = isLight ? '2.5px solid var(--lt-border, #3b1806)' : '1.8px solid rgba(56,189,248,0.65)';
@@ -1017,6 +1085,7 @@
                 '<button type="button" data-rc-act="audio" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 8px;border:1.8px solid ' + (isLight ? '#0284c7' : 'rgba(56,189,248,0.4)') + ';border-radius:8px;background:' + (isLight ? '#e0f2fe' : 'rgba(56,189,248,0.14)') + ';color:' + (isLight ? '#000000' : '#ffffff') + ';font-family:inherit;font-size:12.5px;font-weight:900;cursor:pointer;"><span>🔊</span><span>شرح صوتي</span></button>' +
                 '<button type="button" data-rc-act="text" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 8px;border:1.8px solid ' + (isLight ? '#b45309' : 'rgba(250,204,21,0.4)') + ';border-radius:8px;background:' + (isLight ? '#fef3c7' : 'rgba(250,204,21,0.14)') + ';color:' + (isLight ? '#000000' : '#fde047') + ';font-family:inherit;font-size:12.5px;font-weight:900;cursor:pointer;"><span>📖</span><span>شرح كتابي</span></button>' +
             '</div>' +
+            rcAccHtml +
             (screenBtnTarget
                 ? '<div style="padding:5px 10px;font-size:12px;font-weight:900;color:' + accTxt + ';border-top:1px solid ' + divBdr + ';border-bottom:1px solid ' + divBdr + ';margin:4px 0 6px;display:flex;justify-content:space-between;align-items:center;"><span>🖥️ أبعاد الشاشة (عرض وامتداد طولي)</span><button type="button" id="rc-scr-reset" style="padding:1px 7px;border-radius:5px;border:1.5px solid #64748b;background:' + btnBg + ';color:' + fgTxt + ';font-size:10.5px;font-weight:900;cursor:pointer;">↺ 100%</button></div>' +
                   '<div style="display:flex;align-items:center;justify-content:space-between;padding:5px 10px;font-size:12.5px;color:' + fgTxt + ';font-weight:900;"><span>↔️ عرض الشاشة (<b id="rc-scr-w">' + liveW + '%</b>)</span><div style="display:flex;gap:5px;"><button type="button" data-rc-scr="w+" style="padding:3px 10px;border-radius:6px;border:1.8px solid #0284c7;background:' + (isLight ? '#e0f2fe' : 'rgba(56,189,248,0.2)') + ';color:' + fgTxt + ';font-weight:900;cursor:pointer;">➕</button><button type="button" data-rc-scr="w-" style="padding:3px 10px;border-radius:6px;border:1.8px solid #64748b;background:' + btnBg + ';color:' + fgTxt + ';font-weight:900;cursor:pointer;">➖</button></div></div>' +
@@ -1140,6 +1209,23 @@
                 if (typeof window.showToast === 'function') window.showToast(sc === 'page' ? '📌 تم حفظ مقاس هذه الشاشة فقط' : '🌐 تم تعميم وحفظ مقاس الشاشة على كل الشاشات', 'success', 2200);
             };
         });
+        const glGoBtn = m.querySelector('#rc-goto-general-ledger');
+        if (glGoBtn && rcAcc) {
+            glGoBtn.onclick = (ev) => {
+                ev.preventDefault(); ev.stopPropagation(); hideRcMenu();
+                window.location.href = 'general-ledger.php?accountId=' + encodeURIComponent(rcAcc.id || rcAcc.name) + '&name=' + encodeURIComponent(rcAcc.name || '');
+            };
+        }
+        const cpPhBtn = m.querySelector('#rc-copy-acc-phone');
+        if (cpPhBtn) {
+            cpPhBtn.onclick = (ev) => {
+                ev.preventDefault(); ev.stopPropagation();
+                const ph = cpPhBtn.getAttribute('data-ph') || '';
+                if (ph && navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(ph);
+                cpPhBtn.textContent = '✅ تم';
+                if (typeof window.showToast === 'function') window.showToast('📋 تم نسخ رقم الهاتف: ' + ph, 'success', 1800);
+            };
+        }
         m.querySelectorAll('button[data-rc-act]').forEach(btn => {
             btn.onclick = (ev) => {
                 ev.preventDefault();

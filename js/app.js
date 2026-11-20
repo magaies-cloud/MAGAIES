@@ -86,7 +86,7 @@
     }
 })();
 
-// 🔔 AUTO-BOOTSTRAP MODERN ALERTS & TOASTS ACROSS ALL SCREENS (Non-blocking defer)
+// 🔔 AUTO-BOOTSTRAP MODERN ALERTS & UNIFIED RIGHT-CLICK MENU ACROSS ALL SCREENS
 (function() {
     if (typeof window.MagaieesAlerts === 'undefined' && !document.querySelector('script[src*="modern-alerts"]')) {
         const mas = document.createElement('script');
@@ -94,6 +94,13 @@
         mas.defer = true;
         if (document.head) document.head.appendChild(mas);
         else document.addEventListener('DOMContentLoaded', () => document.head.appendChild(mas));
+    }
+    if (!window.__erpRcChoiceListenerBound && !document.querySelector('script[src*="md-delayed-tooltips"]')) {
+        const rcs = document.createElement('script');
+        rcs.src = 'js/md-delayed-tooltips.js?v=2027_rc_gl';
+        rcs.defer = true;
+        if (document.head) document.head.appendChild(rcs);
+        else document.addEventListener('DOMContentLoaded', () => document.head.appendChild(rcs));
     }
 })();
 

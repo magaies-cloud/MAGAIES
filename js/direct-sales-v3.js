@@ -1811,7 +1811,11 @@ function renderCustomerDropdown(filter = '') {
             const phoneH = c.phone ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(c.phone), filter) : c.phone) : '';
             const emailH = c.email ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(c.email), filter) : c.email) : '';
 
-            item.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: right; dir: rtl; padding: 6px 4px;"><div style="display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap;"><span style="font-weight: 800; font-size: 1.35rem; color: #6ee7b7; text-shadow: 0 0 6px rgba(110,231,183,0.2);">${nameH}</span>${phoneH ? `<span style="font-size:0.95rem; color:#94a3b8; font-weight:600;">(${phoneH})</span>` : ''}${emailH ? `<span style="font-size:0.85rem; color:#64748b;">[${emailH}]</span>` : ''}</div></div>`;
+            item.dataset.rcAccountId = 'cust-' + String(c.id).replace(/^cust-/, '');
+            item.dataset.rcAccountName = c.name || '';
+            item.dataset.rcAccountPhone = c.phone || c.whatsapp || '';
+            item.dataset.rcAccountType = 'customer';
+            item.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: right; dir: rtl; padding: 6px 4px;"><div style="display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap;"><span style="font-weight: 800; font-size: 1.35rem; color: #6ee7b7; text-shadow: 0 0 6px rgba(110,231,183,0.2);">${nameH}</span>${emailH ? `<span style="font-size:0.85rem; color:#64748b;">[${emailH}]</span>` : ''}</div></div>`;
             item.onmousedown = () => selectCustomer(c.id, c.name); 
             item.onpointerdown = () => selectCustomer(c.id, c.name);
             listEl.appendChild(item);

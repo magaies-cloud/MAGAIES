@@ -53,7 +53,7 @@ if (session_status() === PHP_SESSION_ACTIVE) {
 }
 
 // 2. Ensure Table Exists (Cached via stamp file to avoid DDL lock on every poll)
-$__inbStamp = sys_get_temp_dir() . '/magaies_inb_table_v2.stamp';
+$__inbStamp = sys_get_temp_dir() . '/magaies_inb_table_v4.stamp';
 if (!file_exists($__inbStamp)) {
     try {
         $pdo->exec("CREATE TABLE IF NOT EXISTS inbound_bank_receipts (
@@ -63,9 +63,10 @@ if (!file_exists($__inbStamp)) {
             customer_name VARCHAR(255) NOT NULL,
             customer_phone VARCHAR(50) NULL,
             receipt_image VARCHAR(500) NULL,
-            bank_name VARCHAR(100) DEFAULT 'بنك الخرطوم (بنكك)',
-            bank_code VARCHAR(20) DEFAULT '170',
+            bank_name VARCHAR(255) DEFAULT 'بنك الخرطوم (بنكك)',
+            bank_code VARCHAR(100) DEFAULT '170',
             transfer_no VARCHAR(100) NULL,
+            receipt_date VARCHAR(20) NULL,
             amount DECIMAL(15,2) DEFAULT 0.00,
             currency VARCHAR(10) DEFAULT 'SDG',
             status ENUM('pending', 'verified', 'duplicate_rejected', 'reconciled') DEFAULT 'pending',
@@ -79,6 +80,9 @@ if (!file_exists($__inbStamp)) {
             INDEX idx_status (status),
             INDEX idx_transfer_no (transfer_no)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+        try { $pdo->exec("ALTER TABLE inbound_bank_receipts ADD COLUMN receipt_date VARCHAR(20) NULL AFTER transfer_no"); } catch (Exception $eCol) {}
+        try { $pdo->exec("ALTER TABLE inbound_bank_receipts MODIFY COLUMN bank_code VARCHAR(100) DEFAULT '170', MODIFY COLUMN bank_name VARCHAR(255) DEFAULT 'بنك الخرطوم (بنكك)'"); } catch (Exception $eCol2) {}
+        try { $pdo->exec("DELETE FROM inbound_bank_receipts WHERE status = 'duplicate_rejected' OR issue_reason IN ('non_financial_image','cropped_missing_ref','zero_amount','invalid_transfer_no_under_6_digits') OR amount <= 0 OR transfer_no IS NULL OR CHAR_LENGTH(TRIM(transfer_no)) < 6"); } catch (Exception $eDel) {}
         @file_put_contents($__inbStamp, (string)time());
     } catch (Exception $e) {
         echo json_encode(['success' => false, 'error' => 'Database error: ' . $e->getMessage()]);
@@ -107,7 +111,7 @@ function isLocalInboundLaptopEnv() {
 if ((int)$activeTenantId === 12 && isLocalInboundLaptopEnv() && ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' && empty($_SERVER['HTTP_X_FORWARDED_FROM_LOCAL'])) {
     $__cloudSyncActions = [
         'upload', 'save_inbound', 'assign_customer_by_code', 'assign_batch_by_code',
-        'post_to_accounts', 'reconcile_receipt', 'approve_batch', 'change_target_bank',
+        'post_to_accounts', 'reconcile_receipt', 'approve_batch', 'change_target_bank', 'bulk_change_target_bank',
         'update_status', 'dismiss', 'delete', 'save_statement_policy',
         'update_customer_statement_settings', 'save_customer_pin', 'assign_customer'
     ];
@@ -214,6 +218,14 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
             if ($vNo !== '') $byVoucher[$vNo] = $lr;
         }
 
+        try { $pdo->exec("CREATE TABLE IF NOT EXISTS inbound_deleted_refs (ref_key VARCHAR(180) PRIMARY KEY, deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"); } catch (Exception $eTmb) {}
+        $deletedTombstones = [];
+        try {
+            foreach ($pdo->query("SELECT ref_key FROM inbound_deleted_refs")->fetchAll(PDO::FETCH_COLUMN) as $rk) {
+                $deletedTombstones[(string)$rk] = true;
+            }
+        } catch (Exception $eTmb2) {}
+
         $pendingOcrIds = [];
         $pendingPostQueue = [];
         $cloudIdByLocalId = [];
@@ -229,6 +241,12 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
             $cStatus = (string)($cRow['status'] ?? 'pending');
             $cIssue = $cRow['issue_reason'] ?? null;
 
+            if (($cTransferClean !== '' && isset($deletedTombstones['ref:' . $cTransferClean]))
+                || ($cImgBase !== '' && isset($deletedTombstones['img:' . $cImgBase]))
+                || ($cVoucherNo !== '' && isset($deletedTombstones['v:' . $cVoucherNo]))) {
+                continue;
+            }
+
             $matchedLocal = null;
             if (strlen($cTransferClean) >= 6 && isset($byTransfer[$cTransferClean])) {
                 $matchedLocal = $byTransfer[$cTransferClean];
@@ -238,6 +256,9 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
                 $matchedLocal = $byImage[$cImgBase];
             }
 
+            if ($cStatus === 'duplicate_rejected' || in_array($cIssue, ['non_financial_image', 'cropped_missing_ref', 'zero_amount', 'invalid_transfer_no_under_6_digits'], true) || (float)($cRow['amount'] ?? 0) <= 0 || strlen($cTransferClean) < 6) {
+                continue;
+            }
             if (!$matchedLocal) {
                 // Ensure receipt image is downloaded locally for new receipts
                 if ($cImgRel !== '' && $cImgBase !== '') {
@@ -261,8 +282,12 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
                 }
 
                 $ins = $pdo->prepare("INSERT INTO inbound_bank_receipts 
-                    (tenant_id, customer_id, customer_name, customer_phone, receipt_image, bank_name, bank_code, transfer_no, amount, currency, status, issue_reason, voucher_no, source, notes, created_at)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                    (tenant_id, customer_id, customer_name, customer_phone, receipt_image, bank_name, bank_code, transfer_no, amount, currency, status, issue_reason, voucher_no, receipt_date, source, notes, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $cRecDt = trim((string)($cRow['receipt_date'] ?? ''));
+                if ($cRecDt === '' && !empty($cRow['notes']) && preg_match('/\b(20\d{2}[-\/]\d{2}[-\/]\d{2})\b/', (string)$cRow['notes'], $mCdt)) {
+                    $cRecDt = str_replace('/', '-', $mCdt[1]);
+                }
                 $ins->execute([
                     $activeTenantId,
                     $cRow['customer_id'] ?? null,
@@ -277,11 +302,15 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
                     $cStatus,
                     $cIssue,
                     $cVoucherNo ?: null,
+                    $cRecDt ?: null,
                     $cRow['source'] ?? 'whatsapp',
                     $cRow['notes'] ?? null,
                     $cRow['created_at'] ?? date('Y-m-d H:i:s')
                 ]);
                 $newLocalId = (int)$pdo->lastInsertId();
+                if ($newLocalId > 0 && strlen($cTransferClean) >= 6) {
+                    $byTransfer[$cTransferClean] = ['id' => $newLocalId, 'transfer_no' => $cRow['transfer_no'] ?? '', 'status' => $cStatus, 'voucher_no' => $cVoucherNo, 'bank_code' => $cRow['bank_code'] ?? '', 'bank_name' => $cRow['bank_name'] ?? ''];
+                }
                 if ($newLocalId > 0 && !empty($cRow['id'])) {
                     $cloudIdByLocalId[$newLocalId] = (int)$cRow['id'];
                 }
@@ -307,9 +336,13 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
                 $locAmt = (float)($matchedLocal['amount'] ?? 0);
                 $locTrClean = preg_replace('/\D/', '', (string)($matchedLocal['transfer_no'] ?? ''));
                 $locVoucherNo = trim((string)($matchedLocal['voucher_no'] ?? ''));
-                $needsLocalRepost = ($locVoucherNo === '' || !isset($localActiveVouchers[$locVoucherNo]) || ($cVoucherNo !== '' && $cVoucherNo !== $locVoucherNo && !isset($localActiveVouchers[$cVoucherNo])));
+                $hasValidLocalVoucher = ($locVoucherNo !== '' && isset($localActiveVouchers[$locVoucherNo]));
+                $needsLocalRepost = (!$hasValidLocalVoucher);
                 if (($locStatus === 'pending' || $needsLocalRepost) && ($cStatus === 'verified' || $cStatus === 'reconciled')) {
-                    $upd = $pdo->prepare("UPDATE inbound_bank_receipts SET customer_id = COALESCE(NULLIF(?, ''), customer_id), customer_name = COALESCE(NULLIF(?, ''), customer_name), bank_name = COALESCE(NULLIF(?, ''), bank_name), bank_code = COALESCE(NULLIF(?, ''), bank_code), transfer_no = COALESCE(NULLIF(?, ''), transfer_no), amount = IF(? > 0, ?, amount), voucher_no = COALESCE(NULLIF(?, ''), voucher_no), status = ?, issue_reason = ?, notes = COALESCE(NULLIF(?, ''), notes) WHERE id = ?");
+                    $keepLocBank = (!empty($matchedLocal['bank_code']) && $matchedLocal['bank_code'] !== '170');
+                    $effBankCode = $keepLocBank ? (string)$matchedLocal['bank_code'] : (string)($cRow['bank_code'] ?? '');
+                    $effBankName = $keepLocBank ? (string)($matchedLocal['bank_name'] ?? '') : (string)($cRow['bank_name'] ?? '');
+                    $upd = $pdo->prepare("UPDATE inbound_bank_receipts SET customer_id = COALESCE(NULLIF(?, ''), customer_id), customer_name = COALESCE(NULLIF(?, ''), customer_name), bank_name = IF(bank_code IS NOT NULL AND bank_code != '' AND bank_code != '170', bank_name, COALESCE(NULLIF(?, ''), bank_name)), bank_code = IF(bank_code IS NOT NULL AND bank_code != '' AND bank_code != '170', bank_code, COALESCE(NULLIF(?, ''), bank_code)), transfer_no = COALESCE(NULLIF(?, ''), transfer_no), amount = IF(? > 0, ?, amount), voucher_no = COALESCE(NULLIF(?, ''), voucher_no), status = ?, issue_reason = ?, notes = COALESCE(NULLIF(?, ''), notes) WHERE id = ?");
                     $amtVal = (float)($cRow['amount'] ?? 0);
                     $upd->execute([
                         (string)($cRow['customer_id'] ?? ''),
@@ -328,8 +361,8 @@ function syncInboundReceiptsFromCloud($pdo, $activeTenantId, $uploadDir) {
                     $pendingPostQueue[] = [
                         'id' => $locId,
                         'force_post' => true,
-                        'bank_code' => (string)($cRow['bank_code'] ?? ''),
-                        'bank_name' => (string)($cRow['bank_name'] ?? '')
+                        'bank_code' => $effBankCode,
+                        'bank_name' => $effBankName
                     ];
                 } elseif ($locStatus === 'pending' && ($locAmt <= 0 || strlen($locTrClean) < 6) && !empty($matchedLocal['receipt_image']) && empty($matchedLocal['issue_reason'])) {
                     $pendingOcrIds[] = $locId;
@@ -752,6 +785,25 @@ switch ($action) {
                 }
             }
 
+            // Immediately reject & purge duplicate, non-financial, or cropped/incomplete images so they NEVER enter the platform
+            if ($initialStatus === 'duplicate_rejected' || in_array($issueReason, ['non_financial_image', 'cropped_missing_ref', 'zero_amount', 'invalid_transfer_no_under_6_digits'], true)) {
+                $pdo->prepare("DELETE FROM inbound_bank_receipts WHERE id = ?")->execute([$newId]);
+                if (!empty($imagePath)) {
+                    $absDel = dirname(__DIR__) . '/' . ltrim($imagePath, '/');
+                    if (is_file($absDel)) @unlink($absDel);
+                }
+                echo json_encode([
+                    'success' => true,
+                    'id' => 0,
+                    'rejected_deleted' => true,
+                    'status' => $initialStatus,
+                    'issue_reason' => $issueReason,
+                    'transfer_no' => $transferNo,
+                    'amount' => $amount
+                ]);
+                exit;
+            }
+
             // Automatic Account Posting if receipt is verified and valid (and not already posted inside performBackendReceiptOCR)
             if (empty($postingResult) && $initialStatus === 'verified' && $amount > 0 && strlen(preg_replace('/\D/', '', (string)$transferNo)) >= 6) {
                 $postingResult = postInboundReceiptToAccounts($pdo, $newId, [
@@ -969,30 +1021,57 @@ switch ($action) {
             }
             $targetBankId = trim($_POST['target_bank_id'] ?? $jsonData['target_bank_id'] ?? $_POST['bank_id'] ?? $jsonData['bank_id'] ?? '');
             $targetBankName = trim($_POST['target_bank_name'] ?? $jsonData['target_bank_name'] ?? $_POST['bank_name'] ?? $jsonData['bank_name'] ?? '');
+            $rowTargets = is_array($jsonData['row_targets'] ?? null) ? $jsonData['row_targets'] : [];
             if (!is_array($ids) || empty($ids)) {
                 echo json_encode(['success' => false, 'error' => 'قائمة الإشعارات مطلوبة للتمرير المجمع']);
                 exit;
             }
             $postedResults = [];
+            $skippedCount = 0;
             foreach ($ids as $rawId) {
                 $rid = (int)$rawId;
                 if ($rid <= 0) continue;
+                $rTarget = $rowTargets[(string)$rid] ?? $rowTargets[$rid] ?? [];
+                $rowBankId = trim((string)($rTarget['bank_id'] ?? '')) ?: $targetBankId;
+                $rowBankName = trim((string)($rTarget['bank_name'] ?? '')) ?: $targetBankName;
                 $res = postInboundReceiptToAccounts($pdo, $rid, [
                     'force_post' => true,
-                    'target_bank_id' => $targetBankId,
-                    'target_bank_name' => $targetBankName,
+                    'target_bank_id' => $rowBankId,
+                    'target_bank_name' => $rowBankName,
                     'notify_customer_whatsapp' => true
                 ]);
                 if (!empty($res['success'])) {
                     $postedResults[] = $res;
+                } else {
+                    $skippedCount++;
                 }
             }
             echo json_encode([
                 'success' => true,
                 'approved_count' => count($postedResults),
+                'skipped_count' => $skippedCount,
                 'results' => $postedResults,
-                'message' => '✅ تم تمرير وترحيل (' . count($postedResults) . ') إشعار في الحسابات بنجاح!'
+                'message' => '✅ تم ترحيل (' . count($postedResults) . ') إشعار في الحسابات بنجاح!'
             ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        break;
+
+    case 'bulk_change_target_bank':
+        try {
+            $ids = $jsonData['ids'] ?? $_POST['ids'] ?? [];
+            $bId = trim((string)($jsonData['bank_id'] ?? $_POST['bank_id'] ?? ''));
+            $bName = trim((string)($jsonData['bank_name'] ?? $_POST['bank_name'] ?? ''));
+            if (is_array($ids) && !empty($ids) && ($bId !== '' || $bName !== '')) {
+                $cleanIds = array_values(array_filter(array_map('intval', $ids), fn($v) => $v > 0));
+                if (!empty($cleanIds)) {
+                    $ph = implode(',', array_fill(0, count($cleanIds), '?'));
+                    $stmtB = $pdo->prepare("UPDATE inbound_bank_receipts SET bank_code = ?, bank_name = ? WHERE tenant_id = ? AND id IN ($ph) AND (status != 'verified' OR voucher_no IS NULL OR voucher_no = '')");
+                    $stmtB->execute(array_merge([$bId ?: '170', $bName ?: 'بنك الخرطوم', $activeTenantId], $cleanIds));
+                }
+            }
+            echo json_encode(['success' => true]);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         }
@@ -1026,18 +1105,38 @@ switch ($action) {
                     $oldVObj = json_decode($oldVJson, true) ?: [];
                     $wasAlreadyPosted = !empty($oldVObj['isPosted']);
                     if ($wasAlreadyPosted) {
-                        // Reverse old bank balance and customer balance before re-posting to new bank
-                        $oldBankId = preg_replace('/^bank-/', '', (string)($oldVObj['toAccount'] ?? $oldVObj['mainAccount'] ?? ''));
+                        // Reverse old receiving account (bank, supplier, safe, customer, or expense account) and customer balance before re-posting
+                        $oldToRaw = (string)($oldVObj['toAccount'] ?? $oldVObj['mainAccount'] ?? '');
                         $oldAmt = (float)($recRow['amount'] ?? 0);
-                        if ($oldAmt > 0 && !empty($oldBankId)) {
-                            $bRowsStmt = $pdo->prepare("SELECT id, data FROM banks WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
-                            $bRowsStmt->execute([$activeTenantId]);
-                            while ($br = $bRowsStmt->fetch(PDO::FETCH_ASSOC)) {
-                                $bObj = json_decode($br['data'], true) ?: [];
-                                if (($bObj['id'] ?? '') === $oldBankId) {
-                                    $bObj['currentBalance'] = (float)($bObj['currentBalance'] ?? 0) - $oldAmt;
-                                    $pdo->prepare("UPDATE banks SET data = ? WHERE id = ?")->execute([json_encode($bObj, JSON_UNESCAPED_UNICODE), $br['id']]);
-                                    break;
+                        if ($oldAmt > 0 && !empty($oldToRaw)) {
+                            if (preg_match('/^(safe|supp|cust|exp)-(.+)$/', $oldToRaw, $mOldNonBank)) {
+                                $tblMapRev = ['safe' => 'safes', 'supp' => 'suppliers', 'cust' => 'customers', 'exp' => 'accounts'];
+                                $revTbl = $tblMapRev[$mOldNonBank[1]] ?? '';
+                                $revId = $mOldNonBank[2];
+                                if ($revTbl !== '') {
+                                    $rRowsStmt = $pdo->prepare("SELECT id, data FROM {$revTbl} WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
+                                    $rRowsStmt->execute([$activeTenantId]);
+                                    while ($rr = $rRowsStmt->fetch(PDO::FETCH_ASSOC)) {
+                                        $rObj = json_decode($rr['data'], true) ?: [];
+                                        if ((string)($rObj['id'] ?? '') === $revId) {
+                                            $revDelta = ($mOldNonBank[1] === 'supp') ? $oldAmt : -$oldAmt;
+                                            $rObj['currentBalance'] = (float)($rObj['currentBalance'] ?? 0) + $revDelta;
+                                            $pdo->prepare("UPDATE {$revTbl} SET data = ? WHERE id = ?")->execute([json_encode($rObj, JSON_UNESCAPED_UNICODE), $rr['id']]);
+                                            break;
+                                        }
+                                    }
+                                }
+                            } else {
+                                $oldBankId = preg_replace('/^bank-/', '', $oldToRaw);
+                                $bRowsStmt = $pdo->prepare("SELECT id, data FROM banks WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
+                                $bRowsStmt->execute([$activeTenantId]);
+                                while ($br = $bRowsStmt->fetch(PDO::FETCH_ASSOC)) {
+                                    $bObj = json_decode($br['data'], true) ?: [];
+                                    if (($bObj['id'] ?? '') === $oldBankId) {
+                                        $bObj['currentBalance'] = (float)($bObj['currentBalance'] ?? 0) - $oldAmt;
+                                        $pdo->prepare("UPDATE banks SET data = ? WHERE id = ?")->execute([json_encode($bObj, JSON_UNESCAPED_UNICODE), $br['id']]);
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -1160,16 +1259,34 @@ switch ($action) {
                                     }
                                 }
                             }
-                            $oldBankId = preg_replace('/^bank-/', '', (string)($oldVObj['toAccount'] ?? $oldVObj['mainAccount'] ?? ''));
-                            if (!empty($oldBankId)) {
-                                $bRowsStmt = $pdo->prepare("SELECT id, data FROM banks WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
-                                $bRowsStmt->execute([$activeTenantId]);
-                                while ($br = $bRowsStmt->fetch(PDO::FETCH_ASSOC)) {
-                                    $bObj = json_decode($br['data'], true) ?: [];
-                                    if (($bObj['id'] ?? '') === $oldBankId) {
-                                        $bObj['currentBalance'] = (float)($bObj['currentBalance'] ?? 0) - $oldAmt;
-                                        $pdo->prepare("UPDATE banks SET data = ? WHERE id = ?")->execute([json_encode($bObj, JSON_UNESCAPED_UNICODE), $br['id']]);
-                                        break;
+                            $oldToRawDel = (string)($oldVObj['toAccount'] ?? $oldVObj['mainAccount'] ?? '');
+                            if (!empty($oldToRawDel)) {
+                                if (preg_match('/^(safe|supp|cust|exp)-(.+)$/', $oldToRawDel, $mDelNonBank)) {
+                                    $tblMapDel = ['safe' => 'safes', 'supp' => 'suppliers', 'cust' => 'customers', 'exp' => 'accounts'];
+                                    $delTbl = $tblMapDel[$mDelNonBank[1]] ?? '';
+                                    if ($delTbl !== '') {
+                                        $dRowsStmt = $pdo->prepare("SELECT id, data FROM {$delTbl} WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
+                                        $dRowsStmt->execute([$activeTenantId]);
+                                        while ($dr = $dRowsStmt->fetch(PDO::FETCH_ASSOC)) {
+                                            $dObj = json_decode($dr['data'], true) ?: [];
+                                            if ((string)($dObj['id'] ?? '') === $mDelNonBank[2]) {
+                                                $dObj['currentBalance'] = (float)($dObj['currentBalance'] ?? 0) + (($mDelNonBank[1] === 'supp') ? $oldAmt : -$oldAmt);
+                                                $pdo->prepare("UPDATE {$delTbl} SET data = ? WHERE id = ?")->execute([json_encode($dObj, JSON_UNESCAPED_UNICODE), $dr['id']]);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    $oldBankId = preg_replace('/^bank-/', '', $oldToRawDel);
+                                    $bRowsStmt = $pdo->prepare("SELECT id, data FROM banks WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
+                                    $bRowsStmt->execute([$activeTenantId]);
+                                    while ($br = $bRowsStmt->fetch(PDO::FETCH_ASSOC)) {
+                                        $bObj = json_decode($br['data'], true) ?: [];
+                                        if (($bObj['id'] ?? '') === $oldBankId) {
+                                            $bObj['currentBalance'] = (float)($bObj['currentBalance'] ?? 0) - $oldAmt;
+                                            $pdo->prepare("UPDATE banks SET data = ? WHERE id = ?")->execute([json_encode($bObj, JSON_UNESCAPED_UNICODE), $br['id']]);
+                                            break;
+                                        }
                                     }
                                 }
                             }
@@ -1178,6 +1295,16 @@ switch ($action) {
                     $pdo->prepare("DELETE FROM receipts WHERE tenant_id = ? AND (frontend_id = ? OR receipt_no = ?)")->execute([$activeTenantId, $oldVoucherNo, $oldVoucherNo]);
                     $pdo->prepare("DELETE FROM gl_entries WHERE tenant_id = ? AND data LIKE ?")->execute([$activeTenantId, '%' . $oldVoucherNo . '%']);
                 }
+                // Record permanent local tombstone so Cloud Sync NEVER re-imports this deleted receipt
+                try {
+                    $pdo->exec("CREATE TABLE IF NOT EXISTS inbound_deleted_refs (ref_key VARCHAR(180) PRIMARY KEY, deleted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+                    $insTmb = $pdo->prepare("INSERT IGNORE INTO inbound_deleted_refs (ref_key) VALUES (?)");
+                    $delTrClean = preg_replace('/\D/', '', (string)($recRow['transfer_no'] ?? ''));
+                    if (strlen($delTrClean) >= 6) $insTmb->execute(['ref:' . $delTrClean]);
+                    $delImgBase = basename(trim((string)($recRow['receipt_image'] ?? '')));
+                    if ($delImgBase !== '') $insTmb->execute(['img:' . $delImgBase]);
+                    if ($oldVoucherNo !== '') $insTmb->execute(['v:' . $oldVoucherNo]);
+                } catch (Exception $eTmbIns) {}
             }
             // Also delete any receipts or gl_entries referencing this inboundReceiptId
             $pdo->prepare("DELETE FROM receipts WHERE tenant_id = ? AND JSON_UNQUOTE(JSON_EXTRACT(data, '$.inboundReceiptId')) = ?")->execute([$activeTenantId, (string)$id]);
@@ -2416,7 +2543,13 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
         return ['success' => false, 'error' => 'مبلغ الإشعار يجب أن يكون أكبر من الصفر لتنزيله في الحسابات'];
     }
     if (strlen($cleanRefDigits) < 6) {
-        return ['success' => false, 'error' => 'رقم التحويل يجب ألا يقل عن 6 أرقام لتنزيله في الحسابات'];
+        if ($forcePost) {
+            $transferNo = '99' . date('md') . str_pad((string)$receiptId, 4, '0', STR_PAD_LEFT);
+            $cleanRefDigits = $transferNo;
+            $pdo->prepare("UPDATE inbound_bank_receipts SET transfer_no = ? WHERE id = ?")->execute([$transferNo, $receiptId]);
+        } else {
+            return ['success' => false, 'error' => 'رقم التحويل يجب ألا يقل عن 6 أرقام لتنزيله في الحسابات'];
+        }
     }
 
     $policy = loadWhatsAppStatementPolicy($pdo, $tenantId);
@@ -2579,7 +2712,9 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
     $bStmt->execute([$tenantId]);
     $allBankRows = $bStmt->fetchAll(PDO::FETCH_ASSOC);
 
+    $isExplicitNonBank = (bool)preg_match('/^(safe|supp|cust|wh|exp|emp)-(.+)$/', $preferredBankId);
     foreach ($allBankRows as $bRow) {
+        if ($isExplicitNonBank) break;
         $bData = json_decode($bRow['data'], true);
         if (!$bData || !empty($bData['deleted']) || !empty($bData['isInactive'])) continue;
         $bType = strtolower($bData['type'] ?? 'bank');
@@ -2604,11 +2739,33 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
         }
     }
 
-    if (!$matchedBankRow) {
+    if (!$matchedBankRow && empty($overrideBankId) && empty($overrideBankName) && (empty($bankCode) || $bankCode === '170')) {
         $matchedBankRow = $bokBankRow ?: $fallbackBankRow;
     }
 
-    if ($matchedBankRow) {
+    $recAccFullCode = '';
+    if (preg_match('/^(safe|supp|cust|wh|exp|emp)-(.+)$/', $preferredBankId, $mNonBank)) {
+        $recPrefix = $mNonBank[1] . '-';
+        $bankFrontendId = $mNonBank[2];
+        $recAccFullCode = $preferredBankId;
+        $resolvedBankName = !empty($preferredBankName) ? $preferredBankName : (!empty($bankName) ? $bankName : $preferredBankId);
+        $tblMap = ['safe-' => 'safes', 'supp-' => 'suppliers', 'cust-' => 'customers', 'exp-' => 'accounts'];
+        if ($shouldPostNow && isset($tblMap[$recPrefix])) {
+            $tTbl = $tblMap[$recPrefix];
+            $stEnt = $pdo->prepare("SELECT id, data FROM {$tTbl} WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
+            $stEnt->execute([$tenantId]);
+            while ($er = $stEnt->fetch(PDO::FETCH_ASSOC)) {
+                $eObj = json_decode($er['data'], true) ?: [];
+                if ((string)($eObj['id'] ?? '') === $bankFrontendId) {
+                    $resolvedBankName = $eObj['name'] ?? $eObj['safeName'] ?? $resolvedBankName;
+                    $delta = ($recPrefix === 'supp-') ? -$amount : $amount;
+                    $eObj['currentBalance'] = (float)($eObj['currentBalance'] ?? 0) + $delta;
+                    $pdo->prepare("UPDATE {$tTbl} SET data = ? WHERE id = ?")->execute([json_encode($eObj, JSON_UNESCAPED_UNICODE), $er['id']]);
+                    break;
+                }
+            }
+        }
+    } elseif ($matchedBankRow) {
         $bankObj = json_decode($matchedBankRow['data'], true) ?: [];
         $bankFrontendId = $bankObj['id'] ?? ('B-' . $matchedBankRow['id']);
         $resolvedBankName = $bankObj['name'] ?? $bankObj['bankName'] ?? 'بنك الخرطوم';
@@ -2653,7 +2810,15 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
         }
     }
 
-    $today = date('Y-m-d');
+    $today = '';
+    if (!empty($receipt['receipt_date']) && preg_match('/^20\d{2}-\d{2}-\d{2}/', trim((string)$receipt['receipt_date']), $mRd)) {
+        $today = $mRd[0];
+    } elseif (!empty($receipt['notes']) && preg_match('/\b(20\d{2}[-\/]\d{2}[-\/]\d{2})\b/', (string)$receipt['notes'], $mNt)) {
+        $today = str_replace('/', '-', $mNt[1]);
+    } elseif (!empty($receipt['created_at']) && preg_match('/^(20\d{2}-\d{2}-\d{2})/', (string)$receipt['created_at'], $mCr)) {
+        $today = $mCr[1];
+    }
+    if (empty($today)) $today = date('Y-m-d');
     $nowTime = date('H:i');
     $routingAuditSuffix = '';
     if (!empty($resolvedCust['matched_code'])) {
@@ -2675,8 +2840,8 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
         'source' => 'whatsapp_inbound',
         'inboundReceiptId' => (int)$receiptId,
         'receiptImage' => $receipt['receipt_image'] ?? '',
-        'mainAccount' => 'bank-' . $bankFrontendId,
-        'toAccount' => 'bank-' . $bankFrontendId,
+        'mainAccount' => $recAccFullCode ?: ('bank-' . $bankFrontendId),
+        'toAccount' => $recAccFullCode ?: ('bank-' . $bankFrontendId),
         'fromAccount' => 'حسابات فرعية متعددة',
         'date' => $today,
         'time' => $nowTime,
@@ -2751,8 +2916,8 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
                 'voucherNo' => $vNo,
                 'voucherId' => $vNo,
                 'date' => $today,
-                'account' => 'bank-' . $bankFrontendId,
-                'accountId' => 'bank-' . $bankFrontendId,
+                'account' => $recAccFullCode ?: ('bank-' . $bankFrontendId),
+                'accountId' => $recAccFullCode ?: ('bank-' . $bankFrontendId),
                 'accountName' => $resolvedBankName,
                 'debit' => $amount,
                 'credit' => 0,
@@ -2814,7 +2979,8 @@ function postInboundReceiptToAccounts($pdo, $receiptId, $options = []) {
         SET customer_id = ?, customer_name = ?, customer_phone = ?, bank_name = ?, bank_code = ?, voucher_no = ?, status = ?, issue_reason = ?, notes = ?, updated_at = NOW() 
         WHERE id = ?");
     $storedInbPartyId = $isSupplierParty ? ('supp-' . $custFrontendId) : $custFrontendId;
-    $updInb->execute([$storedInbPartyId, $custName, $custPhone, $resolvedBankName, $bankFrontendId, $vNo, $newInbStatus, $newIssueReason, $updatedNotes, $receiptId]);
+    $storedInbBankCode = $recAccFullCode ?: $bankFrontendId;
+    $updInb->execute([$storedInbPartyId, $custName, $custPhone, $resolvedBankName, $storedInbBankCode, $vNo, $newInbStatus, $newIssueReason, $updatedNotes, $receiptId]);
 
     $adminNotificationText = $shouldPostNow
         ? ("🔔 إشعار لمدير النظام: تم فحص وإضافة إشعار بنكي بمبلغ (" . number_format($amount, 2) . " SDG) رقم العملية (" . $transferNo . ") في حساب (" . $custName . ") إلى حساب (" . $resolvedBankName . ") وحفظه تلقائياً بالسند رقم (" . $vNo . ").")
@@ -3105,6 +3271,12 @@ function performBackendReceiptOCR($pdo, $receiptId, $fraudCheck = false, $postOp
     $isNonFinancial = (isset($d['is_financial_doc']) && $d['is_financial_doc'] === false) || !empty($d['is_non_financial']);
     $extractedAmount = floatval($d['amount'] ?? 0) ?: floatval($receipt['amount'] ?? 0);
     $extractedRef = trim($d['transaction_ref'] ?? '') ?: trim($receipt['transfer_no'] ?? '');
+    $extractedDate = trim($d['date'] ?? '') ?: trim((string)($receipt['receipt_date'] ?? ''));
+    if (!empty($extractedDate) && preg_match('/^(20\d{2})[-\/](\d{2})[-\/](\d{2})/', $extractedDate, $dm)) {
+        $extractedDate = $dm[1] . '-' . $dm[2] . '-' . $dm[3];
+    } else {
+        $extractedDate = '';
+    }
     $extractedSender = trim($d['sender_name'] ?? '');
     $extractedBank = trim($d['bank_name'] ?? '') ?: trim($receipt['bank_name'] ?? 'بنك الخرطوم (بنكك)');
     $summary = trim($d['summary'] ?? '');
@@ -3208,6 +3380,7 @@ function performBackendReceiptOCR($pdo, $receiptId, $fraudCheck = false, $postOp
     $updateStmt = $pdo->prepare("UPDATE inbound_bank_receipts 
         SET amount = ?, 
             transfer_no = ?, 
+            receipt_date = COALESCE(NULLIF(?, ''), receipt_date),
             customer_id = ?,
             customer_name = ?,
             customer_phone = ?,
@@ -3219,6 +3392,7 @@ function performBackendReceiptOCR($pdo, $receiptId, $fraudCheck = false, $postOp
     $updateStmt->execute([
         $extractedAmount,
         $extractedRef,
+        $extractedDate,
         $custId,
         $custName,
         $custPhone,

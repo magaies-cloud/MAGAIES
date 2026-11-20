@@ -2466,7 +2466,21 @@ html body #purchase-editor-view #payment-panel #toggle-cheque, :root.light-theme
 html body #purchase-editor-view #payment-panel #btn-purchase-financial-ocr, :root.light-theme body #purchase-editor-view #payment-panel #btn-purchase-financial-ocr { background: linear-gradient(115deg, transparent 28%, rgba(255,255,255,0.75) 49%, transparent 70%), linear-gradient(180deg, #ccfbf1 0%, #5eead4 50%, #14b8a6 100%) !important; background-size: 250% 100%, 100% 100% !important; border: 2px solid #115e59 !important; border-bottom: 3.5px solid #042f2e !important; box-shadow: 0 5px 14px rgba(20,184,166,0.48), 0 0 14px rgba(94,234,212,0.52), inset 0 2px 1.5px #ffffff !important; animation: none;  }
 html body #purchase-editor-view #payment-panel button[onclick*="FinancialOCR.openTrainer"], :root.light-theme body #purchase-editor-view #payment-panel button[onclick*="FinancialOCR.openTrainer"] { background: linear-gradient(115deg, transparent 28%, rgba(255,255,255,0.75) 49%, transparent 70%), linear-gradient(180deg, #ffe4e6 0%, #fda4af 50%, #fb7185 100%) !important; background-size: 250% 100%, 100% 100% !important; border: 2px solid #9f1239 !important; border-bottom: 3.5px solid #4c0519 !important; box-shadow: 0 5px 14px rgba(244,63,94,0.42), 0 0 14px rgba(253,164,175,0.5), inset 0 2px 1.5px #ffffff !important; animation: none;  }
 html body #purchase-editor-view #payment-panel .pay-toggle-btn:hover, html body #purchase-editor-view #payment-panel .pay-toggle-btn.active, :root.light-theme body #purchase-editor-view #payment-panel .pay-toggle-btn:hover, :root.light-theme body #purchase-editor-view #payment-panel .pay-toggle-btn.active { transform: translateY(-2.5px) scale(1.055) !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; filter: brightness(1.08) saturate(1.12) !important; box-shadow: 0 0 0 2.5px rgba(255,255,255,0.92), 0 8px 20px rgba(0,0,0,0.35), 0 0 20px rgba(253,224,71,0.65), inset 0 2.5px 2px #ffffff !important; }
-html body #purchase-editor-view #inv-number,
+html body #purchase-editor-view #inv-number {
+font-size: 12.5px !important; font-weight: 900 !important; font-family: 'Outfit', 'Tajawal', sans-serif !important; line-height: 1 !important; text-align: center !important; min-width: 0 !important; padding: 0 2px !important; flex: 0 0 auto !important;
+}
+html body #purchase-editor-view #payment-panel,
+html body #purchase-editor-view #payment-panel .panel-header-row {
+background-image: none !important;
+}
+html body #purchase-editor-view #payment-panel::before,
+html body #purchase-editor-view #payment-panel::after,
+html body #purchase-editor-view #payment-panel *::before,
+html body #purchase-editor-view #payment-panel *::after,
+html body #purchase-editor-view #payment-panel .glow-orb,
+html body #purchase-editor-view #payment-panel .orb {
+display: none !important; content: none !important; background: none !important; box-shadow: none !important;
+}
 html body #purchase-editor-view #hdr-date,
 html body #purchase-editor-view #pos-grid tbody tr td .avail-val,
 html body #purchase-editor-view #pos-grid tbody tr td .avail-val.is-zero-val,

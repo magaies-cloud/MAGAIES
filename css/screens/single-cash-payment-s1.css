@@ -997,20 +997,13 @@ flex: none !important;
 transition: font-size 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), letter-spacing 0.3s ease, height 0.3s ease, color 0.3s ease !important;
 color: #ffffff !important;
 }
-.transfer-no, .cheque-no {
-font-size: 2.8rem !important;
-height: 62px !important;
-font-weight: 900 !important;
-letter-spacing: 1.5px !important;
-}
-.transfer-amount, .cheque-amount {
-font-size: 3.1rem !important;
-height: 62px !important;
-font-weight: 900 !important;
-}
+.transfer-no { font-size: 1.6rem !important; height: 54px !important; font-weight: 900 !important; letter-spacing: 0.5px !important; }
+.cheque-no { font-size: 2.8rem !important; height: 62px !important; font-weight: 900 !important; letter-spacing: 1.5px !important; }
+.transfer-amount { font-size: 1.6rem !important; height: 54px !important; font-weight: 900 !important; }
+.cheque-amount { font-size: 3.1rem !important; height: 62px !important; font-weight: 900 !important; }
 .transfer-note, .cheque-branch, .transfer-statement, .cheque-statement, .cheque-date {
 font-size: 1.55rem !important;
-height: 62px !important;
+height: 54px !important;
 }
 .dynamic-focus-amount:focus {
 color: #fbbf24 !important;
@@ -1022,14 +1015,30 @@ color: #38bdf8 !important;
 border-color: #38bdf8 !important;
 box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 30px rgba(56, 189, 248, 0.7) !important;
 }
-.transfer-no.dynamic-focus-input:focus,
+html body #pay-bank-section .transfer-amount:focus,
+html body #pay-bank-section .transfer-no:focus,
+:root.light-theme body #scp-proportional-root #pay-bank-section .transfer-amount:focus,
+:root.light-theme body #scp-proportional-root #pay-bank-section .transfer-no:focus {
+font-size: 6.4rem !important;
+height: 124px !important;
+min-width: 560px !important;
+width: 100% !important;
+color: #fbbf24 !important;
+-webkit-text-fill-color: #fbbf24 !important;
+background: #0b1120 !important;
+border: 3px solid #fbbf24 !important;
+border-radius: 12px !important;
+letter-spacing: 2px !important;
+box-shadow: 0 18px 48px rgba(0,0,0,0.88), 0 0 32px rgba(251, 191, 36, 0.75) !important;
+position: relative !important;
+z-index: 1200 !important;
+margin-right: 0 !important;
+}
 .cheque-no.dynamic-focus-input:focus,
-.transfer-amount:focus,
 .cheque-amount:focus,
 .block-cash-amount:focus,
 .block-sub-amount:focus,
-.block-total-amount:focus,
-.dynamic-focus-input:focus {
+.block-total-amount:focus {
 font-size: 4.5rem !important;
 height: 98px !important;
 min-width: 480px !important;

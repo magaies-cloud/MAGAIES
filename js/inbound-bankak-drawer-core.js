@@ -78,49 +78,80 @@ window.InboundBankakManager = {
     getAllReceivingAccounts: function() {
         const getTK = window.getTenantKey || ((k) => k);
         const rd = (k) => { try { const a = JSON.parse(localStorage.getItem(getTK(k)) || localStorage.getItem(k) || '[]'); return Array.isArray(a) ? a.filter(x => x && !x.deleted && !x.isDeactivated) : []; } catch (_) { return []; } };
-        const banks = this.getAvailableBanks().map(b => ({ val: 'bank-' + String(b.id).replace(/^bank-/, ''), rawId: String(b.id), name: b.name || b.bankName || '', grp: '🏦 البنوك', icon: '🏦' }));
-        const sups  = rd('erp_suppliers_v1').map(s => ({ val: 'supp-' + String(s.id).replace(/^supp-/, ''), rawId: String(s.id), name: s.name || s.supplierName || '', grp: '🚚 الموردين', icon: '🚚' }));
-        const custs = rd('erp_customers_v1').map(c => ({ val: 'cust-' + String(c.id).replace(/^cust-/, ''), rawId: String(c.id), name: c.name || c.customerName || '', grp: '👥 العملاء والزبائن', icon: '👥' }));
-        const safes = rd('erp_safes_v1').map(s => ({ val: 'safe-' + String(s.id).replace(/^safe-/, ''), rawId: String(s.id), name: s.name || s.safeName || '', grp: '🗄️ الخزن', icon: '🗄️' }));
-        const exps  = rd('erp_accounts_v1').map(e => ({ val: 'exp-' + String(e.id).replace(/^exp-/, ''), rawId: String(e.id), name: e.name || e.accountName || '', grp: '💸 المصاريف والحسابات', icon: '💸' }));
-        return [...banks, ...sups, ...custs, ...safes, ...exps].filter(x => x.name);
+        const banks = this.getAvailableBanks().map(b => ({ val: 'bank-' + String(b.id).replace(/^bank-/, ''), rawId: String(b.id), name: b.name || b.bankName || '', grp: 'البنوك', icon: '' }));
+        const sups  = rd('erp_suppliers_v1').map(s => ({ val: 'supp-' + String(s.id).replace(/^supp-/, ''), rawId: String(s.id), name: s.name || s.supplierName || '', grp: 'الموردين', icon: '' }));
+        const custs = rd('erp_customers_v1').map(c => ({ val: 'cust-' + String(c.id).replace(/^cust-/, ''), rawId: String(c.id), name: c.name || c.customerName || '', grp: 'العملاء', icon: '' }));
+        const safes = rd('erp_safes_v1').map(s => ({ val: 'safe-' + String(s.id).replace(/^safe-/, ''), rawId: String(s.id), name: s.name || s.safeName || '', grp: 'الخزن', icon: '' }));
+        const whs   = rd('erp_warehouses_v1').map(w => ({ val: 'wh-' + String(w.id).replace(/^wh-/, ''), rawId: String(w.id), name: w.name || w.warehouseName || '', grp: 'المخازن', icon: '' }));
+        const exps  = rd('erp_accounts_v1').map(e => ({ val: 'exp-' + String(e.id).replace(/^exp-/, ''), rawId: String(e.id), name: e.name || e.accountName || '', grp: 'المصاريف والحسابات', icon: '' }));
+        const emps  = [...rd('erp_employees_v1'), ...rd('erp_users_v1')].map(u => ({ val: 'emp-' + String(u.id).replace(/^emp-/, ''), rawId: String(u.id), name: u.name || u.fullName || u.username || '', grp: 'الموظفين', icon: '' }));
+        const seen = new Set();
+        return [...banks, ...sups, ...custs, ...safes, ...whs, ...exps, ...emps].filter(x => x.name && !seen.has(x.val) && seen.add(x.val));
+    },
+
+    syncHeaderBankFromRows: function() {
+        const hid = document.getElementById('drawer-target-bank-select'), inp = document.getElementById('drawer-target-acc-filter');
+        if (!hid || !inp) return;
+        const rows = (this.receipts || []).filter(r => r.status !== 'duplicate_rejected');
+        if (!rows.length) return;
+        const allAccs = this.getAllReceivingAccounts();
+        const normRowAcc = (r) => {
+            const c = String(r.bank_code || '').trim(), n = String(r.bank_name || '').trim();
+            const hit = allAccs.find(x => (c && c !== '170' && (x.val === c || x.rawId === c.replace(/^(bank|supp|cust|safe|wh|exp|emp)-/, ''))) || (n && x.name === n));
+            return hit ? { val: hit.val, lbl: hit.name } : { val: c || 'default-bok', lbl: n || 'بنك الخرطوم' };
+        };
+        const first = normRowAcc(rows[0]);
+        const allSame = rows.every(r => normRowAcc(r).lbl === first.lbl);
+        if (allSame) {
+            hid.value = first.val === 'default-bok' ? '' : first.val;
+            this.selectedBankId = hid.value;
+            if (document.activeElement !== inp) { inp.value = first.lbl; inp.dataset.curLabel = first.lbl; }
+        } else {
+            hid.value = '';
+            this.selectedBankId = '';
+            if (document.activeElement !== inp) { inp.value = ''; inp.dataset.curLabel = ''; }
+        }
     },
 
     populateHeaderBankDropdown: function() {
-        const hid = document.getElementById('drawer-target-bank-select'), inp = document.getElementById('drawer-target-acc-filter');
-        if (!hid || !inp) return;
-        const prev = this.selectedBankId || hid.value || (this.policy && this.policy.defaultReceiptBankId) || '';
-        const norm = prev ? (prev.includes('-') ? prev : ('bank-' + prev)) : '';
-        hid.value = norm; this.selectedBankId = norm;
-        if (norm && document.activeElement !== inp) {
-            const hit = this.getAllReceivingAccounts().find(x => x.val === norm || x.rawId === String(prev).replace(/^bank-/, ''));
-            if (hit) { inp.value = `${hit.icon} ${hit.name}`; inp.dataset.curLabel = inp.value; }
-        }
+        this.syncHeaderBankFromRows();
     },
     openAccountSearchMenu: function(inputEl, target) {
         if (!inputEl) return;
         let m = document.getElementById('inbound-acc-live-menu');
         if (!m) {
             m = document.createElement('div'); m.id = 'inbound-acc-live-menu';
-            m.style.cssText = 'position:fixed;z-index:2147483647;background:#0f172a;border:2px solid #38bdf8;border-radius:12px;box-shadow:0 20px 50px rgba(0,0,0,0.92);max-height:340px;overflow-y:auto;direction:rtl;font-family:Cairo,Tajawal,sans-serif;padding:6px;';
+            m.style.cssText = 'position:fixed;z-index:2147483647;background:#0f172a;border:2px solid #38bdf8;border-radius:12px;box-shadow:0 20px 50px rgba(0,0,0,0.92);max-height:320px;overflow-y:auto;direction:rtl;font-family:Cairo,Tajawal,sans-serif;padding:6px;';
             document.body.appendChild(m);
             document.addEventListener('mousedown', (ev) => { if (m.style.display === 'block' && !m.contains(ev.target) && ev.target !== m._owner) m.style.display = 'none'; });
         }
         m._owner = inputEl;
-        const raw = String(inputEl.value || '').replace(/^[🏦🚚👥🗄️💸🔍]\s*/, '').trim().toLowerCase();
+        const raw = String(inputEl.value || '').replace(/^[🏦🚚👥🗄️🏬💸👔🔍]\s*/, '').trim().toLowerCase();
         const q = (inputEl.dataset.curLabel && String(inputEl.value || '').trim() === inputEl.dataset.curLabel) ? '' : raw;
         const all = this.getAllReceivingAccounts().filter(x => !q || x.name.toLowerCase().includes(q) || x.rawId.toLowerCase().includes(q) || x.grp.toLowerCase().includes(q));
-        const r = inputEl.getBoundingClientRect(), w = Math.max(330, r.width);
-        m.style.width = w + 'px'; m.style.top = Math.min(window.innerHeight - 350, r.bottom + 4) + 'px'; m.style.left = Math.max(10, Math.min(window.innerWidth - w - 10, r.left)) + 'px';
-        m.innerHTML = `<div data-val="" data-lbl="🏦 بنك الخرطوم (افتراضي)" style="padding:9px 12px;border-radius:8px;cursor:pointer;font-weight:900;font-size:1.05rem;color:#fde047;border-bottom:1px solid rgba(148,163,184,0.2);">🏦 تلقائي (بنك الخرطوم / حسب الإشعار)</div>` +
-            (all.length ? all.slice(0, 150).map(x => `<div data-val="${escapeHtml(x.val)}" data-lbl="${escapeHtml(x.icon + ' ' + x.name)}" style="padding:9px 12px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid rgba(148,163,184,0.1);"><span style="font-size:1.08rem;font-weight:900;color:#fff;">${x.icon} ${escapeHtml(x.name)}</span><span style="font-size:0.80rem;font-weight:800;color:#7dd3fc;background:rgba(56,189,248,0.14);padding:2px 8px;border-radius:99px;">${escapeHtml(x.grp)}</span></div>`).join('') : `<div style="padding:14px;text-align:center;color:#94a3b8;font-weight:800;">لا يوجد حساب مطابق</div>`);
+        const r = inputEl.getBoundingClientRect(), w = Math.max(300, r.width);
+        m.style.width = w + 'px'; m.style.top = Math.min(window.innerHeight - 330, r.bottom + 4) + 'px'; m.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left)) + 'px';
+        m.innerHTML = (all.length ? all.slice(0, 180).map(x => `<div data-rc-account-id="${escapeHtml(x.val)}" data-rc-account-name="${escapeHtml(x.name)}" data-val="${escapeHtml(x.val)}" data-name="${escapeHtml(x.name)}" data-lbl="${escapeHtml(x.name)}" style="padding:8px 10px;border-radius:8px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:8px;border-bottom:1px solid rgba(148,163,184,0.12);"><span style="font-size:0.92rem;font-weight:900;color:#fff;">${escapeHtml(x.name)}</span><span style="font-size:0.72rem;font-weight:800;color:#7dd3fc;background:rgba(56,189,248,0.14);padding:2px 7px;border-radius:99px;white-space:nowrap;">${escapeHtml(x.grp)}</span></div>`).join('') : `<div style="padding:12px;text-align:center;color:#94a3b8;font-weight:800;">لا يوجد حساب مطابق</div>`);
         m.querySelectorAll('[data-val]').forEach(el => {
             el.onmouseenter = () => { el.style.background = 'rgba(56,189,248,0.22)'; }; el.onmouseleave = () => { el.style.background = 'transparent'; };
             el.onmousedown = (ev) => {
-                ev.preventDefault(); const v = el.getAttribute('data-val') || '', lbl = el.getAttribute('data-lbl') || '';
-                inputEl.value = v ? lbl : ''; inputEl.dataset.curLabel = inputEl.value; m.style.display = 'none';
-                if (target === 'header') { const h = document.getElementById('drawer-target-bank-select'); if (h) h.value = v; this.onDefaultDrawerBankChange(v); }
-                else { inputEl.value = lbl; inputEl.dataset.curLabel = lbl; this.changeTargetBank(Number(target), v || 'B-1700000000001'); }
+                ev.preventDefault();
+                const v = el.getAttribute('data-val') || '', nm = el.getAttribute('data-name') || '', lbl = el.getAttribute('data-lbl') || '';
+                inputEl.value = lbl; inputEl.dataset.curLabel = lbl; inputEl.dataset.accVal = v; inputEl.dataset.accName = nm; m.style.display = 'none';
+                if (target === 'header') {
+                    const h = document.getElementById('drawer-target-bank-select'); if (h) h.value = v;
+                    this.onDefaultDrawerBankChange(v, nm, lbl);
+                } else {
+                    const rid = Number(target);
+                    if (this._editingRows && this._editingRows[rid]) {
+                        this._editingRows[rid].newRecId = v;
+                        this._editingRows[rid].newRecName = nm;
+                        this._editingRows[rid].dirty = (nm !== this._editingRows[rid].origRecName || v !== this._editingRows[rid].origRecId || !!this._editingRows[rid].newCustName);
+                        this.renderList();
+                    } else {
+                        this.changeTargetBank(rid, v, nm);
+                    }
+                }
             };
         });
         m.style.display = 'block';
@@ -143,28 +174,47 @@ window.InboundBankakManager = {
         window.addEventListener('mousemove', mv); window.addEventListener('mouseup', up);
     },
 
-    onDefaultDrawerBankChange: function(bankId) {
+    onDefaultDrawerBankChange: async function(bankId, bankName = '', fullLabel = '') {
         this.selectedBankId = bankId || '';
+        const hit = this.getAllReceivingAccounts().find(x => x.val === bankId);
+        const resolvedName = bankName || (hit ? hit.name : '');
+        const resolvedLbl = fullLabel || (hit ? `${hit.icon} ${hit.name}` : resolvedName);
         try {
             const pol = JSON.parse(localStorage.getItem('erp_whatsapp_statement_policy_v1') || '{}');
-            const banks = this.getAvailableBanks();
-            const found = banks.find(b => String(b.id) === String(bankId));
             pol.defaultReceiptBankId = this.selectedBankId;
-            pol.defaultReceiptBankName = found ? found.name : '';
+            pol.defaultReceiptBankName = resolvedName;
             localStorage.setItem('erp_whatsapp_statement_policy_v1', JSON.stringify(pol));
-            if (typeof window.syncToBackend === 'function') {
-                window.syncToBackend('whatsapp_statement_policy', pol);
-            }
-            if (typeof showToast === 'function') {
-                showToast(found ? `🏦 تم تحديد (${found.name}) كبنك مستلم لإشعارات الواتساب` : '🏦 تم ضبط البنك المستلم على الوضع التلقائي', 'info');
-            }
+            if (typeof window.syncToBackend === 'function') window.syncToBackend('whatsapp_statement_policy', pol);
         } catch (e) {}
+
+        // تعميم الحساب المختار في الأعلى فوراً على جميع الأسطر بالأسفل
+        const targetRows = (this.receipts || []).filter(r => r.status !== 'duplicate_rejected');
+        targetRows.forEach(r => { r.bank_code = bankId; r.bank_name = resolvedName; });
+        document.querySelectorAll('.inbound-row-rec-input').forEach(inp => {
+            inp.value = resolvedLbl; inp.dataset.curLabel = resolvedLbl; inp.dataset.accVal = bankId; inp.dataset.accName = resolvedName;
+        });
+
+        const unpostedIds = targetRows.filter(r => !r.voucher_no || (r.status !== 'verified' && r.status !== 'reconciled')).map(r => Number(r.id));
+        if (unpostedIds.length && bankId) {
+            try {
+                const tId = this.getActiveTenantId();
+                await fetch('api/inbound_receipts.php?action=bulk_change_target_bank&tenant_id=' + encodeURIComponent(tId), {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'bulk_change_target_bank', tenant_id: tId, ids: unpostedIds, bank_id: bankId, bank_name: resolvedName })
+                });
+            } catch (_) {}
+        }
+        if (typeof showToast === 'function' && resolvedName) {
+            showToast(`✅ تم تعميم الحساب المستلم (${resolvedName}) على جميع الأسطر`, 'success');
+        }
     },
 
     openDrawer: function() {
         const overlay = document.getElementById('inbound-bankak-drawer-overlay');
         if (!overlay) return;
+        if (overlay.parentElement !== document.body) document.body.appendChild(overlay);
         overlay.style.display = 'flex';
+        this._lastRenderedSig = '';
         this.refreshReceipts();
     },
 
@@ -175,7 +225,9 @@ window.InboundBankakManager = {
         if (isShown) {
             this.closeDrawer();
         } else {
+            if (overlay.parentElement !== document.body) document.body.appendChild(overlay);
             overlay.style.display = 'flex';
+            this._lastRenderedSig = '';
             this.refreshReceipts();
         }
     },
@@ -563,7 +615,15 @@ window.InboundBankakManager = {
 
                     this.receipts = res.data;
                     this.updateStats(res.stats);
-                    this.renderList();
+                    const newSig = this.activeFilter + '|' + JSON.stringify((res.data || []).map(x => [x.id, x.status, x.issue_reason, x.voucher_no, x.amount, x.transfer_no, x.customer_name, x.bank_code, x.bank_name]));
+                    const activeEl = document.activeElement;
+                    const userTypingInDrawer = activeEl && activeEl.closest && activeEl.closest('#inbound-bankak-drawer-overlay') && activeEl.tagName === 'INPUT';
+                    if (!isSilent || newSig !== this._lastRenderedSig) {
+                        if (!isSilent || !userTypingInDrawer) {
+                            this._lastRenderedSig = newSig;
+                            this.renderList();
+                        }
+                    }
                 }
             })
             .catch(err => {
@@ -685,13 +745,14 @@ window.InboundBankakManager = {
 
     updateStats: function(stats) {
         if (!stats) return;
-        const total = stats.total || 0;
-        const verified = (stats.verified || 0);
-        const dup = stats.duplicate_rejected || 0;
-        const pending = stats.pending || 0;
-        const awaiting = (stats.awaiting_approval !== undefined)
-            ? stats.awaiting_approval
-            : this.receipts.filter(r => r.issue_reason === 'awaiting_posting_approval' || (r.status === 'pending' && parseFloat(r.amount || 0) > 0)).length;
+        const badReasons = ['non_financial_image', 'cropped_missing_ref', 'zero_amount', 'invalid_transfer_no_under_6_digits'];
+        const cleanReceipts = (this.receipts || []).filter(r => r.status !== 'duplicate_rejected' && !badReasons.includes(r.issue_reason));
+        const isPostedRec = (r) => (r.status === 'verified' || r.status === 'reconciled') && !!(r.voucher_no);
+        const verified = cleanReceipts.filter(isPostedRec).length;
+        const awaiting = cleanReceipts.filter(r => !isPostedRec(r)).length;
+        const pending = 0;
+        const total = cleanReceipts.length;
+        const dup = 0;
 
         // Top bar badge
         const badge = document.getElementById('inbound-receipts-badge-count');
@@ -724,189 +785,281 @@ window.InboundBankakManager = {
 
     filterTab: function(filter, btn) {
         this.activeFilter = filter;
+        const tabPalette = {
+            all: { bd: '#38bdf8', bg: 'rgba(2,132,199,0.22)', fg: '#e0f2fe', actBg: 'rgba(2,132,199,0.42)' },
+            awaiting_approval: { bd: '#c084fc', bg: 'rgba(124,58,237,0.24)', fg: '#f3e8ff', actBg: 'rgba(124,58,237,0.48)' },
+            pending_scan: { bd: '#facc15', bg: 'rgba(202,138,4,0.18)', fg: '#fef08a', actBg: 'rgba(202,138,4,0.40)' },
+            verified: { bd: '#34d399', bg: 'rgba(5,150,105,0.20)', fg: '#a7f3d0', actBg: 'rgba(5,150,105,0.42)' },
+            duplicate_rejected: { bd: '#f87171', bg: 'rgba(220,38,38,0.18)', fg: '#fecaca', actBg: 'rgba(220,38,38,0.40)' }
+        };
         document.querySelectorAll('.drawer-tab-btn').forEach(b => {
-            b.classList.remove('active');
-            b.style.borderColor = 'rgba(255,255,255,0.1)';
-            b.style.background = 'rgba(255,255,255,0.04)';
-            b.style.color = '#94a3b8';
+            const f = b.getAttribute('data-filter') || 'all', c = tabPalette[f] || tabPalette.all;
+            const isAct = (b === btn);
+            b.classList.toggle('active', isAct);
+            b.style.borderColor = c.bd;
+            b.style.background = isAct ? c.actBg : c.bg;
+            b.style.color = isAct ? '#ffffff' : c.fg;
+            b.style.boxShadow = isAct ? `0 0 0 2px ${c.bd}55` : 'none';
         });
-        if (btn) {
-            btn.classList.add('active');
-            btn.style.borderColor = 'rgba(56,189,248,0.4)';
-            btn.style.background = 'rgba(56,189,248,0.2)';
-            btn.style.color = '#e0f2fe';
-        }
         this.renderList();
     },
 
     renderList: function() {
         const container = document.getElementById('inbound-receipts-list-container');
         if (!container) return;
+        this.syncHeaderBankFromRows();
 
-        let filtered = this.receipts;
+        const badReasons = ['non_financial_image', 'cropped_missing_ref', 'zero_amount', 'invalid_transfer_no_under_6_digits'];
+        let filtered = (this.receipts || []).filter(r => r.status !== 'duplicate_rejected' && !badReasons.includes(r.issue_reason));
+        const isPostedRec = (r) => (r.status === 'verified' || r.status === 'reconciled') && !!(r.voucher_no);
         if (this.activeFilter !== 'all') {
             if (this.activeFilter === 'verified') {
-                filtered = this.receipts.filter(r => r.status === 'verified' || r.status === 'reconciled');
-            } else if (this.activeFilter === 'awaiting_approval') {
-                filtered = this.receipts.filter(r => r.issue_reason === 'awaiting_posting_approval' || (r.status === 'pending' && parseFloat(r.amount || 0) > 0));
-            } else if (this.activeFilter === 'pending_scan') {
-                filtered = this.receipts.filter(r => r.status === 'pending' && r.issue_reason !== 'awaiting_posting_approval' && parseFloat(r.amount || 0) <= 0);
+                filtered = filtered.filter(isPostedRec);
+            } else if (this.activeFilter === 'awaiting_approval' || this.activeFilter === 'pending_scan') {
+                filtered = filtered.filter(r => !isPostedRec(r));
             } else {
-                filtered = this.receipts.filter(r => r.status === this.activeFilter);
+                filtered = filtered.filter(r => r.status === this.activeFilter);
             }
         }
 
         if (filtered.length === 0) {
-            container.innerHTML = `
-                <div style="text-align:center; padding:40px 10px; color:#94a3b8;">
-                    <div style="font-size:2.5rem; margin-bottom:8px;">📭</div>
-                    <strong style="font-size:1rem; color:#f8fafc; display:block;">لا توجد إشعارات في هذا التصنيف</strong>
-                    <span style="font-size:0.80rem;">سيظهر أي إشعار بنكك جديد يرسله العميل هنا فورياً</span>
-                </div>
-            `;
+            container.innerHTML = `<div style="text-align:center; padding:40px 10px; color:#94a3b8;"><strong style="font-size:0.98rem; color:#f8fafc; display:block;">لا توجد إشعارات في هذا التصنيف</strong></div>`;
             return;
         }
 
         const allAccs = this.getAllReceivingAccounts();
-        const resolveAccLabel = (curCode, curName) => {
-            const hit = allAccs.find(x => (curCode && (x.val === curCode || x.rawId === String(curCode).replace(/^bank-/, ''))) || (curName && x.name === curName));
-            return hit ? `${hit.icon} ${hit.name}` : `🏦 ${curName || 'بنك الخرطوم'}`;
+        const resolveAcc = (curCode, curName) => {
+            const c = String(curCode || '').trim(), n = String(curName || '').trim();
+            const hit = allAccs.find(x => (c && c !== '170' && (x.val === c || x.rawId === c.replace(/^(bank|supp|cust|safe|wh|exp|emp)-/, ''))) || (n && x.name === n));
+            return hit ? { val: hit.val, name: hit.name, lbl: `${hit.icon} ${hit.name}` } : { val: c || '', name: n || 'بنك الخرطوم', lbl: `🏦 ${n || 'بنك الخرطوم'}` };
         };
+        const sep = 'border-left:1px solid rgba(148,163,184,0.25);';
         const rowsHtml = filtered.map((r, idx) => {
             const isDup = r.status === 'duplicate_rejected', isVer = r.status === 'verified' || r.status === 'reconciled';
             const isPosted = isVer && !!(r.voucher_no), amtNum = parseFloat(r.amount || 0);
-            const isAw = r.issue_reason === 'awaiting_posting_approval' || (!isVer && !isDup && amtNum > 0);
-            const rowBg = isDup ? 'rgba(127,29,29,0.24)' : (isPosted ? 'rgba(6,78,59,0.22)' : (isAw ? 'rgba(120,53,15,0.24)' : 'rgba(15,23,42,0.58)'));
-            const stBadge = isDup ? '<span style="background:rgba(239,68,68,0.24);border:1.4px solid #ef4444;color:#fecaca;padding:5px 11px;border-radius:99px;font-size:0.86rem;font-weight:900;white-space:nowrap;">🔴 مكرر مرفوض</span>'
-                : (isPosted ? `<span style="background:rgba(16,185,129,0.24);border:1.4px solid #10b981;color:#6ee7b7;padding:5px 11px;border-radius:99px;font-size:0.86rem;font-weight:900;white-space:nowrap;">🟢 مرحّل (${escapeHtml(r.voucher_no)})</span>`
-                : (isAw ? `<span style="background:rgba(245,158,11,0.24);border:1.4px solid #f59e0b;color:#fde047;padding:5px 11px;border-radius:99px;font-size:0.86rem;font-weight:900;white-space:nowrap;">👁️ بانتظار الترحيل</span>`
-                : '<span style="background:rgba(250,204,21,0.18);border:1.4px solid #eab308;color:#fef08a;padding:5px 11px;border-radius:99px;font-size:0.86rem;font-weight:900;white-space:nowrap;">🟡 قيد الفحص</span>'));
+            const editDraft = (this._editingRows && this._editingRows[Number(r.id)]) || null;
+            const isUnlocked = !isPosted || !!editDraft;
+            const canEditFrom = !!editDraft;
+            const rowBg = isDup ? 'rgba(127,29,29,0.22)' : (isPosted ? 'rgba(6,78,59,0.18)' : 'rgba(88,28,135,0.22)');
+            const numBg = isDup ? 'background:#dc2626;border:1.5px solid #f87171;'
+                : (isPosted ? 'background:#059669;border:1.5px solid #34d399;'
+                : 'background:#7c3aed;border:1.5px solid #c084fc;');
+            const numTitle = isDup ? 'مكرر' : (isPosted ? 'مرحّل' : 'انتظار');
             const fmtAmt = amtNum.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-            const dtShort = String(r.created_at || '').split(' ')[0] || '';
-            const curLbl = escapeHtml(resolveAccLabel(r.bank_code, r.bank_name));
-            const btnCss = 'height:34px;padding:0 10px;border-radius:8px;font-size:0.84rem;font-family:inherit;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;text-decoration:none;';
-            return `<tr style="background:${rowBg};border-bottom:1.5px solid rgba(148,163,184,0.2);transition:background 0.15s;" onmouseenter="this.style.background='rgba(56,189,248,0.14)'" onmouseleave="this.style.background='${rowBg}'">
-                <td style="padding:12px 10px;text-align:center;color:#cbd5e1;font-weight:900;font-size:0.96rem;">${idx + 1}</td>
-                <td style="padding:12px 14px;min-width:250px;"><div style="font-family:'Cairo','Tajawal',sans-serif;font-weight:900;color:#ffffff;font-size:1.24rem;line-height:1.4;">👤 ${escapeHtml(r.customer_name || 'غير محدد')}</div><div style="font-size:0.86rem;color:#cbd5e1;font-weight:800;direction:ltr;text-align:right;margin-top:2px;">${escapeHtml(r.customer_phone || '')} ${r.notes ? '• <span style="color:#fde68a;font-family:Cairo,Tajawal,sans-serif;">' + escapeHtml(String(r.notes).slice(0,45)) + '</span>' : ''}</div></td>
-                <td style="padding:12px 14px;text-align:center;direction:ltr;min-width:165px;"><strong style="color:#fde047;font-size:1.34rem;font-family:'Cairo','Inter',sans-serif;font-variant-numeric:tabular-nums;font-weight:900;letter-spacing:0.3px;">${fmtAmt}</strong><div style="font-size:0.80rem;color:#cbd5e1;font-weight:900;">${escapeHtml(r.currency || 'SDG')}</div></td>
-                <td style="padding:12px 14px;text-align:center;direction:ltr;min-width:165px;"><div style="color:#7dd3fc;font-family:'Cairo','Inter',sans-serif;font-variant-numeric:tabular-nums;font-weight:900;font-size:1.18rem;letter-spacing:0.4px;">${escapeHtml(r.transfer_no || '---')}</div><div style="font-size:0.82rem;color:#cbd5e1;font-weight:800;">${escapeHtml(dtShort)}</div></td>
-                <td style="padding:12px 12px;min-width:240px;"><input type="text" value="${curLbl}" data-cur-label="${curLbl}" autocomplete="off" onfocus="this.select();InboundBankakManager.openAccountSearchMenu(this, ${r.id})" oninput="InboundBankakManager.openAccountSearchMenu(this, ${r.id})" placeholder="🔍 ابحث واختر الحساب..." title="انقر أو اكتب للبحث عن اسم الحساب المستلم" style="width:100%;height:38px;box-sizing:border-box;background:#0f172a;color:#fde047;border:1.6px solid rgba(245,158,11,0.65);border-radius:9px;padding:0 10px;font-family:'Cairo','Tajawal',sans-serif;font-size:1.02rem;font-weight:900;outline:none;cursor:pointer;"></td>
-                <td style="padding:12px 10px;text-align:center;">${stBadge}</td>
-                <td style="padding:12px 12px;"><div style="display:flex;align-items:center;gap:6px;flex-wrap:nowrap;">
-                    ${(!isPosted && !isDup) ? `<button type="button" onclick="InboundBankakManager.postToAccountsDirect(${r.id}, this)" style="${btnCss}background:linear-gradient(135deg,#10b981,#059669);border:1.4px solid #6ee7b7;color:#fff;" title="ترحيل فوري للحساب">✔️ ترحيل</button>` : ''}
-                    <button type="button" onclick="InboundBankakManager.inspectInVoucher(${r.id})" style="${btnCss}background:rgba(56,189,248,0.22);border:1.2px solid #38bdf8;color:#e0f2fe;" title="فتح بالسند">🔍 السند</button>
-                    ${r.receipt_image ? `<button type="button" onclick="InboundBankakManager.previewReceiptImage('${escapeHtml(r.receipt_image)}', 'إشعار #${r.id} — ${escapeHtml(r.customer_name)} (${fmtAmt} SDG)')" style="${btnCss}background:rgba(14,165,233,0.18);border:1.2px solid rgba(56,189,248,0.45);color:#bae6fd;" title="معاينة صورة الإشعار">🖼️ صورة</button>` : ''}
-                    <button type="button" onclick="InboundBankakManager.checkForgeryOnDemand(${r.id}, this)" style="${btnCss}background:rgba(168,85,247,0.22);border:1.2px solid #c084fc;color:#f3e8ff;" title="فحص التزوير">🕵️ تزوير</button>
-                    <button type="button" onclick="InboundBankakManager.promptAssignByCode(${r.id})" style="${btnCss}background:rgba(16,185,129,0.18);border:1.2px solid #34d399;color:#6ee7b7;" title="توجيه لحساب">🏷️ توجيه</button>
-                    <a href="general-ledger.php?accountId=${encodeURIComponent(r.customer_id ? ('cust-' + String(r.customer_id).replace(/^cust-/, '')) : '')}&name=${encodeURIComponent(r.customer_name || '')}" target="_blank" style="${btnCss}background:rgba(56,189,248,0.14);border:1.2px solid rgba(56,189,248,0.4);color:#7dd3fc;" title="كشف حساب العميل">📊 كشف</a>
-                    <button type="button" onclick="InboundBankakManager.openCustomerAlertModal(${r.id})" style="${btnCss}background:rgba(37,211,102,0.22);border:1.2px solid #25d366;color:#86efac;" title="إرسال تنبيه رسمي عبر واتساب">📲 واتساب</button>
-                    <button type="button" onclick="InboundBankakManager.dismissReceipt(${r.id})" style="width:34px;height:34px;border-radius:8px;background:rgba(239,68,68,0.16);border:1.2px solid rgba(239,68,68,0.45);color:#fca5a5;cursor:pointer;font-weight:900;font-size:0.95rem;" title="حذف / أرشفة">✕</button>
+            let dtShort = String(r.receipt_date || r.transfer_date || '').split(' ')[0] || '';
+            if (!dtShort && r.notes) { const dm = String(r.notes).match(/\b(20\d{2}[-/]\d{2}[-/]\d{2})\b/); if (dm) dtShort = dm[1].replace(/\//g, '-'); }
+            if (!dtShort) dtShort = String(r.created_at || '').split(' ')[0] || '';
+            const recAcc = editDraft && editDraft.newRecName ? { val: editDraft.newRecId, name: editDraft.newRecName } : resolveAcc(r.bank_code, r.bank_name);
+            const curLbl = escapeHtml(recAcc.name || 'بنك الخرطوم');
+            const phoneTxt = String((editDraft && editDraft.newCustPhone) || r.customer_phone || '').trim();
+            const dispCustRaw = (editDraft && editDraft.newCustName) ? editDraft.newCustName : r.customer_name;
+            const rawCustName = String(dispCustRaw || 'غير محدد').replace(/^[🏦🚚👥🗄️🏬💸👔👤]+\s*/, '').replace(/\s*[-•|]\s*تحويل.*$/i, '').trim() || 'غير محدد';
+            const cleanName = escapeHtml(rawCustName);
+            const nameFs = rawCustName.length > 28 ? '0.76rem' : (rawCustName.length > 18 ? '0.83rem' : '0.91rem');
+            const recFs = (recAcc.name || '').length > 26 ? '0.74rem' : ((recAcc.name || '').length > 18 ? '0.79rem' : '0.84rem');
+            const btnCss = 'height:26px;padding:0 8px;border-radius:6px;font-size:0.74rem;font-family:inherit;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;text-decoration:none;flex-shrink:0;';
+            const rcCustId = r.customer_id ? ('cust-' + String(r.customer_id).replace(/^cust-/, '')) : '';
+            return `<tr data-row-id="${r.id}" style="background:${rowBg};border-bottom:1px solid rgba(148,163,184,0.22);" onmouseenter="this.style.background='rgba(56,189,248,0.13)'" onmouseleave="this.style.background='${rowBg}'">
+                <td style="padding:5px 4px;box-sizing:border-box;text-align:center;overflow:hidden;${sep}" title="${numTitle}"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:24px;padding:0 5px;border-radius:6px;color:#ffffff;font-weight:900;font-size:0.80rem;font-variant-numeric:tabular-nums;${numBg}">${idx + 1}</span></td>
+                <td class="inbound-name-cell" data-rc-account-id="${escapeHtml(rcCustId)}" data-rc-account-name="${cleanName}" data-rc-account-phone="${escapeHtml(phoneTxt)}" data-rc-account-type="customer" title="كليك يمين للخيارات" style="padding:6px 6px;box-sizing:border-box;text-align:center;cursor:context-menu;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;${sep}">
+                    <span style="font-family:'Cairo','Tajawal',sans-serif;font-weight:800;color:#ffffff;font-size:${nameFs};display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${cleanName}</span>
+                </td>
+                <td style="padding:6px 6px;box-sizing:border-box;overflow:hidden;${sep}"><div style="position:relative;width:100%;"><input type="text" class="inbound-row-rec-input" data-row-id="${r.id}" data-rc-account-id="${escapeHtml(recAcc.val)}" data-rc-account-name="${escapeHtml(recAcc.name)}" data-acc-val="${escapeHtml(recAcc.val)}" data-acc-name="${escapeHtml(recAcc.name)}" value="${curLbl}" data-cur-label="${curLbl}" autocomplete="off" ${isUnlocked ? `onfocus="this.select();InboundBankakManager.openAccountSearchMenu(this, ${r.id})" oninput="InboundBankakManager.openAccountSearchMenu(this, ${r.id})"` : 'readonly title="مقفول بعد الترحيل — اضغط تعديل لفتحه"'} placeholder="ابحث عن إلى حساب..." style="width:100%;height:28px;box-sizing:border-box;background:${isUnlocked ? '#0f172a' : 'rgba(100,116,139,0.42)'};color:${isUnlocked ? '#fde047' : '#cbd5e1'};border:${isUnlocked ? '1.4px solid rgba(245,158,11,0.68)' : '1px solid rgba(148,163,184,0.48)'};border-radius:7px;padding:0 ${isUnlocked ? '6px' : '24px'} 0 6px;font-family:'Cairo','Tajawal',sans-serif;font-size:${recFs};font-weight:${isUnlocked ? '900' : '700'};text-align:center;outline:none;cursor:${isUnlocked ? 'text' : 'not-allowed'};overflow:hidden;text-overflow:ellipsis;">${!isUnlocked ? `<span style="position:absolute;left:6px;top:50%;transform:translateY(-50%);font-size:0.74rem;color:#94a3b8;pointer-events:none;" title="مقفول">🔒</span>` : ''}</div></td>
+                <td style="padding:6px 6px;box-sizing:border-box;text-align:center;direction:ltr;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${sep}"><div style="color:#7dd3fc;font-family:'Inter','Cairo',sans-serif;font-variant-numeric:tabular-nums;font-weight:900;font-size:0.86rem;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(r.transfer_no || '---')}</div><div style="font-size:0.71rem;color:#cbd5e1;font-weight:800;font-variant-numeric:tabular-nums;">${escapeHtml(dtShort)}</div></td>
+                <td style="padding:6px 6px;box-sizing:border-box;text-align:center;direction:ltr;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${sep}"><strong style="color:#fde047;font-size:0.96rem;font-family:'Inter','Cairo',sans-serif;font-variant-numeric:tabular-nums;font-weight:900;">${fmtAmt}</strong></td>
+                <td style="padding:6px 6px;box-sizing:border-box;overflow:hidden;"><div style="display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:nowrap;overflow:hidden;">
+                    ${(!isPosted && !isDup) ? `<button type="button" onclick="InboundBankakManager.postToAccountsDirect(${r.id}, this)" style="${btnCss}background:linear-gradient(135deg,#10b981,#059669);border:1.2px solid #6ee7b7;color:#fff;">ترحيل</button>` : ''}
+                    ${isPosted ? ((editDraft && editDraft.dirty) ? `<button type="button" onclick="InboundBankakManager.confirmSaveEditedRow(${r.id}, this)" style="${btnCss}background:linear-gradient(135deg,#10b981,#059669);border:1.4px solid #6ee7b7;color:#fff;">حفظ</button>` : `<button type="button" onclick="InboundBankakManager.unlockOrEditRow(${r.id})" style="${btnCss}background:linear-gradient(135deg,#fbbf24,#d97706);border:1.2px solid #fef08a;color:#0f172a;">تعديل</button>`) : ''}
+                    <button type="button" onclick="InboundBankakManager.inspectInVoucher(${r.id})" style="${btnCss}background:rgba(56,189,248,0.22);border:1px solid #38bdf8;color:#e0f2fe;">السند</button>
+                    <button type="button" onclick="InboundBankakManager.previewReceiptById(${r.id})" style="${btnCss}background:rgba(14,165,233,0.18);border:1px solid rgba(56,189,248,0.45);color:#bae6fd;">صورة</button>
+                    <button type="button" onclick="InboundBankakManager.checkForgeryOnDemand(${r.id}, this)" style="${btnCss}background:rgba(168,85,247,0.22);border:1px solid #c084fc;color:#f3e8ff;">تزوير</button>
+                    <button type="button" onclick="InboundBankakManager.dismissReceipt(${r.id})" style="width:26px;height:26px;padding:0;border-radius:6px;background:rgba(239,68,68,0.18);border:1px solid rgba(239,68,68,0.45);color:#fca5a5;cursor:pointer;font-weight:900;font-size:0.80rem;flex-shrink:0;" title="حذف">✕</button>
                 </div></td>
             </tr>`;
         }).join('');
-        container.innerHTML = `<div style="border:1.8px solid rgba(56,189,248,0.38);border-radius:14px;overflow:auto;background:rgba(2,6,23,0.75);box-shadow:inset 0 2px 12px rgba(0,0,0,0.45);">
-            <table style="width:100%;border-collapse:collapse;text-align:right;min-width:1320px;">
-                <thead><tr style="background:linear-gradient(90deg,#0f172a,#1e293b);border-bottom:2.2px solid #38bdf8;color:#7dd3fc;font-family:'Cairo','Tajawal',sans-serif;font-size:1.06rem;font-weight:900;position:sticky;top:0;z-index:5;">
-                    <th style="padding:13px 10px;text-align:center;width:44px;">#</th>
-                    <th style="padding:13px 14px;">📤 من حساب (العميل)</th>
-                    <th style="padding:13px 14px;text-align:center;">💰 المبلغ</th>
-                    <th style="padding:13px 14px;text-align:center;">🔢 رقم العملية والتاريخ</th>
-                    <th style="padding:13px 12px;">📥 إلى حساب (المستلم)</th>
-                    <th style="padding:13px 10px;text-align:center;">📌 الحالة</th>
-                    <th style="padding:13px 12px;">⚡ الخيارات والإجراءات</th>
+        container.innerHTML = `<div style="border:1.5px solid rgba(56,189,248,0.38);border-radius:10px;overflow-y:auto;overflow-x:hidden;background:rgba(2,6,23,0.78);width:100%;box-sizing:border-box;">
+            <table style="width:100%;table-layout:fixed;border-collapse:collapse;text-align:center;">
+                <colgroup>
+                    <col style="width:4.5%;">
+                    <col style="width:20%;">
+                    <col style="width:21%;">
+                    <col style="width:14%;">
+                    <col style="width:11.5%;">
+                    <col style="width:29%;">
+                </colgroup>
+                <thead><tr style="background:linear-gradient(90deg,#0f172a,#1e293b);border-bottom:2px solid #38bdf8;color:#7dd3fc;font-family:'Cairo','Tajawal',sans-serif;font-size:0.85rem;font-weight:900;position:sticky;top:0;z-index:5;">
+                    <th style="padding:8px 4px;text-align:center;${sep}">#</th>
+                    <th style="padding:8px 6px;text-align:center;${sep}">من حساب</th>
+                    <th style="padding:8px 6px;text-align:center;${sep}">إلى حساب</th>
+                    <th style="padding:8px 6px;text-align:center;${sep}">رقم العملية والتاريخ</th>
+                    <th style="padding:8px 6px;text-align:center;${sep}">المبلغ</th>
+                    <th style="padding:8px 6px;text-align:center;">خيارات الإجراء</th>
                 </tr></thead>
                 <tbody>${rowsHtml}</tbody>
             </table>
         </div>`;
     },
 
+    openAssignCustomerById: function(receiptId) {
+        const r = (this.receipts || []).find(x => Number(x.id) === Number(receiptId));
+        if (!r) return;
+        const m = document.getElementById('inbound-assign-customer-modal');
+        if (m && m.parentElement !== document.body) document.body.appendChild(m);
+        if (typeof this.openAssignCustomerModal === 'function') {
+            this.openAssignCustomerModal(r.id, r.customer_name || '', r.customer_phone || '', r.amount || 0, r.transfer_no || '');
+        }
+    },
+
+    unlockOrEditRow: function(receiptId) {
+        const rid = Number(receiptId);
+        if (!this._editingRows) this._editingRows = {};
+        if (this._editingRows[rid] && !this._editingRows[rid].dirty) { delete this._editingRows[rid]; this.renderList(); return; }
+        const r = (this.receipts || []).find(x => Number(x.id) === rid) || {};
+        const fmtAmt = parseFloat(r.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+        const origCust = String(r.customer_name || 'غير محدد').replace(/^[🏦🚚👥🗄️🏬💸👔👤]+\s*/, '').replace(/\s*[-•|]\s*تحويل.*$/i, '').trim() || 'غير محدد';
+        const hit = this.getAllReceivingAccounts().find(x => (r.bank_code && r.bank_code !== '170' && x.val === r.bank_code) || (r.bank_name && x.name === r.bank_name));
+        const origRecId = hit ? hit.val : (r.bank_code || '');
+        const origRecName = hit ? hit.name : (r.bank_name || 'بنك الخرطوم');
+        const mid = 'inbound-edit-warn-modal'; if (document.getElementById(mid)) document.getElementById(mid).remove();
+        const d = document.createElement('div'); d.id = mid;
+        d.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:rgba(2,6,23,0.88);display:flex;align-items:center;justify-content:center;padding:16px;font-family:Cairo,Tajawal,sans-serif;direction:rtl;';
+        d.innerHTML = `<div style="width:min(490px,94vw);background:linear-gradient(155deg,#450a0a,#1a0508);border:2.2px solid #ef4444;border-radius:16px;padding:20px 22px;color:#fff;box-shadow:0 28px 70px rgba(0,0,0,0.95);text-align:center;"><h3 style="margin:0 0 10px;font-size:1.15rem;font-weight:900;color:#fca5a5;">تنبيه هام قبل التعديل</h3><div style="font-size:0.94rem;color:#fee2e2;line-height:1.75;margin-bottom:18px;font-weight:800;background:rgba(220,38,38,0.22);padding:12px;border-radius:10px;border:1.4px solid rgba(248,113,113,0.55);">تنبيه هام: سوف يتم حذف الرصيد (<strong style="color:#fde047;">${fmtAmt}</strong>) من حساب (<strong style="color:#ffffff;">${escapeHtml(origRecName)}</strong>) وإضافته في الحساب الجديد فور الحفظ.</div><div style="display:flex;justify-content:center;gap:10px;"><button type="button" id="inbound-warn-cancel" style="height:38px;padding:0 22px;border-radius:9px;background:rgba(148,163,184,0.18);border:1.4px solid rgba(148,163,184,0.45);color:#e2e8f0;font-family:inherit;font-weight:900;font-size:0.9rem;cursor:pointer;">إلغاء</button><button type="button" id="inbound-warn-ok" style="height:38px;padding:0 26px;border-radius:9px;background:linear-gradient(135deg,#dc2626,#991b1b);border:1.5px solid #fca5a5;color:#ffffff;font-family:inherit;font-weight:900;font-size:0.92rem;cursor:pointer;">موافق ومتابعة التعديل</button></div></div>`;
+        document.body.appendChild(d);
+        d.querySelector('#inbound-warn-cancel').onclick = () => d.remove();
+        d.querySelector('#inbound-warn-ok').onclick = () => {
+            d.remove();
+            this._editingRows[rid] = { origCustName: origCust, origRecId, origRecName, newRecId: origRecId, newRecName: origRecName, dirty: false };
+            this.renderList();
+            setTimeout(() => { const inp = document.querySelector(`.inbound-row-rec-input[data-row-id="${rid}"]`); if (inp) { inp.focus(); inp.select(); } }, 30);
+        };
+    },
+
+    confirmSaveEditedRow: async function(receiptId, btnEl) {
+        const rid = Number(receiptId), ed = this._editingRows && this._editingRows[rid];
+        const r = (this.receipts || []).find(x => Number(x.id) === rid);
+        if (!ed || !r) return;
+        const fmtAmt = parseFloat(r.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+        const summaryLines = [];
+        if (ed.newCustName && ed.newCustName !== ed.origCustName) summaryLines.push(`تم نقل (من حساب) من <strong>${escapeHtml(ed.origCustName)}</strong> إلى <strong>${escapeHtml(ed.newCustName)}</strong>`);
+        if (ed.newRecName && ed.newRecName !== ed.origRecName) summaryLines.push(`تم نقل (إلى حساب) من <strong>${escapeHtml(ed.origRecName)}</strong> إلى <strong>${escapeHtml(ed.newRecName)}</strong>`);
+        if (!summaryLines.length) { delete this._editingRows[rid]; this.renderList(); return; }
+        if (btnEl) { btnEl.disabled = true; btnEl.innerHTML = 'جاري...'; }
+        if (ed.newCustPayload) await this._execAssignCustomerPayload(ed.newCustPayload);
+        if (ed.newRecName && ed.newRecName !== ed.origRecName) await this.changeTargetBank(rid, ed.newRecId, ed.newRecName);
+        delete this._editingRows[rid];
+        await this.refreshReceipts();
+        const sid = 'inbound-edit-done-modal'; if (document.getElementById(sid)) document.getElementById(sid).remove();
+        const sd = document.createElement('div'); sd.id = sid;
+        sd.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:rgba(2,6,23,0.82);display:flex;align-items:center;justify-content:center;padding:16px;font-family:Cairo,Tajawal,sans-serif;direction:rtl;';
+        sd.innerHTML = `<div style="width:min(470px,94vw);background:linear-gradient(155deg,#064e3b,#022c22);border:2px solid #34d399;border-radius:16px;padding:20px 22px;color:#fff;box-shadow:0 28px 70px rgba(0,0,0,0.95);text-align:center;"><h3 style="margin:0 0 10px;font-size:1.12rem;font-weight:900;color:#6ee7b7;">تم حفظ ونقل الحساب بنجاح</h3><div style="font-size:0.93rem;color:#ecfdf5;line-height:1.75;margin-bottom:16px;font-weight:800;background:rgba(16,185,129,0.18);padding:12px;border-radius:10px;border:1px solid rgba(110,231,183,0.45);">المبلغ: <strong style="color:#fde047;">${fmtAmt}</strong><br>${summaryLines.join('<br>')}</div><button type="button" onclick="document.getElementById('${sid}').remove()" style="height:36px;padding:0 28px;border-radius:9px;background:#10b981;border:1.4px solid #a7f3d0;color:#fff;font-family:inherit;font-weight:900;font-size:0.92rem;cursor:pointer;">موافق</button></div>`;
+        document.body.appendChild(sd);
+    },
+
+    previewReceiptById: function(receiptId) {
+        const r = (this.receipts || []).find(x => Number(x.id) === Number(receiptId));
+        if (!r || !r.receipt_image) {
+            if (typeof showToast === 'function') showToast('لا توجد صورة مرفقة لهذا الإشعار', 'warning');
+            return;
+        }
+        const rawCustName = String(r.customer_name || 'غير محدد').replace(/^[🏦🚚👥🗄️🏬💸👔👤]+\s*/, '').replace(/\s*[-•|]\s*تحويل.*$/i, '').trim() || 'غير محدد';
+        const fmtAmt = parseFloat(r.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+        this.previewReceiptImage(r.receipt_image, `إشعار #${r.id} — ${rawCustName} (${fmtAmt})`);
+    },
+
     previewReceiptImage: function(imgUrl, title) {
         if (!imgUrl) return;
         const modalId = 'inbound-receipt-img-preview-modal';
         if (document.getElementById(modalId)) document.getElementById(modalId).remove();
+        const cloudFallback = imgUrl.startsWith('http') ? imgUrl : ('https://c.elsajana.com/' + String(imgUrl).replace(/^\/+/, ''));
         const div = document.createElement('div');
         div.id = modalId;
-        div.style.cssText = 'position:fixed; inset:0; background:rgba(2,6,23,0.88); backdrop-filter:blur(8px); z-index:999999999; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px; font-family:Tajawal,sans-serif; direction:rtl;';
+        div.style.cssText = 'position:fixed; inset:0; background:rgba(2,6,23,0.90); z-index:2147483647; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:18px; font-family:Cairo,Tajawal,sans-serif; direction:rtl;';
         div.onclick = (e) => { if (e.target === div) div.remove(); };
         div.innerHTML = `
-            <div style="background:#0f172a; border:2px solid #38bdf8; border-radius:16px; padding:14px; max-width:92vw; max-height:90vh; display:flex; flex-direction:column; gap:10px; box-shadow:0 25px 60px rgba(0,0,0,0.9);">
-                <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px;">
-                    <strong style="color:#f8fafc; font-size:0.95rem;">🖼️ ${escapeHtml(title || 'صورة الإشعار البنكي')}</strong>
-                    <button type="button" onclick="document.getElementById('${modalId}').remove()" style="background:rgba(239,68,68,0.2); border:1px solid #ef4444; color:#fca5a5; border-radius:8px; width:32px; height:32px; cursor:pointer; font-weight:900;">✕</button>
+            <div style="background:#0f172a; border:2px solid #38bdf8; border-radius:16px; padding:16px 20px; width:min(700px, 94vw); max-height:92vh; display:flex; flex-direction:column; gap:12px; box-shadow:0 28px 70px rgba(0,0,0,0.95);">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; border-bottom:1px solid rgba(255,255,255,0.14); padding-bottom:10px;">
+                    <strong style="color:#f8fafc; font-size:1.02rem; font-weight:900;">${escapeHtml(title || 'صورة الإشعار البنكي')}</strong>
+                    <button type="button" onclick="document.getElementById('${modalId}').remove()" style="background:rgba(239,68,68,0.24); border:1.4px solid #ef4444; color:#fecaca; border-radius:8px; width:34px; height:34px; cursor:pointer; font-weight:900; font-size:1rem;">✕</button>
                 </div>
-                <div style="overflow:auto; max-height:78vh; display:flex; justify-content:center; align-items:center;">
-                    <img src="${escapeHtml(imgUrl)}" alt="Receipt" style="max-width:100%; max-height:75vh; border-radius:10px; object-fit:contain;">
+                <div style="overflow:auto; max-height:82vh; display:flex; justify-content:center; align-items:center; background:#020617; border-radius:12px; padding:10px;">
+                    <img src="${escapeHtml(imgUrl)}" onerror="if(this.src!=='${escapeHtml(cloudFallback)}'){this.src='${escapeHtml(cloudFallback)}';}" alt="Receipt" style="min-width:min(480px, 84vw); width:auto; max-width:100%; max-height:78vh; border-radius:10px; object-fit:contain;">
                 </div>
             </div>
         `;
         document.body.appendChild(div);
     },
 
-    changeTargetBank: async function(receiptId, bankId) {
+    changeTargetBank: async function(receiptId, bankId, bankName = '') {
         if (!bankId) return;
+        const hit = this.getAllReceivingAccounts().find(x => x.val === bankId);
+        const resolvedName = bankName || (hit ? hit.name : '');
+        const rLocal = this.receipts.find(x => Number(x.id) === Number(receiptId));
+        if (rLocal) { rLocal.bank_code = bankId; rLocal.bank_name = resolvedName; }
+        this.syncHeaderBankFromRows();
         const tId = this.getActiveTenantId();
         try {
             const res = await fetch('api/inbound_receipts.php?action=change_target_bank&tenant_id=' + encodeURIComponent(tId), {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'change_target_bank',
-                    tenant_id: tId,
-                    id: receiptId,
-                    bank_id: bankId
-                })
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'change_target_bank', tenant_id: tId, id: receiptId, bank_id: bankId, bank_name: resolvedName })
             });
             const data = await res.json();
             if (data && data.success) {
-                const r = this.receipts.find(x => Number(x.id) === Number(receiptId));
-                if (r) {
-                    r.bank_code = data.bank_id;
-                    r.bank_name = data.bank_name;
-                    if (r.voucher_no) this.syncPostedReceiptToLocalErp(r);
+                if (rLocal) {
+                    const prevVNo = rLocal.voucher_no || '';
+                    rLocal.bank_code = data.bank_id || bankId;
+                    rLocal.bank_name = data.bank_name || resolvedName;
+                    if (data.posting && data.posting.voucher_no) {
+                        rLocal.voucher_no = data.posting.voucher_no;
+                        if (prevVNo && prevVNo !== rLocal.voucher_no) {
+                            try {
+                                const getTK = window.getTenantKey || ((k) => k);
+                                ['erp_receipts_v1', getTK('erp_receipts_v1')].forEach(k => {
+                                    const arr = JSON.parse(localStorage.getItem(k) || '[]');
+                                    if (Array.isArray(arr)) localStorage.setItem(k, JSON.stringify(arr.filter(v => v && String(v.id) !== String(prevVNo) && String(v.receiptNo) !== String(prevVNo))));
+                                });
+                            } catch (_) {}
+                        }
+                    }
+                    if (rLocal.voucher_no) this.syncPostedReceiptToLocalErp(rLocal, data.posting || null);
                 }
-                if (typeof showToast === 'function') {
-                    showToast(data.message || `🏦 تم تحديد البنك المستلم: ${data.bank_name}`, 'success');
-                }
-                this.refreshReceipts(true);
-            } else {
-                alert(data?.error || 'تعذر تغيير البنك المستلم');
+                this.syncHeaderBankFromRows();
+                if (typeof showToast === 'function') showToast(`✅ تم تحديد الحساب المستلم: ${data.bank_name || resolvedName}`, 'success');
             }
-        } catch (e) {
-            alert('خطأ في الاتصال: ' + e.message);
-        }
+        } catch (e) {}
     },
 
     approveAllPendingReceipts: async function(btnEl) {
         const candidates = this.receipts.filter(r =>
             r.status !== 'duplicate_rejected' &&
-            (parseFloat(r.amount || 0) > 0 || !!r.receipt_image) &&
-            (r.issue_reason === 'awaiting_posting_approval' || r.status === 'pending' || !r.voucher_no)
+            !( (r.status === 'verified' || r.status === 'reconciled') && !!r.voucher_no )
         );
         if (candidates.length === 0) {
-            if (typeof showToast === 'function') {
-                showToast('✅ جميع الإشعارات السليمة معتمدة ومرحّلة بالفعل في الحسابات!', 'info');
-            } else {
-                alert('جميع الإشعارات السليمة معتمدة ومرحّلة بالفعل في الحسابات.');
-            }
+            if (typeof showToast === 'function') showToast('✅ جميع الإشعارات السليمة مرحّلة بالفعل!', 'info');
             return;
         }
-
-        const bankId = document.getElementById('drawer-target-bank-select')?.value || this.selectedBankId || '';
+        const uniformBankId = document.getElementById('drawer-target-bank-select')?.value || '';
+        const uniformBankName = (document.getElementById('drawer-target-acc-filter')?.value || '').replace(/^[🏦🚚👥🗄️🏬💸👔🔍]\s*/, '').trim();
+        const perRowTargets = {};
+        candidates.forEach(c => {
+            const inp = document.querySelector(`.inbound-row-rec-input[data-row-id="${c.id}"]`);
+            perRowTargets[c.id] = {
+                bank_id: (inp && inp.dataset.accVal) || c.bank_code || uniformBankId || '',
+                bank_name: (inp && inp.dataset.accName) || c.bank_name || uniformBankName || ''
+            };
+        });
         const origHtml = btnEl ? btnEl.innerHTML : '';
-        if (btnEl) {
-            btnEl.disabled = true;
-            btnEl.innerHTML = '<span>⏳</span> <span>جاري تمرير الكل...</span>';
-        }
+        if (btnEl) { btnEl.disabled = true; btnEl.innerHTML = '<span>⏳</span> <span>جاري ترحيل الكل...</span>'; }
         try {
             const tId = this.getActiveTenantId();
             const res = await fetch('api/inbound_receipts.php?action=approve_batch&tenant_id=' + encodeURIComponent(tId), {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     action: 'approve_batch',
                     tenant_id: tId,
                     ids: candidates.map(c => Number(c.id)),
-                    bank_id: bankId
+                    bank_id: uniformBankId,
+                    bank_name: uniformBankName,
+                    row_targets: perRowTargets
                 })
             });
             const data = await res.json();
@@ -915,27 +1068,23 @@ window.InboundBankakManager = {
                     data.results.forEach(postRes => {
                         if (postRes && postRes.success && postRes.voucher_no) {
                             const rObj = this.receipts.find(x => Number(x.id) === Number(postRes.receipt_id)) || { id: postRes.receipt_id, voucher_no: postRes.voucher_no };
-                            rObj.status = 'verified';
-                            rObj.issue_reason = null;
-                            rObj.voucher_no = postRes.voucher_no;
+                            rObj.status = 'verified'; rObj.issue_reason = null; rObj.voucher_no = postRes.voucher_no;
                             this.syncPostedReceiptToLocalErp(rObj, postRes);
                         }
                     });
                 }
-                this.refreshReceipts();
+                await this.refreshReceipts();
                 if (typeof showToast === 'function') {
-                    showToast(data.message || `✅ تم تمرير وترحيل (${data.approved_count}) إشعار للحسابات بنجاح!`, 'success', 6000);
+                    const skippedMsg = (data.skipped_count > 0) ? ` (تعذر ترحيل ${data.skipped_count} لعدم وجود مبلغ)` : '';
+                    showToast(`✅ تم ترحيل (${data.approved_count || 0}) إشعار بنجاح${skippedMsg}`, 'success', 5000);
                 }
             } else {
-                alert(data?.error || 'تعذر تمرير الدفعة');
+                alert(data?.error || 'تعذر ترحيل الإشعارات');
             }
         } catch (e) {
-            alert('خطأ أثناء تمرير الإشعارات: ' + e.message);
+            alert('خطأ أثناء الترحيل: ' + e.message);
         } finally {
-            if (btnEl) {
-                btnEl.disabled = false;
-                btnEl.innerHTML = origHtml || '<span>✔️</span> <span>تمرير الكل للحسابات</span>';
-            }
+            if (btnEl) { btnEl.disabled = false; btnEl.innerHTML = origHtml || '<span>✔️</span> <span>ترحيل الكل</span>'; }
         }
     },
 
@@ -1463,21 +1612,28 @@ window.InboundBankakManager = {
         const tId = this.getActiveTenantId();
         const bankSel = document.getElementById('drawer-target-bank-select');
         const bankId = (bankSel && bankSel.value) ? bankSel.value : (this.selectedBankId || '');
+        const payload = { action: 'assign_customer_by_code', tenant_id: tId, id: receiptId, customer_id: selectedId, customer_code: codeOrName, customer_phone: phoneVal, bank_id: bankId, link_sender_phone: linkPhone };
+        const ridNum = Number(receiptId);
+        if (this._editingRows && this._editingRows[ridNum]) {
+            this._editingRows[ridNum].newCustName = rawSearch || codeOrName;
+            this._editingRows[ridNum].newCustPhone = phoneVal;
+            this._editingRows[ridNum].newCustPayload = payload;
+            this._editingRows[ridNum].dirty = true;
+            if (btn) { btn.disabled = false; btn.innerHTML = origHtml; }
+            this.closeAssignCustomerModal();
+            this.renderList();
+            return;
+        }
+        await this._execAssignCustomerPayload(payload, btn, origHtml);
+    },
 
+    _execAssignCustomerPayload: async function(payload, btn = null, origHtml = '') {
+        const tId = payload.tenant_id || this.getActiveTenantId(), receiptId = payload.id, phoneVal = payload.customer_phone || '';
         try {
             const res = await fetch('api/inbound_receipts.php?action=assign_customer_by_code&tenant_id=' + encodeURIComponent(tId), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'assign_customer_by_code',
-                    tenant_id: tId,
-                    id: receiptId,
-                    customer_id: selectedId,
-                    customer_code: codeOrName,
-                    customer_phone: phoneVal,
-                    bank_id: bankId,
-                    link_sender_phone: linkPhone
-                })
+                body: JSON.stringify(payload)
             });
             const data = await res.json();
             if (data && data.success) {
@@ -1554,7 +1710,8 @@ window.InboundBankakManager = {
                 if (document.getElementById(modalId)) document.getElementById(modalId).remove();
                 const div = document.createElement('div');
                 div.id = modalId;
-                div.style.cssText = 'position:fixed; inset:0; background:rgba(2,6,23,0.85); backdrop-filter:blur(8px); z-index:99999999; display:flex; align-items:center; justify-content:center; padding:16px; font-family:Tajawal,sans-serif; direction:rtl;';
+                div.style.cssText = 'position:fixed; inset:0; background:rgba(2,6,23,0.88); backdrop-filter:blur(8px); z-index:2147483647; display:flex; align-items:center; justify-content:center; padding:16px; font-family:Cairo,Tajawal,sans-serif; direction:rtl;';
+                div.onclick = (ev) => { if (ev.target === div) div.remove(); };
                 div.innerHTML = `
                     <div style="width:100%; max-width:480px; background:linear-gradient(145deg, #0f172a, #1e293b); border:2px solid ${isSusp ? '#ef4444' : '#10b981'}; border-radius:18px; padding:20px 22px; color:#fff; box-shadow:0 25px 60px rgba(0,0,0,0.9);">
                         <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:10px; margin-bottom:12px;">
@@ -1590,22 +1747,33 @@ window.InboundBankakManager = {
         } finally {
             if (btnElement) {
                 btnElement.disabled = false;
-                btnElement.innerHTML = origHtml || '<span>🕵️</span> <span>فحص التزوير</span>';
+                btnElement.innerHTML = origHtml || 'تزوير';
             }
         }
     },
 
-    // ═══ تنزيل وتمرير فوري في الحسابات بنقرة واحدة ═══
     postToAccountsDirect: async function(receiptId, btnElement) {
         if (btnElement) {
             btnElement.disabled = true;
-            btnElement.innerHTML = '<span>🔄</span> <span>جاري التمرير...</span>';
+            btnElement.innerHTML = 'جاري...';
         }
         try {
             const tId = this.getActiveTenantId();
+            const rowObj = this.receipts.find(x => Number(x.id) === Number(receiptId));
+            const rowInp = document.querySelector(`.inbound-row-rec-input[data-row-id="${receiptId}"]`);
             const bankSel = document.getElementById('drawer-target-bank-select');
-            const bankId = (bankSel && bankSel.value) ? bankSel.value : (this.selectedBankId || this.selectedTargetBankId || '');
-            const url = `api/inbound_receipts.php?action=post_to_accounts&id=${receiptId}&force_post=1&bank_id=${encodeURIComponent(bankId)}&tenant_id=${encodeURIComponent(tId)}`;
+            const bankId = (rowInp && rowInp.dataset.accVal) || (rowObj && rowObj.bank_code && rowObj.bank_code !== '170' ? rowObj.bank_code : '') || (bankSel && bankSel.value) || '';
+            const bankName = (rowInp && rowInp.dataset.accName) || (rowObj && rowObj.bank_name) || '';
+            let manualAmt = '';
+            if (rowObj && parseFloat(rowObj.amount || 0) <= 0) {
+                const entered = prompt('أدخل مبلغ الإشعار لإتمام الترحيل:', '');
+                if (!entered || parseFloat(entered.replace(/,/g, '')) <= 0) {
+                    if (btnElement) { btnElement.disabled = false; btnElement.innerHTML = 'ترحيل'; }
+                    return;
+                }
+                manualAmt = String(parseFloat(entered.replace(/,/g, '')));
+            }
+            const url = `api/inbound_receipts.php?action=post_to_accounts&id=${receiptId}&force_post=1&bank_id=${encodeURIComponent(bankId)}&bank_name=${encodeURIComponent(bankName)}${manualAmt ? '&amount=' + encodeURIComponent(manualAmt) : ''}&tenant_id=${encodeURIComponent(tId)}`;
             const res = await fetch(url);
             const data = await res.json();
             if (data.success && data.voucher_no) {
@@ -1737,8 +1905,63 @@ window.InboundBankakManager = {
             if (vTypeEl) vTypeEl.value = 'receipt';
         }
 
-        // 5. Dynamically resolve the real .account-block data-block-id (NEVER hardcode '1')
+        // 5. Support BOTH single-cash-payment.php (حركة مالية) AND multi-cash-payment.php (سند متعدد)
+        let syncDate = String(r.receipt_date || r.transfer_date || '').split(' ')[0] || '';
+        if (!syncDate && r.notes) { const dm = String(r.notes).match(/\b(20\d{2}[-/]\d{2}[-/]\d{2})\b/); if (dm) syncDate = dm[1].replace(/\//g, '-'); }
+        if (!syncDate) syncDate = String(r.created_at || '').split(' ')[0] || '';
+
+        const scpFromSearch = document.getElementById('from-account-search');
+        const scpToSearch = document.getElementById('to-account-search');
+        if (scpFromSearch && scpToSearch && !document.getElementById('accounts-blocks-container')) {
+            setTimeout(() => {
+                const rawCustId = String(r.customer_id || '').replace(/^(cust|supp)-/, '');
+                const custAccId = rawCustId ? ('cust-' + rawCustId) : '';
+                const allAccs = this.getAllReceivingAccounts();
+                const recHit = allAccs.find(x => (r.bank_code && r.bank_code !== '170' && (x.val === r.bank_code || x.rawId === String(r.bank_code).replace(/^(bank|supp|cust|safe|wh|exp|emp)-/, ''))) || (r.bank_name && x.name === r.bank_name));
+                const toAccId = recHit ? recHit.val : (r.bank_code && r.bank_code !== '170' ? r.bank_code : '');
+                const toAccName = recHit ? recHit.name : (r.bank_name || 'بنك الخرطوم');
+                const fHid = document.getElementById('from-account');
+                const tHid = document.getElementById('to-account');
+                if (fHid) fHid.value = custAccId || (r.customer_name || '');
+                scpFromSearch.value = String(r.customer_name || '').trim();
+                scpFromSearch.dispatchEvent(new Event('change', { bubbles: true }));
+                if (tHid) tHid.value = toAccId || toAccName;
+                scpToSearch.value = toAccName;
+                scpToSearch.dispatchEvent(new Event('change', { bubbles: true }));
+                const vDateEl = document.getElementById('voucher-date');
+                if (vDateEl && syncDate) vDateEl.value = syncDate;
+                if (r.voucher_no && document.getElementById('voucher-no')) document.getElementById('voucher-no').textContent = r.voucher_no;
+                const cleanAmt = parseFloat(r.amount || 0) || 0;
+                const fmtStr = cleanAmt > 0 ? Math.round(cleanAmt).toLocaleString('en-US') : '';
+                const amtLoc = document.getElementById('amount-local');
+                if (amtLoc && cleanAmt > 0) { amtLoc.value = fmtStr; amtLoc.dispatchEvent(new Event('input', { bubbles: true })); }
+                const btnBank = document.getElementById('toggle-bank');
+                if (btnBank && !btnBank.classList.contains('active')) btnBank.click();
+                setTimeout(() => {
+                    const trCont = document.getElementById('transfers-container');
+                    if (trCont) {
+                        if (!trCont.querySelector('.transfer-row') && typeof window.addTransferRow === 'function') window.addTransferRow('', '', 0);
+                        const trRow = trCont.querySelector('.transfer-row');
+                        if (trRow) {
+                            const tAmt = trRow.querySelector('.transfer-amount'), tNote = trRow.querySelector('.transfer-note'), tNo = trRow.querySelector('.transfer-no'), tSt = trRow.querySelector('.transfer-statement');
+                            if (tAmt && cleanAmt > 0) { tAmt.value = fmtStr; tAmt.dispatchEvent(new Event('input', { bubbles: true })); }
+                            if (tNote) tNote.value = toAccName;
+                            if (tNo) tNo.value = r.transfer_no || '';
+                            if (tSt) tSt.value = `إشعار وارد #${r.id} - ${r.customer_name || ''}`;
+                        }
+                    }
+                    const vDesc = document.getElementById('voucher-desc') || document.getElementById('statement');
+                    if (vDesc) vDesc.value = `سداد إشعار (${toAccName}) رقم العملية: ${r.transfer_no || ''} - ${r.customer_name || ''}`;
+                    if (typeof window.recalcPaymentSummary === 'function') window.recalcPaymentSummary();
+                }, 120);
+            }, 80);
+            return;
+        }
+
+        // Dynamically resolve the real .account-block data-block-id on multi-cash-payment.php
         setTimeout(() => {
+            const vDateMulti = document.getElementById('voucher-date');
+            if (vDateMulti && syncDate) vDateMulti.value = syncDate;
             const container = document.getElementById('accounts-blocks-container');
             let targetBlock = container ? container.querySelector('.account-block') : document.querySelector('.account-block');
             if (!targetBlock && typeof window.addAccountBlock === 'function') {
@@ -2081,21 +2304,52 @@ window.InboundBankakManager = {
     },
 
     dismissReceipt: function(id) {
-        if (!confirm('هل تريد بالتأكيد أرشفة أو تجاهل هذا الإشعار من قائمة الانتظار؟')) return;
-        const tId = this.getActiveTenantId();
-        fetch('api/inbound_receipts.php?action=dismiss&tenant_id=' + encodeURIComponent(tId), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: id, tenant_id: tId })
-        })
-        .then(res => res.json())
-        .then(res => {
-            if (res.success) {
-                this.pruneOrphanedInboundVouchers(null, res.deleted_voucher_no || '', id);
-                this.refreshReceipts();
-                if (typeof showToast === 'function') showToast('تمت أرشفة الإشعار بنجاح', 'info');
-            }
-        });
+        const r = (this.receipts || []).find(x => Number(x.id) === Number(id)) || {};
+        const cName = String(r.customer_name || 'غير محدد').trim();
+        const amtTxt = Number(r.amount || 0).toLocaleString('en-US');
+        const trNo = r.transfer_no || '---';
+        let dlg = document.getElementById('inbound-luxury-dismiss-modal');
+        if (dlg) dlg.remove();
+        dlg = document.createElement('div');
+        dlg.id = 'inbound-luxury-dismiss-modal';
+        dlg.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:rgba(2,6,23,0.82);display:flex;align-items:center;justify-content:center;padding:16px;direction:rtl;font-family:Cairo,Tajawal,sans-serif;';
+        dlg.innerHTML = `<div style="width:100%;max-width:430px;background:linear-gradient(160deg,#0f172a 0%,#1e1b4b 55%,#090d16 100%);border:2px solid #f43f5e;border-radius:18px;box-shadow:0 25px 60px rgba(0,0,0,0.92),0 0 30px rgba(244,63,94,0.28);padding:22px 24px;color:#fff;text-align:center;">
+            <div style="width:54px;height:54px;margin:0 auto 12px;border-radius:50%;background:rgba(244,63,94,0.18);border:2px solid #fb7185;display:flex;align-items:center;justify-content:center;font-size:1.6rem;">🗑️</div>
+            <h3 style="margin:0 0 8px;font-size:1.18rem;font-weight:900;color:#fecdd3;">تأكيد حذف وتجاهل الإشعار</h3>
+            <p style="margin:0 0 14px;font-size:0.90rem;color:#cbd5e1;font-weight:700;line-height:1.6;">هل تريد بالتأكيد حذف وتجاهل هذا الإشعار من قائمة الانتظار؟</p>
+            <div style="background:rgba(2,6,23,0.65);border:1px solid rgba(148,163,184,0.25);border-radius:11px;padding:10px 12px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;font-size:0.86rem;font-weight:900;">
+                <span style="color:#f8fafc;">${escapeHtml(cName)}</span>
+                <span style="color:#fde047;direction:ltr;">${escapeHtml(amtTxt)} SDG</span>
+                <span style="color:#7dd3fc;direction:ltr;">#${escapeHtml(trNo)}</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <button type="button" id="inb-dismiss-cancel" style="height:40px;border-radius:10px;border:1.5px solid rgba(148,163,184,0.4);background:rgba(30,41,59,0.8);color:#e2e8f0;font-family:inherit;font-size:0.92rem;font-weight:900;cursor:pointer;">تراجع وإلغاء</button>
+                <button type="button" id="inb-dismiss-confirm" style="height:40px;border-radius:10px;border:1.5px solid #fda4af;background:linear-gradient(135deg,#e11d48,#be123c);color:#ffffff;font-family:inherit;font-size:0.92rem;font-weight:900;cursor:pointer;box-shadow:0 6px 18px rgba(225,29,72,0.45);">🗑️ نعم، حذف وتجاهل</button>
+            </div>
+        </div>`;
+        document.body.appendChild(dlg);
+        const closeDlg = () => { if (dlg && dlg.parentNode) dlg.remove(); };
+        dlg.onclick = (e) => { if (e.target === dlg) closeDlg(); };
+        dlg.querySelector('#inb-dismiss-cancel').onclick = closeDlg;
+        dlg.querySelector('#inb-dismiss-confirm').onclick = () => {
+            const btn = dlg.querySelector('#inb-dismiss-confirm');
+            btn.disabled = true; btn.textContent = '⏳ جاري الحذف...';
+            const tId = this.getActiveTenantId();
+            fetch('api/inbound_receipts.php?action=dismiss&tenant_id=' + encodeURIComponent(tId), {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id, tenant_id: tId })
+            })
+            .then(res => res.json())
+            .then(res => {
+                closeDlg();
+                if (res.success) {
+                    this.pruneOrphanedInboundVouchers(null, res.deleted_voucher_no || '', id);
+                    this._lastRenderedSig = '';
+                    this.refreshReceipts();
+                    if (typeof showToast === 'function') showToast('🗑️ تم حذف وتجاهل الإشعار بنجاح', 'info');
+                }
+            }).catch(() => closeDlg());
+        };
     },
 
     openDirectUploadModal: function() {

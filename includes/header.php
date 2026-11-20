@@ -2015,7 +2015,12 @@ try {
                     var lbl = it.type === 'order' ? '<span style="color:#fb923c;">🟠 طلب:</span> ' : '<span style="color:#4ade80;">🟢 عرض:</span> ';
                     return '<span style="color:' + clr + ';">' + nBadge + lbl + (it.text || '') + '</span>';
                 }).join(' <span style="color:#fb923c;">❖</span> ');
-                bar.innerHTML = '<div style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1;color:#fb923c;"><span style="color:#fde047;">🏛️ بورصة السيطرة التجارية:</span> ' + txt + '</div>'
+                if (!document.getElementById('mkt-global-marquee-kf')) {
+                    var stKf = document.createElement('style'); stKf.id = 'mkt-global-marquee-kf';
+                    stKf.textContent = '@keyframes mktGlobalMarquee{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(50%,0,0)}}#global-screens-broker-ticker-track{display:inline-flex!important;width:max-content!important;gap:22px!important;white-space:nowrap!important;animation:mktGlobalMarquee 62s linear infinite!important;}#global-screens-broker-ticker:hover #global-screens-broker-ticker-track{animation-play-state:paused!important;}';
+                    document.head.appendChild(stKf);
+                }
+                bar.innerHTML = '<span style="color:#fde047;flex-shrink:0;">🏛️ بورصة السيطرة التجارية:</span><div style="overflow:hidden;white-space:nowrap;flex:1;direction:rtl;"><div id="global-screens-broker-ticker-track"><span>' + txt + '</span><span style="color:#fb923c;">❖</span><span>' + txt + '</span></div></div>'
                     + '<div style="display:flex;gap:4px;flex-shrink:0;">'
                     + '<button type="button" onclick="var d=localStorage.getItem(\'magaiees_broker_dock_mode\')===\'bottom\'?\'top\':\'bottom\';localStorage.setItem(\'magaiees_broker_dock_mode\',d);window.renderGlobalScreensBrokerBar();" style="padding:1px 6px;border-radius:5px;background:#1e293b;color:#fde047;border:1px solid #f59e0b;font-size:10.5px;font-weight:900;cursor:pointer;" title="تبديل الموقع أعلى/أسفل">📍 أعلى/أسفل</button>'
                     + '<button type="button" onclick="window.toggleMagaieesBourseGlobal();" style="padding:1px 6px;border-radius:5px;background:#881337;color:#fecdd3;border:1px solid #f43f5e;font-size:10.5px;font-weight:900;cursor:pointer;" title="إخفاء البورصة">🙈 إخفاء</button>'

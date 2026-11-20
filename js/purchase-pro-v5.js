@@ -1425,14 +1425,17 @@ async function renderCustomerDropdown(filter = '') {
             const phoneH = c.phone ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(c.phone), filter) : c.phone) : '';
             const codeH = c.code ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(c.code), filter) : c.code) : '';
 
+            item.dataset.rcAccountId = (c.isCustomer ? 'cust-' : 'supp-') + String(c.id).replace(/^(cust|supp)-/, '');
+            item.dataset.rcAccountName = c.name || '';
+            item.dataset.rcAccountPhone = c.phone || '';
+            item.dataset.rcAccountType = c.isCustomer ? 'customer' : 'supplier';
             item.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: right; dir: rtl; pointer-events: none;">
                     <div style="display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                         <span style="font-weight: bold; color: #fff; font-size: 1.05rem;">👤 ${nameH}</span>
-                        ${phoneH ? `<span style="font-size:0.8rem; color:#94a3b8; font-family: monospace;">(${phoneH})</span>` : ''}
                         ${codeH ? `<span style="font-size:0.75rem; color:#38bdf8; background: rgba(56,189,248,0.1); padding: 1px 6px; border-radius: 4px; font-family: monospace;">[${codeH}]</span>` : ''}
                     </div>
-                    <span style="font-size:0.75rem; background:rgba(244,114,182,0.15); color:#f472b6; padding: 3px 10px; border-radius: 12px; font-weight: bold;">مورد</span>
+                    <span style="font-size:0.75rem; background:rgba(244,114,182,0.15); color:#f472b6; padding: 3px 10px; border-radius: 12px; font-weight: bold;">${c.isCustomer ? 'عميل' : 'مورد'}</span>
                 </div>
             `;
 

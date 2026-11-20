@@ -851,12 +851,13 @@ try {
     }
     #invoice-info-box .group-invoice {
         flex: 0 0 auto !important;
-        min-width: 172px !important;
-        display: flex !important;
+        min-width: 0 !important;
+        width: fit-content !important;
+        display: inline-flex !important;
         align-items: center !important;
-        gap: 5px !important;
+        gap: 2px !important;
         margin: 0 !important;
-        height: 36px !important;
+        height: 32px !important;
     }
     #invoice-info-box #hdr-inv-label,
     #invoice-info-box #hdr-date-label {
@@ -867,33 +868,35 @@ try {
         white-space: nowrap !important;
     }
     #invoice-info-box .pro-serial-container {
-        flex: 1 !important;
-        min-width: 112px !important;
-        height: 36px !important;
-        min-height: 36px !important;
-        max-height: 36px !important;
-        display: flex !important;
+        flex: 0 0 auto !important;
+        min-width: 0 !important;
+        width: fit-content !important;
+        height: 30px !important;
+        min-height: 30px !important;
+        max-height: 30px !important;
+        display: inline-flex !important;
         align-items: center !important;
-        justify-content: space-between !important;
-        padding: 0 5px !important;
-        border-radius: 9px !important;
+        justify-content: center !important;
+        gap: 2px !important;
+        padding: 0 2px !important;
+        border-radius: 8px !important;
         background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.75)) !important;
         border: 1.5px solid rgba(56, 189, 248, 0.45) !important;
         box-shadow: inset 0 0 12px rgba(56, 189, 248, 0.12), 0 2px 8px rgba(0, 0, 0, 0.25) !important;
         box-sizing: border-box !important;
     }
     #invoice-info-box #inv-number {
-        font-size: 1.32rem !important;
+        font-size: 0.82rem !important;
         font-family: 'Outfit', 'JetBrains Mono', sans-serif !important;
         font-weight: 900 !important;
         color: #38bdf8 !important;
-        text-shadow: 0 0 10px rgba(56, 189, 248, 0.35) !important;
-        letter-spacing: 0.4px !important;
+        letter-spacing: 0.2px !important;
         white-space: nowrap !important;
         text-align: center !important;
-        flex: 1 !important;
+        flex: 0 0 auto !important;
+        min-width: 0 !important;
         line-height: 1 !important;
-        padding: 0 4px !important;
+        padding: 0 2px !important;
         direction: ltr !important;
     }
     #invoice-info-box .group-date {
@@ -1068,10 +1071,10 @@ try {
                     <div id="invoice-info-box" style="display: flex; align-items: center; gap: 6px; flex-shrink: 0; padding: 3px 7px; border-radius: 10px;">
                         <div class="h-form-group group-invoice" style="display:flex; align-items:center; gap:2px; margin:0;">
                             <div class="pro-serial-container" style="display:inline-flex; align-items:center; gap:2px;">
-                                <button class="pro-serial-btn" type="button" onclick="loadPreviousInvoice()" title="الفاتورة السابقة" style="background: rgba(56,189,248,0.22); border: 1.5px solid #38bdf8; border-radius: 5px; color: #38bdf8; font-size: 0.78rem; font-weight: 900; cursor: pointer; width: 20px; height: 22px; display:inline-flex !important; align-items:center; justify-content:center; flex-shrink:0; padding:0;">❯</button>
-                                <span id="inv-number" data-auto-fit-voucher="1" class="pro-serial-number" style="min-width: 44px; padding: 0 3px; text-align:center;">---</span>
+                                <button class="pro-serial-btn" type="button" onclick="loadPreviousInvoice()" title="الفاتورة السابقة" style="background: rgba(56,189,248,0.22); border: 1.5px solid #38bdf8; border-radius: 5px; color: #38bdf8; font-size: 0.72rem; font-weight: 900; cursor: pointer; width: 18px; height: 20px; display:inline-flex !important; align-items:center; justify-content:center; flex-shrink:0; padding:0;">❯</button>
+                                <span id="inv-number" data-auto-fit-voucher="1" class="pro-serial-number" style="min-width: 0; padding: 0 2px; text-align:center;">---</span>
                                 <input type="hidden" id="hdr-inv-no">
-                                <button class="pro-serial-btn" type="button" onclick="loadNextInvoice()" title="الفاتورة التالية" style="background: rgba(56,189,248,0.22); border: 1.5px solid #38bdf8; border-radius: 5px; color: #38bdf8; font-size: 0.78rem; font-weight: 900; cursor: pointer; width: 20px; height: 22px; display:inline-flex !important; align-items:center; justify-content:center; flex-shrink:0; padding:0;">❮</button>
+                                <button class="pro-serial-btn" type="button" onclick="loadNextInvoice()" title="الفاتورة التالية" style="background: rgba(56,189,248,0.22); border: 1.5px solid #38bdf8; border-radius: 5px; color: #38bdf8; font-size: 0.72rem; font-weight: 900; cursor: pointer; width: 18px; height: 20px; display:inline-flex !important; align-items:center; justify-content:center; flex-shrink:0; padding:0;">❮</button>
                             </div>
                         </div>
                         <div style="width: 1px; height: 20px; background: rgba(255,255,255,0.22); flex-shrink: 0;"></div>

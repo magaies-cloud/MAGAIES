@@ -1536,24 +1536,25 @@ class WhatsAppClient {
 
             if (duplicateReceipts.length > 0) {
                 const dupRefs = duplicateReceipts.map(d => d.transfer_no || `#${d.id}`).join('، ');
-                replyParts.push(`⚠️ إشعارات مكررة لم يتم إضافتها (${duplicateReceipts.length}): رقم العملية (${dupRefs}) مسجل ومعتمد مسبقاً.`);
+                replyParts.push(`❌ الإشعار مرفوض ومكرر: تم استخدام رقم العملية (${dupRefs}) من قبل ولا يمكن قبوله.`);
             }
 
             if (invalidReceipts.length > 0) {
                 const hasCroppedRef = invalidReceipts.some(r => r.issue_reason === 'cropped_missing_ref');
                 const hasNonFinancial = invalidReceipts.some(r => r.issue_reason === 'non_financial_image');
+                const hasZeroAmt = invalidReceipts.some(r => r.issue_reason === 'zero_amount');
                 const hasShortRef = invalidReceipts.some(r => {
                     const digits = String(r.transfer_no || '').replace(/\D/g, '');
                     return (digits.length > 0 && digits.length < 6) || r.issue_reason === 'invalid_transfer_no_under_6_digits';
                 });
-                if (hasCroppedRef) {
-                    replyParts.push(`⚠️ تعذر اعتماد (${invalidReceipts.length}) إشعار تلقائياً: رقم العملية غير ظاهر في الصورة (مقطوع من الأعلى). يرجى إرسال صورة الإشعار كاملة ليتم تنزيله فوراً.`);
-                } else if (hasNonFinancial) {
-                    replyParts.push(`⚠️ الصورة المرسلة لا تبدو إشعار تحويل بنكي معتمد — تم تحويلها للمراجعة اليدوية.`);
-                } else if (hasShortRef) {
-                    replyParts.push(`⚠️ عدد (${invalidReceipts.length}) إشعار قيد المراجعة اليدوية (رقم التحويل غير مكتمل).`);
+                if (hasNonFinancial) {
+                    replyParts.push(`❌ الصورة مرفوضة ولا يمكن قبولها — يرجى إرسال صورة إشعار تحويل بنكي معتمد فقط.`);
+                } else if (hasCroppedRef || hasShortRef) {
+                    replyParts.push(`❌ الإشعار مرفوض: رقم العملية غير ظاهر أو مقطوع في الصورة. يرجى إرسال صورة الإشعار كاملة وواضحة ليتم قبوله وترحيله فوراً.`);
+                } else if (hasZeroAmt) {
+                    replyParts.push(`❌ الإشعار مرفوض: المبلغ غير ظاهر أو مقطوع في الصورة. يرجى إرسال صورة الإشعار كاملة وواضحة ليتم قبوله وترحيله فوراً.`);
                 } else {
-                    replyParts.push(`📥 تم استلام عدد (${invalidReceipts.length}) إشعار وهو قيد المراجعة والاعتماد اليدوي لدى الإدارة المالية (تأكد من وضوح المبلغ ورقم العملية في الصورة).`);
+                    replyParts.push(`❌ الإشعار مرفوض لعدم وضوح المبلغ أو رقم العملية في الصورة. يرجى إرسال صورة الإشعار كاملة وواضحة.`);
                 }
             }
 

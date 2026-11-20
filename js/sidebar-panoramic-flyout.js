@@ -1116,7 +1116,6 @@
                     <div class="pf-header-emblem" id="pf-emblem">🎛️</div>
                     <h3 class="pf-header-title" id="pf-title">لوحة التحكم</h3>
                 </div>
-                <button type="button" class="pf-more-btn" id="pf-more-btn" style="display:none;">➕ المزيد ▾</button>
             </div>
             <div class="pf-bento-grid" id="pf-grid"></div>
         `;
@@ -1176,7 +1175,7 @@
                 const cards = menuConfig.items.map((item, idx) => {
                     const card = document.createElement('a');
                     card.href = item.href;
-                    card.className = 'pf-bento-card' + (idx >= 10 ? ' pf-hidden-layer' : '');
+                    card.className = 'pf-bento-card';
                     card.style.setProperty('--card-color', item.color || menuConfig.accent);
                     card.style.setProperty('--card-rgb', item.rgb || menuConfig.accentRgb);
                     card.style.setProperty('--card-idx', idx);
@@ -1191,33 +1190,8 @@
                 window.__pfDomCache[rawHref] = cards;
             }
             const cachedCards = window.__pfDomCache[rawHref];
-            cachedCards.forEach((c, i) => c.classList.toggle('pf-hidden-layer', i >= 10));
+            cachedCards.forEach(c => c.classList.remove('pf-hidden-layer'));
             grid.replaceChildren(...cachedCards);
-
-            const moreBtn = document.getElementById('pf-more-btn');
-            if (moreBtn) {
-                const total = menuConfig.items.length;
-                if (total <= 10) {
-                    moreBtn.style.display = 'none';
-                } else {
-                    let layerStep = 1; // 1 = 10 items (2 cols × 5 rows), 2 = 20 items, 3 = all
-                    const syncLayerUI = () => {
-                        const limit = layerStep === 1 ? 10 : (layerStep === 2 ? 20 : total);
-                        Array.from(grid.children).forEach((c, i) => c.classList.toggle('pf-hidden-layer', i >= limit));
-                        if (layerStep === 1) moreBtn.textContent = `➕ المزيد (${total - 10}) ▾`;
-                        else if (layerStep === 2 && total > 20) moreBtn.textContent = `➕ باقي القائمة (${total - 20}) ▾`;
-                        else moreBtn.textContent = 'طي القائمة ▴';
-                        if (activeSidebarLink) positionFlyoutNextToItem(activeSidebarLink, panel);
-                    };
-                    moreBtn.style.display = 'inline-flex';
-                    syncLayerUI();
-                    moreBtn.onclick = (ev) => {
-                        ev.preventDefault(); ev.stopPropagation();
-                        layerStep = (layerStep === 1) ? (total > 20 ? 2 : 3) : (layerStep === 2 ? 3 : 1);
-                        syncLayerUI();
-                    };
-                }
-            }
         }
 
         // Show & Position smoothly relative to the hovered sidebar item

@@ -372,7 +372,7 @@
             // 1. Invoice Number (#inv-number) — Exact Unified 14px Font Matching Date & Financial Strip
             const invEl = document.getElementById('inv-number');
             if (invEl) {
-                invEl.style.setProperty('font-size', '14px', 'important');
+                invEl.style.setProperty('font-size', '12.5px', 'important');
             }
 
             // 2. Supplier Input (#hdr-customer-search) - Auto-fit based on supplier name length & box width

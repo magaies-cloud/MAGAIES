@@ -607,10 +607,10 @@
             groups.forEach(g => {
                 html += `<div class="cs-group" data-group="${g}">${g}</div>`;
                 accountsData.filter(a => a.group === g).forEach(a => {
-                    const desc = a.phone ? `<div class="cs-option-desc">رقم التواصل: ${a.phone}</div>` : '';
-                    html += `<div class="cs-option" data-id="${a.id}" data-name="${a.name}" onclick="selectCsOption('${a.id}', '${a.name}')">
+                    const safePh = String(a.phone || '').replace(/"/g, '&quot;');
+                    const rcType = g === 'العملاء' ? 'customer' : (g === 'الموردين' ? 'supplier' : 'account');
+                    html += `<div class="cs-option" data-id="${a.id}" data-name="${a.name}" data-rc-account-id="${a.id}" data-rc-account-name="${a.name}" data-rc-account-phone="${safePh}" data-rc-account-type="${rcType}" onclick="selectCsOption('${a.id}', '${a.name}')">
                                 ${a.name}
-                                ${desc}
                              </div>`;
                 });
             });
@@ -2084,9 +2084,10 @@ input:checked + .slider:before { transform: translateX(20px); }
                 groups.forEach(g => {
                     html += `<div class="cs-group" data-group="${g}">${g}</div>`;
                     accountsData.filter(a => a.group === g).forEach(a => {
-                        const desc = a.phone ? `<div class="cs-option-desc">رقم التواصل: ${a.phone}</div>` : '';
                         const safeName = String(a.name || '').replace(/'/g, "\\'");
-                        html += `<div class="cs-option" data-id="${a.id}" data-name="${a.name}" onclick="selectCsOption('${a.id}', '${safeName}')">${a.name}${desc}</div>`;
+                        const safePh = String(a.phone || '').replace(/"/g, '&quot;');
+                        const rcType = g === 'العملاء' ? 'customer' : (g === 'الموردين' ? 'supplier' : 'account');
+                        html += `<div class="cs-option" data-id="${a.id}" data-name="${a.name}" data-rc-account-id="${a.id}" data-rc-account-name="${a.name}" data-rc-account-phone="${safePh}" data-rc-account-type="${rcType}" onclick="selectCsOption('${a.id}', '${safeName}')">${a.name}</div>`;
                     });
                 });
                 dd.innerHTML = html;
