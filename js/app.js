@@ -5712,7 +5712,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         return (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate > 0 ? ledgerExchangeRate : 1);
     }
 
-    // Helper: merge data across tenant-prefixed key and base key for zero data loss
+    // Helper: merge data across tenant-prefixed key and base key by recency (zero stale overwrites or vanished invoices)
     function loadSourceTable(baseKey) {
         const getTK = window.getTenantKey || ((k) => k);
         const tk = getTK(baseKey);
@@ -5721,12 +5721,27 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         try { list2 = JSON.parse(localStorage.getItem(baseKey) || '[]'); } catch(e){}
         if (!Array.isArray(list1)) list1 = Object.values(list1 || {});
         if (!Array.isArray(list2)) list2 = Object.values(list2 || {});
+        const recTs = (r) => {
+            if (!r) return 0;
+            const n = Number(r.updatedAtMs || r.savedAtMs || 0);
+            if (n > 0) return n;
+            const s = r.updatedAt || r.serverUpdatedAt || r.savedAt || r.timestamp || r.createdAt || '';
+            const p = s ? Date.parse(s) : 0;
+            return isNaN(p) ? 0 : p;
+        };
         const map = new Map();
-        [...list2, ...list1].forEach(v => {
-            if (!v) return;
-            const key = String(v.voucherNo || v.id || v.paymentNo || v.receiptNo || v.invoiceNo || v.code || v.name || Math.random()).trim();
-            map.set(key, v);
-        });
+        const ingest = (arr) => {
+            arr.forEach(v => {
+                if (!v) return;
+                const key = String(v.voucherNo || v.invoiceNo || v.id || v.paymentNo || v.receiptNo || v.code || v.name || Math.random()).trim();
+                const prev = map.get(key);
+                if (!prev || recTs(v) >= recTs(prev)) {
+                    map.set(key, prev && !v.deleted ? Object.assign({}, prev, v) : v);
+                }
+            });
+        };
+        ingest(list1);
+        ingest(list2);
         return Array.from(map.values()).filter(v => v && !v.deleted);
     }
 
@@ -5895,23 +5910,25 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         if (hasTransfers && v.paymentMethod !== 'cash') {
             v.bankTransfers.forEach(bt => {
                 const amt = parseNum(bt.amount);
+                if (amt <= 0) return;
                 const amtLoc = isBaseSDG ? amt : (amt > valFc * 1.5 ? amt : amt * effRate);
                 const amtFc = isBaseSDG ? (amt / effRate) : (amt > valFc * 1.5 ? (amt / effRate) : amt);
                 const stmt = bt.statement || v.statement || v.toStatement || ('تحويل بنكي - سند صرف #' + refNo);
+                const btFromAcct = resolveAccount(bt.bankAccountId || bt.bankId || v.fromAccount || 'bank-001', fromAcct);
 
                 txns.push({
                     date: v.date, time: time, ref: refNo, type: 'payment', typeLabel: 'سند صرف',
-                    account: toAcct, counterAccount: fromAcct,
+                    account: toAcct, counterAccount: btFromAcct,
                     statement: stmt, additionalNote: stmt,
-                    transferNo: bt.transferNo, bankName: bt.note,
+                    transferNo: bt.transferNo || bt.reference || '', bankName: bt.bankName || bt.note || '',
                     debit: amtLoc, credit: 0, debitForeign: amtFc, creditForeign: 0,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
                 txns.push({
                     date: v.date, time: time, ref: refNo, type: 'payment', typeLabel: 'سند صرف',
-                    account: fromAcct, counterAccount: toAcct,
+                    account: btFromAcct, counterAccount: toAcct,
                     statement: stmt, additionalNote: stmt,
-                    transferNo: bt.transferNo, bankName: bt.note,
+                    transferNo: bt.transferNo || bt.reference || '', bankName: bt.bankName || bt.note || '',
                     debit: 0, credit: amtLoc, debitForeign: 0, creditForeign: amtFc,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
@@ -5921,27 +5938,51 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         if (hasCheques && v.paymentMethod !== 'cash') {
             v.cheques.forEach(ch => {
                 const amt = parseNum(ch.amount);
+                if (amt <= 0) return;
                 const amtLoc = isBaseSDG ? amt : (amt > valFc * 1.5 ? amt : amt * effRate);
                 const amtFc = isBaseSDG ? (amt / effRate) : (amt > valFc * 1.5 ? (amt / effRate) : amt);
-                const chkLabel = ch.checkNo ? ('الشيك ' + ch.checkNo) : 'الشيك';
+                const chkLabel = ch.checkNo || ch.chequeNo ? ('الشيك ' + (ch.checkNo || ch.chequeNo)) : 'الشيك';
                 const stmt = ch.statement || (chkLabel + ' / صرف نقدية');
+                const chFromAcct = resolveAccount(ch.bankAccountId || v.fromAccount || 'cheques-payable', fromAcct);
 
                 txns.push({
                     date: v.date, time: time, ref: refNo, type: 'payment', typeLabel: 'سند صرف',
-                    account: toAcct, counterAccount: fromAcct,
+                    account: toAcct, counterAccount: chFromAcct,
                     statement: stmt, additionalNote: stmt,
-                    checkNo: ch.checkNo, bankName: ch.checkBranch,
+                    checkNo: ch.checkNo || ch.chequeNo || '', bankName: ch.checkBranch || ch.checkBank || '',
                     debit: amtLoc, credit: 0, debitForeign: amtFc, creditForeign: 0,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
                 txns.push({
                     date: v.date, time: time, ref: refNo, type: 'payment', typeLabel: 'سند صرف',
-                    account: fromAcct, counterAccount: toAcct,
+                    account: chFromAcct, counterAccount: toAcct,
                     statement: stmt, additionalNote: stmt,
-                    checkNo: ch.checkNo, bankName: ch.checkBranch,
+                    checkNo: ch.checkNo || ch.chequeNo || '', bankName: ch.checkBranch || ch.checkBank || '',
                     debit: 0, credit: amtLoc, debitForeign: 0, creditForeign: amtFc,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
+            });
+        }
+
+        // Hybrid cash portion when payment combines cash + bank transfers or cheques
+        const hybridCashAmt = (hasTransfers || hasCheques) ? parseNum(v.cashAmount || 0) : 0;
+        if (hybridCashAmt > 0 && v.paymentMethod !== 'cash') {
+            const cLoc = isBaseSDG ? hybridCashAmt : (hybridCashAmt * effRate);
+            const cFc = isBaseSDG ? (hybridCashAmt / effRate) : hybridCashAmt;
+            const cStmt = v.statement || ('صرف نقدي (دفع مختلط) - سند #' + refNo);
+            txns.push({
+                date: v.date, time: time, ref: refNo, type: 'payment', typeLabel: 'سند صرف',
+                account: toAcct, counterAccount: fromAcct,
+                statement: cStmt, additionalNote: 'الجزء النقدي من السند #' + refNo,
+                debit: cLoc, credit: 0, debitForeign: cFc, creditForeign: 0,
+                costCenter, currency, exchangeRate: effRate, isPosted
+            });
+            txns.push({
+                date: v.date, time: time, ref: refNo, type: 'payment', typeLabel: 'سند صرف',
+                account: fromAcct, counterAccount: toAcct,
+                statement: cStmt, additionalNote: 'الجزء النقدي من السند #' + refNo,
+                debit: 0, credit: cLoc, debitForeign: 0, creditForeign: cFc,
+                costCenter, currency, exchangeRate: effRate, isPosted
             });
         }
         
@@ -7005,7 +7046,9 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         }
 
         
-        if (inv.paymentMethod !== 'credit' && !inv.linkedFinancialVoucherNo) {
+        // Skip duplicate -PUR-PAID entries if this purchase invoice already has a linked voucher in erp_single_payments_v1
+        const hasLinkedSinglePay = !!(inv.linkedFinancialVoucherNo || payments.some(p => p && !p.deleted && String(p.refInvoice || '').trim() === String(refNo).trim()));
+        if (inv.paymentMethod !== 'credit' && !hasLinkedSinglePay) {
             const pms = inv.paymentMethods || [inv.paymentMethod];
             let cashAmt = parseFloat(inv.cashAmount) || 0;
             let bankAmt = parseFloat(inv.bankTransfers ? inv.bankTransfers.reduce((s, b) => s + (parseFloat(b.amount) || 0), 0) : inv.bankAmount) || 0;

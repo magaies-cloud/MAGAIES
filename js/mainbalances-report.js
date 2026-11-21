@@ -598,12 +598,17 @@ function calculateAccountLedgerBalance(p, allTxns, systemUsdRate, ccFilter = 'AL
         if (prefix && tPfx && tPfx !== prefix.toLowerCase()) return false;
         const cleanTAcc = tAcc.replace(/^(cust-|supp-|bank-|safe-|exp-|sub-|sust-)+/i, '').trim();
         if (!cleanTAcc || SYS_COUNTER_ACCS.test(cleanTAcc)) return false;
+        const isPartnerType = (prefix === 'cust-' || prefix === 'supp-');
+        const isTxnPartnerPfx = (tPfx === 'cust-' || tPfx === 'supp-');
         if (pBareId && cleanTAcc.toLowerCase() === pBareId.toLowerCase()) {
-            if (!prefix || tPfx === prefix.toLowerCase() || (!tPfx && pBareId.length >= 6)) return true;
+            if (!prefix || tPfx === prefix.toLowerCase() || (isPartnerType && isTxnPartnerPfx) || (!tPfx && pBareId.length >= 4)) return true;
         }
-        if (pName && !tPfx) {
-            if (tAcc === pName) return true;
-            if (cleanTAcc.length < 6 && String(t.accountName || '').trim() === pName) return true;
+        if (pName) {
+            const normP = normalizeArabic(pName);
+            if (!tPfx && (tAcc === pName || normalizeArabic(tAcc) === normP)) return true;
+            const resolvedNm = getAccountName(tAcc);
+            if (resolvedNm && normalizeArabic(resolvedNm) === normP && (!tPfx || !prefix || tPfx === prefix.toLowerCase() || (isPartnerType && isTxnPartnerPfx))) return true;
+            if (cleanTAcc.length < 6 && String(t.accountName || '').trim() && normalizeArabic(t.accountName) === normP) return true;
         }
         return false;
     };
@@ -614,7 +619,10 @@ function calculateAccountLedgerBalance(p, allTxns, systemUsdRate, ccFilter = 'AL
         const addKey = (k) => { if (!k) return; const arr = idxMap.get(k); if (arr) for (let i = 0; i < arr.length; i++) hitSet.add(arr[i]); };
         addKey('id:' + pRefPrefixed.toLowerCase());
         if (pBareId) addKey('bare:' + pBareId.toLowerCase());
-        if (pName) addKey('nm:' + pName);
+        if (pName) {
+            addKey('nm:' + pName);
+            addKey('nnm:' + normalizeArabic(pName));
+        }
         partnerTxns = [];
         hitSet.forEach(t => { if (matchesExactGLAccount(t)) partnerTxns.push(t); });
     } else {
@@ -869,11 +877,20 @@ function loadData() {
         pushKey('id:' + tAcc.toLowerCase(), t);
         const cleanT = tAcc.replace(/^(cust-|supp-|bank-|safe-|exp-|sub-|sust-)+/i, '').trim();
         if (cleanT) pushKey('bare:' + cleanT.toLowerCase(), t);
+        const resolvedAccNm = getAccountName(tAcc);
+        if (resolvedAccNm && resolvedAccNm !== tAcc) {
+            pushKey('nm:' + resolvedAccNm, t);
+            pushKey('nnm:' + normalizeArabic(resolvedAccNm), t);
+        }
         const hasPfx = /^(cust|supp|bank|safe|exp)-/i.test(tAcc);
         if (!hasPfx) {
             pushKey('nm:' + tAcc, t);
+            pushKey('nnm:' + normalizeArabic(tAcc), t);
             const tAN = String(t.accountName || '').trim();
-            if (tAN && cleanT.length < 6) pushKey('nm:' + tAN, t);
+            if (tAN && cleanT.length < 6) {
+                pushKey('nm:' + tAN, t);
+                pushKey('nnm:' + normalizeArabic(tAN), t);
+            }
         }
     });
     window._txnBucketMap = bMap;

@@ -520,7 +520,7 @@ try {
                 </div>
                 <div id="split-fc2-board-sajana-strip" style="display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap; padding: 7px 11px; border-radius: 10px; background: rgba(15,23,42,0.82); border: 1.5px solid rgba(245,158,11,0.5);">
                     <div style="display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                        <span style="font-size: 0.78rem; font-weight: 900; color: #fde047;">🏗️ معيار حديد السجانة للأقسام:</span>
+                        <span style="font-size: 0.78rem; font-weight: 900; color: #fde047;">⚖️ البسكول ومعيار الحديد للأقسام:</span>
                         <button type="button" onclick="window.applySplitAlSajanaQuickPreset && window.applySplitAlSajanaQuickPreset(135)" style="height: 27px; padding: 0 9px; border-radius: 7px; background: rgba(245,158,11,0.2); color: #fde047; border: 1px solid #f59e0b; font-size: 0.73rem; font-weight: 900; cursor: pointer;" title="تحويل وموازنة كميات التقسيم وفق الطن العددي = 135 سيخة">طن عددي = 135 سيخة</button>
                         <button type="button" onclick="window.applySplitAlSajanaQuickPreset && window.applySplitAlSajanaQuickPreset(140)" style="height: 27px; padding: 0 9px; border-radius: 7px; background: rgba(56,189,248,0.2); color: #38bdf8; border: 1px solid #38bdf8; font-size: 0.73rem; font-weight: 900; cursor: pointer;" title="تحويل وموازنة كميات التقسيم وفق الطن الوزني = 140 سيخة">طن وزني = 140 سيخة</button>
                         <button type="button" onclick="window.applySplitAlSajanaQuickPreset && window.applySplitAlSajanaQuickPreset(15)" style="height: 27px; padding: 0 9px; border-radius: 7px; background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid #10b981; font-size: 0.73rem; font-weight: 900; cursor: pointer;" title="تحويل وموازنة كميات التقسيم وفق الشيلة = 15 سيخة">الشيلة = 15 سيخة</button>
@@ -732,7 +732,7 @@ try {
 
     <!-- ROW 1: العميل (+ أستاذ + إضافة بدون آخر فاتورة) + زر جنيه/دولار + سعر الصرف الموسّع + المخزن في مكانه الأصلي -->
     <div id="sales-row1-bar" style="display: flex; gap: 10px; flex-wrap: nowrap; margin: 0; width: 100%; align-items: center;">
-        <div class="h-form-group group-supplier" style="flex: 3.35 1 0%; min-width: 0; display: flex; align-items: center; gap: 6px; flex-direction: row !important; margin: 0;">
+        <div class="h-form-group group-supplier" style="flex: 5.2 1 0%; min-width: 0; display: flex; align-items: center; gap: 6px; flex-direction: row !important; margin: 0;">
             <label class="h-label" style="color: #fde047; margin:0;">العميل</label>
             <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 6px; flex: 1; min-width: 0;">
                 <div class="custom-dropdown" style="flex:1; min-width: 0;">
@@ -758,12 +758,12 @@ try {
                 <option value="EGP">مصري</option>
             </select>
             <button type="button" id="hdr-currency-toggle-btn" data-cur="SDG" onclick="var s=document.getElementById('hdr-currency'); if(s){s.value=(s.value==='USD'?'SDG':'USD'); this.textContent=(s.value==='USD'?'دولار':'جنيه'); this.dataset.cur=s.value; s.dispatchEvent(new Event('change'));}" title="اضغط للتبديل الفوري بين الجنيه والدولار" style="min-width: 68px; padding: 0 10px; height: 36px; border-radius: 9px; background: linear-gradient(180deg, #0284c7 0%, #1d4ed8 100%); border: 1.8px solid #7dd3fc; color: #ffffff; font-family: 'Cairo', sans-serif; font-size: 0.92rem; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; flex-shrink: 0;">جنيه</button>
-            <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" placeholder="سعر الصرف" readonly style="width: 124px; min-width: 114px; text-align: center; cursor:pointer; padding: 0 8px;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; this.dataset.userEdited='1'; if(window.autoFitHeaderFields) window.autoFitHeaderFields(); if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
+            <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="<?php echo htmlspecialchars((string)$systemUsdRate); ?>" placeholder="سعر الصرف" readonly style="width: 102px; min-width: 96px; text-align: center; cursor:pointer; padding: 0 6px;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; this.dataset.userEdited='1'; if(window.autoFitHeaderFields) window.autoFitHeaderFields(); if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
         </div>
 
         <button type="button" id="btn-neg-sales-lock" data-unlocked="0" onclick="window.handleNegSalesLockClick && window.handleNegSalesLockClick()" title="صلاحية البيع بالسالب (مقفول — اضغط لإدخال كلمة مرور المدير للفتح)" aria-label="صلاحية البيع بالسالب" style="flex: 0 0 36px; width: 36px; min-width: 36px; height: 38px; border-radius: 9px; background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%); border: 1.8px solid #fca5a5; color: #ffffff; font-size: 0.95rem; font-weight: 900; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; padding: 0; position: relative; box-shadow: 0 3px 10px rgba(220,38,38,0.45);">🔒</button>
 
-        <div class="h-form-group group-warehouse" style="flex: 1.65 1 0%; min-width: 180px; max-width: 280px; display: flex; align-items: center; gap: 6px; flex-direction: row !important; margin: 0;">
+        <div class="h-form-group group-warehouse" style="flex: 1.15 1 0%; min-width: 155px; max-width: 215px; display: flex; align-items: center; gap: 6px; flex-direction: row !important; margin: 0;">
             <label class="h-label" style="margin:0; white-space:nowrap;">📦 المخزن</label>
             <div class="h-input-wrapper" style="display: flex; flex-direction: row !important; align-items: center !important; flex: 1; min-width: 0;">
                 <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange(); if(window.autoFitHeaderFields) window.autoFitHeaderFields();" style="width: 100%; font-weight: 800; padding: 0 10px;"></select>
@@ -818,7 +818,11 @@ try {
                         </div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                        <button type="button" id="btn-sales-ai-prices" onclick="if(window.openSalesAIAuditModal) window.openSalesAIAuditModal();" style="background: linear-gradient(135deg, #3730a3, #312e81); border: 1.5px solid #818cf8; color: #e0e7ff; border-radius: 8px; height: 30px; padding: 0 10px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 900; font-size: 0.76rem; white-space: nowrap; transition: all 0.2s;" title="الأسعار وهامش البيع">
+                        <button type="button" id="btn-sales-baskool" onclick="window.openSalesFc2DocumentaryAndLandedCostModal && window.openSalesFc2DocumentaryAndLandedCostModal()" style="background: linear-gradient(135deg, #b45309, #78350f); border: 1.5px solid #fbbf24; color: #fef3c7; border-radius: 9px; height: 34px; padding: 0 12px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 900; font-size: 0.88rem; white-space: nowrap;" title="حاسبة البسكول ومعيار الحديد والتكلفة المضافة">
+                            <span>⚖️</span>
+                            <span>البسكول</span>
+                        </button>
+                        <button type="button" id="btn-sales-ai-prices" onclick="if(window.openSalesAIAuditModal) window.openSalesAIAuditModal();" style="background: linear-gradient(135deg, #3730a3, #312e81); border: 1.5px solid #818cf8; color: #e0e7ff; border-radius: 8px; height: 34px; padding: 0 12px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 900; font-size: 0.88rem; white-space: nowrap; transition: all 0.2s;" title="الأسعار وهامش البيع">
                             <span>💰</span>
                             <span>الأسعار</span>
                         </button>

@@ -467,6 +467,17 @@ if (isset($_GET['api']) && $_GET['api'] === 'flash_delta_sync') {
             }
             $latestDigest = md5(json_encode($records, JSON_UNESCAPED_UNICODE));
             $clientDigest = isset($req['clientDigest']) ? (string)$req['clientDigest'] : '';
+            $syncPrefix = 'E' . date('ym');
+            $syncMaxSeq = 0;
+            foreach ($records as $recItem) {
+                if (!is_array($recItem) || !empty($recItem['deleted'])) continue;
+                $rid = isset($recItem['voucherNo']) && $recItem['voucherNo'] !== '' ? (string)$recItem['voucherNo'] : (isset($recItem['id']) ? (string)$recItem['id'] : '');
+                if (strpos($rid, $syncPrefix) === 0) {
+                    $sqN = (int)substr($rid, strlen($syncPrefix));
+                    if ($sqN > $syncMaxSeq && $sqN < 999999) $syncMaxSeq = $sqN;
+                }
+            }
+            $syncNextVoucherNo = $syncPrefix . str_pad($syncMaxSeq + 1, 4, '0', STR_PAD_LEFT);
 
             echo json_encode([
                 'success' => true,
@@ -474,6 +485,7 @@ if (isset($_GET['api']) && $_GET['api'] === 'flash_delta_sync') {
                 'pushedIds' => $pushedIds,
                 'conflictsResolved' => $conflictsResolved,
                 'digest' => $latestDigest,
+                'nextVoucherNo' => $syncNextVoucherNo,
                 'hasChanges' => ($clientDigest === '' || $clientDigest !== $latestDigest),
                 'records' => ($clientDigest !== '' && $clientDigest === $latestDigest) ? [] : $records,
                 'totalCount' => count($records)

@@ -66,7 +66,7 @@
             m.onclick = (e) => { if (e.target === m) m.remove(); };
             m.innerHTML = `<div style="width:min(520px,94vw);background:#0f172a;border:2px solid #fbbf24;border-radius:14px;padding:16px 18px;color:#fff;box-shadow:0 24px 60px rgba(0,0,0,0.9);">
                 <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(251,191,36,0.3);padding-bottom:8px;margin-bottom:10px;">
-                    <strong style="color:#fde047;font-size:1rem;font-weight:900;">🏗️ معيار السجانة وحاسبة فرق البسكول</strong>
+                    <strong style="color:#fde047;font-size:1rem;font-weight:900;">⚖️ حاسبة البسكول ومعيار الحديد</strong>
                     <button type="button" onclick="document.getElementById('pur-alsajana-modal').remove()" style="background:#dc2626;color:#fff;border:none;border-radius:7px;width:28px;height:28px;font-weight:900;cursor:pointer;">✕</button>
                 </div>
                 <div style="background:rgba(180,83,9,0.22);border:1px solid rgba(251,191,36,0.45);border-radius:9px;padding:8px 10px;font-size:0.84rem;font-weight:800;color:#fef3c7;margin-bottom:12px;">معيار حديد السجانة: الطن العددي = 135 سيخة | الطن الوزني = 140 سيخة | الشيلة = 15 سيخة</div>

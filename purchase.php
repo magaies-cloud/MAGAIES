@@ -19,13 +19,11 @@ try {
             $stFinTop->execute([$activePurchaseTenantId ?: 12]);
             while ($rFinTop = $stFinTop->fetch(PDO::FETCH_ASSOC)) {
                 $dFinTop = json_decode($rFinTop['data'], true);
-                $idFinTop = isset($dFinTop['id']) ? (string)$dFinTop['id'] : (isset($dFinTop['voucherNo']) ? (string)$dFinTop['voucherNo'] : '');
+                if (!empty($dFinTop['deleted'])) continue;
+                $idFinTop = isset($dFinTop['voucherNo']) && $dFinTop['voucherNo'] !== '' ? (string)$dFinTop['voucherNo'] : (isset($dFinTop['id']) ? (string)$dFinTop['id'] : '');
                 if (strpos($idFinTop, $purFinPrefix) === 0) {
                     $sqTop = (int)substr($idFinTop, strlen($purFinPrefix));
-                    if ($sqTop > $purMaxFinSeq) $purMaxFinSeq = $sqTop;
-                } elseif (preg_match('/^(?:E|M|BP|BR)\d{3,4}(\d{3,6})$/i', $idFinTop, $mFinTop)) {
-                    $sqTop = (int)$mFinTop[1];
-                    if ($sqTop > $purMaxFinSeq) $purMaxFinSeq = $sqTop;
+                    if ($sqTop > $purMaxFinSeq && $sqTop < 999999) $purMaxFinSeq = $sqTop;
                 }
             }
             $purNextFinNo = $purFinPrefix . str_pad($purMaxFinSeq + 1, 4, '0', STR_PAD_LEFT);
@@ -515,11 +513,11 @@ try {
                 </div>
             </div>
             <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                <button type="button" id="btn-purchase-alsajana" onclick="window.openPurchaseAlSajanaModal && window.openPurchaseAlSajanaModal()" style="background: linear-gradient(135deg, #b45309, #78350f); border: 1.5px solid #fbbf24; color: #fef3c7; border-radius: 8px; height: 30px; padding: 0 10px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 900; font-size: 0.76rem; white-space: nowrap;" title="معيار حديد السجانة (135/140/15) والبسكول والتكلفة المضافة">
-                    <span>🏗️</span>
-                    <span>السجانة</span>
+                <button type="button" id="btn-purchase-alsajana" onclick="window.openPurchaseAlSajanaModal && window.openPurchaseAlSajanaModal()" style="background: linear-gradient(135deg, #b45309, #78350f); border: 1.5px solid #fbbf24; color: #fef3c7; border-radius: 8px; height: 34px; padding: 0 12px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 900; font-size: 0.86rem; white-space: nowrap;" title="حاسبة البسكول ومعيار الحديد (135/140/15)">
+                    <span>⚖️</span>
+                    <span>البسكول</span>
                 </button>
-                <button type="button" id="btn-purchase-ai-prices" onclick="if(window.openPurchaseAIAuditModal) window.openPurchaseAIAuditModal();" style="background: linear-gradient(135deg, #3730a3, #312e81); border: 1.5px solid #818cf8; color: #e0e7ff; border-radius: 8px; height: 30px; padding: 0 10px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 900; font-size: 0.76rem; white-space: nowrap;" title="الأسعار وهامش البيع">
+                <button type="button" id="btn-purchase-ai-prices" onclick="if(window.openPurchaseAIAuditModal) window.openPurchaseAIAuditModal();" style="background: linear-gradient(180deg, #7e22ce 0%, #6b21a8 52%, #4c1d95 100%); border: 1.5px solid #a855f7; border-bottom: 3px solid #2e1065; color: #ffffff; border-radius: 9px; height: 34px; padding: 0 14px; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 900; font-size: 0.9rem; white-space: nowrap;" title="رادار فحص الأسعار وتحديث هامش البيع">
                     <span>💰</span>
                     <span>الأسعار</span>
                 </button>
@@ -796,11 +794,17 @@ try {
                     <span class="del-btn-label btn-fit-label">حذف</span>
                 </button>
 
-                <!-- Preview & Print Button -->
-                <button type="button" class="btn-action royal-crystal-btn royal-btn-print btn-preview" id="btn-preview-invoice" style="flex: 1.05 1 0%; min-width: 0; height: 44px; font-weight: 900; border-radius: 11px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; white-space: nowrap; padding: 0 10px;" onclick="printCurrentInvoice()">
+                <!-- Ezn Print Button (Items & Quantities Only — No Prices) -->
+                <button type="button" class="btn-action royal-crystal-btn royal-btn-print btn-preview" id="btn-preview-invoice" style="flex: 0.95 1 0%; min-width: 0; height: 44px; font-weight: 900; border-radius: 11px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; white-space: nowrap; padding: 0 10px;" onclick="window.printPurchaseEznNoPrices ? window.printPurchaseEznNoPrices() : printCurrentInvoice()" title="طباعة إذن بالأصناف والكميات فقط (بدون أسعار)">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                    <span class="btn-fit-label">طباعة</span>
+                    <span class="btn-fit-label">إذن</span>
                     <kbd style="font-size:0.62rem; padding:1px 4px; border-radius:4px; background:rgba(0,0,0,0.28); border:1px solid rgba(255,255,255,0.22); font-family:monospace; color:#e2e8f0; flex-shrink:0;">F8</kbd>
+                </button>
+
+                <!-- Financial Statement Button (Replaces OCR Scan — Full Financial Breakdown) -->
+                <button type="button" class="btn-action royal-crystal-btn btn-ocr" id="btn-purchase-fin-statement" style="flex: 1.15 1 0%; min-width: 0; height: 44px; background: linear-gradient(135deg, rgba(14, 165, 233, 0.9), rgba(37, 99, 235, 0.95)) !important; color: #fff !important; border: 1px solid rgba(125, 211, 252, 0.55) !important; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3) !important; font-weight: 900; border-radius: 11px; cursor: pointer; transition: all 0.25s ease; display: inline-flex; align-items: center; justify-content: center; gap: 5px; white-space: nowrap; padding: 0 10px;" onmouseover="this.style.boxShadow='0 6px 22px rgba(56, 189, 248, 0.55)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.boxShadow='0 4px 15px rgba(14, 165, 233, 0.3)'; this.style.transform='none';" onclick="window.printPurchaseFinancialStatement && window.printPurchaseFinancialStatement()" title="كشف حساب مالي كامل للأصناف والأسعار والمصروفات والسداد">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <span class="btn-fit-label">كشف حساب</span>
                 </button>
                 
                 <!-- Share Button: Professional with dropdown -->
@@ -853,12 +857,6 @@ try {
                 <button type="button" class="btn-action royal-crystal-btn royal-btn-new btn-new" style="flex: 0.82 1 0%; min-width: 0; height: 44px; font-weight: 900; border-radius: 11px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; white-space: nowrap; padding: 0 9px;" onclick="onSuccessNewInvoice(false);">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     <span class="btn-fit-label">جديد</span>
-                </button>
-
-                <!-- OCR Scanner Button -->
-                <button type="button" class="btn-action royal-crystal-btn btn-ocr" style="flex: 1.05 1 0%; min-width: 0; height: 44px; background: linear-gradient(135deg, rgba(14, 165, 233, 0.85), rgba(37, 99, 235, 0.92)) !important; color: #fff !important; border: 1px solid rgba(125, 211, 252, 0.5) !important; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3) !important; font-weight: 900; border-radius: 11px; cursor: pointer; transition: all 0.25s ease; display: inline-flex; align-items: center; justify-content: center; gap: 5px; white-space: nowrap; padding: 0 10px;" onmouseover="this.style.boxShadow='0 6px 22px rgba(56, 189, 248, 0.55)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.boxShadow='0 4px 15px rgba(14, 165, 233, 0.3)'; this.style.transform='none';" onclick="triggerInvoiceOCR()">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                    <span class="btn-fit-label">مسح فاتورة</span>
                 </button>
 
                 <!-- زر التحكم في الإرسال التلقائي -->
@@ -1359,18 +1357,16 @@ try {
     $purMaxFinSeq = 0;
     try {
         if (isset($pdo) && $pdo) {
-            $effT = !empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 12;
+            $effT = !empty($activePurchaseTenantId) ? (int)$activePurchaseTenantId : (!empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 12);
             $stFin = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ?");
             $stFin->execute([$effT]);
             while ($rFin = $stFin->fetch(PDO::FETCH_ASSOC)) {
                 $dFin = json_decode($rFin['data'], true);
-                $idFin = isset($dFin['id']) ? (string)$dFin['id'] : (isset($dFin['voucherNo']) ? (string)$dFin['voucherNo'] : '');
+                if (!empty($dFin['deleted'])) continue;
+                $idFin = isset($dFin['voucherNo']) && $dFin['voucherNo'] !== '' ? (string)$dFin['voucherNo'] : (isset($dFin['id']) ? (string)$dFin['id'] : '');
                 if (strpos($idFin, $purFinPrefix) === 0) {
                     $sq = (int)substr($idFin, strlen($purFinPrefix));
-                    if ($sq > $purMaxFinSeq) $purMaxFinSeq = $sq;
-                } elseif (preg_match('/^(?:E|M|BP|BR)\d{3,4}(\d{3,6})$/i', $idFin, $mFin)) {
-                    $sq = (int)$mFin[1];
-                    if ($sq > $purMaxFinSeq) $purMaxFinSeq = $sq;
+                    if ($sq > $purMaxFinSeq && $sq < 999999) $purMaxFinSeq = $sq;
                 }
             }
         }

@@ -733,58 +733,17 @@ function setNextVoucherNumber() {
 
     const extractVoucherSeq = (raw) => {
         const s = String(raw || '').trim();
-        if (!s || s.startsWith('PMT-')) return 0;
-        if (s.startsWith(datePrefix)) {
-            const n = parseInt(s.substring(datePrefix.length), 10);
-            if (!isNaN(n) && n > 0 && n < 1000000) return n;
-        }
-        const m = s.match(/^(?:E|M|BP|BR)\d{3,4}(\d{3,6})$/i);
-        if (m) {
-            const n = parseInt(m[1], 10);
-            if (!isNaN(n) && n > 0 && n < 1000000) return n;
-        }
-        return 0;
+        if (!s || !s.startsWith(datePrefix)) return 0;
+        const n = parseInt(s.substring(datePrefix.length), 10);
+        return (!isNaN(n) && n > 0 && n < 999999) ? n : 0;
     };
 
     let max = 0;
     spData.forEach(v => {
-        const seq = extractVoucherSeq(v.id || v.voucherNo);
+        if (!v || v.deleted) return;
+        const seq = extractVoucherSeq(v.voucherNo || v.id);
         if (seq > max) max = seq;
     });
-    ['erp_payments_v1', 'erp_receipts_v1'].forEach(k => {
-        try {
-            const getTenantKey = window.getTenantKey || ((x) => x);
-            const arr = JSON.parse(localStorage.getItem(getTenantKey(k)) || localStorage.getItem(k) || '[]');
-            if (Array.isArray(arr)) {
-                arr.forEach(v => {
-                    if (!v || v.deleted) return;
-                    const seq = extractVoucherSeq(v.voucherNo || v.id);
-                    if (seq > max) max = seq;
-                });
-            }
-        } catch(e) {}
-    });
-    try {
-        const known = JSON.parse(localStorage.getItem('magaies_last_known_sequences_v1') || '{}');
-        if (known.finance && parseInt(known.finance, 10) > max) max = parseInt(known.finance, 10);
-    } catch(e) {}
-    ['erp_payments_v1', 'erp_receipts_v1'].forEach(k => {
-        try {
-            const getTenantKey = window.getTenantKey || ((x) => x);
-            const arr = JSON.parse(localStorage.getItem(getTenantKey(k)) || localStorage.getItem(k) || '[]');
-            if (Array.isArray(arr)) {
-                arr.forEach(v => {
-                    if (!v || v.deleted) return;
-                    const seq = extractVoucherSeq(v.voucherNo || v.id);
-                    if (seq > max) max = seq;
-                });
-            }
-        } catch(e) {}
-    });
-    try {
-        const known = JSON.parse(localStorage.getItem('magaies_last_known_sequences_v1') || '{}');
-        if (known.finance && parseInt(known.finance, 10) > max) max = parseInt(known.finance, 10);
-    } catch(e) {}
     if (window.DB_NEXT_VOUCHER_NO) {
         const dbSeq = extractVoucherSeq(window.DB_NEXT_VOUCHER_NO);
         if (dbSeq - 1 > max) max = dbSeq - 1;

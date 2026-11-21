@@ -2603,17 +2603,17 @@ window.navigateToOriginalVoucher = function(type, ref) {
         targetUrl = `purchase.php?id=${encodeURIComponent(cleanRef)}`;
     } else if (isSalesPayment) {
         targetUrl = `direct-sales.php?id=${encodeURIComponent(cleanRef)}`;
-    } else if (type === 'sales' || type === 'invoice' || type === 'direct-sales' || type === 'sales-invoice' || cleanRef.startsWith('INV-') || cleanRef.startsWith('SAL-') || cleanRef.startsWith('DS-')) {
+    } else if (type === 'sales' || type === 'invoice' || type === 'direct-sales' || type === 'sales-invoice' || /^(INV|SAL|DS|S\d{4})/i.test(cleanRef)) {
         targetUrl = `direct-sales.php?id=${encodeURIComponent(cleanRef)}`;
     } else if (type === 'sales-return' || type === 'sales_return' || cleanRef.startsWith('RET-') || cleanRef.startsWith('SR-')) {
         targetUrl = `sales-return.php?id=${encodeURIComponent(cleanRef)}`;
-    } else if (type === 'purchase' || type === 'purchases' || type === 'purchase-invoice' || cleanRef.startsWith('PUR-') || cleanRef.startsWith('PINV-')) {
+    } else if (type === 'purchase' || type === 'purchases' || type === 'purchase-invoice' || /^(PUR|PINV|P\d{4})/i.test(cleanRef)) {
         targetUrl = `purchase.php?id=${encodeURIComponent(cleanRef)}`;
     } else if (type === 'purchase-return' || type === 'purchase_return' || cleanRef.startsWith('PRET-') || cleanRef.startsWith('PR-')) {
         targetUrl = `purchase-return.php?id=${encodeURIComponent(cleanRef)}`;
     } else if (type === 'receipt' || type === 'single-receipt' || type === 'single_receipt' || type === 'single-cash-receipt' || cleanRef.startsWith('REC-') || cleanRef.startsWith('SREC-') || cleanRef.startsWith('RV-')) {
         targetUrl = `single-cash-payment.php?type=receipt&id=${encodeURIComponent(cleanRef)}`;
-    } else if (type === 'payment' || type === 'single-payment' || type === 'single_payment' || type === 'single-cash-payment' || cleanRef.startsWith('PAY-') || cleanRef.startsWith('SPAY-') || cleanRef.startsWith('PV-')) {
+    } else if (type === 'payment' || type === 'single-payment' || type === 'single_payment' || type === 'single-cash-payment' || /^(PAY-|SPAY-|PV-|E\d{4})/i.test(cleanRef)) {
         targetUrl = `single-cash-payment.php?type=payment&id=${encodeURIComponent(cleanRef)}`;
     } else if (type === 'multi-receipt' || type === 'multi_receipt' || cleanRef.startsWith('MREC-')) {
         targetUrl = `multi-cash-payment.php?type=receipt&id=${encodeURIComponent(cleanRef)}`;

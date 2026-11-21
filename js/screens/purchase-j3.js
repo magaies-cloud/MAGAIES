@@ -212,10 +212,11 @@
                 if (typeof openModal === 'function') openModal('add-customer-modal');
                 return;
             }
-            // F8 => Print Current Invoice
+            // F8 => Print Current Ezn (No Prices)
             if (e.key === 'F8') {
                 e.preventDefault();
-                if (typeof printCurrentInvoice === 'function') printCurrentInvoice();
+                if (typeof window.printPurchaseEznNoPrices === 'function') window.printPurchaseEznNoPrices();
+                else if (typeof printCurrentInvoice === 'function') printCurrentInvoice();
                 return;
             }
             // Enter Navigation across Header Fields

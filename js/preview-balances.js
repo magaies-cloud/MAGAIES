@@ -1118,23 +1118,39 @@ function renderTable() {
     });
     thead.innerHTML = '';
     thead.appendChild(trHead);
-    requestAnimationFrame(() => {
+    window.fitBalancesDynamicColumns = function() {
         const ctx = (window.__balHdrCanvas || (window.__balHdrCanvas = document.createElement('canvas'))).getContext('2d');
-        document.querySelectorAll('#preview-thead th, #preview-tbody td.num-cell:not(.focused-num), #preview-tbody td[data-col-idx="1"]:not(.focused-num), #preview-tfoot td:not(.focused-num)').forEach(el => {
+        document.querySelectorAll('#preview-thead th, #preview-tbody td[data-col-idx="0"]:not(.focused-num), #preview-tbody td[data-col-idx="1"]:not(.focused-num), #preview-tbody td.num-cell:not(.focused-num), #preview-tfoot td:not(.focused-num)').forEach(el => {
             const txt = (el.innerText || '').trim();
             const cw = el.clientWidth;
             if (!txt || txt === '-' || !cw) return;
+            const isNameCol = (el.tagName === 'TD' && el.getAttribute('data-col-idx') === '0');
+            if (el.dataset.baseFsPx) {
+                el.style.setProperty('font-size', el.dataset.baseFsPx + 'px', 'important');
+            }
             const cs = window.getComputedStyle(el);
             const curPx = parseFloat(cs.fontSize) || 14;
+            if (!el.dataset.baseFsPx) el.dataset.baseFsPx = String(curPx);
             ctx.font = `${cs.fontWeight || '900'} ${curPx}px ${cs.fontFamily || 'Cairo, sans-serif'}`;
             const tw = ctx.measureText(txt).width;
-            const avail = Math.max(24, cw - 8);
+            const avail = Math.max(24, cw - (isNameCol ? 14 : 8));
             if (tw > avail) {
-                const newPx = Math.max(9.5, +((curPx * avail) / tw).toFixed(1));
+                const minPx = isNameCol ? 9.5 : 9.0;
+                const newPx = Math.max(minPx, +((curPx * avail) / tw).toFixed(1));
                 el.style.setProperty('font-size', newPx + 'px', 'important');
+                if (isNameCol) {
+                    el.style.setProperty('white-space', (tw * (newPx / curPx) <= avail * 1.06) ? 'nowrap' : 'normal', 'important');
+                }
+            } else if (isNameCol) {
+                el.style.setProperty('white-space', 'nowrap', 'important');
             }
         });
-    });
+    };
+    if (!window.__balResizeFitBound) {
+        window.__balResizeFitBound = true;
+        window.addEventListener('resize', () => { clearTimeout(window.__balFitT); window.__balFitT = setTimeout(() => window.fitBalancesDynamicColumns && window.fitBalancesDynamicColumns(), 80); });
+    }
+    requestAnimationFrame(() => window.fitBalancesDynamicColumns());
     
     // Track Column Totals
     let colTotals = {};

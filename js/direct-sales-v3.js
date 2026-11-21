@@ -8177,9 +8177,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const invoiceId = urlParams.get('id');
     const actionParam = urlParams.get('action');
     if (invoiceId) {
+        if (typeof openInvoiceEditor === 'function') {
+            openInvoiceEditor('pending_delivery', false, true);
+        } else {
+            const hv = document.getElementById('sales-hub-view');
+            const ev = document.getElementById('invoice-editor-view');
+            if (hv) hv.style.display = 'none';
+            if (ev) ev.style.display = 'flex';
+        }
         setTimeout(() => {
             if (typeof loadInvoiceFromStorage === 'function') loadInvoiceFromStorage(invoiceId);
-        }, 120);
+        }, 160);
     } else if (actionParam === 'delivery' || actionParam === 'gdn') {
         setTimeout(() => {
             if (typeof openDeliveryHub === 'function') openDeliveryHub();

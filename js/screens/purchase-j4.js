@@ -391,68 +391,135 @@
         const prefix = 'E' + ym;
         const extractSeq = (raw) => {
             const s = String(raw || '').trim();
-            if (!s || s.startsWith('PMT-')) return 0;
-            if (s.startsWith(prefix)) {
-                const n = parseInt(s.slice(prefix.length), 10);
-                if (!isNaN(n) && n > 0 && n < 1000000) return n;
-            }
-            const m = s.match(/^(?:E|M|BP|BR)\d{3,4}(\d{3,6})$/i);
-            return m ? (parseInt(m[1], 10) || 0) : 0;
+            if (!s || !s.startsWith(prefix)) return 0;
+            const n = parseInt(s.slice(prefix.length), 10);
+            return (!isNaN(n) && n > 0 && n < 999999) ? n : 0;
         };
         let max = 0;
         if (window.DB_NEXT_FIN_VOUCHER_NO) {
             const dbSq = extractSeq(window.DB_NEXT_FIN_VOUCHER_NO);
             if (dbSq - 1 > max) max = dbSq - 1;
         }
-        ['erp_single_payments_v1', 'erp_payments_v1', 'erp_receipts_v1'].forEach(k => {
+        const getTK = window.getTenantKey || ((k) => k);
+        Array.from(new Set([getTK('erp_single_payments_v1'), 'erp_single_payments_v1'])).forEach(k => {
             try {
                 const arr = JSON.parse(localStorage.getItem(k) || '[]');
                 if (Array.isArray(arr)) arr.forEach(v => { if (v && !v.deleted) { const sq = extractSeq(v.voucherNo || v.id); if (sq > max) max = sq; } });
             } catch (_) {}
         });
-        try {
-            const kn = JSON.parse(localStorage.getItem('magaies_last_known_sequences_v1') || '{}');
-            if (kn.finance && parseInt(kn.finance, 10) > max) max = parseInt(kn.finance, 10);
-        } catch (_) {}
         return prefix + String(max + 1).padStart(4, '0');
+    };
+
+    window.findPurchaseLinkedFinRecord = function(invNo) {
+        const cleanInv = String(invNo || '').trim().replace(/^#/, '');
+        if (!cleanInv || cleanInv === '---') return { isSavedInvoice: false, voucherNo: '', record: null };
+        const getTK = window.getTenantKey || ((k) => k);
+        let isSavedInvoice = (typeof window.currentViewedInvoiceNo !== 'undefined' && String(window.currentViewedInvoiceNo || '').trim().replace(/^#/, '') === cleanInv);
+        let foundInv = null;
+        try {
+            const directRaw = localStorage.getItem('erp_pur_' + cleanInv);
+            if (directRaw) { foundInv = JSON.parse(directRaw); isSavedInvoice = true; }
+        } catch (_) {}
+        if (!foundInv) {
+            for (const k of ['erp_purchase_invoices_v1', 'erp_purchases_v1', 'magaies_local_purchase_invoices_v1']) {
+                try {
+                    const invs = JSON.parse(localStorage.getItem(k) || '[]');
+                    if (Array.isArray(invs)) {
+                        const m = invs.find(x => x && (String(x.invoiceNo || '').trim().replace(/^#/, '') === cleanInv || String(x.id || '').trim().replace(/^#/, '') === cleanInv));
+                        if (m) { foundInv = m; isSavedInvoice = true; break; }
+                    }
+                } catch (_) {}
+            }
+        }
+        let linkedNo = (foundInv && foundInv.linkedFinancialVoucherNo) ? String(foundInv.linkedFinancialVoucherNo).trim() : '';
+        let linkedRec = null;
+        const payKeys = Array.from(new Set([getTK('erp_single_payments_v1'), 'erp_single_payments_v1', 'magaies_vouchers_cache', 'erp_payments_v1']));
+        for (const k of payKeys) {
+            try {
+                const pLog = JSON.parse(localStorage.getItem(k) || '[]');
+                if (!Array.isArray(pLog)) continue;
+                const pFound = pLog.find(p => {
+                    if (!p || p.deleted) return false;
+                    const pNo = String(p.voucherNo || p.id || '').trim();
+                    const pRef = String(p.refInvoice || p.invoiceNo || '').trim().replace(/^#/, '');
+                    if (linkedNo && pNo === linkedNo) return true;
+                    if (pRef && pRef === cleanInv) return true;
+                    if (p.autoFromPurchase && String(p.statement || '').includes('#' + cleanInv)) return true;
+                    return false;
+                });
+                if (pFound) {
+                    linkedRec = pFound;
+                    if (!linkedNo) linkedNo = String(pFound.voucherNo || pFound.id || '').trim();
+                    break;
+                }
+            } catch (_) {}
+        }
+        return { isSavedInvoice, voucherNo: linkedNo, record: linkedRec };
     };
 
     window.refreshPurchaseFinSeqBadge = function() {
         const valEl = document.getElementById('pur-fin-mov-seq-val');
         const btnEl = document.getElementById('pur-fin-mov-seq-badge');
         if (!valEl) return;
-        let linkedNo = '';
-        try {
-            const curInvNo = (document.getElementById('hdr-inv-no')?.value || document.getElementById('inv-number')?.textContent || '').trim();
-            if (curInvNo && curInvNo !== '---') {
-                const invs = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]');
-                const found = Array.isArray(invs) ? invs.find(x => x && (String(x.invoiceNo) === curInvNo || String(x.id) === curInvNo)) : null;
-                if (found && found.linkedFinancialVoucherNo) linkedNo = String(found.linkedFinancialVoucherNo);
-                if (!linkedNo) {
-                    const pLog = JSON.parse(localStorage.getItem('erp_single_payments_v1') || '[]');
-                    const pFound = Array.isArray(pLog) ? pLog.find(p => p && String(p.refInvoice || '') === curInvNo && p.voucherNo) : null;
-                    if (pFound) linkedNo = String(pFound.voucherNo);
+        const curInvNo = (document.getElementById('hdr-inv-no')?.value || document.getElementById('inv-number')?.textContent || '').trim();
+        const info = window.findPurchaseLinkedFinRecord(curInvNo);
+        if (info.isSavedInvoice) {
+            if (info.voucherNo) {
+                valEl.textContent = info.voucherNo;
+                if (btnEl) {
+                    btnEl.dataset.targetVoucher = info.voucherNo;
+                    btnEl.dataset.hasVoucher = '1';
+                    btnEl.style.opacity = '1';
+                    btnEl.title = 'حركة مالية مرتبطة بالفاتورة — اضغط للفتح: ' + info.voucherNo;
+                }
+            } else {
+                valEl.textContent = '—';
+                if (btnEl) {
+                    btnEl.dataset.targetVoucher = '';
+                    btnEl.dataset.hasVoucher = '0';
+                    btnEl.style.opacity = '0.68';
+                    btnEl.title = 'هذه الفاتورة ليس لها حركة سداد مسجلة من شاشة المشتريات';
                 }
             }
-        } catch (_) {}
-        const targetNo = linkedNo || window.computeNextPurchaseFinVoucherNo();
-        valEl.textContent = targetNo;
-        if (btnEl) btnEl.dataset.targetVoucher = targetNo;
+            return;
+        }
+        const nextNo = window.computeNextPurchaseFinVoucherNo();
+        valEl.textContent = nextNo;
+        if (btnEl) {
+            btnEl.dataset.targetVoucher = nextNo;
+            btnEl.dataset.hasVoucher = 'new';
+            btnEl.style.opacity = '1';
+            btnEl.title = 'رقم الحركة المالية القادمة عند السداد من هذه الفاتورة: ' + nextNo;
+        }
     };
 
-    window.openPurchaseLinkedFinMovement = function() {
+    window.openPurchaseLinkedFinMovement = function(forInvoiceNo = '', allowFallbackToPaymentScreen = false) {
         const btnEl = document.getElementById('pur-fin-mov-seq-badge');
-        const vNo = (btnEl && btnEl.dataset.targetVoucher) || document.getElementById('pur-fin-mov-seq-val')?.textContent?.trim() || '';
-        if (vNo && vNo !== '---') {
+        let vNo = '';
+        let linkedRec = null;
+        if (forInvoiceNo && typeof window.findPurchaseLinkedFinRecord === 'function') {
+            const info = window.findPurchaseLinkedFinRecord(forInvoiceNo);
+            if (info && info.voucherNo) { vNo = info.voucherNo; linkedRec = info.record || null; }
+        }
+        if (!vNo) {
+            if (!allowFallbackToPaymentScreen && btnEl && btnEl.dataset.hasVoucher === '0') {
+                if (typeof showToast === 'function') showToast('ℹ️ هذه الفاتورة لا تحتوي على سداد مسجل من شاشة المشتريات', 'info', 3000);
+                return;
+            }
+            vNo = (btnEl && btnEl.dataset.targetVoucher) || document.getElementById('pur-fin-mov-seq-val')?.textContent?.trim() || '';
+        }
+        if (vNo && vNo !== '---' && vNo !== '—') {
             try {
-                const getTK = window.getTenantKey || ((k) => k);
-                const keys = [getTK('erp_single_payments_v1'), 'erp_single_payments_v1', 'magaies_vouchers_cache'];
-                let found = null;
-                for (const k of keys) {
-                    const arr = JSON.parse(localStorage.getItem(k) || '[]');
-                    if (Array.isArray(arr)) {
-                        found = arr.find(p => p && (String(p.voucherNo) === vNo || String(p.id) === vNo));
-                        if (found) break;
+                let found = linkedRec;
+                if (!found) {
+                    const getTK = window.getTenantKey || ((k) => k);
+                    const keys = [getTK('erp_single_payments_v1'), 'erp_single_payments_v1', 'magaies_vouchers_cache'];
+                    for (const k of keys) {
+                        const arr = JSON.parse(localStorage.getItem(k) || '[]');
+                        if (Array.isArray(arr)) {
+                            found = arr.find(p => p && (String(p.voucherNo) === vNo || String(p.id) === vNo));
+                            if (found) break;
+                        }
                     }
                 }
                 if (found) sessionStorage.setItem('_edit_voucher_data', JSON.stringify(found));
@@ -482,11 +549,26 @@
         }
     };
 
-    // Also pull latest live server finance sequence once on load so purchase matches single-cash-payment 100%
+    // Pull latest live server finance sequence once on load & merge cleanly without wiping local linked vouchers
     fetch('single-cash-payment.php?api=flash_delta_sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
         .then(r => r.json()).then(d => {
+            if (d && d.nextVoucherNo) window.DB_NEXT_FIN_VOUCHER_NO = d.nextVoucherNo;
             if (d && Array.isArray(d.records)) {
-                localStorage.setItem('erp_single_payments_v1', JSON.stringify(d.records));
+                const getTK = window.getTenantKey || ((k) => k);
+                const tkSP = getTK('erp_single_payments_v1');
+                let localArr = [];
+                try { localArr = JSON.parse(localStorage.getItem(tkSP) || localStorage.getItem('erp_single_payments_v1') || '[]') || []; } catch (_) {}
+                const byId = new Map();
+                localArr.forEach(r => { if (r && (r.voucherNo || r.id)) byId.set(String(r.voucherNo || r.id), r); });
+                d.records.forEach(r => {
+                    if (!r || !(r.voucherNo || r.id)) return;
+                    const k = String(r.voucherNo || r.id);
+                    const prev = byId.get(k);
+                    if (!prev || (Number(r.updatedAtMs || 0) >= Number(prev.updatedAtMs || 0))) byId.set(k, Object.assign({}, prev || {}, r));
+                });
+                const mergedArr = Array.from(byId.values());
+                localStorage.setItem('erp_single_payments_v1', JSON.stringify(mergedArr));
+                if (tkSP !== 'erp_single_payments_v1') localStorage.setItem(tkSP, JSON.stringify(mergedArr));
                 window.refreshPurchaseFinSeqBadge();
             }
         }).catch(() => {});
@@ -499,4 +581,201 @@
         }
     });
     setTimeout(window.refreshPurchaseFinSeqBadge, 50);
+
+    // ═══ طباعة الإذن (ترويسة الشركة + الأصناف والكميات فقط بدون أسعار) + كشف الحساب المالي الكامل ═══
+    function _getPurchaseCompanyLetterhead() {
+        let cfg = {};
+        for (const k of ['erp_settings_v1', 'erp_company_info_v1', 'magaies_company_settings']) {
+            try { const o = JSON.parse(localStorage.getItem(k) || '{}'); if (o && typeof o === 'object') cfg = Object.assign(cfg, o); } catch (_) {}
+        }
+        return {
+            name: cfg.companyName || cfg.company_name || cfg.name || 'شركة السجانة لمواد البناء والتجارة',
+            sub: cfg.companySubtitle || cfg.tagline || cfg.activity || 'تجارة الحديد والأسمنت ومواد البناء',
+            phone: cfg.companyPhone || cfg.phone || cfg.mobile || '',
+            address: cfg.companyAddress || cfg.address || '',
+            logo: cfg.companyLogo || cfg.logo || cfg.logoUrl || ''
+        };
+    }
+    function _collectCurrentPurchasePrintData() {
+        const pn = (v) => { const n = parseFloat(String(v || '0').replace(/,/g, '')); return isNaN(n) ? 0 : n; };
+        const fn = (n) => (Math.round((parseFloat(n) || 0) * 100) / 100).toLocaleString('en-US');
+        const invNo = (document.getElementById('hdr-inv-no')?.value || document.getElementById('inv-number')?.textContent || '---').trim();
+        const date = document.getElementById('hdr-date')?.value || new Date().toISOString().split('T')[0];
+        const supplier = (document.getElementById('hdr-customer-search')?.value || 'مورد عام').trim();
+        const whEl = document.getElementById('hdr-warehouse');
+        const warehouse = whEl && whEl.selectedOptions && whEl.selectedOptions[0] ? whEl.selectedOptions[0].textContent.trim() : (whEl?.value || 'المستودع الرئيسي');
+        const ccEl = document.getElementById('hdr-cost-center');
+        const costCenter = ccEl && ccEl.selectedOptions && ccEl.selectedOptions[0] ? ccEl.selectedOptions[0].textContent.trim() : '';
+        const currency = document.getElementById('hdr-currency')?.value || 'SDG';
+        const curLabel = currency === 'USD' ? 'دولار ($)' : (currency === 'SDG' ? 'جنيه (ج.س)' : currency);
+        const rate = pn(document.getElementById('hdr-exchange-rate')?.value || 1) || 1;
+        const desc = (document.getElementById('hdr-description')?.value || document.getElementById('inv-notes')?.value || '').trim();
+        const finMovNo = (document.getElementById('pur-fin-mov-seq-val')?.textContent || '').trim();
+        const activeRows = (typeof rows !== 'undefined' && Array.isArray(rows) ? rows : []).filter(r => r && (r.itemId || r.itemName || r.name) && (parseFloat(r.quantity) || 0) > 0).map(r => {
+            const itm = (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) ? ITEMS.find(x => String(x.id) === String(r.itemId)) : null;
+            const name = r.itemName || r.name || (itm ? itm.name : String(r.itemId || 'صنف'));
+            const unit = r.selectedUnit || r.unit || (itm ? itm.unit : 'وحدة');
+            const qty = parseFloat(r.quantity) || 0;
+            const price = parseFloat(r.price) || 0;
+            const total = qty * price;
+            const whM = (typeof WAREHOUSES !== 'undefined' && Array.isArray(WAREHOUSES)) ? WAREHOUSES.find(w => String(w.id) === String(r.warehouseId || r.warehouse)) : null;
+            return { name, unit, qty, price, total, warehouse: whM ? whM.name : (r.warehouse || warehouse), note: r.note || r.notes || '' };
+        });
+        const itemsSub = activeRows.reduce((s, r) => s + r.total, 0);
+        const transport = pn(document.getElementById('t-transport')?.value);
+        const labor = pn(document.getElementById('t-labor')?.value);
+        const additions = pn(document.getElementById('t-additions-loc')?.value);
+        const tax = pn(document.getElementById('t-tax-loc')?.value);
+        const discount = pn(document.getElementById('t-discount-loc')?.value);
+        const grand = pn(document.getElementById('t-grand-local')?.textContent) || (itemsSub + transport + labor + additions + tax - discount);
+        const cashAmt = document.getElementById('toggle-cash')?.classList.contains('active') ? pn(document.getElementById('pay-cash-amount')?.value) : 0;
+        const creditAmt = pn(document.getElementById('pay-credit-amount')?.value);
+        const transfers = [];
+        if (document.getElementById('toggle-bank')?.classList.contains('active')) {
+            document.querySelectorAll('#bank-transfers-list .payment-row-item').forEach(row => {
+                const amt = pn(row.querySelector('.bt-amount-input')?.value);
+                if (amt > 0) {
+                    const sel = row.querySelector('.bt-bank-select');
+                    const bank = sel && sel.selectedOptions && sel.selectedOptions[0] ? sel.selectedOptions[0].textContent.trim() : '';
+                    const ref = (row.querySelector('.bt-ref-input')?.value || '').trim();
+                    const note = (row.querySelector('.bt-note-input')?.value || '').trim();
+                    transfers.push({ amt, bank, ref, note });
+                }
+            });
+        }
+        const cheques = [];
+        if (document.getElementById('toggle-cheque')?.classList.contains('active')) {
+            document.querySelectorAll('#cheques-list .payment-row-item').forEach(row => {
+                const amt = pn(row.querySelector('.ch-amount-input')?.value);
+                if (amt > 0) {
+                    const sel = row.querySelector('.ch-bank-select');
+                    const bank = sel && sel.selectedOptions && sel.selectedOptions[0] ? sel.selectedOptions[0].textContent.trim() : '';
+                    const no = (row.querySelector('.ch-no-input')?.value || '').trim();
+                    const due = (row.querySelector('.ch-date-input')?.value || '').trim();
+                    cheques.push({ amt, bank, no, due });
+                }
+            });
+        }
+        return { invNo, date, supplier, warehouse, costCenter, currency, curLabel, rate, desc, finMovNo, items: activeRows, itemsSub, transport, labor, additions, tax, discount, grand, cashAmt, creditAmt, transfers, cheques, fn };
+    }
+    function _openPurchasePrintDoc(title, bodyHtml) {
+        const w = window.open('', '_blank', 'width=940,height=780');
+        if (!w) { if (typeof showToast === 'function') showToast('⚠️ يرجى السماح بالنوافذ المنبثقة للطباعة', 'warning'); return; }
+        w.document.open();
+        w.document.write(`<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><title>${title}</title>
+        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&display=swap" rel="stylesheet">
+        <style>
+            *{box-sizing:border-box} body{margin:0;padding:18px;background:#eef2f7;font-family:'Cairo',Tahoma,sans-serif;color:#0f172a;direction:rtl}
+            .sheet{max-width:820px;margin:0 auto;background:#fff;border:2px solid #0f172a;border-radius:12px;padding:22px 26px;box-shadow:0 12px 35px rgba(15,23,42,0.14)}
+            .lh{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:3px double #0f172a;padding-bottom:12px;margin-bottom:14px}
+            .lh-logo{width:72px;height:72px;object-fit:contain;border-radius:10px;border:1.5px solid #cbd5e1;padding:4px}
+            .lh-name{font-size:1.45rem;font-weight:900;color:#0f172a;margin:0}
+            .lh-sub{font-size:0.86rem;font-weight:700;color:#475569;margin-top:2px}
+            .doc-badge{background:#0f172a;color:#fff;padding:7px 18px;border-radius:10px;font-size:1.05rem;font-weight:900;text-align:center;white-space:nowrap}
+            .meta{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;background:#f8fafc;border:1.5px solid #cbd5e1;border-radius:10px;padding:10px 12px;font-size:0.88rem}
+            .meta b{color:#0f172a}
+            table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:0.9rem}
+            th{background:#0f172a;color:#fff;padding:9px 8px;font-weight:900;border:1px solid #0f172a;text-align:center}
+            td{padding:8px;border:1px solid #cbd5e1;font-weight:700;text-align:center}
+            tbody tr:nth-child(even){background:#f8fafc}
+            .tot-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+            .box{border:1.5px solid #0f172a;border-radius:10px;padding:10px 14px;background:#f8fafc}
+            .box h4{margin:0 0 8px;font-size:0.95rem;border-bottom:1.5px solid #cbd5e1;padding-bottom:4px}
+            .row-kv{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px dashed #cbd5e1;font-size:0.88rem;font-weight:800}
+            .row-kv.grand{border-bottom:none;border-top:2px solid #0f172a;margin-top:6px;padding-top:8px;font-size:1.08rem;color:#0f172a}
+            .sigs{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:28px;text-align:center;font-weight:800;font-size:0.88rem}
+            .sigs div{border-top:1.5px dashed #475569;padding-top:8px}
+            .actions{max-width:820px;margin:0 auto 14px;display:flex;justify-content:center;gap:10px}
+            .actions button{height:40px;padding:0 22px;border-radius:9px;border:none;font-family:'Cairo',sans-serif;font-weight:900;font-size:0.95rem;cursor:pointer}
+            .btn-p{background:#0284c7;color:#fff} .btn-c{background:#475569;color:#fff}
+            @media print{body{background:#fff;padding:0}.actions{display:none!important}.sheet{border:none;box-shadow:none;max-width:100%;padding:8px}}
+        </style></head><body>
+        <div class="actions"><button class="btn-p" onclick="window.print()">🖨️ طباعة الآن</button><button class="btn-c" onclick="window.close()">✖ إغلاق</button></div>
+        <div class="sheet">${bodyHtml}</div></body></html>`);
+        w.document.close();
+    }
+
+    window.printPurchaseEznNoPrices = function() {
+        const d = _collectCurrentPurchasePrintData();
+        if (!d.items.length) { if (typeof showToast === 'function') showToast('⚠️ لا توجد أصناف لطباعة الإذن', 'warning'); return; }
+        const co = _getPurchaseCompanyLetterhead();
+        const totalQty = d.items.reduce((s, r) => s + r.qty, 0);
+        const rowsHtml = d.items.map((r, i) => `<tr><td>${i + 1}</td><td style="text-align:right;font-weight:900;">${r.name}</td><td>${r.unit}</td><td style="font-size:1.02rem;font-weight:900;">${d.fn(r.qty)}</td><td>${r.warehouse}</td><td>${r.note || '—'}</td></tr>`).join('');
+        const html = `
+            <div class="lh">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    ${co.logo ? `<img class="lh-logo" src="${co.logo}" alt="logo">` : ''}
+                    <div><h1 class="lh-name">${co.name}</h1><div class="lh-sub">${co.sub}${co.phone ? ' | ' + co.phone : ''}${co.address ? ' | ' + co.address : ''}</div></div>
+                </div>
+                <div class="doc-badge">📄 إذن استلام بضاعة<div style="font-size:0.82rem;font-weight:700;margin-top:2px;direction:ltr;">#${d.invNo}</div></div>
+            </div>
+            <div class="meta">
+                <div><b>المورد:</b> ${d.supplier}</div>
+                <div><b>التاريخ:</b> <span style="direction:ltr;display:inline-block;">${d.date}</span></div>
+                <div><b>المخزن:</b> ${d.warehouse}</div>
+                ${d.costCenter ? `<div><b>مركز الكلفة:</b> ${d.costCenter}</div>` : ''}
+                ${d.desc ? `<div style="grid-column:span 2;"><b>البيان:</b> ${d.desc}</div>` : ''}
+            </div>
+            <table>
+                <thead><tr><th style="width:42px;">#</th><th style="text-align:right;">الصنف</th><th style="width:110px;">الوحدة</th><th style="width:110px;">الكمية</th><th style="width:130px;">المخزن</th><th>ملاحظات</th></tr></thead>
+                <tbody>${rowsHtml}</tbody>
+                <tfoot><tr style="background:#e2e8f0;font-weight:900;"><td colspan="3">إجمالي الأصناف (${d.items.length} صنف)</td><td style="font-size:1.05rem;">${d.fn(totalQty)}</td><td colspan="2">إذن كميات فقط — بدون أسعار</td></tr></tfoot>
+            </table>
+            <div class="sigs"><div>أمين المخزن</div><div>المستلم / السائق</div><div>الإدارة والاعتماد</div></div>`;
+        _openPurchasePrintDoc('إذن بضاعة #' + d.invNo, html);
+    };
+
+    window.printPurchaseFinancialStatement = function() {
+        const d = _collectCurrentPurchasePrintData();
+        if (!d.items.length) { if (typeof showToast === 'function') showToast('⚠️ لا توجد أصناف لطباعة كشف الحساب المالي', 'warning'); return; }
+        const co = _getPurchaseCompanyLetterhead();
+        const rowsHtml = d.items.map((r, i) => `<tr><td>${i + 1}</td><td style="text-align:right;font-weight:900;">${r.name}</td><td>${r.unit}</td><td>${d.fn(r.qty)}</td><td>${d.fn(r.price)}</td><td style="font-weight:900;">${d.fn(r.total)}</td></tr>`).join('');
+        const payLines = [];
+        if (d.cashAmt > 0) payLines.push(`<div class="row-kv"><span>💵 سداد نقدي (كاش):</span><span>${d.fn(d.cashAmt)} ${d.curLabel}</span></div>`);
+        d.transfers.forEach((t, i) => payLines.push(`<div class="row-kv"><span>🏦 تحويلة #${i + 1} (${t.bank}${t.ref ? ' — ' + t.ref : ''}):</span><span>${d.fn(t.amt)} ${d.curLabel}</span></div>`));
+        d.cheques.forEach((c, i) => payLines.push(`<div class="row-kv"><span>✍️ شيك #${i + 1} (${c.bank}${c.no ? ' — ' + c.no : ''}):</span><span>${d.fn(c.amt)} ${d.curLabel}</span></div>`));
+        if (d.creditAmt > 0) payLines.push(`<div class="row-kv"><span>⏳ المتبقي آجل على الحساب:</span><span>${d.fn(d.creditAmt)} ${d.curLabel}</span></div>`);
+        const totalPaid = d.cashAmt + d.transfers.reduce((s, t) => s + t.amt, 0) + d.cheques.reduce((s, c) => s + c.amt, 0);
+        const usdNote = (d.currency === 'SDG' && d.rate > 1) ? `<div class="row-kv"><span>المعادل بالدولار (صرف ${d.fn(d.rate)}):</span><span>$${d.fn(d.grand / d.rate)}</span></div>` : '';
+        const html = `
+            <div class="lh">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    ${co.logo ? `<img class="lh-logo" src="${co.logo}" alt="logo">` : ''}
+                    <div><h1 class="lh-name">${co.name}</h1><div class="lh-sub">${co.sub}${co.phone ? ' | ' + co.phone : ''}${co.address ? ' | ' + co.address : ''}</div></div>
+                </div>
+                <div class="doc-badge">📊 كشف حساب مالي<div style="font-size:0.82rem;font-weight:700;margin-top:2px;direction:ltr;">#${d.invNo}</div></div>
+            </div>
+            <div class="meta">
+                <div><b>المورد:</b> ${d.supplier}</div>
+                <div><b>التاريخ:</b> <span style="direction:ltr;display:inline-block;">${d.date}</span></div>
+                <div><b>العملة / الصرف:</b> ${d.curLabel} (${d.fn(d.rate)})</div>
+                <div><b>المخزن:</b> ${d.warehouse}</div>
+                <div><b>حركة مالية:</b> ${d.finMovNo && d.finMovNo !== '—' ? d.finMovNo : 'بدون سداد فوري'}</div>
+                <div><b>البيان:</b> ${d.desc || '—'}</div>
+            </div>
+            <table>
+                <thead><tr><th style="width:40px;">#</th><th style="text-align:right;">الصنف</th><th style="width:95px;">الوحدة</th><th style="width:85px;">الكمية</th><th style="width:110px;">السعر</th><th style="width:125px;">الجملة</th></tr></thead>
+                <tbody>${rowsHtml}</tbody>
+            </table>
+            <div class="tot-grid">
+                <div class="box">
+                    <h4>💰 الملخص المالي والمصروفات</h4>
+                    <div class="row-kv"><span>إجمالي الأصناف:</span><span>${d.fn(d.itemsSub)}</span></div>
+                    <div class="row-kv"><span>🚚 الترحيل:</span><span>${d.fn(d.transport)}</span></div>
+                    <div class="row-kv"><span>👷 العتالة / العمالة:</span><span>${d.fn(d.labor)}</span></div>
+                    <div class="row-kv"><span>➕ إضافات أخرى:</span><span>${d.fn(d.additions)}</span></div>
+                    <div class="row-kv"><span>🏛️ الضريبة:</span><span>${d.fn(d.tax)}</span></div>
+                    <div class="row-kv"><span>🏷️ الخصم:</span><span>- ${d.fn(d.discount)}</span></div>
+                    <div class="row-kv grand"><span>الإجمالي النهائي الصافي:</span><span>${d.fn(d.grand)} ${d.curLabel}</span></div>
+                    ${usdNote}
+                </div>
+                <div class="box">
+                    <h4>💳 تفاصيل السداد والحركة المالية</h4>
+                    ${payLines.length ? payLines.join('') : '<div class="row-kv"><span>آجل بالكامل على حساب المورد:</span><span>' + d.fn(d.grand) + ' ' + d.curLabel + '</span></div>'}
+                    <div class="row-kv grand"><span>إجمالي المدفوع الآن:</span><span>${d.fn(totalPaid)} ${d.curLabel}</span></div>
+                </div>
+            </div>
+            <div class="sigs"><div>المحاسب</div><div>المورد / المستلم</div><div>المدير المالي</div></div>`;
+        _openPurchasePrintDoc('كشف حساب مالي #' + d.invNo, html);
+    };
 })();
