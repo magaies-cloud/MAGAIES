@@ -369,10 +369,12 @@
 
     window.autoFitHeaderFields = function() {
         try {
-            // 1. Invoice Number (#inv-number) — Exact Unified 14px Font Matching Date & Financial Strip
+            // 1. Invoice Number (#inv-number) — Exact Unified Font Matching Date (#hdr-date)
             const invEl = document.getElementById('inv-number');
+            const dtEl = document.getElementById('hdr-date');
             if (invEl) {
-                invEl.style.setProperty('font-size', '12.5px', 'important');
+                const dtSize = dtEl ? (window.getComputedStyle(dtEl).fontSize || '15.5px') : '15.5px';
+                invEl.style.setProperty('font-size', dtSize, 'important');
             }
 
             // 2. Supplier Input (#hdr-customer-search) - Auto-fit based on supplier name length & box width

@@ -5,8 +5,20 @@
  */
 (function () {
     const pageName = (window.location.pathname.split('/').pop() || '').toLowerCase();
-    const noChartEntryPages = ['login', 'settings.php', 'single-cash-payment.php', 'multi-cash-payment.php', 'purchase.php', 'sales.php', 'direct-sales.php', 'purchase-receipt.php', 'purchase-return.php', 'sales-return.php', 'sales-delivery.php', 'journal-voucher.php'];
-    if (noChartEntryPages.some(p => pageName.includes(p))) return;
+    // Strict allow-list: Visual Charts & Risk Radar ONLY on Main Dashboard + Inventory Reports + Financial Reports
+    const allowedChartScreens = new Set([
+        'magaiees_unified_dashboard.php', 'index.php', 'dashboard.php', '',
+        // تقارير المخازن
+        'inventory-report.php', 'inventory-movement.php', 'item-ledger.php', 'warehouse-ledger.php',
+        'inventory-summary.php', 'inventory-analytics.php', 'inventory-stocktake.php', 'inventory-adjustment.php',
+        'inv_rep15_valuation.php', 'inv_rep17_shrinkage.php', 'smart_inventory_report.php', 'ai_goods_advisor.php',
+        // التقارير المالية والمحاسبية والتجارية
+        'analytics.php', 'general-ledger.php', 'mainbalances-report.php', 'journal.php', 'trial-balance.php',
+        'balance-sheet.php', 'pl-statement.php', 'cashflow_modern.php', 'aging-report.php',
+        'commercial-reports-suite.php', 'distributive-reports.php', 'visual-analytics.php',
+        'credit_concentration.php', 'financial-reports.php', 'account-statement.php'
+    ]);
+    if (!allowedChartScreens.has(pageName)) return;
 
     window._autoChartActiveFilter = 'all';
     window._setAutoChartFilter = function (mode) {

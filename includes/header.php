@@ -1957,6 +1957,53 @@ try {
                 try { savedZoomStep = Math.max(-15, Math.min(10, parseInt(localStorage.getItem('magaies_screen_zoom_step_v1') || '0', 10) || 0)); } catch (_) {}
                 window.applyGlobalSovereignMasterScale(Math.round((1 + (savedZoomStep * 0.02)) * 1000) / 1000, true);
 
+                // Live Zoom Percentage HUD Indicator on Ctrl + Mouse Wheel / Ctrl + +/-/0 across all screens
+                (function initLiveZoomHudBadge() {
+                    if (window.__magaiesLiveZoomHudBound) return;
+                    window.__magaiesLiveZoomHudBound = true;
+                    var hudTimer = null, baseDpr = window.devicePixelRatio || 1;
+                    try { var sDpr = parseFloat(sessionStorage.getItem('magaies_base_dpr') || '0'); if (sDpr > 0) baseDpr = sDpr; else sessionStorage.setItem('magaies_base_dpr', String(baseDpr)); } catch (_) {}
+                    function calcZoomPct() {
+                        var z = 100;
+                        try {
+                            if (window.outerWidth && window.innerWidth && window.innerWidth > 100) {
+                                var r = Math.round((window.outerWidth / window.innerWidth) * 100);
+                                if (r >= 25 && r <= 500) z = r;
+                            } else if (window.devicePixelRatio && baseDpr > 0) {
+                                z = Math.round((window.devicePixelRatio / baseDpr) * 100);
+                            }
+                        } catch (_) {}
+                        return z;
+                    }
+                    function showZoomHud(pct) {
+                        var el = document.getElementById('magaies-live-zoom-hud');
+                        if (!el) {
+                            el = document.createElement('div');
+                            el.id = 'magaies-live-zoom-hud';
+                            el.style.cssText = 'position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:2147483647;background:rgba(15,23,42,0.94);color:#fde047;border:2px solid #38bdf8;border-radius:999px;padding:7px 20px;font-family:Cairo,Tajawal,sans-serif;font-size:1.05rem;font-weight:900;box-shadow:0 12px 32px rgba(0,0,0,0.65);pointer-events:none;transition:opacity 0.22s ease;direction:rtl;display:flex;align-items:center;gap:8px;';
+                            (document.body || document.documentElement).appendChild(el);
+                        }
+                        el.innerHTML = '<span>🔍</span><span>نسبة التكبير:</span><strong style="color:#ffffff;font-family:Inter,monospace;direction:ltr;">' + pct + '%</strong>';
+                        el.style.opacity = '1';
+                        clearTimeout(hudTimer);
+                        hudTimer = setTimeout(function() { if (el) el.style.opacity = '0'; }, 1500);
+                    }
+                    var lastShownPct = calcZoomPct();
+                    window.addEventListener('wheel', function(e) {
+                        if (!e.ctrlKey) return;
+                        setTimeout(function() { var p = calcZoomPct(); lastShownPct = p; showZoomHud(p); }, 45);
+                    }, { passive: true });
+                    window.addEventListener('keydown', function(e) {
+                        if (e.ctrlKey && (e.key === '+' || e.key === '=' || e.key === '-' || e.key === '_' || e.key === '0')) {
+                            setTimeout(function() { var p = calcZoomPct(); lastShownPct = p; showZoomHud(p); }, 55);
+                        }
+                    }, { passive: true });
+                    window.addEventListener('resize', function() {
+                        var p = calcZoomPct();
+                        if (Math.abs(p - lastShownPct) >= 2) { lastShownPct = p; showZoomHud(p); }
+                    }, { passive: true });
+                })();
+
                 if (!window.ElsajanaUniversalUI2027 && !document.querySelector('script[src*="elsajana-universal-ui-2027.js"]')) {
                     var _ergoScr = document.createElement('script');
                     _ergoScr.defer = true;

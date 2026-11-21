@@ -678,29 +678,36 @@
         } catch (_) {}
     }
 
-    // 9. Negative-Stock Option (Goods-in-Transit) + Anti-Zero-Inflation & Credit-Limit Guard across Warehouses, Settings & Sales
-    const getAllowNegStock = () => {
+    // 9. Negative-Stock Option controlled strictly from Warehouses & Settings (not Sales header)
+    const getAllowNegStock = (whKey) => {
         try {
+            const target = whKey || document.getElementById('hdr-warehouse')?.value || '';
+            if (target) {
+                const whs = JSON.parse(localStorage.getItem('erp_warehouses_v1') || '[]') || [];
+                const found = Array.isArray(whs) ? whs.find(w => !w.deleted && (String(w.id) === String(target) || String(w.name).trim() === String(target).trim())) : null;
+                if (found && typeof found.allowNegativeStock === 'boolean') return found.allowNegativeStock;
+            }
             const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}') || {};
             if (typeof cfg.allowNegativeStock === 'boolean') return cfg.allowNegativeStock;
         } catch (_) {}
         return localStorage.getItem('magaies_allow_negative_stock') !== '0';
     };
     const syncNegStockUi = () => {
-        const allow = getAllowNegStock();
-        ['md-wh-allow-neg-btn', 'sales-hdr-neg-stock-btn'].forEach(id => {
-            const b = document.getElementById(id);
-            if (!b) return;
-            b.innerHTML = allow ? '🚚 البيع بالسالب (بضاعة بالطريق): مسموح ✅' : '⛔ البيع بالسالب: ممنوع (مقفول)';
+        const allow = getAllowNegStock('');
+        const staleSalesBtn = document.getElementById('sales-hdr-neg-stock-btn');
+        if (staleSalesBtn) staleSalesBtn.remove();
+        const b = document.getElementById('md-wh-allow-neg-btn');
+        if (b) {
+            b.innerHTML = allow ? '🚚 البيع بالسالب (عام): مسموح ✅' : '⛔ البيع بالسالب (عام): ممنوع';
             b.style.borderColor = allow ? '#10b981' : '#f43f5e';
             b.style.background = allow ? 'rgba(16,185,129,0.2)' : 'rgba(225,29,72,0.22)';
             b.style.color = allow ? '#6ee7b7' : '#fda4af';
-        });
+        }
         const chk = document.getElementById('cfg-allow-negative-stock');
         if (chk) chk.checked = allow;
     };
     const toggleAllowNegativeStock = () => {
-        const next = !getAllowNegStock();
+        const next = !getAllowNegStock('');
         localStorage.setItem('magaies_allow_negative_stock', next ? '1' : '0');
         try {
             const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}') || {};
@@ -708,20 +715,9 @@
             localStorage.setItem('erp_settings_v1', JSON.stringify(cfg));
         } catch (_) {}
         syncNegStockUi();
-        if (typeof window.showToast === 'function') window.showToast(next ? '🚚 تم تفعيل السماح بالبيع بالسالب (لبضاعة الطريق)' : '⛔ تم إيقاف البيع بالسالب (لن يُصرف أكثر من الرصيد الفعلي)', next ? 'success' : 'warning', 2600);
+        if (typeof window.showToast === 'function') window.showToast(next ? '🚚 تم تفعيل السماح بالبيع بالسالب من إعدادات المخازن' : '⛔ تم إيقاف البيع بالسالب من إعدادات المخازن', next ? 'success' : 'warning', 2600);
     };
     document.addEventListener('DOMContentLoaded', () => {
-        const pg = (location.pathname.split('/').pop() || '').toLowerCase();
-        if (pg.includes('sales') && !document.getElementById('sales-hdr-neg-stock-btn')) {
-            const whSel = document.getElementById('hdr-warehouse');
-            if (whSel && whSel.parentElement) {
-                const btn = document.createElement('button');
-                btn.type = 'button'; btn.id = 'sales-hdr-neg-stock-btn';
-                btn.style.cssText = 'height:32px;padding:0 10px;margin-right:6px;border-radius:8px;font-weight:900;font-size:0.76rem;cursor:pointer;border:2px solid #10b981;white-space:nowrap;';
-                btn.onclick = toggleAllowNegativeStock;
-                whSel.parentElement.appendChild(btn);
-            }
-        }
         syncNegStockUi();
     });
     // Hard Extra-Zeros Guard (>50 Billion ceiling on numeric inputs so phone/barcode paste never creates trillion-SDG typos)

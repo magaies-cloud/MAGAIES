@@ -1178,6 +1178,8 @@
             const phone = (document.getElementById('warehouse-phone')?.value || '').trim();
             const location = (document.getElementById('warehouse-location')?.value || '').trim();
             const status = document.getElementById('warehouse-status')?.value || 'active';
+            const allowNegVal = document.getElementById('warehouse-allow-negative')?.value || 'no';
+            const allowNegativeStock = (allowNegVal === 'yes');
             const security = parseInt(document.getElementById('warehouse-security').value) || 1;
 
             let warehouses = [];
@@ -1190,7 +1192,7 @@
             warehouses = warehouses.filter(w => !w.deleted);
             const existingIdx = warehouses.findIndex(w => w.id === id);
 
-            const whData = { id, name, type, keeper, phone, location, status, securityLevel: security };
+            const whData = { id, name, type, keeper, phone, location, status, allowNegativeStock, securityLevel: security };
 
             if (existingIdx > -1) {
                 warehouses[existingIdx] = whData;
@@ -1247,6 +1249,9 @@
 
             tbody.innerHTML = warehouses.map(w => {
                 const stBadge = statusBadgeMap[w.status || 'active'] || statusBadgeMap['active'];
+                const negBadge = w.allowNegativeStock
+                    ? '<span style="background:rgba(16,185,129,0.16); color:#34d399; padding:3px 8px; border-radius:8px; font-size:0.76rem; font-weight:800;">✅ مسموح</span>'
+                    : '<span style="background:rgba(239,68,68,0.15); color:#f87171; padding:3px 8px; border-radius:8px; font-size:0.76rem; font-weight:800;">⛔ ممنوع</span>';
                 return `<tr>
                     <td><strong>${w.name}</strong></td>
                     <td><span style="background:rgba(255,255,255,0.05); padding:3px 8px; border-radius:6px; font-size:0.85rem;">${w.type}</span></td>
@@ -1254,6 +1259,7 @@
                     <td style="direction:ltr; font-family:monospace;">${w.phone || '-'}</td>
                     <td>${w.location || '-'}</td>
                     <td>${stBadge}</td>
+                    <td>${negBadge}</td>
                     <td>${w.securityLevel || 1}</td>
                     <td style="white-space:nowrap;">
                         <button class="btn-text" style="color:#34d399; font-weight:800; margin-left:6px;" onclick="window.location.href='warehouse-ledger.php?warehouse='+encodeURIComponent('${(w.name || '').replace(/'/g, "\\'")}')" title="فتح دفتر حركات المخزن">📊 دفتر المخزن</button>
@@ -1289,6 +1295,7 @@
             if (document.getElementById('warehouse-phone')) document.getElementById('warehouse-phone').value = wh.phone || '';
             if (document.getElementById('warehouse-location')) document.getElementById('warehouse-location').value = wh.location || '';
             if (document.getElementById('warehouse-status')) document.getElementById('warehouse-status').value = wh.status || 'active';
+            if (document.getElementById('warehouse-allow-negative')) document.getElementById('warehouse-allow-negative').value = wh.allowNegativeStock ? 'yes' : 'no';
             document.getElementById('warehouse-security').value = wh.securityLevel || '1';
             document.getElementById('btn-cancel-warehouse').style.display = 'inline-block';
         }
@@ -1302,6 +1309,7 @@
             if (document.getElementById('warehouse-phone')) document.getElementById('warehouse-phone').value = '';
             if (document.getElementById('warehouse-location')) document.getElementById('warehouse-location').value = '';
             if (document.getElementById('warehouse-status')) document.getElementById('warehouse-status').value = 'active';
+            if (document.getElementById('warehouse-allow-negative')) document.getElementById('warehouse-allow-negative').value = 'no';
             document.getElementById('warehouse-security').value = '1';
         }
         window.closeWarehouseForm = cancelEditWarehouse;
@@ -2319,18 +2327,18 @@
             const effectiveRcptMode = policyRcptMode === 'review_first_all' ? 'review_first' : (policyRcptMode === 'auto_post_all' ? 'auto_post' : rcptMode);
             const roleWord = entityType === 'supplier' ? 'المورد' : 'العميل';
             const rcptPillHtml = effectiveRcptMode === 'review_first'
-                ? `<button type="button" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" data-md-tip-title="👁️ انتظار المراجعة للإشعارات" data-md-tip="عند إرسال إشعار بنكي من هذا ${roleWord} عبر الواتساب لا ينزل في رصيده تلقائياً، بل ينتظر المراجعة والاعتماد اليدوي أولاً (اضغط للتبديل إلى تلقائي)." style="background:rgba(245,158,11,0.2); color:#fcd34d; border:1px solid rgba(245,158,11,0.5); padding:2px 7px; border-radius:6px; font-size:0.71rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:3px; white-space:nowrap;">👁️ مراجعة</button>`
-                : `<button type="button" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" data-md-tip-title="⚡ نزول تلقائي للإشعارات" data-md-tip="عند إرسال إشعار بنكي من هذا ${roleWord} عبر الواتساب ينزل المبلغ في حسابه ورصيده تلقائياً وفوراً (اضغط للتبديل إلى انتظار المراجعة)." style="background:rgba(16,185,129,0.16); color:#6ee7b7; border:1px solid rgba(16,185,129,0.45); padding:2px 7px; border-radius:6px; font-size:0.71rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:3px; white-space:nowrap;">⚡ تلقائي</button>`;
+                ? `<button type="button" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" data-md-tip-title="👁️ انتظار المراجعة للإشعارات" data-md-tip="عند إرسال إشعار بنكي من هذا ${roleWord} عبر الواتساب لا ينزل في رصيده تلقائياً، بل ينتظر المراجعة والاعتماد اليدوي أولاً (اضغط للتبديل إلى تلقائي)." style="background:rgba(245,158,11,0.2); color:#fcd34d; border:1px solid rgba(245,158,11,0.5); padding:1px 4px; border-radius:4px; font-size:0.58rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:2px; white-space:nowrap;">👁️ مراجعة</button>`
+                : `<button type="button" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" data-md-tip-title="⚡ نزول تلقائي للإشعارات" data-md-tip="عند إرسال إشعار بنكي من هذا ${roleWord} عبر الواتساب ينزل المبلغ في حسابه ورصيده تلقائياً وفوراً (اضغط للتبديل إلى انتظار المراجعة)." style="background:rgba(16,185,129,0.16); color:#6ee7b7; border:1px solid rgba(16,185,129,0.45); padding:1px 4px; border-radius:4px; font-size:0.58rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:2px; white-space:nowrap;">⚡ تلقائي</button>`;
 
             const customBankBadge = item.defaultBankName
-                ? `<span data-md-tip-title="🏦 البنك الافتراضي (${item.defaultBankName})" data-md-tip="حينما يرسل هذا ${roleWord} إشعار تحويل عبر الواتساب يُعتمد ويُودع في هذا البنك تلقائياً." style="font-size:0.68rem; color:#fcd34d; font-weight:800; white-space:nowrap;">🏦 ${item.defaultBankName}</span>`
+                ? `<span data-md-tip-title="🏦 البنك الافتراضي (${item.defaultBankName})" data-md-tip="حينما يرسل هذا ${roleWord} إشعار تحويل عبر الواتساب يُعتمد ويُودع في هذا البنك تلقائياً." style="font-size:0.60rem; color:#fcd34d; font-weight:800; white-space:nowrap;">🏦 ${item.defaultBankName}</span>`
                 : '';
 
-            return `<div style="display:inline-flex; align-items:center; gap:4px; flex-wrap:nowrap; white-space:nowrap;">
-                <div style="display:inline-flex; align-items:center; gap:2px; background:rgba(15,23,42,0.65); padding:2px; border-radius:7px; border:1px solid rgba(148,163,184,0.2); white-space:nowrap;">
-                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'disabled')" data-md-tip-title="🔒 موقوف نهائياً" data-md-tip="موقوف نهائياً: لا يستطيع هذا ${roleWord} طلب الرصيد ولا كشف الحساب عبر الواتساب." style="${btnStyle('disabled')} padding:2px 6px; border-radius:5px; font-size:0.71rem; cursor:pointer; white-space:nowrap;">🔒 موقوف</button>
-                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'balance_only')" data-md-tip-title="💰 الرصيد فقط" data-md-tip="يستطيع هذا ${roleWord} أن يطلب معرفة الرصيد فقط عبر الواتساب (بدون كشف حساب مفصل)." style="${btnStyle('balance_only')} padding:2px 6px; border-radius:5px; font-size:0.71rem; cursor:pointer; white-space:nowrap;">💰 الرصيد</button>
-                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'detailed')" data-md-tip-title="📊 كشف الحساب والرصيد" data-md-tip="يستطيع هذا ${roleWord} أن يطلب كشف الحساب المفصل وكذلك الرصيد عبر الواتساب." style="${btnStyle('detailed')} padding:2px 6px; border-radius:5px; font-size:0.71rem; cursor:pointer; white-space:nowrap;">📊 كشف</button>
+            return `<div style="display:inline-flex; align-items:center; gap:2px; flex-wrap:nowrap; white-space:nowrap;">
+                <div style="display:inline-flex; align-items:center; gap:1.5px; background:rgba(15,23,42,0.65); padding:1.5px; border-radius:5px; border:1px solid rgba(148,163,184,0.2); white-space:nowrap;">
+                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'disabled')" data-md-tip-title="🔒 موقوف نهائياً" data-md-tip="موقوف نهائياً: لا يستطيع هذا ${roleWord} طلب الرصيد ولا كشف الحساب عبر الواتساب." style="${btnStyle('disabled')} padding:1px 4px; border-radius:4px; font-size:0.58rem; cursor:pointer; white-space:nowrap;">🔒 موقوف</button>
+                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'balance_only')" data-md-tip-title="💰 الرصيد فقط" data-md-tip="يستطيع هذا ${roleWord} أن يطلب معرفة الرصيد فقط عبر الواتساب (بدون كشف حساب مفصل)." style="${btnStyle('balance_only')} padding:1px 4px; border-radius:4px; font-size:0.58rem; cursor:pointer; white-space:nowrap;">💰 الرصيد</button>
+                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'detailed')" data-md-tip-title="📊 كشف الحساب والرصيد" data-md-tip="يستطيع هذا ${roleWord} أن يطلب كشف الحساب المفصل وكذلك الرصيد عبر الواتساب." style="${btnStyle('detailed')} padding:1px 4px; border-radius:4px; font-size:0.58rem; cursor:pointer; white-space:nowrap;">📊 كشف</button>
                 </div>
                 ${rcptPillHtml}
                 ${customBankBadge}
@@ -2774,8 +2782,8 @@
             const visibleCustomers = customers.slice(0, maxShow);
             const rowsHtml = [];
             visibleCustomers.forEach(c => {
-                const statusMap = {'vip': '<span style="background:rgba(168,85,247,0.15); color:#a855f7; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:700;">🌟 VIP</span>', 'blacklisted': '<span style="background:rgba(239,68,68,0.15); color:#ef4444; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:700;">🔴 محظور</span>'};
-                const statusBadge = statusMap[c.status] || '<span style="background:rgba(52,211,153,0.15); color:#34d399; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:700;">🟢 نشط</span>';
+                const statusMap = {'vip': '<span style="background:rgba(168,85,247,0.15); color:#a855f7; padding:1px 5px; border-radius:8px; font-size:0.68rem; font-weight:700;">🌟 VIP</span>', 'blacklisted': '<span style="background:rgba(239,68,68,0.15); color:#ef4444; padding:1px 5px; border-radius:8px; font-size:0.68rem; font-weight:700;">🔴 محظور</span>'};
+                const statusBadge = statusMap[c.status] || '<span style="background:rgba(52,211,153,0.15); color:#34d399; padding:1px 5px; border-radius:8px; font-size:0.68rem; font-weight:700;">🟢 نشط</span>';
                 const bal = (typeof window.computeLiveEntityLedgerBalance === 'function')
                     ? window.computeLiveEntityLedgerBalance('customer', c)
                     : (parseFloat(c.currentBalance) || ((parseFloat(c.openingDebit) || 0) - (parseFloat(c.openingCredit) || 0)));
@@ -2783,9 +2791,11 @@
                 const isOverLimit = lim > 0 && bal > lim;
                 const balColor = bal > 0 ? '#f87171' : (bal < 0 ? '#34d399' : '#94a3b8');
                 const balLabel = bal > 0 ? 'عليه' : (bal < 0 ? 'له' : 'مسدد');
-                const overLimitBadge = isOverLimit ? ' <span style="background:rgba(239,68,68,0.22); color:#fca5a5; border:1px solid rgba(239,68,68,0.5); padding:1px 5px; border-radius:5px; font-size:0.68rem; font-weight:900;" title="تجاوز سقف الائتمان المسموح">⚠️ سقف</span>' : '';
+                const overLimitBadge = isOverLimit ? ' <span style="background:rgba(239,68,68,0.22); color:#fca5a5; border:1px solid rgba(239,68,68,0.5); padding:1px 4px; border-radius:4px; font-size:0.60rem; font-weight:900;" title="تجاوز سقف الائتمان المسموح">⚠️ سقف</span>' : '';
                 const agingBadge = (typeof window.computeEntityDebtAgingBadge === 'function') ? window.computeEntityDebtAgingBadge('customer', c, bal) : '';
-                const balDisplay = `<span onclick="openEntityDrillDownStatementModal('customer', '${c.id}')" style="color:${balColor}; font-weight:900; font-family:monospace; cursor:pointer; text-decoration:underline dotted;" title="اضغط لفتح كشف الحساب التفصيلي والحركات (Drill-Down)">${Math.abs(bal).toLocaleString()}</span> <small style="color:${balColor}; opacity:0.8;">${balLabel}</small>${overLimitBadge}${agingBadge}`;
+                const balStr = Math.abs(bal).toLocaleString();
+                const balFs = balStr.length > 10 ? '0.68rem' : (balStr.length > 7 ? '0.74rem' : '0.80rem');
+                const balDisplay = `<span onclick="openEntityDrillDownStatementModal('customer', '${c.id}')" style="color:${balColor}; font-weight:900; font-family:monospace; font-size:${balFs}; cursor:pointer; text-decoration:underline dotted;" title="اضغط لفتح كشف الحساب التفصيلي والحركات (Drill-Down)">${balStr}</span> <small style="color:${balColor}; opacity:0.8; font-size:0.64rem;">${balLabel}</small>${overLimitBadge}${agingBadge}`;
                 
                 const pInfo = getEntityFull5DigitPin(c.whatsapp || c.phone || '', c.statementPin);
                 const cleanPin = pInfo.pin3;
@@ -2795,24 +2805,28 @@
                 const pinTip = (pInfo.last2 && cleanPin.length === 3)
                     ? `الرقم السري (5 أرقام): ${pInfo.full5} = آخر رقمين من الواتساب (${pInfo.last2}) + الثلاثة أرقام السرية (${cleanPin}) — اضغط للنسخ`
                     : `الرقم السري: ${cleanPin || '-'} (أضف رقم الواتساب ليصبح 5 أرقام)`;
-                const pinBadge = `<span onclick="copyEntityWhatsAppCard('customer', '${c.id}')" title="${pinTip}" style="background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.45); padding:1px 7px; border-radius:6px; font-weight:900; font-family:monospace; font-size:0.82rem; display:inline-block; cursor:pointer; direction:ltr; white-space:nowrap;">🔐 ${pinLabelHtml} 📋</span>`;
+                const pinBadge = `<span onclick="copyEntityWhatsAppCard('customer', '${c.id}')" title="${pinTip}" style="background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.45); padding:1px 5px; border-radius:5px; font-weight:900; font-family:monospace; font-size:0.70rem; display:inline-block; cursor:pointer; direction:ltr; white-space:nowrap;">🔐${pinLabelHtml}</span>`;
                 
                 const subCount = Array.isArray(c.subPhones) ? c.subPhones.length : 0;
-                const subPhonesBadge = subCount > 0 ? ` <span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:1px 5px; border-radius:5px; font-size:0.68rem; font-weight:700;">📱+${subCount}</span>` : '';
+                const subPhonesBadge = subCount > 0 ? ` <span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:1px 4px; border-radius:4px; font-size:0.60rem; font-weight:700;">+${subCount}</span>` : '';
 
                 const stmtToggleBtn = buildTableStatementControlHtml('customer', c);
+                const cName = String(c.name || '');
+                const cNameFs = cName.length > 26 ? '0.68rem' : (cName.length > 18 ? '0.74rem' : '0.82rem');
+                const cPhoneStr = String(c.whatsapp || c.phone || '-');
+                const cPhoneFs = cPhoneStr.length > 12 ? '0.66rem' : '0.74rem';
 
                 rowsHtml.push(`<tr>
                     <td style="text-align:center; white-space:nowrap;">${pinBadge}</td>
-                    <td style="font-weight:bold; max-width:165px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${(c.name || '').replace(/"/g, '&quot;')}">${c.name}</td>
-                    <td style="text-align:center; direction:ltr; white-space:nowrap;"><span style="font-family:monospace; font-weight:800;">${c.whatsapp || c.phone || '-'}</span>${subPhonesBadge}</td>
+                    <td style="font-weight:800; font-size:${cNameFs}; line-height:1.25; white-space:normal; word-break:break-word;" title="${cName.replace(/"/g, '&quot;')}">${cName}</td>
+                    <td style="text-align:center; direction:ltr; white-space:nowrap;"><span style="font-family:monospace; font-weight:800; font-size:${cPhoneFs};">${cPhoneStr}</span>${subPhonesBadge}</td>
                     <td style="text-align:center; white-space:nowrap;">${stmtToggleBtn}</td>
                     <td style="text-align:center; white-space:nowrap;">${statusBadge}</td>
                     <td style="text-align:center; white-space:nowrap;">${balDisplay}</td>
-                    <td style="text-align:center; cursor:pointer; white-space:nowrap;" ondblclick="startInlineMasterEdit(this, 'customer_limit', '${c.id}', ${parseFloat(c.creditLimit) || 0})" title="انقر مرتين لتعديل حد الائتمان مباشرة">${(c.creditLimit || 0).toLocaleString()} ${c.currency || 'SDG'} <small style="opacity:0.45;">✏️</small></td>
-                    <td style="font-size:0.82rem; text-align:center; white-space:nowrap;">${c.contactPerson || '-'}</td>
-                    <td style="text-align:center; white-space:nowrap;">${c.securityLevel || 1}</td>
-                    <td style="text-align:center; white-space:nowrap;"><div style="display:inline-flex; align-items:center; gap:4px; flex-wrap:nowrap; white-space:nowrap;"><button class="btn-text" style="color:#fbbf24; font-weight:800; padding:1px 3px;" onclick="openEntityDrillDownStatementModal('customer', '${c.id}')" title="كشف الحساب التفصيلي والحركات (Drill-Down)">📊</button><button class="btn-text" style="color:#38bdf8; font-weight:800; padding:1px 3px;" onclick="window.location.href='account-statement.php?partner='+encodeURIComponent('${(c.name || '').replace(/'/g, "\\'")}')" title="كشف الحساب الرسمي الشامل">📄</button><button class="btn-text" style="color:#c084fc; font-weight:800; padding:1px 3px;" onclick="window.location.href='customer-portfolio.php'" title="محفظة العميل 360°">💼</button><button class="btn-text" style="color:#34d399; font-weight:800; padding:1px 3px;" onclick="openEntityQrCardModal('customer', '${c.id}')" title="بطاقة QR">🪪</button><button class="btn-text" style="color:#38bdf8; font-weight:800; padding:1px 4px; white-space:nowrap;" onclick="editCustomer('${c.id}')">✏️ تعديل</button><button class="btn-text" style="color:var(--danger-color); font-weight:800; padding:1px 4px; white-space:nowrap;" onclick="deleteCustomer('${c.id}')">🗑️ حذف</button></div></td>
+                    <td style="text-align:center; cursor:pointer; white-space:nowrap; font-size:0.72rem;" ondblclick="startInlineMasterEdit(this, 'customer_limit', '${c.id}', ${parseFloat(c.creditLimit) || 0})" title="انقر مرتين لتعديل حد الائتمان مباشرة">${(c.creditLimit || 0).toLocaleString()}</td>
+                    <td style="font-size:0.72rem; text-align:center; white-space:nowrap;">${c.contactPerson || '-'}</td>
+                    <td style="text-align:center; white-space:nowrap; font-size:0.72rem;">${c.securityLevel || 1}</td>
+                    <td style="text-align:center; white-space:nowrap;"><div style="display:inline-flex; align-items:center; gap:2px; flex-wrap:nowrap; white-space:nowrap;"><button class="btn-text" style="color:#fbbf24; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="openEntityDrillDownStatementModal('customer', '${c.id}')" title="كشف الحساب التفصيلي">📊</button><button class="btn-text" style="color:#38bdf8; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="window.location.href='account-statement.php?partner='+encodeURIComponent('${cName.replace(/'/g, "\\'")}')" title="كشف الحساب الرسمي">📄</button><button class="btn-text" style="color:#c084fc; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="window.location.href='customer-portfolio.php'" title="محفظة العميل">💼</button><button class="btn-text" style="color:#34d399; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="openEntityQrCardModal('customer', '${c.id}')" title="بطاقة QR">🪪</button><button class="btn-text" style="color:#38bdf8; font-weight:800; padding:1px 3px; font-size:0.70rem; white-space:nowrap;" onclick="editCustomer('${c.id}')">✏️</button><button class="btn-text" style="color:var(--danger-color); font-weight:800; padding:1px 3px; font-size:0.70rem; white-space:nowrap;" onclick="deleteCustomer('${c.id}')">🗑️</button></div></td>
                 </tr>`);
             });
             if (!query && customers.length > maxShow) {
@@ -3210,15 +3224,17 @@
             const visibleSuppliers = suppliers.slice(0, maxShowSup);
             const rowsHtmlSup = [];
             visibleSuppliers.forEach(s => {
-                const statusMap = {'vip': '<span style="background:rgba(168,85,247,0.15); color:#a855f7; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:700;">🌟 VIP</span>', 'blacklisted': '<span style="background:rgba(239,68,68,0.15); color:#ef4444; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:700;">🔴 محظور</span>'};
-                const statusBadge = statusMap[s.status] || '<span style="background:rgba(52,211,153,0.15); color:#34d399; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:700;">🟢 نشط</span>';
+                const statusMap = {'vip': '<span style="background:rgba(168,85,247,0.15); color:#a855f7; padding:1px 5px; border-radius:8px; font-size:0.68rem; font-weight:700;">🌟 VIP</span>', 'blacklisted': '<span style="background:rgba(239,68,68,0.15); color:#ef4444; padding:1px 5px; border-radius:8px; font-size:0.68rem; font-weight:700;">🔴 محظور</span>'};
+                const statusBadge = statusMap[s.status] || '<span style="background:rgba(52,211,153,0.15); color:#34d399; padding:1px 5px; border-radius:8px; font-size:0.68rem; font-weight:700;">🟢 نشط</span>';
                 const bal = (typeof window.computeLiveEntityLedgerBalance === 'function')
                     ? window.computeLiveEntityLedgerBalance('supplier', s)
                     : (parseFloat(s.currentBalance) || ((parseFloat(s.openingCredit) || 0) - (parseFloat(s.openingDebit) || 0)));
                 const balColor = bal > 0 ? '#34d399' : (bal < 0 ? '#f87171' : '#94a3b8');
                 const balLabel = bal > 0 ? 'له' : (bal < 0 ? 'عليه' : 'مسدد');
                 const agingBadgeSup = (typeof window.computeEntityDebtAgingBadge === 'function') ? window.computeEntityDebtAgingBadge('supplier', s, bal) : '';
-                const balDisplay = `<span onclick="openEntityDrillDownStatementModal('supplier', '${s.id}')" style="color:${balColor}; font-weight:900; font-family:monospace; cursor:pointer; text-decoration:underline dotted;" title="اضغط لفتح كشف الحساب التفصيلي والحركات (Drill-Down)">${Math.abs(bal).toLocaleString()}</span> <small style="color:${balColor}; opacity:0.8;">${balLabel}</small>${agingBadgeSup}`;
+                const balStrSup = Math.abs(bal).toLocaleString();
+                const balFsSup = balStrSup.length > 10 ? '0.68rem' : (balStrSup.length > 7 ? '0.74rem' : '0.80rem');
+                const balDisplay = `<span onclick="openEntityDrillDownStatementModal('supplier', '${s.id}')" style="color:${balColor}; font-weight:900; font-family:monospace; font-size:${balFsSup}; cursor:pointer; text-decoration:underline dotted;" title="اضغط لفتح كشف الحساب التفصيلي والحركات (Drill-Down)">${balStrSup}</span> <small style="color:${balColor}; opacity:0.8; font-size:0.64rem;">${balLabel}</small>${agingBadgeSup}`;
                 
                 const pInfo = getEntityFull5DigitPin(s.whatsapp || s.phone || '', s.statementPin);
                 const cleanPin = pInfo.pin3;
@@ -3228,23 +3244,27 @@
                 const pinTip = (pInfo.last2 && cleanPin.length === 3)
                     ? `الرقم السري (5 أرقام): ${pInfo.full5} = آخر رقمين من الواتساب (${pInfo.last2}) + الثلاثة أرقام السرية (${cleanPin}) — اضغط للنسخ`
                     : `الرقم السري: ${cleanPin || '-'} (أضف رقم الواتساب ليصبح 5 أرقام)`;
-                const pinBadge = `<span onclick="copyEntityWhatsAppCard('supplier', '${s.id}')" title="${pinTip}" style="background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.45); padding:3px 10px; border-radius:8px; font-weight:900; font-family:monospace; font-size:0.88rem; display:inline-block; cursor:pointer; direction:ltr;">🔐 ${pinLabelHtml} 📋</span>`;
+                const pinBadge = `<span onclick="copyEntityWhatsAppCard('supplier', '${s.id}')" title="${pinTip}" style="background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.45); padding:1px 5px; border-radius:5px; font-weight:900; font-family:monospace; font-size:0.70rem; display:inline-block; cursor:pointer; direction:ltr; white-space:nowrap;">🔐${pinLabelHtml}</span>`;
 
                 const subCount = Array.isArray(s.subPhones) ? s.subPhones.length : 0;
-                const subPhonesBadge = subCount > 0 ? ` <span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:1px 5px; border-radius:5px; font-size:0.68rem; font-weight:700;">📱+${subCount}</span>` : '';
+                const subPhonesBadge = subCount > 0 ? ` <span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:1px 4px; border-radius:4px; font-size:0.60rem; font-weight:700;">+${subCount}</span>` : '';
 
                 const stmtToggleBtn = buildTableStatementControlHtml('supplier', s);
+                const sName = String(s.name || '');
+                const sNameFs = sName.length > 26 ? '0.68rem' : (sName.length > 18 ? '0.74rem' : '0.82rem');
+                const sPhoneStr = String(s.whatsapp || s.phone || '-');
+                const sPhoneFs = sPhoneStr.length > 12 ? '0.66rem' : '0.74rem';
 
                 rowsHtmlSup.push(`<tr>
                     <td style="text-align:center; white-space:nowrap;">${pinBadge}</td>
-                    <td style="font-weight:bold; max-width:165px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${(s.name || '').replace(/"/g, '&quot;')}">${s.name}</td>
-                    <td style="text-align:center; direction:ltr; white-space:nowrap;"><span style="font-family:monospace; font-weight:800;">${s.whatsapp || s.phone || '-'}</span>${subPhonesBadge}</td>
+                    <td style="font-weight:800; font-size:${sNameFs}; line-height:1.25; white-space:normal; word-break:break-word;" title="${sName.replace(/"/g, '&quot;')}">${sName}</td>
+                    <td style="text-align:center; direction:ltr; white-space:nowrap;"><span style="font-family:monospace; font-weight:800; font-size:${sPhoneFs};">${sPhoneStr}</span>${subPhonesBadge}</td>
                     <td style="text-align:center; white-space:nowrap;">${stmtToggleBtn}</td>
                     <td style="text-align:center; white-space:nowrap;">${statusBadge}</td>
                     <td style="text-align:center; white-space:nowrap;">${balDisplay}</td>
-                    <td style="text-align:center; cursor:pointer; white-space:nowrap;" ondblclick="startInlineMasterEdit(this, 'supplier_limit', '${s.id}', ${parseFloat(s.creditLimit) || 0})">${(s.creditLimit || 0).toLocaleString()} SDG <small style="opacity:0.45;">✏️</small></td>
-                    <td style="text-align:center; white-space:nowrap;">${s.securityLevel || 1}</td>
-                    <td style="text-align:center; white-space:nowrap;"><div style="display:inline-flex; align-items:center; gap:4px; flex-wrap:nowrap; white-space:nowrap;"><button class="btn-text" style="color:#fbbf24; font-weight:800; padding:1px 3px;" onclick="openEntityDrillDownStatementModal('supplier', '${s.id}')" title="كشف الحساب التفصيلي والحركات (Drill-Down)">📊</button><button class="btn-text" style="color:#38bdf8; font-weight:800; padding:1px 3px;" onclick="window.location.href='account-statement.php?partner='+encodeURIComponent('${(s.name || '').replace(/'/g, "\\'")}')" title="كشف الحساب الرسمي الشامل">📄</button><button class="btn-text" style="color:#f59e0b; font-weight:800; padding:1px 3px;" onclick="window.location.href='supplier_reliability.php'" title="تقييم وموثوقية المورد 360°">🏭</button><button class="btn-text" style="color:#34d399; font-weight:800; padding:1px 3px;" onclick="openEntityQrCardModal('supplier', '${s.id}')" title="بطاقة QR">🪪</button><button class="btn-text" style="color:#38bdf8; font-weight:800; padding:1px 4px; white-space:nowrap;" onclick="editSupplier('${s.id}')">✏️ تعديل</button><button class="btn-text" style="color:var(--danger-color); font-weight:800; padding:1px 4px; white-space:nowrap;" onclick="deleteSupplier('${s.id}')">🗑️ حذف</button></div></td>
+                    <td style="text-align:center; cursor:pointer; white-space:nowrap; font-size:0.72rem;" ondblclick="startInlineMasterEdit(this, 'supplier_limit', '${s.id}', ${parseFloat(s.creditLimit) || 0})">${(s.creditLimit || 0).toLocaleString()}</td>
+                    <td style="text-align:center; white-space:nowrap; font-size:0.72rem;">${s.securityLevel || 1}</td>
+                    <td style="text-align:center; white-space:nowrap;"><div style="display:inline-flex; align-items:center; gap:2px; flex-wrap:nowrap; white-space:nowrap;"><button class="btn-text" style="color:#fbbf24; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="openEntityDrillDownStatementModal('supplier', '${s.id}')" title="كشف الحساب التفصيلي">📊</button><button class="btn-text" style="color:#38bdf8; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="window.location.href='account-statement.php?partner='+encodeURIComponent('${sName.replace(/'/g, "\\'")}')" title="كشف الحساب الرسمي">📄</button><button class="btn-text" style="color:#f59e0b; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="window.location.href='supplier_reliability.php'" title="موثوقية المورد">🏭</button><button class="btn-text" style="color:#34d399; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="openEntityQrCardModal('supplier', '${s.id}')" title="بطاقة QR">🪪</button><button class="btn-text" style="color:#38bdf8; font-weight:800; padding:1px 3px; font-size:0.70rem; white-space:nowrap;" onclick="editSupplier('${s.id}')">✏️</button><button class="btn-text" style="color:var(--danger-color); font-weight:800; padding:1px 3px; font-size:0.70rem; white-space:nowrap;" onclick="deleteSupplier('${s.id}')">🗑️</button></div></td>
                 </tr>`);
             });
             if (!query && suppliers.length > maxShowSup) {

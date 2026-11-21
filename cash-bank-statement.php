@@ -682,15 +682,15 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
                         }
                     });
                 });
-                (JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]')).filter(i => i && !i.deleted && i.status !== 'preliminary').forEach(inv => {
+                (JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]')).filter(i => i && !i.deleted && i.status !== 'preliminary' && !i.linkedFinancialVoucherNo).forEach(inv => {
                     const cashAmt = parseNum(inv.cashAmount);
                     if (cashAmt > 0 && isAccMatch(inv.cashSafe || inv.safeId || inv.paymentAccountId)) txns.push({ date: inv.date, ref: 'مبيعات-' + (inv.invoiceNo || inv.id), note: 'تحصيل نقدي فاتورة مبيعات #' + (inv.invoiceNo || inv.id), in: cashAmt, out: 0 });
-                    (inv.bankTransfers || []).forEach(bt => { if (parseNum(bt.amount) > 0 && isAccMatch(bt.bankId || bt.bankName || inv.paymentAccountId)) txns.push({ date: inv.date, ref: 'مبيعات-' + (inv.invoiceNo || inv.id), note: 'تحويل بنكي فاتورة مبيعات #' + (inv.invoiceNo || inv.id), in: parseNum(bt.amount), out: 0 }); });
+                    (inv.bankTransfers || []).forEach(bt => { if (parseNum(bt.amount) > 0 && isAccMatch(bt.bankAccountId || bt.bankId || bt.bankName || inv.paymentAccountId)) txns.push({ date: inv.date, ref: 'مبيعات-' + (inv.invoiceNo || inv.id), note: 'تحويل بنكي فاتورة مبيعات #' + (inv.invoiceNo || inv.id), in: parseNum(bt.amount), out: 0 }); });
                 });
-                (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]')).filter(i => i && !i.deleted && i.status !== 'preliminary').forEach(inv => {
+                (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]')).filter(i => i && !i.deleted && i.status !== 'preliminary' && !i.linkedFinancialVoucherNo).forEach(inv => {
                     const cashAmt = parseNum(inv.cashAmount);
                     if (cashAmt > 0 && isAccMatch(inv.cashSafe || inv.safeId || inv.paymentAccountId)) txns.push({ date: inv.date, ref: 'مشتريات-' + (inv.invoiceNo || inv.id), note: 'سداد نقدي فاتورة مشتريات #' + (inv.invoiceNo || inv.id), in: 0, out: cashAmt });
-                    (inv.bankTransfers || []).forEach(bt => { if (parseNum(bt.amount) > 0 && isAccMatch(bt.bankId || bt.bankName || inv.paymentAccountId)) txns.push({ date: inv.date, ref: 'مشتريات-' + (inv.invoiceNo || inv.id), note: 'تحويل بنكي فاتورة مشتريات #' + (inv.invoiceNo || inv.id), in: 0, out: parseNum(bt.amount) }); });
+                    (inv.bankTransfers || []).forEach(bt => { if (parseNum(bt.amount) > 0 && isAccMatch(bt.bankAccountId || bt.bankId || bt.bankName || inv.paymentAccountId)) txns.push({ date: inv.date, ref: 'مشتريات-' + (inv.invoiceNo || inv.id), note: 'تحويل بنكي فاتورة مشتريات #' + (inv.invoiceNo || inv.id), in: 0, out: parseNum(bt.amount) }); });
                 });
 
                 // Calculate Opening Balance (Safe or Bank openingBalance + all txns BEFORE dateFrom)

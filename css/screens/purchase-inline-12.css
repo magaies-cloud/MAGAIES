@@ -1,0 +1,15 @@
+.pos-grid th,.pos-grid td{font-size:1rem;padding:7px 8px !important;transition:transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s cubic-bezier(0.4, 0, 0.2, 1);vertical-align:middle !important}
+.pos-grid .g-input,.pos-grid .g-select,.pos-grid .g-readonly{font-size:inherit;padding:6px 8px !important;background:rgba(15, 23, 42, 0.55) !important;color:#f8fafc;border:1px solid rgba(56, 189, 248, 0.14) !important;border-radius:8px !important;transition:transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.25s cubic-bezier(0.4, 0, 0.2, 1);box-sizing:border-box !important}
+.grid-scroll-wrap{background:rgba(15, 23, 42, 0.6);border:1px solid rgba(255, 255, 255, 0.05);border-radius:12px;box-shadow:0 8px 32px rgba(0, 0, 0, 0.3)}
+.pos-grid thead th{background:rgba(15, 23, 42, 0.8) !important;border-bottom:2px solid var(--gold-primary) !important;color:var(--gold-primary) !important;font-weight:800 !important;letter-spacing:0.5px;text-transform:uppercase}
+.pos-grid tbody tr{background:rgba(255, 255, 255, 0.02) !important;border-bottom:1px solid rgba(255, 255, 255, 0.03)}
+.pos-grid tbody tr:hover td{background-color:rgba(56, 189, 248, 0.18) !important;box-shadow:inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(255,255,255,0.1)}
+.pos-grid tbody tr:hover{transform:translateY(-2px) scale(1.002);box-shadow:0 12px 40px rgba(56, 189, 248, 0.15);z-index:2;position:relative}
+.pos-grid .g-input:focus,.pos-grid .g-select:focus{background:rgba(15, 23, 42, 0.9) !important;border-color:#38bdf8 !important;box-shadow:0 0 0 2px rgba(56, 189, 248, 0.4), 0 0 15px rgba(56, 189, 248, 0.6) !important;transform:scale(1.02);z-index:10}
+.pos-grid .g-input::placeholder{color:#94a3b8 !important}
+.pos-grid th{position:relative}
+.resizer{width:5px;cursor:col-resize;position:absolute;top:0;left:0;bottom:0;background-color:transparent;z-index:10}
+.resizer:hover,.resizing{background-color:var(--gold-primary)}
+#col-context-menu{position:absolute;z-index:100000;background:var(--velvet-panel-hover);border:1px solid var(--gold-border);border-radius:8px;padding:10px;box-shadow:0 10px 40px rgba(0,0,0,0.8);display:none;min-width:150px}
+.col-toggle-item{display:flex;align-items:center;gap:8px;padding:6px 10px;cursor:pointer;color:#fff;font-size:0.8rem;border-radius:4px}
+.col-toggle-item:hover{background:rgba(255, 255, 255, 0.1)}

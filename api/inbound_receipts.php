@@ -828,24 +828,23 @@ switch ($action) {
 
             $adminNotificationText = $postingResult['admin_notification'] ?? null;
 
-            // توجيه تلقائي لإشعار التحويل وصورته لأرقام المدراء والموظفين (1..12) المحددين لتنبيه الصينية
+            // توجيه تلقائي لإشعار التحويل وصورته لأرقام المدراء والموظفين (1..12) المحددين في تنبيه الإشعارات الواردة
             $mgrCfgFile = $uploadDir . 'manager_alerts_' . intval($activeTenantId) . '.json';
             if (is_file($mgrCfgFile) && ($finalRow['status'] ?? '') !== 'duplicate_rejected') {
                 $mgrCfg = json_decode(@file_get_contents($mgrCfgFile), true) ?: [];
-                $checkedSlots = (isset($mgrCfg['alertMap']['wa_receipts_tray']) && is_array($mgrCfg['alertMap']['wa_receipts_tray'])) ? $mgrCfg['alertMap']['wa_receipts_tray'] : [];
-                $senderDigits = preg_replace('/\D+/', '', (string)($finalRow['customer_phone'] ?? $custPhone));
+                $checkedSlots = (isset($mgrCfg['alertMap']['wa_receipts_tray']) && is_array($mgrCfg['alertMap']['wa_receipts_tray'])) ? array_map('intval', $mgrCfg['alertMap']['wa_receipts_tray']) : [];
                 $targetPhones = [];
                 foreach (($mgrCfg['recipients'] ?? []) as $rcp) {
                     $sl = intval($rcp['slot'] ?? 0);
                     $ph = preg_replace('/\D+/', '', (string)($rcp['phone'] ?? ''));
-                    if ($ph !== '' && in_array($sl, $checkedSlots) && ($senderDigits === '' || substr($ph, -8) !== substr($senderDigits, -8))) {
+                    if ($ph !== '' && in_array($sl, $checkedSlots, true)) {
                         $targetPhones[$ph] = $ph;
                     }
                 }
                 if (!empty($targetPhones)) {
                     $statusLine = ($finalApprovalMode === 'review_first')
-                        ? '⏳ في صينية الإشعارات (بانتظار المراجعة والاعتماد)'
-                        : (!empty($finalVoucherNo) ? "✅ نزل في حساب العميل مباشرة (سند رقم: {$finalVoucherNo})" : '📥 تم الاستلام في صينية الإشعارات');
+                        ? '⏳ في ترحيل الإشعارات (بانتظار المراجعة والاعتماد)'
+                        : (!empty($finalVoucherNo) ? "✅ نزل في حساب العميل مباشرة (سند رقم: {$finalVoucherNo})" : '📥 تم الاستلام في ترحيل الإشعارات');
                     $fwdCaption = "📥 *إشعار تحويل وارد — نظام السيطرة*\n"
                         . "👤 *المرسل:* " . ($finalCustName ?: 'غير محدد') . "\n"
                         . (!empty($custPhone) ? "📞 *هاتف المرسل:* {$custPhone}\n" : "")
@@ -906,9 +905,30 @@ switch ($action) {
                 echo json_encode(['success' => false, 'error' => 'معرّف الإشعار مطلوب']);
                 exit;
             }
+            $preRowStmt = $pdo->prepare("SELECT * FROM inbound_bank_receipts WHERE id = ? AND tenant_id = ? LIMIT 1");
+            $preRowStmt->execute([$id, $activeTenantId]);
+            $preRow = $preRowStmt->fetch(PDO::FETCH_ASSOC);
+            $hadPostedV = !empty($preRow['voucher_no']);
+            $prevAmtVal = (float)($preRow['amount'] ?? 0);
             $ocrRes = performBackendReceiptOCR($pdo, $id, false, [
+                'force_post' => $hadPostedV,
+                'target_bank_id' => $preRow['bank_code'] ?? '',
+                'target_bank_name' => $preRow['bank_name'] ?? '',
                 'ocr_raw_lines' => $jsonData['ocr_raw_lines'] ?? null
             ]);
+            // If receipt was already posted and OCR corrected the amount, update the saved voucher + GL amount cleanly
+            $newAmtVal = (float)($ocrRes['data']['amount'] ?? 0);
+            if ($hadPostedV && $newAmtVal > 0 && abs($newAmtVal - $prevAmtVal) > 0.01) {
+                $oldVNo = trim((string)$preRow['voucher_no']);
+                $pdo->prepare("DELETE FROM receipts WHERE tenant_id = ? AND (frontend_id = ? OR receipt_no = ?)")->execute([$activeTenantId, $oldVNo, $oldVNo]);
+                $pdo->prepare("DELETE FROM gl_entries WHERE tenant_id = ? AND data LIKE ?")->execute([$activeTenantId, '%' . $oldVNo . '%']);
+                $pdo->prepare("UPDATE inbound_bank_receipts SET voucher_no = NULL WHERE id = ?")->execute([$id]);
+                $ocrRes['data']['posting'] = postInboundReceiptToAccounts($pdo, $id, [
+                    'force_post' => true,
+                    'target_bank_id' => $preRow['bank_code'] ?? '',
+                    'target_bank_name' => $preRow['bank_name'] ?? ''
+                ]);
+            }
             echo json_encode($ocrRes);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);

@@ -1,0 +1,4 @@
+#split-blind-cash-closing-modal .modal-card{border-width:2.5px !important;border-style:solid !important;border-radius:18px !important;font-family:'Cairo', 'Tajawal', sans-serif !important}
+html:not(.light-theme):not([data-theme="warm_cream"]):not([data-theme="ultra_white"]):not([data-theme="exec_gray"]) #split-blind-cash-closing-modal .modal-card{background:#0f172a !important;color:#ffffff !important;border-color:#ec4899 !important}
+:root.light-theme #split-blind-cash-closing-modal .modal-card{background:linear-gradient(135deg, #f6f0e4 0%, #ede3d0 100%) !important;color:#000000 !important;border-color:#000000 !important}
+:root.light-theme #split-blind-cash-closing-modal input{background:#ffffff !important;color:#000000 !important;-webkit-text-fill-color:#000000 !important;border:2px solid #0f172a !important;font-weight:900 !important}

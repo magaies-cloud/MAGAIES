@@ -1,0 +1,6 @@
+.purchase-bottom{width:100% !important;box-sizing:border-box !important}
+.purchase-bottom .table-container{width:100% !important;box-sizing:border-box !important}
+.purchase-bottom .grid-scroll-wrap{width:100% !important;min-width:100% !important;overflow-x:auto !important;box-sizing:border-box !important}
+#pos-grid{width:100% !important;min-width:0 !important;max-width:100% !important;table-layout:fixed !important;border-collapse:collapse !important}
+#pos-grid thead th{white-space:nowrap !important;position:relative !important}
+#pos-grid td{position:relative !important}

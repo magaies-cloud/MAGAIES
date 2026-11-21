@@ -896,11 +896,11 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
                             <!-- ═══ Unified 6-Icon Base (قاعدة الأيقونات الموحدة: نقدي + تحويل + شيك + AI + واتساب + نماذج) ═══ -->
                             <div class="crystal-unified-dock" style="flex: 2.1; min-width: 300px;">
                                 <div style="display: flex; gap: 5px; align-items: center; width: 100%;">
-                                    <button type="button" class="btn crystal-btn btn-dock-btn block-btn-ai-scan" onclick="FinancialOCR.openScanner({ target: 'multi', blockId: '{ID}' })" title="مسح إشعار بالذكاء الاصطناعي من الكمبيوتر">
-                                        <span class="btn-icon">📷</span> <span class="btn-text">إشعار AI</span>
+                                    <button type="button" class="btn crystal-btn btn-dock-btn" onclick="FinancialOCR.openMobileQRBridge({ target: 'multi', blockId: '{ID}' })" style="background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.22)); border: 1.5px solid #34d399; color: #34d399;" title="ربط الجوال بضغطة واحدة عبر QR لرفع الإشعار مباشرة من استوديو الهاتف أو الواتساب">
+                                        <span class="btn-icon">📱</span> <span class="btn-text">ربط الجوال (QR)</span>
                                     </button>
-                                    <button type="button" class="btn crystal-btn btn-dock-btn" onclick="FinancialOCR.openMobileQRBridge({ target: 'multi', blockId: '{ID}' })" title="ربط الجوال بضغطة واحدة عبر QR لرفع الإشعار من استوديو الهاتف أو الواتساب">
-                                        <span class="btn-icon">📱</span> <span class="btn-text">QR جوال</span>
+                                    <button type="button" class="btn crystal-btn btn-dock-btn" onclick="if(window.InboundBankakManager){window.InboundBankakManager.openDrawer();}else{const ov=document.getElementById('inbound-bankak-drawer-overlay');if(ov){if(ov.parentElement!==document.body)document.body.appendChild(ov);ov.style.display='flex';}}" style="background: linear-gradient(135deg, rgba(2,132,199,0.32), rgba(16,185,129,0.28)); border: 1.5px solid #38bdf8; color: #7dd3fc;" title="فتح ترحيل الإشعارات مباشرة">
+                                        <span class="btn-icon">📥</span> <span class="btn-text">ترحيل الإشعارات</span>
                                     </button>
                                     <button type="button" class="btn crystal-btn btn-dock-btn block-btn-ai-whatsapp block-btn-ai-whatsapp-ingest" onclick="handleBlockWhatsAppClick('{ID}')" title="إرسال واتساب مباشر لهذا الحساب ⚡">
                                         <span class="btn-icon" style="display: inline-flex; align-items: center; justify-content: center; gap: 3px;">

@@ -338,7 +338,12 @@
   html body #invoice-info-box #hdr-date::-webkit-datetime-edit-day-field,
   html body #invoice-info-box #hdr-date::-webkit-datetime-edit-month-field,
   html body #invoice-info-box #hdr-date::-webkit-datetime-edit-year-field,
-  html body #invoice-info-box #hdr-date::-webkit-datetime-edit-text,
+  html body #invoice-info-box #hdr-date::-webkit-datetime-edit-text {
+    font-size: 15.5px !important;
+    font-weight: 900 !important;
+    font-family: 'Outfit', 'Cairo', 'Tajawal', sans-serif !important;
+    line-height: 1.2 !important;
+  }
   html body #customer-financial-card .fin-val {
     font-size: 14px !important;
     font-weight: 800 !important;
@@ -571,45 +576,45 @@
   }
 
   html body #invoice-info-box .pro-serial-container {
-    height: 38px !important;
-    min-height: 38px !important;
-    min-width: 78px !important;
-    max-width: 110px !important;
-    padding: 0 4px !important;
-    gap: 6px !important;
     width: max-content !important;
-    min-width: 190px !important;
+    min-width: 0 !important;
     max-width: none !important;
-    overflow: visible !important;
-    padding: 2px 8px !important;
+    overflow: hidden !important;
+    padding: 2px 5px !important;
+    gap: 3px !important;
     height: 36px !important;
+    min-height: 36px !important;
     box-sizing: border-box !important;
     flex: 0 0 auto !important;
   }
 
   html body #invoice-info-box .pro-serial-btn {
-    width: 18px !important;
-    height: 20px !important;
-    min-width: 18px !important;
-    min-height: 20px !important;
+    width: 14px !important;
+    height: 18px !important;
+    min-width: 14px !important;
+    min-height: 18px !important;
+    max-width: 14px !important;
+    max-height: 18px !important;
     padding: 0 !important;
-    font-size: 0.68rem !important;
+    font-size: 0.56rem !important;
     line-height: 1 !important;
     flex-shrink: 0 !important;
     display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    position: static !important;
     visibility: visible !important;
     opacity: 1 !important;
   }
 
   html body #invoice-info-box #inv-number {
-    font-size: 14px !important;
-    font-weight: 800 !important;
-    line-height: 1.2 !important;
+    font-size: 15.5px !important;
+    font-weight: 900 !important;
+    line-height: 1.15 !important;
     width: auto !important;
-    min-width: 120px !important;
+    min-width: 0 !important;
     max-width: none !important;
     overflow: visible !important;
-    text-overflow: clip !important;
     white-space: nowrap !important;
     text-align: center !important;
     padding: 0 4px !important;
@@ -809,14 +814,16 @@
   }
 
   html body #invoice-info-box .pro-serial-container {
-    min-width: 68px !important;
-    max-width: 112px !important;
+    width: max-content !important;
+    min-width: 0 !important;
+    max-width: none !important;
   }
 
   html body #invoice-info-box #hdr-date {
-    width: clamp(104px, 9.5vw, 132px) !important;
-    min-width: 0 !important;
-    max-width: 136px !important;
+    width: 132px !important;
+    min-width: 128px !important;
+    max-width: 138px !important;
+    font-size: 15.5px !important;
   }
 
   html body #purchase-editor-view #purchase-row0-bar,

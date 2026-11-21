@@ -4174,9 +4174,10 @@ function submitInvoice(ignoreWarnings = false) {
             return;
         }
 
-        // Stock availability check (respects 🚚 البيع بالسالب / بضاعة بالطريق toggle)
+        // Stock availability check (strictly per-warehouse / warehouse policy)
+        const selectedWh = document.getElementById('hdr-warehouse')?.value || '';
         const allowNegStock = (window.MagaiesInventoryGuard2027 && typeof window.MagaiesInventoryGuard2027.isNegativeAllowed === 'function')
-            ? window.MagaiesInventoryGuard2027.isNegativeAllowed() : false;
+            ? window.MagaiesInventoryGuard2027.isNegativeAllowed(selectedWh) : false;
         const negBlockedItems = [];
         for (const row of rows) {
             const item = ITEMS.find(i => String(i.id) === String(row.itemId));
@@ -4191,7 +4192,7 @@ function submitInvoice(ignoreWarnings = false) {
         }
         if (negBlockedItems.length > 0) {
             window.isSubmitting = false;
-            alert(`🚫 البيع بالسالب مغلق حالياً!\nالأصناف التالية تتجاوز الرصيد المتاح بالمخزن:\n• ${negBlockedItems.join('\n• ')}\n\n💡 إذا كانت هناك بضاعة في الطريق، فعّل زر (🚚 البيع بالسالب: بضاعة بالطريق) أعلى الشاشة أو من شاشة المخازن.`);
+            alert(`🚫 البيع بالسالب مغلق لهذا المخزن!\nالأصناف التالية تتجاوز الرصيد المتاح بالمخزن:\n• ${negBlockedItems.join('\n• ')}\n\n💡 لتعديل صلاحية البيع بالسالب، ادخل إلى شاشة المخازن وعدّل إعداد المخزن.`);
             return;
         }
 

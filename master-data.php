@@ -254,6 +254,7 @@
                             <div class="input-group"><label>الهاتف</label><input type="text" id="warehouse-phone" placeholder="0912345678" style="direction:ltr; text-align:center;"></div>
                             <div class="input-group"><label>العنوان</label><input type="text" id="warehouse-location" placeholder="مثال: المنطقة الصناعية"></div>
                             <div class="input-group"><label>الحالة</label><select id="warehouse-status"><option value="active">🟢 نشط</option><option value="inventory_lock">🟠 جرد</option><option value="inactive">🔴 موقوف</option></select></div>
+                            <div class="input-group"><label>البيع بالسالب</label><select id="warehouse-allow-negative"><option value="no">⛔ ممنوع (موجب فقط)</option><option value="yes">✅ مسموح (بالسالب / بضاعة بالطريق)</option></select></div>
                             <div class="input-group"><label>السرية</label><select id="warehouse-security"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option></select></div>
                         </div>
                         <div class="md-c3-form-footer">
@@ -264,7 +265,7 @@
 
                     <div class="table-responsive" style="overflow-x: auto;">
                         <table class="pro-table">
-                            <thead><tr><th>اسم المخزن</th><th>النوع</th><th>أمين المخزن</th><th>الهاتف</th><th>العنوان</th><th>الحالة</th><th>السرية</th><th>الإجراء</th></tr></thead>
+                            <thead><tr><th>اسم المخزن</th><th>النوع</th><th>أمين المخزن</th><th>الهاتف</th><th>العنوان</th><th>الحالة</th><th>البيع بالسالب</th><th>السرية</th><th>الإجراء</th></tr></thead>
                             <tbody id="warehouses-tbody"></tbody>
                         </table>
                     </div>
@@ -557,6 +558,7 @@
                             <input type="text" id="customer-search-input" oninput="filterCustomers()" placeholder="بحث بالاسم، الرقم السري، أو الهاتف..." style="padding-right: 42px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.3); background: rgba(0,0,0,0.3); font-size: 0.95rem; color: #fff; width: 100%;">
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <button type="button" onclick="var f=document.getElementById('customer-form'); if(f){ var show=f.style.display==='none'; if(show && typeof clearCustomerForm==='function') clearCustomerForm(); f.style.display=show?'block':'none'; if(show) document.getElementById('cust-name')?.focus(); }" style="height: 36px; background: linear-gradient(135deg,#10b981,#059669); color: #fff; border: 1.5px solid #6ee7b7; padding: 0 14px; border-radius: 9px; font-weight: 900; font-size: 0.84rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">➕ عميل جديد</button>
                             <button type="button" id="btn-export-customers-csv" onclick="exportMasterEntityCsv('customer')" style="height: 36px; background: rgba(16, 185, 129, 0.14); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 0 14px; border-radius: 9px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">📤 تصدير Excel</button>
                             <button type="button" id="btn-import-customers-csv" onclick="triggerMasterEntityCsvImport('customer')" style="height: 36px; background: rgba(56, 189, 248, 0.14); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 0 14px; border-radius: 9px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">📥 استيراد Excel</button>
                         </div>
@@ -564,7 +566,7 @@
 
                     <div class="table-responsive" style="overflow-x: auto;">
                         <table class="pro-table">
-                            <thead><tr><th style="width: 95px; text-align: center;">🔐 الرقم السري</th><th style="width: 14%; min-width: 120px; max-width: 165px; text-align: right;">العميل</th><th style="width: 115px; text-align: center;">الواتساب</th><th style="width: 265px; text-align: center;">كشف الحساب والإشعارات</th><th style="width: 75px; text-align: center;">الحالة</th><th style="width: 115px; text-align: center;">الرصيد</th><th style="width: 100px; text-align: center;">الائتمان</th><th style="width: 80px; text-align: center;">المسؤول</th><th style="width: 48px; text-align: center;">السرية</th><th style="width: 195px; text-align: center;">الإجراء</th></tr></thead>
+                            <thead><tr><th style="width:7%;text-align:center;">🔐 السري</th><th style="width:16%;text-align:right;">العميل</th><th style="width:10%;text-align:center;">الواتساب</th><th style="width:22%;text-align:center;">كشف الحساب والإشعارات</th><th style="width:6%;text-align:center;">الحالة</th><th style="width:11%;text-align:center;">الرصيد</th><th style="width:7%;text-align:center;">الائتمان</th><th style="width:6%;text-align:center;">المسؤول</th><th style="width:4%;text-align:center;">السرية</th><th style="width:11%;text-align:center;">الإجراء</th></tr></thead>
                             <tbody id="customers-tbody"></tbody>
                         </table>
                     </div>
@@ -871,6 +873,7 @@
                             <input type="text" id="supplier-search-input" oninput="filterSuppliers()" placeholder="بحث بالاسم، الرقم السري، أو الهاتف..." style="padding-right: 42px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.3); background: rgba(0,0,0,0.3); font-size: 0.95rem; color: #fff; width: 100%;">
                         </div>
                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <button type="button" onclick="var f=document.getElementById('supplier-form'); if(f){ var show=f.style.display==='none'; if(show && typeof clearSupplierForm==='function') clearSupplierForm(); f.style.display=show?'block':'none'; if(show) document.getElementById('sup-name')?.focus(); }" style="height: 36px; background: linear-gradient(135deg,#10b981,#059669); color: #fff; border: 1.5px solid #6ee7b7; padding: 0 14px; border-radius: 9px; font-weight: 900; font-size: 0.84rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">➕ مورد جديد</button>
                             <button type="button" id="btn-export-suppliers-csv" onclick="exportMasterEntityCsv('supplier')" style="height: 36px; background: rgba(16, 185, 129, 0.14); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 0 14px; border-radius: 9px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">📥 تصدير Excel</button>
                             <button type="button" id="btn-import-suppliers-csv" onclick="triggerMasterEntityCsvImport('supplier')" style="height: 36px; background: rgba(168, 85, 247, 0.14); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); padding: 0 14px; border-radius: 9px; font-weight: 800; font-size: 0.82rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">📤 استيراد Excel</button>
                         </div>
@@ -878,7 +881,7 @@
 
                     <div class="table-responsive" style="overflow-x: auto;">
                         <table class="pro-table" id="tab-suppliers-table">
-                            <thead><tr><th style="width: 95px; text-align: center;">🔐 الرقم السري</th><th style="width: 15%; min-width: 120px; max-width: 165px; text-align: right;">المورد</th><th style="width: 115px; text-align: center;">الواتساب</th><th style="width: 265px; text-align: center;">كشف الحساب والإشعارات</th><th style="width: 75px; text-align: center;">الحالة</th><th style="width: 115px; text-align: center;">الرصيد</th><th style="width: 105px; text-align: center;">الائتمان</th><th style="width: 48px; text-align: center;">السرية</th><th style="width: 195px; text-align: center;">الإجراء</th></tr></thead>
+                            <thead><tr><th style="width:7%;text-align:center;">🔐 السري</th><th style="width:18%;text-align:right;">المورد</th><th style="width:10%;text-align:center;">الواتساب</th><th style="width:23%;text-align:center;">كشف الحساب والإشعارات</th><th style="width:6%;text-align:center;">الحالة</th><th style="width:12%;text-align:center;">الرصيد</th><th style="width:8%;text-align:center;">الائتمان</th><th style="width:4%;text-align:center;">السرية</th><th style="width:12%;text-align:center;">الإجراء</th></tr></thead>
                             <tbody></tbody>
                         </table>
                     </div>
@@ -1451,7 +1454,10 @@
             var st = document.getElementById('md-dynamic-hidden-cols-css');
             if (!st) { st = document.createElement('style'); st.id = 'md-dynamic-hidden-cols-css'; document.head.appendChild(st); }
             var map = loadMap(), rules = [
-                '.table-responsive table.pro-table { width: 100% !important; max-width: 100% !important; min-width: 0 !important; table-layout: auto !important; }',
+                '.table-responsive table.pro-table { width: 100% !important; max-width: 100% !important; min-width: 0 !important; table-layout: fixed !important; }',
+                '.table-responsive table.pro-table th, .table-responsive table.pro-table td { padding: 4px 3px !important; font-size: 0.76rem; box-sizing: border-box; }',
+                '.table-responsive table.pro-table th { font-size: 0.74rem !important; white-space: nowrap; }',
+                '#auto-charts-global-wrapper, .auto-charts-container, [id*="auto-chart"] { display: none !important; }',
                 '.md-col-ctrl-bar { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:8px; padding:6px 12px; border-radius:10px; background:rgba(15,23,42,0.55); border:1px solid rgba(56,189,248,0.28); }',
                 'html.light-theme .md-col-ctrl-bar, html[data-theme="light"] .md-col-ctrl-bar { background:var(--lt-card,#f8fafc) !important; border:1.5px solid var(--lt-border,#cbd5e1) !important; color:#000 !important; }',
                 '.md-col-ctrl-btn { height:30px; padding:0 11px; border-radius:8px; font-size:0.78rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px; border:1px solid rgba(56,189,248,0.45); background:rgba(56,189,248,0.15); color:#38bdf8; }',

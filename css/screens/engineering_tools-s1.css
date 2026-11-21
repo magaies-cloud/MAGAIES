@@ -1,2153 +1,306 @@
-.quick-media-card {
-transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important, opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important, background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important, border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important, color 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
-position: relative !important;
-}
-.quick-media-card:hover {
-transform: translateY(-3px) scale(1.02) !important;
-}
-.quick-media-card.is-active-majd, .suite-pill-card.is-active-majd {
-border-color: #f59e0b !important;
-background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(15, 23, 42, 0.98)) !important;
-box-shadow: 0 0 30px rgba(245, 158, 11, 0.55), inset 0 0 15px rgba(245, 158, 11, 0.25), 0 10px 25px rgba(0,0,0,0.8) !important;
-transform: translateY(-2px) !important;
-}
-.quick-media-card.is-active-quran_mp3, .suite-pill-card.is-active-quran_mp3 {
-border-color: #06b6d4 !important;
-background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(15, 23, 42, 0.98)) !important;
-box-shadow: 0 0 30px rgba(6, 182, 212, 0.55), inset 0 0 15px rgba(6, 182, 212, 0.25), 0 10px 25px rgba(0,0,0,0.8) !important;
-transform: translateY(-2px) !important;
-}
-.quick-media-card.is-active-madinah, .suite-pill-card.is-active-madinah {
-border-color: #10b981 !important;
-background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(15, 23, 42, 0.98)) !important;
-box-shadow: 0 0 30px rgba(16, 185, 129, 0.55), inset 0 0 15px rgba(16, 185, 129, 0.25), 0 10px 25px rgba(0,0,0,0.8) !important;
-transform: translateY(-2px) !important;
-}
-.quick-media-card.is-active-makkah, .suite-pill-card.is-active-makkah {
-border-color: #eab308 !important;
-background: linear-gradient(135deg, rgba(234, 179, 8, 0.25), rgba(15, 23, 42, 0.98)) !important;
-box-shadow: 0 0 30px rgba(234, 179, 8, 0.55), inset 0 0 15px rgba(234, 179, 8, 0.25), 0 10px 25px rgba(0,0,0,0.8) !important;
-transform: translateY(-2px) !important;
-}
-:root {
---bg-dark: #04020a;
---panel-bg: rgba(14, 10, 26, 0.85);
---border-neon: rgba(236, 72, 153, 0.25);
---text-main: #ffffff;
---text-muted: #94a3b8;
-}
-:root.light-theme {
---bg-dark: #f8fafc;
---panel-bg: #ffffff;
---border-neon: #000000;
---text-main: #000000;
---text-muted: #334155;
-}
-html {
-scroll-behavior: smooth;
-}
-body {
-margin: 0 !important;
-padding: 0 !important;
-background-color: var(--bg-dark);
-color: var(--text-main);
-font-family: 'Tajawal', sans-serif;
-min-height: calc(100vh + 160px);
-overflow-x: hidden;
-}
-.tools-master-wrapper {
-width: 100% !important;
-max-width: 100% !important;
-margin: 0 auto !important;
-padding: 6px 14px 60px 14px !important;
-box-sizing: border-box !important;
-display: flex;
-flex-direction: column;
-gap: 16px;
-}
-@keyframes tv-neon-pulse-glow {
-0%, 100% {
-box-shadow: 0 0 25px var(--sm-color), 0 0 55px var(--sm-color), 0 0 85px var(--sm-bg), inset 0 0 20px var(--sm-bg) !important;
-border-color: var(--sm-color) !important;
-}
-50% {
-box-shadow: 0 0 45px #ffffff, 0 0 85px var(--sm-color), 0 0 120px var(--sm-color), inset 0 0 32px var(--sm-bg) !important;
-border-color: #ffffff !important;
-}
-}
-@keyframes tv-icon-radiance {
-0%, 100% {
-filter: drop-shadow(0 0 12px #ffffff) drop-shadow(0 0 24px var(--sm-color));
-transform: scale(1.1);
-}
-50% {
-filter: drop-shadow(0 0 20px #ffffff) drop-shadow(0 0 38px var(--sm-color));
-transform: scale(1.22);
-}
-}
-@keyframes surah-card-glow-pulse {
-0%, 100% {
-box-shadow: 0 0 25px var(--sc-glow), 0 0 55px var(--sc-glow), inset 0 0 20px var(--sc-glow);
-border-color: var(--sc-border);
-}
-50% {
-box-shadow: 0 0 45px #ffffff, 0 0 85px var(--sc-glow), inset 0 0 35px var(--sc-glow);
-border-color: #ffffff;
-}
-}
-@keyframes tv-neon-pulse-makkah {
-0%, 100% {
-box-shadow: 0 0 35px #f59e0b, 0 0 70px rgba(245, 158, 11, 0.8), 0 0 100px rgba(253, 224, 71, 0.5), inset 0 0 25px rgba(254, 240, 138, 0.6) !important;
-border-color: #fde047 !important;
-}
-50% {
-box-shadow: 0 0 50px #ffffff, 0 0 95px #f59e0b, 0 0 130px #fbbf24, inset 0 0 35px #ffffff !important;
-border-color: #ffffff !important;
-}
-}
-@keyframes tv-neon-pulse-madinah {
-0%, 100% {
-box-shadow: 0 0 35px #10b981, 0 0 70px rgba(16, 185, 129, 0.8), 0 0 100px rgba(110, 231, 183, 0.5), inset 0 0 25px rgba(167, 243, 208, 0.6) !important;
-border-color: #6ee7b7 !important;
-}
-50% {
-box-shadow: 0 0 50px #ffffff, 0 0 95px #10b981, 0 0 130px #34d399, inset 0 0 35px #ffffff !important;
-border-color: #ffffff !important;
-}
-}
-@keyframes tv-neon-pulse-majd {
-0%, 100% {
-box-shadow: 0 0 35px #fbbf24, 0 0 70px rgba(251, 191, 36, 0.8), inset 0 0 25px rgba(254, 240, 138, 0.6) !important;
-border-color: #fde047 !important;
-}
-50% {
-box-shadow: 0 0 50px #ffffff, 0 0 95px #fbbf24, 0 0 130px #f59e0b, inset 0 0 35px #ffffff !important;
-border-color: #ffffff !important;
-}
-}
-@keyframes tv-neon-pulse-quran {
-0%, 100% {
-box-shadow: 0 0 35px #06b6d4, 0 0 70px rgba(6, 182, 212, 0.8), inset 0 0 25px rgba(165, 243, 252, 0.6) !important;
-border-color: #67e8f9 !important;
-}
-50% {
-box-shadow: 0 0 50px #ffffff, 0 0 95px #06b6d4, 0 0 130px #22d3ee, inset 0 0 35px #ffffff !important;
-border-color: #ffffff !important;
-}
-}
-#quick-media-btn-makkah.is-active, .sacred-media-pill.is-active-makkah {
-border-color: #fde047 !important;
-background: linear-gradient(135deg, rgba(245, 158, 11, 0.45), rgba(180, 83, 9, 0.98)) !important;
-animation: none;
-transform: translateY(-4px) scale(1.03) !important;
-}
-#quick-media-btn-makkah.is-active .sm-icon-box {
-background: #f59e0b !important;
-color: #020617 !important;
-border-color: #ffffff !important;
-box-shadow: 0 0 25px #ffffff, 0 0 50px #f59e0b !important;
-}
-#quick-media-btn-madinah.is-active, .sacred-media-pill.is-active-madinah {
-border-color: #6ee7b7 !important;
-background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(6, 78, 59, 0.98)) !important;
-animation: none;
-transform: translateY(-4px) scale(1.03) !important;
-}
-#quick-media-btn-madinah.is-active .sm-icon-box {
-background: #10b981 !important;
-color: #020617 !important;
-border-color: #ffffff !important;
-box-shadow: 0 0 25px #ffffff, 0 0 50px #10b981 !important;
-}
-#quick-media-btn-majd.is-active, .sacred-media-pill.is-active-majd {
-border-color: #fde047 !important;
-background: linear-gradient(135deg, rgba(251, 191, 36, 0.45), rgba(180, 83, 9, 0.98)) !important;
-animation: none;
-transform: translateY(-4px) scale(1.03) !important;
-}
-#quick-media-btn-majd.is-active .sm-icon-box {
-background: #fbbf24 !important;
-color: #020617 !important;
-border-color: #ffffff !important;
-box-shadow: 0 0 25px #ffffff, 0 0 50px #fbbf24 !important;
-}
-#quick-media-btn-quran_mp3.is-active, .sacred-media-pill.is-active-quran_mp3 {
-border-color: #67e8f9 !important;
-background: linear-gradient(135deg, rgba(6, 182, 212, 0.45), rgba(8, 47, 73, 0.98)) !important;
-animation: none;
-transform: translateY(-4px) scale(1.03) !important;
-}
-#quick-media-btn-quran_mp3.is-active .sm-icon-box {
-background: #06b6d4 !important;
-color: #020617 !important;
-border-color: #ffffff !important;
-box-shadow: 0 0 25px #ffffff, 0 0 50px #06b6d4 !important;
-}
-#quick-media-btn-hadith.is-active, .sacred-media-pill.is-active-hadith {
-border-color: #c084fc !important;
-background: linear-gradient(135deg, rgba(168, 85, 247, 0.45), rgba(59, 7, 100, 0.98)) !important;
-animation: none;
-transform: translateY(-4px) scale(1.03) !important;
-}
-#quick-media-btn-hadith.is-active .sm-icon-box {
-background: #a855f7 !important;
-color: #ffffff !important;
-border-color: #ffffff !important;
-box-shadow: 0 0 25px #ffffff, 0 0 50px #a855f7 !important;
-}
-@keyframes tv-neon-pulse-hadith {
-0%, 100% {
-box-shadow: 0 0 25px rgba(168, 85, 247, 0.4), 0 0 55px rgba(192, 132, 252, 0.3), inset 0 0 20px rgba(168, 85, 247, 0.3);
-}
-50% {
-box-shadow: 0 0 45px rgba(168, 85, 247, 0.7), 0 0 85px rgba(192, 132, 252, 0.5), inset 0 0 35px rgba(168, 85, 247, 0.5);
-}
-}
-#quick-media-btn-aljazeera.is-active, .sacred-media-pill.is-active-aljazeera {
-border-color: #f87171 !important;
-background: linear-gradient(135deg, rgba(239, 68, 68, 0.45), rgba(153, 27, 27, 0.98)) !important;
-animation: none;
-transform: translateY(-4px) scale(1.03) !important;
-}
-#quick-media-btn-aljazeera.is-active .sm-icon-box {
-background: #ef4444 !important;
-color: #ffffff !important;
-border-color: #ffffff !important;
-box-shadow: 0 0 25px #ffffff, 0 0 50px #ef4444 !important;
-}
-@keyframes tv-neon-pulse-aljazeera {
-0%, 100% {
-box-shadow: 0 0 35px #ef4444, 0 0 70px rgba(239, 68, 68, 0.8), inset 0 0 25px rgba(254, 202, 202, 0.6) !important;
-border-color: #f87171 !important;
-}
-50% {
-box-shadow: 0 0 50px #ffffff, 0 0 95px #ef4444, 0 0 130px #dc2626, inset 0 0 35px #ffffff !important;
-border-color: #ffffff !important;
-}
-}
-#quick-media-btn-bbc_arabic.is-active, .sacred-media-pill.is-active-bbc_arabic {
-border-color: #fb7185 !important;
-background: linear-gradient(135deg, rgba(244, 63, 94, 0.45), rgba(159, 18, 57, 0.98)) !important;
-animation: none;
-transform: translateY(-4px) scale(1.03) !important;
-}
-#quick-media-btn-bbc_arabic.is-active .sm-icon-box {
-background: #f43f5e !important;
-color: #ffffff !important;
-border-color: #ffffff !important;
-box-shadow: 0 0 25px #ffffff, 0 0 50px #f43f5e !important;
-}
-@keyframes tv-neon-pulse-bbc {
-0%, 100% {
-box-shadow: 0 0 35px #f43f5e, 0 0 70px rgba(244, 63, 94, 0.8), inset 0 0 25px rgba(254, 205, 211, 0.6) !important;
-border-color: #fb7185 !important;
-}
-50% {
-box-shadow: 0 0 50px #ffffff, 0 0 95px #f43f5e, 0 0 130px #e11d48, inset 0 0 35px #ffffff !important;
-border-color: #ffffff !important;
-}
-}
-#quran-reciters-container {
-display: grid !important;
-grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-gap: 16px !important;
-}
-@media (max-width: 900px) {
-#quran-reciters-container {
-grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-}
-}
-@media (max-width: 500px) {
-#quran-reciters-container {
-grid-template-columns: 1fr !important;
-}
-}
-.quran-reciter-card {
-border-radius: 14px !important;
-cursor: pointer;
-transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-position: relative;
-user-select: none;
-min-height: 155px;
-padding: 16px 14px !important;
-display: flex;
-flex-direction: column;
-justify-content: space-between;
-align-items: center;
-text-align: center;
-background: linear-gradient(145deg, #78350f, #92400e 55%, #b45309 100%) !important;
-border: 2.5px solid #fbbf24 !important;
-box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 25px rgba(245, 158, 11, 0.4), inset 0 1px 3px rgba(254, 240, 138, 0.4) !important;
-}
-.quran-reciter-card:hover {
-transform: translateY(-4px) scale(1.02);
-border-color: #fef08a !important;
-background: linear-gradient(145deg, #92400e, #b45309 60%, #d97706 100%) !important;
-box-shadow: 0 14px 30px rgba(0, 0, 0, 0.6), 0 0 35px rgba(251, 191, 36, 0.7) !important;
-}
-.quran-reciter-card.is-selected {
-border-color: #ffffff !important;
-border-width: 3px !important;
-background: linear-gradient(145deg, #b45309, #d97706 50%, #f59e0b 100%) !important;
-box-shadow: 0 0 35px #f59e0b, 0 0 70px rgba(251, 191, 36, 0.9), inset 0 0 20px #ffffff !important;
-transform: translateY(-3px) scale(1.02);
-animation: none;
-}
-@keyframes sheikh-card-glow-pulse {
-0%, 100% {
-box-shadow: 0 0 30px #f59e0b, 0 0 60px rgba(251, 191, 36, 0.8), inset 0 0 20px #ffffff;
-border-color: #fde047;
-}
-50% {
-box-shadow: 0 0 50px #ffffff, 0 0 95px #f59e0b, inset 0 0 30px #ffffff;
-border-color: #ffffff;
-}
-}
-.quran-sheikh-title-center {
-font-size: 1.28rem !important;
-line-height: 1.35;
-font-weight: 900 !important;
-text-align: center;
-color: #ffffff !important;
-text-shadow: 0 2px 5px rgba(0, 0, 0, 0.95), 0 0 14px rgba(254, 240, 138, 0.9) !important;
-letter-spacing: 0.3px;
-}
-#quran-surahs-grid {
-display: grid !important;
-grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-gap: 14px !important;
-}
-@media (max-width: 900px) {
-#quran-surahs-grid {
-grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-}
-}
-@media (max-width: 500px) {
-#quran-surahs-grid {
-grid-template-columns: 1fr !important;
-}
-}
-.quran-surah-card {
-border-radius: 14px !important;
-cursor: pointer;
-transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-position: relative;
-overflow: hidden;
-display: flex;
-flex-direction: column;
-justify-content: space-between;
-min-height: 125px;
-padding: 14px 14px !important;
-user-select: none;
-background: linear-gradient(145deg, #065f46, #047857 55%, #059669 100%) !important;
-border: 2.5px solid #34d399 !important;
-box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 25px rgba(16, 185, 129, 0.4), inset 0 1px 3px rgba(167, 243, 208, 0.4) !important;
-}
-.quran-surah-card:hover {
-transform: translateY(-4px) scale(1.02);
-border-color: #a7f3d0 !important;
-background: linear-gradient(145deg, #047857, #059669 60%, #10b981 100%) !important;
-box-shadow: 0 14px 30px rgba(0, 0, 0, 0.6), 0 0 35px rgba(52, 211, 153, 0.7) !important;
-z-index: 5;
-}
-.quran-surah-title-center {
-font-size: 1.45rem !important;
-line-height: 1.25;
-font-weight: 900 !important;
-text-align: center;
-letter-spacing: 0.5px;
-margin: auto 0;
-color: #ffffff !important;
-text-shadow: 0 2px 5px rgba(0, 0, 0, 0.9), 0 0 16px rgba(167, 243, 208, 0.9) !important;
-}
-.quran-surah-card.is-playing-surah {
-border-color: #ffffff !important;
-border-width: 3px !important;
-background: linear-gradient(145deg, #059669, #10b981 50%, #34d399 100%) !important;
-box-shadow: 0 0 40px #10b981, 0 0 85px rgba(52, 211, 153, 0.9), inset 0 0 20px #ffffff !important;
-animation: none;
-transform: translateY(-4px) scale(1.03) !important;
-z-index: 10;
-}
-@keyframes surah-card-green-glow {
-0%, 100% {
-box-shadow: 0 0 30px #10b981, 0 0 65px rgba(52, 211, 153, 0.8), inset 0 0 20px #ffffff;
-border-color: #a7f3d0;
-}
-50% {
-box-shadow: 0 0 50px #ffffff, 0 0 95px #10b981, inset 0 0 30px #ffffff;
-border-color: #ffffff;
-}
-}
-.sacred-media-container {
-width: 100%;
-}
-.sacred-media-grid {
-display: grid !important;
-grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
-gap: 8px !important;
-}
-@media (max-width: 1100px) {
-.sacred-media-grid {
-grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-}
-}
-@media (max-width: 640px) {
-.sacred-media-grid {
-grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-}
-}
-@media (max-width: 380px) {
-.sacred-media-grid {
-grid-template-columns: 1fr !important;
-}
-}
-.sacred-media-pill {
-padding: 8px 12px;
-border-radius: 14px;
-min-height: 56px;
-cursor: pointer;
-transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-display: flex;
-align-items: center;
-justify-content: space-between;
-gap: 8px;
-border: 1.5px solid var(--sm-border);
-background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(24, 33, 56, 0.85));
-color: #ffffff;
-box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.1);
-position: relative;
-overflow: hidden;
-}
-.sacred-media-pill:hover {
-transform: translateY(-2px) scale(1.015);
-border-color: var(--sm-color);
-box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5), 0 0 20px var(--sm-bg), inset 0 1px 2px rgba(255, 255, 255, 0.15);
-}
-.sacred-media-pill.is-active {
-border-color: var(--sm-color) !important;
-background: linear-gradient(135deg, var(--sm-bg), rgba(15, 23, 42, 0.98)) !important;
-animation: none;
-transform: translateY(-2px) scale(1.02) !important;
-z-index: 10;
-}
-.sm-icon-box {
-width: 36px;
-height: 36px;
-border-radius: 10px;
-background: rgba(255, 255, 255, 0.07);
-border: 1.5px solid var(--sm-border);
-display: flex;
-align-items: center;
-justify-content: center;
-font-size: 15px;
-flex-shrink: 0;
-transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-filter: drop-shadow(0 0 6px var(--sm-color));
-box-shadow: inset 0 0 8px var(--sm-bg);
-}
-.sacred-media-pill:hover .sm-icon-box {
-transform: scale(1.08);
-filter: drop-shadow(0 0 12px var(--sm-color));
-}
-.sacred-media-pill.is-active .sm-icon-box {
-background: var(--sm-color) !important;
-color: #020617 !important;
-border-color: #ffffff !important;
-box-shadow: 0 0 18px #ffffff, 0 0 30px var(--sm-color) !important;
-animation: none;
-}
-.sacred-media-pill.is-active .sm-icon-box i {
-color: #020617 !important;
-filter: drop-shadow(0 0 4px rgba(0,0,0,0.8));
-}
-.sacred-media-pill.is-active .sm-title {
-text-shadow: 0 0 12px var(--sm-color), 0 0 20px rgba(255,255,255,0.8);
-letter-spacing: 0.3px;
-}
-.sm-text-box {
-display: flex;
-flex-direction: column;
-align-items: flex-start;
-text-align: right;
-overflow: hidden;
-min-width: 0;
-}
-.sm-title {
-font-size: 12.5px;
-font-weight: 900;
-line-height: 1.25;
-white-space: nowrap;
-}
-.sm-sub {
-font-size: 10px;
-font-weight: 700;
-margin-top: 2px;
-white-space: nowrap;
-overflow: hidden;
-text-overflow: ellipsis;
-max-width: 100%;
-}
-.sm-indicator-wrapper {
-display: flex;
-align-items: center;
-margin-right: auto;
-flex-shrink: 0;
-padding-left: 2px;
-}
-.sm-status-dot {
-width: 7px;
-height: 7px;
-border-radius: 50%;
-background: rgba(255, 255, 255, 0.2);
-border: 1px solid rgba(255, 255, 255, 0.35);
-transition: transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s;
-}
-.sacred-media-pill.is-active .sm-status-dot {
-display: none;
-}
-.sm-eq-bars {
-display: none;
-align-items: flex-end;
-gap: 2px;
-height: 14px;
-}
-.sacred-media-pill.is-active .sm-eq-bars {
-display: flex;
-}
-.sm-eq-bars span {
-width: 2.5px;
-background: #34d399;
-border-radius: 2px;
-animation: none;
-}
-.sm-eq-bars span:nth-child(2) {
-animation-delay: 0.2s;
-height: 12px;
-}
-.sm-eq-bars span:nth-child(3) {
-animation-delay: 0.4s;
-height: 8px;
-}
-@keyframes sm-eq-dance {
-0%, 100% { height: 4px; }
-50% { height: 14px; }
-}
-.tools-command-bar {
-position: relative;
-background:
-linear-gradient(135deg, rgba(15, 23, 42, 0.94) 0%, rgba(20, 26, 48, 0.92) 50%, rgba(13, 20, 38, 0.96) 100%) padding-box,
-linear-gradient(135deg, rgba(236, 72, 153, 0.65) 0%, rgba(139, 92, 246, 0.5) 30%, rgba(6, 182, 212, 0.45) 70%, rgba(16, 185, 129, 0.45) 100%) border-box;
-border: 1.8px solid transparent;
-border-radius: 20px;
-padding: 11px 20px;
-box-shadow:
-0 16px 40px rgba(0, 0, 0, 0.55),
-0 0 30px rgba(236, 72, 153, 0.12),
-inset 0 1px 1px rgba(255, 255, 255, 0.15),
-inset 0 -1px 1px rgba(0, 0, 0, 0.4);
-display: flex;
-align-items: center;
-justify-content: space-between;
-gap: 14px;
-flex-wrap: wrap;
-margin-top: 48px;
-z-index: 10;
-overflow: hidden;
-transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.tools-command-bar::before {
-content: '';
-position: absolute;
-top: 0;
-left: 4%;
-right: 4%;
-height: 2px;
-background: linear-gradient(90deg,
-transparent 0%,
-rgba(236, 72, 153, 0.95) 20%,
-rgba(139, 92, 246, 0.95) 50%,
-rgba(6, 182, 212, 0.9) 80%,
-transparent 100%
-);
-border-radius: 2px;
-pointer-events: none;
-box-shadow: 0 0 12px rgba(139, 92, 246, 0.7);
-}
-.tools-command-bar:hover {
-box-shadow:
-0 20px 48px rgba(0, 0, 0, 0.65),
-0 0 38px rgba(139, 92, 246, 0.22),
-inset 0 1px 1px rgba(255, 255, 255, 0.2);
-transform: translateY(-1px);
-}
-.tools-cmd-brand {
-display: flex;
-align-items: center;
-gap: 12px;
-min-width: 0;
-}
-.tools-cmd-icon {
-width: 42px;
-height: 42px;
-border-radius: 13px;
-background: linear-gradient(135deg, #ec4899, #8b5cf6);
-display: flex;
-align-items: center;
-justify-content: center;
-font-size: 1.2rem;
-color: #ffffff;
-box-shadow: 0 6px 16px rgba(236, 72, 153, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.3);
-flex-shrink: 0;
-transition: transform 0.3s ease;
-}
-.tools-command-bar:hover .tools-cmd-icon {
-transform: scale(1.05) rotate(3deg);
-}
-.tools-cmd-info {
-display: flex;
-flex-direction: column;
-min-width: 0;
-}
-.tools-cmd-title-wrap {
-display: flex;
-align-items: center;
-gap: 8px;
-flex-wrap: wrap;
-}
-.tools-cmd-title {
-font-size: 1.08rem;
-font-weight: 900;
-color: #ffffff;
-letter-spacing: -0.2px;
-line-height: 1.3;
-text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-}
-.tools-cmd-badge {
-font-size: 10.5px;
-font-weight: 800;
-background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(139, 92, 246, 0.25));
-color: #f472b6;
-border: 1.2px solid rgba(236, 72, 153, 0.45);
-border-radius: 20px;
-padding: 1px 9px;
-white-space: nowrap;
-box-shadow: 0 0 10px rgba(236, 72, 153, 0.2);
-}
-.tools-cmd-sub {
-font-size: 11.5px;
-font-weight: 600;
-color: #94a3b8;
-margin-top: 2px;
-white-space: nowrap;
-overflow: hidden;
-text-overflow: ellipsis;
-max-width: 550px;
-}
-.tools-cmd-clearance {
-flex: 1;
-min-width: 140px;
-}
-.tools-cmd-actions {
-display: flex;
-align-items: center;
-gap: 9px;
-flex-shrink: 0;
-}
-.tools-cmd-btn {
-background: linear-gradient(135deg, rgba(30, 41, 59, 0.75), rgba(15, 23, 42, 0.9));
-border: 1.2px solid rgba(139, 92, 246, 0.38);
-color: #f8fafc;
-padding: 7px 15px;
-border-radius: 12px;
-font-size: 12px;
-font-weight: 800;
-cursor: pointer;
-transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-display: flex;
-align-items: center;
-gap: 7px;
-white-space: nowrap;
-user-select: none;
-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-.tools-cmd-btn:hover {
-background: linear-gradient(135deg, rgba(139, 92, 246, 0.28), rgba(30, 41, 59, 0.95));
-border-color: rgba(167, 139, 250, 0.75);
-color: #ffffff;
-transform: translateY(-2px);
-box-shadow: 0 6px 18px rgba(139, 92, 246, 0.35);
-}
-.tools-cmd-btn#btn-toggle-media.active {
-background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.3));
-border-color: rgba(245, 158, 11, 0.6);
-color: #fde68a;
-box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);
-}
-.tools-cmd-btn.btn-print {
-background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(5, 150, 105, 0.28));
-border: 1.2px solid rgba(16, 185, 129, 0.48);
-color: #a7f3d0;
-box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
-.tools-cmd-btn.btn-print:hover {
-background: linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(5, 150, 105, 0.5));
-border-color: #34d399;
-color: #ffffff;
-box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-transform: translateY(-2px);
-}
-.suite-tabs-grid {
-display: grid;
-grid-template-columns: repeat(12, 1fr);
-gap: 6px;
-width: 100%;
-margin-bottom: 12px;
-}
-@media (max-width: 1400px) {
-.suite-tabs-grid {
-grid-template-columns: repeat(6, 1fr);
-gap: 6px;
-}
-}
-@media (max-width: 860px) {
-.suite-tabs-grid {
-grid-template-columns: repeat(4, 1fr);
-gap: 6px;
-}
-}
-@media (max-width: 560px) {
-.suite-tabs-grid {
-grid-template-columns: repeat(3, 1fr);
-gap: 5px;
-}
-}
-@media (max-width: 380px) {
-.suite-tabs-grid {
-grid-template-columns: repeat(2, 1fr);
-gap: 4px;
-}
-}
-.suite-pill-card {
-padding: 10px 4px;
-border-radius: 16px;
-min-height: 94px;
-cursor: pointer;
-transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-text-align: center;
-border: 2px solid var(--p-border, rgba(255, 255, 255, 0.12));
-background: linear-gradient(145deg, rgba(20, 27, 45, 0.92), rgba(10, 15, 28, 0.98));
-color: #ffffff;
-box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.15);
-position: relative;
-overflow: hidden;
-user-select: none;
-}
-.suite-pill-card:hover {
-transform: translateY(-3px) scale(1.02);
-border-color: var(--p-color, #ec4899);
-box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6), 0 0 20px var(--p-color);
-}
-.suite-pill-card.active {
-background: linear-gradient(145deg, rgba(20, 27, 45, 0.98), rgba(10, 15, 28, 0.99)) !important;
-border-color: var(--p-color, #ec4899) !important;
-border-width: 2.2px !important;
-box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 25px var(--p-color, #ec4899), inset 0 0 15px var(--p-border, rgba(236,72,153,0.3)) !important;
-transform: translateY(-2px) scale(1.02);
-}
-.suite-pill-card.active::after {
-content: '';
-position: absolute;
-bottom: 0;
-left: 15%;
-right: 15%;
-height: 3.5px;
-background: var(--p-color, #ec4899);
-border-radius: 3px 3px 0 0;
-box-shadow: 0 0 12px var(--p-color, #ec4899);
-}
-.suite-pill-icon {
-font-size: 1.45rem;
-margin-bottom: 3px;
-display: flex;
-align-items: center;
-justify-content: center;
-filter: drop-shadow(0 3px 8px var(--p-color, #ec4899));
-transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-}
-.suite-pill-title {
-font-size: 0.88rem;
-font-weight: 900;
-color: #ffffff;
-letter-spacing: -0.2px;
-text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
-margin: 2px 0;
-line-height: 1.25;
-white-space: nowrap;
-overflow: hidden;
-text-overflow: ellipsis;
-max-width: 100%;
-}
-.suite-pill-sub {
-font-size: 0.68rem;
-color: #94a3b8;
-font-weight: 700;
-white-space: nowrap;
-overflow: hidden;
-text-overflow: ellipsis;
-max-width: 100%;
-}
-.glass-panel-v3 {
-background: var(--panel-bg);
-border: 2px solid var(--border-color, rgba(236, 72, 153, 0.3));
-border-radius: 24px;
-padding: 24px;
-box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-position: relative;
-}
-.tool-input {
-background: rgba(15, 23, 42, 0.95);
-border: 2px solid rgba(255, 255, 255, 0.15);
-color: #ffffff;
-padding: 12px 16px;
-border-radius: 14px;
-font-weight: 800;
-font-size: 1rem;
-outline: none;
-width: 100%;
-transition: transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s;
-}
-.tool-input:focus {
-border-color: #ec4899;
-box-shadow: 0 0 15px rgba(236, 72, 153, 0.35);
-}
-.calc-result-box {
-background: linear-gradient(135deg, rgba(236, 72, 153, 0.12), rgba(168, 85, 247, 0.12));
-border: 2px solid rgba(236, 72, 153, 0.3);
-border-radius: 16px;
-padding: 16px;
-text-align: center;
-}
-:root.light-theme body {
-background-color: #f8fafc !important;
-color: #0f172a !important;
-}
-:root.light-theme .tools-command-bar {
-background:
-linear-gradient(145deg, #ffffff 0%, #f8fafc 100%) padding-box,
-linear-gradient(135deg, rgba(236, 72, 153, 0.6) 0%, rgba(139, 92, 246, 0.5) 35%, rgba(6, 182, 212, 0.45) 70%, rgba(16, 185, 129, 0.45) 100%) border-box !important;
-border: 1.8px solid transparent !important;
-box-shadow:
-0 10px 28px rgba(15, 23, 42, 0.08),
-0 0 20px rgba(236, 72, 153, 0.1),
-inset 0 1px 1px rgba(255, 255, 255, 1) !important;
-color: #0f172a !important;
-}
-:root.light-theme .tools-command-bar::before {
-background: linear-gradient(90deg,
-transparent 0%,
-rgba(236, 72, 153, 0.8) 20%,
-rgba(139, 92, 246, 0.85) 50%,
-rgba(6, 182, 212, 0.8) 80%,
-transparent 100%
-) !important;
-box-shadow: 0 0 10px rgba(139, 92, 246, 0.4) !important;
-}
-:root.light-theme .tools-cmd-title {
-color: #0f172a !important;
-text-shadow: none !important;
-}
-:root.light-theme .tools-cmd-sub {
-color: #475569 !important;
-}
-:root.light-theme .tools-cmd-btn {
-background: #ffffff !important;
-border: 1.2px solid rgba(139, 92, 246, 0.35) !important;
-color: #1e293b !important;
-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
-}
-:root.light-theme .tools-cmd-btn:hover {
-background: #f1f5f9 !important;
-border-color: #8b5cf6 !important;
-color: #0f172a !important;
-}
-:root.light-theme .tools-cmd-btn.btn-print {
-background: #ecfdf5 !important;
-border: 1.2px solid #10b981 !important;
-color: #047857 !important;
-}
-:root.light-theme .suite-pill-card {
-background: #ffffff !important;
-border: 1.5px solid rgba(0, 0, 0, 0.08) !important;
-color: #0f172a !important;
-box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04) !important;
-}
-:root.light-theme .suite-pill-card:hover {
-border-color: var(--p-color, #ec4899) !important;
-box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08), 0 0 15px var(--p-color) !important;
-}
-:root.light-theme .suite-pill-card.active {
-background: #ffffff !important;
-border-color: var(--p-color, #ec4899) !important;
-border-width: 2.5px !important;
-box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1), 0 0 20px var(--p-color) !important;
-}
-:root.light-theme .suite-pill-title {
-color: #0f172a !important;
-text-shadow: none !important;
-}
-:root.light-theme .suite-pill-sub {
-color: #64748b !important;
-}
-:root.light-theme .sacred-media-pill {
-background: #ffffff !important;
-border: 1.5px solid rgba(0, 0, 0, 0.08) !important;
-box-shadow: 0 3px 12px rgba(0, 0, 0, 0.03) !important;
-color: #0f172a !important;
-}
-:root.light-theme .sm-title {
-color: #0f172a !important;
-text-shadow: none !important;
-}
-:root.light-theme .sm-sub {
-color: #64748b !important;
-}
-:root.light-theme .glass-panel-v3 {
-background: #ffffff !important;
-border: 1.5px solid #e2e8f0 !important;
-color: #0f172a !important;
-box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04) !important;
-}
-:root.light-theme .glass-panel-v3 .text-slate-100,
-:root.light-theme .glass-panel-v3 .text-slate-200,
-:root.light-theme .glass-panel-v3 .text-slate-300,
-:root.light-theme .glass-panel-v3 .text-white,
-:root.light-theme .glass-panel-v3 h1,
-:root.light-theme .glass-panel-v3 h2,
-:root.light-theme .glass-panel-v3 h3,
-:root.light-theme .glass-panel-v3 h4,
-:root.light-theme .glass-panel-v3 h5 {
-color: #0f172a !important;
-text-shadow: none !important;
-}
-:root.light-theme .glass-panel-v3 .text-slate-400 {
-color: #475569 !important;
-}
-:root.light-theme .glass-panel-v3 .border-slate-800,
-:root.light-theme .glass-panel-v3 .border-slate-700 {
-border-color: #e2e8f0 !important;
-}
-:root.light-theme .tool-input {
-background: #f8fafc !important;
-border: 1.5px solid #cbd5e1 !important;
-color: #0f172a !important;
-}
-:root.light-theme .tool-input:focus {
-border-color: #ec4899 !important;
-background: #ffffff !important;
-box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.15) !important;
-}
-:root.light-theme .calc-result-box {
-background: #f8fafc !important;
-border: 2px solid #e2e8f0 !important;
-color: #0f172a !important;
-}
-:root.light-theme .bban-bank-card {
-background: #ffffff !important;
-border: 1.5px solid #e2e8f0 !important;
-box-shadow: 0 8px 25px rgba(0, 0, 0, 0.04) !important;
-}
-:root.light-theme .bban-bank-card h4,
-:root.light-theme .bban-bank-card .text-white,
-:root.light-theme .bban-bank-card .text-slate-200 {
-color: #0f172a !important;
-}
-:root.light-theme .bban-code-box {
-background: #0f172a !important;
-border-color: #0284c7 !important;
-color: #38bdf8 !important;
-}
-:root.light-theme .master-bban-hero-box {
-background: #ffffff !important;
-border-color: #f59e0b !important;
-box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06), 0 0 30px rgba(245, 158, 11, 0.15) !important;
-}
-:root.light-theme .master-bban-hero-box h3,
-:root.light-theme .master-bban-hero-box p {
-color: #0f172a !important;
-}
-:root.light-theme .master-bban-display-screen {
-background: #0f172a !important;
-border-color: #10b981 !important;
-color: #34d399 !important;
-}
-:root.light-theme .fiqh-master-card {
-background: #ffffff !important;
-border: 1.5px solid #e2e8f0 !important;
-box-shadow: 0 8px 25px rgba(0, 0, 0, 0.04) !important;
-color: #0f172a !important;
-}
-:root.light-theme .fiqh-master-card h3,
-:root.light-theme .fiqh-master-card h4,
-:root.light-theme .fiqh-master-card .text-slate-100,
-:root.light-theme .fiqh-master-card .text-slate-200 {
-color: #0f172a !important;
-}
-:root.light-theme .fiqh-top-nav-bar {
-background: #ffffff !important;
-border: 1.5px solid #e2e8f0 !important;
-box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04) !important;
-}
-:root.light-theme .fiqh-filter-btn {
-background: #f8fafc !important;
-border-color: #cbd5e1 !important;
-color: #334155 !important;
-}
-:root.light-theme .fiqh-filter-btn:hover {
-border-color: #f59e0b !important;
-color: #b45309 !important;
-}
-:root.light-theme .fiqh-filter-btn.active {
-background: linear-gradient(135deg, #f59e0b, #d97706) !important;
-color: #ffffff !important;
-border-color: #f59e0b !important;
-}
-:root.light-theme table th {
-background: #f1f5f9 !important;
-color: #0f172a !important;
-border-color: #cbd5e1 !important;
-}
-:root.light-theme table td {
-color: #0f172a !important;
-border-color: #e2e8f0 !important;
-}
-:root.light-theme .bg-slate-900,
-:root.light-theme .bg-slate-950,
-:root.light-theme .bg-slate-900\/85 {
-background-color: #ffffff !important;
-}
-.bban-bank-card {
-background: linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(6, 10, 20, 0.99));
-border: 2px solid rgba(56, 189, 248, 0.3);
-border-radius: 22px;
-padding: 22px;
-position: relative;
-overflow: hidden;
-box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.12);
-transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-display: flex;
-flex-direction: column;
-justify-content: space-between;
-gap: 14px;
-}
-.bban-bank-card:hover {
-transform: translateY(-5px) scale(1.02);
-border-color: #38bdf8;
-box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(56, 189, 248, 0.35);
-}
-.bban-code-box {
-background: #000000;
-border: 2px solid rgba(56, 189, 248, 0.6);
-border-radius: 14px;
-padding: 14px 16px;
-text-align: center;
-font-family: 'Outfit', 'JetBrains Mono', 'Courier New', monospace;
-font-size: 1.45rem;
-font-weight: 900;
-letter-spacing: 2px;
-color: #38bdf8;
-box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.9), 0 0 20px rgba(56, 189, 248, 0.2);
-direction: ltr;
-display: flex;
-align-items: center;
-justify-content: center;
-gap: 2px;
-}
-.master-bban-hero-box {
-background: linear-gradient(145deg, rgba(8, 14, 28, 0.98), rgba(2, 6, 15, 0.99));
-border: 3px solid #f59e0b;
-border-radius: 28px;
-padding: 28px;
-box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(245, 158, 11, 0.35);
-position: relative;
-overflow: hidden;
-}
-.master-bban-display-screen {
-background: #000000;
-border: 3px solid #10b981;
-border-radius: 22px;
-padding: 22px 26px;
-text-align: center;
-font-family: 'Outfit', 'JetBrains Mono', 'Courier New', monospace;
-font-size: 2.6rem;
-font-weight: 900;
-letter-spacing: 4px;
-color: #38bdf8;
-box-shadow: inset 0 4px 18px rgba(0, 0, 0, 0.95), 0 0 35px rgba(16, 185, 129, 0.45);
-direction: ltr;
-display: flex;
-align-items: center;
-justify-content: center;
-gap: 4px;
-}
-@media (max-width: 768px) {
-.master-bban-display-screen {
-font-size: 1.6rem;
-padding: 14px;
-letter-spacing: 1.5px;
-}
-}
-.fiqh-master-card {
-background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(6, 10, 20, 0.98));
-border: 2px solid rgba(251, 191, 36, 0.3);
-border-radius: 22px;
-padding: 22px;
-transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-}
-.fiqh-master-card:hover {
-border-color: #fbbf24;
-box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(251, 191, 36, 0.3);
-transform: translateY(-3px);
-}
-.fiqh-filter-btn {
-padding: 7px 13px;
-border-radius: 12px;
-font-size: 0.8rem;
-font-weight: 800;
-background: rgba(15, 23, 42, 0.9);
-color: #cbd5e1;
-border: 2px solid rgba(255, 255, 255, 0.1);
-cursor: pointer;
-transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-white-space: nowrap;
-}
-.fiqh-filter-btn:hover {
-border-color: #fbbf24;
-color: #fbbf24;
-transform: translateY(-2px);
-}
-.fiqh-filter-btn.active {
-background: linear-gradient(135deg, #d97706, #b45309) !important;
-border-color: #fbbf24 !important;
-color: #ffffff !important;
-box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
-}
-.fiqh-chip {
-padding: 4px 10px;
-border-radius: 10px;
-font-size: 0.75rem;
-font-weight: 800;
-background: rgba(30, 41, 59, 0.8);
-color: #93c5fd;
-border: 1px solid rgba(147, 197, 253, 0.3);
-cursor: pointer;
-transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-display: inline-flex;
-align-items: center;
-gap: 4px;
-}
-.fiqh-chip:hover {
-background: #0284c7;
-color: #ffffff;
-border-color: #38bdf8;
-}
-.fiqh-top-nav-bar {
-background: linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.98));
-border: 2px solid rgba(255, 255, 255, 0.12);
-border-radius: 20px;
-padding: 14px 18px;
-box-shadow: 0 12px 35px -10px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-display: flex;
-flex-wrap: wrap;
-gap: 10px;
-align-items: center;
-}
-.fiqh-nav-pill {
-padding: 11px 20px;
-border-radius: 14px;
-font-size: 0.96rem;
-font-weight: 900;
-cursor: pointer;
-transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.22s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.22s cubic-bezier(0.4, 0, 0.2, 1), color 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-display: inline-flex;
-align-items: center;
-gap: 9px;
-user-select: none;
-line-height: 1.4;
-border-width: 2px;
-border-style: solid;
-}
-.fiqh-pill-icon {
-font-size: 1.15rem;
-display: inline-flex;
-align-items: center;
-justify-content: center;
-filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
-}
-.fiqh-pill-fatwas {
-background: rgba(245, 158, 11, 0.14);
-border-color: rgba(245, 158, 11, 0.55);
-color: #fef08a;
-}
-.fiqh-pill-fatwas:hover {
-background: rgba(245, 158, 11, 0.26);
-border-color: #fbbf24;
-color: #ffffff;
-box-shadow: 0 0 20px rgba(245, 158, 11, 0.45);
-transform: translateY(-1px);
-}
-.fiqh-pill-fatwas.active {
-background: linear-gradient(135deg, #f59e0b, #d97706) !important;
-border-color: #fef08a !important;
-color: #020617 !important;
-box-shadow: 0 6px 25px rgba(245, 158, 11, 0.65) !important;
-transform: translateY(-2px);
-}
-.fiqh-pill-quran {
-background: rgba(16, 185, 129, 0.14);
-border-color: rgba(16, 185, 129, 0.55);
-color: #a7f3d0;
-}
-.fiqh-pill-quran:hover {
-background: rgba(16, 185, 129, 0.26);
-border-color: #34d399;
-color: #ffffff;
-box-shadow: 0 0 20px rgba(16, 185, 129, 0.45);
-transform: translateY(-1px);
-}
-.fiqh-pill-quran.active {
-background: linear-gradient(135deg, #10b981, #059669) !important;
-border-color: #ecfdf5 !important;
-color: #020617 !important;
-box-shadow: 0 6px 25px rgba(16, 185, 129, 0.65) !important;
-transform: translateY(-2px);
-}
-.fiqh-pill-hadiths {
-background: rgba(14, 165, 233, 0.14);
-border-color: rgba(14, 165, 233, 0.55);
-color: #bae6fd;
-}
-.fiqh-pill-hadiths:hover {
-background: rgba(14, 165, 233, 0.26);
-border-color: #38bdf8;
-color: #ffffff;
-box-shadow: 0 0 20px rgba(14, 165, 233, 0.45);
-transform: translateY(-1px);
-}
-.fiqh-pill-hadiths.active {
-background: linear-gradient(135deg, #0284c7, #0369a1) !important;
-border-color: #f0f9ff !important;
-color: #ffffff !important;
-box-shadow: 0 6px 25px rgba(14, 165, 233, 0.65) !important;
-transform: translateY(-2px);
-}
-.fiqh-pill-books {
-background: rgba(168, 85, 247, 0.14);
-border-color: rgba(168, 85, 247, 0.55);
-color: #e9d5ff;
-}
-.fiqh-pill-books:hover {
-background: rgba(168, 85, 247, 0.26);
-border-color: #c084fc;
-color: #ffffff;
-box-shadow: 0 0 20px rgba(168, 85, 247, 0.45);
-transform: translateY(-1px);
-}
-.fiqh-pill-books.active {
-background: linear-gradient(135deg, #9333ea, #7e22ce) !important;
-border-color: #faf5ff !important;
-color: #ffffff !important;
-box-shadow: 0 6px 25px rgba(168, 85, 247, 0.65) !important;
-transform: translateY(-2px);
-}
-.fiqh-pill-maxims {
-background: rgba(20, 184, 166, 0.14);
-border-color: rgba(20, 184, 166, 0.55);
-color: #99f6e4;
-}
-.fiqh-pill-maxims:hover {
-background: rgba(20, 184, 166, 0.26);
-border-color: #2dd4bf;
-color: #ffffff;
-box-shadow: 0 0 20px rgba(20, 184, 166, 0.45);
-transform: translateY(-1px);
-}
-.fiqh-pill-maxims.active {
-background: linear-gradient(135deg, #0d9488, #0f766e) !important;
-border-color: #f0fdfa !important;
-color: #ffffff !important;
-box-shadow: 0 6px 25px rgba(20, 184, 166, 0.65) !important;
-transform: translateY(-2px);
-}
-.fiqh-pill-terms {
-background: rgba(249, 115, 22, 0.14);
-border-color: rgba(249, 115, 22, 0.55);
-color: #fed7aa;
-}
-.fiqh-pill-terms:hover {
-background: rgba(249, 115, 22, 0.26);
-border-color: #fb923c;
-color: #ffffff;
-box-shadow: 0 0 20px rgba(249, 115, 22, 0.45);
-transform: translateY(-1px);
-}
-.fiqh-pill-terms.active {
-background: linear-gradient(135deg, #ea580c, #c2410c) !important;
-border-color: #fff7ed !important;
-color: #ffffff !important;
-box-shadow: 0 6px 25px rgba(249, 115, 22, 0.65) !important;
-transform: translateY(-2px);
-}
-@keyframes fadeInUp {
-from { opacity: 0; transform: translateY(15px); }
-to { opacity: 1; transform: translateY(0); }
-}
-.anim-suite { animation: fadeInUp 0.35s ease-out backwards; }
-@media print {
-.no-print { display: none !important; }
-body { background: #fff !important; color: #000 !important; }
-.tools-master-wrapper { padding: 0 !important; }
-.glass-panel-v3 { border: 1px solid #000 !important; box-shadow: none !important; }
-}
-@media (max-width: 768px) {
-.tools-master-wrapper {
-padding: 10px !important;
-}
-.glass-panel-v3 {
-padding: 14px !important;
-border-radius: 18px !important;
-}
-#suite-tabs-container {
-display: grid !important;
-grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-gap: 8px !important;
-}
-.suite-pill-card {
-padding: 10px 8px !important;
-border-radius: 14px !important;
-}
-.suite-pill-icon {
-font-size: 1.1rem !important;
-}
-.suite-pill-title {
-font-size: 0.78rem !important;
-}
-.suite-pill-sub {
-display: none !important;
-}
-#master_bban_display {
-font-size: 1.25rem !important;
-letter-spacing: 1px !important;
-padding: 12px 6px !important;
-}
-.fiqh-nav-pill {
-font-size: 0.72rem !important;
-padding: 6px 10px !important;
-}
-.fiqh-chip {
-font-size: 0.7rem !important;
-padding: 4px 8px !important;
-}
-}
-.category-pill-btn {
-padding: 8px 14px;
-border-radius: 12px;
-font-size: 0.85rem;
-font-weight: 800;
-background: rgba(15, 23, 42, 0.95);
-color: #f1f5f9;
-border: 1.5px solid rgba(255, 255, 255, 0.15);
-cursor: pointer;
-transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-display: inline-flex;
-align-items: center;
-gap: 6px;
-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-}
-.category-pill-btn:hover {
-border-color: #fbbf24;
-color: #fbbf24;
-transform: translateY(-2px);
-box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-background: rgba(30, 41, 59, 0.95);
-}
-.fiqh-luxury-search-wrapper {
-position: relative;
-background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(10, 15, 28, 0.99) 100%);
-border: 2px solid rgba(251, 191, 36, 0.5);
-border-radius: 24px;
-padding: 20px 24px;
-box-shadow:
-0 14px 34px -6px rgba(0, 0, 0, 0.65),
-0 0 25px -4px rgba(245, 158, 11, 0.2),
-inset 0 1px 2px rgba(255, 255, 255, 0.1);
-transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-}
-.fiqh-luxury-search-wrapper:hover {
-border-color: rgba(251, 191, 36, 0.7);
-box-shadow:
-0 18px 42px -6px rgba(0, 0, 0, 0.75),
-0 0 32px -2px rgba(245, 158, 11, 0.28),
-inset 0 1px 2px rgba(255, 255, 255, 0.12);
-}
-.fiqh-luxury-search-inner {
-display: flex;
-flex-direction: column;
-gap: 14px;
-}
-@media (min-width: 768px) {
-.fiqh-luxury-search-inner {
-flex-direction: row;
-align-items: center;
-gap: 16px;
-}
-}
-.fiqh-luxury-input {
-width: 100%;
-height: 56px;
-padding: 10px 20px 10px 52px;
-background: rgba(8, 12, 22, 0.96) !important;
-border: 2px solid rgba(251, 191, 36, 0.45) !important;
-color: #fbbf24 !important;
-font-size: 1.25rem !important;
-font-weight: 800 !important;
-border-radius: 16px !important;
-box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.7) !important;
-outline: none !important;
-transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important, opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important, background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important, border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important, color 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-.fiqh-luxury-input:focus {
-border-color: #f59e0b !important;
-background: rgba(6, 10, 18, 0.98) !important;
-box-shadow:
-inset 0 3px 10px rgba(0, 0, 0, 0.8),
-0 0 24px rgba(245, 158, 11, 0.38) !important;
-}
-.fiqh-luxury-clear-btn {
-position: absolute;
-left: 14px;
-top: 50%;
-transform: translateY(-50%);
-width: 32px;
-height: 32px;
-display: flex;
-align-items: center;
-justify-content: center;
-border-radius: 50%;
-color: #94a3b8;
-background: rgba(30, 41, 59, 0.6);
-border: 1px solid rgba(255, 255, 255, 0.08);
-cursor: pointer;
-transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-}
-.fiqh-luxury-clear-btn:hover {
-color: #ffffff;
-background: rgba(239, 68, 68, 0.85);
-border-color: #ef4444;
-transform: translateY(-50%) scale(1.1);
-}
-.fiqh-btn-glow {
-position: relative;
-height: 56px;
-padding: 0 26px;
-border-radius: 16px;
-font-size: 1rem;
-font-weight: 900;
-display: inline-flex;
-align-items: center;
-justify-content: center;
-gap: 10px;
-cursor: pointer;
-white-space: nowrap;
-transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-user-select: none;
-overflow: hidden;
-}
-.fiqh-btn-icon-wrap {
-display: flex;
-align-items: center;
-justify-content: center;
-font-size: 1.2rem;
-transition: transform 0.25s ease;
-}
-.fiqh-btn-glow:hover .fiqh-btn-icon-wrap {
-transform: scale(1.18);
-}
-.fiqh-btn-program-glow {
-background: linear-gradient(135deg, #f59e0b 0%, #d97706 60%, #b45309 100%);
-color: #0f172a;
-border: 1.5px solid #fde68a;
-box-shadow:
-0 6px 20px rgba(217, 119, 6, 0.35),
-inset 0 1px 1px rgba(255, 255, 255, 0.4);
-}
-.fiqh-btn-program-glow:hover {
-background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 60%, #d97706 100%);
-color: #020617;
-transform: translateY(-2px);
-box-shadow:
-0 12px 28px rgba(245, 158, 11, 0.55),
-0 0 20px rgba(251, 191, 36, 0.4);
-border-color: #ffffff;
-}
-.fiqh-btn-program-glow:active {
-transform: translateY(1px);
-box-shadow: 0 3px 10px rgba(217, 119, 6, 0.4);
-}
-.fiqh-btn-google-glow {
-background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 60%, #0369a1 100%);
-color: #ffffff;
-border: 1.5px solid #7dd3fc;
-box-shadow:
-0 6px 20px rgba(2, 132, 199, 0.35),
-inset 0 1px 1px rgba(255, 255, 255, 0.3);
-}
-.fiqh-btn-google-glow:hover {
-background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 60%, #0284c7 100%);
-color: #ffffff;
-transform: translateY(-2px);
-box-shadow:
-0 12px 28px rgba(2, 132, 199, 0.55),
-0 0 20px rgba(56, 189, 248, 0.4);
-border-color: #ffffff;
-}
-.fiqh-btn-google-glow:active {
-transform: translateY(1px);
-box-shadow: 0 3px 10px rgba(2, 132, 199, 0.4);
-}
-.fiqh-unified-master-card {
-background: linear-gradient(145deg, rgba(15, 23, 42, 0.98) 0%, rgba(10, 15, 28, 0.99) 100%);
-border: 2px solid rgba(251, 191, 36, 0.45);
-border-radius: 28px;
-padding: 26px;
-box-shadow:
-0 20px 50px -8px rgba(0, 0, 0, 0.8),
-0 0 30px -4px rgba(245, 158, 11, 0.2),
-inset 0 1px 2px rgba(255, 255, 255, 0.12);
-transition: transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-margin-bottom: 2rem;
-}
-.fiqh-unified-master-card:hover {
-border-color: rgba(251, 191, 36, 0.7);
-box-shadow:
-0 24px 60px -8px rgba(0, 0, 0, 0.9),
-0 0 38px -2px rgba(245, 158, 11, 0.3);
-}
-.fiqh-unified-header {
-display: flex;
-align-items: center;
-justify-content: space-between;
-border-bottom: 2px solid rgba(251, 191, 36, 0.25);
-padding-bottom: 18px;
-margin-bottom: 22px;
-}
-.fiqh-header-badge {
-width: 48px;
-height: 48px;
-border-radius: 16px;
-background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(217, 119, 6, 0.15));
-border: 2px solid rgba(251, 191, 36, 0.5);
-display: flex;
-align-items: center;
-justify-content: center;
-color: #fbbf24;
-font-size: 1.4rem;
-box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);
-}
-.fiqh-unified-title {
-font-size: 1.55rem;
-font-weight: 900;
-color: #fef08a;
-letter-spacing: -0.01em;
-margin: 0;
-line-height: 1.3;
-}
-.fiqh-reset-btn {
-padding: 9px 20px;
-border-radius: 14px;
-background: rgba(244, 63, 94, 0.15);
-border: 1.5px solid rgba(244, 63, 94, 0.45);
-color: #fda4af;
-font-size: 0.94rem;
-font-weight: 800;
-display: inline-flex;
-align-items: center;
-gap: 8px;
-cursor: pointer;
-transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-user-select: none;
-}
-.fiqh-reset-btn:hover {
-background: rgba(244, 63, 94, 0.35);
-border-color: #f43f5e;
-color: #ffffff;
-transform: translateY(-2px);
-box-shadow: 0 4px 16px rgba(244, 63, 94, 0.4);
-}
-.fiqh-categories-merged-grid {
-display: grid;
-grid-template-columns: 1fr;
-gap: 20px;
-}
-@media (min-width: 900px) {
-.fiqh-categories-merged-grid {
-grid-template-columns: 1fr 1fr;
-gap: 22px;
-}
-}
-.fiqh-cat-subgroup {
-background: rgba(11, 17, 32, 0.85);
-border-radius: 22px;
-padding: 20px;
-border: 1.5px solid rgba(255, 255, 255, 0.09);
-display: flex;
-flex-direction: column;
-justify-content: space-between;
-gap: 16px;
-transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.fiqh-cat-cyan {
-border-color: rgba(6, 182, 212, 0.4);
-background: linear-gradient(145deg, rgba(8, 28, 48, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
-}
-.fiqh-cat-cyan:hover {
-border-color: rgba(6, 182, 212, 0.7);
-box-shadow: 0 10px 28px rgba(6, 182, 212, 0.2);
-}
-.fiqh-cat-emerald {
-border-color: rgba(16, 185, 129, 0.4);
-background: linear-gradient(145deg, rgba(6, 36, 26, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
-}
-.fiqh-cat-emerald:hover {
-border-color: rgba(16, 185, 129, 0.7);
-box-shadow: 0 10px 28px rgba(16, 185, 129, 0.2);
-}
-.fiqh-cat-amber {
-border-color: rgba(245, 158, 11, 0.4);
-background: linear-gradient(145deg, rgba(42, 28, 10, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
-}
-.fiqh-cat-amber:hover {
-border-color: rgba(245, 158, 11, 0.7);
-box-shadow: 0 10px 28px rgba(245, 158, 11, 0.2);
-}
-.fiqh-cat-purple {
-border-color: rgba(168, 85, 247, 0.4);
-background: linear-gradient(145deg, rgba(34, 16, 50, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
-}
-.fiqh-cat-purple:hover {
-border-color: rgba(168, 85, 247, 0.7);
-box-shadow: 0 10px 28px rgba(168, 85, 247, 0.2);
-}
-.fiqh-cat-subgroup.fiqh-box5-full {
-grid-column: 1 / -1 !important;
-width: 100% !important;
-}
-.fiqh-box5-grid {
-display: grid;
-grid-template-columns: repeat(6, minmax(0, 1fr));
-gap: 10px;
-width: 100%;
-}
-.fiqh-box5-grid .fiqh-pill-btn {
-flex: none !important;
-min-width: 0 !important;
-width: 100% !important;
-min-height: 52px !important;
-padding: 8px 10px !important;
-font-size: 0.84rem !important;
-font-weight: 800 !important;
-display: flex !important;
-align-items: center !important;
-justify-content: center !important;
-text-align: center !important;
-gap: 6px !important;
-white-space: normal !important;
-line-height: 1.3 !important;
-border-radius: 13px !important;
-}
-@media (max-width: 1199px) {
-.fiqh-box5-grid {
-grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-.fiqh-box5-grid .fiqh-pill-btn {
-font-size: 0.88rem !important;
-padding: 10px 12px !important;
-}
-}
-@media (max-width: 640px) {
-.fiqh-box5-grid {
-grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-}
-.fiqh-cat-indigo {
-border-color: rgba(99, 102, 241, 0.4);
-background: linear-gradient(145deg, rgba(24, 20, 52, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
-}
-.fiqh-cat-indigo:hover {
-border-color: rgba(99, 102, 241, 0.7);
-box-shadow: 0 10px 28px rgba(99, 102, 241, 0.2);
-}
-.fiqh-cat-title-bar {
-display: flex;
-align-items: center;
-justify-content: space-between;
-border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-padding-bottom: 12px;
-}
-.fiqh-cat-tag {
-font-size: 1.15rem;
-font-weight: 900;
-color: #f8fafc;
-display: inline-flex;
-align-items: center;
-gap: 10px;
-}
-.fiqh-cat-count {
-font-size: 0.82rem;
-font-weight: 800;
-font-family: inherit;
-padding: 4px 12px;
-border-radius: 10px;
-background: rgba(0, 0, 0, 0.5);
-border-width: 1px;
-border-style: solid;
-}
-.fiqh-cat-pills-wrap {
-display: flex;
-flex-wrap: wrap;
-gap: 10px;
-width: 100%;
-}
-.fiqh-pill-btn {
-flex: 1 1 calc(50% - 10px);
-min-width: 220px;
-padding: 11px 16px;
-border-radius: 14px;
-font-size: 0.96rem;
-font-weight: 800;
-background: rgba(15, 23, 42, 0.92);
-color: #f1f5f9;
-border: 1.5px solid rgba(255, 255, 255, 0.12);
-cursor: pointer;
-transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1), color 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-display: inline-flex;
-align-items: center;
-justify-content: flex-start;
-gap: 9px;
-box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
-user-select: none;
-line-height: 1.35;
-}
-.fiqh-cat-indigo .fiqh-pill-btn:not(.fiqh-master-full-pill) {
-flex: 1 1 calc(25% - 10px);
-min-width: 210px;
-}
-.fiqh-pill-btn:hover {
-transform: translateY(-2px) scale(1.015);
-}
-.fiqh-pill-cyan:hover, .fiqh-pill-cyan.active {
-border-color: #22d3ee !important;
-color: #67e8f9 !important;
-background: rgba(8, 51, 68, 0.95) !important;
-box-shadow: 0 6px 18px rgba(6, 182, 212, 0.45) !important;
-}
-.fiqh-pill-emerald:hover, .fiqh-pill-emerald.active {
-border-color: #34d399 !important;
-color: #6ee7b7 !important;
-background: rgba(6, 78, 59, 0.95) !important;
-box-shadow: 0 6px 18px rgba(168, 243, 208, 0.45) !important;
-}
-.fiqh-pill-amber:hover, .fiqh-pill-amber.active {
-border-color: #fbbf24 !important;
-color: #fef08a !important;
-background: rgba(69, 26, 3, 0.95) !important;
-box-shadow: 0 6px 18px rgba(245, 158, 11, 0.45) !important;
-}
-.fiqh-pill-purple:hover, .fiqh-pill-purple.active {
-border-color: #c084fc !important;
-color: #e9d5ff !important;
-background: rgba(59, 7, 100, 0.95) !important;
-box-shadow: 0 6px 18px rgba(168, 85, 247, 0.45) !important;
-}
-.fiqh-pill-indigo:hover, .fiqh-pill-indigo.active {
-border-color: #818cf8 !important;
-color: #c7d2fe !important;
-background: rgba(49, 46, 129, 0.95) !important;
-box-shadow: 0 6px 18px rgba(99, 102, 241, 0.45) !important;
-}
-.fiqh-master-full-pill {
-flex: 1 1 100% !important;
-width: 100%;
-padding: 13px 20px !important;
-font-size: 1.06rem !important;
-font-weight: 900 !important;
-border: 2px solid #fbbf24 !important;
-background: linear-gradient(135deg, rgba(245, 158, 11, 0.28) 0%, rgba(180, 83, 9, 0.22) 100%) !important;
-color: #fef08a !important;
-justify-content: center !important;
-box-shadow: 0 4px 18px rgba(245, 158, 11, 0.3) !important;
-}
-.fiqh-master-full-pill:hover, .fiqh-master-full-pill.active {
-background: linear-gradient(135deg, rgba(245, 158, 11, 0.45) 0%, rgba(217, 119, 6, 0.35) 100%) !important;
-box-shadow: 0 8px 24px rgba(245, 158, 11, 0.45), 0 0 16px rgba(251, 191, 36, 0.4) !important;
-transform: translateY(-2px) !important;
-}
-.fiqh-scholar-dropdown-wrap {
-position: relative;
-min-width: 230px;
-}
-.fiqh-luxury-select-scholar {
-width: 100%;
-height: 56px;
-padding: 0 18px 0 42px !important;
-background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(20, 30, 48, 0.98) 100%) !important;
-border: 1.5px solid rgba(251, 191, 36, 0.5) !important;
-color: #fef08a !important;
-font-size: 0.95rem !important;
-font-weight: 800 !important;
-border-radius: 16px !important;
-box-shadow:
-0 4px 16px rgba(0, 0, 0, 0.4),
-inset 0 1px 1px rgba(255, 255, 255, 0.1) !important;
-outline: none !important;
-cursor: pointer !important;
-appearance: none !important;
--webkit-appearance: none !important;
--moz-appearance: none !important;
-transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important, opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important, background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important, border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important, color 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-.fiqh-luxury-select-scholar:hover {
-border-color: #fbbf24 !important;
-box-shadow:
-0 8px 24px rgba(245, 158, 11, 0.28),
-0 0 16px rgba(251, 191, 36, 0.25) !important;
-transform: translateY(-1px);
-}
-.fiqh-luxury-select-scholar:focus {
-border-color: #f59e0b !important;
-box-shadow:
-0 0 20px rgba(245, 158, 11, 0.45),
-inset 0 1px 2px rgba(255, 255, 255, 0.15) !important;
-}
-.fiqh-luxury-select-scholar option {
-background: #0f172a !important;
-color: #f8fafc !important;
-font-weight: 700 !important;
-padding: 10px !important;
-}
-.fiqh-select-chevron {
-position: absolute;
-left: 16px;
-top: 50%;
-transform: translateY(-50%);
-color: #fbbf24;
-font-size: 0.85rem;
-pointer-events: none;
-transition: transform 0.2s ease;
-}
-.fiqh-scholar-dropdown-wrap:hover .fiqh-select-chevron {
-transform: translateY(-50%) scale(1.2);
-}
-.fiqh-cat-indigo {
-border-color: rgba(99, 102, 241, 0.35);
-background: linear-gradient(145deg, rgba(16, 22, 50, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
-}
-.fiqh-cat-indigo:hover {
-border-color: rgba(99, 102, 241, 0.65);
-box-shadow: 0 8px 24px rgba(99, 102, 241, 0.2);
-}
-.fiqh-pill-indigo:hover {
-border-color: #818cf8;
-color: #818cf8;
-background: rgba(30, 27, 75, 0.95);
-box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
-}
-.fiqh-fatwa-card {
-border-radius: 36px !important;
-padding: 2.25rem 2.5rem !important;
-transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important, opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important, background-color 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important, border-color 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important, color 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important;
-position: relative;
-overflow: hidden;
-background: linear-gradient(180deg, rgba(15, 23, 42, 0.94) 0%, rgba(2, 6, 23, 0.98) 100%) !important;
-box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5) !important;
-box-sizing: border-box !important;
-}
-@media (max-width: 640px) {
-.fiqh-fatwa-card {
-padding: 1.5rem 1.25rem !important;
-}
-}
-.fiqh-fatwa-card:hover {
-transform: translateY(-6px);
-border-color: rgba(245, 158, 11, 0.75) !important;
-box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 35px rgba(245, 158, 11, 0.2) !important;
-}
-.fiqh-ruling-btn {
-display: inline-flex;
-align-items: center;
-gap: 0.5rem;
-padding: 0.55rem 1.25rem;
-border-radius: 9999px;
-font-size: 0.85rem;
-font-weight: 800;
-transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-cursor: pointer;
-border-width: 2px;
-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-background-color: rgba(15, 23, 42, 0.85);
-color: #cbd5e1;
-border-color: rgba(51, 65, 85, 0.8);
-user-select: none;
-}
-.fiqh-ruling-btn:hover {
-transform: translateY(-2px);
-color: #f8fafc;
-border-color: rgba(245, 158, 11, 0.6);
-}
-.fiqh-ruling-btn.active.ruling-all {
-background: linear-gradient(135deg, #f59e0b, #d97706);
-color: #020617;
-border-color: #fbbf24;
-box-shadow: 0 4px 15px rgba(245, 158, 11, 0.45);
-}
-.fiqh-ruling-btn.active.ruling-halal {
-background: linear-gradient(135deg, #10b981, #059669);
-color: #ffffff;
-border-color: #34d399;
-box-shadow: 0 4px 15px rgba(16, 185, 129, 0.45);
-}
-.fiqh-ruling-btn.active.ruling-haram {
-background: linear-gradient(135deg, #f43f5e, #e11d48);
-color: #ffffff;
-border-color: #fb7185;
-box-shadow: 0 4px 15px rgba(244, 63, 94, 0.45);
-}
-.fiqh-ruling-btn.active.ruling-conditional {
-background: linear-gradient(135deg, #f59e0b, #b45309);
-color: #ffffff;
-border-color: #fcd34d;
-box-shadow: 0 4px 15px rgba(245, 158, 11, 0.45);
-}
-.fiqh-ruling-btn.active.ruling-wajib {
-background: linear-gradient(135deg, #06b6d4, #0891b2);
-color: #ffffff;
-border-color: #67e8f9;
-box-shadow: 0 4px 15px rgba(6, 182, 212, 0.45);
-}
-.fiqh-highlight {
-background-color: rgba(245, 158, 11, 0.4) !important;
-color: #fef08a !important;
-padding: 0.1rem 0.4rem !important;
-border-radius: 6px !important;
-border: 1px solid rgba(251, 191, 36, 0.75) !important;
-font-weight: 900 !important;
-box-shadow: 0 0 10px rgba(245, 158, 11, 0.35) !important;
-}
-#fiqh-toast {
-position: fixed;
-bottom: 2.5rem;
-left: 50%;
-transform: translateX(-50%) translateY(120px);
-opacity: 0;
-pointer-events: none;
-transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-z-index: 999999;
-}
-#fiqh-toast.show {
-transform: translateX(-50%) translateY(0);
-opacity: 1;
-pointer-events: auto;
-}
-.fiqh-hadith-card {
-border-radius: 28px !important;
-padding: 1.75rem 2rem !important;
-margin: 1.5rem 0 !important;
-transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease, background 0.35s ease, border-color 0.35s ease !important;
-will-change: transform, box-shadow;
-cursor: pointer;
-box-sizing: border-box !important;
-}
-@media (max-width: 640px) {
-.fiqh-hadith-card {
-padding: 1.25rem 1.25rem !important;
-}
-}
-.fiqh-hadith-card:hover {
-transform: translateY(-8px) scale(1.035) !important;
-box-shadow: 0 22px 48px rgba(245, 158, 11, 0.38), 0 0 30px rgba(245, 158, 11, 0.25) !important;
-border-color: rgba(251, 191, 36, 0.95) !important;
-background: linear-gradient(135deg, rgba(69, 26, 3, 0.95) 0%, rgba(15, 23, 42, 0.98) 50%, rgba(69, 26, 3, 0.85) 100%) !important;
-}
-.fiqh-hadith-card:hover .hadith-icon-bubble {
-transform: scale(1.22) rotate(8deg) !important;
-background-color: rgba(245, 158, 11, 0.35) !important;
-border-color: rgba(251, 191, 36, 0.9) !important;
-}
-.hadith-icon-bubble {
-transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important, opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important, background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important, border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important, color 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-.fiqh-summary-box {
-border-radius: 26px !important;
-padding: 1.75rem 2rem !important;
-line-height: 2.1 !important;
-text-align: justify;
-text-justify: inter-word;
-box-sizing: border-box !important;
-}
-@media (max-width: 640px) {
-.fiqh-summary-box {
-padding: 1.25rem 1.25rem !important;
-}
-}
-.fiqh-maxim-card {
-border-radius: 36px !important;
-padding: 2.25rem 2.5rem !important;
-box-sizing: border-box !important;
-}
-@media (max-width: 640px) {
-.fiqh-maxim-card {
-padding: 1.5rem 1.25rem !important;
-}
-}
-.hadith-icon-bubble {
-transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important, opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important, background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important, border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important, color 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-.fiqh-ayah-card {
-border-radius: 36px !important;
-padding: 2.25rem 2.5rem !important;
-transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important, opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important, background-color 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important, border-color 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important, color 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important;
-position: relative;
-overflow: hidden;
-background: linear-gradient(180deg, rgba(15, 23, 42, 0.94) 0%, rgba(2, 6, 23, 0.98) 100%) !important;
-box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5) !important;
-box-sizing: border-box !important;
-}
-@media (max-width: 640px) {
-.fiqh-ayah-card {
-padding: 1.5rem 1.25rem !important;
-}
-}
-.fiqh-ayah-card:hover {
-transform: translateY(-6px);
-border-color: rgba(52, 211, 153, 0.8) !important;
-box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 35px rgba(16, 185, 129, 0.22) !important;
-}
-.fiqh-quran-verse-box {
-border-radius: 28px !important;
-padding: 1.75rem 2rem !important;
-margin: 1.5rem 0 !important;
-background: linear-gradient(135deg, rgba(6, 78, 59, 0.45) 0%, rgba(15, 23, 42, 0.96) 50%, rgba(6, 78, 59, 0.35) 100%) !important;
-border: 2px solid rgba(16, 185, 129, 0.45) !important;
-border-right: 6px solid #10b981 !important;
-transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease, background 0.35s ease, border-color 0.35s ease !important;
-will-change: transform, box-shadow;
-cursor: pointer;
-box-sizing: border-box !important;
-}
-@media (max-width: 640px) {
-.fiqh-quran-verse-box {
-padding: 1.25rem 1.25rem !important;
-}
-}
-.fiqh-quran-verse-box:hover {
-transform: translateY(-8px) scale(1.035) !important;
-box-shadow: 0 22px 48px rgba(16, 185, 129, 0.38), 0 0 30px rgba(245, 158, 11, 0.25) !important;
-border-color: #34d399 !important;
-background: linear-gradient(135deg, rgba(6, 78, 59, 0.7) 0%, rgba(15, 23, 42, 0.98) 50%, rgba(6, 78, 59, 0.55) 100%) !important;
-}
-.fiqh-quran-verse-box:hover .hadith-icon-bubble {
-transform: scale(1.22) rotate(8deg) !important;
-background-color: rgba(16, 185, 129, 0.35) !important;
-border-color: #34d399 !important;
-}
-.fiqh-quran-guidance-box {
-border-radius: 26px !important;
-padding: 1.75rem 2rem !important;
-line-height: 2.1 !important;
-background: rgba(15, 23, 42, 0.9) !important;
-border: 1px solid rgba(51, 65, 85, 0.8) !important;
-text-align: justify;
-text-justify: inter-word;
-box-sizing: border-box !important;
-}
-@media (max-width: 640px) {
-.fiqh-quran-guidance-box {
-padding: 1.25rem 1.25rem !important;
-}
-}
-.fiqh-prophetic-matn-box {
-border-radius: 28px !important;
-padding: 1.75rem 2rem !important;
-margin: 1.5rem 0 !important;
-background: linear-gradient(135deg, rgba(69, 26, 3, 0.45) 0%, rgba(15, 23, 42, 0.96) 50%, rgba(69, 26, 3, 0.35) 100%) !important;
-border: 2px solid rgba(245, 158, 11, 0.45) !important;
-border-right: 6px solid #f59e0b !important;
-transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease, background 0.35s ease, border-color 0.35s ease !important;
-will-change: transform, box-shadow;
-cursor: pointer;
-box-sizing: border-box !important;
-}
-@media (max-width: 640px) {
-.fiqh-prophetic-matn-box {
-padding: 1.25rem 1.25rem !important;
-}
-}
-.fiqh-prophetic-matn-box:hover {
-transform: translateY(-8px) scale(1.035) !important;
-box-shadow: 0 22px 48px rgba(245, 158, 11, 0.4), 0 0 30px rgba(245, 158, 11, 0.25) !important;
-border-color: #fbbf24 !important;
-background: linear-gradient(135deg, rgba(69, 26, 3, 0.8) 0%, rgba(15, 23, 42, 0.98) 50%, rgba(69, 26, 3, 0.65) 100%) !important;
-}
-.fiqh-prophetic-matn-box:hover .hadith-icon-bubble {
-transform: scale(1.22) rotate(8deg) !important;
-background-color: rgba(245, 158, 11, 0.35) !important;
-border-color: #fbbf24 !important;
-}
-.fiqh-maxim-evidence-box {
-border-radius: 28px !important;
-padding: 1.75rem 2rem !important;
-margin: 1.5rem 0 !important;
-background: linear-gradient(135deg, rgba(6, 78, 59, 0.45) 0%, rgba(15, 23, 42, 0.96) 50%, rgba(6, 78, 59, 0.35) 100%) !important;
-border: 2px solid rgba(16, 185, 129, 0.45) !important;
-border-right: 6px solid #10b981 !important;
-transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease, background 0.35s ease, border-color 0.35s ease !important;
-will-change: transform, box-shadow;
-cursor: pointer;
-box-sizing: border-box !important;
-}
-@media (max-width: 640px) {
-.fiqh-maxim-evidence-box {
-padding: 1.25rem 1.25rem !important;
-}
-}
-.fiqh-maxim-evidence-box:hover {
-transform: translateY(-8px) scale(1.035) !important;
-box-shadow: 0 22px 48px rgba(16, 185, 129, 0.4), 0 0 30px rgba(245, 158, 11, 0.25) !important;
-border-color: #34d399 !important;
-background: linear-gradient(135deg, rgba(6, 78, 59, 0.75) 0%, rgba(15, 23, 42, 0.98) 50%, rgba(6, 78, 59, 0.6) 100%) !important;
-}
-.fiqh-maxim-evidence-box:hover .hadith-icon-bubble {
-transform: scale(1.22) rotate(8deg) !important;
-background-color: rgba(16, 185, 129, 0.35) !important;
-border-color: #34d399 !important;
-}
-.fiqh-maxim-explanation-box {
-border-radius: 26px !important;
-padding: 1.75rem 2rem !important;
-line-height: 2.1 !important;
-background: rgba(15, 23, 42, 0.9) !important;
-border: 1px solid rgba(51, 65, 85, 0.8) !important;
-text-align: justify;
-text-justify: inter-word;
-box-sizing: border-box !important;
-}
-@media (max-width: 640px) {
-.fiqh-maxim-explanation-box {
-padding: 1.25rem 1.25rem !important;
-}
-}
+.quick-media-card{transition:transform 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important, opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important, background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important, border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important, color 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;position:relative !important}
+.quick-media-card:hover{transform:translateY(-3px) scale(1.02) !important}
+.quick-media-card.is-active-majd,.suite-pill-card.is-active-majd{border-color:#f59e0b !important;background:linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(15, 23, 42, 0.98)) !important;box-shadow:0 0 30px rgba(245, 158, 11, 0.55), inset 0 0 15px rgba(245, 158, 11, 0.25), 0 10px 25px rgba(0,0,0,0.8) !important;transform:translateY(-2px) !important}
+.quick-media-card.is-active-quran_mp3,.suite-pill-card.is-active-quran_mp3{border-color:#06b6d4 !important;background:linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(15, 23, 42, 0.98)) !important;box-shadow:0 0 30px rgba(6, 182, 212, 0.55), inset 0 0 15px rgba(6, 182, 212, 0.25), 0 10px 25px rgba(0,0,0,0.8) !important;transform:translateY(-2px) !important}
+.quick-media-card.is-active-madinah,.suite-pill-card.is-active-madinah{border-color:#10b981 !important;background:linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(15, 23, 42, 0.98)) !important;box-shadow:0 0 30px rgba(16, 185, 129, 0.55), inset 0 0 15px rgba(16, 185, 129, 0.25), 0 10px 25px rgba(0,0,0,0.8) !important;transform:translateY(-2px) !important}
+.quick-media-card.is-active-makkah,.suite-pill-card.is-active-makkah{border-color:#eab308 !important;background:linear-gradient(135deg, rgba(234, 179, 8, 0.25), rgba(15, 23, 42, 0.98)) !important;box-shadow:0 0 30px rgba(234, 179, 8, 0.55), inset 0 0 15px rgba(234, 179, 8, 0.25), 0 10px 25px rgba(0,0,0,0.8) !important;transform:translateY(-2px) !important}
+:root{--bg-dark:#04020a;--panel-bg:rgba(14, 10, 26, 0.85);--border-neon:rgba(236, 72, 153, 0.25);--text-main:#ffffff;--text-muted:#94a3b8}
+:root.light-theme{--bg-dark:#f8fafc;--panel-bg:#ffffff;--border-neon:#000000;--text-main:#000000;--text-muted:#334155}
+html{scroll-behavior:smooth}
+body{margin:0 !important;padding:0 !important;background-color:var(--bg-dark);color:var(--text-main);font-family:'Tajawal', sans-serif;min-height:calc(100vh + 160px);overflow-x:hidden}
+.tools-master-wrapper{width:100% !important;max-width:100% !important;margin:0 auto !important;padding:6px 14px 60px 14px !important;box-sizing:border-box !important;display:flex;flex-direction:column;gap:16px}
+@keyframes tv-neon-pulse-glow{0%, 100% { box-shadow: 0 0 25px var(--sm-color), 0 0 55px var(--sm-color), 0 0 85px var(--sm-bg), inset 0 0 20px var(--sm-bg) !important; border-color: var(--sm-color) !important; } 50% { box-shadow: 0 0 45px #ffffff, 0 0 85px var(--sm-color), 0 0 120px var(--sm-color), inset 0 0 32px var(--sm-bg) !important; border-color: #ffffff !important; }}
+@keyframes tv-icon-radiance{0%, 100% { filter: drop-shadow(0 0 12px #ffffff) drop-shadow(0 0 24px var(--sm-color)); transform: scale(1.1); } 50% { filter: drop-shadow(0 0 20px #ffffff) drop-shadow(0 0 38px var(--sm-color)); transform: scale(1.22); }}
+@keyframes surah-card-glow-pulse{0%, 100% { box-shadow: 0 0 25px var(--sc-glow), 0 0 55px var(--sc-glow), inset 0 0 20px var(--sc-glow); border-color: var(--sc-border); } 50% { box-shadow: 0 0 45px #ffffff, 0 0 85px var(--sc-glow), inset 0 0 35px var(--sc-glow); border-color: #ffffff; }}
+@keyframes tv-neon-pulse-makkah{0%, 100% { box-shadow: 0 0 35px #f59e0b, 0 0 70px rgba(245, 158, 11, 0.8), 0 0 100px rgba(253, 224, 71, 0.5), inset 0 0 25px rgba(254, 240, 138, 0.6) !important; border-color: #fde047 !important; } 50% { box-shadow: 0 0 50px #ffffff, 0 0 95px #f59e0b, 0 0 130px #fbbf24, inset 0 0 35px #ffffff !important; border-color: #ffffff !important; }}
+@keyframes tv-neon-pulse-madinah{0%, 100% { box-shadow: 0 0 35px #10b981, 0 0 70px rgba(16, 185, 129, 0.8), 0 0 100px rgba(110, 231, 183, 0.5), inset 0 0 25px rgba(167, 243, 208, 0.6) !important; border-color: #6ee7b7 !important; } 50% { box-shadow: 0 0 50px #ffffff, 0 0 95px #10b981, 0 0 130px #34d399, inset 0 0 35px #ffffff !important; border-color: #ffffff !important; }}
+@keyframes tv-neon-pulse-majd{0%, 100% { box-shadow: 0 0 35px #fbbf24, 0 0 70px rgba(251, 191, 36, 0.8), inset 0 0 25px rgba(254, 240, 138, 0.6) !important; border-color: #fde047 !important; } 50% { box-shadow: 0 0 50px #ffffff, 0 0 95px #fbbf24, 0 0 130px #f59e0b, inset 0 0 35px #ffffff !important; border-color: #ffffff !important; }}
+@keyframes tv-neon-pulse-quran{0%, 100% { box-shadow: 0 0 35px #06b6d4, 0 0 70px rgba(6, 182, 212, 0.8), inset 0 0 25px rgba(165, 243, 252, 0.6) !important; border-color: #67e8f9 !important; } 50% { box-shadow: 0 0 50px #ffffff, 0 0 95px #06b6d4, 0 0 130px #22d3ee, inset 0 0 35px #ffffff !important; border-color: #ffffff !important; }}
+#quick-media-btn-makkah.is-active,.sacred-media-pill.is-active-makkah{border-color:#fde047 !important;background:linear-gradient(135deg, rgba(245, 158, 11, 0.45), rgba(180, 83, 9, 0.98)) !important;animation:none;transform:translateY(-4px) scale(1.03) !important}
+#quick-media-btn-makkah.is-active .sm-icon-box{background:#f59e0b !important;color:#020617 !important;border-color:#ffffff !important;box-shadow:0 0 25px #ffffff, 0 0 50px #f59e0b !important}
+#quick-media-btn-madinah.is-active,.sacred-media-pill.is-active-madinah{border-color:#6ee7b7 !important;background:linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(6, 78, 59, 0.98)) !important;animation:none;transform:translateY(-4px) scale(1.03) !important}
+#quick-media-btn-madinah.is-active .sm-icon-box{background:#10b981 !important;color:#020617 !important;border-color:#ffffff !important;box-shadow:0 0 25px #ffffff, 0 0 50px #10b981 !important}
+#quick-media-btn-majd.is-active,.sacred-media-pill.is-active-majd{border-color:#fde047 !important;background:linear-gradient(135deg, rgba(251, 191, 36, 0.45), rgba(180, 83, 9, 0.98)) !important;animation:none;transform:translateY(-4px) scale(1.03) !important}
+#quick-media-btn-majd.is-active .sm-icon-box{background:#fbbf24 !important;color:#020617 !important;border-color:#ffffff !important;box-shadow:0 0 25px #ffffff, 0 0 50px #fbbf24 !important}
+#quick-media-btn-quran_mp3.is-active,.sacred-media-pill.is-active-quran_mp3{border-color:#67e8f9 !important;background:linear-gradient(135deg, rgba(6, 182, 212, 0.45), rgba(8, 47, 73, 0.98)) !important;animation:none;transform:translateY(-4px) scale(1.03) !important}
+#quick-media-btn-quran_mp3.is-active .sm-icon-box{background:#06b6d4 !important;color:#020617 !important;border-color:#ffffff !important;box-shadow:0 0 25px #ffffff, 0 0 50px #06b6d4 !important}
+#quick-media-btn-hadith.is-active,.sacred-media-pill.is-active-hadith{border-color:#c084fc !important;background:linear-gradient(135deg, rgba(168, 85, 247, 0.45), rgba(59, 7, 100, 0.98)) !important;animation:none;transform:translateY(-4px) scale(1.03) !important}
+#quick-media-btn-hadith.is-active .sm-icon-box{background:#a855f7 !important;color:#ffffff !important;border-color:#ffffff !important;box-shadow:0 0 25px #ffffff, 0 0 50px #a855f7 !important}
+@keyframes tv-neon-pulse-hadith{0%, 100% { box-shadow: 0 0 25px rgba(168, 85, 247, 0.4), 0 0 55px rgba(192, 132, 252, 0.3), inset 0 0 20px rgba(168, 85, 247, 0.3); } 50% { box-shadow: 0 0 45px rgba(168, 85, 247, 0.7), 0 0 85px rgba(192, 132, 252, 0.5), inset 0 0 35px rgba(168, 85, 247, 0.5); }}
+#quick-media-btn-aljazeera.is-active,.sacred-media-pill.is-active-aljazeera{border-color:#f87171 !important;background:linear-gradient(135deg, rgba(239, 68, 68, 0.45), rgba(153, 27, 27, 0.98)) !important;animation:none;transform:translateY(-4px) scale(1.03) !important}
+#quick-media-btn-aljazeera.is-active .sm-icon-box{background:#ef4444 !important;color:#ffffff !important;border-color:#ffffff !important;box-shadow:0 0 25px #ffffff, 0 0 50px #ef4444 !important}
+@keyframes tv-neon-pulse-aljazeera{0%, 100% { box-shadow: 0 0 35px #ef4444, 0 0 70px rgba(239, 68, 68, 0.8), inset 0 0 25px rgba(254, 202, 202, 0.6) !important; border-color: #f87171 !important; } 50% { box-shadow: 0 0 50px #ffffff, 0 0 95px #ef4444, 0 0 130px #dc2626, inset 0 0 35px #ffffff !important; border-color: #ffffff !important; }}
+#quick-media-btn-bbc_arabic.is-active,.sacred-media-pill.is-active-bbc_arabic{border-color:#fb7185 !important;background:linear-gradient(135deg, rgba(244, 63, 94, 0.45), rgba(159, 18, 57, 0.98)) !important;animation:none;transform:translateY(-4px) scale(1.03) !important}
+#quick-media-btn-bbc_arabic.is-active .sm-icon-box{background:#f43f5e !important;color:#ffffff !important;border-color:#ffffff !important;box-shadow:0 0 25px #ffffff, 0 0 50px #f43f5e !important}
+@keyframes tv-neon-pulse-bbc{0%, 100% { box-shadow: 0 0 35px #f43f5e, 0 0 70px rgba(244, 63, 94, 0.8), inset 0 0 25px rgba(254, 205, 211, 0.6) !important; border-color: #fb7185 !important; } 50% { box-shadow: 0 0 50px #ffffff, 0 0 95px #f43f5e, 0 0 130px #e11d48, inset 0 0 35px #ffffff !important; border-color: #ffffff !important; }}
+#quran-reciters-container{display:grid !important;grid-template-columns:repeat(4, minmax(0, 1fr)) !important;gap:16px !important}
+@media (max-width: 900px){#quran-reciters-container{grid-template-columns:repeat(2, minmax(0, 1fr)) !important}}
+@media (max-width: 500px){#quran-reciters-container{grid-template-columns:1fr !important}}
+.quran-reciter-card{border-radius:14px !important;cursor:pointer;transition:transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s cubic-bezier(0.16, 1, 0.3, 1);position:relative;user-select:none;min-height:155px;padding:16px 14px !important;display:flex;flex-direction:column;justify-content:space-between;align-items:center;text-align:center;background:linear-gradient(145deg, #78350f, #92400e 55%, #b45309 100%) !important;border:2.5px solid #fbbf24 !important;box-shadow:0 8px 24px rgba(0, 0, 0, 0.45), 0 0 25px rgba(245, 158, 11, 0.4), inset 0 1px 3px rgba(254, 240, 138, 0.4) !important}
+.quran-reciter-card:hover{transform:translateY(-4px) scale(1.02);border-color:#fef08a !important;background:linear-gradient(145deg, #92400e, #b45309 60%, #d97706 100%) !important;box-shadow:0 14px 30px rgba(0, 0, 0, 0.6), 0 0 35px rgba(251, 191, 36, 0.7) !important}
+.quran-reciter-card.is-selected{border-color:#ffffff !important;border-width:3px !important;background:linear-gradient(145deg, #b45309, #d97706 50%, #f59e0b 100%) !important;box-shadow:0 0 35px #f59e0b, 0 0 70px rgba(251, 191, 36, 0.9), inset 0 0 20px #ffffff !important;transform:translateY(-3px) scale(1.02);animation:none}
+@keyframes sheikh-card-glow-pulse{0%, 100% { box-shadow: 0 0 30px #f59e0b, 0 0 60px rgba(251, 191, 36, 0.8), inset 0 0 20px #ffffff; border-color: #fde047; } 50% { box-shadow: 0 0 50px #ffffff, 0 0 95px #f59e0b, inset 0 0 30px #ffffff; border-color: #ffffff; }}
+.quran-sheikh-title-center{font-size:1.28rem !important;line-height:1.35;font-weight:900 !important;text-align:center;color:#ffffff !important;text-shadow:0 2px 5px rgba(0, 0, 0, 0.95), 0 0 14px rgba(254, 240, 138, 0.9) !important;letter-spacing:0.3px}
+#quran-surahs-grid{display:grid !important;grid-template-columns:repeat(4, minmax(0, 1fr)) !important;gap:14px !important}
+@media (max-width: 900px){#quran-surahs-grid{grid-template-columns:repeat(2, minmax(0, 1fr)) !important}}
+@media (max-width: 500px){#quran-surahs-grid{grid-template-columns:1fr !important}}
+.quran-surah-card{border-radius:14px !important;cursor:pointer;transition:transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s cubic-bezier(0.16, 1, 0.3, 1);position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;min-height:125px;padding:14px 14px !important;user-select:none;background:linear-gradient(145deg, #065f46, #047857 55%, #059669 100%) !important;border:2.5px solid #34d399 !important;box-shadow:0 8px 24px rgba(0, 0, 0, 0.45), 0 0 25px rgba(16, 185, 129, 0.4), inset 0 1px 3px rgba(167, 243, 208, 0.4) !important}
+.quran-surah-card:hover{transform:translateY(-4px) scale(1.02);border-color:#a7f3d0 !important;background:linear-gradient(145deg, #047857, #059669 60%, #10b981 100%) !important;box-shadow:0 14px 30px rgba(0, 0, 0, 0.6), 0 0 35px rgba(52, 211, 153, 0.7) !important;z-index:5}
+.quran-surah-title-center{font-size:1.45rem !important;line-height:1.25;font-weight:900 !important;text-align:center;letter-spacing:0.5px;margin:auto 0;color:#ffffff !important;text-shadow:0 2px 5px rgba(0, 0, 0, 0.9), 0 0 16px rgba(167, 243, 208, 0.9) !important}
+.quran-surah-card.is-playing-surah{border-color:#ffffff !important;border-width:3px !important;background:linear-gradient(145deg, #059669, #10b981 50%, #34d399 100%) !important;box-shadow:0 0 40px #10b981, 0 0 85px rgba(52, 211, 153, 0.9), inset 0 0 20px #ffffff !important;animation:none;transform:translateY(-4px) scale(1.03) !important;z-index:10}
+@keyframes surah-card-green-glow{0%, 100% { box-shadow: 0 0 30px #10b981, 0 0 65px rgba(52, 211, 153, 0.8), inset 0 0 20px #ffffff; border-color: #a7f3d0; } 50% { box-shadow: 0 0 50px #ffffff, 0 0 95px #10b981, inset 0 0 30px #ffffff; border-color: #ffffff; }}
+.sacred-media-container{width:100%}
+.sacred-media-grid{display:grid !important;grid-template-columns:repeat(6, minmax(0, 1fr)) !important;gap:8px !important}
+@media (max-width: 1100px){.sacred-media-grid{grid-template-columns:repeat(3, minmax(0, 1fr)) !important}}
+@media (max-width: 640px){.sacred-media-grid{grid-template-columns:repeat(2, minmax(0, 1fr)) !important}}
+@media (max-width: 380px){.sacred-media-grid{grid-template-columns:1fr !important}}
+.sacred-media-pill{padding:8px 12px;border-radius:14px;min-height:56px;cursor:pointer;transition:transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s cubic-bezier(0.16, 1, 0.3, 1);display:flex;align-items:center;justify-content:space-between;gap:8px;border:1.5px solid var(--sm-border);background:linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(24, 33, 56, 0.85));color:#ffffff;box-shadow:0 4px 14px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.1);position:relative;overflow:hidden}
+.sacred-media-pill:hover{transform:translateY(-2px) scale(1.015);border-color:var(--sm-color);box-shadow:0 8px 22px rgba(0, 0, 0, 0.5), 0 0 20px var(--sm-bg), inset 0 1px 2px rgba(255, 255, 255, 0.15)}
+.sacred-media-pill.is-active{border-color:var(--sm-color) !important;background:linear-gradient(135deg, var(--sm-bg), rgba(15, 23, 42, 0.98)) !important;animation:none;transform:translateY(-2px) scale(1.02) !important;z-index:10}
+.sm-icon-box{width:36px;height:36px;border-radius:10px;background:rgba(255, 255, 255, 0.07);border:1.5px solid var(--sm-border);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;transition:transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s cubic-bezier(0.16, 1, 0.3, 1);filter:drop-shadow(0 0 6px var(--sm-color));box-shadow:inset 0 0 8px var(--sm-bg)}
+.sacred-media-pill:hover .sm-icon-box{transform:scale(1.08);filter:drop-shadow(0 0 12px var(--sm-color))}
+.sacred-media-pill.is-active .sm-icon-box{background:var(--sm-color) !important;color:#020617 !important;border-color:#ffffff !important;box-shadow:0 0 18px #ffffff, 0 0 30px var(--sm-color) !important;animation:none}
+.sacred-media-pill.is-active .sm-icon-box i{color:#020617 !important;filter:drop-shadow(0 0 4px rgba(0,0,0,0.8))}
+.sacred-media-pill.is-active .sm-title{text-shadow:0 0 12px var(--sm-color), 0 0 20px rgba(255,255,255,0.8);letter-spacing:0.3px}
+.sm-text-box{display:flex;flex-direction:column;align-items:flex-start;text-align:right;overflow:hidden;min-width:0}
+.sm-title{font-size:12.5px;font-weight:900;line-height:1.25;white-space:nowrap}
+.sm-sub{font-size:10px;font-weight:700;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.sm-indicator-wrapper{display:flex;align-items:center;margin-right:auto;flex-shrink:0;padding-left:2px}
+.sm-status-dot{width:7px;height:7px;border-radius:50%;background:rgba(255, 255, 255, 0.2);border:1px solid rgba(255, 255, 255, 0.35);transition:transform 0.3s, opacity 0.3s, background-color 0.3s, border-color 0.3s, color 0.3s}
+.sacred-media-pill.is-active .sm-status-dot{display:none}
+.sm-eq-bars{display:none;align-items:flex-end;gap:2px;height:14px}
+.sacred-media-pill.is-active .sm-eq-bars{display:flex}
+.sm-eq-bars span{width:2.5px;background:#34d399;border-radius:2px;animation:none}
+.sm-eq-bars span:nth-child(2){animation-delay:0.2s;height:12px}
+.sm-eq-bars span:nth-child(3){animation-delay:0.4s;height:8px}
+@keyframes sm-eq-dance{0%, 100% { height: 4px; } 50% { height: 14px; }}
+.tools-command-bar{position:relative;background:linear-gradient(135deg, rgba(15, 23, 42, 0.94) 0%, rgba(20, 26, 48, 0.92) 50%, rgba(13, 20, 38, 0.96) 100%) padding-box, linear-gradient(135deg, rgba(236, 72, 153, 0.65) 0%, rgba(139, 92, 246, 0.5) 30%, rgba(6, 182, 212, 0.45) 70%, rgba(16, 185, 129, 0.45) 100%) border-box;border:1.8px solid transparent;border-radius:20px;padding:11px 20px;box-shadow:0 16px 40px rgba(0, 0, 0, 0.55), 0 0 30px rgba(236, 72, 153, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.15), inset 0 -1px 1px rgba(0, 0, 0, 0.4);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:48px;z-index:10;overflow:hidden;transition:transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.35s cubic-bezier(0.16, 1, 0.3, 1)}
+.tools-command-bar::before{content:'';position:absolute;top:0;left:4%;right:4%;height:2px;background:linear-gradient(90deg, transparent 0%, rgba(236, 72, 153, 0.95) 20%, rgba(139, 92, 246, 0.95) 50%, rgba(6, 182, 212, 0.9) 80%, transparent 100% );border-radius:2px;pointer-events:none;box-shadow:0 0 12px rgba(139, 92, 246, 0.7)}
+.tools-command-bar:hover{box-shadow:0 20px 48px rgba(0, 0, 0, 0.65), 0 0 38px rgba(139, 92, 246, 0.22), inset 0 1px 1px rgba(255, 255, 255, 0.2);transform:translateY(-1px)}
+.tools-cmd-brand{display:flex;align-items:center;gap:12px;min-width:0}
+.tools-cmd-icon{width:42px;height:42px;border-radius:13px;background:linear-gradient(135deg, #ec4899, #8b5cf6);display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#ffffff;box-shadow:0 6px 16px rgba(236, 72, 153, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.3);flex-shrink:0;transition:transform 0.3s ease}
+.tools-command-bar:hover .tools-cmd-icon{transform:scale(1.05) rotate(3deg)}
+.tools-cmd-info{display:flex;flex-direction:column;min-width:0}
+.tools-cmd-title-wrap{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tools-cmd-title{font-size:1.08rem;font-weight:900;color:#ffffff;letter-spacing:-0.2px;line-height:1.3;text-shadow:0 2px 8px rgba(0, 0, 0, 0.5)}
+.tools-cmd-badge{font-size:10.5px;font-weight:800;background:linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(139, 92, 246, 0.25));color:#f472b6;border:1.2px solid rgba(236, 72, 153, 0.45);border-radius:20px;padding:1px 9px;white-space:nowrap;box-shadow:0 0 10px rgba(236, 72, 153, 0.2)}
+.tools-cmd-sub{font-size:11.5px;font-weight:600;color:#94a3b8;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:550px}
+.tools-cmd-clearance{flex:1;min-width:140px}
+.tools-cmd-actions{display:flex;align-items:center;gap:9px;flex-shrink:0}
+.tools-cmd-btn{background:linear-gradient(135deg, rgba(30, 41, 59, 0.75), rgba(15, 23, 42, 0.9));border:1.2px solid rgba(139, 92, 246, 0.38);color:#f8fafc;padding:7px 15px;border-radius:12px;font-size:12px;font-weight:800;cursor:pointer;transition:transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s cubic-bezier(0.16, 1, 0.3, 1);display:flex;align-items:center;gap:7px;white-space:nowrap;user-select:none;box-shadow:0 4px 12px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08)}
+.tools-cmd-btn:hover{background:linear-gradient(135deg, rgba(139, 92, 246, 0.28), rgba(30, 41, 59, 0.95));border-color:rgba(167, 139, 250, 0.75);color:#ffffff;transform:translateY(-2px);box-shadow:0 6px 18px rgba(139, 92, 246, 0.35)}
+.tools-cmd-btn#btn-toggle-media.active{background:linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.3));border-color:rgba(245, 158, 11, 0.6);color:#fde68a;box-shadow:0 4px 15px rgba(245, 158, 11, 0.25)}
+.tools-cmd-btn.btn-print{background:linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(5, 150, 105, 0.28));border:1.2px solid rgba(16, 185, 129, 0.48);color:#a7f3d0;box-shadow:0 4px 12px rgba(16, 185, 129, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08)}
+.tools-cmd-btn.btn-print:hover{background:linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(5, 150, 105, 0.5));border-color:#34d399;color:#ffffff;box-shadow:0 6px 20px rgba(16, 185, 129, 0.4);transform:translateY(-2px)}
+.suite-tabs-grid{display:grid;grid-template-columns:repeat(12, 1fr);gap:6px;width:100%;margin-bottom:12px}
+@media (max-width: 1400px){.suite-tabs-grid{grid-template-columns:repeat(6, 1fr);gap:6px}}
+@media (max-width: 860px){.suite-tabs-grid{grid-template-columns:repeat(4, 1fr);gap:6px}}
+@media (max-width: 560px){.suite-tabs-grid{grid-template-columns:repeat(3, 1fr);gap:5px}}
+@media (max-width: 380px){.suite-tabs-grid{grid-template-columns:repeat(2, 1fr);gap:4px}}
+.suite-pill-card{padding:10px 4px;border-radius:16px;min-height:94px;cursor:pointer;transition:transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border:2px solid var(--p-border, rgba(255, 255, 255, 0.12));background:linear-gradient(145deg, rgba(20, 27, 45, 0.92), rgba(10, 15, 28, 0.98));color:#ffffff;box-shadow:0 8px 20px rgba(0, 0, 0, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.15);position:relative;overflow:hidden;user-select:none}
+.suite-pill-card:hover{transform:translateY(-3px) scale(1.02);border-color:var(--p-color, #ec4899);box-shadow:0 12px 28px rgba(0, 0, 0, 0.6), 0 0 20px var(--p-color)}
+.suite-pill-card.active{background:linear-gradient(145deg, rgba(20, 27, 45, 0.98), rgba(10, 15, 28, 0.99)) !important;border-color:var(--p-color, #ec4899) !important;border-width:2.2px !important;box-shadow:0 10px 30px rgba(0, 0, 0, 0.6), 0 0 25px var(--p-color, #ec4899), inset 0 0 15px var(--p-border, rgba(236,72,153,0.3)) !important;transform:translateY(-2px) scale(1.02)}
+.suite-pill-card.active::after{content:'';position:absolute;bottom:0;left:15%;right:15%;height:3.5px;background:var(--p-color, #ec4899);border-radius:3px 3px 0 0;box-shadow:0 0 12px var(--p-color, #ec4899)}
+.suite-pill-icon{font-size:1.45rem;margin-bottom:3px;display:flex;align-items:center;justify-content:center;filter:drop-shadow(0 3px 8px var(--p-color, #ec4899));transition:transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease}
+.suite-pill-title{font-size:0.88rem;font-weight:900;color:#ffffff;letter-spacing:-0.2px;text-shadow:0 2px 6px rgba(0, 0, 0, 0.8);margin:2px 0;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.suite-pill-sub{font-size:0.68rem;color:#94a3b8;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.glass-panel-v3{background:var(--panel-bg);border:2px solid var(--border-color, rgba(236, 72, 153, 0.3));border-radius:24px;padding:24px;box-shadow:0 15px 40px rgba(0, 0, 0, 0.4);position:relative}
+.tool-input{background:rgba(15, 23, 42, 0.95);border:2px solid rgba(255, 255, 255, 0.15);color:#ffffff;padding:12px 16px;border-radius:14px;font-weight:800;font-size:1rem;outline:none;width:100%;transition:transform 0.2s, opacity 0.2s, background-color 0.2s, border-color 0.2s, color 0.2s}
+.tool-input:focus{border-color:#ec4899;box-shadow:0 0 15px rgba(236, 72, 153, 0.35)}
+.calc-result-box{background:linear-gradient(135deg, rgba(236, 72, 153, 0.12), rgba(168, 85, 247, 0.12));border:2px solid rgba(236, 72, 153, 0.3);border-radius:16px;padding:16px;text-align:center}
+:root.light-theme body{background-color:#f8fafc !important;color:#0f172a !important}
+:root.light-theme .tools-command-bar{background:linear-gradient(145deg, #ffffff 0%, #f8fafc 100%) padding-box, linear-gradient(135deg, rgba(236, 72, 153, 0.6) 0%, rgba(139, 92, 246, 0.5) 35%, rgba(6, 182, 212, 0.45) 70%, rgba(16, 185, 129, 0.45) 100%) border-box !important;border:1.8px solid transparent !important;box-shadow:0 10px 28px rgba(15, 23, 42, 0.08), 0 0 20px rgba(236, 72, 153, 0.1), inset 0 1px 1px rgba(255, 255, 255, 1) !important;color:#0f172a !important}
+:root.light-theme .tools-command-bar::before{background:linear-gradient(90deg, transparent 0%, rgba(236, 72, 153, 0.8) 20%, rgba(139, 92, 246, 0.85) 50%, rgba(6, 182, 212, 0.8) 80%, transparent 100% ) !important;box-shadow:0 0 10px rgba(139, 92, 246, 0.4) !important}
+:root.light-theme .tools-cmd-title{color:#0f172a !important;text-shadow:none !important}
+:root.light-theme .tools-cmd-sub{color:#475569 !important}
+:root.light-theme .tools-cmd-btn{background:#ffffff !important;border:1.2px solid rgba(139, 92, 246, 0.35) !important;color:#1e293b !important;box-shadow:0 2px 8px rgba(0, 0, 0, 0.04) !important}
+:root.light-theme .tools-cmd-btn:hover{background:#f1f5f9 !important;border-color:#8b5cf6 !important;color:#0f172a !important}
+:root.light-theme .tools-cmd-btn.btn-print{background:#ecfdf5 !important;border:1.2px solid #10b981 !important;color:#047857 !important}
+:root.light-theme .suite-pill-card{background:#ffffff !important;border:1.5px solid rgba(0, 0, 0, 0.08) !important;color:#0f172a !important;box-shadow:0 4px 15px rgba(0, 0, 0, 0.04) !important}
+:root.light-theme .suite-pill-card:hover{border-color:var(--p-color, #ec4899) !important;box-shadow:0 8px 20px rgba(0, 0, 0, 0.08), 0 0 15px var(--p-color) !important}
+:root.light-theme .suite-pill-card.active{background:#ffffff !important;border-color:var(--p-color, #ec4899) !important;border-width:2.5px !important;box-shadow:0 8px 25px rgba(0, 0, 0, 0.1), 0 0 20px var(--p-color) !important}
+:root.light-theme .suite-pill-title{color:#0f172a !important;text-shadow:none !important}
+:root.light-theme .suite-pill-sub{color:#64748b !important}
+:root.light-theme .sacred-media-pill{background:#ffffff !important;border:1.5px solid rgba(0, 0, 0, 0.08) !important;box-shadow:0 3px 12px rgba(0, 0, 0, 0.03) !important;color:#0f172a !important}
+:root.light-theme .sm-title{color:#0f172a !important;text-shadow:none !important}
+:root.light-theme .sm-sub{color:#64748b !important}
+:root.light-theme .glass-panel-v3{background:#ffffff !important;border:1.5px solid #e2e8f0 !important;color:#0f172a !important;box-shadow:0 10px 30px rgba(0, 0, 0, 0.04) !important}
+:root.light-theme .glass-panel-v3 .text-slate-100,:root.light-theme .glass-panel-v3 .text-slate-200,:root.light-theme .glass-panel-v3 .text-slate-300,:root.light-theme .glass-panel-v3 .text-white,:root.light-theme .glass-panel-v3 h1,:root.light-theme .glass-panel-v3 h2,:root.light-theme .glass-panel-v3 h3,:root.light-theme .glass-panel-v3 h4,:root.light-theme .glass-panel-v3 h5{color:#0f172a !important;text-shadow:none !important}
+:root.light-theme .glass-panel-v3 .text-slate-400{color:#475569 !important}
+:root.light-theme .glass-panel-v3 .border-slate-800,:root.light-theme .glass-panel-v3 .border-slate-700{border-color:#e2e8f0 !important}
+:root.light-theme .tool-input{background:#f8fafc !important;border:1.5px solid #cbd5e1 !important;color:#0f172a !important}
+:root.light-theme .tool-input:focus{border-color:#ec4899 !important;background:#ffffff !important;box-shadow:0 0 0 3px rgba(236, 72, 153, 0.15) !important}
+:root.light-theme .calc-result-box{background:#f8fafc !important;border:2px solid #e2e8f0 !important;color:#0f172a !important}
+:root.light-theme .bban-bank-card{background:#ffffff !important;border:1.5px solid #e2e8f0 !important;box-shadow:0 8px 25px rgba(0, 0, 0, 0.04) !important}
+:root.light-theme .bban-bank-card h4,:root.light-theme .bban-bank-card .text-white,:root.light-theme .bban-bank-card .text-slate-200{color:#0f172a !important}
+:root.light-theme .bban-code-box{background:#0f172a !important;border-color:#0284c7 !important;color:#38bdf8 !important}
+:root.light-theme .master-bban-hero-box{background:#ffffff !important;border-color:#f59e0b !important;box-shadow:0 15px 40px rgba(0, 0, 0, 0.06), 0 0 30px rgba(245, 158, 11, 0.15) !important}
+:root.light-theme .master-bban-hero-box h3,:root.light-theme .master-bban-hero-box p{color:#0f172a !important}
+:root.light-theme .master-bban-display-screen{background:#0f172a !important;border-color:#10b981 !important;color:#34d399 !important}
+:root.light-theme .fiqh-master-card{background:#ffffff !important;border:1.5px solid #e2e8f0 !important;box-shadow:0 8px 25px rgba(0, 0, 0, 0.04) !important;color:#0f172a !important}
+:root.light-theme .fiqh-master-card h3,:root.light-theme .fiqh-master-card h4,:root.light-theme .fiqh-master-card .text-slate-100,:root.light-theme .fiqh-master-card .text-slate-200{color:#0f172a !important}
+:root.light-theme .fiqh-top-nav-bar{background:#ffffff !important;border:1.5px solid #e2e8f0 !important;box-shadow:0 6px 20px rgba(0, 0, 0, 0.04) !important}
+:root.light-theme .fiqh-filter-btn{background:#f8fafc !important;border-color:#cbd5e1 !important;color:#334155 !important}
+:root.light-theme .fiqh-filter-btn:hover{border-color:#f59e0b !important;color:#b45309 !important}
+:root.light-theme .fiqh-filter-btn.active{background:linear-gradient(135deg, #f59e0b, #d97706) !important;color:#ffffff !important;border-color:#f59e0b !important}
+:root.light-theme table th{background:#f1f5f9 !important;color:#0f172a !important;border-color:#cbd5e1 !important}
+:root.light-theme table td{color:#0f172a !important;border-color:#e2e8f0 !important}
+:root.light-theme .bg-slate-900,:root.light-theme .bg-slate-950,:root.light-theme .bg-slate-900\/85{background-color:#ffffff !important}
+.bban-bank-card{background:linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(6, 10, 20, 0.99));border:2px solid rgba(56, 189, 248, 0.3);border-radius:22px;padding:22px;position:relative;overflow:hidden;box-shadow:0 12px 30px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.12);transition:transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1);display:flex;flex-direction:column;justify-content:space-between;gap:14px}
+.bban-bank-card:hover{transform:translateY(-5px) scale(1.02);border-color:#38bdf8;box-shadow:0 20px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(56, 189, 248, 0.35)}
+.bban-code-box{background:#000000;border:2px solid rgba(56, 189, 248, 0.6);border-radius:14px;padding:14px 16px;text-align:center;font-family:'Outfit', 'JetBrains Mono', 'Courier New', monospace;font-size:1.45rem;font-weight:900;letter-spacing:2px;color:#38bdf8;box-shadow:inset 0 3px 10px rgba(0, 0, 0, 0.9), 0 0 20px rgba(56, 189, 248, 0.2);direction:ltr;display:flex;align-items:center;justify-content:center;gap:2px}
+.master-bban-hero-box{background:linear-gradient(145deg, rgba(8, 14, 28, 0.98), rgba(2, 6, 15, 0.99));border:3px solid #f59e0b;border-radius:28px;padding:28px;box-shadow:0 20px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(245, 158, 11, 0.35);position:relative;overflow:hidden}
+.master-bban-display-screen{background:#000000;border:3px solid #10b981;border-radius:22px;padding:22px 26px;text-align:center;font-family:'Outfit', 'JetBrains Mono', 'Courier New', monospace;font-size:2.6rem;font-weight:900;letter-spacing:4px;color:#38bdf8;box-shadow:inset 0 4px 18px rgba(0, 0, 0, 0.95), 0 0 35px rgba(16, 185, 129, 0.45);direction:ltr;display:flex;align-items:center;justify-content:center;gap:4px}
+@media (max-width: 768px){.master-bban-display-screen{font-size:1.6rem;padding:14px;letter-spacing:1.5px}}
+.fiqh-master-card{background:linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(6, 10, 20, 0.98));border:2px solid rgba(251, 191, 36, 0.3);border-radius:22px;padding:22px;transition:transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1);box-shadow:0 10px 30px rgba(0, 0, 0, 0.45)}
+.fiqh-master-card:hover{border-color:#fbbf24;box-shadow:0 18px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(251, 191, 36, 0.3);transform:translateY(-3px)}
+.fiqh-filter-btn{padding:7px 13px;border-radius:12px;font-size:0.8rem;font-weight:800;background:rgba(15, 23, 42, 0.9);color:#cbd5e1;border:2px solid rgba(255, 255, 255, 0.1);cursor:pointer;transition:transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;white-space:nowrap}
+.fiqh-filter-btn:hover{border-color:#fbbf24;color:#fbbf24;transform:translateY(-2px)}
+.fiqh-filter-btn.active{background:linear-gradient(135deg, #d97706, #b45309) !important;border-color:#fbbf24 !important;color:#ffffff !important;box-shadow:0 4px 15px rgba(251, 191, 36, 0.4)}
+.fiqh-chip{padding:4px 10px;border-radius:10px;font-size:0.75rem;font-weight:800;background:rgba(30, 41, 59, 0.8);color:#93c5fd;border:1px solid rgba(147, 197, 253, 0.3);cursor:pointer;transition:transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;display:inline-flex;align-items:center;gap:4px}
+.fiqh-chip:hover{background:#0284c7;color:#ffffff;border-color:#38bdf8}
+.fiqh-top-nav-bar{background:linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.98));border:2px solid rgba(255, 255, 255, 0.12);border-radius:20px;padding:14px 18px;box-shadow:0 12px 35px -10px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.1);display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.fiqh-nav-pill{padding:11px 20px;border-radius:14px;font-size:0.96rem;font-weight:900;cursor:pointer;transition:transform 0.22s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.22s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.22s cubic-bezier(0.4, 0, 0.2, 1), color 0.22s cubic-bezier(0.4, 0, 0.2, 1);display:inline-flex;align-items:center;gap:9px;user-select:none;line-height:1.4;border-width:2px;border-style:solid}
+.fiqh-pill-icon{font-size:1.15rem;display:inline-flex;align-items:center;justify-content:center;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.5))}
+.fiqh-pill-fatwas{background:rgba(245, 158, 11, 0.14);border-color:rgba(245, 158, 11, 0.55);color:#fef08a}
+.fiqh-pill-fatwas:hover{background:rgba(245, 158, 11, 0.26);border-color:#fbbf24;color:#ffffff;box-shadow:0 0 20px rgba(245, 158, 11, 0.45);transform:translateY(-1px)}
+.fiqh-pill-fatwas.active{background:linear-gradient(135deg, #f59e0b, #d97706) !important;border-color:#fef08a !important;color:#020617 !important;box-shadow:0 6px 25px rgba(245, 158, 11, 0.65) !important;transform:translateY(-2px)}
+.fiqh-pill-quran{background:rgba(16, 185, 129, 0.14);border-color:rgba(16, 185, 129, 0.55);color:#a7f3d0}
+.fiqh-pill-quran:hover{background:rgba(16, 185, 129, 0.26);border-color:#34d399;color:#ffffff;box-shadow:0 0 20px rgba(16, 185, 129, 0.45);transform:translateY(-1px)}
+.fiqh-pill-quran.active{background:linear-gradient(135deg, #10b981, #059669) !important;border-color:#ecfdf5 !important;color:#020617 !important;box-shadow:0 6px 25px rgba(16, 185, 129, 0.65) !important;transform:translateY(-2px)}
+.fiqh-pill-hadiths{background:rgba(14, 165, 233, 0.14);border-color:rgba(14, 165, 233, 0.55);color:#bae6fd}
+.fiqh-pill-hadiths:hover{background:rgba(14, 165, 233, 0.26);border-color:#38bdf8;color:#ffffff;box-shadow:0 0 20px rgba(14, 165, 233, 0.45);transform:translateY(-1px)}
+.fiqh-pill-hadiths.active{background:linear-gradient(135deg, #0284c7, #0369a1) !important;border-color:#f0f9ff !important;color:#ffffff !important;box-shadow:0 6px 25px rgba(14, 165, 233, 0.65) !important;transform:translateY(-2px)}
+.fiqh-pill-books{background:rgba(168, 85, 247, 0.14);border-color:rgba(168, 85, 247, 0.55);color:#e9d5ff}
+.fiqh-pill-books:hover{background:rgba(168, 85, 247, 0.26);border-color:#c084fc;color:#ffffff;box-shadow:0 0 20px rgba(168, 85, 247, 0.45);transform:translateY(-1px)}
+.fiqh-pill-books.active{background:linear-gradient(135deg, #9333ea, #7e22ce) !important;border-color:#faf5ff !important;color:#ffffff !important;box-shadow:0 6px 25px rgba(168, 85, 247, 0.65) !important;transform:translateY(-2px)}
+.fiqh-pill-maxims{background:rgba(20, 184, 166, 0.14);border-color:rgba(20, 184, 166, 0.55);color:#99f6e4}
+.fiqh-pill-maxims:hover{background:rgba(20, 184, 166, 0.26);border-color:#2dd4bf;color:#ffffff;box-shadow:0 0 20px rgba(20, 184, 166, 0.45);transform:translateY(-1px)}
+.fiqh-pill-maxims.active{background:linear-gradient(135deg, #0d9488, #0f766e) !important;border-color:#f0fdfa !important;color:#ffffff !important;box-shadow:0 6px 25px rgba(20, 184, 166, 0.65) !important;transform:translateY(-2px)}
+.fiqh-pill-terms{background:rgba(249, 115, 22, 0.14);border-color:rgba(249, 115, 22, 0.55);color:#fed7aa}
+.fiqh-pill-terms:hover{background:rgba(249, 115, 22, 0.26);border-color:#fb923c;color:#ffffff;box-shadow:0 0 20px rgba(249, 115, 22, 0.45);transform:translateY(-1px)}
+.fiqh-pill-terms.active{background:linear-gradient(135deg, #ea580c, #c2410c) !important;border-color:#fff7ed !important;color:#ffffff !important;box-shadow:0 6px 25px rgba(249, 115, 22, 0.65) !important;transform:translateY(-2px)}
+@keyframes fadeInUp{from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); }}
+.anim-suite{animation:fadeInUp 0.35s ease-out backwards}
+@media print{.no-print{display:none !important}
+body{background:#fff !important;color:#000 !important}
+.tools-master-wrapper{padding:0 !important}
+.glass-panel-v3{border:1px solid #000 !important;box-shadow:none !important}}
+@media (max-width: 768px){.tools-master-wrapper{padding:10px !important}
+.glass-panel-v3{padding:14px !important;border-radius:18px !important}
+#suite-tabs-container{display:grid !important;grid-template-columns:repeat(2, minmax(0, 1fr)) !important;gap:8px !important}
+.suite-pill-card{padding:10px 8px !important;border-radius:14px !important}
+.suite-pill-icon{font-size:1.1rem !important}
+.suite-pill-title{font-size:0.78rem !important}
+.suite-pill-sub{display:none !important}
+#master_bban_display{font-size:1.25rem !important;letter-spacing:1px !important;padding:12px 6px !important}
+.fiqh-nav-pill{font-size:0.72rem !important;padding:6px 10px !important}
+.fiqh-chip{font-size:0.7rem !important;padding:4px 8px !important}}
+.category-pill-btn{padding:8px 14px;border-radius:12px;font-size:0.85rem;font-weight:800;background:rgba(15, 23, 42, 0.95);color:#f1f5f9;border:1.5px solid rgba(255, 255, 255, 0.15);cursor:pointer;transition:transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s cubic-bezier(0.16, 1, 0.3, 1);display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 5px rgba(0, 0, 0, 0.3)}
+.category-pill-btn:hover{border-color:#fbbf24;color:#fbbf24;transform:translateY(-2px);box-shadow:0 4px 12px rgba(245, 158, 11, 0.3);background:rgba(30, 41, 59, 0.95)}
+.fiqh-luxury-search-wrapper{position:relative;background:linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(10, 15, 28, 0.99) 100%);border:2px solid rgba(251, 191, 36, 0.5);border-radius:24px;padding:20px 24px;box-shadow:0 14px 34px -6px rgba(0, 0, 0, 0.65), 0 0 25px -4px rgba(245, 158, 11, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.1);transition:transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease}
+.fiqh-luxury-search-wrapper:hover{border-color:rgba(251, 191, 36, 0.7);box-shadow:0 18px 42px -6px rgba(0, 0, 0, 0.75), 0 0 32px -2px rgba(245, 158, 11, 0.28), inset 0 1px 2px rgba(255, 255, 255, 0.12)}
+.fiqh-luxury-search-inner{display:flex;flex-direction:column;gap:14px}
+@media (min-width: 768px){.fiqh-luxury-search-inner{flex-direction:row;align-items:center;gap:16px}}
+.fiqh-luxury-input{width:100%;height:56px;padding:10px 20px 10px 52px;background:rgba(8, 12, 22, 0.96) !important;border:2px solid rgba(251, 191, 36, 0.45) !important;color:#fbbf24 !important;font-size:1.25rem !important;font-weight:800 !important;border-radius:16px !important;box-shadow:inset 0 3px 10px rgba(0, 0, 0, 0.7) !important;outline:none !important;transition:transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important, opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important, background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important, border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important, color 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important}
+.fiqh-luxury-input:focus{border-color:#f59e0b !important;background:rgba(6, 10, 18, 0.98) !important;box-shadow:inset 0 3px 10px rgba(0, 0, 0, 0.8), 0 0 24px rgba(245, 158, 11, 0.38) !important}
+.fiqh-luxury-clear-btn{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;color:#94a3b8;background:rgba(30, 41, 59, 0.6);border:1px solid rgba(255, 255, 255, 0.08);cursor:pointer;transition:transform 0.2s ease, opacity 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease}
+.fiqh-luxury-clear-btn:hover{color:#ffffff;background:rgba(239, 68, 68, 0.85);border-color:#ef4444;transform:translateY(-50%) scale(1.1)}
+.fiqh-btn-glow{position:relative;height:56px;padding:0 26px;border-radius:16px;font-size:1rem;font-weight:900;display:inline-flex;align-items:center;justify-content:center;gap:10px;cursor:pointer;white-space:nowrap;transition:transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s cubic-bezier(0.16, 1, 0.3, 1);user-select:none;overflow:hidden}
+.fiqh-btn-icon-wrap{display:flex;align-items:center;justify-content:center;font-size:1.2rem;transition:transform 0.25s ease}
+.fiqh-btn-glow:hover .fiqh-btn-icon-wrap{transform:scale(1.18)}
+.fiqh-btn-program-glow{background:linear-gradient(135deg, #f59e0b 0%, #d97706 60%, #b45309 100%);color:#0f172a;border:1.5px solid #fde68a;box-shadow:0 6px 20px rgba(217, 119, 6, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.4)}
+.fiqh-btn-program-glow:hover{background:linear-gradient(135deg, #fbbf24 0%, #f59e0b 60%, #d97706 100%);color:#020617;transform:translateY(-2px);box-shadow:0 12px 28px rgba(245, 158, 11, 0.55), 0 0 20px rgba(251, 191, 36, 0.4);border-color:#ffffff}
+.fiqh-btn-program-glow:active{transform:translateY(1px);box-shadow:0 3px 10px rgba(217, 119, 6, 0.4)}
+.fiqh-btn-google-glow{background:linear-gradient(135deg, #0ea5e9 0%, #0284c7 60%, #0369a1 100%);color:#ffffff;border:1.5px solid #7dd3fc;box-shadow:0 6px 20px rgba(2, 132, 199, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.3)}
+.fiqh-btn-google-glow:hover{background:linear-gradient(135deg, #38bdf8 0%, #0ea5e9 60%, #0284c7 100%);color:#ffffff;transform:translateY(-2px);box-shadow:0 12px 28px rgba(2, 132, 199, 0.55), 0 0 20px rgba(56, 189, 248, 0.4);border-color:#ffffff}
+.fiqh-btn-google-glow:active{transform:translateY(1px);box-shadow:0 3px 10px rgba(2, 132, 199, 0.4)}
+.fiqh-unified-master-card{background:linear-gradient(145deg, rgba(15, 23, 42, 0.98) 0%, rgba(10, 15, 28, 0.99) 100%);border:2px solid rgba(251, 191, 36, 0.45);border-radius:28px;padding:26px;box-shadow:0 20px 50px -8px rgba(0, 0, 0, 0.8), 0 0 30px -4px rgba(245, 158, 11, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.12);transition:transform 0.3s ease, opacity 0.3s ease, background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;margin-bottom:2rem}
+.fiqh-unified-master-card:hover{border-color:rgba(251, 191, 36, 0.7);box-shadow:0 24px 60px -8px rgba(0, 0, 0, 0.9), 0 0 38px -2px rgba(245, 158, 11, 0.3)}
+.fiqh-unified-header{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid rgba(251, 191, 36, 0.25);padding-bottom:18px;margin-bottom:22px}
+.fiqh-header-badge{width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(217, 119, 6, 0.15));border:2px solid rgba(251, 191, 36, 0.5);display:flex;align-items:center;justify-content:center;color:#fbbf24;font-size:1.4rem;box-shadow:0 4px 16px rgba(245, 158, 11, 0.25)}
+.fiqh-unified-title{font-size:1.55rem;font-weight:900;color:#fef08a;letter-spacing:-0.01em;margin:0;line-height:1.3}
+.fiqh-reset-btn{padding:9px 20px;border-radius:14px;background:rgba(244, 63, 94, 0.15);border:1.5px solid rgba(244, 63, 94, 0.45);color:#fda4af;font-size:0.94rem;font-weight:800;display:inline-flex;align-items:center;gap:8px;cursor:pointer;transition:transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s cubic-bezier(0.16, 1, 0.3, 1);user-select:none}
+.fiqh-reset-btn:hover{background:rgba(244, 63, 94, 0.35);border-color:#f43f5e;color:#ffffff;transform:translateY(-2px);box-shadow:0 4px 16px rgba(244, 63, 94, 0.4)}
+.fiqh-categories-merged-grid{display:grid;grid-template-columns:1fr;gap:20px}
+@media (min-width: 900px){.fiqh-categories-merged-grid{grid-template-columns:1fr 1fr;gap:22px}}
+.fiqh-cat-subgroup{background:rgba(11, 17, 32, 0.85);border-radius:22px;padding:20px;border:1.5px solid rgba(255, 255, 255, 0.09);display:flex;flex-direction:column;justify-content:space-between;gap:16px;transition:transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s cubic-bezier(0.16, 1, 0.3, 1)}
+.fiqh-cat-cyan{border-color:rgba(6, 182, 212, 0.4);background:linear-gradient(145deg, rgba(8, 28, 48, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%)}
+.fiqh-cat-cyan:hover{border-color:rgba(6, 182, 212, 0.7);box-shadow:0 10px 28px rgba(6, 182, 212, 0.2)}
+.fiqh-cat-emerald{border-color:rgba(16, 185, 129, 0.4);background:linear-gradient(145deg, rgba(6, 36, 26, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%)}
+.fiqh-cat-emerald:hover{border-color:rgba(16, 185, 129, 0.7);box-shadow:0 10px 28px rgba(16, 185, 129, 0.2)}
+.fiqh-cat-amber{border-color:rgba(245, 158, 11, 0.4);background:linear-gradient(145deg, rgba(42, 28, 10, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%)}
+.fiqh-cat-amber:hover{border-color:rgba(245, 158, 11, 0.7);box-shadow:0 10px 28px rgba(245, 158, 11, 0.2)}
+.fiqh-cat-purple{border-color:rgba(168, 85, 247, 0.4);background:linear-gradient(145deg, rgba(34, 16, 50, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%)}
+.fiqh-cat-purple:hover{border-color:rgba(168, 85, 247, 0.7);box-shadow:0 10px 28px rgba(168, 85, 247, 0.2)}
+.fiqh-cat-subgroup.fiqh-box5-full{grid-column:1 / -1 !important;width:100% !important}
+.fiqh-box5-grid{display:grid;grid-template-columns:repeat(6, minmax(0, 1fr));gap:10px;width:100%}
+.fiqh-box5-grid .fiqh-pill-btn{flex:none !important;min-width:0 !important;width:100% !important;min-height:52px !important;padding:8px 10px !important;font-size:0.84rem !important;font-weight:800 !important;display:flex !important;align-items:center !important;justify-content:center !important;text-align:center !important;gap:6px !important;white-space:normal !important;line-height:1.3 !important;border-radius:13px !important}
+@media (max-width: 1199px){.fiqh-box5-grid{grid-template-columns:repeat(3, minmax(0, 1fr))}
+.fiqh-box5-grid .fiqh-pill-btn{font-size:0.88rem !important;padding:10px 12px !important}}
+@media (max-width: 640px){.fiqh-box5-grid{grid-template-columns:repeat(2, minmax(0, 1fr))}}
+.fiqh-cat-title-bar{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255, 255, 255, 0.08);padding-bottom:12px}
+.fiqh-cat-tag{font-size:1.15rem;font-weight:900;color:#f8fafc;display:inline-flex;align-items:center;gap:10px}
+.fiqh-cat-count{font-size:0.82rem;font-weight:800;font-family:inherit;padding:4px 12px;border-radius:10px;background:rgba(0, 0, 0, 0.5);border-width:1px;border-style:solid}
+.fiqh-cat-pills-wrap{display:flex;flex-wrap:wrap;gap:10px;width:100%}
+.fiqh-pill-btn{flex:1 1 calc(50% - 10px);min-width:220px;padding:11px 16px;border-radius:14px;font-size:0.96rem;font-weight:800;background:rgba(15, 23, 42, 0.92);color:#f1f5f9;border:1.5px solid rgba(255, 255, 255, 0.12);cursor:pointer;transition:transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s cubic-bezier(0.16, 1, 0.3, 1), color 0.22s cubic-bezier(0.16, 1, 0.3, 1);display:inline-flex;align-items:center;justify-content:flex-start;gap:9px;box-shadow:0 3px 8px rgba(0, 0, 0, 0.35);user-select:none;line-height:1.35}
+.fiqh-cat-indigo .fiqh-pill-btn:not(.fiqh-master-full-pill){flex:1 1 calc(25% - 10px);min-width:210px}
+.fiqh-pill-btn:hover{transform:translateY(-2px) scale(1.015)}
+.fiqh-pill-cyan:hover,.fiqh-pill-cyan.active{border-color:#22d3ee !important;color:#67e8f9 !important;background:rgba(8, 51, 68, 0.95) !important;box-shadow:0 6px 18px rgba(6, 182, 212, 0.45) !important}
+.fiqh-pill-emerald:hover,.fiqh-pill-emerald.active{border-color:#34d399 !important;color:#6ee7b7 !important;background:rgba(6, 78, 59, 0.95) !important;box-shadow:0 6px 18px rgba(168, 243, 208, 0.45) !important}
+.fiqh-pill-amber:hover,.fiqh-pill-amber.active{border-color:#fbbf24 !important;color:#fef08a !important;background:rgba(69, 26, 3, 0.95) !important;box-shadow:0 6px 18px rgba(245, 158, 11, 0.45) !important}
+.fiqh-pill-purple:hover,.fiqh-pill-purple.active{border-color:#c084fc !important;color:#e9d5ff !important;background:rgba(59, 7, 100, 0.95) !important;box-shadow:0 6px 18px rgba(168, 85, 247, 0.45) !important}
+.fiqh-pill-indigo:hover,.fiqh-pill-indigo.active{border-color:#818cf8 !important;color:#c7d2fe !important;background:rgba(49, 46, 129, 0.95) !important;box-shadow:0 6px 18px rgba(99, 102, 241, 0.45) !important}
+.fiqh-master-full-pill{flex:1 1 100% !important;width:100%;padding:13px 20px !important;font-size:1.06rem !important;font-weight:900 !important;border:2px solid #fbbf24 !important;background:linear-gradient(135deg, rgba(245, 158, 11, 0.28) 0%, rgba(180, 83, 9, 0.22) 100%) !important;color:#fef08a !important;justify-content:center !important;box-shadow:0 4px 18px rgba(245, 158, 11, 0.3) !important}
+.fiqh-master-full-pill:hover,.fiqh-master-full-pill.active{background:linear-gradient(135deg, rgba(245, 158, 11, 0.45) 0%, rgba(217, 119, 6, 0.35) 100%) !important;box-shadow:0 8px 24px rgba(245, 158, 11, 0.45), 0 0 16px rgba(251, 191, 36, 0.4) !important;transform:translateY(-2px) !important}
+.fiqh-scholar-dropdown-wrap{position:relative;min-width:230px}
+.fiqh-luxury-select-scholar{width:100%;height:56px;padding:0 18px 0 42px !important;background:linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(20, 30, 48, 0.98) 100%) !important;border:1.5px solid rgba(251, 191, 36, 0.5) !important;color:#fef08a !important;font-size:0.95rem !important;font-weight:800 !important;border-radius:16px !important;box-shadow:0 4px 16px rgba(0, 0, 0, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.1) !important;outline:none !important;cursor:pointer !important;appearance:none !important;-webkit-appearance:none !important;-moz-appearance:none !important;transition:transform 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important, opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important, background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important, border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important, color 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important}
+.fiqh-luxury-select-scholar:hover{border-color:#fbbf24 !important;box-shadow:0 8px 24px rgba(245, 158, 11, 0.28), 0 0 16px rgba(251, 191, 36, 0.25) !important;transform:translateY(-1px)}
+.fiqh-luxury-select-scholar:focus{border-color:#f59e0b !important;box-shadow:0 0 20px rgba(245, 158, 11, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.15) !important}
+.fiqh-luxury-select-scholar option{background:#0f172a !important;color:#f8fafc !important;font-weight:700 !important;padding:10px !important}
+.fiqh-select-chevron{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:#fbbf24;font-size:0.85rem;pointer-events:none;transition:transform 0.2s ease}
+.fiqh-scholar-dropdown-wrap:hover .fiqh-select-chevron{transform:translateY(-50%) scale(1.2)}
+.fiqh-cat-indigo{border-color:rgba(99, 102, 241, 0.35);background:linear-gradient(145deg, rgba(16, 22, 50, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%)}
+.fiqh-cat-indigo:hover{border-color:rgba(99, 102, 241, 0.65);box-shadow:0 8px 24px rgba(99, 102, 241, 0.2)}
+.fiqh-pill-indigo:hover{border-color:#818cf8;color:#818cf8;background:rgba(30, 27, 75, 0.95);box-shadow:0 6px 16px rgba(99, 102, 241, 0.4)}
+.fiqh-fatwa-card{border-radius:36px !important;padding:2.25rem 2.5rem !important;transition:transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important, opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important, background-color 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important, border-color 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important, color 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important;position:relative;overflow:hidden;background:linear-gradient(180deg, rgba(15, 23, 42, 0.94) 0%, rgba(2, 6, 23, 0.98) 100%) !important;box-shadow:0 12px 35px rgba(0, 0, 0, 0.5) !important;box-sizing:border-box !important}
+@media (max-width: 640px){.fiqh-fatwa-card{padding:1.5rem 1.25rem !important}}
+.fiqh-fatwa-card:hover{transform:translateY(-6px);border-color:rgba(245, 158, 11, 0.75) !important;box-shadow:0 25px 60px rgba(0, 0, 0, 0.65), 0 0 35px rgba(245, 158, 11, 0.2) !important}
+.fiqh-ruling-btn{display:inline-flex;align-items:center;gap:0.5rem;padding:0.55rem 1.25rem;border-radius:9999px;font-size:0.85rem;font-weight:800;transition:transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1);cursor:pointer;border-width:2px;box-shadow:0 2px 8px rgba(0, 0, 0, 0.25);background-color:rgba(15, 23, 42, 0.85);color:#cbd5e1;border-color:rgba(51, 65, 85, 0.8);user-select:none}
+.fiqh-ruling-btn:hover{transform:translateY(-2px);color:#f8fafc;border-color:rgba(245, 158, 11, 0.6)}
+.fiqh-ruling-btn.active.ruling-all{background:linear-gradient(135deg, #f59e0b, #d97706);color:#020617;border-color:#fbbf24;box-shadow:0 4px 15px rgba(245, 158, 11, 0.45)}
+.fiqh-ruling-btn.active.ruling-halal{background:linear-gradient(135deg, #10b981, #059669);color:#ffffff;border-color:#34d399;box-shadow:0 4px 15px rgba(16, 185, 129, 0.45)}
+.fiqh-ruling-btn.active.ruling-haram{background:linear-gradient(135deg, #f43f5e, #e11d48);color:#ffffff;border-color:#fb7185;box-shadow:0 4px 15px rgba(244, 63, 94, 0.45)}
+.fiqh-ruling-btn.active.ruling-conditional{background:linear-gradient(135deg, #f59e0b, #b45309);color:#ffffff;border-color:#fcd34d;box-shadow:0 4px 15px rgba(245, 158, 11, 0.45)}
+.fiqh-ruling-btn.active.ruling-wajib{background:linear-gradient(135deg, #06b6d4, #0891b2);color:#ffffff;border-color:#67e8f9;box-shadow:0 4px 15px rgba(6, 182, 212, 0.45)}
+.fiqh-highlight{background-color:rgba(245, 158, 11, 0.4) !important;color:#fef08a !important;padding:0.1rem 0.4rem !important;border-radius:6px !important;border:1px solid rgba(251, 191, 36, 0.75) !important;font-weight:900 !important;box-shadow:0 0 10px rgba(245, 158, 11, 0.35) !important}
+#fiqh-toast{position:fixed;bottom:2.5rem;left:50%;transform:translateX(-50%) translateY(120px);opacity:0;pointer-events:none;transition:transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.35s cubic-bezier(0.16, 1, 0.3, 1);z-index:999999}
+#fiqh-toast.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
+.fiqh-hadith-card{border-radius:28px !important;padding:1.75rem 2rem !important;margin:1.5rem 0 !important;transition:transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease, background 0.35s ease, border-color 0.35s ease !important;will-change:transform, box-shadow;cursor:pointer;box-sizing:border-box !important}
+@media (max-width: 640px){.fiqh-hadith-card{padding:1.25rem 1.25rem !important}}
+.fiqh-hadith-card:hover{transform:translateY(-8px) scale(1.035) !important;box-shadow:0 22px 48px rgba(245, 158, 11, 0.38), 0 0 30px rgba(245, 158, 11, 0.25) !important;border-color:rgba(251, 191, 36, 0.95) !important;background:linear-gradient(135deg, rgba(69, 26, 3, 0.95) 0%, rgba(15, 23, 42, 0.98) 50%, rgba(69, 26, 3, 0.85) 100%) !important}
+.fiqh-hadith-card:hover .hadith-icon-bubble{transform:scale(1.22) rotate(8deg) !important;background-color:rgba(245, 158, 11, 0.35) !important;border-color:rgba(251, 191, 36, 0.9) !important}
+.fiqh-summary-box{border-radius:26px !important;padding:1.75rem 2rem !important;line-height:2.1 !important;text-align:justify;text-justify:inter-word;box-sizing:border-box !important}
+@media (max-width: 640px){.fiqh-summary-box{padding:1.25rem 1.25rem !important}}
+.fiqh-maxim-card{border-radius:36px !important;padding:2.25rem 2.5rem !important;box-sizing:border-box !important}
+@media (max-width: 640px){.fiqh-maxim-card{padding:1.5rem 1.25rem !important}}
+.hadith-icon-bubble{transition:transform 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important, opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important, background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important, border-color 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important, color 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important}
+.fiqh-ayah-card{border-radius:36px !important;padding:2.25rem 2.5rem !important;transition:transform 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important, opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important, background-color 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important, border-color 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important, color 0.45s cubic-bezier(0.16, 1, 0.3, 1) !important;position:relative;overflow:hidden;background:linear-gradient(180deg, rgba(15, 23, 42, 0.94) 0%, rgba(2, 6, 23, 0.98) 100%) !important;box-shadow:0 12px 35px rgba(0, 0, 0, 0.5) !important;box-sizing:border-box !important}
+@media (max-width: 640px){.fiqh-ayah-card{padding:1.5rem 1.25rem !important}}
+.fiqh-ayah-card:hover{transform:translateY(-6px);border-color:rgba(52, 211, 153, 0.8) !important;box-shadow:0 25px 60px rgba(0, 0, 0, 0.65), 0 0 35px rgba(16, 185, 129, 0.22) !important}
+.fiqh-quran-verse-box{border-radius:28px !important;padding:1.75rem 2rem !important;margin:1.5rem 0 !important;background:linear-gradient(135deg, rgba(6, 78, 59, 0.45) 0%, rgba(15, 23, 42, 0.96) 50%, rgba(6, 78, 59, 0.35) 100%) !important;border:2px solid rgba(16, 185, 129, 0.45) !important;border-right:6px solid #10b981 !important;transition:transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease, background 0.35s ease, border-color 0.35s ease !important;will-change:transform, box-shadow;cursor:pointer;box-sizing:border-box !important}
+@media (max-width: 640px){.fiqh-quran-verse-box{padding:1.25rem 1.25rem !important}}
+.fiqh-quran-verse-box:hover{transform:translateY(-8px) scale(1.035) !important;box-shadow:0 22px 48px rgba(16, 185, 129, 0.38), 0 0 30px rgba(245, 158, 11, 0.25) !important;border-color:#34d399 !important;background:linear-gradient(135deg, rgba(6, 78, 59, 0.7) 0%, rgba(15, 23, 42, 0.98) 50%, rgba(6, 78, 59, 0.55) 100%) !important}
+.fiqh-quran-verse-box:hover .hadith-icon-bubble{transform:scale(1.22) rotate(8deg) !important;background-color:rgba(16, 185, 129, 0.35) !important;border-color:#34d399 !important}
+.fiqh-quran-guidance-box{border-radius:26px !important;padding:1.75rem 2rem !important;line-height:2.1 !important;background:rgba(15, 23, 42, 0.9) !important;border:1px solid rgba(51, 65, 85, 0.8) !important;text-align:justify;text-justify:inter-word;box-sizing:border-box !important}
+@media (max-width: 640px){.fiqh-quran-guidance-box{padding:1.25rem 1.25rem !important}}
+.fiqh-prophetic-matn-box{border-radius:28px !important;padding:1.75rem 2rem !important;margin:1.5rem 0 !important;background:linear-gradient(135deg, rgba(69, 26, 3, 0.45) 0%, rgba(15, 23, 42, 0.96) 50%, rgba(69, 26, 3, 0.35) 100%) !important;border:2px solid rgba(245, 158, 11, 0.45) !important;border-right:6px solid #f59e0b !important;transition:transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease, background 0.35s ease, border-color 0.35s ease !important;will-change:transform, box-shadow;cursor:pointer;box-sizing:border-box !important}
+@media (max-width: 640px){.fiqh-prophetic-matn-box{padding:1.25rem 1.25rem !important}}
+.fiqh-prophetic-matn-box:hover{transform:translateY(-8px) scale(1.035) !important;box-shadow:0 22px 48px rgba(245, 158, 11, 0.4), 0 0 30px rgba(245, 158, 11, 0.25) !important;border-color:#fbbf24 !important;background:linear-gradient(135deg, rgba(69, 26, 3, 0.8) 0%, rgba(15, 23, 42, 0.98) 50%, rgba(69, 26, 3, 0.65) 100%) !important}
+.fiqh-prophetic-matn-box:hover .hadith-icon-bubble{transform:scale(1.22) rotate(8deg) !important;background-color:rgba(245, 158, 11, 0.35) !important;border-color:#fbbf24 !important}
+.fiqh-maxim-evidence-box{border-radius:28px !important;padding:1.75rem 2rem !important;margin:1.5rem 0 !important;background:linear-gradient(135deg, rgba(6, 78, 59, 0.45) 0%, rgba(15, 23, 42, 0.96) 50%, rgba(6, 78, 59, 0.35) 100%) !important;border:2px solid rgba(16, 185, 129, 0.45) !important;border-right:6px solid #10b981 !important;transition:transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease, background 0.35s ease, border-color 0.35s ease !important;will-change:transform, box-shadow;cursor:pointer;box-sizing:border-box !important}
+@media (max-width: 640px){.fiqh-maxim-evidence-box{padding:1.25rem 1.25rem !important}}
+.fiqh-maxim-evidence-box:hover{transform:translateY(-8px) scale(1.035) !important;box-shadow:0 22px 48px rgba(16, 185, 129, 0.4), 0 0 30px rgba(245, 158, 11, 0.25) !important;border-color:#34d399 !important;background:linear-gradient(135deg, rgba(6, 78, 59, 0.75) 0%, rgba(15, 23, 42, 0.98) 50%, rgba(6, 78, 59, 0.6) 100%) !important}
+.fiqh-maxim-evidence-box:hover .hadith-icon-bubble{transform:scale(1.22) rotate(8deg) !important;background-color:rgba(16, 185, 129, 0.35) !important;border-color:#34d399 !important}
+.fiqh-maxim-explanation-box{border-radius:26px !important;padding:1.75rem 2rem !important;line-height:2.1 !important;background:rgba(15, 23, 42, 0.9) !important;border:1px solid rgba(51, 65, 85, 0.8) !important;text-align:justify;text-justify:inter-word;box-sizing:border-box !important}
+@media (max-width: 640px){.fiqh-maxim-explanation-box{padding:1.25rem 1.25rem !important}}

@@ -820,6 +820,14 @@ window.InboundBankakManager = {
             } else {
                 filtered = filtered.filter(r => r.status === this.activeFilter);
             }
+        } else {
+            // Unposted ("انتظار") receipts ALWAYS appear first at the top, followed by posted ("مرحّل") receipts
+            filtered.sort((a, b) => {
+                const pa = isPostedRec(a) ? 1 : 0;
+                const pb = isPostedRec(b) ? 1 : 0;
+                if (pa !== pb) return pa - pb;
+                return (Number(b.id) || 0) - (Number(a.id) || 0);
+            });
         }
 
         if (filtered.length === 0) {
@@ -841,6 +849,9 @@ window.InboundBankakManager = {
             const isUnlocked = !isPosted || !!editDraft;
             const canEditFrom = !!editDraft;
             const rowBg = isDup ? 'rgba(127,29,29,0.22)' : (isPosted ? 'rgba(6,78,59,0.18)' : 'rgba(88,28,135,0.22)');
+            const isPrevActive = Number(this._previewingReceiptId || 0) === Number(r.id);
+            const effRowBg = isPrevActive ? 'rgba(245,158,11,0.30)' : rowBg;
+            const effRowOutline = isPrevActive ? 'outline:2px solid #fbbf24;outline-offset:-2px;' : '';
             const numBg = isDup ? 'background:#dc2626;border:1.5px solid #f87171;'
                 : (isPosted ? 'background:#059669;border:1.5px solid #34d399;'
                 : 'background:#7c3aed;border:1.5px solid #c084fc;');
@@ -855,37 +866,52 @@ window.InboundBankakManager = {
             const dispCustRaw = (editDraft && editDraft.newCustName) ? editDraft.newCustName : r.customer_name;
             const rawCustName = String(dispCustRaw || 'غير محدد').replace(/^[🏦🚚👥🗄️🏬💸👔👤]+\s*/, '').replace(/\s*[-•|]\s*تحويل.*$/i, '').trim() || 'غير محدد';
             const cleanName = escapeHtml(rawCustName);
-            const nameFs = rawCustName.length > 28 ? '0.76rem' : (rawCustName.length > 18 ? '0.83rem' : '0.91rem');
-            const recFs = (recAcc.name || '').length > 26 ? '0.74rem' : ((recAcc.name || '').length > 18 ? '0.79rem' : '0.84rem');
-            const btnCss = 'height:26px;padding:0 8px;border-radius:6px;font-size:0.74rem;font-family:inherit;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;text-decoration:none;flex-shrink:0;';
+            const dynFs = (len, s1, s2, s3, s4) => (len > 30 ? s4 : (len > 22 ? s3 : (len > 15 ? s2 : s1)));
+            const nameFs = dynFs(rawCustName.length, '0.90rem', '0.80rem', '0.72rem', '0.64rem');
+            const recFs = dynFs((recAcc.name || '').length, '0.85rem', '0.76rem', '0.68rem', '0.60rem');
+            const refStr = String(r.transfer_no || '---');
+            const refFs = refStr.length > 15 ? '0.76rem' : (refStr.length > 11 ? '0.86rem' : '0.95rem');
+            const amtFs = fmtAmt.length > 11 ? '0.86rem' : (fmtAmt.length > 8 ? '0.96rem' : '1.06rem');
+            const btnCss = 'height:22px;padding:0 4.5px;border-radius:5px;font-size:0.65rem;font-family:inherit;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;text-decoration:none;flex-shrink:0;';
             const rcCustId = r.customer_id ? ('cust-' + String(r.customer_id).replace(/^cust-/, '')) : '';
-            return `<tr data-row-id="${r.id}" style="background:${rowBg};border-bottom:1px solid rgba(148,163,184,0.22);" onmouseenter="this.style.background='rgba(56,189,248,0.13)'" onmouseleave="this.style.background='${rowBg}'">
-                <td style="padding:5px 4px;box-sizing:border-box;text-align:center;overflow:hidden;${sep}" title="${numTitle}"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:24px;padding:0 5px;border-radius:6px;color:#ffffff;font-weight:900;font-size:0.80rem;font-variant-numeric:tabular-nums;${numBg}">${idx + 1}</span></td>
-                <td class="inbound-name-cell" data-rc-account-id="${escapeHtml(rcCustId)}" data-rc-account-name="${cleanName}" data-rc-account-phone="${escapeHtml(phoneTxt)}" data-rc-account-type="customer" title="كليك يمين للخيارات" style="padding:6px 6px;box-sizing:border-box;text-align:center;cursor:context-menu;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;${sep}">
+            const rawNotesStr = String(r.notes || '').replace(/\s*\|\s*/g, ' • ').trim();
+            const commentClean = rawNotesStr
+                .replace(/إشعار تحويل وارد من واتساب\s*/gi, '')
+                .replace(/تم الترحيل تلقائياً[^\•\|]*/gi, '')
+                .trim();
+            const tipComment = escapeHtml(commentClean || 'لا يوجد تعليق مسجل في هذا الإشعار');
+            const receiverRaw = String(r.receiver_name || r.receiver_account || r.beneficiary_name || r.to_account_name || r.bank_name || recAcc.name || 'غير محدد في الإشعار').trim();
+            const receiverBankExtra = (r.bank_name && !receiverRaw.includes(r.bank_name)) ? (' — ' + r.bank_name) : '';
+            const tipReceiver = escapeHtml(receiverRaw + receiverBankExtra);
+            return `<tr data-row-id="${r.id}" data-orig-bg="${rowBg}" style="background:${effRowBg};border-bottom:1px solid rgba(148,163,184,0.22);${effRowOutline}" onmouseenter="if(Number(InboundBankakManager._previewingReceiptId||0)!==${r.id})this.style.background='rgba(56,189,248,0.13)'" onmouseleave="if(Number(InboundBankakManager._previewingReceiptId||0)!==${r.id})this.style.background='${rowBg}'">
+                <td style="padding:5px 4px;box-sizing:border-box;text-align:center;overflow:hidden;${sep}" title="${numTitle}"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:26px;height:22px;padding:0 4px;border-radius:6px;color:#ffffff;font-weight:900;font-size:0.78rem;font-variant-numeric:tabular-nums;${numBg}">${idx + 1}</span></td>
+                <td class="inbound-name-cell" data-rc-account-id="${escapeHtml(rcCustId)}" data-rc-account-name="${cleanName}" data-rc-account-phone="${escapeHtml(phoneTxt)}" data-rc-account-type="customer" title="${cleanName} — كليك يمين للخيارات" style="padding:5px 5px;box-sizing:border-box;text-align:center;cursor:context-menu;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;${sep}">
                     <span style="font-family:'Cairo','Tajawal',sans-serif;font-weight:800;color:#ffffff;font-size:${nameFs};display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${cleanName}</span>
                 </td>
-                <td style="padding:6px 6px;box-sizing:border-box;overflow:hidden;${sep}"><div style="position:relative;width:100%;"><input type="text" class="inbound-row-rec-input" data-row-id="${r.id}" data-rc-account-id="${escapeHtml(recAcc.val)}" data-rc-account-name="${escapeHtml(recAcc.name)}" data-acc-val="${escapeHtml(recAcc.val)}" data-acc-name="${escapeHtml(recAcc.name)}" value="${curLbl}" data-cur-label="${curLbl}" autocomplete="off" ${isUnlocked ? `onfocus="this.select();InboundBankakManager.openAccountSearchMenu(this, ${r.id})" oninput="InboundBankakManager.openAccountSearchMenu(this, ${r.id})"` : 'readonly title="مقفول بعد الترحيل — اضغط تعديل لفتحه"'} placeholder="ابحث عن إلى حساب..." style="width:100%;height:28px;box-sizing:border-box;background:${isUnlocked ? '#0f172a' : 'rgba(100,116,139,0.42)'};color:${isUnlocked ? '#fde047' : '#cbd5e1'};border:${isUnlocked ? '1.4px solid rgba(245,158,11,0.68)' : '1px solid rgba(148,163,184,0.48)'};border-radius:7px;padding:0 ${isUnlocked ? '6px' : '24px'} 0 6px;font-family:'Cairo','Tajawal',sans-serif;font-size:${recFs};font-weight:${isUnlocked ? '900' : '700'};text-align:center;outline:none;cursor:${isUnlocked ? 'text' : 'not-allowed'};overflow:hidden;text-overflow:ellipsis;">${!isUnlocked ? `<span style="position:absolute;left:6px;top:50%;transform:translateY(-50%);font-size:0.74rem;color:#94a3b8;pointer-events:none;" title="مقفول">🔒</span>` : ''}</div></td>
-                <td style="padding:6px 6px;box-sizing:border-box;text-align:center;direction:ltr;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${sep}"><div style="color:#7dd3fc;font-family:'Inter','Cairo',sans-serif;font-variant-numeric:tabular-nums;font-weight:900;font-size:0.86rem;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(r.transfer_no || '---')}</div><div style="font-size:0.71rem;color:#cbd5e1;font-weight:800;font-variant-numeric:tabular-nums;">${escapeHtml(dtShort)}</div></td>
-                <td style="padding:6px 6px;box-sizing:border-box;text-align:center;direction:ltr;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${sep}"><strong style="color:#fde047;font-size:0.96rem;font-family:'Inter','Cairo',sans-serif;font-variant-numeric:tabular-nums;font-weight:900;">${fmtAmt}</strong></td>
-                <td style="padding:6px 6px;box-sizing:border-box;overflow:hidden;"><div style="display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:nowrap;overflow:hidden;">
-                    ${(!isPosted && !isDup) ? `<button type="button" onclick="InboundBankakManager.postToAccountsDirect(${r.id}, this)" style="${btnCss}background:linear-gradient(135deg,#10b981,#059669);border:1.2px solid #6ee7b7;color:#fff;">ترحيل</button>` : ''}
-                    ${isPosted ? ((editDraft && editDraft.dirty) ? `<button type="button" onclick="InboundBankakManager.confirmSaveEditedRow(${r.id}, this)" style="${btnCss}background:linear-gradient(135deg,#10b981,#059669);border:1.4px solid #6ee7b7;color:#fff;">حفظ</button>` : `<button type="button" onclick="InboundBankakManager.unlockOrEditRow(${r.id})" style="${btnCss}background:linear-gradient(135deg,#fbbf24,#d97706);border:1.2px solid #fef08a;color:#0f172a;">تعديل</button>`) : ''}
-                    <button type="button" onclick="InboundBankakManager.inspectInVoucher(${r.id})" style="${btnCss}background:rgba(56,189,248,0.22);border:1px solid #38bdf8;color:#e0f2fe;">السند</button>
-                    <button type="button" onclick="InboundBankakManager.previewReceiptById(${r.id})" style="${btnCss}background:rgba(14,165,233,0.18);border:1px solid rgba(56,189,248,0.45);color:#bae6fd;">صورة</button>
+                <td data-hover-label="الحساب المرسل إليه في الإشعار" data-hover-text="${tipReceiver}" onmouseenter="InboundBankakManager.showSmartHoverTip(this)" onmouseleave="InboundBankakManager.hideSmartHoverTip()" style="padding:5px 5px;box-sizing:border-box;overflow:hidden;${sep}"><div style="position:relative;width:100%;"><input type="text" class="inbound-row-rec-input" data-row-id="${r.id}" data-rc-account-id="${escapeHtml(recAcc.val)}" data-rc-account-name="${escapeHtml(recAcc.name)}" data-acc-val="${escapeHtml(recAcc.val)}" data-acc-name="${escapeHtml(recAcc.name)}" value="${curLbl}" data-cur-label="${curLbl}" autocomplete="off" ${isUnlocked ? `onfocus="this.select();InboundBankakManager.openAccountSearchMenu(this, ${r.id})" oninput="InboundBankakManager.openAccountSearchMenu(this, ${r.id})"` : 'readonly'} placeholder="ابحث عن إلى حساب..." style="width:100%;height:26px;box-sizing:border-box;background:${isUnlocked ? '#0f172a' : 'rgba(100,116,139,0.42)'};color:${isUnlocked ? '#fde047' : '#cbd5e1'};border:${isUnlocked ? '1.4px solid rgba(245,158,11,0.68)' : '1px solid rgba(148,163,184,0.48)'};border-radius:7px;padding:0 ${isUnlocked ? '5px' : '22px'} 0 5px;font-family:'Cairo','Tajawal',sans-serif;font-size:${recFs};font-weight:${isUnlocked ? '900' : '700'};text-align:center;outline:none;cursor:${isUnlocked ? 'text' : 'not-allowed'};overflow:hidden;text-overflow:ellipsis;">${!isUnlocked ? `<span style="position:absolute;left:5px;top:50%;transform:translateY(-50%);font-size:0.70rem;color:#94a3b8;pointer-events:none;">🔒</span>` : ''}</div></td>
+                <td data-hover-label="التعليق في الإشعار" data-hover-text="${tipComment}" onmouseenter="InboundBankakManager.showSmartHoverTip(this)" onmouseleave="InboundBankakManager.hideSmartHoverTip()" style="padding:5px 5px;box-sizing:border-box;text-align:center;direction:ltr;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:help;${sep}"><div style="color:#7dd3fc;font-family:'Inter','Cairo',sans-serif;font-variant-numeric:tabular-nums;font-weight:900;font-size:${refFs};overflow:hidden;text-overflow:ellipsis;">${escapeHtml(refStr)}</div><div style="font-size:0.69rem;color:#cbd5e1;font-weight:800;font-variant-numeric:tabular-nums;">${escapeHtml(dtShort)}</div></td>
+                <td style="padding:5px 5px;box-sizing:border-box;text-align:center;direction:ltr;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;${sep}"><strong style="color:#fde047;font-size:${amtFs};font-family:'Inter','Cairo',sans-serif;font-variant-numeric:tabular-nums;font-weight:900;">${fmtAmt}</strong></td>
+                <td style="padding:5px 4px;box-sizing:border-box;overflow:visible;"><div style="display:flex;align-items:center;justify-content:center;gap:2.5px;flex-wrap:nowrap;overflow:visible;">
+                    <button type="button" onclick="InboundBankakManager.openSidePreviewById(${r.id})" style="width:21px;height:22px;padding:0;border-radius:5px;background:rgba(14,165,233,0.28);border:1.2px solid #38bdf8;color:#ffffff;cursor:pointer;font-size:0.72rem;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;" title="معاينة فورية أقصى اليمين للمقارنة">👁</button>
+                    ${(!isPosted && !isDup) ? `<button type="button" onclick="InboundBankakManager.postToAccountsDirect(${r.id}, this)" style="${btnCss}background:linear-gradient(135deg,#10b981,#059669);border:1.1px solid #6ee7b7;color:#fff;">ترحيل</button>` : ''}
+                    ${isPosted ? ((editDraft && editDraft.dirty) ? `<button type="button" onclick="InboundBankakManager.confirmSaveEditedRow(${r.id}, this)" style="${btnCss}background:linear-gradient(135deg,#10b981,#059669);border:1.2px solid #6ee7b7;color:#fff;">حفظ</button>` : `<button type="button" onclick="InboundBankakManager.unlockOrEditRow(${r.id})" style="${btnCss}background:linear-gradient(135deg,#fbbf24,#d97706);border:1.1px solid #fef08a;color:#0f172a;">تعديل</button>`) : ''}
+                    <button type="button" onclick="InboundBankakManager.inspectInVoucher(${r.id})" style="${btnCss}background:rgba(59,130,246,0.22);border:1px solid #60a5fa;color:#dbeafe;">السند</button>
+                    <button type="button" onclick="InboundBankakManager.previewReceiptById(${r.id})" style="${btnCss}background:rgba(20,184,166,0.20);border:1px solid #2dd4bf;color:#ccfbf1;">صورة</button>
                     <button type="button" onclick="InboundBankakManager.checkForgeryOnDemand(${r.id}, this)" style="${btnCss}background:rgba(168,85,247,0.22);border:1px solid #c084fc;color:#f3e8ff;">تزوير</button>
-                    <button type="button" onclick="InboundBankakManager.dismissReceipt(${r.id})" style="width:26px;height:26px;padding:0;border-radius:6px;background:rgba(239,68,68,0.18);border:1px solid rgba(239,68,68,0.45);color:#fca5a5;cursor:pointer;font-weight:900;font-size:0.80rem;flex-shrink:0;" title="حذف">✕</button>
+                    <button type="button" onclick="InboundBankakManager.rescanReceiptById(${r.id}, this)" style="width:20px;height:22px;padding:0;border-radius:5px;background:rgba(250,204,21,0.18);border:1.1px solid #facc15;color:#fef08a;cursor:pointer;font-size:0.66rem;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;" title="إعادة قراءة الإشعار (تحديث البيانات)">🔄</button>
+                    <button type="button" onclick="InboundBankakManager.dismissReceipt(${r.id})" style="width:20px;height:22px;padding:0;border-radius:5px;background:rgba(239,68,68,0.18);border:1px solid rgba(239,68,68,0.45);color:#fca5a5;cursor:pointer;font-weight:900;font-size:0.70rem;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;" title="حذف">✕</button>
                 </div></td>
             </tr>`;
         }).join('');
         container.innerHTML = `<div style="border:1.5px solid rgba(56,189,248,0.38);border-radius:10px;overflow-y:auto;overflow-x:hidden;background:rgba(2,6,23,0.78);width:100%;box-sizing:border-box;">
             <table style="width:100%;table-layout:fixed;border-collapse:collapse;text-align:center;">
                 <colgroup>
-                    <col style="width:4.5%;">
-                    <col style="width:20%;">
-                    <col style="width:21%;">
-                    <col style="width:14%;">
-                    <col style="width:11.5%;">
-                    <col style="width:29%;">
+                    <col style="width:4%;">
+                    <col style="width:19.5%;">
+                    <col style="width:20.5%;">
+                    <col style="width:14.5%;">
+                    <col style="width:12%;">
+                    <col style="width:29.5%;">
                 </colgroup>
                 <thead><tr style="background:linear-gradient(90deg,#0f172a,#1e293b);border-bottom:2px solid #38bdf8;color:#7dd3fc;font-family:'Cairo','Tajawal',sans-serif;font-size:0.85rem;font-weight:900;position:sticky;top:0;z-index:5;">
                     <th style="padding:8px 4px;text-align:center;${sep}">#</th>
@@ -898,6 +924,34 @@ window.InboundBankakManager = {
                 <tbody>${rowsHtml}</tbody>
             </table>
         </div>`;
+    },
+
+    showSmartHoverTip: function(cellEl) {
+        if (!cellEl) return;
+        const lbl = cellEl.getAttribute('data-hover-label') || '';
+        const txt = cellEl.getAttribute('data-hover-text') || '';
+        if (!txt) return;
+        let tip = document.getElementById('inbound-smart-hover-tip');
+        if (!tip) {
+            tip = document.createElement('div');
+            tip.id = 'inbound-smart-hover-tip';
+            tip.style.cssText = 'position:fixed;z-index:2147483647;pointer-events:none;max-width:340px;padding:8px 12px;border-radius:10px;background:#0b1224;border:1.8px solid #38bdf8;color:#ffffff;font-family:Cairo,Tajawal,sans-serif;direction:rtl;text-align:right;box-shadow:0 12px 28px rgba(0,0,0,0.75);line-height:1.45;';
+            document.body.appendChild(tip);
+        }
+        tip.innerHTML = `<div style="font-size:0.74rem;color:#7dd3fc;font-weight:900;margin-bottom:3px;">${lbl}</div><div style="font-size:0.88rem;color:#ffffff;font-weight:800;word-break:break-word;">${txt}</div>`;
+        tip.style.display = 'block';
+        const r = cellEl.getBoundingClientRect();
+        const th = tip.offsetHeight || 58;
+        const tw = tip.offsetWidth || 240;
+        // Position strictly above or below so it never covers the date, transfer number, or target account box
+        const topPos = (r.top - th - 10 > 8) ? (r.top - th - 10) : (r.bottom + 10);
+        const leftPos = Math.max(10, Math.min(window.innerWidth - tw - 10, r.left + (r.width - tw) / 2));
+        tip.style.top = topPos + 'px';
+        tip.style.left = leftPos + 'px';
+    },
+    hideSmartHoverTip: function() {
+        const tip = document.getElementById('inbound-smart-hover-tip');
+        if (tip) tip.style.display = 'none';
     },
 
     openAssignCustomerById: function(receiptId) {
@@ -955,6 +1009,78 @@ window.InboundBankakManager = {
         document.body.appendChild(sd);
     },
 
+    _highlightPreviewRow: function(receiptId) {
+        this._previewingReceiptId = receiptId ? Number(receiptId) : 0;
+        document.querySelectorAll('#inbound-receipts-list-container tr[data-row-id]').forEach(tr => {
+            const isHit = Number(tr.getAttribute('data-row-id')) === this._previewingReceiptId && this._previewingReceiptId > 0;
+            tr.style.background = isHit ? 'rgba(245,158,11,0.32)' : (tr.getAttribute('data-orig-bg') || '');
+            tr.style.outline = isHit ? '2px solid #fbbf24' : 'none';
+            tr.style.outlineOffset = isHit ? '-2px' : '';
+            if (isHit) tr.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        });
+    },
+
+    openSidePreviewById: function(receiptId) {
+        const list = (this.receipts || []).filter(r => r.status !== 'duplicate_rejected');
+        const idx = list.findIndex(x => Number(x.id) === Number(receiptId));
+        const r = idx >= 0 ? list[idx] : null;
+        if (!r || !r.receipt_image) {
+            if (typeof showToast === 'function') showToast('لا توجد صورة مرفقة لهذا الإشعار', 'warning');
+            return;
+        }
+        this._highlightPreviewRow(r.id);
+        const pid = 'inbound-side-preview-panel';
+        if (document.getElementById(pid)) document.getElementById(pid).remove();
+        const imgUrl = r.receipt_image;
+        const cloudFallback = imgUrl.startsWith('http') ? imgUrl : ('https://c.elsajana.com/' + String(imgUrl).replace(/^\/+/, ''));
+        const rawCust = String(r.customer_name || 'غير محدد').replace(/^[🏦🚚👥🗄️🏬💸👔👤]+\s*/, '').replace(/\s*[-•|]\s*تحويل.*$/i, '').trim() || 'غير محدد';
+        const fmtAmt = parseFloat(r.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+        const prevId = idx > 0 ? list[idx - 1].id : null;
+        const nextId = (idx >= 0 && idx < list.length - 1) ? list[idx + 1].id : null;
+        const panel = document.createElement('div');
+        panel.id = pid;
+        panel.style.cssText = 'position:fixed; right:6px; top:6px; bottom:6px; width:min(595px, 48vw); z-index:2147483646; background:#0b1222; border:2px solid #38bdf8; border-radius:12px; padding:8px 10px; display:flex; flex-direction:column; gap:6px; box-shadow:-12px 0 40px rgba(0,0,0,0.88); font-family:Cairo,Tajawal,sans-serif; direction:rtl; box-sizing:border-box;';
+        panel.innerHTML = `
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; border-bottom:1px solid rgba(56,189,248,0.28); padding-bottom:5px; flex-shrink:0;">
+                <div style="display:flex; flex-direction:column; min-width:0;">
+                    <strong style="color:#f8fafc; font-size:0.86rem; font-weight:900; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">👁 #${idx + 1} — ${escapeHtml(rawCust)}</strong>
+                    <span style="color:#fde047; font-size:0.75rem; font-weight:900;">المبلغ: ${fmtAmt} | رقم العملية: ${escapeHtml(r.transfer_no || '---')}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:4px; flex-shrink:0;">
+                    <button type="button" ${prevId ? `onclick="InboundBankakManager.openSidePreviewById(${prevId})"` : 'disabled'} style="height:26px; padding:0 8px; border-radius:6px; background:rgba(56,189,248,0.18); border:1px solid #38bdf8; color:#e0f2fe; font-weight:900; font-size:0.74rem; cursor:${prevId ? 'pointer' : 'not-allowed'}; opacity:${prevId ? '1' : '0.4'};">◀ السابق</button>
+                    <button type="button" ${nextId ? `onclick="InboundBankakManager.openSidePreviewById(${nextId})"` : 'disabled'} style="height:26px; padding:0 8px; border-radius:6px; background:rgba(56,189,248,0.18); border:1px solid #38bdf8; color:#e0f2fe; font-weight:900; font-size:0.74rem; cursor:${nextId ? 'pointer' : 'not-allowed'}; opacity:${nextId ? '1' : '0.4'};">التالي ▶</button>
+                    <button type="button" onclick="document.getElementById('${pid}').remove();InboundBankakManager._highlightPreviewRow(0)" style="width:26px; height:26px; border-radius:6px; background:rgba(239,68,68,0.26); border:1.2px solid #ef4444; color:#fecaca; font-weight:900; cursor:pointer;">✕</button>
+                </div>
+            </div>
+            <div style="flex:1; min-height:0; overflow:hidden; background:#020617; border-radius:9px; padding:4px; display:flex; justify-content:center; align-items:center;">
+                <img src="${escapeHtml(imgUrl)}" onerror="if(this.src!=='${escapeHtml(cloudFallback)}'){this.src='${escapeHtml(cloudFallback)}';}" alt="Receipt" style="max-width:91%; max-height:100%; width:auto; height:100%; border-radius:7px; object-fit:contain; display:block; transform:scaleX(1.10); transform-origin:center;">
+            </div>
+        `;
+        document.body.appendChild(panel);
+    },
+
+    rescanReceiptById: async function(receiptId, btnEl) {
+        const origHtml = btnEl ? btnEl.innerHTML : '🔄';
+        if (btnEl) { btnEl.disabled = true; btnEl.innerHTML = '⏳'; }
+        try {
+            const tId = this.getActiveTenantId();
+            const res = await fetch(`api/inbound_receipts.php?action=scan_receipt&id=${receiptId}&force_rescan=1&tenant_id=${encodeURIComponent(tId)}`, { method: 'POST' });
+            const data = await res.json();
+            if (data && data.success) {
+                const newAmt = parseFloat(data.data?.amount || 0).toLocaleString('en-US');
+                const newRef = data.data?.transfer_no || '---';
+                if (typeof showToast === 'function') showToast(`✅ تم تحديث قراءة الإشعار: المبلغ ${newAmt} | رقم العملية ${newRef}`, 'success');
+                await this.refreshReceipts(true);
+            } else {
+                if (typeof showToast === 'function') showToast(`⚠️ تعذر إعادة القراءة: ${data?.error || 'خطأ غير معروف'}`, 'warning');
+            }
+        } catch (e) {
+            if (typeof showToast === 'function') showToast('❌ خطأ أثناء إعادة قراءة الإشعار', 'error');
+        } finally {
+            if (btnEl) { btnEl.disabled = false; btnEl.innerHTML = origHtml; }
+        }
+    },
+
     previewReceiptById: function(receiptId) {
         const r = (this.receipts || []).find(x => Number(x.id) === Number(receiptId));
         if (!r || !r.receipt_image) {
@@ -973,16 +1099,16 @@ window.InboundBankakManager = {
         const cloudFallback = imgUrl.startsWith('http') ? imgUrl : ('https://c.elsajana.com/' + String(imgUrl).replace(/^\/+/, ''));
         const div = document.createElement('div');
         div.id = modalId;
-        div.style.cssText = 'position:fixed; inset:0; background:rgba(2,6,23,0.90); z-index:2147483647; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:18px; font-family:Cairo,Tajawal,sans-serif; direction:rtl;';
+        div.style.cssText = 'position:fixed; inset:0; background:rgba(2,6,23,0.90); z-index:2147483647; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:14px; font-family:Cairo,Tajawal,sans-serif; direction:rtl;';
         div.onclick = (e) => { if (e.target === div) div.remove(); };
         div.innerHTML = `
-            <div style="background:#0f172a; border:2px solid #38bdf8; border-radius:16px; padding:16px 20px; width:min(700px, 94vw); max-height:92vh; display:flex; flex-direction:column; gap:12px; box-shadow:0 28px 70px rgba(0,0,0,0.95);">
-                <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; border-bottom:1px solid rgba(255,255,255,0.14); padding-bottom:10px;">
-                    <strong style="color:#f8fafc; font-size:1.02rem; font-weight:900;">${escapeHtml(title || 'صورة الإشعار البنكي')}</strong>
+            <div style="background:#0f172a; border:2px solid #38bdf8; border-radius:16px; padding:14px 18px; width:min(968px, 96vw); max-height:94vh; display:flex; flex-direction:column; gap:10px; box-shadow:0 28px 70px rgba(0,0,0,0.95);">
+                <div style="display:flex; justify-content:space-between; align-items:center; gap:16px; border-bottom:1px solid rgba(255,255,255,0.14); padding-bottom:8px;">
+                    <strong style="color:#f8fafc; font-size:1.05rem; font-weight:900;">${escapeHtml(title || 'صورة الإشعار البنكي')}</strong>
                     <button type="button" onclick="document.getElementById('${modalId}').remove()" style="background:rgba(239,68,68,0.24); border:1.4px solid #ef4444; color:#fecaca; border-radius:8px; width:34px; height:34px; cursor:pointer; font-weight:900; font-size:1rem;">✕</button>
                 </div>
-                <div style="overflow:auto; max-height:82vh; display:flex; justify-content:center; align-items:center; background:#020617; border-radius:12px; padding:10px;">
-                    <img src="${escapeHtml(imgUrl)}" onerror="if(this.src!=='${escapeHtml(cloudFallback)}'){this.src='${escapeHtml(cloudFallback)}';}" alt="Receipt" style="min-width:min(480px, 84vw); width:auto; max-width:100%; max-height:78vh; border-radius:10px; object-fit:contain;">
+                <div style="flex:1; min-height:0; overflow:hidden; display:flex; justify-content:center; align-items:center; background:#020617; border-radius:12px; padding:8px;">
+                    <img src="${escapeHtml(imgUrl)}" onerror="if(this.src!=='${escapeHtml(cloudFallback)}'){this.src='${escapeHtml(cloudFallback)}';}" alt="Receipt" style="max-width:91%; max-height:84vh; width:auto; height:84vh; border-radius:10px; object-fit:contain; display:block; transform:scaleX(1.10); transform-origin:center;">
                 </div>
             </div>
         `;

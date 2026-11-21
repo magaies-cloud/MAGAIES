@@ -214,11 +214,24 @@
                     href: 'posting-accounts.php'
                 },
                 {
-                    title: 'منصة الإشعارات',
+                    title: 'ترحيل الإشعارات',
                     icon: '📥',
                     color: '#10b981',
                     rgb: '16, 185, 129',
-                    href: 'posting-accounts.php?open_platform=1'
+                    href: 'posting-accounts.php?open_platform=1',
+                    samePageAction: () => {
+                        if (window.InboundBankakManager && typeof window.InboundBankakManager.openDrawer === 'function') {
+                            window.InboundBankakManager.openDrawer();
+                            return true;
+                        }
+                        const ov = document.getElementById('inbound-bankak-drawer-overlay');
+                        if (ov) {
+                            if (ov.parentElement !== document.body) document.body.appendChild(ov);
+                            ov.style.display = 'flex';
+                            return true;
+                        }
+                        return false;
+                    }
                 },
                 {
                     title: 'دورة الشيكات',
@@ -1069,7 +1082,7 @@
 
         // 1. Check if it has a custom action (e.g., Themes Modal or Chatbot or Sales/Purchase Editor)
         if (typeof itemConfig.samePageAction === 'function') {
-            if (currentPage === targetPage || itemConfig.href.includes('action=themes') || itemConfig.href.includes('action=chatbot')) {
+            if (currentPage === targetPage || itemConfig.href.includes('action=themes') || itemConfig.href.includes('action=chatbot') || itemConfig.href.includes('open_platform=1')) {
                 const handled = itemConfig.samePageAction();
                 if (handled !== false) {
                     hidePanoramicFlyout(true);

@@ -665,29 +665,101 @@
         } catch (_) {}
     }
 
-    // 9. Negative-Stock Option (Goods-in-Transit) + Anti-Zero-Inflation & Credit-Limit Guard across Warehouses, Settings & Sales
-    const getAllowNegStock = () => {
+    // 9. Negative-Stock Option controlled strictly from Warehouses & Settings (not Sales header)
+    const getAllowNegStock = (whKey) => {
+        if (document.getElementById('btn-neg-sales-lock')) {
+            return window._salesNegStockManagerUnlocked === true;
+        }
         try {
+            const target = whKey || document.getElementById('hdr-warehouse')?.value || '';
+            if (target) {
+                const whs = JSON.parse(localStorage.getItem('erp_warehouses_v1') || '[]') || [];
+                const found = Array.isArray(whs) ? whs.find(w => !w.deleted && (String(w.id) === String(target) || String(w.name).trim() === String(target).trim())) : null;
+                if (found && typeof found.allowNegativeStock === 'boolean') return found.allowNegativeStock;
+            }
             const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}') || {};
             if (typeof cfg.allowNegativeStock === 'boolean') return cfg.allowNegativeStock;
         } catch (_) {}
         return localStorage.getItem('magaies_allow_negative_stock') !== '0';
     };
+    window.handleNegSalesLockClick = () => {
+        const btn = document.getElementById('btn-neg-sales-lock');
+        if (!btn) return;
+        if (window._salesNegStockManagerUnlocked) {
+            window._salesNegStockManagerUnlocked = false;
+            btn.dataset.unlocked = '0';
+            btn.textContent = '🔒';
+            btn.title = 'صلاحية البيع بالسالب (مقفول — اضغط لإدخال كلمة مرور المدير للفتح)';
+            if (typeof window.showToast === 'function') window.showToast('🔒 تم قفل البيع بالسالب للمخزن مجدداً', 'warning', 2400);
+            return;
+        }
+        let m = document.getElementById('neg-sales-mgr-pwd-modal');
+        if (m) m.remove();
+        m = document.createElement('div');
+        m.id = 'neg-sales-mgr-pwd-modal';
+        m.style.cssText = 'position:fixed;inset:0;background:rgba(2,6,23,0.82);z-index:2147483646;display:flex;align-items:center;justify-content:center;direction:rtl;font-family:Cairo,Tajawal,sans-serif;';
+        m.innerHTML = `<div style="background:#0f172a;border:2px solid #ef4444;border-radius:16px;width:92%;max-width:390px;padding:20px;box-shadow:0 20px 50px rgba(0,0,0,0.8);color:#fff;">
+            <div style="font-size:1.08rem;font-weight:900;margin-bottom:6px;display:flex;align-items:center;gap:8px;"><span>🔐</span><span>فتح صلاحية البيع بالسالب</span></div>
+            <div style="font-size:0.84rem;color:#cbd5e1;margin-bottom:14px;">أدخل كلمة مرور المدير للسماح بالبيع بالسالب في المخزن الحالي:</div>
+            <input type="password" id="neg-sales-mgr-pwd-inp" placeholder="كلمة مرور المدير..." autocomplete="current-password" style="width:100%;height:42px;border-radius:9px;border:1.8px solid #38bdf8;background:#020617;color:#fff;text-align:center;font-size:1.05rem;font-weight:900;box-sizing:border-box;margin-bottom:8px;">
+            <div id="neg-sales-mgr-pwd-err" style="display:none;color:#f87171;font-size:0.82rem;font-weight:800;text-align:center;margin-bottom:8px;"></div>
+            <div style="display:flex;gap:8px;margin-top:6px;">
+                <button type="button" id="neg-sales-mgr-ok" style="flex:1;height:40px;border-radius:9px;border:none;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:900;font-size:0.95rem;cursor:pointer;">🔓 فتح الصلاحية</button>
+                <button type="button" id="neg-sales-mgr-cancel" style="height:40px;padding:0 16px;border-radius:9px;border:1px solid #475569;background:transparent;color:#cbd5e1;font-weight:800;cursor:pointer;">إلغاء</button>
+            </div>
+        </div>`;
+        document.body.appendChild(m);
+        const inp = m.querySelector('#neg-sales-mgr-pwd-inp'), err = m.querySelector('#neg-sales-mgr-pwd-err');
+        setTimeout(() => inp && inp.focus(), 40);
+        m.querySelector('#neg-sales-mgr-cancel').onclick = () => m.remove();
+        m.addEventListener('click', (ev) => { if (ev.target === m) m.remove(); });
+        const verifyNow = async () => {
+            const pwd = (inp.value || '').trim();
+            if (!pwd) { err.textContent = 'يرجى إدخال كلمة مرور المدير'; err.style.display = 'block'; return; }
+            let ok = false;
+            try {
+                const users = JSON.parse(localStorage.getItem('erp_users_v1') || '[]') || [];
+                const curUser = JSON.parse(localStorage.getItem('user') || '{}') || {};
+                const mgrs = users.filter(u => u && (u.role === 'admin' || u.userType === 'admin' || (parseInt(u.securityLevel) || 0) >= 8 || (u.permissions && u.permissions.allowNegativeStock)));
+                if (mgrs.some(u => u.password === pwd || u.managerPin === pwd)) ok = true;
+                if (!ok) {
+                    const uname = curUser.username || (mgrs[0] && mgrs[0].username) || 'admin';
+                    const res = await fetch('api_index.php/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: uname, password: pwd }) });
+                    const d = await res.json().catch(() => ({}));
+                    if (res.ok && d && d.success !== false && d.token) ok = true;
+                }
+            } catch (_) {}
+            if (ok) {
+                window._salesNegStockManagerUnlocked = true;
+                btn.dataset.unlocked = '1';
+                btn.textContent = '🔓';
+                btn.title = 'صلاحية البيع بالسالب: مسموح حالياً باعتماد المدير (اضغط لإعادة القفل)';
+                m.remove();
+                if (typeof window.showToast === 'function') window.showToast('✅ تم فتح صلاحية البيع بالسالب باعتماد المدير', 'success', 2600);
+            } else {
+                err.textContent = '❌ كلمة مرور المدير غير صحيحة';
+                err.style.display = 'block';
+            }
+        };
+        m.querySelector('#neg-sales-mgr-ok').onclick = verifyNow;
+        inp.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); verifyNow(); } });
+    };
     const syncNegStockUi = () => {
-        const allow = getAllowNegStock();
-        ['md-wh-allow-neg-btn', 'sales-hdr-neg-stock-btn'].forEach(id => {
-            const b = document.getElementById(id);
-            if (!b) return;
-            b.innerHTML = allow ? '🚚 البيع بالسالب (بضاعة بالطريق): مسموح ✅' : '⛔ البيع بالسالب: ممنوع (مقفول)';
+        const allow = getAllowNegStock('');
+        const staleSalesBtn = document.getElementById('sales-hdr-neg-stock-btn');
+        if (staleSalesBtn) staleSalesBtn.remove();
+        const b = document.getElementById('md-wh-allow-neg-btn');
+        if (b) {
+            b.innerHTML = allow ? '🚚 البيع بالسالب (عام): مسموح ✅' : '⛔ البيع بالسالب (عام): ممنوع';
             b.style.borderColor = allow ? '#10b981' : '#f43f5e';
             b.style.background = allow ? 'rgba(16,185,129,0.2)' : 'rgba(225,29,72,0.22)';
             b.style.color = allow ? '#6ee7b7' : '#fda4af';
-        });
+        }
         const chk = document.getElementById('cfg-allow-negative-stock');
         if (chk) chk.checked = allow;
     };
     const toggleAllowNegativeStock = () => {
-        const next = !getAllowNegStock();
+        const next = !getAllowNegStock('');
         localStorage.setItem('magaies_allow_negative_stock', next ? '1' : '0');
         try {
             const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}') || {};
@@ -695,20 +767,9 @@
             localStorage.setItem('erp_settings_v1', JSON.stringify(cfg));
         } catch (_) {}
         syncNegStockUi();
-        if (typeof window.showToast === 'function') window.showToast(next ? '🚚 تم تفعيل السماح بالبيع بالسالب (لبضاعة الطريق)' : '⛔ تم إيقاف البيع بالسالب (لن يُصرف أكثر من الرصيد الفعلي)', next ? 'success' : 'warning', 2600);
+        if (typeof window.showToast === 'function') window.showToast(next ? '🚚 تم تفعيل السماح بالبيع بالسالب من إعدادات المخازن' : '⛔ تم إيقاف البيع بالسالب من إعدادات المخازن', next ? 'success' : 'warning', 2600);
     };
     document.addEventListener('DOMContentLoaded', () => {
-        const pg = (location.pathname.split('/').pop() || '').toLowerCase();
-        if (pg.includes('sales') && !document.getElementById('sales-hdr-neg-stock-btn')) {
-            const whSel = document.getElementById('hdr-warehouse');
-            if (whSel && whSel.parentElement) {
-                const btn = document.createElement('button');
-                btn.type = 'button'; btn.id = 'sales-hdr-neg-stock-btn';
-                btn.style.cssText = 'height:32px;padding:0 10px;margin-right:6px;border-radius:8px;font-weight:900;font-size:0.76rem;cursor:pointer;border:2px solid #10b981;white-space:nowrap;';
-                btn.onclick = toggleAllowNegativeStock;
-                whSel.parentElement.appendChild(btn);
-            }
-        }
         syncNegStockUi();
     });
     // Hard Extra-Zeros Guard (>50 Billion ceiling on numeric inputs so phone/barcode paste never creates trillion-SDG typos)

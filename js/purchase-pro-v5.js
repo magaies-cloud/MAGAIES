@@ -2923,13 +2923,93 @@ function submitInvoice(ignoreWarnings = false) {
         });
     }
 
-    if (window.ElsajanaAccountingBrain && bankTransfers.length > 0) {
-        for (const bt of bankTransfers) {
-            const dup = window.ElsajanaAccountingBrain.checkBankakDuplicate(bt.reference, bt.imgHash, currentViewedInvoiceNo || '');
-            if (dup && dup.duplicate) {
+    if (bankTransfers.length > 0) {
+        const toLatinDigits = (v) => String(v || '').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/\D/g, '');
+        const rollbackFail = (el, msg) => {
+            window.isSubmitting = false;
+            try { _atomicKeys.forEach(k => { if (_atomicSnapshot[k] !== null && _atomicSnapshot[k] !== undefined) localStorage.setItem(k, _atomicSnapshot[k]); }); } catch (_) {}
+            // Keep all entered payment rows intact on screen; highlight only the offending input
+            if (el && el.style) {
+                el.style.border = '2.5px solid #ef4444';
+                el.style.boxShadow = '0 0 14px rgba(239,68,68,0.65)';
+                try { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.focus(); if (typeof el.select === 'function') el.select(); } catch (_) {}
+                setTimeout(() => { if (el && el.style) { el.style.border = ''; el.style.boxShadow = ''; } }, 4500);
+            }
+            if (typeof showToast === 'function') showToast(msg, 'error', 6200);
+            else if (window.ElsajanaAccountingBrain && typeof window.ElsajanaAccountingBrain.shakeAndFocus === 'function') {
+                window.ElsajanaAccountingBrain.shakeAndFocus(el || '#bank-transfers-list', msg, 'error', 5800);
+            }
+        };
+        const seenLocalLast6 = new Set();
+        const rowEls = document.querySelectorAll('#bank-transfers-list .payment-row-item');
+        for (let bIdx = 0; bIdx < bankTransfers.length; bIdx++) {
+            const bt = bankTransfers[bIdx];
+            const rowEl = rowEls[bIdx];
+            const bankSelEl = rowEl ? rowEl.querySelector('.bt-bank-select') : null;
+            if (!bt.bankAccountId || String(bt.bankAccountId).trim() === '') {
+                rollbackFail(bankSelEl || '#bank-transfers-list', '🚫 شروط الحركة المالية: لابد من اختيار البنك للتحويلة البنكية قبل الحفظ!');
+                return;
+            }
+            const cleanDigits = toLatinDigits(bt.reference);
+            if (cleanDigits.length < 6) {
+                rollbackFail(bt._refEl || '#bank-transfers-list', '🚫 شروط الحركة المالية: رقم التحويلة البنكية يجب أن يتكون من 6 أرقام على الأقل (6 خانات فأكثر)!');
+                return;
+            }
+            const last6 = cleanDigits.slice(-6);
+            if (seenLocalLast6.has(last6)) {
+                rollbackFail(bt._refEl || '#bank-transfers-list', '🚫 رقم التحويلة البنكية مكرر داخل نفس الفاتورة (تطابق آخر 6 أرقام: ' + last6 + ')!');
+                return;
+            }
+            seenLocalLast6.add(last6);
+            if (window.ElsajanaAccountingBrain) {
+                const dup = window.ElsajanaAccountingBrain.checkBankakDuplicate(bt.reference, bt.imgHash, currentViewedInvoiceNo || '');
+                if (dup && dup.duplicate) {
+                    rollbackFail(bt._refEl || '#bank-transfers-list', window.ElsajanaAccountingBrain.BANKAK_DUP_MSG);
+                    return;
+                }
+            }
+            // Check against all local financial movement vouchers (matching last 6 digits)
+            const curLinkedV = (document.getElementById('pur-fin-mov-seq-badge')?.dataset?.targetVoucher || '').trim();
+            const stores = ['erp_single_payments_v1', 'erp_single_receipts_v1', 'erp_payments_v1', 'erp_receipts_v1'];
+            for (const stKey of stores) {
+                let arr = [];
+                try { arr = JSON.parse(localStorage.getItem(stKey) || '[]') || []; } catch (_) {}
+                for (const rec of arr) {
+                    if (!rec || rec.deleted) continue;
+                    const recNo = String(rec.voucherNo || rec.id || '').trim();
+                    if (curLinkedV && recNo === curLinkedV && currentViewedInvoiceNo) continue;
+                    if (currentViewedInvoiceNo && String(rec.refInvoice || '') === String(currentViewedInvoiceNo)) continue;
+                    const refs = [rec.mobileTransferNo, rec.transferNo, rec.transferRef, ...(Array.isArray(rec.bankTransfers) ? rec.bankTransfers.map(x => x && (x.transferNo || x.reference)) : [])];
+                    for (const r of refs) {
+                        const d = toLatinDigits(r);
+                        if (d.length >= 6 && d.slice(-6) === last6) {
+                            rollbackFail(bt._refEl || '#bank-transfers-list', '🚫 عفواً، رقم التحويلة (' + bt.reference + ') مكرر ومسجل مسبقاً في الحركة المالية رقم #' + (recNo || 'سابق') + '!');
+                            return;
+                        }
+                    }
+                }
+            }
+            // Server-side DB duplicate check (same strict endpoint as single-cash-payment.php)
+            const verifiedKey = last6 + '|' + (currentViewedInvoiceNo || 'new');
+            if (!window._purServerDupVerified || window._purServerDupVerified !== verifiedKey) {
                 window.isSubmitting = false;
                 try { _atomicKeys.forEach(k => { if (_atomicSnapshot[k] !== null && _atomicSnapshot[k] !== undefined) localStorage.setItem(k, _atomicSnapshot[k]); }); } catch (_) {}
-                window.ElsajanaAccountingBrain.shakeAndFocus(bt._refEl || '#bank-transfers-list', window.ElsajanaAccountingBrain.BANKAK_DUP_MSG, 'error', 5800);
+                fetch('single-cash-payment.php?api=check_duplicate&ref=' + encodeURIComponent(cleanDigits) + '&voucherNo=' + encodeURIComponent(currentViewedInvoiceNo ? curLinkedV : ''))
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res && res.duplicate) {
+                            rollbackFail(bt._refEl || '#bank-transfers-list', res.error || ('🚫 رقم التحويلة (' + bt.reference + ') مكرر في قاعدة البيانات!'));
+                        } else {
+                            window._purServerDupVerified = verifiedKey;
+                            submitInvoice(ignoreWarnings);
+                            setTimeout(() => { window._purServerDupVerified = ''; }, 1500);
+                        }
+                    })
+                    .catch(() => {
+                        window._purServerDupVerified = verifiedKey;
+                        submitInvoice(ignoreWarnings);
+                        setTimeout(() => { window._purServerDupVerified = ''; }, 1500);
+                    });
                 return;
             }
             delete bt._refEl;
@@ -3254,69 +3334,88 @@ function submitInvoice(ignoreWarnings = false) {
             }
         }
 
-        // --- ADD BACKGROUND PAYMENT VOUCHERS FOR CASH/BANK ---
+        // --- SYNC OFFICIAL SEQUENTIAL VOUCHER TO FINANCIAL MOVEMENTS (single-cash-payment.php) ---
         let paymentsLog = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
         const dateStr = document.getElementById('hdr-date') ? document.getElementById('hdr-date').value : new Date().toISOString().split('T')[0];
-        
-        if (paymentMethod === 'hybrid' || paymentMethod === 'multipay') {
-            if (cashAmt > 0 && data.paymentAccountId) {
-                paymentsLog.unshift({
-                    id: 'pay-' + Date.now() + '-c',
-                    paymentNo: 'PMT-PUR-' + committedNo + '-C',
-                    date: dateStr,
-                    type: 'supplier',
-                    partnerId: custId,
-                    partnerName: data.supplierName || 'مورد عام',
-                    amount: cashAmt,
-                    currency: cur,
-                    exchangeRate: rate,
-                    paymentMethod: 'cash',
-                    accountId: data.paymentAccountId,
-                    reference: 'نقدي فاتورة ' + committedNo,
-                    notes: 'سداد آلي من شاشة المشتريات فاتورة #' + committedNo,
-                    refInvoice: committedNo
-                });
-            }
-            if (bankTransfers && bankTransfers.length > 0) {
-                bankTransfers.forEach((bt, idx) => {
-                    paymentsLog.unshift({
-                        id: 'pay-' + Date.now() + '-b' + idx,
-                        paymentNo: 'PMT-PUR-' + committedNo + '-B' + idx,
-                        date: dateStr,
-                        type: 'supplier',
-                        partnerId: custId,
-                        partnerName: data.supplierName || 'مورد عام',
-                        amount: bt.amount,
-                        currency: cur,
-                        exchangeRate: rate,
-                        paymentMethod: 'bank',
-                        accountId: bt.bankAccountId,
-                        reference: bt.reference || 'حوالة فاتورة ' + committedNo,
-                        notes: 'سداد آلي من شاشة المشتريات فاتورة #' + committedNo,
-                        refInvoice: committedNo
-                    });
-                });
-            }
-        } else if (paymentMethod !== 'credit' && (totalPaymentsPaid > 0 || grandAmount > 0)) {
-            const actualPaidVal = totalPaymentsPaid > 0 ? totalPaymentsPaid : grandAmount;
-            paymentsLog.unshift({
-                id: 'pay-' + Date.now() + '-f',
-                paymentNo: 'PMT-PUR-' + committedNo + '-F',
-                date: dateStr,
-                type: 'supplier',
-                partnerId: custId,
-                partnerName: data.supplierName || 'مورد عام',
-                amount: actualPaidVal,
-                currency: cur,
-                exchangeRate: rate,
-                paymentMethod: paymentMethod === 'bank' ? 'bank' : 'cash',
-                accountId: data.paymentAccountId,
-                reference: 'سداد فاتورة ' + committedNo,
-                notes: 'سداد آلي من شاشة المشتريات فاتورة #' + committedNo,
-                refInvoice: committedNo
+        const hasAnyPaidNow = (cashAmt > 0) || (bankTransfers && bankTransfers.some(b => (parseFloat(b.amount) || 0) > 0)) || (cheques && cheques.some(c => (parseFloat(c.amount) || 0) > 0));
+        if (hasAnyPaidNow && paymentMethod !== 'credit') {
+            const finVNo = (typeof window.computeNextPurchaseFinVoucherNo === 'function') ? window.computeNextPurchaseFinVoucherNo() : ('E' + new Date().toISOString().slice(2,4) + new Date().toISOString().slice(5,7) + '0001');
+            const isBaseSdg = (cur === 'SDG');
+            const effRt = parseFloat(rate) || 1;
+            const totalPaidRaw = (parseFloat(cashAmt) || 0) + (bankTransfers || []).reduce((s, b) => s + (parseFloat(b.amount) || 0), 0) + (cheques || []).reduce((s, c) => s + (parseFloat(c.amount) || 0), 0);
+            const amtLocal = isBaseSdg ? totalPaidRaw : (totalPaidRaw * effRt);
+            const amtForeign = isBaseSdg ? (effRt > 0 ? totalPaidRaw / effRt : 0) : totalPaidRaw;
+            const allBanksRef = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]') || [];
+            const allSafesRef = JSON.parse(localStorage.getItem('erp_safes_v1') || '[]') || [];
+            const primaryFromId = (cashAmt > 0 && data.paymentAccountId) ? data.paymentAccountId : ((bankTransfers && bankTransfers[0] && bankTransfers[0].bankAccountId) ? bankTransfers[0].bankAccountId : ((cheques && cheques[0] && cheques[0].bankAccountId) ? cheques[0].bankAccountId : (data.paymentAccountId || 'safe-001')));
+            const fromSafeObj = allSafesRef.find(s => String(s.id) === String(primaryFromId));
+            const fromBankObj = allBanksRef.find(b => String(b.id) === String(primaryFromId));
+            const fromAccName = (fromSafeObj && (fromSafeObj.safeName || fromSafeObj.name)) || (fromBankObj && (fromBankObj.bankName || fromBankObj.name)) || primaryFromId;
+            const toPartyId = custId || ('sup-' + (data.supplierName || 'general'));
+            const normTransfers = (bankTransfers || []).filter(bt => (parseFloat(bt.amount) || 0) > 0).map(bt => {
+                const bObj = allBanksRef.find(b => String(b.id) === String(bt.bankAccountId));
+                const bName = bObj ? (bObj.bankName || bObj.name) : 'البنك';
+                const trRef = String(bt.reference || bt.transferNo || '').trim();
+                return { bankAccountId: bt.bankAccountId, bankId: bt.bankAccountId, bankName: bName, note: bName, transferNo: trRef, reference: trRef, amount: parseFloat(bt.amount) || 0, statement: 'سداد تحويلة فاتورة مشتريات #' + committedNo + ' (' + (data.supplierName || 'مورد') + ')' };
             });
+            const normCheques = (cheques || []).filter(ch => (parseFloat(ch.amount) || 0) > 0).map(ch => {
+                const bObj = allBanksRef.find(b => String(b.id) === String(ch.bankAccountId));
+                const bName = bObj ? (bObj.bankName || bObj.name) : (ch.bankName || 'البنك');
+                return { bankAccountId: ch.bankAccountId, checkBank: bName, checkBranch: bName, checkNo: ch.chequeNo || ch.checkNo || '', chequeNo: ch.chequeNo || ch.checkNo || '', dueDate: ch.dueDate || '', amount: parseFloat(ch.amount) || 0, statement: 'سداد شيك فاتورة مشتريات #' + committedNo };
+            });
+            const splitParts = [];
+            if (cashAmt > 0) splitParts.push('نقدي (' + fromAccName + '): ' + fmtNum(cashAmt));
+            normTransfers.forEach(t => splitParts.push('تحويلة (' + t.bankName + ' #' + t.transferNo + '): ' + fmtNum(t.amount)));
+            normCheques.forEach(c => splitParts.push('شيك (' + c.checkBank + ' #' + c.checkNo + '): ' + fmtNum(c.amount)));
+            const fullStmt = 'سداد فاتورة مشتريات #' + committedNo + ' — ' + (data.supplierName || 'مورد عام') + (splitParts.length ? ' | ' + splitParts.join(' + ') : '');
+            const finRecord = {
+                id: finVNo, voucherNo: finVNo, paymentNo: finVNo, date: dateStr,
+                time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+                type: 'payment', voucherType: 'payment',
+                currency: cur, rate: effRt, exchangeRate: effRt,
+                amount: isBaseSdg ? amtLocal : amtForeign, amountLocal: amtLocal, amountForeign: amtForeign,
+                cashAmount: parseFloat(cashAmt) || 0,
+                fromAccount: primaryFromId, fromAccountName: fromAccName,
+                toAccount: toPartyId, toAccountName: data.supplierName || 'مورد عام', beneficiaryName: data.supplierName || 'مورد عام',
+                costCenter: data.costCenter || 'الفرع الرئيسي',
+                paymentMethod: (normTransfers.length > 0 && cashAmt <= 0 && normCheques.length === 0) ? 'mobile' : ((normCheques.length > 0 && cashAmt <= 0 && normTransfers.length === 0) ? 'check' : ((normTransfers.length > 0 || normCheques.length > 0) ? 'multi' : 'cash')),
+                mobileTransferNo: normTransfers[0] ? normTransfers[0].transferNo : '',
+                transferNo: normTransfers[0] ? normTransfers[0].transferNo : '',
+                bankName: normTransfers[0] ? normTransfers[0].bankName : '',
+                bankTransfers: normTransfers, cheques: normCheques,
+                statement: fullStmt, toStatement: fullStmt, fromStatement: fullStmt,
+                refInvoice: committedNo, autoFromPurchase: true, isPosted: true, updatedAtMs: Date.now()
+            };
+            data.linkedFinancialVoucherNo = finVNo;
+            const getTK = window.getTenantKey || ((k) => k);
+            const saveFinToKey = (k) => {
+                try {
+                    let arr = JSON.parse(localStorage.getItem(k) || '[]') || [];
+                    if (!Array.isArray(arr)) arr = [];
+                    arr = arr.filter(p => p && String(p.refInvoice || '') !== String(committedNo) && String(p.id || p.voucherNo || '') !== String(finVNo));
+                    arr.unshift(finRecord);
+                    localStorage.setItem(k, JSON.stringify(arr));
+                } catch (_) {}
+            };
+            saveFinToKey('erp_single_payments_v1');
+            const tkSP = getTK('erp_single_payments_v1');
+            if (tkSP !== 'erp_single_payments_v1') saveFinToKey(tkSP);
+            saveFinToKey('magaies_vouchers_cache');
+            try {
+                const seqM = finVNo.match(/(\d{3,6})$/);
+                if (seqM) {
+                    const kn = JSON.parse(localStorage.getItem('magaies_last_known_sequences_v1') || '{}');
+                    kn.finance = Math.max(parseInt(kn.finance || 0, 10), parseInt(seqM[1], 10));
+                    localStorage.setItem('magaies_last_known_sequences_v1', JSON.stringify(kn));
+                    window.DB_NEXT_FIN_VOUCHER_NO = finVNo.slice(0, finVNo.length - seqM[1].length) + String(kn.finance + 1).padStart(seqM[1].length, '0');
+                }
+            } catch (_) {}
+            fetch('single-cash-payment.php?api=flash_delta_sync', {
+                method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ crdtQueue: [{ idempotencyKey: 'pur_fin_' + committedNo + '_' + finVNo, updatedAtMs: Date.now(), record: finRecord }] })
+            }).catch(() => {});
+            if (typeof window.refreshPurchaseFinSeqBadge === 'function') setTimeout(window.refreshPurchaseFinSeqBadge, 60);
         }
-        localStorage.setItem('erp_single_payments_v1', JSON.stringify(paymentsLog));
 
         // --- ADD CHEQUES TO ERP_CHECKS_V1 ---
         if (cheques && cheques.length > 0) {
@@ -5059,17 +5158,9 @@ function togglePaymentSection(type) {
     
     const isActive = btn.classList.contains('active');
     
-    // Toggle active state class
+    // Toggle active state class (preserve entered rows on hide so user never loses payment data)
     if (isActive) {
         btn.classList.remove('active');
-        // Reset values on deactivation
-        if (type === 'cash') {
-            document.getElementById('pay-cash-amount').value = '0';
-        } else if (type === 'bank') {
-            document.getElementById('bank-transfers-list').innerHTML = '';
-        } else if (type === 'cheque') {
-            document.getElementById('cheques-list').innerHTML = '';
-        }
     } else {
         btn.classList.add('active');
     }

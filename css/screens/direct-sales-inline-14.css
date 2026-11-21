@@ -1,0 +1,7 @@
+@keyframes totalNeonPulse{0% { transform: scale(1); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.2); border-color: rgba(16, 185, 129, 0.6); } 35% { transform: scale(1.06); box-shadow: 0 0 35px rgba(16, 185, 129, 0.75), 0 0 15px rgba(56, 189, 248, 0.6), inset 0 0 20px rgba(16, 185, 129, 0.5); border-color: #34d399; color: #ffffff !important; text-shadow: 0 0 20px rgba(52, 211, 153, 0.9); } 100% { transform: scale(1); box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.2); border-color: rgba(16, 185, 129, 0.6); text-shadow: none; }}
+@keyframes grandBadgeShine{0% { background-position: -200% 0; } 100% { background-position: 200% 0; }}
+#t-grand-dynamic-loc{transition:transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;will-change:transform, box-shadow;cursor:default}
+#t-grand-dynamic-loc:hover{transform:scale(1.03);box-shadow:0 6px 25px rgba(16, 185, 129, 0.4), inset 0 1px 3px rgba(255, 255, 255, 0.3);border-color:#34d399}
+#t-grand-dynamic-loc.total-value-updating{animation:totalNeonPulse 0.55s cubic-bezier(0.2, 0.8, 0.2, 1)}
+#t-grand-dynamic-fc{transition:transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;will-change:transform, box-shadow}
+#t-grand-dynamic-fc.total-value-updating{animation:totalNeonPulse 0.55s cubic-bezier(0.2, 0.8, 0.2, 1)}

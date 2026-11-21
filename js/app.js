@@ -1502,6 +1502,7 @@ JSON.parse = function(val) {
                 if (Array.isArray(item.bankTransfers)) {
                     item.bankTransfers.forEach(t => {
                         if (t.transferNo) refs.push(t.transferNo.toString().trim());
+                        if (t.reference) refs.push(t.reference.toString().trim());
                     });
                 }
                 if (Array.isArray(item.transfers)) {
@@ -7004,14 +7005,14 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         }
 
         
-        if (inv.paymentMethod !== 'credit') {
+        if (inv.paymentMethod !== 'credit' && !inv.linkedFinancialVoucherNo) {
             const pms = inv.paymentMethods || [inv.paymentMethod];
             let cashAmt = parseFloat(inv.cashAmount) || 0;
             let bankAmt = parseFloat(inv.bankTransfers ? inv.bankTransfers.reduce((s, b) => s + (parseFloat(b.amount) || 0), 0) : inv.bankAmount) || 0;
             let chequeAmt = parseFloat(inv.cheques ? inv.cheques.reduce((s, c) => s + (parseFloat(c.amount) || 0), 0) : inv.chequeAmount) || 0;
 
             const totalForFallback = typeof totalAmt !== 'undefined' ? totalAmt.fc : (typeof amtFc !== 'undefined' ? amtFc : 0);
-            
+
             if (totalForFallback > 0 && cashAmt <= 0 && bankAmt <= 0 && chequeAmt <= 0) {
                 if (pms.includes('bank')) bankAmt = totalForFallback;
                 else if (pms.includes('cheque')) chequeAmt = totalForFallback;

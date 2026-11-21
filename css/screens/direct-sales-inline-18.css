@@ -1,0 +1,6 @@
+#split-invoice-view input:focus,#split-invoice-view select:focus,#delivery-hub-view input:focus{-webkit-box-shadow:0 0 0 1000px #000000 inset, 0 0 0 2.5px rgba(56, 189, 248, 0.45) !important;box-shadow:0 0 0 1000px #000000 inset, 0 0 0 2.5px rgba(56, 189, 248, 0.45) !important;transform:translateY(-1px);transition:box-shadow 0.12s ease, transform 0.12s ease !important}
+:root.light-theme #split-invoice-view input:focus,:root.light-theme #split-invoice-view select:focus,:root.light-theme #delivery-hub-view input:focus{-webkit-box-shadow:0 0 0 1000px #FFFFFF inset, 0 0 0 2.5px rgba(2, 132, 199, 0.4) !important;box-shadow:0 0 0 1000px #FFFFFF inset, 0 0 0 2.5px rgba(2, 132, 199, 0.4) !important}
+#split-invoice-view{gap:10px !important}
+#split-invoice-view .neo-card{padding:10px 14px !important;margin-bottom:8px !important}
+#split-board-step{gap:6px !important}
+#split-board-step table.pos-grid th,#split-board-step table.pos-grid td{padding:6px 8px !important}

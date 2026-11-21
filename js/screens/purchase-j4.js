@@ -383,3 +383,120 @@
                 if (z) triggerKineticPulse(z);
             }, { passive: true });
         })();
+
+(function initPurchaseFinancialMovementBridge() {
+    window.computeNextPurchaseFinVoucherNo = function() {
+        const now = new Date();
+        const ym = String(now.getFullYear()).slice(-2) + String(now.getMonth() + 1).padStart(2, '0');
+        const prefix = 'E' + ym;
+        const extractSeq = (raw) => {
+            const s = String(raw || '').trim();
+            if (!s || s.startsWith('PMT-')) return 0;
+            if (s.startsWith(prefix)) {
+                const n = parseInt(s.slice(prefix.length), 10);
+                if (!isNaN(n) && n > 0 && n < 1000000) return n;
+            }
+            const m = s.match(/^(?:E|M|BP|BR)\d{3,4}(\d{3,6})$/i);
+            return m ? (parseInt(m[1], 10) || 0) : 0;
+        };
+        let max = 0;
+        if (window.DB_NEXT_FIN_VOUCHER_NO) {
+            const dbSq = extractSeq(window.DB_NEXT_FIN_VOUCHER_NO);
+            if (dbSq - 1 > max) max = dbSq - 1;
+        }
+        ['erp_single_payments_v1', 'erp_payments_v1', 'erp_receipts_v1'].forEach(k => {
+            try {
+                const arr = JSON.parse(localStorage.getItem(k) || '[]');
+                if (Array.isArray(arr)) arr.forEach(v => { if (v && !v.deleted) { const sq = extractSeq(v.voucherNo || v.id); if (sq > max) max = sq; } });
+            } catch (_) {}
+        });
+        try {
+            const kn = JSON.parse(localStorage.getItem('magaies_last_known_sequences_v1') || '{}');
+            if (kn.finance && parseInt(kn.finance, 10) > max) max = parseInt(kn.finance, 10);
+        } catch (_) {}
+        return prefix + String(max + 1).padStart(4, '0');
+    };
+
+    window.refreshPurchaseFinSeqBadge = function() {
+        const valEl = document.getElementById('pur-fin-mov-seq-val');
+        const btnEl = document.getElementById('pur-fin-mov-seq-badge');
+        if (!valEl) return;
+        let linkedNo = '';
+        try {
+            const curInvNo = (document.getElementById('hdr-inv-no')?.value || document.getElementById('inv-number')?.textContent || '').trim();
+            if (curInvNo && curInvNo !== '---') {
+                const invs = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]');
+                const found = Array.isArray(invs) ? invs.find(x => x && (String(x.invoiceNo) === curInvNo || String(x.id) === curInvNo)) : null;
+                if (found && found.linkedFinancialVoucherNo) linkedNo = String(found.linkedFinancialVoucherNo);
+                if (!linkedNo) {
+                    const pLog = JSON.parse(localStorage.getItem('erp_single_payments_v1') || '[]');
+                    const pFound = Array.isArray(pLog) ? pLog.find(p => p && String(p.refInvoice || '') === curInvNo && p.voucherNo) : null;
+                    if (pFound) linkedNo = String(pFound.voucherNo);
+                }
+            }
+        } catch (_) {}
+        const targetNo = linkedNo || window.computeNextPurchaseFinVoucherNo();
+        valEl.textContent = targetNo;
+        if (btnEl) btnEl.dataset.targetVoucher = targetNo;
+    };
+
+    window.openPurchaseLinkedFinMovement = function() {
+        const btnEl = document.getElementById('pur-fin-mov-seq-badge');
+        const vNo = (btnEl && btnEl.dataset.targetVoucher) || document.getElementById('pur-fin-mov-seq-val')?.textContent?.trim() || '';
+        if (vNo && vNo !== '---') {
+            try {
+                const getTK = window.getTenantKey || ((k) => k);
+                const keys = [getTK('erp_single_payments_v1'), 'erp_single_payments_v1', 'magaies_vouchers_cache'];
+                let found = null;
+                for (const k of keys) {
+                    const arr = JSON.parse(localStorage.getItem(k) || '[]');
+                    if (Array.isArray(arr)) {
+                        found = arr.find(p => p && (String(p.voucherNo) === vNo || String(p.id) === vNo));
+                        if (found) break;
+                    }
+                }
+                if (found) sessionStorage.setItem('_edit_voucher_data', JSON.stringify(found));
+            } catch (_) {}
+            window.location.href = 'single-cash-payment.php?id=' + encodeURIComponent(vNo);
+            return;
+        }
+        window.location.href = 'single-cash-payment.php';
+    };
+
+    window.openPurchaseInboundReceiptsDrawer = function() {
+        const ov = document.getElementById('inbound-bankak-drawer-overlay');
+        if (ov && ov.parentElement !== document.body) document.body.appendChild(ov);
+        if (window.InboundBankakManager && typeof window.InboundBankakManager.openDrawer === 'function') {
+            window.InboundBankakManager.openDrawer();
+            return;
+        }
+        if (ov) ov.style.display = 'flex';
+        let sc = document.querySelector('script[src*="inbound-bankak-drawer-core.js"]');
+        if (!sc) {
+            sc = document.createElement('script');
+            sc.src = 'js/inbound-bankak-drawer-core.js?v=' + Date.now();
+            sc.onload = () => { if (window.InboundBankakManager && window.InboundBankakManager.openDrawer) window.InboundBankakManager.openDrawer(); };
+            document.body.appendChild(sc);
+        } else {
+            setTimeout(() => { if (window.InboundBankakManager && window.InboundBankakManager.openDrawer) window.InboundBankakManager.openDrawer(); }, 180);
+        }
+    };
+
+    // Also pull latest live server finance sequence once on load so purchase matches single-cash-payment 100%
+    fetch('single-cash-payment.php?api=flash_delta_sync', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+        .then(r => r.json()).then(d => {
+            if (d && Array.isArray(d.records)) {
+                localStorage.setItem('erp_single_payments_v1', JSON.stringify(d.records));
+                window.refreshPurchaseFinSeqBadge();
+            }
+        }).catch(() => {});
+
+    document.addEventListener('DOMContentLoaded', () => {
+        window.refreshPurchaseFinSeqBadge();
+        const invSpan = document.getElementById('inv-number');
+        if (invSpan && typeof MutationObserver !== 'undefined') {
+            new MutationObserver(() => setTimeout(window.refreshPurchaseFinSeqBadge, 30)).observe(invSpan, { childList: true, characterData: true, subtree: true });
+        }
+    });
+    setTimeout(window.refreshPurchaseFinSeqBadge, 50);
+})();

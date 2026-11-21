@@ -527,10 +527,12 @@
     // ═══════════════════════════════════════════════════════════════════════════
     window.autoFitHeaderFields = function() {
         try {
-            // 1. Invoice Number (#inv-number) — Exact Unified 14px Font Matching Date & Financial Strip
+            // 1. Invoice Number (#inv-number) — Exact Unified Font Matching Date (#hdr-date)
             const invNoEl = document.getElementById('inv-number');
+            const dtEl = document.getElementById('hdr-date');
             if (invNoEl) {
-                invNoEl.style.setProperty('font-size', '14px', 'important');
+                const dtSize = dtEl ? (window.getComputedStyle(dtEl).fontSize || '15.5px') : '15.5px';
+                invNoEl.style.setProperty('font-size', dtSize, 'important');
             }
 
             // 2. Customer Search Input (#hdr-customer-search) — Scales with name length & box width
