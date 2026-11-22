@@ -255,3 +255,54 @@ html body #purchase-editor-view #purchase-row1-bar .group-supplier .custom-dropd
 html body #purchase-editor-view #form-fields-card #hdr-customer-search,
 html body #purchase-editor-view #btn-quick-add-supplier { height: 52px !important; min-height: 52px !important; max-height: 52px !important; }
 html body #purchase-editor-view #form-fields-card #hdr-customer-search { line-height: 48px !important; font-size: 1.18rem !important; }
+/* 3-Stage Vivid Payment Input Focus & Hover Magnification (Beats purchase-s4.css in Dark & Light) */
+:root body #purchase-editor-view #payment-panel #pay-cash-amount:not(:focus),
+:root body #purchase-editor-view #payment-panel #pay-cash-ref:not(:focus),
+:root body #purchase-editor-view #payment-panel #pay-credit-amount:not(:focus),
+:root body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-amount-input:not(:focus),
+:root body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-ref-input:not(:focus),
+:root body #purchase-editor-view #payment-panel #cheques-list input.ch-amount-input:not(:focus),
+:root body #purchase-editor-view #payment-panel #cheques-list input.ch-no-input:not(:focus),
+:root.light-theme body #purchase-editor-view #payment-panel #pay-cash-amount:not(:focus),
+:root.light-theme body #purchase-editor-view #payment-panel #pay-cash-ref:not(:focus),
+:root.light-theme body #purchase-editor-view #payment-panel #pay-credit-amount:not(:focus),
+:root.light-theme body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-amount-input:not(:focus),
+:root.light-theme body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-ref-input:not(:focus),
+:root.light-theme body #purchase-editor-view #payment-panel #cheques-list input.ch-amount-input:not(:focus),
+:root.light-theme body #purchase-editor-view #payment-panel #cheques-list input.ch-no-input:not(:focus) {
+  font-size: var(--dyn-fit-fs, 2.15rem) !important; font-weight: 900 !important; height: 58px !important; transition: font-size 0.14s ease, border-color 0.14s ease, background-color 0.14s ease, box-shadow 0.14s ease !important;
+}
+:root body #purchase-editor-view #payment-panel #pay-cash-amount:hover:not(:focus),
+:root body #purchase-editor-view #payment-panel #pay-cash-ref:hover:not(:focus),
+:root body #purchase-editor-view #payment-panel #pay-credit-amount:hover:not(:focus),
+:root body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-amount-input:hover:not(:focus),
+:root body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-ref-input:hover:not(:focus),
+:root body #purchase-editor-view #payment-panel #cheques-list input.ch-amount-input:hover:not(:focus),
+:root body #purchase-editor-view #payment-panel #cheques-list input.ch-no-input:hover:not(:focus),
+:root.light-theme body #purchase-editor-view #payment-panel #pay-cash-amount:hover:not(:focus),
+:root.light-theme body #purchase-editor-view #payment-panel #pay-cash-ref:hover:not(:focus),
+:root.light-theme body #purchase-editor-view #payment-panel #pay-credit-amount:hover:not(:focus),
+:root.light-theme body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-amount-input:hover:not(:focus),
+:root.light-theme body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-ref-input:hover:not(:focus),
+:root.light-theme body #purchase-editor-view #payment-panel #cheques-list input.ch-amount-input:hover:not(:focus),
+:root.light-theme body #purchase-editor-view #payment-panel #cheques-list input.ch-no-input:hover:not(:focus) {
+  font-size: var(--dyn-fit-hover-fs, 2.55rem) !important; border-color: #f59e0b !important; box-shadow: 0 0 0 3px rgba(245,158,11,0.42) !important;
+}
+html:root:not(.light-theme) body #purchase-editor-view #payment-panel #pay-cash-amount:focus,
+html:root:not(.light-theme) body #purchase-editor-view #payment-panel #pay-cash-ref:focus,
+html:root:not(.light-theme) body #purchase-editor-view #payment-panel #pay-credit-amount:focus,
+html:root:not(.light-theme) body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-amount-input:focus,
+html:root:not(.light-theme) body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-ref-input:focus,
+html:root:not(.light-theme) body #purchase-editor-view #payment-panel #cheques-list input.ch-amount-input:focus,
+html:root:not(.light-theme) body #purchase-editor-view #payment-panel #cheques-list input.ch-no-input:focus {
+  font-size: var(--dyn-fit-focus-fs, 3.40rem) !important; height: 76px !important; background: #091a33 !important; color: #fde047 !important; -webkit-text-fill-color: #fde047 !important; border: 3px solid #facc15 !important; box-shadow: 0 0 0 4px rgba(250,204,21,0.38), 0 0 26px rgba(250,204,21,0.55) !important; z-index: 12 !important;
+}
+html:root.light-theme body #purchase-editor-view #payment-panel #pay-cash-amount:focus,
+html:root.light-theme body #purchase-editor-view #payment-panel #pay-cash-ref:focus,
+html:root.light-theme body #purchase-editor-view #payment-panel #pay-credit-amount:focus,
+html:root.light-theme body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-amount-input:focus,
+html:root.light-theme body #purchase-editor-view #payment-panel #bank-transfers-list input.bt-ref-input:focus,
+html:root.light-theme body #purchase-editor-view #payment-panel #cheques-list input.ch-amount-input:focus,
+html:root.light-theme body #purchase-editor-view #payment-panel #cheques-list input.ch-no-input:focus {
+  font-size: var(--dyn-fit-focus-fs, 3.40rem) !important; height: 76px !important; background: #fef9c3 !important; background-color: #fef9c3 !important; color: #1d4ed8 !important; -webkit-text-fill-color: #1d4ed8 !important; border: 3px solid #1d4ed8 !important; box-shadow: 0 0 0 4px rgba(29,78,216,0.3), 0 0 0 1000px #fef9c3 inset !important; z-index: 12 !important;
+}

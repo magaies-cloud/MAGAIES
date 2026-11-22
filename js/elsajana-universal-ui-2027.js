@@ -855,8 +855,9 @@
         const getName = typeof getAccountNameFn === 'function' ? getAccountNameFn : (x => x);
         const custs = parseJ('erp_customers_v1'), sups = parseJ('erp_suppliers_v1'), banks = parseJ('erp_banks_v1'), safes = parseJ('erp_safes_v1');
         const emps = [...parseJ('erp_users_v1'), ...parseJ('erp_employees_v1')];
-        const cleanId = String(accountId).replace(/^(cust|supp|bank|safe|exp)-/i, '');
-        const matchEnt = (arr) => arr.find(x => x && !x.deleted && (String(x.id) === String(accountId) || String(x.id) === cleanId));
+        const cleanId = String(accountId).replace(/^(cust-|supp-|sup-|bank-|safe-|exp-|sub-|sust-)+/i, '').trim();
+        const stripId = (v) => String(v || '').replace(/^(cust-|supp-|sup-|bank-|safe-|exp-|sub-|sust-)+/i, '').trim();
+        const matchEnt = (arr) => arr.find(x => x && !x.deleted && (String(x.id) === String(accountId) || String(x.id) === cleanId || (cleanId && stripId(x.id) === cleanId)));
         const cEnt = matchEnt(custs), sEnt = matchEnt(sups), bEnt = matchEnt(banks), sfEnt = matchEnt(safes), eEnt = matchEnt(emps);
         const ent = cEnt || sEnt || bEnt || sfEnt || eEnt;
         const accName = ent ? String(ent.name || ent.fullName || ent.bankName || ent.safeName || '').trim() : '';
@@ -884,74 +885,47 @@
             }
         }
 
-        parseJ('erp_sales_invoices_v1').filter(i => i && !i.deleted && i.status !== 'preliminary').forEach(inv => {
-            const rate = parseFloat(inv.exchangeRate || 1) || 1, cur = inv.currency || 'SDG';
-            const gt = parseFloat(inv.grandTotal ?? inv.total ?? 0) || 0;
-            const ref = String(inv.invoiceNo || inv.id || '');
-            if (isPartnerMatch(inv.customer || inv.customerId, inv.customerName)) {
-                seenRefs.add(ref);
-                rawRows.push({ sortTs: (inv.date || '') + ' 01', date: inv.date || '-', ref, voucher: ref, desc: 'فاتورة مبيعات #' + ref, contraAccount: 'المبيعات', notes: inv.notes || '', costCenter: inv.costCenter || '-', dr: gt, cr: 0, curr: cur, rate });
-                const paid = (parseFloat(inv.cashAmount || 0) || 0) + (Array.isArray(inv.bankTransfers) ? inv.bankTransfers.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0) : 0);
-                if (paid > 0) rawRows.push({ sortTs: (inv.date || '') + ' 02', date: inv.date || '-', ref: ref + '-PAID', voucher: ref, desc: 'سداد مصاحب لفاتورة مبيعات #' + ref, contraAccount: 'الخزينة / البنك', notes: '', costCenter: '-', dr: 0, cr: paid, curr: cur, rate });
-            }
-            if ((bEnt || sfEnt) && parseFloat(inv.cashAmount || 0) > 0 && isPartnerMatch(inv.paymentAccountId, '')) {
-                rawRows.push({ sortTs: (inv.date || '') + ' 02', date: inv.date || '-', ref: ref + '-CASH', voucher: ref, desc: 'تحصيل نقدي مبيعات #' + ref, contraAccount: inv.customerName || 'عميل', notes: '', costCenter: '-', dr: parseFloat(inv.cashAmount), cr: 0, curr: cur, rate });
-            }
-            if (bEnt && Array.isArray(inv.bankTransfers)) {
-                inv.bankTransfers.forEach((bt, bi) => {
-                    if (parseFloat(bt.amount || 0) > 0 && isPartnerMatch(bt.bankAccountId, '')) {
-                        rawRows.push({ sortTs: (inv.date || '') + ' 02', date: inv.date || '-', ref: ref + '-BNK' + bi, voucher: bt.reference || ref, desc: 'تحويل بنكي مبيعات #' + ref, contraAccount: inv.customerName || 'عميل', notes: '', costCenter: '-', dr: parseFloat(bt.amount), cr: 0, curr: cur, rate });
-                    }
-                });
-            }
-        });
-
-        parseJ('erp_purchase_invoices_v1').filter(i => i && !i.deleted && !i.isGRN && i.status !== 'draft' && i.saleType !== 'proforma').forEach(inv => {
-            const rate = parseFloat(inv.exchangeRate || 1) || 1, cur = inv.currency || 'SDG';
-            const gt = parseFloat(inv.localTotal ?? inv.grandTotal ?? inv.total ?? 0) || 0;
-            const ref = String(inv.invoiceNo || inv.id || '');
-            if (isPartnerMatch(inv.customer || inv.supplierId || inv.supplier, inv.supplierName)) {
-                seenRefs.add(ref);
-                rawRows.push({ sortTs: (inv.date || '') + ' 03', date: inv.date || '-', ref, voucher: ref, desc: 'فاتورة مشتريات #' + ref, contraAccount: 'المشتريات', notes: inv.notes || '', costCenter: inv.costCenter || '-', dr: 0, cr: gt, curr: cur, rate });
-                const paid = (parseFloat(inv.cashAmount || 0) || 0) + (Array.isArray(inv.bankTransfers) ? inv.bankTransfers.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0) : 0);
-                if (paid > 0) {
-                    const paidLoc = cur === 'SDG' ? paid : paid * rate;
-                    rawRows.push({ sortTs: (inv.date || '') + ' 04', date: inv.date || '-', ref: ref + '-PAID', voucher: ref, desc: 'سداد مصاحب لفاتورة مشتريات #' + ref, contraAccount: 'الخزينة / البنك', notes: '', costCenter: '-', dr: paidLoc, cr: 0, curr: cur, rate });
-                }
-            }
-        });
-
-        parseJ('erp_single_receipts_v1').filter(v => v && !v.deleted).forEach(v => {
-            const amt = parseFloat(v.amountLocal ?? v.amount ?? 0) || 0, ref = String(v.receiptNo || v.voucherNo || v.id || '');
-            if (!amt || (v.refInvoice && seenRefs.has(String(v.refInvoice)))) return;
-            if (isPartnerMatch(v.partnerId || v.fromAccount || v.customerId, v.partnerName)) {
-                seenRefs.add(ref);
-                rawRows.push({ sortTs: (v.date || '') + ' 05', date: v.date || '-', ref, voucher: ref, desc: v.notes || 'سند قبض نقدية / بنكي', contraAccount: getName(v.toAccount || v.accountId || 'الخزينة'), notes: v.reference || '', costCenter: v.costCenter || '-', dr: 0, cr: amt, curr: v.currency || 'SDG', rate: parseFloat(v.rate || 1) || 1 });
-            } else if (isPartnerMatch(v.toAccount || v.accountId, '')) {
-                rawRows.push({ sortTs: (v.date || '') + ' 05', date: v.date || '-', ref, voucher: ref, desc: v.notes || 'إيداع سند قبض', contraAccount: v.partnerName || getName(v.fromAccount || '-'), notes: '', costCenter: '-', dr: amt, cr: 0, curr: v.currency || 'SDG', rate: parseFloat(v.rate || 1) || 1 });
-            }
-        });
-
-        parseJ('erp_single_payments_v1').filter(v => v && !v.deleted).forEach(v => {
-            const amt = parseFloat(v.amountLocal ?? v.amount ?? 0) || 0, ref = String(v.paymentNo || v.voucherNo || v.id || '');
-            if (!amt || (v.refInvoice && seenRefs.has(String(v.refInvoice)))) return;
-            if (isPartnerMatch(v.partnerId || v.toAccount || v.supplierId, v.partnerName)) {
-                seenRefs.add(ref);
-                rawRows.push({ sortTs: (v.date || '') + ' 06', date: v.date || '-', ref, voucher: ref, desc: v.notes || 'سند صرف نقدية / بنكي', contraAccount: getName(v.fromAccount || v.accountId || 'الخزينة'), notes: v.reference || '', costCenter: v.costCenter || '-', dr: amt, cr: 0, curr: v.currency || 'SDG', rate: parseFloat(v.rate || 1) || 1 });
-            } else if (isPartnerMatch(v.fromAccount || v.accountId, '')) {
-                rawRows.push({ sortTs: (v.date || '') + ' 06', date: v.date || '-', ref, voucher: ref, desc: v.notes || 'صرف بموجب سند', contraAccount: v.partnerName || getName(v.toAccount || '-'), notes: '', costCenter: '-', dr: 0, cr: amt, curr: v.currency || 'SDG', rate: parseFloat(v.rate || 1) || 1 });
-            }
-        });
-
-        parseJ('erp_journal_vouchers_v1').forEach(v => {
-            if (!v || !Array.isArray(v.rows)) return;
-            const ref = String(v.refNo || v.id || '');
-            if (ref && seenRefs.has(ref)) return;
-            const matchedRows = v.rows.filter(r => isPartnerMatch(r.accountId, ''));
-            if (!matchedRows.length) return;
-            const others = v.rows.filter(r => !isPartnerMatch(r.accountId, '')).map(r => getName(r.accountId)).join('، ').slice(0, 35) || '-';
-            matchedRows.forEach(r => {
-                rawRows.push({ sortTs: (v.date || '') + ' 07', date: v.date || '-', ref, voucher: v.id || '-', desc: r.description || v.notes || 'قيد يومية', contraAccount: others, notes: v.notes || '', costCenter: v.costCenter || '-', dr: parseFloat(r.debit) || 0, cr: parseFloat(r.credit) || 0, curr: v.currency || 'SDG', rate: parseFloat(v.currencyRate || 1) || 1 });
+        // Single Source of Truth: rebuild & read from unified erp_gl_v1 (100% identical to general-ledger.js & mainbalances-report.js)
+        if (typeof window.rebuildGLFromAllTables === 'function') {
+            try { window.rebuildGLFromAllTables(false); } catch (_) {}
+        }
+        const getTK = window.getTenantKey || ((k) => k);
+        let glList = [];
+        try { glList = JSON.parse(localStorage.getItem(getTK('erp_gl_v1')) || localStorage.getItem('erp_gl_v1') || '[]'); } catch (_) {}
+        if (!Array.isArray(glList)) glList = Object.values(glList || {});
+        const entPfx = cEnt ? 'cust-' : (sEnt ? 'supp-' : (bEnt ? 'bank-' : (sfEnt ? 'safe-' : '')));
+        const isPartnerEnt = (entPfx === 'cust-' || entPfx === 'supp-');
+        const normAr = (s) => String(s || '').trim().toLowerCase().replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/\s+/g, ' ');
+        const normEntName = normAr(accName);
+        const matchesGLRow = (t) => {
+            if (!t || t.type === 'opening' || t.ref === 'OPENING' || t.ref === 'OPEN-BAL') return false;
+            const tAcc = String(t.account || '').trim();
+            if (!tAcc) return false;
+            if (tAcc.toLowerCase() === String(accountId).toLowerCase()) return true;
+            const tPfx = (tAcc.match(/^(cust|supp|bank|safe|exp)-/i) || [''])[0].toLowerCase();
+            const isTxnPartnerPfx = (tPfx === 'cust-' || tPfx === 'supp-');
+            if (entPfx && tPfx && tPfx !== entPfx && !(isPartnerEnt && isTxnPartnerPfx)) return false;
+            const cleanT = tAcc.replace(/^(cust-|supp-|bank-|safe-|exp-|sub-|sust-)+/i, '').trim();
+            if (cleanId && cleanT && cleanT.toLowerCase() === cleanId.toLowerCase()) return true;
+            if (normEntName && (normAr(tAcc) === normEntName || normAr(getName(tAcc)) === normEntName || (t.accountName && normAr(t.accountName) === normEntName))) return true;
+            return false;
+        };
+        glList.filter(matchesGLRow).forEach((t, idx) => {
+            const dr = parseFloat(t.debit || t.dr || 0) || 0;
+            const cr = parseFloat(t.credit || t.cr || 0) || 0;
+            if (dr <= 0 && cr <= 0) return;
+            const ref = String(t.ref || '-');
+            const rt = parseFloat(t.exchangeRate || t.rate || 1) || 1;
+            const dStr = t.date || '-';
+            const tmStr = t.time || '00:00';
+            rawRows.push({
+                sortTs: `${dStr} ${tmStr} ${String(idx).padStart(6, '0')}`,
+                date: dStr, ref, voucher: ref,
+                desc: t.statement || t.typeLabel || 'حركة مالية',
+                contraAccount: t.counterAccount ? getName(t.counterAccount) : '-',
+                notes: t.additionalNote || (t.transferNo ? ('تحويلة: ' + t.transferNo) : (t.checkNo ? ('شيك: ' + t.checkNo) : '')),
+                costCenter: t.costCenter || '-',
+                dr, cr, curr: t.currency || 'SDG', rate: rt
             });
         });
 
@@ -1139,4 +1113,126 @@
             if (typeof window.showToast === 'function') window.showToast('✅ تم اعتماد مصفوفة الشاشات والصلاحيات للموظف "' + (emp.name || empId) + '" فوراً', 'success', 3200);
         };
     };
+
+    // 1️⃣ لوحة التوازن المحاسبي اللحظي (خفيفة 0% ذاكرة، بدون مؤقتات، تعمل بالطلب وعند حفظ القيود فقط)
+    window.runAccountingHealthCheck = function (showModal) {
+        const getTK = window.getTenantKey || ((k) => k);
+        let gl = [];
+        try { gl = JSON.parse(localStorage.getItem(getTK('erp_gl_v1')) || localStorage.getItem('erp_gl_v1') || '[]'); } catch (_) {}
+        if (!Array.isArray(gl)) gl = Object.values(gl || {});
+        let totDr = 0, totCr = 0, unbalRefs = [];
+        const byRef = new Map();
+        for (let i = 0; i < gl.length; i++) {
+            const t = gl[i]; if (!t) continue;
+            const d = parseFloat(t.debit || t.dr || 0) || 0, c = parseFloat(t.credit || t.cr || 0) || 0;
+            totDr += d; totCr += c;
+            const rk = String(t.ref || 'N/A');
+            const prev = byRef.get(rk) || 0;
+            byRef.set(rk, prev + d - c);
+        }
+        byRef.forEach((diff, ref) => { if (Math.abs(diff) > 1) unbalRefs.push({ ref, diff: Math.round(diff) }); });
+        const diffAll = Math.abs(totDr - totCr);
+        const dirtyCnt = (window.dirtyKeys && window.dirtyKeys.size) ? window.dirtyKeys.size : 0;
+        const ok = diffAll <= 1 && unbalRefs.length === 0;
+        const pill = document.getElementById('magaies-health-pill');
+        if (pill) {
+            pill.style.background = ok ? 'rgba(5,150,105,0.92)' : 'rgba(220,38,38,0.94)';
+            pill.style.borderColor = ok ? '#34d399' : '#fca5a5';
+            pill.innerHTML = ok
+                ? `🟢 متزن 100%${dirtyCnt ? ' · ⏳' + dirtyCnt : ''}`
+                : `🔴 فرق محاسبي: ${Math.round(diffAll).toLocaleString('en-US')}`;
+        }
+        if (showModal) {
+            const old = document.getElementById('magaies-health-modal'); if (old) old.remove();
+            const m = document.createElement('div');
+            m.id = 'magaies-health-modal';
+            m.style.cssText = 'position:fixed;inset:0;background:rgba(2,6,23,0.72);z-index:999999;display:flex;align-items:center;justify-content:center;direction:rtl;font-family:Tajawal,Cairo,sans-serif;padding:12px;';
+            m.onclick = (e) => { if (e.target === m) m.remove(); };
+            const rowsHtml = unbalRefs.slice(0, 12).map(u => `<div style="display:flex;justify-content:space-between;padding:5px 8px;border-bottom:1px solid rgba(255,255,255,0.08);"><b>${u.ref}</b><span style="color:#f87171;">${u.diff.toLocaleString('en-US')} SDG</span></div>`).join('');
+            m.innerHTML = `<div style="background:#0f172a;color:#fff;border:2px solid ${ok ? '#10b981' : '#ef4444'};border-radius:16px;padding:18px 20px;width:min(440px,94vw);box-shadow:0 20px 50px rgba(0,0,0,0.6);">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><h3 style="margin:0;font-size:1.1rem;font-weight:900;">${ok ? '🟢 صحة وتوازن النظام المحاسبي 100%' : '🔴 تنبيه فرق في ميزان القيود'}</h3><button onclick="document.getElementById('magaies-health-modal').remove()" style="background:none;border:none;color:#94a3b8;font-size:1.2rem;cursor:pointer;">✕</button></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;font-size:0.9rem;">
+                    <div style="background:rgba(255,255,255,0.06);padding:8px;border-radius:10px;">إجمالي المدين:<br><b style="color:#38bdf8;">${Math.round(totDr).toLocaleString('en-US')}</b></div>
+                    <div style="background:rgba(255,255,255,0.06);padding:8px;border-radius:10px;">إجمالي الدائن:<br><b style="color:#34d399;">${Math.round(totCr).toLocaleString('en-US')}</b></div>
+                </div>
+                <div style="font-size:0.85rem;color:#cbd5e1;margin-bottom:10px;">عدد القيود المفحوصة: <b>${gl.length.toLocaleString('en-US')}</b> | الفرق: <b style="color:${ok ? '#34d399' : '#f87171'};">${Math.round(diffAll).toLocaleString('en-US')} SDG</b> | بانتظار المزامنة: <b>${dirtyCnt}</b></div>
+                ${unbalRefs.length ? `<div style="max-height:160px;overflow:auto;background:rgba(0,0,0,0.3);border-radius:10px;padding:6px;margin-bottom:10px;font-size:0.82rem;">${rowsHtml}</div>` : ''}
+                <div style="display:flex;gap:8px;"><button onclick="if(window.rebuildGLFromAllTables)window.rebuildGLFromAllTables(false);window.runAccountingHealthCheck(true);" style="flex:1;padding:9px;border-radius:10px;border:none;background:#0284c7;color:#fff;font-weight:900;cursor:pointer;">🔄 إعادة فحص وتطابق فوري</button><button onclick="document.getElementById('magaies-health-modal').remove()" style="padding:9px 14px;border-radius:10px;border:1px solid #475569;background:transparent;color:#fff;font-weight:800;cursor:pointer;">إغلاق</button></div>
+            </div>`;
+            document.body.appendChild(m);
+        }
+        return { ok, totDr, totCr, diffAll, unbalCount: unbalRefs.length };
+    };
+    const _isAcctScr = /(purchase|direct-sales|single-cash-payment|general-ledger|mainbalances-report|account-statement)\.php/i.test(window.location.pathname || '');
+    if (_isAcctScr && window.innerWidth >= 900) {
+        const mountHealthPill = () => {
+            if (document.getElementById('magaies-health-pill') || !document.body) return;
+            const b = document.createElement('button');
+            b.id = 'magaies-health-pill';
+            b.type = 'button';
+            b.className = 'no-print';
+            b.title = 'لوحة التوازن المحاسبي اللحظي — اضغط للتدقيق الفوري';
+            b.style.cssText = 'position:fixed;bottom:10px;left:12px;z-index:9990;padding:5px 11px;border-radius:999px;border:1.5px solid #34d399;background:rgba(5,150,105,0.92);color:#fff;font:900 0.76rem Tajawal,Cairo,sans-serif;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,0.28);backdrop-filter:blur(4px);';
+            b.onclick = () => window.runAccountingHealthCheck(true);
+            document.body.appendChild(b);
+            (window.requestIdleCallback || ((fn) => setTimeout(fn, 700)))(() => window.runAccountingHealthCheck(false));
+        };
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mountHealthPill, { once: true });
+        else mountHealthPill();
+        window.addEventListener('magaiesDataUpdated', () => { if (document.getElementById('magaies-health-pill')) window.runAccountingHealthCheck(false); });
+    }
+
+    // التحجيم الديناميكي التلقائي لأرقام المبالغ الطويلة (صفر مؤقتات، يعمل فقط عند الإدخال أو التركيز)
+    const _fitAmtSel = '#pay-cash-amount,#pay-cash-ref,#pay-credit-amount,.bt-amount-input,.bt-ref-input,.ch-amount-input,.ch-no-input';
+    const _autoFitPayInput = (el) => {
+        if (!el || !el.matches || !el.matches(_fitAmtSel)) return;
+        const len = String(el.value || '').trim().length;
+        if (len <= 7) { el.style.removeProperty('--dyn-fit-fs'); el.style.removeProperty('--dyn-fit-hover-fs'); el.style.removeProperty('--dyn-fit-focus-fs'); return; }
+        const base = len <= 10 ? 1.85 : (len <= 13 ? 1.50 : (len <= 16 ? 1.25 : 1.05));
+        const hov  = Math.min(base + 0.25, 2.35);
+        const foc  = Math.min(base + 0.55, 2.75);
+        el.style.setProperty('--dyn-fit-fs', base.toFixed(2) + 'rem');
+        el.style.setProperty('--dyn-fit-hover-fs', hov.toFixed(2) + 'rem');
+        el.style.setProperty('--dyn-fit-focus-fs', foc.toFixed(2) + 'rem');
+    };
+    document.addEventListener('input', (e) => _autoFitPayInput(e.target), true);
+    document.addEventListener('focusin', (e) => _autoFitPayInput(e.target), true);
+
+    // حظر تكرار الأسماء الموحد بالعربية المطبّعة (عملاء، موردين، مخازن، أصناف، بنوك، خزائن)
+    window.normalizeArabicNameStrict = function (s) {
+        return String(s || '').trim().toLowerCase().replace(/[أإآٱ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/\s+/g, ' ').trim();
+    };
+    window.isDuplicateMasterName = function (storeKey, name, excludeId) {
+        const target = window.normalizeArabicNameStrict(name);
+        if (!target) return false;
+        const getTK = window.getTenantKey || ((k) => k);
+        const list = [...parseJ(storeKey), ...parseJ(getTK(storeKey))];
+        return list.some(x => x && !x.deleted && (!excludeId || String(x.id) !== String(excludeId)) && window.normalizeArabicNameStrict(x.name || x.bankName || x.safeName || x.warehouseName || x.fullName) === target);
+    };
+
+    // تكبير الرقم عند الضغط في كافة التقارير (الأرصدة، الأستاذ، المخازن، كشف الحساب، التجارية) مع الحفاظ التام على نفس الخلفية ونفس الألوان
+    const _isAnyReportPage = /(report|ledger|statement|balance|inventory|warehouse|stock|commercial|trial)/i.test(window.location.pathname || '');
+    if (_isAnyReportPage) {
+        document.addEventListener('click', (e) => {
+            const td = e.target && e.target.closest ? e.target.closest('tbody td') : null;
+            if (!td || td.closest('#balances-tbody') || td.closest('#recent-tbody') || td.querySelector('button,a,input,select')) return;
+            const txt = String(td.textContent || '').trim();
+            if (!txt || txt === '-' || !/[\d٠-٩]/.test(txt)) return;
+            const isMag = td.classList.contains('num-magnified');
+            if (isMag) {
+                td.classList.remove('num-magnified', 'focused-num');
+                ['font-size', 'font-weight', 'box-shadow', 'border-radius', 'padding', 'line-height'].forEach(p => td.style.removeProperty(p));
+            } else {
+                const curPx = parseFloat(window.getComputedStyle(td).fontSize) || 15;
+                const nextPx = Math.min(Math.max(curPx * 1.42, 22), 34);
+                td.classList.add('num-magnified', 'focused-num');
+                td.style.setProperty('font-size', nextPx.toFixed(1) + 'px', 'important');
+                td.style.setProperty('font-weight', '900', 'important');
+                td.style.setProperty('box-shadow', 'inset 0 0 0 1.5px currentColor', 'important');
+                td.style.setProperty('border-radius', '5px', 'important');
+                td.style.setProperty('padding', '4px 7px', 'important');
+                td.style.setProperty('line-height', '1.18', 'important');
+            }
+        }, false);
+    }
 })();

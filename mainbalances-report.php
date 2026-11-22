@@ -321,30 +321,26 @@ $page_title = 'حساب الأرصدة الأساسية';
             opacity: 0.8;
         }
         
-        /* The Focused Specific Number Feature (Non-Overlapping Audit Highlight) */
+        /* The Focused Specific Number Feature (Size-Only Enlarge — Preserves Original Background & Text Colors) */
         td.focused-num, td.num-magnified, #balances-table tbody td.focused-num, #balances-table tbody td.num-magnified,
         .pos-grid tbody td.focused-num, .pos-grid tbody td.num-magnified, .num.focused-num, .num.num-magnified,
         :root.light-theme td.focused-num, :root.light-theme td.num-magnified,
         :root.light-theme #balances-table tbody td.focused-num, :root.light-theme #balances-table tbody td.num-magnified,
         :root.light-theme .pos-grid tbody td.focused-num, :root.light-theme .pos-grid tbody td.num-magnified {
-            font-size: 1.28rem !important;
+            font-size: 1.45rem !important;
             font-weight: 900 !important;
             font-variant-numeric: tabular-nums !important;
-            background: #fef08a !important;
-            background-color: #fef08a !important;
-            color: #0f172a !important;
-            border-radius: 4px !important;
-            box-shadow: inset 0 0 0 2px #eab308 !important;
+            border-radius: 5px !important;
+            box-shadow: inset 0 0 0 1.5px currentColor !important;
             display: table-cell !important;
             box-sizing: border-box !important;
-            padding: 4px 6px !important;
+            padding: 4px 7px !important;
             white-space: nowrap !important;
             letter-spacing: 0 !important;
             transform: none !important;
-            line-height: 1.2 !important;
-            text-shadow: none !important;
+            line-height: 1.18 !important;
             cursor: pointer !important;
-            transition: background 0.15s ease, font-size 0.15s ease !important;
+            transition: font-size 0.14s ease !important;
         }
 
         @page { size: A4 landscape; margin: 6mm; }
@@ -1121,6 +1117,18 @@ $page_title = 'حساب الأرصدة الأساسية';
                     <option value="CREDITORS_ONLY">🟢 الأرصدة الدائنة فقط (له)</option>
                     <option value="ACTIVE_ONLY">⚡ الأرصدة المتحركة (ذات نشاط)</option>
                     <option value="WITH_ZERO">جميع الحسابات (بما فيها الصفرية)</option>
+                </select>
+            </div>
+
+            <!-- 5B. حالة الترحيل (الكل / المرحّل فقط / غير المرحّل — حسابات + إشعارات) -->
+            <div class="filter-group" style="flex: 0.9; min-width: 0; margin: 0;">
+                <label style="font-size:0.75rem; margin-bottom:4px; font-weight:800; color:#34d399; display:flex; align-items:center; gap:3px; white-space:nowrap;">
+                    <span>✅ حالة الترحيل</span>
+                </label>
+                <select class="filter-input" id="filter-posted" style="padding:4px 8px; font-size:0.76rem; height:38px; border-radius:8px; font-weight:800; width:100%; margin:0; box-sizing:border-box;" onchange="runReport()">
+                    <option value="ALL" selected>الكل (مرحل وغير مرحل)</option>
+                    <option value="POSTED">المرحّل فقط (حسابات + إشعارات)</option>
+                    <option value="UNPOSTED">غير المرحّل فقط</option>
                 </select>
             </div>
 

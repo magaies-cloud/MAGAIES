@@ -920,8 +920,11 @@ function addNewCustomer() {
         supps = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
         if (!Array.isArray(supps)) supps = [];
     } catch(e) { supps = []; }
-    if (supps.some(s => s && !s.deleted && String(s.name || '').trim() === name)) {
-        showToast('⚠️ اسم المورد موجود مسبقاً', 'warning');
+    const _dupSup = (typeof window.isDuplicateMasterName === 'function')
+        ? window.isDuplicateMasterName('erp_suppliers_v1', name)
+        : supps.some(s => s && !s.deleted && String(s.name || '').trim() === name);
+    if (_dupSup) {
+        showToast('🚫 اسم المورد "' + name + '" مسجل مسبقاً — ممنوع تكرار الأسماء!', 'error');
         return;
     }
 
@@ -3428,16 +3431,20 @@ function submitInvoice(ignoreWarnings = false) {
             let suppliers = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
             const sIdx = suppliers.findIndex(s => String(s.id) === String(custId));
             if (sIdx > -1) {
+                if (suppliers[sIdx].openingBalance === undefined && suppliers[sIdx].opening_balance === undefined) {
+                    suppliers[sIdx].openingBalance = parseFloat(suppliers[sIdx].balance || 0) || 0;
+                }
                 suppliers[sIdx].currentBalance = (parseFloat(suppliers[sIdx].currentBalance) || 0) + deltaSup;
-                suppliers[sIdx].balance = suppliers[sIdx].currentBalance;
                 localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
             } else {
                 let customers = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []);
                 const cIdx = customers.findIndex(c => c && String(c.id) === String(custId));
                 if (cIdx > -1) {
+                    if (customers[cIdx].openingBalance === undefined && customers[cIdx].opening_balance === undefined) {
+                        customers[cIdx].openingBalance = parseFloat(customers[cIdx].balance || 0) || 0;
+                    }
                     const curC = parseFloat(customers[cIdx].currentBalance ?? customers[cIdx].balance ?? customers[cIdx].openingBalance ?? 0) || 0;
                     customers[cIdx].currentBalance = curC - deltaSup;
-                    customers[cIdx].balance = customers[cIdx].currentBalance;
                     localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
                 }
             }
@@ -3525,6 +3532,24 @@ function submitInvoice(ignoreWarnings = false) {
                 body: JSON.stringify({ crdtQueue: [{ idempotencyKey: 'pur_fin_' + committedNo + '_' + finVNo, updatedAtMs: Date.now(), record: finRecord }] })
             }).catch(() => {});
             if (typeof window.refreshPurchaseFinSeqBadge === 'function') setTimeout(window.refreshPurchaseFinSeqBadge, 60);
+        } else if (existingPur && existingPur.linkedFinancialVoucherNo) {
+            const oldFinNo = String(existingPur.linkedFinancialVoucherNo).trim();
+            const getTK = window.getTenantKey || ((k) => k);
+            const delFinKeys = Array.from(new Set(['erp_single_payments_v1', getTK('erp_single_payments_v1'), 'magaies_vouchers_cache']));
+            delFinKeys.forEach(k => {
+                try {
+                    let arr = JSON.parse(localStorage.getItem(k) || '[]') || [];
+                    if (!Array.isArray(arr)) return;
+                    let changed = false;
+                    arr.forEach(p => {
+                        if (p && (String(p.voucherNo || p.id || '').trim() === oldFinNo || String(p.refInvoice || '').trim() === String(committedNo))) {
+                            p.deleted = true; p.updatedAtMs = Date.now(); changed = true;
+                        }
+                    });
+                    if (changed) localStorage.setItem(k, JSON.stringify(arr));
+                } catch (_) {}
+            });
+            data.linkedFinancialVoucherNo = '';
         }
 
         // --- ADD CHEQUES TO ERP_CHECKS_V1 ---
@@ -3556,6 +3581,7 @@ function submitInvoice(ignoreWarnings = false) {
     }
 
     data.updatedAtMs = Date.now();
+    data.isEdit = !!currentViewedInvoiceNo;
     localStorage.setItem('erp_pur_' + committedNo, JSON.stringify(data));
 
     // Append or Update BOTH unprefixed & tenant-prefixed purchase arrays so GL, Balances & Hub stay 100% synced

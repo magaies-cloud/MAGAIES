@@ -2,24 +2,20 @@
 window.toggleNumberMagnification = function(el) {
     if (!el) return;
     const isMagnified = el.classList.contains('focused-num') || el.classList.contains('num-magnified');
-    const props = ['background', 'background-color', 'color', 'font-size', 'font-weight', 'border', 'border-radius', 'box-shadow', 'transform', 'z-index', 'position', 'padding', 'letter-spacing', 'text-shadow', 'line-height'];
+    const props = ['font-size', 'font-weight', 'border-radius', 'box-shadow', 'transform', 'padding', 'letter-spacing', 'line-height'];
     if (isMagnified) {
         el.classList.remove('focused-num', 'num-magnified');
         props.forEach(p => el.style.removeProperty(p));
     } else {
         el.classList.add('focused-num', 'num-magnified');
-        el.style.setProperty('background', '#fef08a', 'important');
-        el.style.setProperty('background-color', '#fef08a', 'important');
-        el.style.setProperty('color', '#0f172a', 'important');
-        el.style.setProperty('font-size', '1.28rem', 'important');
+        const curPx = parseFloat(window.getComputedStyle(el).fontSize) || 15;
+        const nextPx = Math.min(Math.max(curPx * 1.42, 22), 34);
+        el.style.setProperty('font-size', nextPx.toFixed(1) + 'px', 'important');
         el.style.setProperty('font-weight', '900', 'important');
-        el.style.setProperty('border-radius', '4px', 'important');
-        el.style.setProperty('box-shadow', 'inset 0 0 0 2px #eab308', 'important');
-        el.style.setProperty('transform', 'none', 'important');
-        el.style.setProperty('padding', '4px 6px', 'important');
-        el.style.setProperty('letter-spacing', '0px', 'important');
-        el.style.setProperty('line-height', '1.2', 'important');
-        el.style.setProperty('text-shadow', 'none', 'important');
+        el.style.setProperty('border-radius', '5px', 'important');
+        el.style.setProperty('box-shadow', 'inset 0 0 0 1.5px currentColor', 'important');
+        el.style.setProperty('padding', '4px 7px', 'important');
+        el.style.setProperty('line-height', '1.18', 'important');
     }
 };
 
@@ -543,7 +539,7 @@ function getSystemUsdRate() {
     return systemUsdRate > 1 ? systemUsdRate : 1;
 }
 
-function calculateAccountLedgerBalance(p, allTxns, systemUsdRate, ccFilter = 'ALL') {
+function calculateAccountLedgerBalance(p, allTxns, systemUsdRate, ccFilter = 'ALL', postedFilter = 'ALL') {
     const pIdStr = String(p.id || '').trim();
     const pType = p.type || 'CUST';
     const prefix = pType === 'CUST' ? 'cust-' : pType === 'SUPP' ? 'supp-' : pType === 'BANK' ? 'bank-' : pType === 'SAFE' ? 'safe-' : 'exp-';
@@ -590,16 +586,18 @@ function calculateAccountLedgerBalance(p, allTxns, systemUsdRate, ccFilter = 'AL
     const SYS_COUNTER_ACCS = /^(walk-in|walk-in-supplier|unknown|-|all|حسابات فرعية متعددة|revenue-sales|cost-purchases|tax-payable|tax-receivable|discount-allowed|discount-received|shipping-expense|labor-expense|extra-additions)$/i;
     const matchesExactGLAccount = (t) => {
         if (!t || (ccFilter && ccFilter !== 'ALL' && t.costCenter !== ccFilter)) return false;
+        if (postedFilter === 'POSTED' && t.isPosted === false) return false;
+        if (postedFilter === 'UNPOSTED' && t.isPosted !== false) return false;
         if (t.type === 'opening' || t.ref === 'OPENING' || t.ref === 'OPEN-BAL') return false;
         const tAcc = String(t.account || '').trim();
         if (!tAcc || SYS_COUNTER_ACCS.test(tAcc)) return false;
         if (tAcc.toLowerCase() === pRefPrefixed.toLowerCase()) return true;
         const tPfx = (tAcc.match(/^(cust|supp|bank|safe|exp)-/i) || [''])[0].toLowerCase();
-        if (prefix && tPfx && tPfx !== prefix.toLowerCase()) return false;
-        const cleanTAcc = tAcc.replace(/^(cust-|supp-|bank-|safe-|exp-|sub-|sust-)+/i, '').trim();
-        if (!cleanTAcc || SYS_COUNTER_ACCS.test(cleanTAcc)) return false;
         const isPartnerType = (prefix === 'cust-' || prefix === 'supp-');
         const isTxnPartnerPfx = (tPfx === 'cust-' || tPfx === 'supp-');
+        if (prefix && tPfx && tPfx !== prefix.toLowerCase() && !(isPartnerType && isTxnPartnerPfx)) return false;
+        const cleanTAcc = tAcc.replace(/^(cust-|supp-|bank-|safe-|exp-|sub-|sust-)+/i, '').trim();
+        if (!cleanTAcc || SYS_COUNTER_ACCS.test(cleanTAcc)) return false;
         if (pBareId && cleanTAcc.toLowerCase() === pBareId.toLowerCase()) {
             if (!prefix || tPfx === prefix.toLowerCase() || (isPartnerType && isTxnPartnerPfx) || (!tPfx && pBareId.length >= 4)) return true;
         }
@@ -731,6 +729,13 @@ function loadData() {
     const rates = getCurrencyRates();
     const systemUsdRate = getSystemUsdRate();
     
+    const extractOpeningBal = (rec) => {
+        if (rec.openingBalance !== undefined && rec.openingBalance !== null && rec.openingBalance !== '') return parseNum(rec.openingBalance);
+        if (rec.opening_balance !== undefined && rec.opening_balance !== null && rec.opening_balance !== '') return parseNum(rec.opening_balance);
+        if (rec.currentBalance !== undefined && rec.currentBalance !== null) return 0;
+        return parseNum(rec.balance || 0);
+    };
+
     custs.forEach(c => {
         const cur = c.currency || 'SDG';
         const rate = parseNum(c.exchangeRate || c.exRate || c.rate || (cur === 'USD' ? systemUsdRate : (rates[cur] || 1)));
@@ -739,7 +744,7 @@ function loadData() {
             phone: c.phone || '', taxNumber: c.taxNumber || '', currency: cur, exRate: rate,
             openingDebit: parseNum(c.openingDebit || c.debit || 0),
             openingCredit: parseNum(c.openingCredit || c.credit || 0),
-            openingBalance: parseNum(c.openingBalance || c.opening_balance || c.balance || 0),
+            openingBalance: extractOpeningBal(c),
             creditLimit: parseNum(c.creditLimit || c.credit_limit || 0),
             balanceType: c.balance_type || c.balanceType || 'debit',
             balance_type: c.balance_type || c.balanceType || 'debit',
@@ -756,7 +761,7 @@ function loadData() {
             phone: s.phone || '', taxNumber: s.taxNumber || '', currency: cur, exRate: rate,
             openingDebit: parseNum(s.openingDebit || s.debit || 0),
             openingCredit: parseNum(s.openingCredit || s.credit || 0),
-            openingBalance: parseNum(s.openingBalance || s.opening_balance || s.balance || 0),
+            openingBalance: extractOpeningBal(s),
             creditLimit: parseNum(s.creditLimit || s.credit_limit || 0),
             balanceType: s.balance_type || s.balanceType || 'credit',
             balance_type: s.balance_type || s.balanceType || 'credit',
@@ -773,7 +778,7 @@ function loadData() {
             phone: b.branch || '', taxNumber: b.accountNo || '', currency: cur, exRate: rate,
             openingDebit: parseNum(b.openingDebit || b.debit || 0),
             openingCredit: parseNum(b.openingCredit || b.credit || 0),
-            openingBalance: parseNum(b.openingBalance || b.opening_balance || b.balance || 0),
+            openingBalance: extractOpeningBal(b),
             balanceType: b.balance_type || b.balanceType || 'debit',
             balance_type: b.balance_type || b.balanceType || 'debit',
             notes: b.notes || '',
@@ -789,7 +794,7 @@ function loadData() {
             phone: '', taxNumber: '', currency: cur, exRate: rate,
             openingDebit: parseNum(s.openingDebit || s.debit || 0),
             openingCredit: parseNum(s.openingCredit || s.credit || 0),
-            openingBalance: parseNum(s.openingBalance || s.opening_balance || s.balance || 0),
+            openingBalance: extractOpeningBal(s),
             balanceType: s.balance_type || s.balanceType || 'debit',
             balance_type: s.balance_type || s.balanceType || 'debit',
             notes: s.notes || '',
@@ -805,7 +810,7 @@ function loadData() {
             phone: '', taxNumber: '', currency: cur, exRate: rate,
             openingDebit: parseNum(e.openingDebit || e.debit || 0),
             openingCredit: parseNum(e.openingCredit || e.credit || 0),
-            openingBalance: parseNum(e.openingBalance || e.opening_balance || e.balance || 0),
+            openingBalance: extractOpeningBal(e),
             balanceType: e.balance_type || e.balanceType || 'debit',
             balance_type: e.balance_type || e.balanceType || 'debit',
             notes: e.notes || '',
@@ -1005,12 +1010,13 @@ function runReport(isAutoInit = false) {
     const sectorFilter = document.getElementById('filter-sector') ? document.getElementById('filter-sector').value : 'ALL';
     const currFilter = document.getElementById('filter-currency') ? document.getElementById('filter-currency').value : 'ALL';
     const conditionFilter = document.getElementById('filter-condition') ? document.getElementById('filter-condition').value : 'ALL';
+    const postedFilter = document.getElementById('filter-posted') ? document.getElementById('filter-posted').value : 'ALL';
 
     const systemUsdRate = getSystemUsdRate();
 
     // Calculate ending ledger balances for each partner using the exact same logic as general-ledger.js
     ALL_PARTNERS.forEach(p => {
-        const balRes = calculateAccountLedgerBalance(p, ALL_TXNS, systemUsdRate, ccFilter);
+        const balRes = calculateAccountLedgerBalance(p, ALL_TXNS, systemUsdRate, ccFilter, postedFilter);
         p.endingDebitLocal = balRes.endingDebitLocal;
         p.endingCreditLocal = balRes.endingCreditLocal;
         p.endingDebitForeign = balRes.endingDebitForeign;

@@ -2105,7 +2105,11 @@ function runReport() {
 
                 const opDebit = parseNum(masterRec.openingDebit || masterRec.debit || 0);
                 const opCredit = parseNum(masterRec.openingCredit || masterRec.credit || 0);
-                const rawBal = parseNum(masterRec.openingBalance || masterRec.opening_balance || masterRec.balance || 0);
+                const rawBal = (masterRec.openingBalance !== undefined && masterRec.openingBalance !== null && masterRec.openingBalance !== '')
+                    ? parseNum(masterRec.openingBalance)
+                    : ((masterRec.opening_balance !== undefined && masterRec.opening_balance !== null && masterRec.opening_balance !== '')
+                        ? parseNum(masterRec.opening_balance)
+                        : (masterRec.currentBalance !== undefined && masterRec.currentBalance !== null ? 0 : parseNum(masterRec.balance || 0)));
 
                 if (opDebit > 0 || opCredit > 0) {
                     intrinsicBal = opDebit - opCredit;

@@ -99,20 +99,33 @@ if (!$input || !$type) {
 
 $data = $input['data'] ?? $input['customer'] ?? null;
 
+function normalizeArabicNameStrict($str) {
+    $s = trim((string)$str);
+    if ($s === '') return '';
+    $s = mb_strtolower($s, 'UTF-8');
+    $s = str_replace(['أ','إ','آ','ٱ'], 'ا', $s);
+    $s = str_replace(['ة'], 'ه', $s);
+    $s = str_replace(['ى'], 'ي', $s);
+    $s = preg_replace('/[\x{064B}-\x{065F}\x{0670}\x{0640}]/u', '', $s);
+    $s = preg_replace('/\s+/u', ' ', $s);
+    return trim($s);
+}
+
 function isDuplicateNameDB($pdo, $tenant_id, $table, $name, $currentId) {
-    if (empty(trim((string)$name))) return false;
-    $name = trim((string)$name);
+    $normTarget = normalizeArabicNameStrict($name);
+    if ($normTarget === '') return false;
     $currentId = trim((string)$currentId);
-    $hasSearchName = in_array($table, ['items', 'customers'], true);
-    if ($hasSearchName) {
-        $stmt = $pdo->prepare("SELECT id FROM `$table` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND LOWER(search_name) = LOWER(?) AND COALESCE(NULLIF(frontend_id, ''), JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')), '') != ? LIMIT 1");
-        $stmt->execute([$tenant_id, $name, $currentId]);
-        return $stmt->fetchColumn() ? true : false;
-    } else {
-        $stmt = $pdo->prepare("SELECT id FROM `$table` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND LOWER(JSON_UNQUOTE(JSON_EXTRACT(data, '$.name'))) = LOWER(?) AND COALESCE(NULLIF(frontend_id, ''), JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')), '') != ? LIMIT 1");
-        $stmt->execute([$tenant_id, $name, $currentId]);
-        return $stmt->fetchColumn() ? true : false;
+    $stmt = $pdo->prepare("SELECT id, frontend_id, data FROM `$table` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");
+    $stmt->execute([$tenant_id]);
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $obj = json_decode($row['data'] ?? '', true) ?: [];
+        if (!empty($obj['deleted']) && $obj['deleted'] !== 'false' && $obj['deleted'] !== '0') continue;
+        $rowId = trim((string)($obj['id'] ?? $row['frontend_id'] ?? $row['id'] ?? ''));
+        if ($currentId !== '' && $rowId === $currentId) continue;
+        $rowName = (string)($obj['name'] ?? $obj['bankName'] ?? $obj['safeName'] ?? $obj['warehouseName'] ?? $obj['fullName'] ?? '');
+        if ($rowName !== '' && normalizeArabicNameStrict($rowName) === $normTarget) return true;
     }
+    return false;
 }
 
 try {

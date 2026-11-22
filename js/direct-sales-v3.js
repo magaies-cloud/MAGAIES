@@ -836,8 +836,11 @@ function addNewCustomer() {
     if (!name) { showToast('❌ يرجى إدخال اسم العميل', 'error'); return; }
     let allCustomers = [];
     try { allCustomers = JSON.parse(localStorage.getItem('erp_customers_v1')) || []; } catch(e) {}
-    if (allCustomers.some(c => c && !c.deleted && String(c.name || '').trim() === name)) {
-        showToast('⚠️ اسم العميل موجود مسبقاً', 'warning');
+    const _dupCust = (typeof window.isDuplicateMasterName === 'function')
+        ? window.isDuplicateMasterName('erp_customers_v1', name)
+        : allCustomers.some(c => c && !c.deleted && String(c.name || '').trim() === name);
+    if (_dupCust) {
+        showToast('🚫 اسم العميل "' + name + '" مسجل مسبقاً — ممنوع تكرار الأسماء!', 'error');
         return;
     }
 
@@ -4366,15 +4369,15 @@ function submitInvoice(ignoreWarnings = false) {
             const sIdx = safes.findIndex(s => String(s.id) === String(paymentAccountId));
             const bIdx = banks.findIndex(b => String(b.id) === String(paymentAccountId));
             if (sIdx > -1) {
+                if (safes[sIdx].openingBalance === undefined && safes[sIdx].opening_balance === undefined) safes[sIdx].openingBalance = parseFloat(safes[sIdx].balance || 0) || 0;
                 let curSafeBal = parseFloat(safes[sIdx].currentBalance ?? safes[sIdx].balance ?? safes[sIdx].openingBalance ?? 0) || 0;
                 safes[sIdx].currentBalance = curSafeBal + cashAmt;
-                safes[sIdx].balance = safes[sIdx].currentBalance;
                 safeAccountName = safes[sIdx].safeName || safes[sIdx].name || '';
                 localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
             } else if (bIdx > -1) {
+                if (banks[bIdx].openingBalance === undefined && banks[bIdx].opening_balance === undefined) banks[bIdx].openingBalance = parseFloat(banks[bIdx].balance || 0) || 0;
                 let currentBalance = parseFloat(banks[bIdx].currentBalance ?? banks[bIdx].balance ?? banks[bIdx].openingBalance ?? 0) || 0;
                 banks[bIdx].currentBalance = currentBalance + cashAmt;
-                banks[bIdx].balance = banks[bIdx].currentBalance;
                 safeAccountName = banks[bIdx].bankName || banks[bIdx].name || '';
             }
         }
@@ -4383,9 +4386,9 @@ function submitInvoice(ignoreWarnings = false) {
         bankTransfers.forEach(bt => {
             const bIdx = banks.findIndex(b => String(b.id) === String(bt.bankAccountId));
             if (bIdx > -1) {
+                if (banks[bIdx].openingBalance === undefined && banks[bIdx].opening_balance === undefined) banks[bIdx].openingBalance = parseFloat(banks[bIdx].balance || 0) || 0;
                 let currentBalance = parseFloat(banks[bIdx].currentBalance ?? banks[bIdx].balance ?? banks[bIdx].openingBalance ?? 0) || 0;
                 banks[bIdx].currentBalance = currentBalance + bt.amount;
-                banks[bIdx].balance = banks[bIdx].currentBalance;
                 bankTransferNames.push(banks[bIdx].bankName || banks[bIdx].name);
             }
         });
@@ -4397,9 +4400,9 @@ function submitInvoice(ignoreWarnings = false) {
             let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
             const cIdx = customers.findIndex(c => String(c.id) === String(custId));
             if (cIdx > -1) {
+                if (customers[cIdx].openingBalance === undefined && customers[cIdx].opening_balance === undefined) customers[cIdx].openingBalance = parseFloat(customers[cIdx].balance || 0) || 0;
                 let currentBalance = parseFloat(customers[cIdx].currentBalance ?? customers[cIdx].balance ?? customers[cIdx].openingBalance ?? 0) || 0;
                 customers[cIdx].currentBalance = currentBalance + (creditAmt > 0 ? creditAmt : -overpaidAmt);
-                customers[cIdx].balance = customers[cIdx].currentBalance;
                 localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
                 if (cust) cust.ledger = customers[cIdx].currentBalance;
             }
@@ -4407,6 +4410,8 @@ function submitInvoice(ignoreWarnings = false) {
         try { if (window.BroadcastChannel) new BroadcastChannel('erp_global_sync').postMessage({ key: 'erp_customers_v1', ts: Date.now() }); } catch(_bc) {}
     }
 
+    data.updatedAtMs = Date.now();
+    data.isEdit = !!currentViewedInvoiceNo;
     localStorage.setItem('erp_inv_' + committedNo, JSON.stringify(data));
 
     // Append or Update global sales invoices array & mobile mirror

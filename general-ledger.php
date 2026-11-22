@@ -364,29 +364,25 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             color: #0f172a !important;
         }
 
-        /* ── Magnified Number Audit Effect (Clear Non-Overlapping Audit Box) ── */
+        /* ── Magnified Number Audit Effect (Size-Only Enlarge — Preserves Original Background & Text Colors) ── */
         table#recent-table tbody td.num-magnified, table#preview-table tbody td.num-magnified,
         .pos-grid tbody td.num-magnified, .excel-table tbody td.num-magnified, .excel-table td.num-magnified, td.num-magnified,
         :root.light-theme table#recent-table tbody td.num-magnified, :root.light-theme table#preview-table tbody td.num-magnified,
         :root.light-theme .pos-grid tbody td.num-magnified, :root.light-theme .excel-table tbody td.num-magnified, :root.light-theme .excel-table td.num-magnified {
-            font-size: 1.28rem !important;
+            font-size: 1.45rem !important;
             font-weight: 900 !important;
             font-variant-numeric: tabular-nums !important;
-            background: #fef08a !important;
-            background-color: #fef08a !important;
-            color: #0f172a !important;
-            border-radius: 4px !important;
-            box-shadow: inset 0 0 0 2px #eab308 !important;
-            text-shadow: none !important;
-            padding: 4px 6px !important;
+            border-radius: 5px !important;
+            box-shadow: inset 0 0 0 1.5px currentColor !important;
+            padding: 4px 7px !important;
             white-space: nowrap !important;
             display: table-cell !important;
             box-sizing: border-box !important;
             letter-spacing: 0 !important;
             transform: none !important;
-            line-height: 1.2 !important;
+            line-height: 1.18 !important;
             cursor: pointer !important;
-            transition: background 0.15s ease, font-size 0.15s ease !important;
+            transition: font-size 0.14s ease !important;
         }
 
         /* ── Custom Context Menu Styling ── */

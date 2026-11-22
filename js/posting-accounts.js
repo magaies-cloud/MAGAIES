@@ -1478,16 +1478,18 @@ async function saveItemPosted(item) {
         const crdtId = 'CRDT-' + crdtTs + '-' + Math.random().toString(36).slice(2, 7);
 
         if (isObj) {
-            if (data[refId]) { data[refId].isPosted = true; data[refId]._crdtLamportTs = crdtTs; data[refId]._crdtUuid = crdtId; }
+            if (data[refId]) { data[refId].isPosted = true; data[refId].updatedAtMs = crdtTs; data[refId]._crdtLamportTs = crdtTs; data[refId]._crdtUuid = crdtId; }
         } else if (Array.isArray(data)) {
             const idx = data.findIndex(x => (x.id || x.invoiceNo || x.voucherNo) === refId);
-            if (idx > -1) { data[idx].isPosted = true; data[idx]._crdtLamportTs = crdtTs; data[idx]._crdtUuid = crdtId; }
+            if (idx > -1) { data[idx].isPosted = true; data[idx].updatedAtMs = crdtTs; data[idx]._crdtLamportTs = crdtTs; data[idx]._crdtUuid = crdtId; }
         }
 
         // Save using standard overridden localStorage.setItem + Atomic CRDT & GL Audit Sync
         localStorage.setItem(item._metaKey, JSON.stringify(data));
+        if (typeof window.rebuildGLFromAllTables === 'function') { try { window.rebuildGLFromAllTables(false); } catch (_) {} }
         if (window.recordPaCrdtAtomicDelta) window.recordPaCrdtAtomicDelta(item, true, crdtTs, crdtId);
         if (window.broadcastPaAtomicLedgerSync) window.broadcastPaAtomicLedgerSync(item);
+        if (typeof window.pushToCloud === 'function') { window.pushToCloud(true).catch(() => {}); }
         return true;
     } catch(e) {
         console.error('Save error', e);
@@ -1726,17 +1728,20 @@ async function saveItemUnposted(item) {
         const isObj = data && typeof data === 'object' && !Array.isArray(data);
         const refId = item.id || item.invoiceNo || item.voucherNo;
 
+        const uTs = Date.now();
         if (isObj) {
-            if (data[refId]) data[refId].isPosted = false;
+            if (data[refId]) { data[refId].isPosted = false; data[refId].updatedAtMs = uTs; }
         } else if (Array.isArray(data)) {
             const idx = data.findIndex(x => (x.id || x.invoiceNo || x.voucherNo) === refId);
-            if (idx > -1) data[idx].isPosted = false;
+            if (idx > -1) { data[idx].isPosted = false; data[idx].updatedAtMs = uTs; }
         }
 
         // Save using standard overridden localStorage.setItem + Atomic Reversal Sync
         localStorage.setItem(item._metaKey, JSON.stringify(data));
-        if (window.recordPaCrdtAtomicDelta) window.recordPaCrdtAtomicDelta(item, false, Date.now(), 'CRDT-UNPOST-' + Date.now());
+        if (typeof window.rebuildGLFromAllTables === 'function') { try { window.rebuildGLFromAllTables(false); } catch (_) {} }
+        if (window.recordPaCrdtAtomicDelta) window.recordPaCrdtAtomicDelta(item, false, uTs, 'CRDT-UNPOST-' + uTs);
         if (window.broadcastPaAtomicLedgerSync) window.broadcastPaAtomicLedgerSync(item, true);
+        if (typeof window.pushToCloud === 'function') { window.pushToCloud(true).catch(() => {}); }
         return true;
     } catch(e) {
         console.error('Unposting save error', e);

@@ -1761,7 +1761,8 @@ JSON.parse = function(val) {
                 resolve({ success: true, offline: true });
                 return;
             }
-            const token = localStorage.getItem('authToken');
+            const isLocal = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1');
+            const token = localStorage.getItem('authToken') || (isLocal ? 'offline_token_fallback' : '');
             if (!token || !navigator.onLine) {
                 resolve();
                 return;
@@ -1779,9 +1780,8 @@ JSON.parse = function(val) {
             // Sync only modified keys unless force === 'all' is explicitly requested
             const keysToSync = dirtyKeys.size > 0 ? Array.from(dirtyKeys) : syncKeys;
             
-            // Keep a copy of current dirty keys in case we need to restore them if the sync fails
+            // Keep dirtyKeys persisted until server confirms success so fast navigation never drops unsynced saves
             const currentDirty = Array.from(dirtyKeys);
-            dirtyKeys.clear();
             persistDirtyKeys();
 
             keysToSync.forEach(k => {
@@ -1805,10 +1805,12 @@ JSON.parse = function(val) {
             showSyncOverlay('جاري حفظ البيانات بالسيرفر...');
 
             let resStatus = 200;
+            const bodyStr = JSON.stringify(payload);
             fetch(SYNC_PUSH_URL, {
                 method: "POST",
                 headers: getAuthHeaders(),
-                body: JSON.stringify(payload)
+                body: bodyStr,
+                keepalive: bodyStr.length < 60000
             }).then(res => {
                 resStatus = res.status;
                 if (res.status === 401) {
@@ -1829,12 +1831,12 @@ JSON.parse = function(val) {
                 }
 
                 if (!data.success && data.error !== 'تمت المزامنة بنجاح') {
-                    // Restore dirty keys for retry
                     currentDirty.forEach(k => dirtyKeys.add(k));
                     persistDirtyKeys();
                     console.warn("Cloud Sync Push Notice:", data.error || "Save failed");
                     resolve({ success: false, deferred: true, error: data.error || "Save failed" });
                 } else {
+                    currentDirty.forEach(k => dirtyKeys.delete(k));
                     persistDirtyKeys();
                     console.log("Cloud Sync: Strict Backup Successful");
                     resolve(data);
@@ -1932,6 +1934,7 @@ JSON.parse = function(val) {
                     return;
                 }
 
+                if (key === 'erp_gl_v1') return; // GL is deterministically rebuilt from source tables — never clobber/duplicate with stale snapshots
                 if (serverHasData || localIsEmpty) {
                     let finalVal = serverVal;
                     
@@ -1939,29 +1942,40 @@ JSON.parse = function(val) {
                         try {
                             const localArr = JSON.parse(localDataStr);
                             if (Array.isArray(localArr) && localArr.length > 0) {
-                                const serverIds = new Set();
-                                serverVal.forEach(rec => {
-                                    if (rec?.id) serverIds.add(String(rec.id));
-                                    if (rec?.invoiceNo) serverIds.add(String(rec.invoiceNo));
-                                    if (rec?.receiptNo) serverIds.add(String(rec.receiptNo));
-                                    if (rec?.voucherNo) serverIds.add(String(rec.voucherNo));
-                                    if (rec?.paymentNo) serverIds.add(String(rec.paymentNo));
-                                    if (rec?.jvNo) serverIds.add(String(rec.jvNo));
+                                const getRecId = (rec) => String(rec?.invoiceNo || rec?.voucherNo || rec?.paymentNo || rec?.receiptNo || rec?.jvNo || rec?.id || '').trim();
+                                const getRecTs = (rec) => {
+                                    if (!rec) return 0;
+                                    const ms = Number(rec.updatedAtMs || rec.savedAtMs || 0);
+                                    if (ms > 0) return ms;
+                                    const s = rec.updatedAt || rec.serverUpdatedAt || rec.savedAt || rec.timestamp || rec.createdAt || '';
+                                    const p = s ? Date.parse(s) : 0;
+                                    return isNaN(p) ? 0 : p;
+                                };
+                                const mergedMap = new Map();
+                                serverVal.forEach((rec, i) => {
+                                    if (!rec || typeof rec !== 'object') return;
+                                    const rid = getRecId(rec) || ('srv_' + i);
+                                    mergedMap.set(rid, rec);
                                 });
-                                
-                                const localOnlyRecords = localArr.filter(rec => {
-                                    const rid = rec?.id || rec?.invoiceNo || rec?.receiptNo || rec?.voucherNo || rec?.paymentNo || rec?.jvNo;
-                                    const invNo = rec?.invoiceNo;
-                                    const recId = rec?.id;
-                                    let existsOnServer = false;
-                                    if (rid && serverIds.has(String(rid))) existsOnServer = true;
-                                    if (invNo && serverIds.has(String(invNo))) existsOnServer = true;
-                                    if (recId && serverIds.has(String(recId))) existsOnServer = true;
-                                    return !existsOnServer;
+                                let hasNewerLocal = false;
+                                const keyIsDirty = dirtyKeys.has(key);
+                                localArr.forEach((rec, i) => {
+                                    if (!rec || typeof rec !== 'object') return;
+                                    const rid = getRecId(rec) || ('loc_' + i);
+                                    const srvRec = mergedMap.get(rid);
+                                    if (!srvRec) {
+                                        mergedMap.set(rid, rec);
+                                        hasNewerLocal = true;
+                                    } else {
+                                        const lTs = getRecTs(rec), sTs = getRecTs(srvRec);
+                                        if (lTs > sTs || (keyIsDirty && lTs >= sTs)) {
+                                            mergedMap.set(rid, rec.deleted ? rec : Object.assign({}, srvRec, rec));
+                                            hasNewerLocal = true;
+                                        }
+                                    }
                                 });
-                                
-                                if (localOnlyRecords.length > 0) {
-                                    finalVal = [...serverVal, ...localOnlyRecords];
+                                finalVal = Array.from(mergedMap.values());
+                                if (hasNewerLocal) {
                                     dirtyKeys.add(key);
                                 }
                                 if (markDirtyOnNewServerItems && finalVal.length > localArr.length) {
@@ -6542,23 +6556,25 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
     const sales = loadSourceTable('erp_sales_invoices_v1').filter(x => !x.isGDN && !x.wasSplit && x.saleType !== 'preliminary' && x.status !== 'draft' && x.status !== 'preliminary');
     sales.forEach(inv => {
         let total = parseNum(inv.totalAmount || inv.total || inv.grandTotal);
+        const tax = parseNum(inv.taxAmt || inv.vatAmount || inv.taxCost || 0);
+        const discount = parseNum(inv.discountAmt || inv.discountAmount || inv.discountCost || 0);
+        let additions = parseNum(inv.additions || inv.additionsCost || 0) + parseNum(inv.laborCost || 0) + parseNum(inv.transportCost || 0) + parseNum(inv.deliveryFee || 0);
         let subtotal = 0;
-        
+
         if (inv.items && inv.items.length > 0) {
             subtotal = inv.items.reduce((sum, item) => sum + (parseNum(item.total) || parseNum(item.quantity) * parseNum(item.price)), 0);
         } else {
-            subtotal = total - parseNum(inv.laborCost || 0) - parseNum(inv.transportCost || 0) - parseNum(inv.additions || 0) - parseNum(inv.taxAmt || inv.vatAmount || 0) + parseNum(inv.discountAmt || inv.discountAmount || 0);
+            subtotal = total - additions - tax + discount;
         }
-
-        const tax = parseNum(inv.taxAmt || inv.vatAmount || 0);
-        const discount = parseNum(inv.discountAmt || inv.discountAmount || 0);
-        const additions = parseNum(inv.additions || 0) + parseNum(inv.laborCost || 0) + parseNum(inv.transportCost || 0);
-
         if (total === 0 && subtotal > 0) {
             total = subtotal + additions + tax - discount;
         }
-
         if (!total) return;
+        // Guarantee double-entry balance (Dr === Cr) even on legacy/partial invoices with empty items or mixed-currency additions
+        if (additions > total + discount) additions = Math.max(0, total + discount - tax - Math.min(subtotal, total));
+        if (Math.abs((subtotal + additions + tax - discount) - total) > 0.00001) {
+            subtotal = Math.max(0, total - additions - tax + discount);
+        }
         const costCenter = inv.costCenter || 'بدون مركز';
         const currency = inv.currency || 'SDG';
         const time = inv.time || timeNow;
@@ -6907,23 +6923,31 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
     });
     purchases.forEach(inv => {
         let total = parseNum(inv.totalAmount || inv.total || inv.grandTotal);
+        let tax = parseNum(inv.taxAmt || inv.vatAmount || inv.taxCost || 0);
+        const discount = parseNum(inv.discountAmt || inv.discountAmount || inv.discountCost || 0);
+        let additions = parseNum(inv.additions || inv.additionsCost || 0) + parseNum(inv.laborCost || 0) + parseNum(inv.transportCost || 0);
         let subtotal = 0;
 
         if (inv.items && inv.items.length > 0) {
             subtotal = inv.items.reduce((sum, item) => sum + (parseNum(item.total) || parseNum(item.quantity) * parseNum(item.price)), 0);
         } else {
-            subtotal = total - parseNum(inv.laborCost || 0) - parseNum(inv.transportCost || 0) - parseNum(inv.additions || 0) - parseNum(inv.taxAmt || inv.vatAmount || 0) + parseNum(inv.discountAmt || inv.discountAmount || 0);
+            subtotal = total - additions - tax + discount;
         }
-
-        const tax = parseNum(inv.taxAmt || inv.vatAmount || 0);
-        const discount = parseNum(inv.discountAmt || inv.discountAmount || 0);
-        const additions = parseNum(inv.additions || 0) + parseNum(inv.laborCost || 0) + parseNum(inv.transportCost || 0);
-
         if (total === 0 && subtotal > 0) {
             total = subtotal + additions + tax - discount;
         }
-
         if (!total) return;
+        // Guarantee double-entry balance (Dr === Cr) even on legacy/corrupted mixed-currency transport/labor or empty items
+        if (additions > total + discount) additions = Math.max(0, total + discount - tax - Math.min(subtotal, total));
+        if (Math.abs((subtotal + additions + tax - discount) - total) > 0.00001) {
+            subtotal = Math.max(0, total - additions - tax + discount);
+            if (Math.abs((subtotal + additions + tax - discount) - total) > 0.00001) {
+                additions = Math.max(0, total + discount - tax - subtotal);
+            }
+            if (Math.abs((subtotal + additions + tax - discount) - total) > 0.00001) {
+                tax = Math.max(0, total + discount - additions - subtotal);
+            }
+        }
         const costCenter = inv.costCenter || 'بدون مركز';
         const currency = inv.currency || 'SDG';
         const time = inv.time || timeNow;
@@ -7046,8 +7070,12 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         }
 
         
-        // Skip duplicate -PUR-PAID entries if this purchase invoice already has a linked voucher in erp_single_payments_v1
-        const hasLinkedSinglePay = !!(inv.linkedFinancialVoucherNo || payments.some(p => p && !p.deleted && String(p.refInvoice || '').trim() === String(refNo).trim()));
+        // Skip duplicate -PUR-PAID entries ONLY if the linked payment voucher actually exists in erp_single_payments_v1
+        const linkedVNo = String(inv.linkedFinancialVoucherNo || '').trim();
+        const hasLinkedSinglePay = payments.some(p => p && !p.deleted && (
+            (linkedVNo && (String(p.voucherNo || '').trim() === linkedVNo || String(p.id || '').trim() === linkedVNo)) ||
+            String(p.refInvoice || '').trim() === String(refNo).trim()
+        ));
         if (inv.paymentMethod !== 'credit' && !hasLinkedSinglePay) {
             const pms = inv.paymentMethods || [inv.paymentMethod];
             let cashAmt = parseFloat(inv.cashAmount) || 0;
