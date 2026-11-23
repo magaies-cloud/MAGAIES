@@ -2327,18 +2327,18 @@
             const effectiveRcptMode = policyRcptMode === 'review_first_all' ? 'review_first' : (policyRcptMode === 'auto_post_all' ? 'auto_post' : rcptMode);
             const roleWord = entityType === 'supplier' ? 'المورد' : 'العميل';
             const rcptPillHtml = effectiveRcptMode === 'review_first'
-                ? `<button type="button" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" data-md-tip-title="👁️ انتظار المراجعة للإشعارات" data-md-tip="عند إرسال إشعار بنكي من هذا ${roleWord} عبر الواتساب لا ينزل في رصيده تلقائياً، بل ينتظر المراجعة والاعتماد اليدوي أولاً (اضغط للتبديل إلى تلقائي)." style="background:rgba(245,158,11,0.2); color:#fcd34d; border:1px solid rgba(245,158,11,0.5); padding:1px 4px; border-radius:4px; font-size:0.58rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:2px; white-space:nowrap;">👁️ مراجعة</button>`
-                : `<button type="button" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" data-md-tip-title="⚡ نزول تلقائي للإشعارات" data-md-tip="عند إرسال إشعار بنكي من هذا ${roleWord} عبر الواتساب ينزل المبلغ في حسابه ورصيده تلقائياً وفوراً (اضغط للتبديل إلى انتظار المراجعة)." style="background:rgba(16,185,129,0.16); color:#6ee7b7; border:1px solid rgba(16,185,129,0.45); padding:1px 4px; border-radius:4px; font-size:0.58rem; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; gap:2px; white-space:nowrap;">⚡ تلقائي</button>`;
+                ? `<button type="button" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" data-md-tip-title="انتظار المراجعة للإشعارات" data-md-tip="عند إرسال إشعار بنكي من هذا ${roleWord} عبر الواتساب لا ينزل في رصيده تلقائياً، بل ينتظر المراجعة والاعتماد اليدوي أولاً (اضغط للتبديل إلى تلقائي)." style="background:rgba(245,158,11,0.2); color:#fcd34d; border:1px solid rgba(245,158,11,0.5); padding:0 3px; border-radius:3px; font-size:0.43rem; line-height:1.35; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; white-space:nowrap;">مراجعة</button>`
+                : `<button type="button" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" data-md-tip-title="نزول تلقائي للإشعارات" data-md-tip="عند إرسال إشعار بنكي من هذا ${roleWord} عبر الواتساب ينزل المبلغ في حسابه ورصيده تلقائياً وفوراً (اضغط للتبديل إلى انتظار المراجعة)." style="background:rgba(16,185,129,0.16); color:#6ee7b7; border:1px solid rgba(16,185,129,0.45); padding:0 3px; border-radius:3px; font-size:0.43rem; line-height:1.35; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; white-space:nowrap;">تلقائي</button>`;
 
             const customBankBadge = item.defaultBankName
-                ? `<span data-md-tip-title="🏦 البنك الافتراضي (${item.defaultBankName})" data-md-tip="حينما يرسل هذا ${roleWord} إشعار تحويل عبر الواتساب يُعتمد ويُودع في هذا البنك تلقائياً." style="font-size:0.60rem; color:#fcd34d; font-weight:800; white-space:nowrap;">🏦 ${item.defaultBankName}</span>`
+                ? `<span data-md-tip-title="البنك الافتراضي (${item.defaultBankName})" data-md-tip="حينما يرسل هذا ${roleWord} إشعار تحويل عبر الواتساب يُعتمد ويُودع في هذا البنك تلقائياً." style="font-size:0.45rem; color:#fcd34d; font-weight:800; white-space:nowrap;">${item.defaultBankName}</span>`
                 : '';
 
             return `<div style="display:inline-flex; align-items:center; gap:2px; flex-wrap:nowrap; white-space:nowrap;">
-                <div style="display:inline-flex; align-items:center; gap:1.5px; background:rgba(15,23,42,0.65); padding:1.5px; border-radius:5px; border:1px solid rgba(148,163,184,0.2); white-space:nowrap;">
-                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'disabled')" data-md-tip-title="🔒 موقوف نهائياً" data-md-tip="موقوف نهائياً: لا يستطيع هذا ${roleWord} طلب الرصيد ولا كشف الحساب عبر الواتساب." style="${btnStyle('disabled')} padding:1px 4px; border-radius:4px; font-size:0.58rem; cursor:pointer; white-space:nowrap;">🔒 موقوف</button>
-                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'balance_only')" data-md-tip-title="💰 الرصيد فقط" data-md-tip="يستطيع هذا ${roleWord} أن يطلب معرفة الرصيد فقط عبر الواتساب (بدون كشف حساب مفصل)." style="${btnStyle('balance_only')} padding:1px 4px; border-radius:4px; font-size:0.58rem; cursor:pointer; white-space:nowrap;">💰 الرصيد</button>
-                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'detailed')" data-md-tip-title="📊 كشف الحساب والرصيد" data-md-tip="يستطيع هذا ${roleWord} أن يطلب كشف الحساب المفصل وكذلك الرصيد عبر الواتساب." style="${btnStyle('detailed')} padding:1px 4px; border-radius:4px; font-size:0.58rem; cursor:pointer; white-space:nowrap;">📊 كشف</button>
+                <div style="display:inline-flex; align-items:center; gap:1px; background:rgba(15,23,42,0.65); padding:1px; border-radius:4px; border:1px solid rgba(148,163,184,0.2); white-space:nowrap;">
+                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'disabled')" data-md-tip-title="موقوف نهائياً" data-md-tip="موقوف نهائياً: لا يستطيع هذا ${roleWord} طلب الرصيد ولا كشف الحساب عبر الواتساب." style="${btnStyle('disabled')} padding:0 3px; border-radius:3px; font-size:0.43rem; line-height:1.35; cursor:pointer; white-space:nowrap;">موقوف</button>
+                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'balance_only')" data-md-tip-title="الرصيد فقط" data-md-tip="يستطيع هذا ${roleWord} أن يطلب معرفة الرصيد فقط عبر الواتساب (بدون كشف حساب مفصل)." style="${btnStyle('balance_only')} padding:0 3px; border-radius:3px; font-size:0.43rem; line-height:1.35; cursor:pointer; white-space:nowrap;">الرصيد</button>
+                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'detailed')" data-md-tip-title="كشف الحساب والرصيد" data-md-tip="يستطيع هذا ${roleWord} أن يطلب كشف الحساب المفصل وكذلك الرصيد عبر الواتساب." style="${btnStyle('detailed')} padding:0 3px; border-radius:3px; font-size:0.43rem; line-height:1.35; cursor:pointer; white-space:nowrap;">كشف</button>
                 </div>
                 ${rcptPillHtml}
                 ${customBankBadge}
@@ -2805,16 +2805,16 @@
                 const pinTip = (pInfo.last2 && cleanPin.length === 3)
                     ? `الرقم السري (5 أرقام): ${pInfo.full5} = آخر رقمين من الواتساب (${pInfo.last2}) + الثلاثة أرقام السرية (${cleanPin}) — اضغط للنسخ`
                     : `الرقم السري: ${cleanPin || '-'} (أضف رقم الواتساب ليصبح 5 أرقام)`;
-                const pinBadge = `<span onclick="copyEntityWhatsAppCard('customer', '${c.id}')" title="${pinTip}" style="background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.45); padding:1px 5px; border-radius:5px; font-weight:900; font-family:monospace; font-size:0.70rem; display:inline-block; cursor:pointer; direction:ltr; white-space:nowrap;">🔐${pinLabelHtml}</span>`;
+                const pinBadge = `<span onclick="copyEntityWhatsAppCard('customer', '${c.id}')" title="${pinTip}" style="background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.45); padding:0 4px; border-radius:4px; font-weight:900; font-family:monospace; font-size:0.54rem; display:inline-block; cursor:pointer; direction:ltr; white-space:nowrap;">${pinLabelHtml}</span>`;
                 
                 const subCount = Array.isArray(c.subPhones) ? c.subPhones.length : 0;
-                const subPhonesBadge = subCount > 0 ? ` <span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:1px 4px; border-radius:4px; font-size:0.60rem; font-weight:700;">+${subCount}</span>` : '';
+                const subPhonesBadge = subCount > 0 ? ` <span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:1px 4px; border-radius:4px; font-size:0.54rem; font-weight:700;">+${subCount}</span>` : '';
 
                 const stmtToggleBtn = buildTableStatementControlHtml('customer', c);
                 const cName = String(c.name || '');
-                const cNameFs = cName.length > 26 ? '0.68rem' : (cName.length > 18 ? '0.74rem' : '0.82rem');
+                const cNameFs = cName.length > 26 ? '0.60rem' : (cName.length > 18 ? '0.66rem' : '0.72rem');
                 const cPhoneStr = String(c.whatsapp || c.phone || '-');
-                const cPhoneFs = cPhoneStr.length > 12 ? '0.66rem' : '0.74rem';
+                const cPhoneFs = cPhoneStr.length > 12 ? '0.62rem' : '0.70rem';
 
                 rowsHtml.push(`<tr>
                     <td style="text-align:center; white-space:nowrap;">${pinBadge}</td>
@@ -2823,9 +2823,9 @@
                     <td style="text-align:center; white-space:nowrap;">${stmtToggleBtn}</td>
                     <td style="text-align:center; white-space:nowrap;">${statusBadge}</td>
                     <td style="text-align:center; white-space:nowrap;">${balDisplay}</td>
-                    <td style="text-align:center; cursor:pointer; white-space:nowrap; font-size:0.72rem;" ondblclick="startInlineMasterEdit(this, 'customer_limit', '${c.id}', ${parseFloat(c.creditLimit) || 0})" title="انقر مرتين لتعديل حد الائتمان مباشرة">${(c.creditLimit || 0).toLocaleString()}</td>
-                    <td style="font-size:0.72rem; text-align:center; white-space:nowrap;">${c.contactPerson || '-'}</td>
-                    <td style="text-align:center; white-space:nowrap; font-size:0.72rem;">${c.securityLevel || 1}</td>
+                    <td style="text-align:center; cursor:pointer; white-space:nowrap; font-size:0.70rem;" ondblclick="startInlineMasterEdit(this, 'customer_limit', '${c.id}', ${parseFloat(c.creditLimit) || 0})" title="انقر مرتين لتعديل حد الائتمان مباشرة">${(c.creditLimit || 0).toLocaleString()}</td>
+                    <td style="font-size:0.68rem; text-align:center; white-space:nowrap;">${c.contactPerson || '-'}</td>
+                    <td style="text-align:center; white-space:nowrap; font-size:0.52rem; font-weight:800;">${c.securityLevel || 1}</td>
                     <td style="text-align:center; white-space:nowrap;"><div style="display:inline-flex; align-items:center; gap:2px; flex-wrap:nowrap; white-space:nowrap;"><button class="btn-text" style="color:#fbbf24; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="openEntityDrillDownStatementModal('customer', '${c.id}')" title="كشف الحساب التفصيلي">📊</button><button class="btn-text" style="color:#38bdf8; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="window.location.href='account-statement.php?partner='+encodeURIComponent('${cName.replace(/'/g, "\\'")}')" title="كشف الحساب الرسمي">📄</button><button class="btn-text" style="color:#c084fc; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="window.location.href='customer-portfolio.php'" title="محفظة العميل">💼</button><button class="btn-text" style="color:#34d399; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="openEntityQrCardModal('customer', '${c.id}')" title="بطاقة QR">🪪</button><button class="btn-text" style="color:#38bdf8; font-weight:800; padding:1px 3px; font-size:0.70rem; white-space:nowrap;" onclick="editCustomer('${c.id}')">✏️</button><button class="btn-text" style="color:var(--danger-color); font-weight:800; padding:1px 3px; font-size:0.70rem; white-space:nowrap;" onclick="deleteCustomer('${c.id}')">🗑️</button></div></td>
                 </tr>`);
             });
@@ -3244,16 +3244,16 @@
                 const pinTip = (pInfo.last2 && cleanPin.length === 3)
                     ? `الرقم السري (5 أرقام): ${pInfo.full5} = آخر رقمين من الواتساب (${pInfo.last2}) + الثلاثة أرقام السرية (${cleanPin}) — اضغط للنسخ`
                     : `الرقم السري: ${cleanPin || '-'} (أضف رقم الواتساب ليصبح 5 أرقام)`;
-                const pinBadge = `<span onclick="copyEntityWhatsAppCard('supplier', '${s.id}')" title="${pinTip}" style="background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.45); padding:1px 5px; border-radius:5px; font-weight:900; font-family:monospace; font-size:0.70rem; display:inline-block; cursor:pointer; direction:ltr; white-space:nowrap;">🔐${pinLabelHtml}</span>`;
+                const pinBadge = `<span onclick="copyEntityWhatsAppCard('supplier', '${s.id}')" title="${pinTip}" style="background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.45); padding:0 4px; border-radius:4px; font-weight:900; font-family:monospace; font-size:0.54rem; display:inline-block; cursor:pointer; direction:ltr; white-space:nowrap;">${pinLabelHtml}</span>`;
 
                 const subCount = Array.isArray(s.subPhones) ? s.subPhones.length : 0;
-                const subPhonesBadge = subCount > 0 ? ` <span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:1px 4px; border-radius:4px; font-size:0.60rem; font-weight:700;">+${subCount}</span>` : '';
+                const subPhonesBadge = subCount > 0 ? ` <span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:1px 4px; border-radius:4px; font-size:0.54rem; font-weight:700;">+${subCount}</span>` : '';
 
                 const stmtToggleBtn = buildTableStatementControlHtml('supplier', s);
                 const sName = String(s.name || '');
-                const sNameFs = sName.length > 26 ? '0.68rem' : (sName.length > 18 ? '0.74rem' : '0.82rem');
+                const sNameFs = sName.length > 26 ? '0.60rem' : (sName.length > 18 ? '0.66rem' : '0.72rem');
                 const sPhoneStr = String(s.whatsapp || s.phone || '-');
-                const sPhoneFs = sPhoneStr.length > 12 ? '0.66rem' : '0.74rem';
+                const sPhoneFs = sPhoneStr.length > 12 ? '0.62rem' : '0.70rem';
 
                 rowsHtmlSup.push(`<tr>
                     <td style="text-align:center; white-space:nowrap;">${pinBadge}</td>
@@ -3262,8 +3262,8 @@
                     <td style="text-align:center; white-space:nowrap;">${stmtToggleBtn}</td>
                     <td style="text-align:center; white-space:nowrap;">${statusBadge}</td>
                     <td style="text-align:center; white-space:nowrap;">${balDisplay}</td>
-                    <td style="text-align:center; cursor:pointer; white-space:nowrap; font-size:0.72rem;" ondblclick="startInlineMasterEdit(this, 'supplier_limit', '${s.id}', ${parseFloat(s.creditLimit) || 0})">${(s.creditLimit || 0).toLocaleString()}</td>
-                    <td style="text-align:center; white-space:nowrap; font-size:0.72rem;">${s.securityLevel || 1}</td>
+                    <td style="text-align:center; cursor:pointer; white-space:nowrap; font-size:0.70rem;" ondblclick="startInlineMasterEdit(this, 'supplier_limit', '${s.id}', ${parseFloat(s.creditLimit) || 0})">${(s.creditLimit || 0).toLocaleString()}</td>
+                    <td style="text-align:center; white-space:nowrap; font-size:0.52rem; font-weight:800;">${s.securityLevel || 1}</td>
                     <td style="text-align:center; white-space:nowrap;"><div style="display:inline-flex; align-items:center; gap:2px; flex-wrap:nowrap; white-space:nowrap;"><button class="btn-text" style="color:#fbbf24; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="openEntityDrillDownStatementModal('supplier', '${s.id}')" title="كشف الحساب التفصيلي">📊</button><button class="btn-text" style="color:#38bdf8; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="window.location.href='account-statement.php?partner='+encodeURIComponent('${sName.replace(/'/g, "\\'")}')" title="كشف الحساب الرسمي">📄</button><button class="btn-text" style="color:#f59e0b; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="window.location.href='supplier_reliability.php'" title="موثوقية المورد">🏭</button><button class="btn-text" style="color:#34d399; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="openEntityQrCardModal('supplier', '${s.id}')" title="بطاقة QR">🪪</button><button class="btn-text" style="color:#38bdf8; font-weight:800; padding:1px 3px; font-size:0.70rem; white-space:nowrap;" onclick="editSupplier('${s.id}')">✏️</button><button class="btn-text" style="color:var(--danger-color); font-weight:800; padding:1px 3px; font-size:0.70rem; white-space:nowrap;" onclick="deleteSupplier('${s.id}')">🗑️</button></div></td>
                 </tr>`);
             });
@@ -8099,9 +8099,32 @@ window.executeSmartClipboardImport = function () {
 // ════════════════════════════════════════════════════════════════════════════
 (function initThirdConstitutionMasterEngines() {
     const round2 = (n) => Math.round((parseFloat(n) || 0) * 100) / 100;
+    let _tblCacheTs = 0, _tblCache = {}, _movCache = new Map();
+    const _getLsArr = (key, fallbackKey) => {
+        const now = Date.now();
+        if (now - _tblCacheTs > 3500) { _tblCache = {}; _movCache.clear(); _tblCacheTs = now; }
+        const ck = fallbackKey ? (key + '|' + fallbackKey) : key;
+        if (_tblCache[ck]) return _tblCache[ck];
+        let arr = [];
+        try {
+            const raw = localStorage.getItem(key) || (fallbackKey ? localStorage.getItem(fallbackKey) : null) || '[]';
+            const parsed = JSON.parse(raw);
+            arr = Array.isArray(parsed) ? parsed : [];
+        } catch (e) { arr = []; }
+        _tblCache[ck] = arr;
+        return arr;
+    };
+    window.invalidateMasterMovementsCache = () => { _tblCacheTs = 0; _tblCache = {}; _movCache.clear(); };
+    window.addEventListener('storage', window.invalidateMasterMovementsCache);
+    window.addEventListener('magaiesDataUpdated', window.invalidateMasterMovementsCache);
 
-    window.collectEntityLedgerMovements = function (entityType, entity) {
+    window.collectEntityLedgerMovements = function (entityType, entity, forceFresh) {
         if (!entity) return { openingDebit: 0, openingCredit: 0, openingNet: 0, rows: [] };
+        if (forceFresh) window.invalidateMasterMovementsCache();
+        const now = Date.now();
+        if (now - _tblCacheTs > 3500) { _tblCache = {}; _movCache.clear(); _tblCacheTs = now; }
+        const mKey = entityType + ':' + String(entity.id || '') + ':' + String(entity.name || '');
+        if (!forceFresh && _movCache.has(mKey)) return _movCache.get(mKey);
         const isSup = (entityType === 'supplier' || entityType === 'sup');
         const opD = round2(entity.openingDebit || (!isSup && parseFloat(entity.openingBalance) > 0 ? entity.openingBalance : (isSup && parseFloat(entity.openingBalance) < 0 ? Math.abs(entity.openingBalance) : 0)));
         const opC = round2(entity.openingCredit || (!isSup && parseFloat(entity.openingBalance) < 0 ? Math.abs(entity.openingBalance) : (isSup && parseFloat(entity.openingBalance) > 0 ? entity.openingBalance : 0)));
@@ -8134,7 +8157,7 @@ window.executeSmartClipboardImport = function () {
         try {
             const isBankOrSafe = (entityType === 'bank' || entityType === 'safe');
             if (isBankOrSafe) {
-                const vouchers = JSON.parse(localStorage.getItem('erp_vouchers_v1') || '[]') || [];
+                const vouchers = _getLsArr('erp_vouchers_v1');
                 vouchers.forEach(v => {
                     if (!matchesEntity(v, ['safeId', 'bankId', 'treasuryId', 'fromAccount', 'toAccount', 'accountId'], ['safeName', 'bankName', 'treasuryName', 'paymentMethodName'])) return;
                     const amt = round2(v.amount ?? v.total ?? 0);
@@ -8153,7 +8176,7 @@ window.executeSmartClipboardImport = function () {
                     });
                 });
             } else if (!isSup) {
-                const sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || localStorage.getItem('erp_invoices_v1') || '[]') || [];
+                const sales = _getLsArr('erp_sales_invoices_v1', 'erp_invoices_v1');
                 sales.forEach(inv => {
                     if (!matchesEntity(inv, ['customerId', 'clientId', 'entityId', 'customer', 'client'], ['customerName', 'clientName', 'customer', 'client'])) return;
                     const total = round2(inv.netTotal ?? inv.grandTotal ?? inv.total ?? inv.amount ?? 0);
@@ -8167,7 +8190,7 @@ window.executeSmartClipboardImport = function () {
                         rows.push({ date: dt, docNo: `${docNo}-سداد`, type: 'سداد فاتورة', debit: 0, credit: paid, note: 'دفعة مسددة مع الفاتورة', raw: inv });
                     }
                 });
-                const salesReturns = JSON.parse(localStorage.getItem('erp_sales_returns_v1') || '[]') || [];
+                const salesReturns = _getLsArr('erp_sales_returns_v1');
                 salesReturns.forEach(sr => {
                     if (!matchesEntity(sr, ['customerId', 'clientId', 'entityId', 'customer'], ['customerName', 'clientName', 'customer'])) return;
                     const total = round2(sr.netTotal ?? sr.grandTotal ?? sr.total ?? sr.amount ?? 0);
@@ -8178,8 +8201,8 @@ window.executeSmartClipboardImport = function () {
                     }
                 });
             } else {
-                const p1 = JSON.parse(localStorage.getItem('erp_purchases_v1') || '[]') || [];
-                const p2 = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]') || [];
+                const p1 = _getLsArr('erp_purchases_v1');
+                const p2 = _getLsArr('erp_purchase_invoices_v1');
                 const seenPur = new Set();
                 [...p1, ...p2].forEach(pur => {
                     if (!pur) return;
@@ -8197,7 +8220,7 @@ window.executeSmartClipboardImport = function () {
                         rows.push({ date: dt, docNo: `${docNo}-صرف`, type: 'سداد للمورد', debit: paid, credit: 0, note: 'دفعة مسددة للمورد', raw: pur });
                     }
                 });
-                const purReturns = JSON.parse(localStorage.getItem('erp_purchase_returns_v1') || '[]') || [];
+                const purReturns = _getLsArr('erp_purchase_returns_v1');
                 purReturns.forEach(pr => {
                     if (!matchesEntity(pr, ['supplierId', 'vendorId', 'entityId', 'supplier'], ['supplierName', 'vendorName', 'supplier'])) return;
                     const total = round2(pr.netTotal ?? pr.grandTotal ?? pr.total ?? pr.amount ?? 0);
@@ -8213,7 +8236,7 @@ window.executeSmartClipboardImport = function () {
                 // Collect Single & Multi Receipts
                 const recKeys = ['erp_single_receipts_v1', 'erp_receipts_v1'];
                 recKeys.forEach(rk => {
-                    const recs = JSON.parse(localStorage.getItem(rk) || '[]') || [];
+                    const recs = _getLsArr(rk);
                     if (!Array.isArray(recs)) return;
                     recs.forEach(r => {
                         if (!matchesEntity(r, ['fromAccount', 'accountId', 'partyId', 'customerId', 'supplierId', 'entityId'], ['fromAccountName', 'partyName', 'customerName', 'supplierName', 'entityName'])) return;
@@ -8236,7 +8259,7 @@ window.executeSmartClipboardImport = function () {
                 // Collect Single & Multi Payments
                 const payKeys = ['erp_single_payments_v1', 'erp_payments_v1'];
                 payKeys.forEach(pk => {
-                    const pays = JSON.parse(localStorage.getItem(pk) || '[]') || [];
+                    const pays = _getLsArr(pk);
                     if (!Array.isArray(pays)) return;
                     pays.forEach(p => {
                         if (!matchesEntity(p, ['toAccount', 'accountId', 'partyId', 'customerId', 'supplierId', 'entityId'], ['toAccountName', 'partyName', 'customerName', 'supplierName', 'entityName'])) return;
@@ -8256,7 +8279,7 @@ window.executeSmartClipboardImport = function () {
                     });
                 });
 
-                const vouchers = JSON.parse(localStorage.getItem('erp_vouchers_v1') || '[]') || [];
+                const vouchers = _getLsArr('erp_vouchers_v1');
                 vouchers.forEach(v => {
                     if (!matchesEntity(v, ['entityId', 'customerId', 'supplierId', 'accountId', 'partyId', 'fromAccount', 'toAccount'], ['entityName', 'customerName', 'supplierName', 'partyName'])) return;
                     const amt = round2(v.amount ?? v.total ?? 0);
@@ -8280,7 +8303,7 @@ window.executeSmartClipboardImport = function () {
             }
 
             // Collect Journal Vouchers (including Netting JV-NET-..., Check Cycle JV-CHK-..., and Manual JVs)
-            const jvs = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1') || '[]') || [];
+            const jvs = _getLsArr('erp_journal_vouchers_v1');
             jvs.forEach(jv => {
                 if (!jv || jv.deleted || !Array.isArray(jv.lines)) return;
                 const docNo = jv.voucherNo || jv.id || 'JV';
@@ -8307,7 +8330,9 @@ window.executeSmartClipboardImport = function () {
         } catch (e) {}
 
         rows.sort((a, b) => String(a.date).localeCompare(String(b.date)));
-        return { openingDebit: opD, openingCredit: opC, openingNet, rows };
+        const res = { openingDebit: opD, openingCredit: opC, openingNet, rows };
+        _movCache.set(mKey, res);
+        return res;
     };
 
     window.computeLiveEntityLedgerBalance = function (entityType, entity) {

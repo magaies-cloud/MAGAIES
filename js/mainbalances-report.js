@@ -983,6 +983,12 @@ function autoInitBalancesReport(ev) {
 }
 window.addEventListener('storage', (e) => { if (e && e.key && /erp_(customers|suppliers|banks|safes|accounts|gl)_v1/.test(e.key)) { loadData(); runReport(true); } });
 window.addEventListener('focus', () => { loadData(); runReport(true); });
+// Late IndexedDB hydration / cloud pull finished: re-run with the COMPLETE transaction set (never stay on opening balance only)
+let _mbDataUpdTimer = null;
+window.addEventListener('magaiesDataUpdated', () => {
+    if (_mbDataUpdTimer) clearTimeout(_mbDataUpdTimer);
+    _mbDataUpdTimer = setTimeout(() => { try { loadData(); runReport(true); } catch (_) {} }, 250);
+});
 
 // Attach event listeners — the _reportHasRun guard ensures only the first successful one runs
 document.addEventListener('DBReady', autoInitBalancesReport);
@@ -996,7 +1002,7 @@ function runReport(isAutoInit = false) {
     loadData();
 
     const grpFilter = document.getElementById('filter-group') ? document.getElementById('filter-group').value : 'ALL';
-    const sortFilter = document.getElementById('filter-sort') ? document.getElementById('filter-sort').value : 'BALANCE_DESC';
+    const sortFilter = document.getElementById('filter-sort') ? document.getElementById('filter-sort').value : 'NAME';
     const ccFilter = document.getElementById('filter-costcenter') ? document.getElementById('filter-costcenter').value : 'ALL';
     const sectorFilter = document.getElementById('filter-sector') ? document.getElementById('filter-sector').value : 'ALL';
     const currFilter = document.getElementById('filter-currency') ? document.getElementById('filter-currency').value : 'ALL';
@@ -1076,8 +1082,8 @@ function runReport(isAutoInit = false) {
         if (sortFilter === 'BALANCE_ASC') return absBalA - absBalB;
         if (sortFilter === 'DEBIT_DESC') return (b.endingDebitLocal || 0) - (a.endingDebitLocal || 0);
         if (sortFilter === 'CREDIT_DESC') return (b.endingCreditLocal || 0) - (a.endingCreditLocal || 0);
-        if (sortFilter === 'NAME') return (a.name || '').localeCompare(b.name || '', 'ar');
-        if (sortFilter === 'NAME_DESC') return (b.name || '').localeCompare(a.name || '', 'ar');
+        if (sortFilter === 'NAME') return (a.name || '').trim().localeCompare((b.name || '').trim(), 'ar', { sensitivity: 'base', numeric: true });
+        if (sortFilter === 'NAME_DESC') return (b.name || '').trim().localeCompare((a.name || '').trim(), 'ar', { sensitivity: 'base', numeric: true });
         if (sortFilter === 'LAST_DATE') return (b.lastDate || '').localeCompare(a.lastDate || '');
         return 0;
     });
@@ -1119,39 +1125,50 @@ function autoSize(e) {
 }
 
 function initResize(e) {
+    e.preventDefault();
     e.stopPropagation();
     resizingTh = e.target.parentElement;
     startX = e.clientX;
-    startWidth = parseInt(window.getComputedStyle(resizingTh).width, 10);
-    
+    startWidth = Math.max(36, Math.round(resizingTh.getBoundingClientRect().width));
+
     const ths = document.querySelectorAll('#balances-table th');
     ths.forEach((th) => {
-        if (!th.style.width) {
-            th.style.width = window.getComputedStyle(th).width;
-        }
+        const cw = Math.max(36, Math.round(th.getBoundingClientRect().width));
+        th.style.width = cw + 'px';
+        th.style.minWidth = cw + 'px';
+        th.style.maxWidth = cw + 'px';
+        if (th.draggable) { th.dataset._wasDrag = '1'; th.draggable = false; }
     });
-    
+
     const table = document.getElementById('balances-table');
+    table.style.tableLayout = 'fixed';
     table.style.width = 'max-content';
-    
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'col-resize';
+
     document.addEventListener('mousemove', doResize);
     document.addEventListener('mouseup', stopResize);
     e.target.classList.add('resizing');
 }
 
 function doResize(e) {
-    const delta = startX - e.clientX; 
-    const newWidth = startWidth + delta;
-    if (newWidth > 40) {
-        resizingTh.style.width = newWidth + 'px';
-    }
+    const delta = startX - e.clientX;
+    const newWidth = Math.max(34, Math.min(900, Math.round(startWidth + delta)));
+    resizingTh.style.width = newWidth + 'px';
+    resizingTh.style.minWidth = newWidth + 'px';
+    resizingTh.style.maxWidth = newWidth + 'px';
 }
 
 function stopResize(e) {
     document.removeEventListener('mousemove', doResize);
     document.removeEventListener('mouseup', stopResize);
     document.querySelectorAll('.resizer').forEach(r => r.classList.remove('resizing'));
-    
+    document.body.style.userSelect = '';
+    document.body.style.cursor = '';
+    document.querySelectorAll('#balances-table th').forEach(th => {
+        if (th.dataset._wasDrag === '1') { th.draggable = true; delete th.dataset._wasDrag; }
+    });
+
     if (resizingTh) {
         const origIdx = parseInt(resizingTh.getAttribute('data-orig-idx'));
         if (!isNaN(origIdx) && window.colConfigs && window.colConfigs[origIdx]) {
@@ -2403,6 +2420,7 @@ async function openPresetModal(presetIndex, presetName) {
     } catch(e){}
 
     let dataSaved = false;
+    try { localStorage.removeItem('preview_table_data'); } catch (_) {}
     try {
         localStorage.setItem('preview_table_data', JSON.stringify(window.lastResults));
         dataSaved = true;
@@ -2521,6 +2539,7 @@ window.openNewPreviewPage = async function() {
     } catch(e){}
 
     let dataSaved = false;
+    try { localStorage.removeItem('preview_table_data'); } catch (_) {}
     try {
         localStorage.setItem('preview_table_data', JSON.stringify(window.lastResults));
         dataSaved = true;

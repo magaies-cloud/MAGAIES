@@ -359,10 +359,10 @@
                     const isHidden = localStorage.getItem('magaiees_hide_broker_ticker') === '1' || window._userManuallyClosedBroker;
                     const disp = isHidden ? 'none!important' : 'flex';
                     if (next === 'bottom') {
-                        w.style.cssText = `position:fixed;bottom:2px;left:6px;right:calc(var(--sb-collapsed, 62px) + 6px);z-index:9990;display:${disp};flex-direction:column;gap:6px;padding:0;margin:0;background:#020617;border-radius:7px;`;
+                        w.style.cssText = `position:fixed;bottom:2px;left:6px;right:calc(var(--sb-collapsed, 62px) + 6px);z-index:9990;display:${disp};flex-direction:column;gap:6px;padding:0;margin:0;background:#52646c;border-radius:7px;`;
                     } else {
                         if (qaBar && qaBar.parentNode && w.nextElementSibling !== qaBar) qaBar.parentNode.insertBefore(w, qaBar);
-                        w.style.cssText = `display:${disp};flex-direction:column;gap:6px;padding:0;margin:0;z-index:9990;background:#020617;border-radius:7px;`;
+                        w.style.cssText = `display:${disp};flex-direction:column;gap:6px;padding:0;margin:0;z-index:9990;background:#52646c;border-radius:7px;`;
                     }
                     if (isHidden) w.classList.add('is-broker-hidden');
                     const btn = document.getElementById('brk-dock-pos-btn');

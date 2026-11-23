@@ -298,20 +298,33 @@ JSON.parse = function(val) {
             }
         });
 
-        // 2. SLOW PATH: Update from IndexedDB in background ONLY if not already loaded from localStorage
+        // 2. SLOW PATH: Hydrate from IndexedDB for keys missing from localStorage (large tables that exceeded quota).
+        //    AWAITED (max 3s) BEFORE DBReady so reports never render with only opening balances.
+        let _lateHydratedKeys = [];
+        const _hydrateFromIdb = Promise.all(syncKeys.map(async (key) => {
+            const tenantKey = window.getTenantKey(key);
+            if (!window.DB_STORE[tenantKey]) {
+                try {
+                    const val = await localforage.getItem(tenantKey);
+                    if (val !== null && val !== undefined && !window.DB_STORE[tenantKey]) {
+                        window.DB_STORE[tenantKey] = (typeof val === 'string') ? val : JSON.stringify(val);
+                        _lateHydratedKeys.push(key);
+                    }
+                } catch(err) {}
+            }
+        })).catch(e => {});
+        window.__DB_HYDRATION_PROMISE = _hydrateFromIdb;
         try {
-            Promise.all(syncKeys.map(async (key) => {
-                const tenantKey = window.getTenantKey(key);
-                if (!window.DB_STORE[tenantKey]) {
-                    try {
-                        const val = await localforage.getItem(tenantKey);
-                        if (val !== null && !window.DB_STORE[tenantKey]) {
-                            window.DB_STORE[tenantKey] = val;
-                        }
-                    } catch(err) {}
+            await promiseTimeout(_hydrateFromIdb, 3000);
+            _lateHydratedKeys = [];
+        } catch (e) {
+            // Timed out: when IndexedDB finally finishes, notify all screens to rebuild with the full data
+            _hydrateFromIdb.then(() => {
+                if (_lateHydratedKeys.length) {
+                    try { window.dispatchEvent(new CustomEvent('magaiesDataUpdated', { detail: { source: 'idb_hydration', keys: _lateHydratedKeys.slice() } })); } catch(_) {}
                 }
-            })).catch(e => {});
-        } catch (e) {}
+            });
+        }
 
         // Complete fallback check: Ensure all syncKeys are loaded in DB_STORE from localStorage if still empty
         syncKeys.forEach(key => {
@@ -2973,9 +2986,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     injectSidebar();
-    if (!window.ElsajanaUniversalUI2027 && !document.querySelector('script[src*="elsajana-universal-ui-2027.js?v=2027_fix5"]')) {
+    if (!window.ElsajanaUniversalUI2027 && !document.querySelector('script[src*="elsajana-universal-ui-2027.js?v=2027_fix6"]')) {
         const uScript = document.createElement('script');
-        uScript.src = 'js/elsajana-universal-ui-2027.js?v=2027_fix5';
+        uScript.src = 'js/elsajana-universal-ui-2027.js?v=2027_fix6';
         uScript.defer = true;
         document.head.appendChild(uScript);
     }
@@ -4624,68 +4637,57 @@ document.addEventListener('DOMContentLoaded', () => {
 window.enableTableResizing = function(tableOrId) {
     try {
         const table = typeof tableOrId === 'string' ? document.getElementById(tableOrId) : tableOrId;
-        if (!table) return;
+        if (!table || table.dataset.mdSmartResize === '1') return;
 
         const ths = table.querySelectorAll('thead th');
         ths.forEach(th => {
-            if (th.querySelector('.resize-handle-left') || th.querySelector('.resize-handle-right')) return;
-
-            // Create left handle
+            if (th.querySelector('.resize-handle-left') || th.querySelector('.md-smart-resizer')) return;
             const resizerLeft = document.createElement('div');
             resizerLeft.className = 'resize-handle-left';
-            resizerLeft.title = 'اسحب لتغيير عرض العمود (Double click للإرجاع)';
+            resizerLeft.title = 'اسحب لتصغير أو تكبير العمود بسلاسة (نقر مزدوج للإرجاع)';
             th.appendChild(resizerLeft);
 
-            // Create right handle
-            const resizerRight = document.createElement('div');
-            resizerRight.className = 'resize-handle-right';
-            resizerRight.title = 'اسحب لتغيير عرض العمود (Double click للإرجاع)';
-            th.appendChild(resizerRight);
+            resizerLeft.addEventListener('mousedown', function(e) {
+                e.preventDefault(); e.stopPropagation();
+                const resizingTh = th, startX = e.clientX;
+                const startWidth = Math.max(36, Math.round(resizingTh.getBoundingClientRect().width));
+                ths.forEach(h => {
+                    const cw = Math.max(36, Math.round(h.getBoundingClientRect().width));
+                    h.style.width = cw + 'px'; h.style.minWidth = cw + 'px'; h.style.maxWidth = cw + 'px';
+                    if (h.draggable) { h.dataset._wasDrag = '1'; h.draggable = false; }
+                });
+                table.style.tableLayout = 'fixed';
+                table.style.width = 'max-content';
+                resizerLeft.classList.add('resizing');
+                document.body.style.userSelect = 'none'; document.body.style.cursor = 'col-resize';
+                let rafId = 0, lastW = startWidth;
 
-            [resizerLeft, resizerRight].forEach(resizer => {
-                resizer.addEventListener('mousedown', function(e) {
-                    e.stopPropagation();
-                    const resizingTh = th;
-                    const startX = e.clientX;
-                    const startWidth = parseInt(window.getComputedStyle(resizingTh).width, 10);
-                    const isLeft = resizer === resizerLeft;
-
-                    ths.forEach(h => {
-                        if (!h.style.width) {
-                            h.style.width = window.getComputedStyle(h).width;
-                        }
+                function doResize(moveEv) {
+                    const newWidth = Math.max(34, Math.min(900, Math.round(startWidth + (startX - moveEv.clientX))));
+                    if (newWidth === lastW) return;
+                    lastW = newWidth;
+                    if (!rafId) rafId = requestAnimationFrame(() => {
+                        rafId = 0;
+                        resizingTh.style.width = lastW + 'px'; resizingTh.style.minWidth = lastW + 'px'; resizingTh.style.maxWidth = lastW + 'px';
                     });
+                }
 
-                    table.style.width = 'max-content';
-                    resizer.classList.add('resizing');
+                function stopResize() {
+                    if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+                    document.removeEventListener('mousemove', doResize);
+                    document.removeEventListener('mouseup', stopResize);
+                    resizerLeft.classList.remove('resizing');
+                    document.body.style.userSelect = ''; document.body.style.cursor = '';
+                    ths.forEach(h => { if (h.dataset._wasDrag === '1') { h.draggable = true; delete h.dataset._wasDrag; } });
+                }
 
-                    function doResize(moveEv) {
-                        let delta = 0;
-                        if (isLeft) {
-                            delta = startX - moveEv.clientX; // drag left increases width
-                        } else {
-                            delta = moveEv.clientX - startX; // drag right increases width
-                        }
-                        const newWidth = startWidth + delta;
-                        if (newWidth > 45) {
-                            resizingTh.style.width = newWidth + 'px';
-                        }
-                    }
+                document.addEventListener('mousemove', doResize);
+                document.addEventListener('mouseup', stopResize);
+            });
 
-                    function stopResize() {
-                        document.removeEventListener('mousemove', doResize);
-                        document.removeEventListener('mouseup', stopResize);
-                        resizer.classList.remove('resizing');
-                    }
-
-                    document.addEventListener('mousemove', doResize);
-                    document.addEventListener('mouseup', stopResize);
-                });
-
-                resizer.addEventListener('dblclick', function(e) {
-                    e.stopPropagation();
-                    th.style.width = 'auto';
-                });
+            resizerLeft.addEventListener('dblclick', function(e) {
+                e.preventDefault(); e.stopPropagation();
+                th.style.width = 'auto'; th.style.minWidth = ''; th.style.maxWidth = '';
             });
         });
     } catch(e) {

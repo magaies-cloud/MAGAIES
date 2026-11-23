@@ -1073,12 +1073,12 @@ $page_title = 'حساب الأرصدة الأساسية';
                     <span>🔃 ترتيب الأرصدة</span>
                 </label>
                 <select class="filter-input" id="filter-sort" style="padding:4px 8px; font-size:0.76rem; height:38px; border-radius:8px; font-weight:800; width:100%; margin:0; box-sizing:border-box;" onchange="runReport()">
+                    <option value="NAME" selected>🔤 حسب اسم الحساب (أبجدياً أ ← ي)</option>
+                    <option value="NAME_DESC">🔤 حسب اسم الحساب (عكسي ي ← أ)</option>
                     <option value="BALANCE_DESC">حسب الرصيد (من الأعلى للأقل)</option>
                     <option value="BALANCE_ASC">حسب الرصيد (من الأقل للأعلى)</option>
                     <option value="DEBIT_DESC">🔴 الأعلى مديونية (عليه فقط)</option>
                     <option value="CREDIT_DESC">🟢 الأعلى دائنية (له فقط)</option>
-                    <option value="NAME">🔤 حسب اسم الحساب (أبجدياً أ ← ي)</option>
-                    <option value="NAME_DESC">🔤 حسب اسم الحساب (عكسي ي ← أ)</option>
                     <option value="LAST_DATE">⏱️ حسب تاريخ آخر حركة (الأحدث)</option>
                 </select>
             </div>

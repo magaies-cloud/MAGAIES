@@ -1197,6 +1197,26 @@
     };
     document.addEventListener('input', (e) => _autoFitPayInput(e.target), true);
     document.addEventListener('focusin', (e) => _autoFitPayInput(e.target), true);
+    // أثناء الكتابة: المستطيل يكبر طولاً وعرضاً بنفس نسبة الخط الكبير (3.5rem) ويرجع عند الخروج
+    const _growSel = '#pay-cash-amount,#pay-cash-ref,.bt-amount-input,.bt-ref-input,.bt-no-input,.ch-amount-input,.ch-no-input,.transfer-amount,.cheque-amount,.cheque-no-input,.transfer-no-input,.cheque-no,.transfer-no,.block-cash-amount,.block-bank-amount,.block-cheque-amount,.block-cheque-no-input';
+    const _growPayInput = (el) => {
+        if (!el || !el.matches || !el.matches(_growSel) || document.activeElement !== el) return;
+        const fs = 3.5 * (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16);
+        const c = window._elsGrowCtx || (window._elsGrowCtx = document.createElement('canvas').getContext('2d'));
+        c.font = '900 ' + fs + 'px ' + (getComputedStyle(el).fontFamily || 'Tajawal');
+        const txt = String(el.value || '');
+        const isNo = /ref|-no/.test(el.id + ' ' + el.className) && !/amount/.test(el.id + ' ' + el.className);
+        const n = Math.max(txt.length + 1, 7);
+        const w = Math.min(Math.max(c.measureText(txt).width, n * 0.64 * fs) + fs * 1.3, window.innerWidth * 0.94);
+        el.style.setProperty('min-width', w + 'px', 'important'); el.style.setProperty('width', w + 'px', 'important'); el.style.setProperty('max-width', '94vw', 'important');
+        el.dataset.growNo = isNo ? '1' : '0';
+        el.style.setProperty('height', Math.round(fs * 1.55) + 'px', 'important');
+        el.style.setProperty('position', 'relative', 'important'); el.style.setProperty('z-index', '50', 'important');
+    };
+    const _shrinkPayInput = (el) => { if (!el || !el.matches || !el.matches(_growSel)) return; ['min-width', 'width', 'max-width', 'height', 'position', 'z-index'].forEach(p => el.style.removeProperty(p)); };
+    document.addEventListener('focusin', (e) => setTimeout(() => _growPayInput(e.target), 0), true);
+    document.addEventListener('input', (e) => _growPayInput(e.target), true);
+    document.addEventListener('focusout', (e) => _shrinkPayInput(e.target), true);
 
     // حظر تكرار الأسماء الموحد بالعربية المطبّعة (عملاء، موردين، مخازن، أصناف، بنوك، خزائن)
     window.normalizeArabicNameStrict = function (s) {

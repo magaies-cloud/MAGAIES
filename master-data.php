@@ -1450,13 +1450,28 @@
                 return (clone.textContent || '').replace(/\s+/g, ' ').trim() || ('عمود ' + (i + 1));
             });
         }
+        var WIDTHS_KEY = 'erp_md_col_widths_v2';
+        function loadWidths() { try { return JSON.parse(localStorage.getItem(WIDTHS_KEY) || '{}') || {}; } catch (_) { return {}; } }
+        function saveWidths(m) { try { localStorage.setItem(WIDTHS_KEY, JSON.stringify(m)); } catch (_) {} }
         function applyDynamicHiddenColsCss() {
             var st = document.getElementById('md-dynamic-hidden-cols-css');
             if (!st) { st = document.createElement('style'); st.id = 'md-dynamic-hidden-cols-css'; document.head.appendChild(st); }
             var map = loadMap(), rules = [
-                '.table-responsive table.pro-table { width: 100% !important; max-width: 100% !important; min-width: 0 !important; table-layout: fixed !important; }',
-                '.table-responsive table.pro-table th, .table-responsive table.pro-table td { padding: 4px 3px !important; font-size: 0.76rem; box-sizing: border-box; }',
-                '.table-responsive table.pro-table th { font-size: 0.74rem !important; white-space: nowrap; }',
+                '.table-responsive { overflow-x: auto !important; max-width: 100% !important; position: relative; }',
+                '.table-responsive table.pro-table { width: 100% !important; min-width: 100% !important; max-width: none !important; table-layout: auto !important; border-collapse: separate !important; border-spacing: 0 !important; }',
+                '.table-responsive table.pro-table[data-md-custom-w="1"] { width: max-content !important; min-width: 100% !important; table-layout: fixed !important; }',
+                '.table-responsive table.pro-table th, .table-responsive table.pro-table td { padding: 6px 8px !important; font-size: 0.82rem; box-sizing: border-box !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; vertical-align: middle; }',
+                '.table-responsive table.pro-table th { position: relative !important; font-size: 0.78rem !important; user-select: none; }',
+                '.table-responsive table.pro-table th:last-child, .table-responsive table.pro-table td:last-child { position: sticky !important; left: 0 !important; z-index: 6 !important; white-space: nowrap !important; overflow: visible !important; min-width: max-content !important; box-shadow: 4px 0 10px rgba(0,0,0,0.28) !important; }',
+                'html:not(.light-theme) .table-responsive table.pro-table th:last-child { background: #1e293b !important; }',
+                'html:not(.light-theme) .table-responsive table.pro-table td:last-child { background: #0f172a !important; }',
+                'html.light-theme .table-responsive table.pro-table th:last-child { background: var(--lt-bg-strip, #d8c8b2) !important; }',
+                'html.light-theme .table-responsive table.pro-table td:last-child { background: var(--lt-bg-card, #f2eadf) !important; }',
+                '.table-responsive table.pro-table td:last-child button, .table-responsive table.pro-table td:last-child .action-btn { flex-shrink: 0 !important; visibility: visible !important; opacity: 1 !important; }',
+                '.md-smart-resizer { position: absolute; top: 0; bottom: 0; left: -6px; width: 12px; cursor: col-resize; z-index: 25; touch-action: none; }',
+                '.md-smart-resizer::after { content: ""; position: absolute; top: 15%; bottom: 15%; left: 5px; width: 2px; border-radius: 2px; background: rgba(148,163,184,0.35); transition: background .12s, width .12s, box-shadow .12s; }',
+                '.md-smart-resizer:hover::after, .md-smart-resizer.is-resizing::after { background: #38bdf8; width: 3px; left: 4.5px; box-shadow: 0 0 8px #38bdf8; }',
+                '.table-responsive table.pro-table .resize-handle-left, .table-responsive table.pro-table .resize-handle-right { display: none !important; }',
                 '#auto-charts-global-wrapper, .auto-charts-container, [id*="auto-chart"] { display: none !important; }',
                 '.md-col-ctrl-bar { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:8px; padding:6px 12px; border-radius:10px; background:rgba(15,23,42,0.55); border:1px solid rgba(56,189,248,0.28); }',
                 'html.light-theme .md-col-ctrl-bar, html[data-theme="light"] .md-col-ctrl-bar { background:var(--lt-card,#f8fafc) !important; border:1.5px solid var(--lt-border,#cbd5e1) !important; color:#000 !important; }',
@@ -1551,15 +1566,22 @@
                     '<button type="button" id="md-ctx-quick-hide-btn" style="flex:1.2;text-align:center;padding:7px 8px;border-radius:8px;border:1px solid rgba(244,63,94,0.45);background:rgba(244,63,94,0.15);color:' + (isLight ? '#be123c' : '#fda4af') + ';font-weight:900;font-size:0.8rem;cursor:pointer;">' +
                     (isColHidden ? '👁️ إظهار: ' : '🙈 إخفاء: ') + clickedColName + '</button></div>';
             }
-            html += '<div style="display:flex;gap:6px;margin-bottom:8px;">' +
-                '<button type="button" onclick="window.toggleMdTableCompactMode(\'' + tblId + '\');document.getElementById(\'md-col-context-popover\').style.display=\'none\';" style="flex:1;padding:5px 8px;border-radius:7px;border:1px solid rgba(245,158,11,0.5);background:rgba(245,158,11,0.16);color:' + (isLight ? '#b45309' : '#fde047') + ';font-weight:900;font-size:0.75rem;cursor:pointer;">⚡ اختصار</button>' +
-                '<button type="button" onclick="window.showAllMdTableCols(\'' + tblId + '\');document.getElementById(\'md-col-context-popover\').style.display=\'none\';" style="flex:1;padding:5px 8px;border-radius:7px;border:1px solid rgba(16,185,129,0.5);background:rgba(16,185,129,0.16);color:' + (isLight ? '#047857' : '#34d399') + ';font-weight:900;font-size:0.75rem;cursor:pointer;">🔄 إظهار الكل</button></div>' +
-                '<div style="max-height:220px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;">';
+            var thList = Array.from(tbl.querySelectorAll('thead tr:first-child th'));
+            html += '<div style="display:flex;gap:5px;margin-bottom:8px;">' +
+                '<button type="button" onclick="window.fitMdTableToScreen(\'' + tblId + '\');document.getElementById(\'md-col-context-popover\').style.display=\'none\';" style="flex:1;padding:5px 6px;border-radius:7px;border:1px solid rgba(56,189,248,0.5);background:rgba(56,189,248,0.16);color:' + (isLight ? '#0369a1' : '#38bdf8') + ';font-weight:900;font-size:0.72rem;cursor:pointer;">🗜️ ضغط للشاشة</button>' +
+                '<button type="button" onclick="window.toggleMdTableCompactMode(\'' + tblId + '\');document.getElementById(\'md-col-context-popover\').style.display=\'none\';" style="flex:1;padding:5px 6px;border-radius:7px;border:1px solid rgba(245,158,11,0.5);background:rgba(245,158,11,0.16);color:' + (isLight ? '#b45309' : '#fde047') + ';font-weight:900;font-size:0.72rem;cursor:pointer;">⚡ اختصار</button>' +
+                '<button type="button" onclick="window.showAllMdTableCols(\'' + tblId + '\');document.getElementById(\'md-col-context-popover\').style.display=\'none\';" style="flex:1;padding:5px 6px;border-radius:7px;border:1px solid rgba(16,185,129,0.5);background:rgba(16,185,129,0.16);color:' + (isLight ? '#047857' : '#34d399') + ';font-weight:900;font-size:0.72rem;cursor:pointer;">🔄 الكل</button></div>' +
+                '<div style="max-height:250px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;">';
             names.forEach(function(nm, idx) {
                 var c1 = idx + 1, vis = hidden.indexOf(c1) === -1;
-                html += '<label style="display:flex;align-items:center;gap:8px;padding:4px 7px;border-radius:6px;cursor:pointer;font-size:0.8rem;font-weight:800;background:' + (vis ? 'rgba(56,189,248,0.08)' : 'transparent') + ';">' +
-                    '<input type="checkbox" data-col-c1="' + c1 + '" ' + (vis ? 'checked' : '') + ' style="width:15px;height:15px;accent-color:#38bdf8;">' +
-                    '<span>' + nm + '</span></label>';
+                var curW = thList[idx] ? Math.round(thList[idx].getBoundingClientRect().width) : 0;
+                html += '<div style="display:flex;align-items:center;justify-content:space-between;gap:6px;padding:3px 6px;border-radius:6px;font-size:0.78rem;font-weight:800;background:' + (vis ? 'rgba(56,189,248,0.08)' : 'transparent') + ';">' +
+                    '<label style="display:flex;align-items:center;gap:6px;cursor:pointer;flex:1;min-width:0;"><input type="checkbox" data-col-c1="' + c1 + '" ' + (vis ? 'checked' : '') + ' style="width:14px;height:14px;accent-color:#38bdf8;"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + nm + '</span></label>' +
+                    '<span style="display:inline-flex;align-items:center;gap:3px;flex-shrink:0;">' +
+                    '<button type="button" data-col-widx="' + idx + '" data-col-delta="-25" title="تصغير عرض العمود" style="width:20px;height:20px;border-radius:5px;border:1px solid rgba(244,63,94,0.5);background:rgba(244,63,94,0.15);color:inherit;font-weight:900;cursor:pointer;padding:0;line-height:1;">−</button>' +
+                    '<span data-col-wlbl="' + idx + '" style="min-width:30px;text-align:center;font-size:0.68rem;font-family:monospace;opacity:0.85;">' + (curW || 'تلقائي') + '</span>' +
+                    '<button type="button" data-col-widx="' + idx + '" data-col-delta="25" title="تكبير عرض العمود" style="width:20px;height:20px;border-radius:5px;border:1px solid rgba(16,185,129,0.5);background:rgba(16,185,129,0.15);color:inherit;font-weight:900;cursor:pointer;padding:0;line-height:1;">+</button>' +
+                    '</span></div>';
             });
             html += '</div>';
             pop.innerHTML = html;
@@ -1575,6 +1597,23 @@
             pop.querySelectorAll('input[type="checkbox"][data-col-c1]').forEach(function(cb) {
                 cb.onchange = function() { toggleCol(tblId, parseInt(cb.getAttribute('data-col-c1'), 10), !cb.checked); };
             });
+            pop.querySelectorAll('button[data-col-widx]').forEach(function(wb) {
+                wb.onclick = function() {
+                    var cIdx = parseInt(wb.getAttribute('data-col-widx'), 10), dlt = parseInt(wb.getAttribute('data-col-delta'), 10);
+                    var allThs = Array.from(tbl.querySelectorAll('thead tr:first-child th'));
+                    if (!allThs[cIdx]) return;
+                    if (tbl.getAttribute('data-md-custom-w') !== '1') {
+                        allThs.forEach(function(t) { var cw = Math.max(36, Math.round(t.getBoundingClientRect().width)); t.style.width = cw + 'px'; t.style.minWidth = cw + 'px'; t.style.maxWidth = cw + 'px'; });
+                        tbl.setAttribute('data-md-custom-w', '1');
+                    }
+                    var nw = Math.max(34, Math.min(900, Math.round(allThs[cIdx].getBoundingClientRect().width) + dlt));
+                    allThs[cIdx].style.width = nw + 'px'; allThs[cIdx].style.minWidth = nw + 'px'; allThs[cIdx].style.maxWidth = nw + 'px';
+                    var lbl = pop.querySelector('[data-col-wlbl="' + cIdx + '"]'); if (lbl) lbl.textContent = nw;
+                    var all = loadWidths(); all[tblId] = all[tblId] || {};
+                    allThs.forEach(function(t, i) { var w = parseInt(t.style.width, 10); if (w >= 34) all[tblId][i] = w; });
+                    saveWidths(all);
+                };
+            });
             var left = Math.min(Math.max(10, clientX), window.innerWidth - 280);
             var top = Math.min(Math.max(10, clientY), window.innerHeight - 320);
             pop.style.left = left + 'px';
@@ -1588,6 +1627,92 @@
             var names = getColNames(tbl);
             openColPopover(tbl, e.clientX, e.clientY, colIdx1, names[colIdx1 - 1] || '');
         };
+        function attachSmartResizers(tbl, tblId) {
+            tbl.dataset.mdSmartResize = '1';
+            var ths = Array.from(tbl.querySelectorAll('thead tr:first-child th'));
+            var wMap = loadWidths()[tblId] || null;
+            if (wMap && Object.keys(wMap).length) {
+                tbl.setAttribute('data-md-custom-w', '1');
+                ths.forEach(function(th, i) {
+                    var w = wMap[i];
+                    if (w && w >= 32) { th.style.width = w + 'px'; th.style.minWidth = w + 'px'; th.style.maxWidth = w + 'px'; }
+                });
+            }
+            ths.forEach(function(th, colIdx) {
+                if (th.querySelector('.md-smart-resizer')) return;
+                var h = document.createElement('div');
+                h.className = 'md-smart-resizer';
+                h.title = 'اسحب لتصغير أو تكبير العمود بسلاسة (نقر مزدوج للاحتواء التلقائي)';
+                th.appendChild(h);
+                h.addEventListener('mousedown', function(e) {
+                    e.preventDefault(); e.stopPropagation();
+                    var allThs = Array.from(tbl.querySelectorAll('thead tr:first-child th'));
+                    allThs.forEach(function(t) {
+                        var cw = Math.max(36, Math.round(t.getBoundingClientRect().width));
+                        t.style.width = cw + 'px'; t.style.minWidth = cw + 'px'; t.style.maxWidth = cw + 'px';
+                    });
+                    tbl.setAttribute('data-md-custom-w', '1');
+                    var startX = e.clientX, startW = Math.max(36, Math.round(th.getBoundingClientRect().width)), rafId = 0, lastW = startW;
+                    h.classList.add('is-resizing');
+                    document.body.style.userSelect = 'none'; document.body.style.cursor = 'col-resize';
+                    var onMove = function(ev) {
+                        var nextW = Math.max(34, Math.min(900, Math.round(startW + (startX - ev.clientX))));
+                        if (nextW === lastW) return;
+                        lastW = nextW;
+                        if (!rafId) rafId = requestAnimationFrame(function() {
+                            rafId = 0;
+                            th.style.width = lastW + 'px'; th.style.minWidth = lastW + 'px'; th.style.maxWidth = lastW + 'px';
+                        });
+                    };
+                    var onUp = function() {
+                        if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+                        h.classList.remove('is-resizing');
+                        document.body.style.userSelect = ''; document.body.style.cursor = '';
+                        document.removeEventListener('mousemove', onMove);
+                        document.removeEventListener('mouseup', onUp);
+                        var all = loadWidths(); all[tblId] = all[tblId] || {};
+                        allThs.forEach(function(t, idx) { var w = parseInt(t.style.width, 10); if (w >= 34) all[tblId][idx] = w; });
+                        saveWidths(all);
+                    };
+                    document.addEventListener('mousemove', onMove);
+                    document.addEventListener('mouseup', onUp);
+                });
+                h.addEventListener('dblclick', function(e) {
+                    e.preventDefault(); e.stopPropagation();
+                    th.style.width = 'auto'; th.style.minWidth = '36px'; th.style.maxWidth = 'none';
+                    var all = loadWidths(); if (all[tblId]) { delete all[tblId][colIdx]; saveWidths(all); }
+                });
+            });
+        }
+        window.fitMdTableToScreen = function(tblId) {
+            var tbl = document.querySelector('table[data-md-col-tbl="' + tblId + '"]');
+            if (!tbl) return;
+            var wrap = tbl.closest('.table-responsive') || tbl.parentElement;
+            var avail = Math.max(400, (wrap ? wrap.clientWidth : window.innerWidth) - 8);
+            var ths = Array.from(tbl.querySelectorAll('thead tr:first-child th')).filter(function(t) { return window.getComputedStyle(t).display !== 'none'; });
+            if (!ths.length) return;
+            var raw = ths.map(function(t) { return Math.max(42, Math.round(t.getBoundingClientRect().width)); });
+            var sum = raw.reduce(function(a, b) { return a + b; }, 0) || avail;
+            var scale = Math.min(1, avail / sum);
+            var all = loadWidths(); all[tblId] = {};
+            var allThs = Array.from(tbl.querySelectorAll('thead tr:first-child th'));
+            ths.forEach(function(t, k) {
+                var w = Math.max(38, Math.floor(raw[k] * scale));
+                t.style.width = w + 'px'; t.style.minWidth = w + 'px'; t.style.maxWidth = w + 'px';
+                all[tblId][allThs.indexOf(t)] = w;
+            });
+            tbl.setAttribute('data-md-custom-w', '1');
+            saveWidths(all);
+            if (typeof showToast === 'function') showToast('🗜️ تم ضغط جميع الأعمدة لتناسب عرض الشاشة بالكامل', 'success', 1600);
+        };
+        window.autoFitMdTableCols = function(tblId) {
+            var tbl = document.querySelector('table[data-md-col-tbl="' + tblId + '"]');
+            if (!tbl) return;
+            var all = loadWidths(); delete all[tblId]; saveWidths(all);
+            tbl.removeAttribute('data-md-custom-w');
+            tbl.querySelectorAll('thead th').forEach(function(th) { th.style.width = ''; th.style.minWidth = ''; th.style.maxWidth = ''; });
+            if (typeof showToast === 'function') showToast('📐 تم ضبط عرض الأعمدة ديناميكياً على قدر الكتابة', 'success', 1600);
+        };
         function updateAllToolbars() {
             var map = loadMap();
             document.querySelectorAll('table.pro-table').forEach(function(tbl, idx) {
@@ -1600,6 +1725,7 @@
                 }
                 var tblId = getTblId(tbl, idx), names = getColNames(tbl);
                 if (names.length < 2) return;
+                attachSmartResizers(tbl, tblId);
                 var hidden = Array.isArray(map[tblId]) ? map[tblId] : [];
                 var wrap = tbl.closest('.table-responsive') || tbl.parentElement;
                 if (!wrap) return;
@@ -1612,13 +1738,17 @@
                 var visCount = Math.max(1, names.length - hidden.length);
                 bar.innerHTML = '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
                     '<button type="button" class="md-col-ctrl-btn" data-act="menu">👁️ التحكم في الأعمدة (' + visCount + '/' + names.length + ')</button>' +
+                    '<button type="button" class="md-col-ctrl-btn" data-act="autofit" style="border-color:rgba(16,185,129,0.5);color:#34d399;background:rgba(16,185,129,0.14);">📐 ضبط تلقائي للعرض</button>' +
+                    '<button type="button" class="md-col-ctrl-btn" data-act="fitscreen" style="border-color:rgba(168,85,247,0.5);color:#c084fc;background:rgba(168,85,247,0.14);">🗜️ ضغط للشاشة</button>' +
                     '<button type="button" class="md-col-ctrl-btn" data-act="compact" style="border-color:rgba(245,158,11,0.5);color:#fbbf24;background:rgba(245,158,11,0.14);">' + (hidden.length > 0 ? '🔄 إلغاء الاختصار (' + hidden.length + ' مخفي)' : '⚡ اختصار الجدول') + '</button>' +
-                    (hidden.length > 0 ? '<button type="button" class="md-col-ctrl-btn" data-act="showall" style="border-color:rgba(16,185,129,0.5);color:#34d399;background:rgba(16,185,129,0.14);">👁️ إظهار الكل</button>' : '') +
+                    (hidden.length > 0 ? '<button type="button" class="md-col-ctrl-btn" data-act="showall" style="border-color:rgba(56,189,248,0.5);color:#38bdf8;background:rgba(56,189,248,0.14);">👁️ إظهار الكل</button>' : '') +
                     '</div>';
                 bar.querySelector('[data-act="menu"]').onclick = function(ev) {
                     var r = ev.currentTarget.getBoundingClientRect();
                     openColPopover(tbl, r.left, r.bottom + 6, 0, '');
                 };
+                bar.querySelector('[data-act="autofit"]').onclick = function() { window.autoFitMdTableCols(tblId); };
+                bar.querySelector('[data-act="fitscreen"]').onclick = function() { window.fitMdTableToScreen(tblId); };
                 bar.querySelector('[data-act="compact"]').onclick = function() { window.toggleMdTableCompactMode(tblId); };
                 var sa = bar.querySelector('[data-act="showall"]');
                 if (sa) sa.onclick = function() { window.showAllMdTableCols(tblId); };

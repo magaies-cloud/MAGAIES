@@ -2007,7 +2007,7 @@ try {
                 if (!window.ElsajanaUniversalUI2027 && !document.querySelector('script[src*="elsajana-universal-ui-2027.js"]')) {
                     var _ergoScr = document.createElement('script');
                     _ergoScr.defer = true;
-                    _ergoScr.src = 'js/elsajana-universal-ui-2027.js?v=2027_ophthalmic_gold_v18';
+                    _ergoScr.src = 'js/elsajana-universal-ui-2027.js?v=<?= @filemtime(__DIR__ . '/../js/elsajana-universal-ui-2027.js') ?: 'v19' ?>';
                     (document.head || document.documentElement).appendChild(_ergoScr);
                 }
             } catch (e) {}

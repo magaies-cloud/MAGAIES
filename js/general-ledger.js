@@ -1142,16 +1142,19 @@ async function syncLiveMasterAndReceiptsForGL(forceRefreshUI = true) {
         const tId = (window.SERVER_TENANT && window.SERVER_TENANT.id) || (JSON.parse(localStorage.getItem('user') || '{}').tenant_id) || '12';
         let changed = false;
 
-        // 0. Pull fresh full tables from MySQL (/sync/pull) if available so invoices/vouchers/receipts are 100% in sync
-        if (typeof window.pullFromCloud === 'function') {
-            try {
-                await window.pullFromCloud(true);
-            } catch (e) {}
+        // 0. Skip redundant cloud pull if synced within the last 45s so previous transactions open instantly
+        const _lastPull = Number(sessionStorage.getItem('magaies_gl_last_pull_ts') || 0);
+        if (typeof window.pullFromCloud === 'function' && (Date.now() - _lastPull > 45000)) {
+            sessionStorage.setItem('magaies_gl_last_pull_ts', String(Date.now()));
+            try { await window.pullFromCloud(true); } catch (e) {}
         }
 
-        // 1. Fetch fresh customers & suppliers from MySQL
-        const masterRes = await fetch('api/get_master_data.php?tenant_id=' + encodeURIComponent(tId) + '&_t=' + Date.now());
-        const masterData = await masterRes.json();
+        // 1 & 2. Fetch fresh master data & verified receipts IN PARALLEL for instant speed
+        const [masterRes, recRes] = await Promise.all([
+            fetch('api/get_master_data.php?tenant_id=' + encodeURIComponent(tId) + '&_t=' + Date.now()),
+            fetch('api/inbound_receipts.php?action=list&tenant_id=' + encodeURIComponent(tId) + '&_t=' + Date.now())
+        ]);
+        const [masterData, recData] = await Promise.all([masterRes.json(), recRes.json()]);
         if (masterData && masterData.status === 'success') {
             if (Array.isArray(masterData.customers)) {
                 const newCustStr = JSON.stringify(masterData.customers);
@@ -1171,9 +1174,6 @@ async function syncLiveMasterAndReceiptsForGL(forceRefreshUI = true) {
             }
         }
 
-        // 2. Fetch fresh verified/posted WhatsApp receipts from MySQL & sync directly into erp_receipts_v1
-        const recRes = await fetch('api/inbound_receipts.php?action=list&tenant_id=' + encodeURIComponent(tId) + '&_t=' + Date.now());
-        const recData = await recRes.json();
         if (recData && recData.success && Array.isArray(recData.data)) {
             const rKey = getTenantKey('erp_receipts_v1');
             let storedReceipts = [];
@@ -1455,6 +1455,19 @@ if (window.APP_READY) {
 } else {
     document.addEventListener('DBReady', initGeneralLedgerApp);
 }
+// Late IndexedDB hydration / cloud pull finished: rebuild with the COMPLETE transaction set (never stay on opening balance only)
+let _glDataUpdTimer = null;
+window.addEventListener('magaiesDataUpdated', () => {
+    if (_glDataUpdTimer) clearTimeout(_glDataUpdTimer);
+    _glDataUpdTimer = setTimeout(() => {
+        try {
+            if (typeof buildAccountsList === 'function') buildAccountsList();
+            ALL_TXNS = collectAllTransactions();
+            if (typeof runReport === 'function') runReport();
+            if (typeof window.refreshPreviewLedgerLive === 'function') window.refreshPreviewLedgerLive();
+        } catch (_) {}
+    }, 250);
+});
 
 // Explicitly expose functions to window for inline onclick handlers
 window.openPreviewDesign = openPreviewDesign;
@@ -3153,7 +3166,11 @@ async function prepareLedgerPreviewData() {
         if (m) selectAccount(m.id, m.name, m.icon);
     }
     if (typeof syncLiveMasterAndReceiptsForGL === 'function') {
-        try { await syncLiveMasterAndReceiptsForGL(false); } catch (e) {}
+        if (!Array.isArray(ALL_TXNS) || ALL_TXNS.length === 0) {
+            try { await syncLiveMasterAndReceiptsForGL(false); } catch (e) {}
+        } else {
+            syncLiveMasterAndReceiptsForGL(false).catch(() => {});
+        }
     }
     if (typeof runReport === 'function') {
         runReport();
@@ -3254,9 +3271,13 @@ async function prepareLedgerPreviewData() {
         localStorage.setItem('company_logo_base64', logoImg.src);
     }
 
+    // Expose exact live rows to the preview iframe (same-origin) — immune to stale/failed localStorage writes
+    window.__glPreviewTxns = previewTxns;
     try {
         localStorage.setItem('preview_ledger_config', JSON.stringify(config));
         localStorage.setItem('preview_ledger_totals', JSON.stringify(totals));
+        // Remove any stale snapshot FIRST so a failed (quota) write can never leave old opening-only data behind
+        try { localStorage.removeItem('preview_ledger_data'); } catch (_) {}
         
         if (typeof localforage !== 'undefined') {
             await localforage.setItem('preview_ledger_data', previewTxns);
@@ -3568,31 +3589,39 @@ function initGeneralLedgerResizers() {
             const styles = window.getComputedStyle(th);
             startWidth = parseInt(styles.width, 10) || 120;
 
+            const allThs = Array.from(table.querySelectorAll('thead th'));
+            allThs.forEach(h => {
+                const cw = Math.max(36, Math.round(h.getBoundingClientRect().width));
+                h.style.width = cw + 'px'; h.style.minWidth = cw + 'px'; h.style.maxWidth = cw + 'px';
+                if (h.draggable) { h.dataset._wasDrag = '1'; h.draggable = false; }
+            });
+            table.style.tableLayout = 'fixed';
+            table.style.width = 'max-content';
+            startWidth = Math.max(36, Math.round(th.getBoundingClientRect().width));
+
             resizer.classList.add('resizing');
             document.body.style.cursor = 'col-resize';
             document.body.style.userSelect = 'none';
+            let rafId = 0, lastW = startWidth;
 
             const mouseMoveHandler = function(ev) {
-                const dx = (startX - ev.clientX);
-                const newWidth = Math.max(50, startWidth + dx);
-                th.style.width = newWidth + 'px';
-                th.style.minWidth = newWidth + 'px';
-                
-                const colIndex = Array.from(th.parentElement.children).indexOf(th);
-                const rows = document.querySelectorAll('#recent-tbody tr');
-                rows.forEach(tr => {
-                    const cell = tr.children[colIndex];
-                    if (cell) {
-                        cell.style.width = newWidth + 'px';
-                        cell.style.minWidth = newWidth + 'px';
-                    }
+                const newWidth = Math.max(36, Math.min(900, Math.round(startWidth + (startX - ev.clientX))));
+                if (newWidth === lastW) return;
+                lastW = newWidth;
+                if (!rafId) rafId = requestAnimationFrame(() => {
+                    rafId = 0;
+                    th.style.width = lastW + 'px';
+                    th.style.minWidth = lastW + 'px';
+                    th.style.maxWidth = lastW + 'px';
                 });
             };
 
             const mouseUpHandler = function() {
+                if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
                 resizer.classList.remove('resizing');
                 document.body.style.cursor = '';
                 document.body.style.userSelect = '';
+                allThs.forEach(h => { if (h.dataset._wasDrag === '1') { h.draggable = true; delete h.dataset._wasDrag; } });
                 
                 const colId = th.getAttribute('data-col-id');
                 if (colId) {

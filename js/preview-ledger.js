@@ -628,7 +628,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     let _hasExplicitLedgerArr = false;
-    const rawData = localStorage.getItem('preview_ledger_data');
+    // 1) Highest priority: exact live rows prepared by the parent General Ledger window (same-origin iframe) — never stale
+    let _fromParent = false;
+    try {
+        if (window.parent && window.parent !== window && Array.isArray(window.parent.__glPreviewTxns)) {
+            currentData = JSON.parse(JSON.stringify(window.parent.__glPreviewTxns));
+            _hasExplicitLedgerArr = true; _fromParent = true;
+        }
+    } catch (_) {}
+    const rawData = _fromParent ? null : localStorage.getItem('preview_ledger_data');
     if (rawData) {
         try {
             const parsed = JSON.parse(rawData);
@@ -659,9 +667,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.reloadPreviewDataFromStorage = function() {
         try {
             loadCompanyHeader();
+            let pRows = null;
+            try { if (window.parent && window.parent !== window && Array.isArray(window.parent.__glPreviewTxns)) pRows = JSON.parse(JSON.stringify(window.parent.__glPreviewTxns)); } catch (_) {}
             const rc = JSON.parse(localStorage.getItem('preview_ledger_config') || '{}');
             const isSpec = !!(rc.filterAccount && rc.filterAccount !== 'ALL');
-            const rd = JSON.parse(localStorage.getItem('preview_ledger_data') || 'null');
+            const rd = pRows || JSON.parse(localStorage.getItem('preview_ledger_data') || 'null');
             if (Array.isArray(rd) && (rd.length > 0 || isSpec)) {
                 currentData = rd;
             } else if (typeof calculateLedgerTxns === 'function') {
@@ -677,6 +687,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (typeof calculateLedgerTxns === 'function') {
                 const fresh = calculateLedgerTxns();
                 if (Array.isArray(fresh)) {
+                    // Never downgrade a complete ledger to a smaller (e.g. opening-only) partial rebuild
+                    const curMov = (currentData || []).filter(t => t && !t.isOpening).length;
+                    const freshMov = fresh.filter(t => t && !t.isOpening).length;
+                    if (freshMov < curMov) return;
                     currentData = fresh;
                     filteredData = [...currentData];
                     if (typeof renderTable === 'function') renderTable();
@@ -684,6 +698,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } catch (e) {}
     };
+    // When this iframe's own DB finishes hydrating from IndexedDB, rebuild with the complete data set
+    window.addEventListener('magaiesDataUpdated', () => { setTimeout(() => window.refreshPreviewLedgerLive(), 200); });
+    document.addEventListener('DBReady', () => { setTimeout(() => window.refreshPreviewLedgerLive(), 120); });
 
     if (typeof window.syncLiveMasterAndReceiptsForGL === 'function') {
         window.syncLiveMasterAndReceiptsForGL(false).then(() => {
