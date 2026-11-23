@@ -1051,9 +1051,9 @@ $page_title = 'حساب الأرصدة الأساسية';
 
     <!-- FILTERS & PRESET CONTROLS PANEL (EXPANDED ~1CM) -->
     <div class="report-header no-print" style="background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; padding: 12px 16px; margin-bottom: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.4);">
-        <div class="filter-row" style="display: flex; align-items: flex-end; gap: 8px; flex-wrap: nowrap; margin-bottom: 10px; width: 100%;">
+        <div class="filter-row" style="display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; width: 100%;">
             <!-- 1. نوع المجموعة -->
-            <div class="filter-group" style="flex: 1; min-width: 0; margin: 0;">
+            <div class="filter-group" style="flex: 1 1 150px; min-width: 145px; margin: 0;">
                 <label style="font-size:0.75rem; margin-bottom:4px; font-weight:800; color:#38bdf8; display:flex; align-items:center; gap:3px; white-space:nowrap;">
                     <span>📂 نوع المجموعة</span>
                 </label>
@@ -1077,7 +1077,8 @@ $page_title = 'حساب الأرصدة الأساسية';
                     <option value="BALANCE_ASC">حسب الرصيد (من الأقل للأعلى)</option>
                     <option value="DEBIT_DESC">🔴 الأعلى مديونية (عليه فقط)</option>
                     <option value="CREDIT_DESC">🟢 الأعلى دائنية (له فقط)</option>
-                    <option value="NAME">🔤 حسب اسم الحساب (أبجدياً)</option>
+                    <option value="NAME">🔤 حسب اسم الحساب (أبجدياً أ ← ي)</option>
+                    <option value="NAME_DESC">🔤 حسب اسم الحساب (عكسي ي ← أ)</option>
                     <option value="LAST_DATE">⏱️ حسب تاريخ آخر حركة (الأحدث)</option>
                 </select>
             </div>

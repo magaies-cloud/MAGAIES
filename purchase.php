@@ -1389,5 +1389,6 @@ try {
     <link rel="stylesheet" id="purchase-hub-constitution-2027-style" href="css/screens/purchase-inline-18.css?v=<?= @filemtime(__DIR__ . '/css/screens/purchase-inline-18.css') ?: '2027' ?>">
 
     <script id="purchase-hub-constitution-2027-script" src="js/screens/purchase-inline-26.js?v=<?= @filemtime(__DIR__ . '/js/screens/purchase-inline-26.js') ?: '2027' ?>"></script>
+<link rel="stylesheet" href="css/pay-amount-typing-2027.css?v=<?= @filemtime(__DIR__ . '/css/pay-amount-typing-2027.css') ?: '2027' ?>">
 </body>
 </html>

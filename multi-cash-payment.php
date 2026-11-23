@@ -2553,5 +2553,6 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
     <!-- ══════════════════════════════════════════════════════════════════════════════ -->
     <!-- الدستور الثاني (Constitution 2): هندسة المرشد الذكي، الصوت الرجالي، عدم تكرار الافتتاحية، والمحاكاة الحية للشاشات الوليدة -->
     
+<link rel="stylesheet" href="css/pay-amount-typing-2027.css?v=<?= @filemtime(__DIR__ . '/css/pay-amount-typing-2027.css') ?: '2027' ?>">
 </body>
 </html>

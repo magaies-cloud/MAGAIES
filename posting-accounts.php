@@ -1,4 +1,62 @@
-<?php if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); } ?>
+<?php
+if (isset($_GET['api']) && $_GET['api'] === 'set_posted_batch') {
+    header('Content-Type: application/json; charset=UTF-8');
+    require_once __DIR__ . '/db_bridge.php';
+    $pdo = getDBConnection();
+    $payload = json_decode(file_get_contents('php://input'), true) ?: [];
+    $items = is_array($payload['items'] ?? null) ? $payload['items'] : [];
+    $tblMap = [
+        'erp_sales_invoices_v1' => 'sales_invoices',
+        'erp_purchase_invoices_v1' => 'purchase_invoices',
+        'erp_single_receipts_v1' => 'single_receipts',
+        'erp_receipts_v1' => 'receipts',
+        'erp_single_payments_v1' => 'single_payments',
+        'erp_payments_v1' => 'payments',
+        'erp_journal_vouchers_v1' => 'journal_vouchers'
+    ];
+    $updated = 0;
+    $nowMs = (int)round(microtime(true) * 1000);
+    if ($pdo && $items) {
+        $byTbl = [];
+        foreach ($items as $it) {
+            $mk = (string)($it['metaKey'] ?? '');
+            if (!isset($tblMap[$mk])) continue;
+            $tbl = $tblMap[$mk];
+            $isP = !empty($it['isPosted']);
+            foreach ((array)($it['refs'] ?? []) as $rf) {
+                $rf = trim((string)$rf);
+                if ($rf !== '') $byTbl[$tbl][$rf] = $isP;
+            }
+        }
+        foreach ($byTbl as $tbl => $refMap) {
+            try {
+                $rows = $pdo->query("SELECT id, data FROM `{$tbl}`")->fetchAll(PDO::FETCH_ASSOC);
+                $upd = $pdo->prepare("UPDATE `{$tbl}` SET data = ? WHERE id = ?");
+                foreach ($rows as $r) {
+                    $d = json_decode($r['data'], true);
+                    if (!is_array($d)) continue;
+                    $keys = array_filter([
+                        (string)($d['id'] ?? ''), (string)($d['invoiceNo'] ?? ''), (string)($d['voucherNo'] ?? ''),
+                        (string)($d['paymentNo'] ?? ''), (string)($d['receiptNo'] ?? ''), (string)$r['id']
+                    ], fn($v) => $v !== '');
+                    $matched = null;
+                    foreach ($keys as $k) { if (array_key_exists($k, $refMap)) { $matched = $refMap[$k]; break; } }
+                    if ($matched === null) continue;
+                    $d['isPosted'] = $matched;
+                    if ($tbl === 'sales_invoices' || $tbl === 'purchase_invoices') {
+                        $d['status'] = $matched ? 'posted' : 'pending';
+                    }
+                    $d['updatedAtMs'] = $nowMs;
+                    $upd->execute([json_encode($d, JSON_UNESCAPED_UNICODE), $r['id']]);
+                    $updated++;
+                }
+            } catch (Exception $e) {}
+        }
+    }
+    echo json_encode(['success' => true, 'updated' => $updated], JSON_UNESCAPED_UNICODE);
+    exit;
+}
+if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compression') && ob_get_level() <= 1 && (int)ob_get_length() === 0 && stripos($_SERVER['HTTP_ACCEPT_ENCODING'] ?? '', 'gzip') !== false && !in_array('ob_gzhandler', ob_list_handlers(), true)) { @ob_start('ob_gzhandler'); } ?>
 <?php $page_title = 'ترحيل الحسابات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">

@@ -2980,8 +2980,8 @@ function submitInvoice(ignoreWarnings = false) {
                 setTimeout(() => { if (targetEl && targetEl.style) { targetEl.style.border = ''; targetEl.style.boxShadow = ''; } }, 6000);
             }
         };
-        const isDup = /مكرر|مسجل مسبقاً|موجود مسبقاً/.test(msg);
-        const isShort = /6 خانات|6 أرقام|أقل/.test(msg);
+        const isDup = /مكرر|مسجل مسبقاً|موجود مسبقاً|تم استخدامه من قبل/.test(msg);
+        const isShort = !isDup && /6 خانات|6 أرقام|أقل/.test(msg);
         const titleTxt = isDup ? 'تنبيه: رقم مكرر مسبقاً' : (isShort ? 'تنبيه: رقم التحويلة أقل من 6 خانات' : 'تنبيه: يرجى مراجعة بيانات السداد');
         const isLight = document.documentElement.classList.contains('light-theme');
         const oldOv = document.getElementById('pur-pay-err-center-modal');
@@ -2992,16 +2992,14 @@ function submitInvoice(ignoreWarnings = false) {
         const cardBg = isLight ? 'linear-gradient(160deg,#ffffff 0%,#fff7ed 60%,#fee2e2 100%)' : 'linear-gradient(160deg,#172554 0%,#0f172a 58%,#1e1b4b 100%)';
         const cardBorder = isLight ? '3px solid #dc2626' : '2.5px solid #f87171';
         const txtCol = isLight ? '#140c06' : '#ffffff';
-        const subBg = isLight ? 'rgba(22,163,74,0.12)' : 'rgba(16,185,129,0.16)';
-        const subCol = isLight ? '#166534' : '#6ee7b7';
-        const enteredVal = (targetEl && targetEl.value && String(targetEl.value).trim()) ? `<div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:10px;background:${isLight ? '#fee2e2' : 'rgba(239,68,68,0.22)'};border:1.5px solid #ef4444;color:${isLight ? '#991b1b' : '#fecaca'};font-size:1.15rem;font-weight:900;font-family:Outfit,monospace;direction:ltr;margin-bottom:14px;">${String(targetEl.value).trim()}</div>` : '';
-        ov.innerHTML = `<div style="width:min(560px,94vw);background:${cardBg};border:${cardBorder};border-radius:22px;padding:28px 26px 24px;text-align:center;box-shadow:0 28px 75px rgba(0,0,0,0.62),0 0 0 4px rgba(239,68,68,0.22),inset 0 1.5px 0 rgba(255,255,255,0.25);animation:cardPopIn 0.24s cubic-bezier(0.22,1,0.36,1);">
+        const enteredVal = (!isShort && targetEl && targetEl.value && String(targetEl.value).trim()) ? `<div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:10px;background:${isLight ? '#fee2e2' : 'rgba(239,68,68,0.22)'};border:1.5px solid #ef4444;color:${isLight ? '#991b1b' : '#fecaca'};font-size:1.15rem;font-weight:900;font-family:Outfit,monospace;direction:ltr;margin-bottom:14px;">${String(targetEl.value).trim()}</div>` : '';
+        const btnTxt = (isShort || isDup) ? '✏️ تعديل الرقم' : '✏️ تعديل الرقم الآن';
+        ov.innerHTML = `<div style="width:min(${isShort ? '460px' : '520px'},94vw);background:${cardBg};border:${cardBorder};border-radius:22px;padding:28px 26px 24px;text-align:center;box-shadow:0 28px 75px rgba(0,0,0,0.62),0 0 0 4px rgba(239,68,68,0.22),inset 0 1.5px 0 rgba(255,255,255,0.25);animation:cardPopIn 0.24s cubic-bezier(0.22,1,0.36,1);">
             <div style="width:70px;height:70px;margin:0 auto 14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 30% 30%,#fca5a5 0%,#ef4444 48%,#991b1b 100%);border:3px solid #fecaca;box-shadow:0 0 28px rgba(239,68,68,0.65),inset 0 2px 4px rgba(255,255,255,0.65);">🚫</div>
             <div style="font-size:1.48rem;font-weight:900;color:${isLight ? '#b91c1c' : '#fca5a5'};margin-bottom:10px;letter-spacing:0.2px;">${titleTxt}</div>
             ${enteredVal}
-            <div style="font-size:1.18rem;font-weight:800;line-height:1.7;color:${txtCol};margin-bottom:16px;">${msg.replace(/^🚫\s*/, '')}</div>
-            <div style="display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:12px;background:${subBg};border:1.5px solid rgba(16,185,129,0.45);color:${subCol};font-size:0.96rem;font-weight:900;margin-bottom:20px;">✅ جميع التحويلات والبيانات المدخلة محفوظة على الشاشة كما هي</div>
-            <div><button type="button" id="pur-pay-err-fix-btn" style="min-width:210px;height:48px;padding:0 26px;border-radius:13px;border:2px solid #fca5a5;border-bottom:4px solid #7f1d1d;background:linear-gradient(180deg,#ef4444 0%,#dc2626 52%,#b91c1c 100%);color:#ffffff;font-family:Cairo,sans-serif;font-size:1.12rem;font-weight:900;cursor:pointer;box-shadow:0 10px 24px rgba(220,38,38,0.45),inset 0 1.5px 0 rgba(255,255,255,0.45);">✏️ تعديل الرقم الآن</button></div>
+            <div style="font-size:1.18rem;font-weight:800;line-height:1.7;color:${txtCol};margin-bottom:22px;">${msg.replace(/^🚫\s*/, '')}</div>
+            <div><button type="button" id="pur-pay-err-fix-btn" style="min-width:210px;height:48px;padding:0 26px;border-radius:13px;border:2px solid #fca5a5;border-bottom:4px solid #7f1d1d;background:linear-gradient(180deg,#ef4444 0%,#dc2626 52%,#b91c1c 100%);color:#ffffff;font-family:Cairo,sans-serif;font-size:1.12rem;font-weight:900;cursor:pointer;box-shadow:0 10px 24px rgba(220,38,38,0.45),inset 0 1.5px 0 rgba(255,255,255,0.45);">${btnTxt}</button></div>
         </div>`;
         const closeAndFocus = () => {
             document.removeEventListener('keydown', onKey);
@@ -3051,7 +3049,7 @@ function submitInvoice(ignoreWarnings = false) {
             }
             const cleanDigits = toLatinDigits(bt.reference);
             if (cleanDigits.length < 6) {
-                rollbackFail(bt._refEl || '#bank-transfers-list', '🚫 شروط الحركة المالية' + rowTag + ': رقم التحويلة يجب أن يكون 6 خانات فأكثر — عدّل الرقم ثم اضغط حفظ (جميع التحويلات محفوظة كما هي).');
+                rollbackFail(bt._refEl || '#bank-transfers-list', 'يجب أن يكون رقم التحويلة 6 خانات وما فوق');
                 return;
             }
             const last6 = cleanDigits.slice(-6);
@@ -3060,13 +3058,20 @@ function submitInvoice(ignoreWarnings = false) {
                 return;
             }
             seenLocalLast6.set(last6, bt._rowNum);
-            if (window.ElsajanaAccountingBrain) {
-                const dup = window.ElsajanaAccountingBrain.checkBankakDuplicate(bt.reference, bt.imgHash, currentViewedInvoiceNo || '');
-                if (dup && dup.duplicate) {
-                    rollbackFail(bt._refEl || '#bank-transfers-list', window.ElsajanaAccountingBrain.BANKAK_DUP_MSG + rowTag);
-                    return;
-                }
-            }
+            const fmtDupDay = (rawDate) => {
+                const s = String(rawDate || '').trim().slice(0, 10);
+                if (!s) return '';
+                const dObj = new Date(s + 'T00:00:00');
+                const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+                return isNaN(dObj.getTime()) ? (' بتاريخ ' + s) : (' يوم ' + days[dObj.getDay()] + ' بتاريخ ' + s);
+            };
+            const resolveDupScreen = (rec, stKey) => {
+                const refInv = String((rec && rec.refInvoice) || '').trim().toUpperCase();
+                if ((rec && rec.autoFromPurchase) || refInv.startsWith('P')) return 'شاشة المشتريات';
+                if ((rec && rec.autoFromSales) || refInv.startsWith('S')) return 'شاشة المبيعات';
+                if (stKey === 'erp_payments_v1' || stKey === 'erp_receipts_v1' || (rec && rec.isGrouped)) return 'شاشة الحركة المالية المجمعة';
+                return 'شاشة الحركة المالية';
+            };
             const stores = ['erp_single_payments_v1', 'erp_single_receipts_v1', 'erp_payments_v1', 'erp_receipts_v1'];
             for (const stKey of stores) {
                 let arr = [];
@@ -3080,10 +3085,20 @@ function submitInvoice(ignoreWarnings = false) {
                     for (const r of refs) {
                         const d = toLatinDigits(r);
                         if (d.length >= 6 && d.slice(-6) === last6) {
-                            rollbackFail(bt._refEl || '#bank-transfers-list', '🚫 رقم التحويلة (' + bt.reference + ')' + rowTag + ' مكرر ومسجل مسبقاً في الحركة المالية #' + (recNo || 'سابق') + ' — عدّله واحفظ.');
+                            rollbackFail(bt._refEl || '#bank-transfers-list', 'رقم التحويلة (' + bt.reference + ') تم استخدامه من قبل في حركة مالية رقم (' + (recNo || 'سابق') + ')' + fmtDupDay(rec.date || rec.createdAt) + ' في ' + resolveDupScreen(rec, stKey));
                             return;
                         }
                     }
+                }
+            }
+            if (window.ElsajanaAccountingBrain) {
+                const dup = window.ElsajanaAccountingBrain.checkBankakDuplicate(bt.reference, bt.imgHash, currentViewedInvoiceNo || '');
+                if (dup && dup.duplicate) {
+                    const bV = dup.voucherNo || dup.refId || '';
+                    const bD = fmtDupDay(dup.date || dup.createdAt);
+                    const bS = resolveDupScreen(dup, '');
+                    rollbackFail(bt._refEl || '#bank-transfers-list', bV ? ('رقم التحويلة (' + bt.reference + ') تم استخدامه من قبل في حركة مالية رقم (' + bV + ')' + bD + ' في ' + bS) : ('رقم التحويلة (' + bt.reference + ') تم استخدامه من قبل في حركة مالية سابقة' + bD + ' في ' + bS));
+                    return;
                 }
             }
             const vKey = last6 + '|' + (currentViewedInvoiceNo || 'new');
@@ -3104,7 +3119,14 @@ function submitInvoice(ignoreWarnings = false) {
             )).then(results => {
                 const dupHit = results.find(x => x.res && x.res.duplicate);
                 if (dupHit) {
-                    rollbackFail(dupHit.item.bt._refEl || '#bank-transfers-list', (dupHit.res.error || ('🚫 رقم التحويلة (' + dupHit.item.bt.reference + ') مكرر في قاعدة البيانات!')) + dupHit.item.rowTag);
+                    const mV = dupHit.res.matchedVoucher || '';
+                    const mD = String(dupHit.res.matchedDate || '').trim().slice(0, 10);
+                    const mScr = dupHit.res.matchedScreen || 'شاشة الحركة المالية';
+                    const dObj = mD ? new Date(mD + 'T00:00:00') : null;
+                    const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+                    const dayStr = mD ? ((dObj && !isNaN(dObj.getTime())) ? (' يوم ' + days[dObj.getDay()] + ' بتاريخ ' + mD) : (' بتاريخ ' + mD)) : '';
+                    const dupMsg = mV ? ('رقم التحويلة (' + dupHit.item.bt.reference + ') تم استخدامه من قبل في حركة مالية رقم (' + mV + ')' + dayStr + ' في ' + mScr) : (dupHit.res.error || ('رقم التحويلة (' + dupHit.item.bt.reference + ') تم استخدامه من قبل'));
+                    rollbackFail(dupHit.item.bt._refEl || '#bank-transfers-list', dupMsg);
                     return;
                 }
                 results.forEach(x => window._purVerifiedRefsSet.add(x.item.vKey));

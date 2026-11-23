@@ -413,8 +413,10 @@ onDBReady(() => {
 
     toAccEl.addEventListener('change', updateBalances);
     
-    // Initialize UI
-    togglePaymentMethod();
+    // Initialize UI (do not reset payment sections when opening a saved/linked voucher via ?id=...)
+    if (!window.isVoucherLoadedFromDrilldown && !new URLSearchParams(window.location.search).get('id')) {
+        togglePaymentMethod();
+    }
     if (window.renderDocumentUserBadge) {
         window.renderDocumentUserBadge('voucher-user-audit-container', {}, true);
     }
@@ -1118,13 +1120,19 @@ function renderVoucher(v) {
     const refNo = String(v.refNo ?? v.mobileTransferNo ?? v.transferNo ?? v.transferRef ?? firstTr.transferNo ?? v.checkNo ?? '').trim();
     const bankName = String(v.bankName ?? v.bank ?? v.mobileNote ?? firstTr.note ?? firstTr.bankName ?? '').trim();
 
-    // Set Payment Method (يدعم صيغ الجوال وسطح المكتب والأوفلاين)
-    let rawMethod = v.paymentMethod || v.method || v.payType || (v.cheques && v.cheques.length > 0 ? 'check' : ((v.bankTransfers && v.bankTransfers.length > 0) || refNo || bankName ? 'mobile' : 'cash'));
+    // Set Payment Method (يدعم النقدي + التحويلات + الشيكات + الدفع المتعدد من المشتريات)
+    const hasTrs = (Array.isArray(v.bankTransfers) && v.bankTransfers.length > 0) || !!(refNo || bankName);
+    const hasChqs = (Array.isArray(v.cheques) && v.cheques.length > 0) || !!(v.checkNo || v.chequeNo);
+    const cashPart = parseFloat(v.cashAmount ?? 0) || 0;
+    const hasCashPart = cashPart > 0 || (!hasTrs && !hasChqs);
+    let rawMethod = v.paymentMethod || v.method || v.payType || '';
     if (rawMethod === 'transfer' || rawMethod === 'bank') rawMethod = 'mobile';
     if (rawMethod === 'normal_cheque' || rawMethod === 'bank_cheque' || rawMethod === 'cheque') rawMethod = 'check';
-    if (rawMethod === 'cash' && (refNo || bankName || (v.bankTransfers && v.bankTransfers.length > 0))) {
-        rawMethod = 'mobile';
-    }
+    if (hasCashPart && (hasTrs || hasChqs)) rawMethod = 'multi';
+    else if (hasTrs && hasChqs) rawMethod = 'hybrid';
+    else if (hasTrs) rawMethod = 'mobile';
+    else if (hasChqs) rawMethod = 'check';
+    else if (!rawMethod || rawMethod === 'multi') rawMethod = 'cash';
 
     const methodEl = document.querySelector(`input[name="payment_method"][value="${rawMethod}"]`);
     if (methodEl) {
@@ -1134,10 +1142,10 @@ function renderVoucher(v) {
         if (firstMethod) firstMethod.checked = true;
     }
 
-    togglePaymentMethod();
-
     if (typeof loadVoucherPaymentDetails === 'function') {
         loadVoucherPaymentDetails(v);
+    } else {
+        togglePaymentMethod();
     }
 
     if (refNo && document.getElementById('mobile-transfer-no') && !document.getElementById('mobile-transfer-no').value) {
@@ -2408,11 +2416,14 @@ function buildVoucherFromCurrentForm(voucherId) {
     const costCenter = document.getElementById('cost-center')?.value || '';
 
     let method = 'cash';
+    const cashActive = document.getElementById('toggle-cash')?.classList.contains('active');
     const bankActive = document.getElementById('toggle-bank')?.classList.contains('active');
     const chequeActive = document.getElementById('toggle-cheque')?.classList.contains('active');
-    if (bankActive && chequeActive) method = 'hybrid';
+    if (cashActive && (bankActive || chequeActive)) method = 'multi';
+    else if (bankActive && chequeActive) method = 'hybrid';
     else if (bankActive) method = 'mobile';
     else if (chequeActive) method = 'check';
+    const cashAmount = cashActive ? (parseNum(document.getElementById('pay-cash-amount')?.value) || (!bankActive && !chequeActive ? amtLocal : 0)) : 0;
 
     let bankTransfers = [];
     document.querySelectorAll('.transfer-row').forEach(row => {
@@ -2452,6 +2463,7 @@ function buildVoucherFromCurrentForm(voucherId) {
         beneficiaryName: beneficiaryName,
         costCenter: costCenter,
         paymentMethod: method,
+        cashAmount: cashAmount,
         bankTransfers: bankTransfers,
         cheques: cheques,
         mobileTransferNo: bankTransfers[0]?.transferNo || '',
@@ -3854,49 +3866,88 @@ window.syncFirstRowAmount = function() {
 
 window.loadVoucherPaymentDetails = function(v) {
     const firstTr = (v.bankTransfers && Array.isArray(v.bankTransfers) && v.bankTransfers[0]) ? v.bankTransfers[0] : {};
-    const refNo = String(v.mobileTransferNo ?? v.refNo ?? v.transferNo ?? v.transferRef ?? firstTr.transferNo ?? '').trim();
+    const refNo = String(v.mobileTransferNo ?? v.refNo ?? v.transferNo ?? v.transferRef ?? firstTr.transferNo ?? firstTr.reference ?? '').trim();
     const bankName = String(v.mobileNote ?? v.bankName ?? v.bank ?? firstTr.note ?? firstTr.bankName ?? '').trim();
     const amt = parseFloat(v.amountLocal ?? v.sdg ?? v.amountSdg ?? v.amount ?? v.totalAmount ?? 0) || 0;
     const stmt = String(v.notes || v.toStatement || v.fromStatement || v.statement || v.description || firstTr.statement || '');
 
-    let method = v.paymentMethod || v.method || v.payType || ((v.cheques && v.cheques.length > 0) ? 'check' : (((v.bankTransfers && v.bankTransfers.length > 0) || refNo || bankName) ? 'mobile' : 'cash'));
-    if (method === 'transfer' || method === 'bank') method = 'mobile';
-    if (method === 'normal_cheque' || method === 'bank_cheque' || method === 'cheque') method = 'check';
-    if (method === 'cash' && (refNo || bankName || (v.bankTransfers && v.bankTransfers.length > 0))) {
-        method = 'mobile';
-    }
+    const hasTransfers = (Array.isArray(v.bankTransfers) && v.bankTransfers.length > 0) || !!(refNo || bankName);
+    const hasCheques = (Array.isArray(v.cheques) && v.cheques.length > 0) || !!(v.checkNo || v.chequeNo);
+    const cashAmtVal = parseFloat(v.cashAmount ?? 0) || 0;
+    const hasCash = cashAmtVal > 0 || (!hasTransfers && !hasCheques);
+
+    const resolveBankLabel = (idOrName) => {
+        const raw = String(idOrName || '').trim();
+        if (!raw) return '';
+        if (Array.isArray(window.ACCOUNTS)) {
+            const hit = window.ACCOUNTS.find(a => a && (String(a.id) === raw || String(a.code) === raw));
+            if (hit && hit.name) return hit.name;
+        }
+        return raw;
+    };
 
     const transfersContainer = document.getElementById('transfers-container');
     const chequesContainer = document.getElementById('cheques-container');
     if (transfersContainer) transfersContainer.innerHTML = '';
     if (chequesContainer) chequesContainer.innerHTML = '';
 
-    if (method === 'mobile' || method === 'hybrid') {
-        if (v.bankTransfers && Array.isArray(v.bankTransfers) && v.bankTransfers.length > 0) {
+    const cashInp = document.getElementById('pay-cash-amount');
+    if (cashInp) {
+        const displayCash = cashAmtVal > 0 ? cashAmtVal : (hasCash && !hasTransfers && !hasCheques ? amt : 0);
+        cashInp.value = displayCash > 0 ? (typeof fmtNum === 'function' ? fmtNum(displayCash) : String(displayCash)) : '';
+    }
+
+    if (hasTransfers) {
+        if (Array.isArray(v.bankTransfers) && v.bankTransfers.length > 0) {
             v.bankTransfers.forEach(tr => {
+                const trBank = tr.note || tr.bankName || resolveBankLabel(tr.bankAccountId || tr.bankId) || bankName || '';
                 addTransferRow(
-                    tr.transferNo || refNo || '',
-                    tr.note || tr.bankName || bankName || '',
-                    tr.amount || amt || 0,
-                    tr.statement || stmt || ''
+                    tr.transferNo || tr.reference || refNo || '',
+                    trBank,
+                    parseFloat(tr.amount) || 0,
+                    tr.statement || tr.notes || stmt || ''
                 );
             });
         } else {
             addTransferRow(refNo, bankName, amt, stmt);
         }
     }
-    if (method === 'check' || method === 'hybrid') {
-        if (v.cheques && Array.isArray(v.cheques) && v.cheques.length > 0) {
+    if (hasCheques) {
+        if (Array.isArray(v.cheques) && v.cheques.length > 0) {
             v.cheques.forEach(ch => {
-                addChequeRow(ch.checkBranch || bankName || '', ch.checkNo || refNo || '', ch.checkDate || v.date || '', ch.amount || amt || 0, ch.statement || stmt || '');
+                const chBank = ch.checkBranch || ch.checkBank || ch.bankName || resolveBankLabel(ch.bankAccountId) || bankName || '';
+                addChequeRow(chBank, ch.checkNo || ch.chequeNo || refNo || '', ch.checkDate || ch.dueDate || v.date || '', parseFloat(ch.amount) || 0, ch.statement || stmt || '');
             });
         } else {
-            addChequeRow(v.checkBranch || bankName || '', v.checkNo || refNo || '', v.checkDate || v.date || '', amt, stmt);
+            addChequeRow(v.checkBranch || bankName || '', v.checkNo || v.chequeNo || refNo || '', v.checkDate || v.date || '', amt, stmt);
         }
     }
-    if (method === 'cash') {
-        initPaymentContainers();
-    }
+
+    // Activate matching toggle buttons and open payment panel & sections directly
+    const panel = document.getElementById('payment-panel');
+    const layout = document.getElementById('payment-layout');
+    if (panel) panel.style.display = 'block';
+    if (layout) layout.style.display = 'flex';
+    const btnCash = document.getElementById('toggle-cash');
+    const btnBank = document.getElementById('toggle-bank');
+    const btnCheque = document.getElementById('toggle-cheque');
+    if (btnCash) btnCash.classList.toggle('active', hasCash);
+    if (btnBank) btnBank.classList.toggle('active', hasTransfers);
+    if (btnCheque) btnCheque.classList.toggle('active', hasCheques);
+
+    const secCash = document.getElementById('pay-cash-section');
+    const secBank = document.getElementById('pay-bank-section');
+    const secCheque = document.getElementById('pay-cheque-section');
+    if (secCash) secCash.style.display = hasCash ? 'flex' : 'none';
+    if (secBank) secBank.style.display = hasTransfers ? 'flex' : 'none';
+    if (secCheque) secCheque.style.display = hasCheques ? 'flex' : 'none';
+
+    const secMobile = document.getElementById('section-mobile');
+    const secCheck = document.getElementById('section-check');
+    if (secMobile) secMobile.classList.toggle('active', hasTransfers);
+    if (secCheck) secCheck.classList.toggle('active', hasCheques);
+
+    if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();
 };
 
 function playClickSound() {
@@ -3918,9 +3969,11 @@ function playClickSound() {
     } catch(e) {}
 }
 
-// Hook setup into document load
+// Hook setup into document load (skip wiping rows when opening a saved/linked voucher by ?id=...)
 document.addEventListener('DOMContentLoaded', () => {
-    initPaymentContainers();
+    if (!window.isVoucherLoadedFromDrilldown && !new URLSearchParams(window.location.search).get('id')) {
+        initPaymentContainers();
+    }
 });
 
 window.unifyVoucherSequences = function() {

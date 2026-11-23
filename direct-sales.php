@@ -1010,6 +1010,10 @@ try {
                     <div class="panel-title" style="background: linear-gradient(135deg, #ff4d4d, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.15rem; font-weight: 900; display: inline-flex; align-items: center; gap: 6px; margin: 0; white-space: nowrap; flex: none;">
                         <span>💳</span> طريقة وتفاصيل الدفع
                     </div>
+                    <button type="button" id="sal-fin-mov-seq-badge" onclick="window.openSalesLinkedFinMovement && window.openSalesLinkedFinMovement()" title="اضغط للانتقال المباشر إلى شاشة الحركة المالية لهذا الرقم" style="display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 13px; border-radius: 9px; background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%); border: 1.6px solid #7dd3fc; color: #ffffff; cursor: pointer; font-family: 'Outfit','Cairo',sans-serif; font-size: 0.9rem; font-weight: 900; white-space: nowrap;">
+                        <span style="color:#7dd3fc;">🧾 حركة مالية:</span>
+                        <span id="sal-fin-mov-seq-val" style="direction:ltr; font-family:'Outfit',monospace; color:#fde047;">---</span>
+                    </button>
                     
                     <!-- Sleek Payment Progress Bar (Inline) -->
                     <div class="payment-progress-container" style="flex: 1; display: flex; align-items: center; gap: 12px; min-width: 280px; padding: 0 10px;">
@@ -1804,5 +1808,6 @@ try {
 <script id="split-constitution16-zero-error-master-engine" src="js/screens/direct-sales-j9.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-j9.js') ?: '2027' ?>"></script>
 <script src="js/split-purchase-constitution-2027.js?v=2027_clean_v2"></script>
 <link rel="stylesheet" id="sales-cloned-purchase-card-2027" href="css/screens/sales-cloned-purchase-card.css?v=<?= @filemtime(__DIR__ . '/css/screens/sales-cloned-purchase-card.css') ?: '2027' ?>">
+<link rel="stylesheet" href="css/pay-amount-typing-2027.css?v=<?= @filemtime(__DIR__ . '/css/pay-amount-typing-2027.css') ?: '2027' ?>">
 </body>
 </html>

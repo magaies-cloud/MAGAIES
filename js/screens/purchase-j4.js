@@ -510,15 +510,39 @@
         }
         if (vNo && vNo !== '---' && vNo !== '—') {
             try {
-                let found = linkedRec;
+                let found = linkedRec ? Object.assign({}, linkedRec) : null;
                 if (!found) {
                     const getTK = window.getTenantKey || ((k) => k);
                     const keys = [getTK('erp_single_payments_v1'), 'erp_single_payments_v1', 'magaies_vouchers_cache'];
                     for (const k of keys) {
                         const arr = JSON.parse(localStorage.getItem(k) || '[]');
                         if (Array.isArray(arr)) {
-                            found = arr.find(p => p && (String(p.voucherNo) === vNo || String(p.id) === vNo));
-                            if (found) break;
+                            const hit = arr.find(p => p && (String(p.voucherNo) === vNo || String(p.id) === vNo));
+                            if (hit) { found = Object.assign({}, hit); break; }
+                        }
+                    }
+                }
+                const curInvNo = String(forInvoiceNo || document.getElementById('hdr-inv-no')?.value || document.getElementById('inv-number')?.textContent || '').trim().replace(/^#/, '');
+                if (found && curInvNo) {
+                    let srcInv = null;
+                    try { const rawInv = localStorage.getItem('erp_pur_' + curInvNo); if (rawInv) srcInv = JSON.parse(rawInv); } catch (_) {}
+                    if (!srcInv) {
+                        for (const ik of ['erp_purchase_invoices_v1', 'erp_purchases_v1', 'magaies_local_purchase_invoices_v1']) {
+                            try {
+                                const arr = JSON.parse(localStorage.getItem(ik) || '[]');
+                                if (Array.isArray(arr)) { srcInv = arr.find(x => x && String(x.invoiceNo || x.id || '').trim().replace(/^#/, '') === curInvNo); if (srcInv) break; }
+                            } catch (_) {}
+                        }
+                    }
+                    if (srcInv) {
+                        if ((!Array.isArray(found.bankTransfers) || found.bankTransfers.length === 0) && Array.isArray(srcInv.bankTransfers) && srcInv.bankTransfers.length > 0) {
+                            found.bankTransfers = srcInv.bankTransfers.map(bt => ({ bankAccountId: bt.bankAccountId || '', bankName: bt.bankName || '', note: bt.bankName || bt.note || '', transferNo: String(bt.reference || bt.transferNo || '').trim(), reference: String(bt.reference || bt.transferNo || '').trim(), amount: parseFloat(bt.amount) || 0, statement: bt.notes || found.statement || '' }));
+                        }
+                        if ((!Array.isArray(found.cheques) || found.cheques.length === 0) && Array.isArray(srcInv.cheques) && srcInv.cheques.length > 0) {
+                            found.cheques = srcInv.cheques.map(ch => ({ bankAccountId: ch.bankAccountId || '', checkBank: ch.bankName || ch.checkBank || '', checkBranch: ch.bankName || ch.checkBranch || '', checkNo: ch.chequeNo || ch.checkNo || '', chequeNo: ch.chequeNo || ch.checkNo || '', checkDate: ch.dueDate || ch.checkDate || '', dueDate: ch.dueDate || ch.checkDate || '', amount: parseFloat(ch.amount) || 0, statement: found.statement || '' }));
+                        }
+                        if (!(parseFloat(found.cashAmount) > 0) && parseFloat(srcInv.cashAmount || 0) > 0) {
+                            found.cashAmount = parseFloat(srcInv.cashAmount) || 0;
                         }
                     }
                 }

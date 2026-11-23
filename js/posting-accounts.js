@@ -607,27 +607,26 @@ async function loadAllTransactions() {
 
         for (const meta of keys) {
             const tKey = getTenantKey(meta.key);
-            let list1 = [];
-            let list2 = [];
-            
+            const sources = [];
+            try { sources.push(JSON.parse(localStorage.getItem(meta.key) || '[]')); } catch(e){}
+            try { sources.push(JSON.parse(localStorage.getItem(tKey) || '[]')); } catch(e){}
             if (typeof localforage !== 'undefined') {
-                try { list1 = await localforage.getItem(tKey) || []; } catch(e){}
-                try { list2 = await localforage.getItem(meta.key) || []; } catch(e){}
+                try { sources.push(await localforage.getItem(meta.key) || []); } catch(e){}
+                try { sources.push(await localforage.getItem(tKey) || []); } catch(e){}
             }
-            if (!Array.isArray(list1) || list1.length === 0) {
-                try { list1 = JSON.parse(localStorage.getItem(tKey) || '[]'); } catch(e){}
-            }
-            if (!Array.isArray(list2) || list2.length === 0) {
-                try { list2 = JSON.parse(localStorage.getItem(meta.key) || '[]'); } catch(e){}
-            }
-            if (list1 && typeof list1 === 'object' && !Array.isArray(list1)) list1 = Object.values(list1);
-            if (list2 && typeof list2 === 'object' && !Array.isArray(list2)) list2 = Object.values(list2);
-
+            const getRecTs = (x) => Number(x && (x.updatedAtMs || x._crdtLamportTs || 0)) || (x && x.updatedAt ? (Date.parse(x.updatedAt) || 0) : 0);
             const itemMap = new Map();
-            [...(Array.isArray(list2) ? list2 : []), ...(Array.isArray(list1) ? list1 : [])].forEach(item => {
-                if (!item) return;
-                const k = String(item.voucherNo || item.id || item.paymentNo || item.receiptNo || item.invoiceNo || Math.random());
-                itemMap.set(k, item);
+            sources.forEach(src => {
+                if (!src) return;
+                const arr = Array.isArray(src) ? src : (typeof src === 'object' ? Object.values(src) : []);
+                arr.forEach(item => {
+                    if (!item) return;
+                    const k = String(item.voucherNo || item.invoiceNo || item.id || item.paymentNo || item.receiptNo || Math.random()).trim();
+                    const prev = itemMap.get(k);
+                    if (!prev || getRecTs(item) >= getRecTs(prev)) {
+                        itemMap.set(k, prev ? Object.assign({}, prev, item) : item);
+                    }
+                });
             });
             let data = Array.from(itemMap.values());
 
@@ -647,8 +646,13 @@ async function loadAllTransactions() {
                     }
 
                     const isWA = isWhatsAppReceiptItem(item);
+                    const rawSt = String(item.status || '').toLowerCase();
+                    const normalizedPosted = isWA
+                        ? (item.isPosted === true)
+                        : ((item.isPosted === true) || (item.isPosted !== false && rawSt !== 'draft' && rawSt !== 'pending'));
                     allData.push({
                         ...item,
+                        isPosted: normalizedPosted,
                         _sourceKey: tKey,
                         _metaKey: meta.key,
                         _typeLabel: isWA ? '📲 إشعار واتساب' : meta.type,
@@ -1455,37 +1459,60 @@ async function saveItemPosted(item) {
             }
         }
 
-        const tKey = item._sourceKey;
-        let data = [];
-        if (typeof localforage !== 'undefined') {
-            data = await localforage.getItem(tKey);
-        }
-        if (!data) {
-            data = localStorage.getItem(tKey) || localStorage.getItem(item._metaKey) || '[]';
-        }
-
-        if (typeof data === 'string') {
-            try {
-                data = JSON.parse(data);
-            } catch(e) {
-                data = [];
-            }
-        }
-
-        const isObj = data && typeof data === 'object' && !Array.isArray(data);
-        const refId = item.id || item.invoiceNo || item.voucherNo;
+        const getTK = window.getTenantKey || ((k) => k);
+        const metaKey = item._metaKey;
+        const tKey = item._sourceKey || getTK(metaKey);
+        const matchRefs = Array.from(new Set([item.id, item.invoiceNo, item.voucherNo, item.paymentNo, item.receiptNo].filter(Boolean).map(v => String(v).trim())));
+        const isMatchRec = (x) => {
+            if (!x) return false;
+            const cands = [x.id, x.invoiceNo, x.voucherNo, x.paymentNo, x.receiptNo].filter(Boolean).map(v => String(v).trim());
+            return cands.some(c => matchRefs.includes(c));
+        };
         const crdtTs = Date.now();
         const crdtId = 'CRDT-' + crdtTs + '-' + Math.random().toString(36).slice(2, 7);
+        const applyPatch = (rec) => {
+            rec.isPosted = true;
+            if (metaKey === 'erp_sales_invoices_v1' || metaKey === 'erp_purchase_invoices_v1') rec.status = 'posted';
+            rec.updatedAtMs = crdtTs; rec._crdtLamportTs = crdtTs; rec._crdtUuid = crdtId;
+        };
 
-        if (isObj) {
-            if (data[refId]) { data[refId].isPosted = true; data[refId].updatedAtMs = crdtTs; data[refId]._crdtLamportTs = crdtTs; data[refId]._crdtUuid = crdtId; }
-        } else if (Array.isArray(data)) {
-            const idx = data.findIndex(x => (x.id || x.invoiceNo || x.voucherNo) === refId);
-            if (idx > -1) { data[idx].isPosted = true; data[idx].updatedAtMs = crdtTs; data[idx]._crdtLamportTs = crdtTs; data[idx]._crdtUuid = crdtId; }
+        // Update ALL 4 stores (localStorage base + tenant, localforage base + tenant) so nothing reverts on reload!
+        const allKeys = Array.from(new Set([tKey, metaKey]));
+        for (const k of allKeys) {
+            let lsData = null;
+            try { lsData = JSON.parse(localStorage.getItem(k) || 'null'); } catch(_) {}
+            if (lsData) {
+                if (Array.isArray(lsData)) { lsData.forEach(x => { if (isMatchRec(x)) applyPatch(x); }); }
+                else if (typeof lsData === 'object') { Object.keys(lsData).forEach(rk => { if (matchRefs.includes(String(rk).trim()) || isMatchRec(lsData[rk])) applyPatch(lsData[rk]); }); }
+                try { localStorage.setItem(k, JSON.stringify(lsData)); } catch(_) {}
+            }
+            if (typeof localforage !== 'undefined') {
+                try {
+                    let lfData = await localforage.getItem(k);
+                    if (typeof lfData === 'string') { try { lfData = JSON.parse(lfData); } catch(_) {} }
+                    if (lfData) {
+                        if (Array.isArray(lfData)) { lfData.forEach(x => { if (isMatchRec(x)) applyPatch(x); }); }
+                        else if (typeof lfData === 'object') { Object.keys(lfData).forEach(rk => { if (matchRefs.includes(String(rk).trim()) || isMatchRec(lfData[rk])) applyPatch(lfData[rk]); }); }
+                        await localforage.setItem(k, lfData);
+                    }
+                } catch(_) {}
+            }
         }
+        // Also update individual cached invoice keys (erp_inv_* / erp_pur_*)
+        matchRefs.forEach(rf => {
+            ['erp_inv_' + rf, 'erp_pur_' + rf].forEach(ik => {
+                try { const raw = localStorage.getItem(ik); if (raw) { const obj = JSON.parse(raw); applyPatch(obj); localStorage.setItem(ik, JSON.stringify(obj)); } } catch(_) {}
+            });
+        });
 
-        // Save using standard overridden localStorage.setItem + Atomic CRDT & GL Audit Sync
-        localStorage.setItem(item._metaKey, JSON.stringify(data));
+        // Persist permanently to MySQL database immediately
+        try {
+            await fetch('posting-accounts.php?api=set_posted_batch', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ items: [{ metaKey, refs: matchRefs, isPosted: true }] })
+            });
+        } catch (_) {}
+
         if (typeof window.rebuildGLFromAllTables === 'function') { try { window.rebuildGLFromAllTables(false); } catch (_) {} }
         if (window.recordPaCrdtAtomicDelta) window.recordPaCrdtAtomicDelta(item, true, crdtTs, crdtId);
         if (window.broadcastPaAtomicLedgerSync) window.broadcastPaAtomicLedgerSync(item);
@@ -1708,36 +1735,52 @@ async function postAllChecked() {
 
 async function saveItemUnposted(item) {
     try {
-        const tKey = item._sourceKey;
-        let data = [];
-        if (typeof localforage !== 'undefined') {
-            data = await localforage.getItem(tKey);
-        }
-        if (!data) {
-            data = localStorage.getItem(tKey) || localStorage.getItem(item._metaKey) || '[]';
-        }
-
-        if (typeof data === 'string') {
-            try {
-                data = JSON.parse(data);
-            } catch(e) {
-                data = [];
+        const getTK = window.getTenantKey || ((k) => k);
+        const metaKey = item._metaKey;
+        const tKey = item._sourceKey || getTK(metaKey);
+        const matchRefs = Array.from(new Set([item.id, item.invoiceNo, item.voucherNo, item.paymentNo, item.receiptNo].filter(Boolean).map(v => String(v).trim())));
+        const isMatchRec = (x) => {
+            if (!x) return false;
+            const cands = [x.id, x.invoiceNo, x.voucherNo, x.paymentNo, x.receiptNo].filter(Boolean).map(v => String(v).trim());
+            return cands.some(c => matchRefs.includes(c));
+        };
+        const uTs = Date.now();
+        const applyUnpost = (rec) => {
+            rec.isPosted = false;
+            if (metaKey === 'erp_sales_invoices_v1' || metaKey === 'erp_purchase_invoices_v1') rec.status = 'pending';
+            rec.updatedAtMs = uTs;
+        };
+        for (const k of Array.from(new Set([tKey, metaKey]))) {
+            let lsData = null;
+            try { lsData = JSON.parse(localStorage.getItem(k) || 'null'); } catch(_) {}
+            if (lsData) {
+                if (Array.isArray(lsData)) lsData.forEach(x => { if (isMatchRec(x)) applyUnpost(x); });
+                else if (typeof lsData === 'object') Object.keys(lsData).forEach(rk => { if (matchRefs.includes(String(rk).trim()) || isMatchRec(lsData[rk])) applyUnpost(lsData[rk]); });
+                try { localStorage.setItem(k, JSON.stringify(lsData)); } catch(_) {}
+            }
+            if (typeof localforage !== 'undefined') {
+                try {
+                    let lfData = await localforage.getItem(k);
+                    if (typeof lfData === 'string') { try { lfData = JSON.parse(lfData); } catch(_) {} }
+                    if (lfData) {
+                        if (Array.isArray(lfData)) lfData.forEach(x => { if (isMatchRec(x)) applyUnpost(x); });
+                        else if (typeof lfData === 'object') Object.keys(lfData).forEach(rk => { if (matchRefs.includes(String(rk).trim()) || isMatchRec(lfData[rk])) applyUnpost(lfData[rk]); });
+                        await localforage.setItem(k, lfData);
+                    }
+                } catch(_) {}
             }
         }
-
-        const isObj = data && typeof data === 'object' && !Array.isArray(data);
-        const refId = item.id || item.invoiceNo || item.voucherNo;
-
-        const uTs = Date.now();
-        if (isObj) {
-            if (data[refId]) { data[refId].isPosted = false; data[refId].updatedAtMs = uTs; }
-        } else if (Array.isArray(data)) {
-            const idx = data.findIndex(x => (x.id || x.invoiceNo || x.voucherNo) === refId);
-            if (idx > -1) { data[idx].isPosted = false; data[idx].updatedAtMs = uTs; }
-        }
-
-        // Save using standard overridden localStorage.setItem + Atomic Reversal Sync
-        localStorage.setItem(item._metaKey, JSON.stringify(data));
+        matchRefs.forEach(rf => {
+            ['erp_inv_' + rf, 'erp_pur_' + rf].forEach(ik => {
+                try { const raw = localStorage.getItem(ik); if (raw) { const obj = JSON.parse(raw); applyUnpost(obj); localStorage.setItem(ik, JSON.stringify(obj)); } } catch(_) {}
+            });
+        });
+        try {
+            await fetch('posting-accounts.php?api=set_posted_batch', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ items: [{ metaKey, refs: matchRefs, isPosted: false }] })
+            });
+        } catch (_) {}
         if (typeof window.rebuildGLFromAllTables === 'function') { try { window.rebuildGLFromAllTables(false); } catch (_) {} }
         if (window.recordPaCrdtAtomicDelta) window.recordPaCrdtAtomicDelta(item, false, uTs, 'CRDT-UNPOST-' + uTs);
         if (window.broadcastPaAtomicLedgerSync) window.broadcastPaAtomicLedgerSync(item, true);

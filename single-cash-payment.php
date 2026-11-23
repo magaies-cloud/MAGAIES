@@ -138,6 +138,11 @@ if (!function_exists('findTransferDuplicateInDb')) {
                     $candidates = extractAllTransfersFromRecord($d);
                     foreach ($candidates as $cr) {
                         if (areTransferRefsEqualStrict($cleanRefDigits, $cr)) {
+                            $refInvU = strtoupper(trim((string)($d['refInvoice'] ?? '')));
+                            $scrName = 'شاشة الحركة المالية';
+                            if (!empty($d['autoFromPurchase']) || ($refInvU !== '' && strpos($refInvU, 'P') === 0)) $scrName = 'شاشة المشتريات';
+                            elseif (!empty($d['autoFromSales']) || ($refInvU !== '' && strpos($refInvU, 'S') === 0)) $scrName = 'شاشة المبيعات';
+                            elseif ($tbl === 'payments' || $tbl === 'receipts' || !empty($d['isGrouped'])) $scrName = 'شاشة الحركة المالية المجمعة';
                             return [
                                 'voucherNo' => $existingVNo ?: 'سابق',
                                 'ref' => $cr,
@@ -147,6 +152,7 @@ if (!function_exists('findTransferDuplicateInDb')) {
                                 'from' => $d['fromAccountName'] ?? ($d['fromAccount'] ?? ($d['from'] ?? '')),
                                 'to' => $d['toAccountName'] ?? ($d['toAccount'] ?? ($d['to'] ?? ($d['beneficiaryName'] ?? ''))),
                                 'table' => $tbl,
+                                'screen' => $scrName,
                                 'matchedSuffix' => $candSuffix,
                                 'matchType' => 'تطابق رقم العملية البنكية'
                             ];
@@ -228,14 +234,20 @@ if ((isset($_GET['api']) && $_GET['api'] === 'check_duplicate') || (isset($_POST
 
     $dup = findTransferDuplicateInDb($pdo, $ref, $currentVNo, $tId);
     if ($dup) {
+        $rawD = substr(trim((string)($dup['date'] ?? '')), 0, 10);
+        $arDays = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+        $tsD = $rawD ? strtotime($rawD) : false;
+        $datePart = $rawD ? ($tsD !== false ? (" يوم " . $arDays[(int)date('w', $tsD)] . " بتاريخ {$rawD}") : " بتاريخ {$rawD}") : "";
+        $scrName = $dup['screen'] ?? 'شاشة الحركة المالية';
         echo json_encode([
             'valid' => false,
             'duplicate' => true,
             'isShort' => false,
-            'error' => "عفواً، رقم التحويلة ({$safeRef}) مكرر ومسجل مسبقاً في السند رقم ({$dup['voucherNo']}) لتطابق آخر 6 أرقام ({$dup['matchedSuffix']}).",
+            'error' => "رقم التحويلة ({$safeRef}) تم استخدامه من قبل في حركة مالية رقم ({$dup['voucherNo']}){$datePart} في {$scrName}",
             'matchedVoucher' => $dup['voucherNo'],
             'matchedRef' => $dup['ref'],
             'matchedDate' => $dup['date'],
+            'matchedScreen' => $scrName,
             'matchedAmount' => $dup['amount'],
             'matchedBank' => $dup['bank'],
             'matchedSuffix' => $dup['matchedSuffix'],
@@ -280,6 +292,22 @@ if ((isset($_GET['api']) && $_GET['api'] === 'save_voucher') || (isset($_POST['a
         if (strtolower($srvFromAcc) === strtolower($srvToAcc)) {
             echo json_encode(['success' => false, 'error' => 'رفض محاسبي: لا يمكن أن يكون حساب الصرف هو نفس حساب الاستلام (قيد ذاتي مغلق).'], JSON_UNESCAPED_UNICODE);
             exit;
+        }
+        // حارس سعر الصرف: منع حفظ أي سعر صرف شاذ (< 500) وضمان دقة المعادل بالدولار مستقبلاً
+        $srvRate = (float)($payload['exchangeRate'] ?? ($payload['rate'] ?? 0));
+        if ($srvRate < 500) {
+            $srvRate = 12000.0;
+            try {
+                $rs = $pdo->query("SELECT setting_value FROM global_settings WHERE setting_key IN ('usd_rate','exchange_rate','dollar_rate') LIMIT 1");
+                if ($rs && ($rv = (float)$rs->fetchColumn()) >= 500) $srvRate = $rv;
+            } catch (Exception $e) {}
+            $payload['exchangeRate'] = $srvRate;
+            $payload['rate'] = $srvRate;
+        }
+        $srvFc = (float)($payload['amountForeign'] ?? ($payload['foreignAmount'] ?? 0));
+        if ($srvAmtLocal > 0 && ($srvFc <= 0 || abs($srvFc - $srvAmtLocal) < 0.01 || ($srvAmtLocal / $srvFc) < 500)) {
+            $payload['amountForeign'] = round($srvAmtLocal / $srvRate, 4);
+            $payload['foreignAmount'] = $payload['amountForeign'];
         }
 
         // شروط التحويل المالي الصارمة لنسخة اللابتوب:
@@ -364,21 +392,23 @@ if ((isset($_GET['api']) && $_GET['api'] === 'save_voucher') || (isset($_POST['a
                     exit;
                 }
             }
+            $isRecType = (($_GET['type'] ?? '') === 'receipt') || (($payload['type'] ?? '') === 'receipt') || (($payload['voucherType'] ?? '') === 'receipt');
+            $targetTbl = $isRecType ? 'single_receipts' : 'single_payments';
             $jsonRecord = json_encode($payload, JSON_UNESCAPED_UNICODE);
-            $stmtCheck = $pdo->prepare("SELECT id FROM single_payments WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+            $stmtCheck = $pdo->prepare("SELECT id FROM `{$targetTbl}` WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
             $stmtCheck->execute([$tId, $voucherNo, $voucherNo]);
             $existingDbId = $stmtCheck->fetchColumn();
             if ($existingDbId) {
-                $stmtUp = $pdo->prepare("UPDATE single_payments SET data = ?, updated_at = NOW() WHERE id = ?");
+                $stmtUp = $pdo->prepare("UPDATE `{$targetTbl}` SET data = ?, updated_at = NOW() WHERE id = ?");
                 $stmtUp->execute([$jsonRecord, $existingDbId]);
             } else {
-                $stmtIns = $pdo->prepare("INSERT INTO single_payments (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
+                $stmtIns = $pdo->prepare("INSERT INTO `{$targetTbl}` (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
                 $stmtIns->execute([$tId, $jsonRecord]);
             }
             try {
                 $syncId = 'sync-' . bin2hex(random_bytes(6));
-                $stmtSync = $pdo->prepare("INSERT INTO sync_queue (id, entity_name, record_id, operation, payload, status, created_at, synced_at) VALUES (?, 'single_payments', ?, ?, ?, 'SYNCED', NOW(), NOW())");
-                $stmtSync->execute([$syncId, $voucherNo, $existingDbId ? 'UPDATE' : 'INSERT', $jsonRecord]);
+                $stmtSync = $pdo->prepare("INSERT INTO sync_queue (id, entity_name, record_id, operation, payload, status, created_at, synced_at) VALUES (?, ?, ?, ?, ?, 'SYNCED', NOW(), NOW())");
+                $stmtSync->execute([$syncId, $targetTbl, $voucherNo, $existingDbId ? 'UPDATE' : 'INSERT', $jsonRecord]);
             } catch(Exception $es) {}
             echo json_encode(['success' => true, 'id' => $voucherNo]);
         } catch(Exception $e) {
@@ -811,6 +841,7 @@ try {
                             <input type="radio" name="payment_method" value="mobile" id="radio-mobile" checked>
                             <input type="radio" name="payment_method" value="credit" id="radio-credit">
                             <input type="radio" name="payment_method" value="hybrid" id="radio-hybrid">
+                            <input type="radio" name="payment_method" value="multi" id="radio-multi">
                         </div>
 
                         <!-- Unified Payment details panel styled like Sales/Purchase -->
@@ -917,8 +948,9 @@ try {
                                             <span style="font-size: 1.2rem;">💵</span>
                                             <span style="font-weight: 900; color: #34d399; font-size: 1.25rem;">الدفع النقدي (كاش)</span>
                                         </div>
-                                        <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
-                                            <span style="color: #94a3b8; font-size: 0.9rem;">سيتم السداد نقداً بالكامل من خلال الصندوق المحدد.</span>
+                                        <div style="display: flex; gap: 12px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
+                                            <input type="text" id="pay-cash-amount" class="v-input ctrl-input dynamic-focus-input" placeholder="مبلغ الكاش" oninput="restrictToNumbers(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" style="width: 240px; height: 48px; background: rgba(15,23,42,0.6); border: 1.5px solid rgba(16,185,129,0.5); border-radius: 10px; color: #34d399; font-size: 1.55rem; font-weight: 900; text-align: center; font-variant-numeric: tabular-nums;">
+                                            <span id="pay-cash-hint" style="color: #94a3b8; font-size: 0.9rem;">سيتم السداد نقداً من خلال الصندوق المحدد.</span>
                                         </div>
                                     </div>
 
@@ -1680,5 +1712,6 @@ try {
     <script defer src="js/elsajana-universal-ui-2027.js?v=<?php echo file_exists('js/elsajana-universal-ui-2027.js') ? filemtime('js/elsajana-universal-ui-2027.js') : 1; ?>"></script>
 
     
+<link rel="stylesheet" href="css/pay-amount-typing-2027.css?v=<?= @filemtime(__DIR__ . '/css/pay-amount-typing-2027.css') ?: '2027' ?>">
 </body>
 </html>

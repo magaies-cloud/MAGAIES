@@ -5823,23 +5823,25 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         if (hasTransfers && v.paymentMethod !== 'cash') {
             v.bankTransfers.forEach(bt => {
                 const amt = parseNum(bt.amount);
+                if (amt <= 0) return;
                 const amtLoc = isBaseSDG ? amt : (amt > valFc * 1.5 ? amt : amt * effRate);
                 const amtFc = isBaseSDG ? (amt / effRate) : (amt > valFc * 1.5 ? (amt / effRate) : amt);
                 const stmt = bt.statement || v.statement || v.fromStatement || ('تحويل بنكي - سند قبض #' + refNo);
+                const btToAcct = resolveAccount(bt.bankAccountId || bt.bankId || v.toAccount || 'bank-001', toAcct);
 
                 txns.push({
                     date: v.date, time: time, ref: refNo, type: 'receipt', typeLabel: 'سند قبض',
-                    account: toAcct, counterAccount: fromAcct,
+                    account: btToAcct, counterAccount: fromAcct,
                     statement: stmt, additionalNote: stmt,
-                    transferNo: bt.transferNo, bankName: bt.note,
+                    transferNo: bt.transferNo || bt.reference || '', bankName: bt.bankName || bt.note || '',
                     debit: amtLoc, credit: 0, debitForeign: amtFc, creditForeign: 0,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
                 txns.push({
-                    date: v.date, time: time, ref: refNo, type: 'receipt', typeLabel: 'سند صرف',
-                    account: fromAcct, counterAccount: toAcct,
+                    date: v.date, time: time, ref: refNo, type: 'receipt', typeLabel: 'سند قبض',
+                    account: fromAcct, counterAccount: btToAcct,
                     statement: stmt, additionalNote: stmt,
-                    transferNo: bt.transferNo, bankName: bt.note,
+                    transferNo: bt.transferNo || bt.reference || '', bankName: bt.bankName || bt.note || '',
                     debit: 0, credit: amtLoc, debitForeign: 0, creditForeign: amtFc,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
@@ -5849,27 +5851,51 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         if (hasCheques && v.paymentMethod !== 'cash') {
             v.cheques.forEach(ch => {
                 const amt = parseNum(ch.amount);
+                if (amt <= 0) return;
                 const amtLoc = isBaseSDG ? amt : (amt > valFc * 1.5 ? amt : amt * effRate);
                 const amtFc = isBaseSDG ? (amt / effRate) : (amt > valFc * 1.5 ? (amt / effRate) : amt);
-                const chkLabel = ch.checkNo ? ('الشيك ' + ch.checkNo) : 'الشيك';
+                const chkLabel = ch.checkNo || ch.chequeNo ? ('الشيك ' + (ch.checkNo || ch.chequeNo)) : 'الشيك';
                 const stmt = ch.statement || (chkLabel + ' / قبض نقدية');
+                const chToAcct = resolveAccount(ch.bankAccountId || v.toAccount || 'cheques-receivable', toAcct);
 
                 txns.push({
                     date: v.date, time: time, ref: refNo, type: 'receipt', typeLabel: 'سند قبض',
-                    account: toAcct, counterAccount: fromAcct,
+                    account: chToAcct, counterAccount: fromAcct,
                     statement: stmt, additionalNote: stmt,
-                    checkNo: ch.checkNo, bankName: ch.checkBranch,
+                    checkNo: ch.checkNo || ch.chequeNo || '', bankName: ch.checkBranch || ch.checkBank || '',
                     debit: amtLoc, credit: 0, debitForeign: amtFc, creditForeign: 0,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
                 txns.push({
-                    date: v.date, time: time, ref: refNo, type: 'receipt', typeLabel: 'سند صرف',
-                    account: fromAcct, counterAccount: toAcct,
+                    date: v.date, time: time, ref: refNo, type: 'receipt', typeLabel: 'سند قبض',
+                    account: fromAcct, counterAccount: chToAcct,
                     statement: stmt, additionalNote: stmt,
-                    checkNo: ch.checkNo, bankName: ch.checkBranch,
+                    checkNo: ch.checkNo || ch.chequeNo || '', bankName: ch.checkBranch || ch.checkBank || '',
                     debit: 0, credit: amtLoc, debitForeign: 0, creditForeign: amtFc,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
+            });
+        }
+
+        // Hybrid cash portion when receipt combines cash + bank transfers or cheques
+        const hybridRecCashAmt = (hasTransfers || hasCheques) ? parseNum(v.cashAmount || 0) : 0;
+        if (hybridRecCashAmt > 0 && v.paymentMethod !== 'cash') {
+            const cLoc = isBaseSDG ? hybridRecCashAmt : (hybridRecCashAmt * effRate);
+            const cFc = isBaseSDG ? (hybridRecCashAmt / effRate) : hybridRecCashAmt;
+            const cStmt = v.statement || ('قبض نقدي (دفع مختلط) - سند #' + refNo);
+            txns.push({
+                date: v.date, time: time, ref: refNo, type: 'receipt', typeLabel: 'سند قبض',
+                account: toAcct, counterAccount: fromAcct,
+                statement: cStmt, additionalNote: 'الجزء النقدي من السند #' + refNo,
+                debit: cLoc, credit: 0, debitForeign: cFc, creditForeign: 0,
+                costCenter, currency, exchangeRate: effRate, isPosted
+            });
+            txns.push({
+                date: v.date, time: time, ref: refNo, type: 'receipt', typeLabel: 'سند قبض',
+                account: fromAcct, counterAccount: toAcct,
+                statement: cStmt, additionalNote: 'الجزء النقدي من السند #' + refNo,
+                debit: 0, credit: cLoc, debitForeign: 0, creditForeign: cFc,
+                costCenter, currency, exchangeRate: effRate, isPosted
             });
         }
         
@@ -6663,13 +6689,19 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
             });
         }
 
-        if (inv.paymentMethod === 'hybrid' || inv.paymentMethod === 'multipay') {
+        // Skip duplicate sales payment legs ONLY if the linked receipt voucher already exists in erp_single_receipts_v1
+        const linkedSaleVNo = String(inv.linkedFinancialVoucherNo || '').trim();
+        const hasLinkedSingleRec = receipts.some(r => r && !r.deleted && (
+            (linkedSaleVNo && (String(r.voucherNo || '').trim() === linkedSaleVNo || String(r.id || '').trim() === linkedSaleVNo)) ||
+            String(r.refInvoice || '').trim() === String(refNo).trim()
+        ));
+        if (!hasLinkedSingleRec && (inv.paymentMethod === 'hybrid' || inv.paymentMethod === 'multipay' || inv.paymentMethod === 'multi')) {
             // A. Cash Safe Portion
             const cash = parseNum(inv.cashAmount || 0);
             if (cash > 0) {
                 const cashLoc = isBaseSDG ? cash : cash * effRate;
                 const cashFc = isBaseSDG ? (cash / effRate) : cash;
-                const paymentAcct = inv.paymentAccountId || 'safe-001';
+                const paymentAcct = resolveAccount(inv.paymentAccountId || 'safe-001', 'safe-001');
                 const debCash = isReturn ? 0 : cashLoc;
                 const credCash = isReturn ? cashLoc : 0;
                 const debCashFc = isReturn ? 0 : cashFc;
@@ -6705,7 +6737,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                     if (amt > 0) {
                         const amtLocBt = isBaseSDG ? amt : amt * effRate;
                         const amtFcBt = isBaseSDG ? (amt / effRate) : amt;
-                        const bankAcct = bt.bankAccountId || 'bank-001';
+                        const bankAcct = resolveAccount(bt.bankAccountId || 'bank-001', 'bank-001');
                         
                         const debBt = isReturn ? 0 : amtLocBt;
                         const credBt = isReturn ? amtLocBt : 0;
@@ -6779,7 +6811,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                 });
             }
         } else 
-        if (inv.paymentMethod !== 'credit') {
+        if (!hasLinkedSingleRec && inv.paymentMethod !== 'credit') {
             const pms = inv.paymentMethods || [inv.paymentMethod];
             let cashAmt = parseFloat(inv.cashAmount) || 0;
             let bankAmt = parseFloat(inv.bankTransfers ? inv.bankTransfers.reduce((s, b) => s + (parseFloat(b.amount) || 0), 0) : inv.bankAmount) || 0;
@@ -7313,37 +7345,28 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
     });
 
     
-    // Map txns to gl_entries structure if needed, or keep as is.
-    // general-ledger expects txns format. We will save it directly to erp_gl_v1
+    // Always expose exact live rebuilt array in memory (immune to localStorage QuotaExceededError)
+    window._LAST_REBUILT_GL_TXNS = txns;
     if (!skipSave) {
-        // Use original localStorage to prevent infinite loops in app.js proxy
-        const glStr = JSON.stringify(txns);
-        const tenantKey = window.getTenantKey ? window.getTenantKey('erp_gl_v1') : 'erp_gl_v1';
-        
-        // Update DB_STORE directly
-        if (window.DB_STORE) window.DB_STORE[tenantKey] = glStr;
-        
-        // Save using original SetItem to avoid interceptor loop
-        if (typeof Storage !== 'undefined' && Storage.prototype.setItem) {
-            const originalSetItem = Storage.prototype.setItem;
-            if (originalSetItem.name === "setItem") {
-                // Not overridden yet
-                localStorage.setItem(tenantKey, glStr);
+        try {
+            const glStr = JSON.stringify(txns);
+            const tenantKey = window.getTenantKey ? window.getTenantKey('erp_gl_v1') : 'erp_gl_v1';
+            if (window.DB_STORE) window.DB_STORE[tenantKey] = glStr;
+            if (typeof Storage !== 'undefined' && Storage.prototype.setItem) {
+                const originalSetItem = Storage.prototype.setItem;
+                if (originalSetItem.name === "setItem") {
+                    localStorage.setItem(tenantKey, glStr);
+                } else {
+                    Object.getPrototypeOf(localStorage).setItem.call(localStorage, tenantKey, glStr);
+                }
             } else {
-                // Need to use native
-                Object.getPrototypeOf(localStorage).setItem.call(localStorage, tenantKey, glStr);
+                localStorage.setItem(tenantKey, glStr);
             }
-        } else {
-            localStorage.setItem(tenantKey, glStr);
+            if (typeof localforage !== 'undefined') localforage.setItem(tenantKey, glStr);
+            if (window.dirtyKeys) window.dirtyKeys.add('erp_gl_v1');
+        } catch (storageErr) {
+            console.warn('[rebuildGLFromAllTables] localStorage cache write skipped (in-memory GL active):', storageErr);
         }
-        
-        // Push to localforage
-        if (typeof localforage !== 'undefined') {
-            localforage.setItem(tenantKey, glStr);
-        }
-        
-        // Mark erp_gl_v1 as dirty for sync push
-        if (window.dirtyKeys) window.dirtyKeys.add('erp_gl_v1');
     }
     return txns;
     

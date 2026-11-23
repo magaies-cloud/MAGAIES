@@ -4068,18 +4068,145 @@ function submitInvoice(ignoreWarnings = false) {
             cashAmt = parseNum(document.getElementById('pay-cash-amount')?.value || 0);
         }
         
+        const showSalesPayAlert = (el, msg) => {
+            window.isSubmitting = false;
+            const targetEl = (typeof el === 'string') ? document.querySelector(el) : el;
+            const focusOffending = () => {
+                if (targetEl && targetEl.style) {
+                    const pSec = targetEl.closest && targetEl.closest('#pay-bank-section, #pay-cheque-section, #pay-cash-section');
+                    if (pSec) pSec.style.display = 'flex';
+                    targetEl.style.border = '3px solid #ef4444';
+                    targetEl.style.boxShadow = '0 0 18px rgba(239,68,68,0.78)';
+                    try { targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); targetEl.focus(); if (typeof targetEl.select === 'function') targetEl.select(); } catch (_) {}
+                    setTimeout(() => { if (targetEl && targetEl.style) { targetEl.style.border = ''; targetEl.style.boxShadow = ''; } }, 6000);
+                }
+            };
+            const isDup = /مكرر|مسجل مسبقاً|موجود مسبقاً|تم استخدامه من قبل/.test(msg);
+            const isShort = !isDup && /6 خانات|6 أرقام|أقل/.test(msg);
+            const titleTxt = isDup ? 'تنبيه: رقم مكرر مسبقاً' : (isShort ? 'تنبيه: رقم التحويلة أقل من 6 خانات' : 'تنبيه: يرجى مراجعة بيانات السداد');
+            const isLight = document.documentElement.classList.contains('light-theme');
+            const oldOv = document.getElementById('sal-pay-err-center-modal');
+            if (oldOv) oldOv.remove();
+            const ov = document.createElement('div');
+            ov.id = 'sal-pay-err-center-modal';
+            ov.style.cssText = 'position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(2,6,23,0.68);backdrop-filter:blur(7px);direction:rtl;font-family:Cairo,Tajawal,sans-serif;';
+            const cardBg = isLight ? 'linear-gradient(160deg,#ffffff 0%,#fff7ed 60%,#fee2e2 100%)' : 'linear-gradient(160deg,#172554 0%,#0f172a 58%,#1e1b4b 100%)';
+            const cardBorder = isLight ? '3px solid #dc2626' : '2.5px solid #f87171';
+            const txtCol = isLight ? '#140c06' : '#ffffff';
+            const enteredVal = (!isShort && targetEl && targetEl.value && String(targetEl.value).trim()) ? `<div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:10px;background:${isLight ? '#fee2e2' : 'rgba(239,68,68,0.22)'};border:1.5px solid #ef4444;color:${isLight ? '#991b1b' : '#fecaca'};font-size:1.15rem;font-weight:900;font-family:Outfit,monospace;direction:ltr;margin-bottom:14px;">${String(targetEl.value).trim()}</div>` : '';
+            const btnTxt = (isShort || isDup) ? '✏️ تعديل الرقم' : '✏️ تعديل الرقم الآن';
+            ov.innerHTML = `<div style="width:min(${isShort ? '460px' : '520px'},94vw);background:${cardBg};border:${cardBorder};border-radius:22px;padding:28px 26px 24px;text-align:center;box-shadow:0 28px 75px rgba(0,0,0,0.62),0 0 0 4px rgba(239,68,68,0.22);"><div style="width:70px;height:70px;margin:0 auto 14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:radial-gradient(circle at 30% 30%,#fca5a5 0%,#ef4444 48%,#991b1b 100%);border:3px solid #fecaca;">🚫</div><div style="font-size:1.48rem;font-weight:900;color:${isLight ? '#b91c1c' : '#fca5a5'};margin-bottom:10px;">${titleTxt}</div>${enteredVal}<div style="font-size:1.18rem;font-weight:800;line-height:1.7;color:${txtCol};margin-bottom:22px;">${msg.replace(/^🚫\s*/, '')}</div><div><button type="button" id="sal-pay-err-fix-btn" style="min-width:210px;height:48px;padding:0 26px;border-radius:13px;border:2px solid #fca5a5;border-bottom:4px solid #7f1d1d;background:linear-gradient(180deg,#ef4444 0%,#dc2626 52%,#b91c1c 100%);color:#ffffff;font-family:Cairo,sans-serif;font-size:1.12rem;font-weight:900;cursor:pointer;">${btnTxt}</button></div></div>`;
+            const closeAndFocus = () => { document.removeEventListener('keydown', onKey); ov.remove(); focusOffending(); };
+            const onKey = (ev) => { if (ev.key === 'Escape' || ev.key === 'Enter') { ev.preventDefault(); closeAndFocus(); } };
+            ov.addEventListener('click', (ev) => { if (ev.target === ov) closeAndFocus(); });
+            document.body.appendChild(ov);
+            document.addEventListener('keydown', onKey);
+            const fixBtn = document.getElementById('sal-pay-err-fix-btn');
+            if (fixBtn) { fixBtn.onclick = closeAndFocus; setTimeout(() => fixBtn.focus(), 40); }
+        };
+
         if (bankActive) {
-            document.querySelectorAll('#bank-transfers-list .payment-row-item').forEach(row => {
-                const bankAccountId = row.querySelector('.bt-bank-select') ? row.querySelector('.bt-bank-select').value : '';
+            document.querySelectorAll('#bank-transfers-list .payment-row-item').forEach((row, idx) => {
+                const bankSelEl = row.querySelector('.bt-bank-select');
+                const bankAccountId = bankSelEl ? bankSelEl.value : '';
                 const refEl = row.querySelector('.bt-ref-input') || row.querySelector('.bt-no-input');
                 const reference = refEl ? refEl.value.trim() : '';
+                const imgHash = (refEl && refEl.dataset && refEl.dataset.imgHash) ? refEl.dataset.imgHash : '';
                 const amountEl = row.querySelector('.bt-amount-input');
                 const amount = amountEl ? parseNum(amountEl.value) : 0;
                 if (amount > 0) {
-                    bankTransfers.push({ bankAccountId, reference, amount });
+                    bankTransfers.push({ bankAccountId, reference, imgHash, amount, _refEl: refEl, _bankEl: bankSelEl, _rowNum: idx + 1 });
                     transfersSum += amount;
                 }
             });
+        }
+
+        if (bankTransfers.length > 0 && currentSaleType !== 'preliminary') {
+            const toLatinDigits = (v) => String(v || '').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/\D/g, '');
+            const fmtDupDay = (rawDate) => {
+                const s = String(rawDate || '').trim().slice(0, 10);
+                if (!s) return '';
+                const dObj = new Date(s + 'T00:00:00');
+                const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+                return isNaN(dObj.getTime()) ? (' بتاريخ ' + s) : (' يوم ' + days[dObj.getDay()] + ' بتاريخ ' + s);
+            };
+            const resolveDupScreen = (rec, stKey) => {
+                const refInv = String((rec && rec.refInvoice) || '').trim().toUpperCase();
+                if ((rec && rec.autoFromPurchase) || refInv.startsWith('P')) return 'شاشة المشتريات';
+                if ((rec && rec.autoFromSales) || refInv.startsWith('S')) return 'شاشة المبيعات';
+                if (stKey === 'erp_payments_v1' || stKey === 'erp_receipts_v1' || (rec && rec.isGrouped)) return 'شاشة الحركة المالية المجمعة';
+                return 'شاشة الحركة المالية';
+            };
+            const seenLocalLast6 = new Map();
+            const curLinkedV = (document.getElementById('sal-fin-mov-seq-badge')?.dataset?.targetVoucher || '').trim();
+            const toVerifyServer = [];
+            if (!(window._salVerifiedRefsSet instanceof Set)) window._salVerifiedRefsSet = new Set();
+
+            for (let bIdx = 0; bIdx < bankTransfers.length; bIdx++) {
+                const bt = bankTransfers[bIdx];
+                if (!bt.bankAccountId || String(bt.bankAccountId).trim() === '') {
+                    showSalesPayAlert(bt._bankEl || '#bank-transfers-list', 'يجب اختيار البنك للتحويلة رقم ' + bt._rowNum + ' قبل الحفظ');
+                    return;
+                }
+                const cleanDigits = toLatinDigits(bt.reference);
+                if (cleanDigits.length < 6) {
+                    showSalesPayAlert(bt._refEl || '#bank-transfers-list', 'يجب أن يكون رقم التحويلة 6 خانات وما فوق');
+                    return;
+                }
+                const last6 = cleanDigits.slice(-6);
+                if (seenLocalLast6.has(last6)) {
+                    showSalesPayAlert(bt._refEl || '#bank-transfers-list', 'رقم التحويلة (' + bt.reference + ') مكرر داخل نفس الفاتورة بين التحويلة رقم ' + seenLocalLast6.get(last6) + ' والتحويلة رقم ' + bt._rowNum);
+                    return;
+                }
+                seenLocalLast6.set(last6, bt._rowNum);
+                const stores = ['erp_single_receipts_v1', 'erp_single_payments_v1', 'erp_receipts_v1', 'erp_payments_v1'];
+                for (const stKey of stores) {
+                    let arr = [];
+                    try { arr = JSON.parse(localStorage.getItem(stKey) || '[]') || []; } catch (_) {}
+                    for (const rec of arr) {
+                        if (!rec || rec.deleted) continue;
+                        const recNo = String(rec.voucherNo || rec.id || '').trim();
+                        if (curLinkedV && recNo === curLinkedV && currentViewedInvoiceNo) continue;
+                        if (currentViewedInvoiceNo && String(rec.refInvoice || '') === String(currentViewedInvoiceNo)) continue;
+                        const refs = [rec.mobileTransferNo, rec.transferNo, rec.transferRef, ...(Array.isArray(rec.bankTransfers) ? rec.bankTransfers.map(x => x && (x.transferNo || x.reference)) : [])];
+                        for (const r of refs) {
+                            const d = toLatinDigits(r);
+                            if (d.length >= 6 && d.slice(-6) === last6) {
+                                showSalesPayAlert(bt._refEl || '#bank-transfers-list', 'رقم التحويلة (' + bt.reference + ') تم استخدامه من قبل في حركة مالية رقم (' + (recNo || 'سابق') + ')' + fmtDupDay(rec.date || rec.createdAt) + ' في ' + resolveDupScreen(rec, stKey));
+                                return;
+                            }
+                        }
+                    }
+                }
+                const vKey = last6 + '|' + (currentViewedInvoiceNo || 'new');
+                if (!window._salVerifiedRefsSet.has(vKey)) toVerifyServer.push({ bt, cleanDigits, vKey });
+            }
+
+            if (toVerifyServer.length > 0) {
+                window.isSubmitting = false;
+                Promise.all(toVerifyServer.map(item =>
+                    fetch('single-cash-payment.php?api=check_duplicate&ref=' + encodeURIComponent(item.cleanDigits) + '&voucherNo=' + encodeURIComponent(currentViewedInvoiceNo ? curLinkedV : ''))
+                        .then(r => r.json()).then(res => ({ item, res })).catch(() => ({ item, res: { duplicate: false } }))
+                )).then(results => {
+                    const dupHit = results.find(x => x.res && x.res.duplicate);
+                    if (dupHit) {
+                        const mV = dupHit.res.matchedVoucher || '';
+                        const mD = String(dupHit.res.matchedDate || '').trim().slice(0, 10);
+                        const mScr = dupHit.res.matchedScreen || 'شاشة الحركة المالية';
+                        const dObj = mD ? new Date(mD + 'T00:00:00') : null;
+                        const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+                        const dayStr = mD ? ((dObj && !isNaN(dObj.getTime())) ? (' يوم ' + days[dObj.getDay()] + ' بتاريخ ' + mD) : (' بتاريخ ' + mD)) : '';
+                        const dupMsg = mV ? ('رقم التحويلة (' + dupHit.item.bt.reference + ') تم استخدامه من قبل في حركة مالية رقم (' + mV + ')' + dayStr + ' في ' + mScr) : (dupHit.res.error || ('رقم التحويلة (' + dupHit.item.bt.reference + ') تم استخدامه من قبل'));
+                        showSalesPayAlert(dupHit.item.bt._refEl || '#bank-transfers-list', dupMsg);
+                        return;
+                    }
+                    results.forEach(x => window._salVerifiedRefsSet.add(x.item.vKey));
+                    setTimeout(() => { results.forEach(x => window._salVerifiedRefsSet.delete(x.item.vKey)); }, 4000);
+                    submitInvoice(ignoreWarnings);
+                });
+                return;
+            }
+            bankTransfers.forEach(bt => { delete bt._refEl; delete bt._bankEl; delete bt._rowNum; });
         }
         
         if (chequeActive) {
@@ -4410,12 +4537,84 @@ function submitInvoice(ignoreWarnings = false) {
         try { if (window.BroadcastChannel) new BroadcastChannel('erp_global_sync').postMessage({ key: 'erp_customers_v1', ts: Date.now() }); } catch(_bc) {}
     }
 
+    // ── Linked Financial Movement Voucher (100% Parity with Purchase Screen) ──
+    const getTK = window.getTenantKey || ((k) => k);
+    const hasAnySalPaidNow = currentSaleType !== 'preliminary' && ((cashAmt > 0) || (bankTransfers && bankTransfers.some(b => (parseFloat(b.amount) || 0) > 0)) || (cheques && cheques.some(c => (parseFloat(c.amount) || 0) > 0)));
+    if (hasAnySalPaidNow) {
+        try {
+            const effRt = (parseFloat(data.exchangeRate || data.systemExchangeRate || 0) >= 500) ? parseFloat(data.exchangeRate || data.systemExchangeRate) : (typeof window.getExchangeRateForCurrency === 'function' ? (parseFloat(window.getExchangeRateForCurrency('USD')) || 12000) : 12000);
+            data.systemExchangeRate = effRt;
+            if (!data.exchangeRate || parseFloat(data.exchangeRate) < 500) data.exchangeRate = effRt;
+            const totalPaidRaw = (parseFloat(cashAmt) || 0) + (bankTransfers || []).reduce((s, b) => s + (parseFloat(b.amount) || 0), 0) + (cheques || []).reduce((s, c) => s + (parseFloat(c.amount) || 0), 0);
+            const isBaseSdg = (String(cur || 'SDG').toUpperCase() === 'SDG');
+            const amtLocal = isBaseSdg ? totalPaidRaw : (totalPaidRaw * effRt);
+            const amtForeign = isBaseSdg ? (totalPaidRaw / effRt) : totalPaidRaw;
+            const existingLinked = (oldInv && oldInv.linkedFinancialVoucherNo) || (typeof window.findSalesLinkedFinRecord === 'function' ? window.findSalesLinkedFinRecord(committedNo).voucherNo : '') || '';
+            const finVNo = existingLinked || (typeof window.computeNextSalesFinVoucherNo === 'function' ? window.computeNextSalesFinVoucherNo() : ('R' + String(new Date().getFullYear()).slice(-2) + String(new Date().getMonth() + 1).padStart(2, '0') + String(Date.now()).slice(-4)));
+            const allBanksRef = (JSON.parse(localStorage.getItem(getTK('erp_banks_v1')) || localStorage.getItem('erp_banks_v1') || '[]') || []);
+            const allSafesRef = (JSON.parse(localStorage.getItem(getTK('erp_safes_v1')) || localStorage.getItem('erp_safes_v1') || '[]') || []);
+            const primaryToId = (cashAmt > 0 && paymentAccountId) ? paymentAccountId : ((bankTransfers[0] && bankTransfers[0].bankAccountId) ? bankTransfers[0].bankAccountId : (paymentAccountId || 'safe-001'));
+            const toAccObj = allSafesRef.find(s => String(s.id) === String(primaryToId)) || allBanksRef.find(b => String(b.id) === String(primaryToId));
+            const toAccName = (toAccObj && (toAccObj.safeName || toAccObj.bankName || toAccObj.name)) || primaryToId;
+            const normTransfers = (bankTransfers || []).filter(bt => (parseFloat(bt.amount) || 0) > 0).map(bt => {
+                const bObj = allBanksRef.find(b => String(b.id) === String(bt.bankAccountId));
+                const bName = bObj ? (bObj.bankName || bObj.name) : 'البنك';
+                const trRef = String(bt.reference || bt.transferNo || '').trim();
+                return { bankAccountId: bt.bankAccountId, bankId: bt.bankAccountId, bankName: bName, note: bName, transferNo: trRef, reference: trRef, amount: parseFloat(bt.amount) || 0, statement: 'تحصيل تحويلة فاتورة مبيعات #' + committedNo + ' (' + (cust ? cust.name : 'عميل') + ')' };
+            });
+            const normCheques = (cheques || []).filter(ch => (parseFloat(ch.amount) || 0) > 0).map(ch => {
+                const bObj = allBanksRef.find(b => String(b.id) === String(ch.bankAccountId || ch.bankName));
+                const bName = bObj ? (bObj.bankName || bObj.name) : (ch.bankName || 'البنك');
+                return { bankAccountId: ch.bankAccountId || '', checkBank: bName, checkBranch: bName, checkNo: ch.chequeNo || ch.checkNo || '', chequeNo: ch.chequeNo || ch.checkNo || '', dueDate: ch.dueDate || '', checkDate: ch.dueDate || '', amount: parseFloat(ch.amount) || 0, statement: 'تحصيل شيك فاتورة مبيعات #' + committedNo };
+            });
+            const splitParts = [];
+            if (cashAmt > 0) splitParts.push('نقدي (' + toAccName + '): ' + fmtNum(cashAmt));
+            normTransfers.forEach(t => splitParts.push('تحويلة (' + t.bankName + ' #' + t.transferNo + '): ' + fmtNum(t.amount)));
+            normCheques.forEach(c => splitParts.push('شيك (' + c.checkBank + ' #' + c.checkNo + '): ' + fmtNum(c.amount)));
+            const fullStmt = 'تحصيل فاتورة مبيعات #' + committedNo + ' — ' + (cust ? cust.name : 'عميل نقدي') + (splitParts.length ? ' | ' + splitParts.join(' + ') : '');
+            const finRecord = {
+                id: finVNo, voucherNo: finVNo, receiptNo: finVNo, date: data.date, time: data.time,
+                type: 'receipt', voucherType: 'receipt', currency: cur || 'SDG', rate: effRt, exchangeRate: effRt, systemExchangeRate: effRt,
+                amount: isBaseSdg ? amtLocal : amtForeign, amountLocal: amtLocal, amountForeign: amtForeign,
+                cashAmount: parseFloat(cashAmt) || 0,
+                fromAccount: custId || 'walk-in', fromAccountName: cust ? cust.name : 'عميل نقدي',
+                toAccount: primaryToId, toAccountName: toAccName, beneficiaryName: cust ? cust.name : 'عميل نقدي',
+                costCenter: data.costCenter || 'الفرع الرئيسي',
+                paymentMethod: (normTransfers.length > 0 && cashAmt <= 0 && normCheques.length === 0) ? 'mobile' : ((normCheques.length > 0 && cashAmt <= 0 && normTransfers.length === 0) ? 'check' : ((normTransfers.length > 0 || normCheques.length > 0) ? 'multi' : 'cash')),
+                mobileTransferNo: normTransfers[0] ? normTransfers[0].transferNo : '', transferNo: normTransfers[0] ? normTransfers[0].transferNo : '',
+                bankName: normTransfers[0] ? normTransfers[0].bankName : '',
+                bankTransfers: normTransfers, cheques: normCheques,
+                statement: fullStmt, toStatement: fullStmt, fromStatement: fullStmt,
+                refInvoice: committedNo, autoFromSales: true, isPosted: finalStatus === 'posted', updatedAtMs: Date.now()
+            };
+            data.linkedFinancialVoucherNo = finVNo;
+            const saveFinToKey = (k) => {
+                try {
+                    let arr = JSON.parse(localStorage.getItem(k) || '[]') || [];
+                    if (!Array.isArray(arr)) arr = [];
+                    arr = arr.filter(p => p && String(p.refInvoice || '') !== String(committedNo) && String(p.id || p.voucherNo || '') !== String(finVNo));
+                    arr.unshift(finRecord);
+                    localStorage.setItem(k, JSON.stringify(arr));
+                } catch (_) {}
+            };
+            saveFinToKey('erp_single_receipts_v1');
+            const tkSR = getTK('erp_single_receipts_v1');
+            if (tkSR !== 'erp_single_receipts_v1') saveFinToKey(tkSR);
+            saveFinToKey('magaies_vouchers_cache');
+            if (navigator.onLine) {
+                fetch('single-cash-payment.php?api=save_voucher&type=receipt', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(finRecord) }).catch(() => {});
+            }
+        } catch (eFin) { console.warn('[Sales Linked Fin] error:', eFin); }
+    }
+
+    data.isPosted = (finalStatus === 'posted');
     data.updatedAtMs = Date.now();
     data.isEdit = !!currentViewedInvoiceNo;
     localStorage.setItem('erp_inv_' + committedNo, JSON.stringify(data));
 
-    // Append or Update global sales invoices array & mobile mirror
-    ['erp_sales_invoices_v1', 'magaies_local_sales_invoices_v1'].forEach(storageKey => {
+    // Append or Update global sales invoices array (both tenant-prefixed & base keys for instant GL/Balances sync)
+    const tkSalesKey = getTK('erp_sales_invoices_v1');
+    Array.from(new Set([tkSalesKey, 'erp_sales_invoices_v1', 'magaies_local_sales_invoices_v1'])).forEach(storageKey => {
         try {
             let listArr = JSON.parse(localStorage.getItem(storageKey)) || [];
             if (!Array.isArray(listArr)) listArr = [];
@@ -4426,6 +4625,7 @@ function submitInvoice(ignoreWarnings = false) {
             localStorage.setItem(storageKey, JSON.stringify(listArr));
         } catch (e) {}
     });
+    if (typeof window.refreshSalesFinSeqBadge === 'function') window.refreshSalesFinSeqBadge();
 
     if (window.logSystemAction) {
         const actionType = currentViewedInvoiceNo ? 'تعديل فاتورة مبيعات' : (currentSaleType === 'preliminary' ? 'فاتورة مبيعات مبدئية' : 'إصدار فاتورة مبيعات');
@@ -8284,3 +8484,79 @@ window.getSalesInvoiceDataForWA = function(invoiceNo = null) {
         notes: document.getElementById('inv-notes')?.value || ''
     };
 };
+
+// ── Sales Linked Financial Movement Helpers (100% Parity with Purchase) ──
+window.computeNextSalesFinVoucherNo = function() {
+    const now = new Date();
+    const pfx = 'R' + String(now.getFullYear()).slice(-2) + String(now.getMonth() + 1).padStart(2, '0');
+    const getTK = window.getTenantKey || ((k) => k);
+    let max = 0;
+    [getTK('erp_single_receipts_v1'), 'erp_single_receipts_v1', 'magaies_vouchers_cache'].forEach(k => {
+        try {
+            const arr = JSON.parse(localStorage.getItem(k) || '[]');
+            if (Array.isArray(arr)) arr.forEach(v => {
+                const s = String((v && (v.voucherNo || v.id)) || '').trim();
+                if (s.startsWith(pfx)) { const n = parseInt(s.slice(pfx.length), 10); if (!isNaN(n) && n > max && n < 999999) max = n; }
+            });
+        } catch (_) {}
+    });
+    return pfx + String(max + 1).padStart(4, '0');
+};
+window.findSalesLinkedFinRecord = function(invNo) {
+    const cleanInv = String(invNo || '').trim().replace(/^#/, '');
+    if (!cleanInv || cleanInv === '---') return { isSavedInvoice: false, voucherNo: '', record: null };
+    const getTK = window.getTenantKey || ((k) => k);
+    let foundInv = null, isSavedInvoice = (typeof currentViewedInvoiceNo !== 'undefined' && String(currentViewedInvoiceNo || '').trim().replace(/^#/, '') === cleanInv);
+    try { const raw = localStorage.getItem('erp_inv_' + cleanInv); if (raw) { foundInv = JSON.parse(raw); isSavedInvoice = true; } } catch (_) {}
+    let linkedNo = (foundInv && foundInv.linkedFinancialVoucherNo) ? String(foundInv.linkedFinancialVoucherNo).trim() : '';
+    let linkedRec = null;
+    for (const k of Array.from(new Set([getTK('erp_single_receipts_v1'), 'erp_single_receipts_v1', 'magaies_vouchers_cache']))) {
+        try {
+            const arr = JSON.parse(localStorage.getItem(k) || '[]');
+            if (!Array.isArray(arr)) continue;
+            const hit = arr.find(r => r && !r.deleted && ((linkedNo && String(r.voucherNo || r.id || '').trim() === linkedNo) || String(r.refInvoice || '').trim().replace(/^#/, '') === cleanInv));
+            if (hit) { linkedRec = hit; if (!linkedNo) linkedNo = String(hit.voucherNo || hit.id || '').trim(); break; }
+        } catch (_) {}
+    }
+    return { isSavedInvoice, voucherNo: linkedNo, record: linkedRec, invoice: foundInv };
+};
+window.refreshSalesFinSeqBadge = function() {
+    const valEl = document.getElementById('sal-fin-mov-seq-val'), btnEl = document.getElementById('sal-fin-mov-seq-badge');
+    if (!valEl) return;
+    const curNo = (document.getElementById('hdr-inv-no')?.value || document.getElementById('inv-number')?.textContent || '').trim();
+    const info = window.findSalesLinkedFinRecord(curNo);
+    if (info.isSavedInvoice) {
+        valEl.textContent = info.voucherNo || '—';
+        if (btnEl) { btnEl.dataset.targetVoucher = info.voucherNo || ''; btnEl.dataset.hasVoucher = info.voucherNo ? '1' : '0'; btnEl.style.opacity = info.voucherNo ? '1' : '0.68'; }
+    } else {
+        const nextNo = window.computeNextSalesFinVoucherNo();
+        valEl.textContent = nextNo;
+        if (btnEl) { btnEl.dataset.targetVoucher = nextNo; btnEl.dataset.hasVoucher = 'new'; btnEl.style.opacity = '1'; }
+    }
+};
+window.openSalesLinkedFinMovement = function(forInvoiceNo = '') {
+    const curNo = String(forInvoiceNo || document.getElementById('hdr-inv-no')?.value || document.getElementById('inv-number')?.textContent || '').trim().replace(/^#/, '');
+    const info = window.findSalesLinkedFinRecord(curNo);
+    const btnEl = document.getElementById('sal-fin-mov-seq-badge');
+    const vNo = info.voucherNo || (btnEl && btnEl.dataset.targetVoucher) || '';
+    if (!vNo || vNo === '---' || vNo === '—') {
+        if (typeof showToast === 'function') showToast('ℹ️ هذه الفاتورة لا تحتوي على تحصيل مسجل', 'info', 3000);
+        return;
+    }
+    if (info.record) {
+        const enriched = Object.assign({}, info.record);
+        const srcInv = info.invoice;
+        if (srcInv) {
+            if ((!Array.isArray(enriched.bankTransfers) || !enriched.bankTransfers.length) && Array.isArray(srcInv.bankTransfers) && srcInv.bankTransfers.length) enriched.bankTransfers = srcInv.bankTransfers;
+            if ((!Array.isArray(enriched.cheques) || !enriched.cheques.length) && Array.isArray(srcInv.cheques) && srcInv.cheques.length) enriched.cheques = srcInv.cheques;
+            if (!(parseFloat(enriched.cashAmount) > 0) && parseFloat(srcInv.cashAmount || 0) > 0) enriched.cashAmount = parseFloat(srcInv.cashAmount) || 0;
+        }
+        try { sessionStorage.setItem('_edit_voucher_data', JSON.stringify(enriched)); } catch (_) {}
+    }
+    window.location.href = 'single-cash-payment.php?id=' + encodeURIComponent(vNo) + '&type=receipt';
+};
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => { if (typeof window.refreshSalesFinSeqBadge === 'function') window.refreshSalesFinSeqBadge(); }, 300);
+    const invEl = document.getElementById('inv-number');
+    if (invEl && typeof MutationObserver !== 'undefined') new MutationObserver(() => window.refreshSalesFinSeqBadge()).observe(invEl, { childList: true, characterData: true, subtree: true });
+});

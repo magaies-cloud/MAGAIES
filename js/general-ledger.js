@@ -1082,14 +1082,16 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function collectAllTransactions() {
-    // Always rebuild GL from source tables to ensure fresh data
+    // Always rebuild GL from source tables and use live in-memory result directly (immune to localStorage quota/staleness)
     if (typeof window.rebuildGLFromAllTables === 'function') {
         try {
-            window.rebuildGLFromAllTables(false);
+            const liveTxns = window.rebuildGLFromAllTables(false);
+            if (Array.isArray(liveTxns)) return liveTxns;
         } catch(e) {
             console.warn('GL rebuild error:', e);
         }
     }
+    if (Array.isArray(window._LAST_REBUILT_GL_TXNS)) return window._LAST_REBUILT_GL_TXNS;
     const getTenantKey = window.getTenantKey || ((k) => k);
     let txns = [];
     try {
@@ -1971,9 +1973,9 @@ function runReport() {
             filtered = filtered.filter(t => t && t.costCenter === ccFilter);
         }
 
-        // Posted Status
+        // Posted Status (identical semantics to mainbalances-report.js)
         if (postedFilter === 'POSTED') {
-            filtered = filtered.filter(t => t && t.isPosted === true);
+            filtered = filtered.filter(t => t && t.isPosted !== false);
         } else if (postedFilter === 'UNPOSTED') {
             filtered = filtered.filter(t => t && t.isPosted === false);
         }
@@ -2147,9 +2149,9 @@ function runReport() {
         let opCreditFc = entityExRate > 1 ? (opCreditLoc / entityExRate) : 0;
         intrinsicBalFc = entityExRate > 1 ? (intrinsicBal / entityExRate) : 0;
 
-        // Compute running balance in chronological order (oldest first)
-        let runningBal = intrinsicBal;
-        let runningBalFc = intrinsicBalFc;
+        // Compute running balance in chronological order (oldest first); exclude opening balance when viewing UNPOSTED only
+        let runningBal = (postedFilter === 'UNPOSTED') ? 0 : intrinsicBal;
+        let runningBalFc = (postedFilter === 'UNPOSTED') ? 0 : intrinsicBalFc;
         let chronological = filtered.slice().sort((a, b) => {
             const da = ((a && a.date) || '') + ' ' + parseTimeTo24h(a && a.time);
             const db = ((b && b.date) || '') + ' ' + parseTimeTo24h(b && b.time);
@@ -2160,8 +2162,8 @@ function runReport() {
             return cmp;
         });
 
-        // Insert opening balance row if account-specific view
-        if (accVal !== 'ALL' && (intrinsicBal !== 0 || chronological.length > 0)) {
+        // Insert opening balance row if account-specific view (skip when filtering UNPOSTED only)
+        if (accVal !== 'ALL' && postedFilter !== 'UNPOSTED' && (intrinsicBal !== 0 || chronological.length > 0)) {
             let opDate = entityDate || (chronological.length > 0 ? chronological[0].date : new Date().toISOString().split('T')[0]);
             chronological.unshift({
                 date: opDate, time: '', ref: 'OPENING', type: 'opening',
@@ -2176,21 +2178,22 @@ function runReport() {
             });
         }
 
+        const safeSysRate = (typeof systemUsdRate !== 'undefined' && systemUsdRate >= 500) ? systemUsdRate : (entityExRate >= 500 ? entityExRate : 12000);
         chronological.forEach(t => {
             if (!t) return;
             let debLoc = parseNum(t.debit || t.dr || 0);
             let credLoc = parseNum(t.credit || t.cr || 0);
-            let rate = parseNum(t.exchangeRate || t.exRate || t.rate || entityExRate || 1);
-            if (!rate || rate <= 0) rate = entityExRate || 1;
+            let rate = parseNum(t.exchangeRate || t.exRate || t.rate || 0);
+            if (!rate || rate < 500) rate = safeSysRate;
             t.exchangeRate = rate;
 
             let df = parseNum(t.debitForeign || t.dr_foreign || 0);
             let cf = parseNum(t.creditForeign || t.cr_foreign || 0);
 
-            if (debLoc > 0 && (df === 0 || df === debLoc) && rate > 0) {
+            if (debLoc > 0 && (df <= 0 || Math.abs(df - debLoc) < 0.01 || (debLoc / df) < 500)) {
                 df = debLoc / rate;
             }
-            if (credLoc > 0 && (cf === 0 || cf === credLoc) && rate > 0) {
+            if (credLoc > 0 && (cf <= 0 || Math.abs(cf - credLoc) < 0.01 || (credLoc / cf) < 500)) {
                 cf = credLoc / rate;
             }
 
@@ -2200,17 +2203,17 @@ function runReport() {
             if (accVal !== 'ALL') {
                 if (t.isOpening) {
                     t.balance = t.balance !== undefined ? t.balance : runningBal;
-                    t.balanceForeign = t.balanceForeign !== undefined ? t.balanceForeign : runningBalFc;
+                    t.balanceForeign = safeSysRate > 1 ? (t.balance / safeSysRate) : runningBalFc;
                 } else {
                     runningBal += (debLoc - credLoc);
-                    runningBalFc += (df - cf);
+                    runningBalFc = safeSysRate > 1 ? (runningBal / safeSysRate) : (runningBalFc + (df - cf));
                     t.balance = runningBal;
                     t.balanceForeign = runningBalFc;
                 }
                 
-                // Keep true independent mathematical sign for both Local (SDG) and Foreign (USD) balances
+                // Unified IAS-21 closing-rate valuation: Foreign USD balance ALWAYS aligns with Local SDG direction
                 t.balance = runningBal;
-                t.balanceForeign = runningBalFc;
+                t.balanceForeign = safeSysRate > 1 ? (runningBal / safeSysRate) : runningBalFc;
             } else {
                 t.balance = undefined;
                 t.balanceForeign = undefined;
@@ -2289,7 +2292,8 @@ function runReport() {
         }
         
         if (tdBalanceFc) {
-            let balFc = (totalDebitFc + openingDebitFc) - (totalCreditFc + openingCreditFc);
+            let bal = (totalDebit + openingDebit) - (totalCredit + openingCredit);
+            let balFc = (safeSysRate > 1) ? (bal / safeSysRate) : ((totalDebitFc + openingDebitFc) - (totalCreditFc + openingCreditFc));
             tdBalanceFc.innerText = typeof fmtNum === 'function' ? fmtNum(balFc) : balFc.toLocaleString();
         }
 
@@ -3196,22 +3200,16 @@ async function prepareLedgerPreviewData() {
         const drF = parseFloat(t.debitForeign || t.dr_foreign || 0);
         const crF = parseFloat(t.creditForeign || t.cr_foreign || 0);
         
+        const prevSysRate = (typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate >= 500) ? ledgerExchangeRate : ((typeof window.getExchangeRateForCurrency === 'function' && parseFloat(window.getExchangeRateForCurrency('USD')) >= 500) ? parseFloat(window.getExchangeRateForCurrency('USD')) : 12000);
         if (accFilter !== 'ALL') {
             runningBalance += (dr - cr);
-            runningBalanceFc += (drF - crF);
+            runningBalanceFc = (t.balanceForeign !== undefined) ? t.balanceForeign : (prevSysRate > 1 ? (runningBalance / prevSysRate) : (runningBalanceFc + (drF - crF)));
         } else {
             runningBalance = undefined;
             runningBalanceFc = undefined;
         }
 
         let finalBalanceFc = runningBalanceFc;
-        if (runningBalance !== undefined && finalBalanceFc !== undefined) {
-            if (runningBalance < 0) {
-                finalBalanceFc = -Math.abs(finalBalanceFc);
-            } else if (runningBalance > 0) {
-                finalBalanceFc = Math.abs(finalBalanceFc);
-            }
-        }
 
         return Object.assign({}, t, {
             debit: dr,

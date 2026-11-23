@@ -582,8 +582,11 @@ function calculateAccountLedgerBalance(p, allTxns, systemUsdRate, ccFilter = 'AL
 
     let intrinsicBalFc = entityExRate > 1 ? (intrinsicBal / entityExRate) : 0;
 
-    // 2. Exact General-Ledger Account Filter (100% Identical to js/general-ledger.js lines 1898-1926 — never mix counter-legs!)
+    // 2. Exact General-Ledger Account Filter (100% 1-to-1 Identical to js/general-ledger.js lines 1898-1927)
     const SYS_COUNTER_ACCS = /^(walk-in|walk-in-supplier|unknown|-|all|حسابات فرعية متعددة|revenue-sales|cost-purchases|tax-payable|tax-receivable|discount-allowed|discount-received|shipping-expense|labor-expense|extra-additions)$/i;
+    const accVal = pRefPrefixed;
+    const filterPrefix = prefix.toLowerCase();
+    const cleanFilter = pBareId;
     const matchesExactGLAccount = (t) => {
         if (!t || (ccFilter && ccFilter !== 'ALL' && t.costCenter !== ccFilter)) return false;
         if (postedFilter === 'POSTED' && t.isPosted === false) return false;
@@ -591,41 +594,23 @@ function calculateAccountLedgerBalance(p, allTxns, systemUsdRate, ccFilter = 'AL
         if (t.type === 'opening' || t.ref === 'OPENING' || t.ref === 'OPEN-BAL') return false;
         const tAcc = String(t.account || '').trim();
         if (!tAcc || SYS_COUNTER_ACCS.test(tAcc)) return false;
-        if (tAcc.toLowerCase() === pRefPrefixed.toLowerCase()) return true;
+        if (tAcc.toLowerCase() === accVal.toLowerCase()) return true;
         const tPfx = (tAcc.match(/^(cust|supp|bank|safe|exp)-/i) || [''])[0].toLowerCase();
-        const isPartnerType = (prefix === 'cust-' || prefix === 'supp-');
-        const isTxnPartnerPfx = (tPfx === 'cust-' || tPfx === 'supp-');
-        if (prefix && tPfx && tPfx !== prefix.toLowerCase() && !(isPartnerType && isTxnPartnerPfx)) return false;
+        if (filterPrefix && tPfx && tPfx !== filterPrefix) return false;
         const cleanTAcc = tAcc.replace(/^(cust-|supp-|bank-|safe-|exp-|sub-|sust-)+/i, '').trim();
         if (!cleanTAcc || SYS_COUNTER_ACCS.test(cleanTAcc)) return false;
-        if (pBareId && cleanTAcc.toLowerCase() === pBareId.toLowerCase()) {
-            if (!prefix || tPfx === prefix.toLowerCase() || (isPartnerType && isTxnPartnerPfx) || (!tPfx && pBareId.length >= 4)) return true;
+        if (cleanFilter && cleanTAcc.toLowerCase() === cleanFilter.toLowerCase()) {
+            if (!filterPrefix || tPfx === filterPrefix || (!tPfx && cleanFilter.length >= 6)) return true;
         }
-        if (pName) {
+        if (pName && !tPfx) {
             const normP = normalizeArabic(pName);
-            if (!tPfx && (tAcc === pName || normalizeArabic(tAcc) === normP)) return true;
-            const resolvedNm = getAccountName(tAcc);
-            if (resolvedNm && normalizeArabic(resolvedNm) === normP && (!tPfx || !prefix || tPfx === prefix.toLowerCase() || (isPartnerType && isTxnPartnerPfx))) return true;
+            if (tAcc === pName || normalizeArabic(tAcc) === normP) return true;
             if (cleanTAcc.length < 6 && String(t.accountName || '').trim() && normalizeArabic(t.accountName) === normP) return true;
         }
         return false;
     };
-    let partnerTxns;
-    const idxMap = (allTxns === ALL_TXNS && window._txnBucketMap) ? window._txnBucketMap : null;
-    if (idxMap) {
-        const hitSet = new Set();
-        const addKey = (k) => { if (!k) return; const arr = idxMap.get(k); if (arr) for (let i = 0; i < arr.length; i++) hitSet.add(arr[i]); };
-        addKey('id:' + pRefPrefixed.toLowerCase());
-        if (pBareId) addKey('bare:' + pBareId.toLowerCase());
-        if (pName) {
-            addKey('nm:' + pName);
-            addKey('nnm:' + normalizeArabic(pName));
-        }
-        partnerTxns = [];
-        hitSet.forEach(t => { if (matchesExactGLAccount(t)) partnerTxns.push(t); });
-    } else {
-        partnerTxns = (allTxns || []).filter(matchesExactGLAccount);
-    }
+    // Direct scan over ALL_TXNS (exact same array & filter as general-ledger.js — zero missed rows from bucket index!)
+    const partnerTxns = (allTxns || []).filter(matchesExactGLAccount);
 
     // 3. Sort chronologically (oldest first at top, newest at bottom, same as general-ledger.js)
     partnerTxns.sort((a, b) => {
@@ -638,29 +623,29 @@ function calculateAccountLedgerBalance(p, allTxns, systemUsdRate, ccFilter = 'AL
         return cmp;
     });
 
-    // 4. Compute running balance (100% Identical to general-ledger.js)
-    let runningBal = intrinsicBal;
-    let runningBalFc = intrinsicBalFc;
+    // 4. Compute running balance with anomalous-rate guard (< 500) + unified IAS-21 closing-rate USD valuation (100% identical to general-ledger.js)
+    const safeSysRate = (systemUsdRate && systemUsdRate >= 500) ? systemUsdRate : (entityExRate >= 500 ? entityExRate : 12000);
+    let runningBal = (postedFilter === 'UNPOSTED') ? 0 : intrinsicBal;
+    let runningBalFc = (postedFilter === 'UNPOSTED') ? 0 : (safeSysRate > 1 ? (runningBal / safeSysRate) : intrinsicBalFc);
     let lastDate = null;
 
     partnerTxns.forEach(t => {
         let debLoc = parseNum(t.debit || t.dr || 0);
         let credLoc = parseNum(t.credit || t.cr || 0);
-        let rate = parseNum(t.exchangeRate || t.exRate || t.rate || entityExRate || 1);
-        if (!rate || rate <= 0) rate = entityExRate || 1;
+        let rate = parseNum(t.exchangeRate || t.exRate || t.rate || 0);
+        if (!rate || rate < 500) rate = safeSysRate;
 
         let df = parseNum(t.debitForeign || t.dr_foreign || 0);
         let cf = parseNum(t.creditForeign || t.cr_foreign || 0);
 
-        if (debLoc > 0 && (df === 0 || df === debLoc) && rate > 0) {
+        if (debLoc > 0 && (df <= 0 || Math.abs(df - debLoc) < 0.01 || (debLoc / df) < 500)) {
             df = debLoc / rate;
         }
-        if (credLoc > 0 && (cf === 0 || cf === credLoc) && rate > 0) {
+        if (credLoc > 0 && (cf <= 0 || Math.abs(cf - credLoc) < 0.01 || (credLoc / cf) < 500)) {
             cf = credLoc / rate;
         }
 
         runningBal += (debLoc - credLoc);
-        runningBalFc += (df - cf);
 
         const tDate = (t.date || '') + ' ' + (t.time || '00:00');
         if (!lastDate || tDate > lastDate) {
@@ -668,7 +653,10 @@ function calculateAccountLedgerBalance(p, allTxns, systemUsdRate, ccFilter = 'AL
         }
     });
 
-    // 5. Ending balances mapping independently to the 4 columns (100% exact match with General Ledger final Local & Foreign balances!)
+    // Unified closing-rate valuation: USD ending balance ALWAYS matches Local SDG sign & live system rate (zero opposite-sign distortion)
+    runningBalFc = safeSysRate > 1 ? (runningBal / safeSysRate) : 0;
+
+    // 5. Ending balances mapping consistently to the 4 columns (never Creditor in Local & Debtor in USD simultaneously)
     const endingDebitLocal    = runningBal > 0.001   ? Math.abs(runningBal)   : 0;
     const endingCreditLocal   = runningBal < -0.001  ? Math.abs(runningBal)   : 0;
     const endingDebitForeign  = runningBalFc > 0.001 ? Math.abs(runningBalFc) : 0;
@@ -687,10 +675,11 @@ function calculateAccountLedgerBalance(p, allTxns, systemUsdRate, ccFilter = 'AL
 }
 
 function loadData() {
-    // Always rebuild GL identically to general-ledger.js (non-destructive rebuild)
+    // Always rebuild GL identically to general-ledger.js and consume live in-memory array directly
+    let liveRebuiltTxns = null;
     if (typeof window.rebuildGLFromAllTables === 'function') {
         try {
-            window.rebuildGLFromAllTables(false);
+            liveRebuiltTxns = window.rebuildGLFromAllTables(false);
         } catch(e) {
             console.warn('[balances-report.js] Error in rebuildGLFromAllTables:', e);
         }
@@ -821,11 +810,13 @@ function loadData() {
     // Build lookup cache matching general-ledger.js
     buildAccountsNameCache(ALL_PARTNERS);
 
-    // Read full GL transactions
-    let glTxns = [];
-    try {
-        glTxns = JSON.parse(localStorage.getItem(getTK('erp_gl_v1')) || localStorage.getItem('erp_gl_v1') || '[]');
-    } catch(e) { glTxns = []; }
+    // Read full GL transactions (prefer direct live rebuilt array — immune to localStorage quota/staleness)
+    let glTxns = Array.isArray(liveRebuiltTxns) ? liveRebuiltTxns : (Array.isArray(window._LAST_REBUILT_GL_TXNS) ? window._LAST_REBUILT_GL_TXNS : null);
+    if (!glTxns) {
+        try {
+            glTxns = JSON.parse(localStorage.getItem(getTK('erp_gl_v1')) || localStorage.getItem('erp_gl_v1') || '[]');
+        } catch(e) { glTxns = []; }
+    }
     if (!Array.isArray(glTxns)) glTxns = Object.values(glTxns || {});
     ALL_TXNS = glTxns;
 
@@ -1040,9 +1031,10 @@ function runReport(isAutoInit = false) {
                     const hit = row && row.id ? balByType[tp].get(String(row.id)) : null;
                     if (!hit) return;
                     const expectedCb = (tp === 'SUPP') ? -hit.runningBal : hit.runningBal;
-                    if (Math.abs((parseFloat(row.currentBalance) || 0) - expectedCb) > 0.005 || Math.abs((parseFloat(row.currentBalanceForeign) || 0) - (hit.runningBalFc || 0)) > 0.005) {
+                    const expectedCbf = (tp === 'SUPP') ? -(hit.runningBalFc || 0) : (hit.runningBalFc || 0);
+                    if (Math.abs((parseFloat(row.currentBalance) || 0) - expectedCb) > 0.005 || Math.abs((parseFloat(row.currentBalanceForeign) || 0) - expectedCbf) > 0.005) {
                         row.currentBalance = expectedCb;
-                        row.currentBalanceForeign = hit.runningBalFc || 0;
+                        row.currentBalanceForeign = expectedCbf;
                         changed = true;
                     }
                 });
@@ -1084,7 +1076,8 @@ function runReport(isAutoInit = false) {
         if (sortFilter === 'BALANCE_ASC') return absBalA - absBalB;
         if (sortFilter === 'DEBIT_DESC') return (b.endingDebitLocal || 0) - (a.endingDebitLocal || 0);
         if (sortFilter === 'CREDIT_DESC') return (b.endingCreditLocal || 0) - (a.endingCreditLocal || 0);
-        if (sortFilter === 'NAME') return (a.name || '').localeCompare(b.name || '');
+        if (sortFilter === 'NAME') return (a.name || '').localeCompare(b.name || '', 'ar');
+        if (sortFilter === 'NAME_DESC') return (b.name || '').localeCompare(a.name || '', 'ar');
         if (sortFilter === 'LAST_DATE') return (b.lastDate || '').localeCompare(a.lastDate || '');
         return 0;
     });
