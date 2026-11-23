@@ -3165,55 +3165,18 @@ function initMultiPaymentSystem() {
 function togglePaymentSection(type) {
     if (type === 'credit') {
         const btn = document.getElementById('toggle-credit');
-        if (btn) {
-            const isActive = btn.classList.contains('active');
-            if (isActive) {
-                btn.classList.remove('active');
-                if (document.getElementById('pay-credit-amount')) document.getElementById('pay-credit-amount').value = '0';
-            } else {
-                btn.classList.add('active');
-                if (typeof autofillRemaining === 'function') autofillRemaining('credit');
-            }
-        }
+        if (btn) btn.classList.add('active');
         updatePaymentSectionsVisibility();
         recalcPaymentSummary();
         return;
     }
-
     const btn = document.getElementById('toggle-' + type);
     if (!btn) return;
-    
-    const isActive = btn.classList.contains('active');
-    
-    // Toggle active state class
-    if (isActive) {
+    if (btn.classList.contains('active')) {
         btn.classList.remove('active');
-        // Reset values on deactivation
-        if (type === 'cash') {
-            if (document.getElementById('pay-cash-amount')) document.getElementById('pay-cash-amount').value = '0';
-        } else if (type === 'bank') {
-            if (document.getElementById('bank-transfers-list')) document.getElementById('bank-transfers-list').innerHTML = '';
-        } else if (type === 'cheque') {
-            if (document.getElementById('cheques-list')) document.getElementById('cheques-list').innerHTML = '';
-        }
     } else {
         btn.classList.add('active');
-        // Auto-fill remaining into this section
-        if (typeof autofillRemaining === 'function') {
-            autofillRemaining(type);
-        }
     }
-    
-    // If all toggles are turned off, default back to Credit (آجل)
-    const cashActive = document.getElementById('toggle-cash')?.classList.contains('active');
-    const bankActive = document.getElementById('toggle-bank')?.classList.contains('active');
-    const chequeActive = document.getElementById('toggle-cheque')?.classList.contains('active');
-    const creditActive = document.getElementById('toggle-credit')?.classList.contains('active');
-    if (!cashActive && !bankActive && !chequeActive && !creditActive) {
-        document.getElementById('toggle-credit')?.classList.add('active');
-    }
-    
-    // Update container visibilities
     updatePaymentSectionsVisibility();
     recalcPaymentSummary();
 }
@@ -3222,50 +3185,25 @@ function updatePaymentSectionsVisibility() {
     const cashActive = document.getElementById('toggle-cash')?.classList.contains('active') || false;
     const bankActive = document.getElementById('toggle-bank')?.classList.contains('active') || false;
     const chequeActive = document.getElementById('toggle-cheque')?.classList.contains('active') || false;
-    const creditActive = document.getElementById('toggle-credit')?.classList.contains('active') || false;
-    
-    if (document.getElementById('pay-cash-section')) {
-        document.getElementById('pay-cash-section').style.display = cashActive ? 'flex' : 'none';
-    }
-    if (document.getElementById('pay-credit-section')) {
-        document.getElementById('pay-credit-section').style.display = creditActive ? 'flex' : 'none';
-    }
-    if (document.getElementById('pay-bank-section')) {
-        document.getElementById('pay-bank-section').style.display = bankActive ? 'flex' : 'none';
-    }
-    if (document.getElementById('pay-cheque-section')) {
-        document.getElementById('pay-cheque-section').style.display = chequeActive ? 'flex' : 'none';
-    }
-
-    // Auto-add first row if empty when section becomes active
+    const creditBtn = document.getElementById('toggle-credit');
+    if (creditBtn) creditBtn.classList.add('active');
+    if (document.getElementById('pay-cash-section')) document.getElementById('pay-cash-section').style.display = cashActive ? 'flex' : 'none';
+    if (document.getElementById('pay-credit-section')) document.getElementById('pay-credit-section').style.display = 'flex';
+    if (document.getElementById('pay-bank-section')) document.getElementById('pay-bank-section').style.display = bankActive ? 'flex' : 'none';
+    if (document.getElementById('pay-cheque-section')) document.getElementById('pay-cheque-section').style.display = chequeActive ? 'flex' : 'none';
     if (bankActive) {
         const btList = document.getElementById('bank-transfers-list');
-        if (btList && btList.children.length === 0) {
-            addBankTransferRow();
-        }
+        if (btList && btList.children.length === 0) addBankTransferRow();
     }
     if (chequeActive) {
         const chList = document.getElementById('cheques-list');
-        if (chList && chList.children.length === 0) {
-            addChequeRow();
-        }
+        if (chList && chList.children.length === 0) addChequeRow();
     }
-
-    const hasActive = cashActive || bankActive || chequeActive || creditActive;
+    const hasActive = cashActive || bankActive || chequeActive || (creditBtn && creditBtn.classList.contains('active'));
     const layout = document.getElementById('payment-layout');
-    if (layout) {
-        layout.style.display = 'flex';
-    }
-
-    // Toggle show-totals with smooth animation
+    if (layout) layout.style.display = hasActive ? 'flex' : 'none';
     const totalsCard = document.querySelector('.payment-summary-card');
-    if (totalsCard) {
-        if (hasActive) {
-            totalsCard.classList.add('show-totals');
-        } else {
-            totalsCard.classList.remove('show-totals');
-        }
-    }
+    if (totalsCard) totalsCard.classList.toggle('show-totals', hasActive);
 }
 
 function addBankTransferRow(existingData = null) {
@@ -3288,25 +3226,25 @@ function addBankTransferRow(existingData = null) {
     const isFirst = container.children.length === 0;
     
     const labelHtml = isFirst 
-        ? `<div style="display: flex; align-items: center; justify-content: flex-start; color: #67e8f9; font-weight: 900; font-size: 0.95rem; gap: 6px; text-shadow: 0 0 8px rgba(6, 182, 212, 0.4);"><span>🏦</span> بنكي</div>`
+        ? `<div class="pay-method-row-lbl" style="display: flex; align-items: center; justify-content: flex-start; color: #67e8f9; font-weight: 900; font-size: 1.05rem; gap: 6px; text-shadow: 0 0 8px rgba(6, 182, 212, 0.4);"><span>🏦</span> بنكي</div>`
         : `<div></div>`;
 
     const actionBtn = isFirst
         ? `<button type="button" onclick="addBankTransferRow()" style="background: rgba(6,182,212,0.15); border: 1.5px solid #06b6d4; color: #06b6d4; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; padding: 0; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(6,182,212,0.3)'" onmouseout="this.style.background='rgba(6,182,212,0.15)'" title="إضافة تحويل بنكي">+</button>`
         : `<button type="button" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: rgba(239,68,68,0.15); border: 1.5px solid #ef4444; color: #ef4444; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; padding: 0; padding-bottom: 2px; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.3)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'" title="حذف">×</button>`;
 
-    const inputStyle = "background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.4); border-radius: 8px; text-align: center; font-size: 1.05rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%; transition: all 0.3s ease;";
-    const amountStyle = "background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.5); border-radius: 8px; text-align: center; font-size: 2.25rem; font-weight: 800; color: #fff; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; transition: all 0.3s ease;";
+    const inputStyle = "background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.4); border-radius: 8px; text-align: center; font-size: 1.05rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%; min-width: 0; box-sizing: border-box; transition: all 0.2s ease;";
+    const amountStyle = "background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.5); border-radius: 8px; text-align: center; font-size: 2.35rem; font-weight: 900; color: #fff; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; min-width: 0; box-sizing: border-box; transition: all 0.2s ease;";
 
     const rowHtml = `
-        <div class="payment-row-item" id="${rowId}" style="display: grid; grid-template-columns: 85px 1.5fr 1.2fr 1.2fr 2fr 30px; gap: 8px; align-items: center; width: 100%; margin-bottom: 6px;">
+        <div class="payment-row-item" id="${rowId}" style="display: grid; grid-template-columns: 85px 22% 18% 18% minmax(0, 1fr) 30px; gap: 10px; align-items: center; width: 100%; margin-bottom: 6px;">
             ${labelHtml}
             <input type="number" class="v-input ctrl-input bt-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? Math.round(parseFloat(existingData.amount)) : ''}" step="1" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="${amountStyle}">
             <select class="v-input ctrl-input bt-bank-select" style="${inputStyle}">
                 ${banksHtml}
             </select>
-            <input type="text" maxlength="20" class="v-input ctrl-input bt-ref-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || existingData?.reference || ''}" placeholder="رقم التحويلة" style="${inputStyle}">
-            <input type="text" class="v-input ctrl-input bt-note-input" value="${existingData?.notes || ''}" placeholder="بيان التحويل" style="${inputStyle}">
+            <input type="text" maxlength="20" class="v-input ctrl-input bt-ref-input dynamic-focus-input dynamic-focus-number" value="${existingData?.reference || existingData?.transferNo || existingData?.chequeNo || ''}" placeholder="رقم التحويلة" style="${amountStyle}">
+            <input type="text" class="v-input ctrl-input bt-note-input" value="${existingData?.notes || existingData?.note || ''}" placeholder="بيان التحويل" style="${inputStyle}">
             <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
                 ${actionBtn}
             </div>
@@ -3347,32 +3285,40 @@ function addChequeRow(existingData = null) {
     const isFirst = container.children.length === 0;
 
     const labelHtml = isFirst 
-        ? `<div style="display: flex; align-items: center; justify-content: flex-start; color: #d8b4fe; font-weight: 900; font-size: 0.95rem; gap: 6px; text-shadow: 0 0 8px rgba(168, 85, 247, 0.4);"><span>✍️</span> شيك</div>`
+        ? `<div class="pay-method-row-lbl" style="display: flex; align-items: center; justify-content: flex-start; color: #d8b4fe; font-weight: 900; font-size: 1.05rem; gap: 6px; text-shadow: 0 0 8px rgba(168, 85, 247, 0.4);"><span>✍️</span> شيك</div>`
         : `<div></div>`;
 
     const actionBtn = isFirst
         ? `<button type="button" onclick="addChequeRow()" style="background: rgba(168,85,247,0.15); border: 1.5px solid #a855f7; color: #a855f7; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; padding: 0; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(168,85,247,0.3)'" onmouseout="this.style.background='rgba(168,85,247,0.15)'" title="إضافة شيك">+</button>`
         : `<button type="button" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: rgba(239,68,68,0.15); border: 1.5px solid #ef4444; color: #ef4444; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; padding: 0; padding-bottom: 2px; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.3)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'" title="حذف">×</button>`;
 
-    const inputStyle = "background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 8px; text-align: center; font-size: 1.05rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%; transition: all 0.3s ease;";
-    const amountStyle = "background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(168, 85, 247, 0.5); border-radius: 8px; text-align: center; font-size: 2.25rem; font-weight: 800; color: #fff; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; transition: all 0.3s ease;";
+    const inputStyle = "background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 8px; text-align: center; font-size: 1.05rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%; min-width: 0; box-sizing: border-box; transition: all 0.2s ease;";
+    const amountStyle = "background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(168, 85, 247, 0.5); border-radius: 8px; text-align: center; font-size: 2.35rem; font-weight: 900; color: #fff; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; min-width: 0; box-sizing: border-box; transition: all 0.2s ease;";
 
     const rowHtml = `
-        <div class="payment-row-item" id="${rowId}" style="display: grid; grid-template-columns: 85px 1.5fr 1.2fr 1.2fr 1fr 1fr 30px; gap: 8px; align-items: center; width: 100%; margin-bottom: 6px;">
+        <div class="payment-row-item" id="${rowId}" style="display: grid; grid-template-columns: 85px 22% 18% 18% minmax(0, 1fr) 30px; gap: 10px; align-items: center; width: 100%; margin-bottom: 6px;">
             ${labelHtml}
-            <input type="number" class="v-input ctrl-input ch-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? Math.round(parseFloat(existingData.amount)) : ''}" step="1" oninput="onPaymentAmountInput()" onblur="const v=parseNum(this.value); const cont=document.getElementById('cheques-list'); if((!this.value || v<=0) && cont && cont.querySelectorAll('.payment-row-item').length>1){ this.closest('.payment-row-item').remove(); onPaymentAmountInput(); }" placeholder="المبلغ" style="${amountStyle}">
+            <input type="number" class="v-input ctrl-input ch-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? Math.round(parseFloat(existingData.amount)) : ''}" step="1" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="${amountStyle}">
             <select class="v-input ctrl-input ch-bank-select" style="${inputStyle}">
                 ${banksHtml}
             </select>
-            <input type="text" maxlength="20" class="v-input ctrl-input ch-no-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || ''}" placeholder="رقم الشيك" style="${inputStyle}">
-            <input type="date" class="v-input ctrl-input ch-date-input" value="${existingData?.dueDate || today}" placeholder="mm/dd/yyyy" style="${inputStyle}">
-            <input type="text" class="v-input ctrl-input bt-note-input" value="${existingData?.notes || ''}" placeholder="بيان الشيك" style="${inputStyle}">
+            <input type="text" maxlength="20" class="v-input ctrl-input ch-no-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || ''}" placeholder="رقم الشيك" style="${amountStyle}">
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; width: 100%; min-width: 0;">
+                <input type="date" class="v-input ctrl-input ch-date-input" value="${existingData?.dueDate || today}" placeholder="mm/dd/yyyy" style="${inputStyle}">
+                <input type="text" class="v-input ctrl-input bt-note-input" value="${existingData?.notes || ''}" placeholder="بيان الشيك" style="${inputStyle}">
+            </div>
             <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
                 ${actionBtn}
             </div>
         </div>
     `;
     container.insertAdjacentHTML('beforeend', rowHtml);
+    const newRow = document.getElementById(rowId);
+    if (newRow) {
+        const bankSelect = newRow.querySelector('.ch-bank-select');
+        if (bankSelect && !existingData && window.PAYMENT_BANKS && window.PAYMENT_BANKS.length > 0) bankSelect.value = window.PAYMENT_BANKS[0].id;
+    }
+    if (!existingData) onPaymentAmountInput();
 }
 
 // Audio Synthesizer for high-quality audio feedbacks
@@ -3438,10 +3384,19 @@ function recalcPaymentSummary(isRevertCall = false) {
     const additionAmt = parseNum(document.getElementById('addition-amt')?.value || 0);
     const grand = invTotal + labor + transport + additionAmt + taxAmt - discountAmt;
     
-    // Always keep payment details panel visible
+    // Show/hide payment panel — exact parity with Purchase (appears when Qty × Price > 0 or payment rows exist)
     const paymentPanel = document.getElementById('payment-panel');
     if (paymentPanel) {
-        paymentPanel.style.display = 'block';
+        const hasEnteredPayRows =
+            (document.querySelectorAll('#bank-transfers-list .payment-row-item').length > 0 && Array.from(document.querySelectorAll('#bank-transfers-list input')).some(i => String(i.value || '').trim() !== '')) ||
+            (document.querySelectorAll('#cheques-list .payment-row-item').length > 0 && Array.from(document.querySelectorAll('#cheques-list input')).some(i => String(i.value || '').trim() !== '')) ||
+            parseNum(document.getElementById('pay-cash-amount')?.value || 0) > 0;
+        if ((grand > 0.01 || hasEnteredPayRows) && (typeof currentSaleType === 'undefined' || currentSaleType !== 'proforma')) {
+            paymentPanel.style.display = 'block';
+        } else {
+            paymentPanel.style.display = 'none';
+            updatePaymentSectionsVisibility();
+        }
     }
     
     const cashActive = document.getElementById('toggle-cash')?.classList.contains('active') || false;
@@ -3472,25 +3427,20 @@ function recalcPaymentSummary(isRevertCall = false) {
         });
     }
     
-    // Credit is always the remaining balance of the invoice total (shown in yellow)
+    // Credit is always the remaining balance!
     const credit = Math.max(0, grand - (cash + transfersSum + chequesSum));
     const creditInput = document.getElementById('pay-credit-amount');
     if (creditInput) {
-        creditInput.value = credit > 0 ? (credit % 1 === 0 ? credit.toString() : credit.toFixed(2)) : '0';
+        creditInput.value = Math.round(credit);
+        if (typeof window.autoFitSingleInput === 'function') window.autoFitSingleInput(creditInput);
     }
-    
-    // Credit section visibility
     const creditSection = document.getElementById('pay-credit-section');
     if (creditSection) {
-        if (credit > 0.005 || creditActive) {
+        if (credit <= 0.005) {
+            creditSection.classList.add('collapsed');
+        } else {
             creditSection.style.display = 'flex';
             creditSection.classList.remove('collapsed');
-            document.getElementById('toggle-credit')?.classList.add('active');
-        } else {
-            creditSection.classList.add('collapsed');
-            if (cashActive || bankActive || chequeActive) {
-                document.getElementById('toggle-credit')?.classList.remove('active');
-            }
         }
     }
     
@@ -8491,7 +8441,9 @@ window.computeNextSalesFinVoucherNo = function() {
     const pfx = 'R' + String(now.getFullYear()).slice(-2) + String(now.getMonth() + 1).padStart(2, '0');
     const getTK = window.getTenantKey || ((k) => k);
     let max = 0;
-    [getTK('erp_single_receipts_v1'), 'erp_single_receipts_v1', 'magaies_vouchers_cache'].forEach(k => {
+    const dbNo = String(window.DB_NEXT_SALES_FIN_VOUCHER_NO || '').trim();
+    if (dbNo.startsWith(pfx)) { const dn = parseInt(dbNo.slice(pfx.length), 10); if (!isNaN(dn) && dn - 1 > max && dn < 999999) max = dn - 1; }
+    [getTK('erp_single_receipts_v1'), 'erp_single_receipts_v1', getTK('erp_single_payments_v1'), 'erp_single_payments_v1', 'magaies_vouchers_cache'].forEach(k => {
         try {
             const arr = JSON.parse(localStorage.getItem(k) || '[]');
             if (Array.isArray(arr)) arr.forEach(v => {
@@ -8501,6 +8453,24 @@ window.computeNextSalesFinVoucherNo = function() {
         } catch (_) {}
     });
     return pfx + String(max + 1).padStart(4, '0');
+};
+window.openSalesInboundReceiptsDrawer = function() {
+    const ov = document.getElementById('inbound-bankak-drawer-overlay');
+    if (ov && ov.parentElement !== document.body) document.body.appendChild(ov);
+    if (window.InboundBankakManager && typeof window.InboundBankakManager.openDrawer === 'function') {
+        window.InboundBankakManager.openDrawer();
+        return;
+    }
+    if (ov) ov.style.display = 'flex';
+    let sc = document.querySelector('script[src*="inbound-bankak-drawer-core.js"]');
+    if (!sc) {
+        sc = document.createElement('script');
+        sc.src = 'js/inbound-bankak-drawer-core.js?v=' + Date.now();
+        sc.onload = () => { if (window.InboundBankakManager && window.InboundBankakManager.openDrawer) window.InboundBankakManager.openDrawer(); };
+        document.body.appendChild(sc);
+    } else {
+        setTimeout(() => { if (window.InboundBankakManager && window.InboundBankakManager.openDrawer) window.InboundBankakManager.openDrawer(); }, 180);
+    }
 };
 window.findSalesLinkedFinRecord = function(invNo) {
     const cleanInv = String(invNo || '').trim().replace(/^#/, '');

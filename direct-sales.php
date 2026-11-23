@@ -4,6 +4,7 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
 $db_sales_grid_config = null;
 $preloadedUnitsJson = '[]';
 $preloadedItemsJson = '[]';
+$salNextFinNo = 'R' . date('ym') . '0001';
 try {
     require_once __DIR__ . '/api/db.php';
     if (file_exists(__DIR__ . '/db_bridge.php')) require_once __DIR__ . '/db_bridge.php';
@@ -11,6 +12,22 @@ try {
     if (isset($pdo)) {
         if (function_exists('getDBConnection')) { $pdo = getDBConnection(); }
         $activeSalesTenantId = function_exists('resolveCurrentTenantId') ? resolveCurrentTenantId($pdo ?? null) : (!empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 1);
+        try {
+            $salFinPrefix = 'R' . date('ym');
+            $salMaxFinSeq = 0;
+            $stFinTop = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ?");
+            $stFinTop->execute([$activeSalesTenantId ?: 1]);
+            while ($rFinTop = $stFinTop->fetch(PDO::FETCH_ASSOC)) {
+                $dFinTop = json_decode($rFinTop['data'], true);
+                if (!empty($dFinTop['deleted'])) continue;
+                $idFinTop = isset($dFinTop['voucherNo']) && $dFinTop['voucherNo'] !== '' ? (string)$dFinTop['voucherNo'] : (isset($dFinTop['id']) ? (string)$dFinTop['id'] : '');
+                if (strpos($idFinTop, $salFinPrefix) === 0) {
+                    $sqTop = (int)substr($idFinTop, strlen($salFinPrefix));
+                    if ($sqTop > $salMaxFinSeq && $sqTop < 999999) $salMaxFinSeq = $sqTop;
+                }
+            }
+            $salNextFinNo = $salFinPrefix . str_pad($salMaxFinSeq + 1, 4, '0', STR_PAD_LEFT);
+        } catch (\Throwable $_ef) {}
         $tGridKey = 'tenant_' . $activeSalesTenantId . '_grid_config_sales_grid';
         $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN (" . $pdo->quote($tGridKey) . ", 'grid_config_sales_grid') ORDER BY (setting_key = " . $pdo->quote($tGridKey) . ") DESC LIMIT 1");
         $stmt->execute();
@@ -1003,70 +1020,65 @@ try {
             
     <link rel="stylesheet" id="grand-total-dynamic-anim-css" href="css/screens/direct-sales-inline-14.css?v=<?= @filemtime(__DIR__ . '/css/screens/direct-sales-inline-14.css') ?: '2027' ?>">
 
-            <!-- ══ FULL-WIDTH: تفاصيل الدفع ══ -->
-            <div class="panel" id="payment-panel" style="display: block; z-index: 40; margin-top: 15px; padding: 0 !important; background: rgba(15, 23, 42, 0.95) !important; border: 1px solid rgba(234, 179, 8, 0.22) !important;">
+            <!-- ══ FULL-WIDTH: تفاصيل الدفع (نسخة مطابقة 100% للمشتريات) ══ -->
+            <div class="panel" id="payment-panel" style="display: none; z-index: 40; margin-top: 15px; padding: 0 !important; background: rgba(15, 23, 42, 0.95) !important; border: 1px solid rgba(234, 179, 8, 0.22) !important;">
                 <link rel="stylesheet" href="css/screens/direct-sales-inline-15.css?v=<?= @filemtime(__DIR__ . '/css/screens/direct-sales-inline-15.css') ?: '2027' ?>">
-                <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding: 12px 20px; background: rgba(15,23,42,0.4); border-bottom: 1px solid rgba(255,255,255,0.06); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
-                    <div class="panel-title" style="background: linear-gradient(135deg, #ff4d4d, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.15rem; font-weight: 900; display: inline-flex; align-items: center; gap: 6px; margin: 0; white-space: nowrap; flex: none;">
-                        <span>💳</span> طريقة وتفاصيل الدفع
-                    </div>
-                    <button type="button" id="sal-fin-mov-seq-badge" onclick="window.openSalesLinkedFinMovement && window.openSalesLinkedFinMovement()" title="اضغط للانتقال المباشر إلى شاشة الحركة المالية لهذا الرقم" style="display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 13px; border-radius: 9px; background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%); border: 1.6px solid #7dd3fc; color: #ffffff; cursor: pointer; font-family: 'Outfit','Cairo',sans-serif; font-size: 0.9rem; font-weight: 900; white-space: nowrap;">
-                        <span style="color:#7dd3fc;">🧾 حركة مالية:</span>
-                        <span id="sal-fin-mov-seq-val" style="direction:ltr; font-family:'Outfit',monospace; color:#fde047;">---</span>
-                    </button>
-                    
-                    <!-- Sleek Payment Progress Bar (Inline) -->
-                    <div class="payment-progress-container" style="flex: 1; display: flex; align-items: center; gap: 12px; min-width: 280px; padding: 0 10px;">
-                        <div class="progress-bar-wrapper" style="height: 10px; flex: 1; background: rgba(255,255,255,0.05); border-radius: 5px; overflow: hidden; display: flex; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); min-width: 120px;">
-                            <div id="prog-cash" style="width: 0%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(16,185,129,0.3);"></div>
-                            <div id="prog-bank" style="width: 0%; height: 100%; background: linear-gradient(90deg, #3b82f6, #60a5fa); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(59,130,246,0.3);"></div>
-                            <div id="prog-cheque" style="width: 0%; height: 100%; background: linear-gradient(90deg, #8b5cf6, #a78bfa); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(139,92,246,0.3);"></div>
-                            <div id="prog-credit" style="width: 100%; height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(245,158,11,0.3);"></div>
+                <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 10px 18px; background: rgba(15,23,42,0.4); border-bottom: 1px solid rgba(255,255,255,0.06); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
+                    <div style="display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <div class="panel-title" style="background: linear-gradient(135deg, #ff4d4d, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.12rem; font-weight: 900; display: inline-flex; align-items: center; gap: 6px; margin: 0; white-space: nowrap;">
+                            <span>💳</span> طريقة وتفاصيل الدفع
                         </div>
-                        <span id="payment-status-badge" style="font-size: 0.78rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; transition: all 0.3s ease; white-space: nowrap; background: rgba(245, 158, 11, 0.15); color: #fbbf24;">⏳ آجلة بالكامل</span>
+                        <button type="button" id="sal-fin-mov-seq-badge" onclick="window.openSalesLinkedFinMovement && window.openSalesLinkedFinMovement()" title="اضغط للانتقال المباشر إلى شاشة الحركة المالية لهذا الرقم" style="display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 13px; border-radius: 9px; background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%); border: 1.6px solid #7dd3fc; color: #ffffff; cursor: pointer; font-family: 'Outfit','Cairo',sans-serif; font-size: 0.9rem; font-weight: 900; white-space: nowrap;">
+                            <span style="color:#bae6fd; font-size:0.82rem;">حركة مالية:</span>
+                            <span id="sal-fin-mov-seq-val" style="color:#ffffff; font-size:1.02rem; direction:ltr; letter-spacing:0.5px;"><?= htmlspecialchars($salNextFinNo) ?></span>
+                            <span style="color:#7dd3fc; font-size:0.82rem;">↗</span>
+                        </button>
                     </div>
-
-                    <div class="payment-toggles" style="display: flex; gap: 8px; flex: none; flex-wrap: wrap;">
-                        <button type="button" class="pay-toggle-btn active" id="toggle-credit" onclick="togglePaymentSection('credit')" style="background: rgba(180, 83, 9, 0.1); border: 1px solid rgba(180, 83, 9, 0.35); color: #fcd34d; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">💳 آجل</button>
-                        <button type="button" class="pay-toggle-btn" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.35); color: #6ee7b7; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">💵 نقدي</button>
-                        <button type="button" class="pay-toggle-btn" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.35); color: #67e8f9; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">🏦 تحويل بنكي</button>
-                        <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(147, 51, 234, 0.1); border: 1px solid rgba(147, 51, 234, 0.35); color: #d8b4fe; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">✍️ شيك</button>
-                        <button type="button" class="pay-toggle-btn" id="btn-sales-financial-ocr" onclick="FinancialOCR.openScanner({ target: 'sales' })" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(16, 185, 129, 0.2)); border: 1.5px solid #06b6d4; color: #67e8f9; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" title="مسح إشعار تحويل بنكك أو شيك لسداد الفاتورة"><span style="font-size: 1.1rem;">📷</span> مسح إشعار/شيك (AI OCR)</button>
-                        <button type="button" class="pay-toggle-btn" onclick="FinancialOCR.openTrainer()" style="background: rgba(147, 51, 234, 0.1); border: 1px solid rgba(147, 51, 234, 0.35); color: #d8b4fe; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;" title="شرح وتدريب النماذج للذكاء الاصطناعي"><span>🧠</span> تدريب</button>
+                    <!-- Sleek Payment Progress Bar (Inline) -->
+                    <div class="payment-progress-container" style="flex: 1; display: flex; align-items: center; gap: 10px; min-width: 200px; padding: 0 8px;">
+                        <div class="progress-bar-wrapper" style="height: 8px; flex: 1; background: rgba(255,255,255,0.08); border-radius: 5px; overflow: hidden; display: flex; min-width: 90px;">
+                            <div id="prog-cash" style="width: 0%; height: 100%; background: #10b981;"></div>
+                            <div id="prog-bank" style="width: 0%; height: 100%; background: #38bdf8;"></div>
+                            <div id="prog-cheque" style="width: 0%; height: 100%; background: #94a3b8;"></div>
+                            <div id="prog-credit" style="width: 100%; height: 100%; background: #64748b;"></div>
+                        </div>
+                        <span id="payment-status-badge" style="font-size: 0.78rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; white-space: nowrap;">⏳ آجلة بالكامل</span>
+                    </div>
+                    <div class="payment-toggles" style="display: flex; gap: 6px; flex: none; flex-wrap: wrap; align-items: center;">
+                        <button type="button" class="pay-toggle-btn pur-calm-pay-btn active" id="toggle-credit" onclick="togglePaymentSection('credit')">آجل</button>
+                        <button type="button" class="pay-toggle-btn pur-calm-pay-btn" id="toggle-cash" onclick="togglePaymentSection('cash')">نقدي</button>
+                        <button type="button" class="pay-toggle-btn pur-calm-pay-btn" id="toggle-bank" onclick="togglePaymentSection('bank')">تحويل</button>
+                        <button type="button" class="pay-toggle-btn pur-calm-pay-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')">شيك</button>
+                        <button type="button" class="pay-toggle-btn pur-calm-pay-btn" id="btn-financial-qr" onclick="if(window.FinancialOCR && typeof FinancialOCR.openMobileQRBridge==='function'){FinancialOCR.openMobileQRBridge({ target: 'sales' });}" title="ربط الجوال عبر رمز QR"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg><span>ربط الجوال</span></button>
+                        <button type="button" class="pay-toggle-btn pur-calm-pay-btn" id="btn-financial-wa-tray" onclick="window.openSalesInboundReceiptsDrawer && window.openSalesInboundReceiptsDrawer()" title="فتح ترحيل الإشعارات مباشرة"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg><span>ترحيل الإشعارات</span></button>
+                        <button type="button" class="pay-toggle-btn pur-calm-pay-btn" id="btn-sales-posting-accounts" onclick="window.location.href='posting-accounts.php'" title="الانتقال إلى شاشة ترحيل الحسابات"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg><span>ترحيل الحسابات</span></button>
                     </div>
                 </div>
                 
-                <div class="payment-layout" id="payment-layout" style="display: flex; gap: 15px; padding: 15px; flex-wrap: wrap;">
+                <div class="payment-layout" id="payment-layout" style="display: none; gap: 15px; padding: 15px; flex-wrap: wrap;">
                     <!-- Right Section: Payment Details Forms -->
                     <div class="payment-details-card" style="flex: 1; min-width: 100%; display: flex; flex-direction: column; gap: 10px;">
-                        
-                        <!-- Credit payment box (Visible by default in yellow) -->
-                        <div id="pay-credit-section" class="payment-method-box" style="background: rgba(15, 23, 42, 0.96); border: 2px solid rgba(217, 119, 6, 0.85); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
-                            <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
-                                <span style="font-size: 1.2rem;">💳</span>
-                                <span style="font-weight: 800; color: #fcd34d; font-size: 0.95rem;">آجل على الحساب</span>
+                        <!-- Credit payment box -->
+                        <div id="pay-credit-section" class="payment-method-box" style="background: rgba(15, 23, 42, 0.96); border: 2px solid rgba(217, 119, 6, 0.85); border-radius: 12px; padding: 10px 14px; display: none; align-items: center; justify-content: flex-start; gap: 12px; flex-wrap: nowrap;">
+                            <div class="pay-credit-title-pill" style="display: inline-flex; align-items: center; justify-content: center; padding: 5px 12px; border-radius: 9px; flex: 0 0 auto;">
+                                <span class="pay-credit-lbl-txt" style="font-weight: 900; font-size: 0.96rem; white-space: nowrap;">آجل على الحساب</span>
                             </div>
-                            <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
-                                <input type="number" class="v-input ctrl-input" id="pay-credit-amount" value="0.00" step="any" readonly placeholder="المبلغ الآجل..." style="flex: none; width: 145px; min-width: 145px; background: rgba(15,23,42,0.8); border: 1px solid rgba(180, 83, 9, 0.5); height: 38px; text-align: center; font-size: 1.15rem; font-weight: 800; color: #fcd34d !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
-                                
-                                <div id="pay-credit-due-group" style="flex: 1.2; min-width: 180px; display: flex; align-items: center; gap: 5px;">
-                                    <label style="font-size: 0.78rem; color: #94a3b8; white-space: nowrap;">تاريخ الاستحقاق:</label>
-                                    <input type="date" class="v-input ctrl-input" id="pay-credit-due-date" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 4px; width: 100%;">
-                                </div>
-                                
-                                <button type="button" class="btn-action" onclick="previewCurrentPromissoryNote()" style="flex: 0.8; min-width: 120px; height: 38px; background: linear-gradient(135deg, rgba(180, 83, 9, 0.2), rgba(146, 64, 14, 0.4)); border: 1px solid rgba(180, 83, 9, 0.6); color: #fcd34d; padding: 0 10px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight: bold; transition: 0.2s;" onmouseover="this.style.background='linear-gradient(135deg, rgba(180, 83, 9, 0.35), rgba(146, 64, 14, 0.5))';" onmouseout="this.style.background='linear-gradient(135deg, rgba(180, 83, 9, 0.2), rgba(146, 64, 14, 0.4))';">📄 معاينة الكمبيالة</button>
+                            <input type="number" class="v-input ctrl-input" id="pay-credit-amount" value="0.00" step="any" readonly placeholder="المبلغ الآجل..." oninput="if(window.autoFitSingleInput) window.autoFitSingleInput(this);" style="flex: 0 1 175px; min-width: 135px; max-width: 195px; width: 175px; background: #0b1120; border: 2px solid rgba(180, 83, 9, 0.75); height: 40px; text-align: center; font-size: 1.15rem; font-weight: 900; color: #fcd34d !important;">
+                            <div id="pay-credit-due-group" style="flex: 0 0 auto; display: inline-flex; align-items: center; gap: 8px;">
+                                <label class="pay-due-lbl-txt" style="font-size: 0.94rem; font-weight: 900; white-space: nowrap; padding: 4px 8px; border-radius: 7px; margin: 0;">تاريخ الاستحقاق:</label>
+                                <input type="date" class="v-input ctrl-input" id="pay-credit-due-date" style="background: #0b1120; border: 2px solid rgba(255,255,255,0.32); height: 40px; font-size: 1.05rem; font-weight: 900; color: #ffffff !important; text-align: center; padding: 0 8px; width: 168px; min-width: 162px; max-width: 176px;">
                             </div>
+                            <button type="button" class="btn-action pur-promissory-preview-btn" onclick="previewCurrentPromissoryNote()" style="flex: 0 0 auto; width: auto !important; min-width: 0 !important; max-width: none !important; height: 38px !important; padding: 0 12px !important; margin-right: auto; border-radius: 9px; font-size: 0.86rem !important; cursor: pointer; font-weight: 900; display: inline-flex; align-items: center; justify-content: center; gap: 5px; white-space: nowrap;"><span>📄</span><span>معاينة الكمبيالة</span></button>
                         </div>
 
-                        <!-- Cash payment box (Toggled off by default until chosen by user) -->
+                        <!-- Cash payment box -->
                         <div id="pay-cash-section" style="background: rgba(15, 23, 42, 0.96); border: 2px solid rgba(16, 185, 129, 0.85); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; display: none; flex-direction: column; width: 100%;">
-                            <div class="payment-row-item" style="display: grid; grid-template-columns: 85px 1.5fr 1.2fr 1.2fr 2fr 30px; gap: 8px; align-items: center; width: 100%; margin-bottom: 0px;">
-                                <div style="display: flex; align-items: center; justify-content: flex-start; color: #6ee7b7; font-weight: 900; font-size: 0.95rem; gap: 6px; text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);"><span>💵</span> كاش</div>
-                                <input type="number" class="v-input ctrl-input dynamic-focus-input dynamic-focus-amount" id="pay-cash-amount" value="0" step="1" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 8px; text-align: center; font-size: 2.25rem; font-weight: 800; color: #ffffff; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
-                                <select class="v-input ctrl-input" id="hdr-payment-account" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%;">
-                                </select>
-                                <input type="text" class="v-input ctrl-input" id="pay-cash-ref" placeholder="رقم المرجع" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%;">
-                                <input type="text" class="v-input ctrl-input" id="pay-cash-note" placeholder="الملحوظة" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%;">
+                            <div class="payment-row-item" style="display: grid; grid-template-columns: 85px 22% 18% 18% minmax(0, 1fr) 30px; gap: 10px; align-items: center; width: 100%; margin-bottom: 0px;">
+                                <div class="pay-method-row-lbl" style="display: flex; align-items: center; justify-content: flex-start; color: #6ee7b7; font-weight: 900; font-size: 1.05rem; gap: 6px; text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);"><span>💵</span> كاش</div>
+                                <input type="number" class="v-input ctrl-input dynamic-focus-input dynamic-focus-amount" id="pay-cash-amount" value="0" step="1" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 8px; text-align: center; font-size: 2.35rem; font-weight: 900; color: #ffffff; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; min-width: 0; box-sizing: border-box; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
+                                <select class="v-input ctrl-input" id="hdr-payment-account" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; text-align: center; font-size: 1.05rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%; min-width: 0; box-sizing: border-box;"></select>
+                                <input type="text" class="v-input ctrl-input dynamic-focus-input dynamic-focus-number" id="pay-cash-ref" placeholder="رقم المرجع" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; text-align: center; font-size: 2.35rem; font-weight: 900; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%; min-width: 0; box-sizing: border-box;">
+                                <input type="text" class="v-input ctrl-input" id="pay-cash-note" placeholder="الملحوظة" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; text-align: center; font-size: 1.05rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%; min-width: 0; box-sizing: border-box;">
                                 <div></div>
                             </div>
                         </div>
@@ -1807,7 +1819,10 @@ try {
 
 <script id="split-constitution16-zero-error-master-engine" src="js/screens/direct-sales-j9.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-j9.js') ?: '2027' ?>"></script>
 <script src="js/split-purchase-constitution-2027.js?v=2027_clean_v2"></script>
+<script>window.DB_NEXT_SALES_FIN_VOUCHER_NO = <?= json_encode($salNextFinNo) ?>;</script>
+<?php if (file_exists(__DIR__ . '/includes/inbound-bankak-drawer.php')) include_once __DIR__ . '/includes/inbound-bankak-drawer.php'; ?>
 <link rel="stylesheet" id="sales-cloned-purchase-card-2027" href="css/screens/sales-cloned-purchase-card.css?v=<?= @filemtime(__DIR__ . '/css/screens/sales-cloned-purchase-card.css') ?: '2027' ?>">
+<link rel="stylesheet" id="sales-payment-panel-2027" href="css/screens/sales-payment-panel-2027.css?v=<?= @filemtime(__DIR__ . '/css/screens/sales-payment-panel-2027.css') ?: '2027' ?>">
 <link rel="stylesheet" href="css/pay-amount-typing-2027.css?v=<?= @filemtime(__DIR__ . '/css/pay-amount-typing-2027.css') ?: '2027' ?>">
 </body>
 </html>
