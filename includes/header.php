@@ -41,34 +41,36 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
         window.SYSTEM_USD_RATE = r;
         window._cachedGlobalRate = r;
         try {
-            localStorage.setItem('erp_rate_usd', String(r));
-            localStorage.setItem('magaiees_system_usd_rate', String(r));
-            localStorage.setItem('magaies_custom_usd_rate', String(r));
-            localStorage.setItem('magaies_usd_rate', String(r));
-            localStorage.setItem('erp_cached_global_rate', String(r));
-            localStorage.setItem('erp_saas_rate_usd', String(r));
-            localStorage.setItem('erp_manual_rate_usd', String(r));
-            var cr = {};
-            try { cr = JSON.parse(localStorage.getItem('erp_currency_rates_v1') || '{}') || {}; } catch(e) { cr = {}; }
-            cr.USD = r;
-            cr.SDG = 1;
-            localStorage.setItem('erp_currency_rates_v1', JSON.stringify(cr));
-            ['erp_settings_v1'].forEach(function(baseKey) {
-                var keys = [baseKey];
-                try {
-                    var u = JSON.parse(localStorage.getItem('user') || '{}');
-                    var tId = u.tenant_id || localStorage.getItem('currentTenantId') || 'default';
-                    keys.push('tenant_' + tId + '_' + baseKey);
-                } catch(e) {}
-                keys.forEach(function(k) {
+            if (localStorage.getItem('erp_rate_usd') !== String(r)) {
+                localStorage.setItem('erp_rate_usd', String(r));
+                localStorage.setItem('magaiees_system_usd_rate', String(r));
+                localStorage.setItem('magaies_custom_usd_rate', String(r));
+                localStorage.setItem('magaies_usd_rate', String(r));
+                localStorage.setItem('erp_cached_global_rate', String(r));
+                localStorage.setItem('erp_saas_rate_usd', String(r));
+                localStorage.setItem('erp_manual_rate_usd', String(r));
+                var cr = {};
+                try { cr = JSON.parse(localStorage.getItem('erp_currency_rates_v1') || '{}') || {}; } catch(e) { cr = {}; }
+                cr.USD = r;
+                cr.SDG = 1;
+                localStorage.setItem('erp_currency_rates_v1', JSON.stringify(cr));
+                ['erp_settings_v1'].forEach(function(baseKey) {
+                    var keys = [baseKey];
                     try {
-                        var cfg = JSON.parse(localStorage.getItem(k) || '{}') || {};
-                        cfg.rateUSD = r;
-                        cfg.exchangeRate = r;
-                        localStorage.setItem(k, JSON.stringify(cfg));
+                        var u = JSON.parse(localStorage.getItem('user') || '{}');
+                        var tId = u.tenant_id || localStorage.getItem('currentTenantId') || 'default';
+                        keys.push('tenant_' + tId + '_' + baseKey);
                     } catch(e) {}
+                    keys.forEach(function(k) {
+                        try {
+                            var cfg = JSON.parse(localStorage.getItem(k) || '{}') || {};
+                            cfg.rateUSD = r;
+                            cfg.exchangeRate = r;
+                            localStorage.setItem(k, JSON.stringify(cfg));
+                        } catch(e) {}
+                    });
                 });
-            });
+            }
         } catch(e) {}
         var updateDomInputs = function() {
             var gVal = document.getElementById('global-exchange-rate-val');
@@ -110,10 +112,13 @@ window._cachedGlobalRate = window.SYSTEM_USD_RATE;
 })();
 </script>
 <style id="global-zero-lag-css">
-.ambient-bg, .ambient-bg .orb, .preset-ribbon-btn::after, .preset-btn::after, .btn-action-hero::after, .btn-run::after, .action-tab.active::before, .sticky-footer::before { display: none !important; content: none !important; }
-*:not(#market-broker-ticker-track):not(#market-broker-orders-track):not(#global-screens-broker-ticker-track):not(#athkar-marquee-track):not(.quran-seamless-track), *::before, *::after { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; animation: none !important; }
-button, .btn, .modern-btn, .preset-ribbon-btn, .preset-btn, .btn-action-hero, .btn-run, .action-tab, .fin-card, .pos-grid tbody tr { transition: background-color 0.08s ease, border-color 0.08s ease, opacity 0.08s ease !important; }
-button:hover, .btn:hover, .modern-btn:hover, .preset-ribbon-btn:hover, .preset-btn:hover, .btn-action-hero:hover, .del-btn:hover, .modal-close:hover { transform: none !important; }
+.ambient-bg, .ambient-bg .orb, .glow-orb, .preset-ribbon-btn::after, .preset-btn::after, .btn-action-hero::after, .btn-run::after, .action-tab.active::before, .sticky-footer::before { display: none !important; content: none !important; }
+*:not(#market-broker-ticker-track):not(#market-broker-orders-track):not(#global-screens-broker-ticker-track):not(#athkar-marquee-track):not(.quran-seamless-track), *::before, *::after { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; animation: none !important; will-change: auto !important; }
+input, select, textarea, button, .btn, .modern-btn, .crystal-btn, .royal-crystal-btn, .preset-ribbon-btn, .preset-btn, .btn-action-hero, .btn-run, .action-tab, .fin-card, .fin-strip-inner, .fin-metric-pill, .input-group, .pro-field-card, .h-form-group, #form-fields-card, #invoice-info-box, .pro-serial-container, .hub-action-card, .sidebar-item, .pf-card, tr, td { transition: none !important; }
+html body :is(.btn, .modern-btn, .preset-ribbon-btn, .preset-btn, .btn-action-hero, .btn-run, .del-btn, .modal-close, .qa-ribbon-btn, .hub-action-card):hover { transform: none !important; }
+.global-sidebar .sidebar-nav { scrollbar-gutter: stable; overflow-x: hidden !important; }
+.global-sidebar .sidebar-item { box-sizing: border-box !important; border-top: 1.5px solid transparent !important; border-bottom: 1.5px solid transparent !important; }
+.global-sidebar .sidebar-icon, .global-sidebar .sidebar-item:hover .sidebar-icon, .global-sidebar .sidebar-text, .global-sidebar .sidebar-item:hover .sidebar-text, .global-sidebar .sb-panoramic-chevron, .global-sidebar .sidebar-item:hover .sb-panoramic-chevron { transform: translateY(-50%) !important; }
 </style>
 <style id="master-2027-height-and-colprops">
 /* ═══ MASTER 2027 UI HARMONY: +20% HEIGHT ONLY, UNIFIED COL PROPS (FAR LEFT), CENTERED NO-ICON HUBS & ZERO BLUR HALOS ═══ */
@@ -820,6 +825,15 @@ table.pos-grid tbody td select {
             </div>
 
             <!-- شارة بورصة السيطرة المدمجة تحت لوحة التحكم مباشرة بدون مربع جانبي وبنفس نسق لوحة التحكم -->
+            <div style="position:relative;display:inline-flex;align-items:center;">
+                <button id="header-ext-lang-btn" type="button" data-keep-arabic="1" onclick="event.stopPropagation();var p=document.getElementById('header-ext-lang-pop');if(p)p.style.display=(p.style.display==='flex'?'none':'flex');" title="تغيير اللغة (العربية / English / 中文)" style="height:22px;padding:0 6px;border-radius:6px;background:linear-gradient(135deg,#0f172a,#1e3a8a);border:1.4px solid #38bdf8;color:#fef08a!important;-webkit-text-fill-color:#fef08a!important;font-size:10px;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;gap:3px;line-height:1;box-shadow:0 2px 6px rgba(0,0,0,0.4);">🌐 <span id="hdr-mini-lang-code"><script>document.write(({ar:'ع',en:'EN',zh:'中文'})[localStorage.getItem('erp_lang')||'ar']||'ع')</script></span></button>
+                <div id="header-ext-lang-pop" data-keep-arabic="1" onclick="event.stopPropagation()" style="display:none;position:fixed;top:74px;right:18px;z-index:2147483647;background:#0b1222;border:1.8px solid #38bdf8;border-radius:10px;padding:5px;gap:4px;flex-direction:column;min-width:132px;box-shadow:0 14px 32px rgba(0,0,0,0.85);">
+                    <button type="button" onclick="localStorage.setItem('erp_lang','ar');document.cookie='erp_lang=ar;path=/;max-age=31536000';location.reload();" style="padding:5px 9px;border-radius:7px;background:#065f46;border:1px solid #34d399;color:#fff;font-weight:900;font-size:11.5px;cursor:pointer;text-align:right;">🇸🇦 العربية</button>
+                    <button type="button" onclick="localStorage.setItem('erp_lang','en');document.cookie='erp_lang=en;path=/;max-age=31536000';location.reload();" style="padding:5px 9px;border-radius:7px;background:#1e3a8a;border:1px solid #60a5fa;color:#fff;font-weight:900;font-size:11.5px;cursor:pointer;text-align:right;">🇬🇧 English</button>
+                    <button type="button" onclick="localStorage.setItem('erp_lang','zh');document.cookie='erp_lang=zh;path=/;max-age=31536000';location.reload();" style="padding:5px 9px;border-radius:7px;background:#7c2d12;border:1px solid #fb923c;color:#fff;font-weight:900;font-size:11.5px;cursor:pointer;text-align:right;">🇨🇳 中文</button>
+                </div>
+            </div>
+            <script>document.addEventListener('click',function(){var p=document.getElementById('header-ext-lang-pop');if(p&&p.style.display==='flex')p.style.display='none';});</script>
             <span id="header-magaiees-bourse-btn" role="button" tabindex="0" class="m7-solid-badge-guard" onclick="window.toggleMagaieesBourseGlobal();" title="إظهار أو إخفاء شريط بورصة السيطرة فوراً" style="margin-right:auto; height:22px; font-size:11px; font-weight:900; background:linear-gradient(135deg, #059669, #065f46); border:1.5px solid #fde047; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; padding:0 8px; border-radius:6px; display:inline-flex !important; align-items:center; justify-content:center; line-height:1; flex-shrink:0; cursor:pointer; user-select:none; box-shadow:0 0 8px rgba(16, 185, 129, 0.4);">بورصة السيطرة</span>
             <script>
             window.toggleMagaieesBourseGlobal = function() {
@@ -993,99 +1007,48 @@ table.pos-grid tbody td select {
             $header_curr = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'SDG');
         endif;
         ?>
-        <div class="header-crystal-icon-dock" style="position:relative;">
-            <!-- زر موحد لأدوات النظام السريعة (درع المزامنة، المتعقب، ملء الشاشة، تبديل المظهر) لمنع تكدس الأيقونات -->
-            <div style="position:relative; display:flex; align-items:center;">
-                <button type="button" id="header-tools-menu-btn" class="dock-icon-btn" onclick="var m=document.getElementById('header-quick-tools-popover'); if(m){m.style.display=(m.style.display==='flex'?'none':'flex');} event.stopPropagation();" title="أدوات النظام السريعة (درع الحماية، متعقب المستندات، ملء الشاشة)" style="width:auto !important; padding:0 10px !important; gap:5px !important; font-size:11.5px !important; font-weight:800 !important; color:#e2e8f0 !important; position:relative;">
-                    <span>⚡</span>
-                    <span>الأدوات</span>
-                </button>
-                <div id="header-quick-tools-popover" onclick="event.stopPropagation()" style="display:none; position:absolute; top:calc(100% + 8px); left:0; background:rgba(15,23,42,0.98); border:1.5px solid rgba(56,189,248,0.45); border-radius:12px; padding:8px; gap:8px; align-items:center; box-shadow:0 15px 35px rgba(0,0,0,0.85); z-index:999999; backdrop-filter:blur(12px);">
-                    <button class="audit-tracker-btn dock-icon-btn dock-icon-search" onclick="window.openAuditTrackerModal()" title="متعقب المستندات وسجل تتبع المستخدمين (من فعل ماذا) - اضغط Alt+T">🔍</button>
-
-                    <button class="fullscreen-toggle-btn dock-icon-btn dock-icon-fullscreen" onclick="toggleFullScreen()" data-i18n-title="header.fullscreen" title="توسيع الشاشة">⛶</button>
-
-                    <button class="theme-toggle-btn dock-icon-btn dock-icon-theme" onclick="toggleTheme()" data-i18n-title="header.toggleTheme" title="تبديل المظهر السريع (فاتح / داكن)">🌓</button>
-                </div>
-            </div>
-            <script>
-            document.addEventListener('click', function() {
-                var m = document.getElementById('header-quick-tools-popover');
-                if (m && m.style.display === 'flex') m.style.display = 'none';
-            });
-            </script>
-
-            <!-- 📺 SACRED TV & QURAN MINI CONTROLLER -->
-            <div id="header-media-control-wrap" style="position:relative; display:flex; align-items:center; gap:5px;">
-                <button id="header-live-mic-btn" type="button" onclick="if(typeof window.toggleDirectLiveVoiceMic==='function'){window.toggleDirectLiveVoiceMic();}" class="header-tv-mini-btn" style="border-color:#fde047;" title="مايك الحوار الصوتي المفتوح مع البروفيسور (اضغط ليضيء المايك وتحدث مباشرة)">
-                    <span class="header-tv-icon">🎙️</span>
-                    <span class="header-tv-label">الحوار</span>
-                </button>
-                <button id="header-media-btn" type="button" onclick="toggleHeaderMediaPopover(event)" class="header-tv-mini-btn" title="قنوات التلفاز والقرآن الكريم (بث حي في الخلفية)">
-                    <span id="header-media-icon" class="header-tv-icon">📺</span>
-                    <span id="header-media-label" class="header-tv-label">التلفاز</span>
-                    <span id="header-media-dot" class="header-tv-status-dot" style="display: none;"></span>
-                </button>
-            </div>
+        <style id="hdr-royal-6pod-css">
+.hdr-royal-6pod{width:330px !important;min-width:330px !important;max-width:330px !important;height:78px !important;min-height:78px !important;max-height:78px !important;padding:4px 5px !important;border-radius:13px !important;background:linear-gradient(160deg,rgba(2,6,23,0.96) 0%,rgba(15,23,42,0.98) 55%,rgba(23,15,48,0.96) 100%) !important;border:1.5px solid rgba(251,191,36,0.78) !important;box-shadow:0 4px 12px rgba(0,0,0,0.45) !important;display:grid !important;grid-template-columns:repeat(3,minmax(0,1fr)) !important;grid-template-rows:1fr 1fr !important;gap:4px !important;direction:rtl !important;box-sizing:border-box !important;flex-shrink:0 !important;}
+.hdr-6pod-btn{position:relative !important;width:100% !important;height:100% !important;min-height:31px !important;max-height:33px !important;padding:2px 6px !important;border-radius:8px !important;display:flex !important;align-items:center !important;justify-content:space-between !important;gap:4px !important;cursor:pointer !important;overflow:hidden !important;box-sizing:border-box !important;font-family:'Cairo','Tajawal',sans-serif !important;}
+.hdr-6pod-btn:hover{border-color:#ffffff !important;}
+.hdr-6pod-ico{width:20px !important;height:20px !important;min-width:20px !important;border-radius:5px !important;display:inline-flex !important;align-items:center !important;justify-content:center !important;font-size:12.5px !important;line-height:1 !important;background:rgba(0,0,0,0.28) !important;border:1px solid rgba(255,255,255,0.28) !important;flex-shrink:0 !important;}
+.hdr-6pod-lbl{flex:1 1 auto !important;text-align:center !important;font-size:12.5px !important;font-weight:900 !important;color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;white-space:nowrap !important;overflow:hidden !important;text-overflow:ellipsis !important;line-height:1 !important;text-shadow:0 1px 3px rgba(0,0,0,0.9) !important;}
+.hdr-6pod-shield{background:linear-gradient(135deg,#022c22 0%,#047857 55%,#10b981 100%) !important;border:1.5px solid #34d399 !important;}
+.hdr-6pod-guide{background:linear-gradient(135deg,#062238 0%,#0369a1 55%,#1d4ed8 100%) !important;border:1.5px solid #38bdf8 !important;}
+.hdr-6pod-quran{background:linear-gradient(135deg,#064e3b 0%,#0f766e 55%,#0d9488 100%) !important;border:1.5px solid #fde047 !important;}
+.hdr-6pod-mic{background:linear-gradient(135deg,#450a0a 0%,#b91c1c 55%,#7e22ce 100%) !important;border:1.5px solid #fbbf24 !important;}
+.hdr-6pod-themes{background:linear-gradient(135deg,#3b0764 0%,#7e22ce 50%,#be185d 100%) !important;border:1.5px solid #f472b6 !important;}
+.hdr-6pod-back{background:linear-gradient(135deg,#2b1202 0%,#6b2e05 55%,#92400e 100%) !important;border:1.5px solid #fbbf24 !important;}
+</style>
+        <div id="magaiees-royal-6pod" class="hdr-royal-6pod">
+            <button id="desktop-sync-shield-btn" type="button" class="hdr-6pod-btn hdr-6pod-shield" onclick="if(window.openMagaiesGuardianVault){window.openMagaiesGuardianVault();}else if(window.openDesktopSyncAuditModal){window.openDesktopSyncAuditModal();}" title="🛡️ درع الحماية وسجل المزامنة والرقابة">
+                <span class="hdr-6pod-ico">🛡️</span>
+                <span class="hdr-6pod-lbl">درع الحماية</span>
+                <span id="desktop-sync-shield-badge" style="display:none;position:absolute;top:1px;left:2px;background:#ef4444;color:#fff;font-size:9px;font-weight:900;min-width:14px;height:14px;border-radius:999px;align-items:center;justify-content:center;padding:0 3px;">0</span>
+            </button>
+            <button id="header-smart-guide-btn" type="button" class="hdr-6pod-btn hdr-6pod-guide" onclick="window.loadMagaiesSmartGuide&&window.loadMagaiesSmartGuide(function(){if(window.openSmartGuide)window.openSmartGuide();})" title="🎓 المرشد الذكي التفاعلي 360° (شرح صوتي وكتابي لكل شاشة — F1)">
+                <span class="hdr-6pod-ico">🎓</span>
+                <span class="hdr-6pod-lbl">المرشد</span>
+            </button>
+            <button id="header-media-btn" type="button" class="hdr-6pod-btn hdr-6pod-quran" onclick="toggleHeaderMediaPopover(event)" title="📻 البث الإذاعي الصوتي المباشر (12 إذاعة صوتية: القرآن، الحرمين، الحديث، الجزيرة، BBC)">
+                <span id="header-media-icon" class="hdr-6pod-ico">📻</span>
+                <span id="header-media-label" class="hdr-6pod-lbl">الإذاعة</span>
+                <span id="header-media-dot" class="header-tv-status-dot" style="display:none;position:absolute;top:3px;left:3px;"></span>
+            </button>
+            <button id="header-live-mic-btn" type="button" class="hdr-6pod-btn hdr-6pod-mic" onclick="if(typeof window.toggleDirectLiveVoiceMic==='function'){window.toggleDirectLiveVoiceMic();}else{var s=document.createElement('script');s.src='js/global-professor-ai-chat.js?v=20261126';s.onload=function(){if(window.toggleDirectLiveVoiceMic)window.toggleDirectLiveVoiceMic();};document.body.appendChild(s);}" title="🎙️ مايك الحوار الصوتي المباشر مع البروفيسور">
+                <span class="hdr-6pod-ico">🎙️</span>
+                <span class="hdr-6pod-lbl">الحوار</span>
+            </button>
+            <button id="magaiees-master-themes-btn" type="button" class="hdr-6pod-btn hdr-6pod-themes" onclick="if(typeof window.openUniversalErpTonePopover==='function'){window.openUniversalErpTonePopover(this);}else{openMaster7ThemesModal();}" title="🎨 السمات ونغمات النظام المعتمدة والموحدة">
+                <span class="hdr-6pod-ico">🎨</span>
+                <span class="hdr-6pod-lbl">السمات</span>
+            </button>
+            <button id="magaiees-master-back-btn" type="button" class="hdr-6pod-btn hdr-6pod-back" onclick="if(typeof window.magaiesGoBackStepLIFO==='function'){window.magaiesGoBackStepLIFO();}else{magaieesGoBack();}" title="↩️ الرجوع للخلف (الشاشة السابقة)">
+                <span class="hdr-6pod-ico">↩️</span>
+                <span class="hdr-6pod-lbl">الرجوع</span>
+            </button>
         </div>
-
-        <!-- 3. Symmetrical 2x2 Paired Action Matrix:
-             Right Column: نسخة الموبايل (top) + تثبيت التطبيق (bottom / تحتها)
-             Left Column (يسارها): السمات (top) + الرجوع (bottom / ثم الرجوع) -->
-        <?php if ($is_dashboard_page): ?>
-        <div id="magaiees-dashboard-header-stack" class="header-quad-matrix">
-            <!-- العمود الأيمن: تثبيت التطبيق -->
-            <div class="quad-matrix-col quad-col-right">
-                <button id="magaiees-top-install-btn" type="button" onclick="if(window.PWAManager && PWAManager.triggerInstall){PWAManager.triggerInstall();}else{alert('لتثبيت تطبيق السيطرة: اضغط على أيقونة التثبيت ⊕ في شريط عنوان المتصفح بالأعلى');}" class="magaiees-stack-btn stack-btn-install" title="تثبيت تطبيق السيطرة على جهازك كبرنامج مستقل">
-                    <span class="stack-btn-icon"><i class="fa-solid fa-download"></i></span>
-                    <span class="stack-btn-text">تثبيت التطبيق 📲</span>
-                </button>
-            </div>
-
-            <!-- العمود الأيسر (يسارها): السمات (13 لوناً) وتحتها الرجوع بالتسلسل -->
-            <div class="quad-matrix-col quad-col-left">
-                <button id="magaiees-master-themes-btn" type="button" class="magaiees-stack-btn stack-btn-themes magaiees-theme-btn-top" onclick="if(typeof window.openUniversalErpTonePopover==='function'){window.openUniversalErpTonePopover(this);}else{openMaster7ThemesModal();}" title="🎨 السمات ونغمات النظام المعتمدة والموحدة (13 لوناً + 4 نغمات)">
-                    <span class="theme-icon-art" style="font-size: 0.9rem;">🎨</span>
-                    <span class="theme-btn-text">السمات</span>
-                    <span class="theme-count-badge">13</span>
-                </button>
-                <button id="magaiees-master-screen-ergo-btn" type="button" class="magaiees-stack-btn stack-btn-themes" onclick="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.openPopover(this)" title="📐 ضبط مقاسات أنواع الشاشات وراحة العين (تلقائي / لابتوب / كمبيوتر مكتبي / طولية — للشاشة أو البرنامج كله)">
-                    <span style="font-size: 0.88rem;">🖥️</span>
-                    <span class="theme-btn-text" id="magaies-ergo-hdr-lbl">مقاس الشاشة</span>
-                </button>
-
-                <button id="magaiees-master-back-btn" class="magaiees-stack-btn stack-btn-back magaiees-back-btn" onclick="if(typeof window.magaiesGoBackStepLIFO==='function'){window.magaiesGoBackStepLIFO();}else{magaieesGoBack();}" title="الرجوع للخلف خطوة واحدة مع حفظ الحالة (LIFO)">
-                    <svg class="back-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px;">
-                        <line x1="19" y1="12" x2="5" y2="12"></line>
-                        <polyline points="12 19 19 12 12 5"></polyline>
-                    </svg>
-                    <span class="back-btn-text">رجوع</span>
-                </button>
-            </div>
-        </div>
-        <?php else: ?>
-        <div id="magaiees-dashboard-header-stack" class="header-quad-matrix header-duo-matrix">
-            <div class="quad-matrix-col quad-col-left">
-                <button id="magaiees-master-themes-btn" type="button" class="magaiees-stack-btn stack-btn-themes magaiees-theme-btn-top" onclick="if(typeof window.openUniversalErpTonePopover==='function'){window.openUniversalErpTonePopover(this);}else{openMaster7ThemesModal();}" title="🎨 السمات ونغمات النظام المعتمدة والموحدة (13 لوناً + 4 نغمات)">
-                    <span class="theme-icon-art" style="font-size: 0.9rem;">🎨</span>
-                    <span class="theme-btn-text">السمات</span>
-                    <span class="theme-count-badge">13</span>
-                </button>
-                <button id="magaiees-master-screen-ergo-btn" type="button" class="magaiees-stack-btn stack-btn-themes" onclick="window.MagaiesScreenErgonomics&&window.MagaiesScreenErgonomics.openPopover(this)" title="📐 ضبط مقاسات أنواع الشاشات وراحة العين (تلقائي / لابتوب / كمبيوتر مكتبي / طولية — للشاشة أو البرنامج كله)">
-                    <span style="font-size: 0.88rem;">🖥️</span>
-                    <span class="theme-btn-text" id="magaies-ergo-hdr-lbl">مقاس الشاشة</span>
-                </button>
-
-                <button id="magaiees-master-back-btn" class="magaiees-stack-btn stack-btn-back magaiees-back-btn" onclick="if(typeof window.magaiesGoBackStepLIFO==='function'){window.magaiesGoBackStepLIFO();}else{magaieesGoBack();}" title="الرجوع للخلف خطوة واحدة مع حفظ الحالة (LIFO)">
-                    <svg class="back-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="width: 13px; height: 13px;">
-                        <line x1="19" y1="12" x2="5" y2="12"></line>
-                        <polyline points="12 19 19 12 12 5"></polyline>
-                    </svg>
-                    <span class="back-btn-text">رجوع</span>
-                </button>
-            </div>
-        </div>
-        <?php endif; ?>
+        <script>(function(){try{var lg=localStorage.getItem('erp_lang');if(lg&&lg!=='ar'){document.documentElement.setAttribute('dir','ltr');document.documentElement.setAttribute('lang',lg);var s=document.createElement('script');s.src='js/lang-6pack.js?v=<?= @filemtime(__DIR__ . "/../js/lang-6pack.js") ?: time() ?>';(document.head||document.documentElement).appendChild(s);}}catch(e){}})();</script>
         <div id="magaies-quartet-header-slot" style="display:flex; align-items:center;"></div>
         <script>
         function toggleFullScreen() {
@@ -1160,108 +1123,63 @@ document.addEventListener('DOMContentLoaded', function() {
     <span>إظهار الترويسة والمعلومات</span>
 </div>
 
-<!-- 📺 SACRED TV & QURAN POPUP MODAL (ON SCREEN FACE - NOT HIDDEN FOR ANY REASON) -->
+<!-- 📻 12 AUDIO RADIO CHANNELS POPOVER (كل القنوات الإذاعية الصوتية الـ 12 السابقة بدون تلفاز مرئي) -->
 <div id="header-media-backdrop" onclick="closeHeaderMediaPopover(event)" style="display: none;"></div>
 <div id="header-media-popover" class="header-tv-popover" onclick="event.stopPropagation()" style="display: none;">
-    <!-- Popover Header -->
-    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 8px; margin-bottom: 12px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 8px; margin-bottom: 10px;">
         <div style="display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 13px; color: #fde047;">
             <span id="popover-status-dot" class="header-tv-status-dot"></span>
-            <span>📺 تحكم البث المباشر (فوق الشاشة)</span>
+            <span>📻 البث الإذاعي الصوتي المباشر (12 قناة صوتية)</span>
         </div>
-        <button type="button" onclick="closeHeaderMediaPopover(event)" style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #f8fafc; border-radius: 8px; width: 26px; height: 26px; font-size: 13px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;" title="إخفاء النافذة (مع استمرار البث بالخلفية)">✕</button>
+        <button type="button" onclick="closeHeaderMediaPopover(event)" style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #f8fafc; border-radius: 8px; width: 26px; height: 26px; font-size: 13px; font-weight: 900; cursor: pointer;" title="إخفاء النافذة (مع استمرار الإذاعة بالخلفية)">✕</button>
     </div>
-
-    <!-- 🌟 PROMINENT CURRENT BROADCAST STATUS CARD (البث الحالي واضح وغير مختفي) 🌟 -->
-    <div id="popover-broadcast-status-card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(15, 23, 42, 0.98)); border: 1.5px solid rgba(245, 158, 11, 0.55); border-radius: 14px; padding: 10px 12px; margin-bottom: 12px; box-shadow: inset 0 0 15px rgba(245, 158, 11, 0.15);">
+    <div id="popover-broadcast-status-card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(15, 23, 42, 0.98)); border: 1.5px solid rgba(245, 158, 11, 0.55); border-radius: 14px; padding: 10px 12px; margin-bottom: 10px;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
-            <span style="font-size: 11px; font-weight: 800; color: #94a3b8;">📡 حالة البث الحالية:</span>
-            <span id="popover-status-badge" style="font-size: 10.5px; font-weight: 900; padding: 2px 8px; border-radius: 6px; background: rgba(16, 185, 129, 0.25); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.5);">
-                🟢 شغال الآن
-            </span>
+            <span style="font-size: 11px; font-weight: 800; color: #94a3b8;">📡 حالة الإذاعة الحالية:</span>
+            <span id="popover-status-badge" style="font-size: 10.5px; font-weight: 900; padding: 2px 8px; border-radius: 6px; background: rgba(16, 185, 129, 0.25); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.5);">جاهزة للتشغيل</span>
         </div>
-        <div id="popover-media-title" style="font-size: 13.5px; font-weight: 900; color: #ffffff; line-height: 1.35; text-shadow: 0 0 12px rgba(245, 158, 11, 0.6); word-break: break-word;">
-            البث المباشر يعمل بالخلفية
-        </div>
+        <div id="popover-media-title" style="font-size: 13px; font-weight: 900; color: #ffffff; line-height: 1.35;">اختر أياً من القنوات الإذاعية الـ 12 بالأسفل</div>
     </div>
-
-    <!-- 12 Sacred & News Channel Quick Buttons in 2 Rows of 6 (صفين كل صف به 6 أزرار عصرية) -->
-    <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin-bottom: 12px;">
-        <!-- Row 1: مكة · المدينة · المجد · القرآن · الجزيرة · BBC -->
-        <button type="button" id="hdr-ch-makkah" onclick="quickHeaderPlay('makkah')" class="header-pop-ch-btn" style="--ch-c: #f59e0b;" title="تشغيل مكة المكرمة">
-            <span style="font-size: 14px;">🕋</span>
-            <span>مكة</span>
-        </button>
-        <button type="button" id="hdr-ch-madinah" onclick="quickHeaderPlay('madinah')" class="header-pop-ch-btn" style="--ch-c: #10b981;" title="تشغيل المدينة المنورة">
-            <span style="font-size: 14px;">🕌</span>
-            <span>المدينة</span>
-        </button>
-        <button type="button" id="hdr-ch-majd" onclick="quickHeaderPlay('majd')" class="header-pop-ch-btn" style="--ch-c: #fbbf24;" title="تشغيل قناة المجد">
-            <span style="font-size: 14px;">📺</span>
-            <span>المجد</span>
-        </button>
-        <button type="button" id="hdr-ch-quran_mp3" onclick="quickHeaderPlay('quran_mp3')" class="header-pop-ch-btn" style="--ch-c: #06b6d4;" title="تشغيل القرآن MP3">
-            <span style="font-size: 14px;">🎧</span>
-            <span>القرآن</span>
-        </button>
-        <button type="button" id="hdr-ch-aljazeera" onclick="quickHeaderPlay('aljazeera')" class="header-pop-ch-btn" style="--ch-c: #ef4444;" title="قناة الجزيرة - البث الصوتي المباشر">
-            <span style="font-size: 14px;">🔴</span>
-            <span>الجزيرة</span>
-        </button>
-        <button type="button" id="hdr-ch-bbc_arabic" onclick="quickHeaderPlay('bbc_arabic')" class="header-pop-ch-btn" style="--ch-c: #f43f5e;" title="قناة وإذاعة بي بي سي عربي - بث مباشر باللغة العربية 24/7">
-            <span style="font-size: 14px;">🌐</span>
-            <span>BBC</span>
-        </button>
-
-        <!-- Row 2: البخاري · مسلم · رياض الصالحين · الشمائل · السيرة · الصحابة -->
-        <button type="button" id="hdr-ch-hadith_bukhari" onclick="quickHeaderPlay('hadith_bukhari')" class="header-pop-ch-btn" style="--ch-c: #a855f7;" title="صحيح البخاري">
-            <span style="font-size: 14px;">📜</span>
-            <span>البخاري</span>
-        </button>
-        <button type="button" id="hdr-ch-hadith_muslim" onclick="quickHeaderPlay('hadith_muslim')" class="header-pop-ch-btn" style="--ch-c: #10b981;" title="صحيح مسلم">
-            <span style="font-size: 14px;">📗</span>
-            <span>مسلم</span>
-        </button>
-        <button type="button" id="hdr-ch-hadith_riyad" onclick="quickHeaderPlay('hadith_riyad')" class="header-pop-ch-btn" style="--ch-c: #059669;" title="رياض الصالحين">
-            <span style="font-size: 14px;">🌿</span>
-            <span>الرياض</span>
-        </button>
-        <button type="button" id="hdr-ch-hadith_shmaeel" onclick="quickHeaderPlay('hadith_shmaeel')" class="header-pop-ch-btn" style="--ch-c: #c084fc;" title="الشمائل المحمدية">
-            <span style="font-size: 14px;">✨</span>
-            <span>الشمائل</span>
-        </button>
-        <button type="button" id="hdr-ch-hadith_siyra" onclick="quickHeaderPlay('hadith_siyra')" class="header-pop-ch-btn" style="--ch-c: #f59e0b;" title="في ظلال السيرة النبوية">
-            <span style="font-size: 14px;">🕌</span>
-            <span>السيرة</span>
-        </button>
-        <button type="button" id="hdr-ch-hadith_sahabah" onclick="quickHeaderPlay('hadith_sahabah')" class="header-pop-ch-btn" style="--ch-c: #38bdf8;" title="صور من حياة الصحابة">
-            <span style="font-size: 14px;">👥</span>
-            <span>الصحابة</span>
-        </button>
+    <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin-bottom: 10px;">
+        <button type="button" id="hdr-ch-makkah" onclick="quickHeaderPlay('makkah')" class="header-pop-ch-btn" style="--ch-c: #f59e0b;" title="إذاعة مكة المكرمة"><span style="font-size: 14px;">🕋</span><span>مكة</span></button>
+        <button type="button" id="hdr-ch-madinah" onclick="quickHeaderPlay('madinah')" class="header-pop-ch-btn" style="--ch-c: #10b981;" title="إذاعة المدينة المنورة"><span style="font-size: 14px;">🕌</span><span>المدينة</span></button>
+        <button type="button" id="hdr-ch-majd" onclick="quickHeaderPlay('majd')" class="header-pop-ch-btn" style="--ch-c: #fbbf24;" title="إذاعة المجد للقرآن الكريم"><span style="font-size: 14px;">📻</span><span>المجد</span></button>
+        <button type="button" id="hdr-ch-quran_mp3" onclick="quickHeaderPlay('quran_mp3')" class="header-pop-ch-btn" style="--ch-c: #06b6d4;" title="إذاعة القرآن الكريم MP3"><span style="font-size: 14px;">🎧</span><span>القرآن</span></button>
+        <button type="button" id="hdr-ch-aljazeera" onclick="quickHeaderPlay('aljazeera')" class="header-pop-ch-btn" style="--ch-c: #ef4444;" title="إذاعة الجزيرة — البث الصوتي المباشر"><span style="font-size: 14px;">🔴</span><span>الجزيرة</span></button>
+        <button type="button" id="hdr-ch-bbc_arabic" onclick="quickHeaderPlay('bbc_arabic')" class="header-pop-ch-btn" style="--ch-c: #f43f5e;" title="إذاعة BBC عربي — البث الصوتي المباشر"><span style="font-size: 14px;">🌐</span><span>BBC</span></button>
+        <button type="button" id="hdr-ch-hadith_bukhari" onclick="quickHeaderPlay('hadith_bukhari')" class="header-pop-ch-btn" style="--ch-c: #a855f7;" title="إذاعة صحيح البخاري"><span style="font-size: 14px;">📜</span><span>البخاري</span></button>
+        <button type="button" id="hdr-ch-hadith_muslim" onclick="quickHeaderPlay('hadith_muslim')" class="header-pop-ch-btn" style="--ch-c: #10b981;" title="إذاعة صحيح مسلم"><span style="font-size: 14px;">📗</span><span>مسلم</span></button>
+        <button type="button" id="hdr-ch-hadith_riyad" onclick="quickHeaderPlay('hadith_riyad')" class="header-pop-ch-btn" style="--ch-c: #059669;" title="إذاعة رياض الصالحين"><span style="font-size: 14px;">🌿</span><span>الرياض</span></button>
+        <button type="button" id="hdr-ch-hadith_shmaeel" onclick="quickHeaderPlay('hadith_shmaeel')" class="header-pop-ch-btn" style="--ch-c: #c084fc;" title="إذاعة الشمائل المحمدية"><span style="font-size: 14px;">✨</span><span>الشمائل</span></button>
+        <button type="button" id="hdr-ch-hadith_siyra" onclick="quickHeaderPlay('hadith_siyra')" class="header-pop-ch-btn" style="--ch-c: #f59e0b;" title="إذاعة السيرة النبوية"><span style="font-size: 14px;">🕌</span><span>السيرة</span></button>
+        <button type="button" id="hdr-ch-hadith_sahabah" onclick="quickHeaderPlay('hadith_sahabah')" class="header-pop-ch-btn" style="--ch-c: #38bdf8;" title="إذاعة صور من حياة الصحابة"><span style="font-size: 14px;">👥</span><span>الصحابة</span></button>
     </div>
-
-    <!-- Volume & Stop Controls -->
-    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
         <div style="display: flex; align-items: center; gap: 7px;">
-            <span style="font-size: 14px; color: #94a3b8;">🔊</span>
-            <input id="header-media-vol" type="range" min="0" max="1" step="0.05" value="1" oninput="setHeaderMediaVolume(this.value)" style="width: 85px; height: 5px; accent-color: #f59e0b; cursor: pointer;">
+            <span style="font-size: 14px; color: #34d399;">🔊</span>
+            <input id="header-media-vol" type="range" min="0" max="1" step="0.05" value="0.35" oninput="setHeaderMediaVolume(this.value)" style="width: 105px; height: 5px; accent-color: #f59e0b; cursor: pointer;">
         </div>
-        <button type="button" onclick="quickHeaderStop(event)" style="background: rgba(225, 29, 72, 0.35); border: 1.5px solid rgba(244, 63, 94, 0.6); color: #ffffff; padding: 5px 12px; border-radius: 9px; font-size: 12px; font-weight: 900; cursor: pointer; transition: 0.2s;" title="إيقاف البث تماماً">⏹️ إيقاف</button>
-    </div>
-
-    <!-- Companion Window & Full Studio Links -->
-    <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 2px;">
-        <button type="button" onclick="openBackgroundPopout()" style="width: 100%; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; border-radius: 9px; padding: 6px 10px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: 0.2s;" title="تشغيل في نافذة منفصلة مستقلة تماماً بدون أي انقطاع">
-            <span>🗗</span>
-            <span>تشغيل بنافذة مستقلة (صفر انقطاع نهائياً)</span>
-        </button>
-        <a href="engineering_tools.php?tab=quran_mp3" style="display: block; text-align: center; font-size: 11.5px; font-weight: 900; color: #a78bfa; text-decoration: none; padding-top: 2px;" class="hover:underline">
-            📖 استوديو القرآن الكريم والشاشات الكاملة ↗
-        </a>
+        <button type="button" onclick="quickHeaderStop(event)" style="background: rgba(225, 29, 72, 0.35); border: 1.5px solid rgba(244, 63, 94, 0.6); color: #ffffff; padding: 5px 12px; border-radius: 9px; font-size: 12px; font-weight: 900; cursor: pointer;" title="إيقاف البث تماماً">⏹️ إيقاف</button>
     </div>
 </div>
+<?php
+$_hdrCurPage = strtolower(basename($_SERVER['PHP_SELF'] ?? ''));
+$_hdrAllowedChartPages = [
+    'magaiees_unified_dashboard.php','index.php','dashboard.php',
+    'inventory-report.php','inventory-movement.php','item-ledger.php','warehouse-ledger.php',
+    'inventory-summary.php','inventory-analytics.php','inventory-stocktake.php','inventory-adjustment.php',
+    'inv_rep15_valuation.php','inv_rep17_shrinkage.php','smart_inventory_report.php','ai_goods_advisor.php',
+    'analytics.php','general-ledger.php','mainbalances-report.php','journal.php','trial-balance.php',
+    'balance-sheet.php','pl-statement.php','cashflow_modern.php','aging-report.php',
+    'commercial-reports-suite.php','distributive-reports.php','visual-analytics.php',
+    'credit_concentration.php','financial-reports.php','account-statement.php'
+];
+if (in_array($_hdrCurPage, $_hdrAllowedChartPages, true)):
+?>
 <script src="js/auto-charts-domains-2027.js?v=<?php echo file_exists(__DIR__ . '/../js/auto-charts-domains-2027.js') ? filemtime(__DIR__ . '/../js/auto-charts-domains-2027.js') : '2027'; ?>" defer></script>
+<script src="js/hybrid-exchange-charts-2027.js?v=<?php echo file_exists(__DIR__ . '/../js/hybrid-exchange-charts-2027.js') ? filemtime(__DIR__ . '/../js/hybrid-exchange-charts-2027.js') : '2027'; ?>" defer></script>
 <script src="js/auto-charts.js?v=<?php echo file_exists(__DIR__ . '/../js/auto-charts.js') ? filemtime(__DIR__ . '/../js/auto-charts.js') : '2027'; ?>" defer></script>
+<?php endif; ?>
 <?php if (basename($_SERVER['PHP_SELF'] ?? '') === 'engineering_tools.php'): ?>
 <script src="js/quran_reciters_data.js?v=<?php echo file_exists(__DIR__ . '/../js/quran_reciters_data.js') ? filemtime(__DIR__ . '/../js/quran_reciters_data.js') : '2027'; ?>" defer></script>
 <?php endif; ?>
@@ -1270,7 +1188,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var bgmVer = "<?php echo file_exists(__DIR__ . '/../js/global_background_media.js') ? filemtime(__DIR__ . '/../js/global_background_media.js') : '2027'; ?>";
     var bgmLoaded = false, bgmQueue = [];
     window.ensureGlobalBgMedia = function(cb) {
-        if (bgmLoaded && typeof window.quickHeaderPlay === 'function') { if (cb) cb(); return; }
+        if (bgmLoaded) { if (cb) cb(); return; }
         if (cb) bgmQueue.push(cb);
         if (document.querySelector('script[data-lazy-bgm="1"]')) return;
         var s = document.createElement('script');
@@ -1283,12 +1201,44 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         document.body.appendChild(s);
     };
+    // Instant 0ms Popover Opener so clicking 📻 الإذاعة opens immediately on every screen including index.php
+    window.toggleHeaderMediaPopover = function(e) {
+        if (e && e.stopPropagation) e.stopPropagation();
+        var pop = document.getElementById('header-media-popover');
+        var bd = document.getElementById('header-media-backdrop');
+        if (!pop) return;
+        if (pop.parentElement !== document.body) document.body.appendChild(pop);
+        if (bd && bd.parentElement !== document.body) document.body.appendChild(bd);
+        var isVis = pop.style.display === 'block';
+        if (isVis) {
+            pop.style.display = 'none';
+            if (bd) bd.style.display = 'none';
+            return;
+        }
+        var btn = document.getElementById('header-media-btn');
+        var r = btn ? btn.getBoundingClientRect() : { bottom: 72, left: 20 };
+        pop.style.position = 'fixed';
+        pop.style.top = Math.max(8, Math.round(r.bottom + 8)) + 'px';
+        pop.style.left = Math.max(10, Math.min(window.innerWidth - 360, Math.round(r.left))) + 'px';
+        pop.style.zIndex = '2147483646';
+        pop.style.display = 'block';
+        if (bd) { bd.style.position = 'fixed'; bd.style.inset = '0'; bd.style.zIndex = '2147483645'; bd.style.display = 'block'; }
+        window.ensureGlobalBgMedia();
+    };
+    window.closeHeaderMediaPopover = function(e) {
+        if (e && e.stopPropagation) e.stopPropagation();
+        var pop = document.getElementById('header-media-popover');
+        var bd = document.getElementById('header-media-backdrop');
+        if (pop) pop.style.display = 'none';
+        if (bd) bd.style.display = 'none';
+    };
     ['quickHeaderPlay','setHeaderMediaVolume','quickHeaderStop','openBackgroundPopout','toggleHeaderMediaDropdown','playPersistentMedia'].forEach(function(fn){
         if (typeof window[fn] !== 'function') {
-            window[fn] = function() {
+            var stub = function() {
                 var args = arguments;
-                window.ensureGlobalBgMedia(function(){ if (typeof window[fn] === 'function') window[fn].apply(window, args); });
+                window.ensureGlobalBgMedia(function(){ if (typeof window[fn] === 'function' && window[fn] !== stub) window[fn].apply(window, args); });
             };
+            window[fn] = stub;
         }
     });
     try {
@@ -1302,21 +1252,33 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="js/md-delayed-tooltips.js?v=<?php echo file_exists(__DIR__ . '/../js/md-delayed-tooltips.js') ? filemtime(__DIR__ . '/../js/md-delayed-tooltips.js') : time(); ?>" defer></script>
 <script>
 (function(){
-    var guideLoaded = false, guideVer = "<?php echo file_exists(__DIR__ . '/../js/magaies-smart-guide.js') ? filemtime(__DIR__ . '/../js/magaies-smart-guide.js') : '2027'; ?>";
+    var guideLoaded = false, guideLoading = false, guideQueue = [], guideVer = "<?php echo file_exists(__DIR__ . '/../js/magaies-smart-guide.js') ? filemtime(__DIR__ . '/../js/magaies-smart-guide.js') : '2027'; ?>";
     window.loadMagaiesSmartGuide = function(cb) {
-        if (guideLoaded) { if (cb) cb(); return; }
-        guideLoaded = true;
+        if (guideLoaded && (window.openSmartGuide || window.showUnifiedDoubleRightClickCard)) { if (cb) cb(); return; }
+        if (cb) guideQueue.push(cb);
+        if (guideLoading) return;
+        guideLoading = true;
         var s = document.createElement('script');
         s.src = 'js/magaies-smart-guide.js?v=' + guideVer;
-        s.onload = function() { if (cb) cb(); };
+        s.onload = function() {
+            guideLoaded = true; guideLoading = false;
+            var q = guideQueue.splice(0);
+            for (var i = 0; i < q.length; i++) { try { q[i](); } catch(_) {} }
+        };
+        s.onerror = function() { guideLoading = false; };
         document.body.appendChild(s);
     };
-    window.addEventListener('keydown', function(e) { if (e.key === 'F1') { e.preventDefault(); window.loadMagaiesSmartGuide(); } });
-    window.addEventListener('contextmenu', function() { window.loadMagaiesSmartGuide(); }, { once: true, passive: true });
+    window.addEventListener('keydown', function(e) {
+        if (e.key === 'F1') {
+            e.preventDefault();
+            window.loadMagaiesSmartGuide(function(){ if (window.openSmartGuide) window.openSmartGuide(); });
+        }
+    });
 })();
 </script>
 <script src="js/magaiees-royal-buttons.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees-royal-buttons.js') ? filemtime(__DIR__ . '/../js/magaiees-royal-buttons.js') : time(); ?>" defer></script>
 <script src="js/auto-header-scroll.js?v=<?php echo file_exists(__DIR__ . '/../js/auto-header-scroll.js') ? filemtime(__DIR__ . '/../js/auto-header-scroll.js') : time(); ?>" defer></script>
+<script src="js/magaies-live-tasks-board.js?v=20261126" defer></script>
 <script src="js/magaies-guardian-vault.js?v=<?php echo file_exists(__DIR__ . '/../js/magaies-guardian-vault.js') ? filemtime(__DIR__ . '/../js/magaies-guardian-vault.js') : '2027'; ?>" defer></script>
 
 
@@ -1517,6 +1479,10 @@ function ensureMaster7OverrideLast() {
     }
     if (grnSt && document.body && document.body.lastElementChild !== grnSt) {
         document.body.appendChild(grnSt);
+    }
+    var zeroLagEl = document.getElementById('global-zero-lag-css');
+    if (zeroLagEl && document.body && document.body.lastElementChild !== zeroLagEl) {
+        document.body.appendChild(zeroLagEl);
     }
 }
 if (document.readyState === 'loading') {
@@ -1721,10 +1687,20 @@ try {
             }
             $_hdrSyncSig = md5(count($_hdrSyncCustomers) . ':' . count($_hdrSyncBanks) . ':' . count($_hdrSyncReceipts) . ':' . implode(',', array_keys($_hdrSyncReceipts)));
         } else {
-            $stmtSig = $pdo->prepare("SELECT (SELECT COUNT(*) FROM customers WHERE tenant_id = ? AND COALESCE(is_deleted,0)=0) AS cc, (SELECT COUNT(*) FROM banks WHERE tenant_id = ? AND COALESCE(is_deleted,0)=0) AS bc, (SELECT COUNT(*) FROM receipts WHERE tenant_id = ? AND COALESCE(is_deleted,0)=0) AS rc, (SELECT COALESCE(MAX(id),0) FROM receipts WHERE tenant_id = ?) AS rmax");
-            $stmtSig->execute([$_hdrTid, $_hdrTid, $_hdrTid, $_hdrTid]);
-            $sigRow = $stmtSig->fetch(PDO::FETCH_ASSOC) ?: [];
-            $_hdrSyncSig = md5(($sigRow['cc'] ?? 0) . ':' . ($sigRow['bc'] ?? 0) . ':' . ($sigRow['rc'] ?? 0) . ':' . ($sigRow['rmax'] ?? 0));
+            $_sessSigKey = 'erp_hdr_sig_' . $_hdrTid;
+            $_sessSigTsKey = 'erp_hdr_sig_ts_' . $_hdrTid;
+            if (session_status() === PHP_SESSION_ACTIVE && !empty($_SESSION[$_sessSigKey]) && (time() - (int)($_SESSION[$_sessSigTsKey] ?? 0)) < 45) {
+                $_hdrSyncSig = $_SESSION[$_sessSigKey];
+            } else {
+                $stmtSig = $pdo->prepare("SELECT (SELECT COUNT(*) FROM customers WHERE tenant_id = ? AND COALESCE(is_deleted,0)=0) AS cc, (SELECT COUNT(*) FROM banks WHERE tenant_id = ? AND COALESCE(is_deleted,0)=0) AS bc, (SELECT COUNT(*) FROM receipts WHERE tenant_id = ? AND COALESCE(is_deleted,0)=0) AS rc, (SELECT COALESCE(MAX(id),0) FROM receipts WHERE tenant_id = ?) AS rmax");
+                $stmtSig->execute([$_hdrTid, $_hdrTid, $_hdrTid, $_hdrTid]);
+                $sigRow = $stmtSig->fetch(PDO::FETCH_ASSOC) ?: [];
+                $_hdrSyncSig = md5(($sigRow['cc'] ?? 0) . ':' . ($sigRow['bc'] ?? 0) . ':' . ($sigRow['rc'] ?? 0) . ':' . ($sigRow['rmax'] ?? 0));
+                if (session_status() === PHP_SESSION_ACTIVE) {
+                    $_SESSION[$_sessSigKey] = $_hdrSyncSig;
+                    $_SESSION[$_sessSigTsKey] = time();
+                }
+            }
         }
     }
 } catch (Throwable $_eSync) {}
@@ -2014,11 +1990,11 @@ try {
         }
         if (/account-statement\.php/i.test(window.location.pathname)) {
             runRebuild();
-        } else if (needsSync) {
+        } else if (needsSync && /general-ledger|preview-ledger|mainbalances-report/i.test(window.location.pathname)) {
             if (typeof window.requestIdleCallback === 'function') {
-                window.requestIdleCallback(runRebuild, { timeout: 400 });
+                window.requestIdleCallback(runRebuild, { timeout: 600 });
             } else {
-                setTimeout(runRebuild, 80);
+                setTimeout(runRebuild, 120);
             }
         }
                 if (!window.__magaiesUniversalPermGuard) {

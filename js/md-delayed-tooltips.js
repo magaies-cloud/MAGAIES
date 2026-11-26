@@ -943,10 +943,29 @@
 
     function triggerExplanationChoice(target, mode) {
         hideRcMenu();
+        if (mode === 'guide') {
+            if (typeof window.loadMagaiesSmartGuide === 'function') {
+                window.loadMagaiesSmartGuide(() => { if (typeof window.openSmartGuide === 'function') window.openSmartGuide(); });
+            } else if (typeof window.openSmartGuide === 'function') {
+                window.openSmartGuide();
+            }
+            return;
+        }
         if (!target) return;
-        const handled = window.__mdHandleUnifiedHumanExplain(null, target, mode);
-        if (!handled && typeof window.showUnifiedDoubleRightClickCard === 'function') {
-            window.showUnifiedDoubleRightClickCard({ type: 'manual_choice', target }, target, mode);
+        const openFullProfessorCard = () => {
+            if (typeof window.showUnifiedDoubleRightClickCard === 'function') {
+                window.__msgAiDegree = 'ai_5';
+                window.showUnifiedDoubleRightClickCard({ type: 'manual_choice', target }, target, mode);
+                return true;
+            }
+            return window.__mdHandleUnifiedHumanExplain(null, target, mode);
+        };
+        if (typeof window.showUnifiedDoubleRightClickCard === 'function') {
+            openFullProfessorCard();
+        } else if (typeof window.loadMagaiesSmartGuide === 'function') {
+            window.loadMagaiesSmartGuide(openFullProfessorCard);
+        } else {
+            window.__mdHandleUnifiedHumanExplain(null, target, mode);
         }
     }
 
@@ -976,7 +995,7 @@
         const hasDirectTip = !!resolveTipForElement(raw);
         const explainableTarget = hasDirectTip
             ? raw
-            : raw.closest('button, a, input, select, textarea, th, label, .filter-group, .pro-field-card, .input-group, .form-group, .kpi-card, .stat-card, .fin-metric-pill, .gl-summary-strip > div, [onclick], [data-md-tip], [data-col-id]');
+            : raw.closest('button, a, input, select, textarea, th, label, .filter-group, .pro-field-card, .input-group, .form-group, .kpi-card, .stat-card, .fin-metric-pill, .gl-summary-strip > div, [onclick], [data-md-tip], [data-col-id], [data-rc-invoice-no], [data-rc-account-name], #sl-lbl-inv-no, #sl-lbl-party-name');
 
         if (!explainableTarget) return;
 
@@ -1075,16 +1094,31 @@
             '</div>'
         ) : '';
 
+        const invAttrEl = raw.closest('[data-rc-invoice-no]') || (raw.id === 'sl-lbl-inv-no' ? raw : null);
+        let rcInvNo = invAttrEl ? String(invAttrEl.getAttribute('data-rc-invoice-no') || invAttrEl.textContent || '').replace(/^#/, '').trim() : '';
+        if (!rcInvNo || rcInvNo === '---') {
+            const mInv = String((raw.innerText || raw.textContent || '').trim()).match(/^#?([PS]\d{5,})$/i);
+            if (mInv) rcInvNo = mInv[1];
+        }
+        const rcInvMode = (invAttrEl && invAttrEl.getAttribute('data-rc-invoice-mode')) || (/^S/i.test(rcInvNo) ? 'sales' : 'purchases');
+        const rcInvHtml = (rcInvNo && rcInvNo !== '---') ? (
+            '<div style="border-top:1px solid ' + divBdr + ';margin:5px 0 6px;padding-top:6px;">' +
+                '<button type="button" id="rc-goto-orig-invoice" data-inv="' + escRc(rcInvNo) + '" data-mode="' + escRc(rcInvMode) + '" style="width:100%;display:flex;align-items:center;justify-content:center;gap:7px;padding:8px 10px;border-radius:8px;border:1.8px solid ' + (isLight ? '#b45309' : '#fbbf24') + ';background:linear-gradient(135deg,#d97706,#b45309);color:#ffffff;font-family:inherit;font-size:12.5px;font-weight:900;cursor:pointer;box-shadow:0 4px 12px rgba(217,119,6,0.35);"><span>📄</span><span>الذهاب إلى أصل الفاتورة (#' + escRc(rcInvNo) + ')</span></button>' +
+            '</div>'
+        ) : '';
+
         m.style.minWidth = '272px';
         m.style.background = isLight ? 'var(--lt-card-1, #ffffff)' : 'linear-gradient(165deg,#0f1d3a 0%,#060c1d 100%)';
         m.style.border = isLight ? '2.5px solid var(--lt-border, #3b1806)' : '1.8px solid rgba(56,189,248,0.65)';
         m.style.boxShadow = isLight ? '0 14px 34px rgba(0,0,0,0.26)' : '0 18px 42px rgba(0,0,0,0.82)';
         m.innerHTML =
-            '<div style="padding:3px 10px 5px;font-size:11.5px;font-weight:900;color:' + fgTxt + ';border-bottom:1px solid ' + divBdr + ';margin-bottom:5px;display:flex;align-items:center;justify-content:space-between;"><span>💡 الشرح الذكي</span><span style="font-size:10px;color:' + accTxt + ';">أولاً</span></div>' +
-            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:6px;">' +
-                '<button type="button" data-rc-act="audio" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 8px;border:1.8px solid ' + (isLight ? '#0284c7' : 'rgba(56,189,248,0.4)') + ';border-radius:8px;background:' + (isLight ? '#e0f2fe' : 'rgba(56,189,248,0.14)') + ';color:' + (isLight ? '#000000' : '#ffffff') + ';font-family:inherit;font-size:12.5px;font-weight:900;cursor:pointer;"><span>🔊</span><span>شرح صوتي</span></button>' +
-                '<button type="button" data-rc-act="text" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 8px;border:1.8px solid ' + (isLight ? '#b45309' : 'rgba(250,204,21,0.4)') + ';border-radius:8px;background:' + (isLight ? '#fef3c7' : 'rgba(250,204,21,0.14)') + ';color:' + (isLight ? '#000000' : '#fde047') + ';font-family:inherit;font-size:12.5px;font-weight:900;cursor:pointer;"><span>📖</span><span>شرح كتابي</span></button>' +
+            '<div style="padding:3px 10px 5px;font-size:11.5px;font-weight:900;color:' + fgTxt + ';border-bottom:1px solid ' + divBdr + ';margin-bottom:5px;display:flex;align-items:center;justify-content:space-between;"><span>🎓 شرح البروفيسور الموسوعي 360°</span><span style="font-size:10px;color:' + accTxt + ';">عند الطلب</span></div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:5px;">' +
+                '<button type="button" data-rc-act="audio" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 8px;border:1.8px solid ' + (isLight ? '#0284c7' : 'rgba(56,189,248,0.4)') + ';border-radius:8px;background:' + (isLight ? '#e0f2fe' : 'rgba(56,189,248,0.14)') + ';color:' + (isLight ? '#000000' : '#ffffff') + ';font-family:inherit;font-size:12.5px;font-weight:900;cursor:pointer;"><span>🔊</span><span>شرح صوتي كامل</span></button>' +
+                '<button type="button" data-rc-act="text" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 8px;border:1.8px solid ' + (isLight ? '#b45309' : 'rgba(250,204,21,0.4)') + ';border-radius:8px;background:' + (isLight ? '#fef3c7' : 'rgba(250,204,21,0.14)') + ';color:' + (isLight ? '#000000' : '#fde047') + ';font-family:inherit;font-size:12.5px;font-weight:900;cursor:pointer;"><span>📖</span><span>شرح كتابي كامل</span></button>' +
             '</div>' +
+            '<button type="button" data-rc-act="guide" style="width:100%;display:flex;align-items:center;justify-content:center;gap:7px;padding:7px 10px;margin-bottom:6px;border-radius:8px;border:1.8px solid ' + (isLight ? '#6d28d9' : '#a78bfa') + ';background:' + (isLight ? '#ede9fe' : 'rgba(139,92,246,0.18)') + ';color:' + (isLight ? '#1e1b4b' : '#ede9fe') + ';font-family:inherit;font-size:12px;font-weight:900;cursor:pointer;"><span>🎓</span><span>المرشد الذكي التفاعلي لكامل الشاشة</span></button>' +
+            rcInvHtml +
             rcAccHtml +
             (screenBtnTarget
                 ? '<div style="padding:5px 10px;font-size:12px;font-weight:900;color:' + accTxt + ';border-top:1px solid ' + divBdr + ';border-bottom:1px solid ' + divBdr + ';margin:4px 0 6px;display:flex;justify-content:space-between;align-items:center;"><span>🖥️ أبعاد الشاشة (عرض وامتداد طولي)</span><button type="button" id="rc-scr-reset" style="padding:1px 7px;border-radius:5px;border:1.5px solid #64748b;background:' + btnBg + ';color:' + fgTxt + ';font-size:10.5px;font-weight:900;cursor:pointer;">↺ 100%</button></div>' +
@@ -1224,6 +1258,19 @@
                 if (ph && navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(ph);
                 cpPhBtn.textContent = '✅ تم';
                 if (typeof window.showToast === 'function') window.showToast('📋 تم نسخ رقم الهاتف: ' + ph, 'success', 1800);
+            };
+        }
+        const origInvBtn = m.querySelector('#rc-goto-orig-invoice');
+        if (origInvBtn) {
+            origInvBtn.onclick = (ev) => {
+                ev.preventDefault(); ev.stopPropagation();
+                const invNo = origInvBtn.getAttribute('data-inv') || '';
+                const mode = origInvBtn.getAttribute('data-mode') || 'purchases';
+                hideRcMenu();
+                if (invNo) {
+                    const targetUrl = (mode === 'sales' ? 'direct-sales.php' : 'purchase.php') + '?id=' + encodeURIComponent(invNo);
+                    window.location.href = targetUrl;
+                }
             };
         }
         m.querySelectorAll('button[data-rc-act]').forEach(btn => {

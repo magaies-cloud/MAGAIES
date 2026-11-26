@@ -588,7 +588,7 @@
             loadHubTransactions();
         }
 
-        function editHubTransaction(invNo) {
+        async function editHubTransaction(invNo) {
             try {
                 let allSales = [];
                 try { allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []; } catch(e) {}
@@ -607,7 +607,10 @@
                     showToast('🔒 الفاتورة مرحلة محاسبياً في دفتر الأستاذ - وضع المعاينة فقط (ممنوع التعديل نهائياً)', 'warning', 6000);
                 } else if (inv) {
                     // Saved unposted invoice: Ask user if they want to edit
-                    wantsToEdit = confirm('⚠️ تنبيه:\n\nهذه الفاتورة (رقم: ' + invNo + ') تم حفظها مسبقاً في النظام.\n\nهل تريد تعديل بيانات هذه الفاتورة؟\n\n- اضغط [موافق / OK] لفتح الفاتورة وتعديلها\n- اضغط [إلغاء / Cancel] للمعاينة والقراءة فقط بدون تعديل');
+                    const editPromptMsg = `هذه الفاتورة (رقم: ${invNo}) تم حفظها مسبقاً في النظام.\nهل تريد فتحها للتعديل أم للمعاينة والقراءة فقط؟`;
+                    wantsToEdit = typeof window.showCenteredConfirmModal === 'function'
+                        ? await window.showCenteredConfirmModal({ title: 'فتح فاتورة محفوظة', badge: 'اختر وضع الفتح', icon: '📄', tone: 'sky', message: editPromptMsg, confirmText: '✏️ فتح للتعديل', cancelText: '👁️ معاينة فقط' })
+                        : confirm('⚠️ تنبيه:\n\nهذه الفاتورة (رقم: ' + invNo + ') تم حفظها مسبقاً في النظام.\n\nهل تريد تعديل بيانات هذه الفاتورة؟');
                     if (!wantsToEdit) {
                         showToast('👁️ وضع المعاينة فقط - الحقول مغلقة ضد التعديل', 'info', 4000);
                     }

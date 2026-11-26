@@ -66,31 +66,29 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
         table.excel-table.theme-luxury-black tbody tr:nth-child(odd) { background: #ffffff !important; }
         table.excel-table.theme-luxury-black tfoot td { background: #171717 !important; color: #f5f5f5 !important; font-weight: 900 !important; border-color: #000000 !important; }
         
-        /* ── Magnified Number Audit Effect (Clear Non-Overlapping Audit Box) ── */
+        /* ── Magnified Number Audit Effect (High-Contrast Enlarged Audit Highlight) ── */
         .excel-table tbody td.num-magnified, .excel-table td.num-magnified, td.num-magnified,
         :root.light-theme .excel-table tbody td.num-magnified, :root.light-theme .excel-table td.num-magnified {
-            font-size: 1.26rem !important;
             font-weight: 900 !important;
             font-variant-numeric: tabular-nums !important;
-            background: #fef08a !important;
-            background-color: #fef08a !important;
-            color: #0f172a !important;
-            border-radius: 4px !important;
-            box-shadow: inset 0 0 0 2px #eab308 !important;
+            background: #0f172a !important;
+            background-color: #0f172a !important;
+            color: #fde047 !important;
+            -webkit-text-fill-color: #fde047 !important;
+            border-radius: 6px !important;
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.45), inset 0 0 0 2.5px #f59e0b !important;
             text-shadow: none !important;
-            padding: 3px 6px !important;
+            padding: 3px 7px !important;
             white-space: nowrap !important;
-            display: table-cell !important;
-            box-sizing: border-box !important;
-            letter-spacing: 0 !important;
-            transform: none !important;
-            line-height: 1.2 !important;
+            overflow: visible !important;
+            position: relative !important;
+            z-index: 25 !important;
             cursor: pointer !important;
-            transition: background 0.15s ease, font-size 0.15s ease !important;
+            transition: background 0.14s ease, font-size 0.14s ease, color 0.14s ease !important;
         }
         @media print {
             .excel-table tbody td.num-magnified, .excel-table td.num-magnified, td.num-magnified {
-                background: transparent !important; box-shadow: none !important; font-size: inherit !important; color: inherit !important;
+                background: transparent !important; box-shadow: none !important; font-size: inherit !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important;
             }
         }
 

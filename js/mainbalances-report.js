@@ -28,9 +28,9 @@ window.colConfigs = [
     { name: 'رقم الهاتف', alias: 'رقم الهاتف', id: 'phone', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
     { name: 'الرقم الضريبي', alias: 'الرقم الضريبي', id: 'taxNo', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
     { name: 'العملة', alias: 'العملة', id: 'currency', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
-    { name: 'عليه عملة', alias: 'عليه عملة', id: 'debitF', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+    { name: 'لنا عملة', alias: 'لنا عملة', id: 'debitF', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
     { name: 'له عملة', alias: 'له عملة', id: 'creditF', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
-    { name: 'عليه', alias: 'عليه', id: 'debit', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+    { name: 'لنا', alias: 'لنا', id: 'debit', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
     { name: 'له', alias: 'له', id: 'credit', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
     { name: 'ملحوظة', alias: 'ملحوظة', id: 'note', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'right' }
 ];
@@ -165,13 +165,29 @@ function applyLayoutToDOM() {
     }
 }
 
+function normalizeMbColLabels(configs) {
+    if (!Array.isArray(configs)) return configs;
+    configs.forEach(c => {
+        if (!c) return;
+        if (c.id === 'debitF' || c.name === 'عليه عملة') {
+            if (c.name === 'عليه عملة') c.name = 'لنا عملة';
+            if (c.alias === 'عليه عملة') c.alias = 'لنا عملة';
+        }
+        if (c.id === 'debit' || c.name === 'عليه') {
+            if (c.name === 'عليه') c.name = 'لنا';
+            if (c.alias === 'عليه') c.alias = 'لنا';
+        }
+    });
+    return configs;
+}
+
 function loadLayout() {
     try {
         const master1 = localStorage.getItem('mainbalances_report_master_v4_default1');
         if (master1) {
             const parsed = JSON.parse(master1);
             if (parsed && parsed.colConfigs && parsed.colOrder) {
-                window.colConfigs = parsed.colConfigs;
+                window.colConfigs = normalizeMbColLabels(parsed.colConfigs);
                 window.colOrder = parsed.colOrder;
                 if (parsed.currentTableTheme !== undefined) window.currentTableTheme = parsed.currentTableTheme;
                 if (parsed.currentNumFont !== undefined) window.currentNumFont = parsed.currentNumFont;
@@ -181,7 +197,7 @@ function loadLayout() {
             const settings = JSON.parse(settingsStr);
             const layout = settings.mainbalancesReportLayout;
             if (layout && layout.colConfigs && layout.colOrder) {
-                window.colConfigs = layout.colConfigs;
+                window.colConfigs = normalizeMbColLabels(layout.colConfigs);
                 window.colOrder = layout.colOrder;
                 if (layout.currentTableTheme !== undefined) window.currentTableTheme = layout.currentTableTheme;
                 if (layout.currentNumFont !== undefined) window.currentNumFont = layout.currentNumFont;
@@ -200,7 +216,7 @@ function loadLayout() {
             if (data && data.success && data.layout) {
                 const dbLayout = data.layout;
                 if (dbLayout.colConfigs && dbLayout.colOrder && dbLayout.colOrder.length === 9) {
-                    window.colConfigs = dbLayout.colConfigs;
+                    window.colConfigs = normalizeMbColLabels(dbLayout.colConfigs);
                     window.colOrder = dbLayout.colOrder;
                     if (dbLayout.currentTableTheme !== undefined) {
                         window.currentTableTheme = dbLayout.currentTableTheme;
@@ -4161,9 +4177,9 @@ function resetColumnConfig() {
         { name: 'رقم الهاتف', alias: 'رقم الهاتف', id: 'phone', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
         { name: 'الرقم الضريبي', alias: 'الرقم الضريبي', id: 'taxNo', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
         { name: 'العملة', alias: 'العملة', id: 'currency', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
-        { name: 'عليه عملة', alias: 'عليه عملة', id: 'debitF', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+        { name: 'لنا عملة', alias: 'لنا عملة', id: 'debitF', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
         { name: 'له عملة', alias: 'له عملة', id: 'creditF', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
-        { name: 'عليه', alias: 'عليه', id: 'debit', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
+        { name: 'لنا', alias: 'لنا', id: 'debit', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
         { name: 'له', alias: 'له', id: 'credit', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'center' },
         { name: 'ملحوظة', alias: 'ملحوظة', id: 'note', bold: false, fs: 1.0, size: '1rem', decimals: 2, dec: 2, color: '', bg: '', visible: true, align: 'right' }
     ];

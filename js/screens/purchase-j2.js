@@ -573,7 +573,7 @@
 
     window.autoFitSingleInput = function(el, maxPx, minPx) {
         try {
-            if (!el) return;
+            if (!el || (el.classList && el.classList.contains('dynamic-focus-input'))) return;
             const val = (el.value !== undefined ? String(el.value) : (el.textContent || '')).trim();
             const isPaymentBig = (el.id === 'pay-cash-amount');
             const isCreditAmt = (el.id === 'pay-credit-amount');

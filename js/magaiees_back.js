@@ -365,8 +365,13 @@
 
         let existingBtn = document.getElementById('magaiees-master-back-btn');
         if (!existingBtn) {
+            const slot = document.getElementById('magaies-quartet-header-slot');
             const header = document.querySelector('header.premium-header, .magical-glass-header');
-            if (header) {
+            if (slot) {
+                const btn = createBackButtonElement();
+                slot.appendChild(btn);
+                existingBtn = btn;
+            } else if (header) {
                 let controlsWrap = header.querySelector('.header-controls, div[style*="justify-content:flex-end"], div[style*="justify-content: flex-end"]');
                 if (controlsWrap) {
                     const btn = createBackButtonElement();
@@ -430,27 +435,7 @@
 })();
 
 
-// 👑 AUTO-BOOTSTRAP UNIFIED ROYAL QUARTET (الرجوع للخلف • التلفاز • المرشد الذكي • اسألني بالمايك) ACROSS ALL SCREENS
-(function() {
-    const p = (window.location.pathname || '').toLowerCase();
-    if (p.endsWith('/login.php') || p.endsWith('/register.php') || p.endsWith('/index.php') || p.endsWith('/index.html') || p.endsWith('/magaees/') || p.endsWith('/magaees') || p.endsWith('/magaies/') || p.endsWith('/magaies')) {
-        return;
-    }
-    const mountScriptIfMissing = function(matchStr, srcPath) {
-        if (!document.querySelector('script[src*="' + matchStr + '"]')) {
-            const s = document.createElement('script');
-            s.src = srcPath;
-            s.defer = true;
-            if (document.head) {
-                document.head.appendChild(s);
-            } else {
-                document.addEventListener('DOMContentLoaded', () => document.head.appendChild(s));
-            }
-        }
-    };
-    mountScriptIfMissing('global_background_media', 'js/global_background_media.js?v=20261022_v23');
-    mountScriptIfMissing('magaies-smart-guide', 'js/magaies-smart-guide.js?v=20261112_rc_v4');
-})();
+// 👑 ROYAL QUARTET: global_background_media.js & magaies-smart-guide.js are lazy-loaded on demand by includes/header.php (0KB overhead on page load)
 
 // 🧭 UNIVERSAL LIFO NAVIGATION STACK & STATE PRESERVATION ENGINE (تسلسل زر رجوع خطوة بخطوة + زر خروج للرئيسية + حفظ الحالة 0ms)
 (function() {
@@ -463,14 +448,16 @@
         try {
             const allStates = JSON.parse(sessionStorage.getItem(STATE_KEY) || '{}');
             const inputs = {};
-            document.querySelectorAll('input[id]:not([type="password"]):not([type="file"]), select[id], textarea[id]').forEach(el => {
+            const els = document.querySelectorAll('input[id]:not([type="password"]):not([type="file"]):not([type="hidden"]), select[id], textarea[id]');
+            for (let i = 0; i < els.length && i < 120; i++) {
+                const el = els[i];
                 if (el.id) inputs[el.id] = (el.type === 'checkbox' || el.type === 'radio') ? el.checked : el.value;
-            });
+            }
             const edView = document.getElementById('purchase-editor-view') || document.getElementById('sales-editor-view');
             allStates[curPath] = {
                 ts: Date.now(),
                 scrollY: window.scrollY || 0,
-                inEditor: edView ? (window.getComputedStyle(edView).display !== 'none') : false,
+                inEditor: edView ? (edView.style.display !== 'none') : false,
                 inputs: inputs
             };
             sessionStorage.setItem(STATE_KEY, JSON.stringify(allStates));

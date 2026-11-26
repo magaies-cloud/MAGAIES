@@ -2659,11 +2659,57 @@ window.navigateToOriginalVoucher = function(type, ref) {
     }
 
     if (targetUrl) {
+        try {
+            const getTK = window.getTenantKey || ((k) => k);
+            const stores = ['erp_single_payments_v1', 'erp_single_receipts_v1'];
+            for (const sk of stores) {
+                const arr = JSON.parse(localStorage.getItem(getTK(sk)) || localStorage.getItem(sk) || '[]');
+                const hit = Array.isArray(arr) ? arr.find(x => x && (String(x.id) === cleanRef || String(x.voucherNo) === cleanRef)) : null;
+                if (hit) { localStorage.setItem('_fast_drilldown_voucher', JSON.stringify({ id: cleanRef, ts: Date.now(), voucher: hit })); break; }
+            }
+        } catch (_) {}
         if (typeof showToast === 'function') {
-            showToast(`🚀 جاري فتح أصل السند: ${cleanRef}`, 'info', 3000);
+            showToast(`🚀 جاري فتح أصل السند: ${cleanRef}`, 'info', 2000);
         }
         window.open(targetUrl, '_blank');
     }
+};
+
+window.togglePreviewCellMagnify = function(td) {
+    if (!td) return;
+    if (td.closest('#preview-table')) {
+        const isMag = td.classList.contains('num-magnified');
+        if (isMag) {
+            td.classList.remove('num-magnified');
+            if (td.dataset.origFs) td.style.setProperty('font-size', td.dataset.origFs, 'important');
+            else td.style.removeProperty('font-size');
+            if (td.dataset.origBg) td.style.setProperty('background-color', td.dataset.origBg, 'important');
+            else td.style.removeProperty('background-color');
+            if (td.dataset.origColor) td.style.setProperty('color', td.dataset.origColor, 'important');
+            else td.style.removeProperty('color');
+            td.style.removeProperty('-webkit-text-fill-color');
+            td.style.removeProperty('box-shadow');
+            td.style.removeProperty('z-index');
+            td.style.overflow = 'hidden';
+        } else {
+            const cs = window.getComputedStyle(td);
+            const curPx = parseFloat(cs.fontSize) || 18;
+            td.dataset.origFs = td.style.getPropertyValue('font-size') || (curPx + 'px');
+            td.dataset.origBg = td.style.getPropertyValue('background-color') || cs.backgroundColor || '';
+            td.dataset.origColor = td.style.getPropertyValue('color') || cs.color || '#000000';
+            const bigPx = Math.min(Math.max(curPx * 1.42, 24), 34);
+            td.classList.add('num-magnified');
+            td.style.setProperty('font-size', bigPx.toFixed(1) + 'px', 'important');
+            td.style.setProperty('background-color', '#0f172a', 'important');
+            td.style.setProperty('color', '#fde047', 'important');
+            td.style.setProperty('-webkit-text-fill-color', '#fde047', 'important');
+            td.style.setProperty('box-shadow', '0 4px 14px rgba(15,23,42,0.45), inset 0 0 0 2.5px #f59e0b', 'important');
+            td.style.setProperty('overflow', 'visible', 'important');
+            td.style.setProperty('z-index', '25', 'important');
+        }
+        return;
+    }
+    td.classList.toggle('num-magnified');
 };
 
 /* ── Single Click Number Magnification & Global Click Handler ── */
@@ -2674,11 +2720,14 @@ document.addEventListener('click', function(e) {
         menu.style.display = 'none';
     }
 
+    if (e.target.closest('a, button, strong[onclick], input, select')) return;
     const td = e.target.closest('#recent-table td, #preview-table td, .pos-grid td, .excel-table td');
     if (!td) return;
-    const isNum = td.dataset.isNum === 'true' || td.classList.contains('num-cell') || /^[-+]?[\d,\.]+\%?$/.test(td.innerText.trim());
+    const txt = (td.innerText || '').trim();
+    if (!txt || txt === '-') return;
+    const isNum = td.dataset.isNum === 'true' || td.classList.contains('num-cell') || /^[-+(]?[\d,\.\s]+\)?%?$/.test(txt);
     if (isNum) {
-        td.classList.toggle('num-magnified');
+        window.togglePreviewCellMagnify(td);
     }
 });
 

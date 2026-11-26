@@ -117,6 +117,22 @@ if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes
         font-size: 0.86rem;
         color: #94a3b8;
     }
+    html.light-theme .sr-hero, html.light-theme .sr-kpi-card, html.light-theme .sr-panel, html.light-theme .sr-card, html.light-theme .sr-table-wrap, html.light-theme .sr-filter-bar, html.light-theme .sr-sup-card {
+        background: linear-gradient(145deg, var(--lt-card-1, #fffdf8), var(--lt-card-2, #f1e4ce)) !important;
+        border: 2.2px solid var(--lt-border, #4a2106) !important;
+        color: #000000 !important;
+        box-shadow: 0 5px 16px rgba(15, 23, 42, 0.14) !important;
+    }
+    html.light-theme .sr-hero-text h1, html.light-theme .sr-hero-text p, html.light-theme .sr-master-wrap h2, html.light-theme .sr-master-wrap h3, html.light-theme .sr-master-wrap th, html.light-theme .sr-master-wrap td {
+        color: #000000 !important;
+        font-weight: 900 !important;
+    }
+    html.light-theme .sr-master-wrap input, html.light-theme .sr-master-wrap select {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 2px solid var(--lt-border, #4a2106) !important;
+        font-weight: 900 !important;
+    }
 
     .sr-actions-bar {
         display: flex;

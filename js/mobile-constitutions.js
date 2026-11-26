@@ -5006,25 +5006,8 @@
         const today = new Date().toISOString().slice(0, 10);
         const fingerprint = `${today}|${partner}|${amount}`;
 
-        try {
-          const map = JSON.parse(localStorage.getItem(DAILY_TX_GUARD_KEY) || '{}');
-          if (map[fingerprint] && btnEl.dataset.mgAllowDupOverride !== fingerprint) {
-            btnEl.dataset.mgAllowDupOverride = fingerprint;
-            if (window.MgConstitution4) {
-              window.MgConstitution4.showStandardToast(
-                'error',
-                `⛔ حارس منع التكرار: هذه الحركة للعميل (${partner}) بمبلغ (${Number(amount).toLocaleString('en-US')}) سُجلت اليوم قبل قليل برقم (${map[fingerprint].docNo})! اضغط حفظ مرة أخرى فقط إذا كنت متأكداً.`,
-                totalEl
-              );
-            }
-            return false;
-          }
-          map[fingerprint] = {
-            docNo: '#' + Math.floor(1000 + Math.random() * 9000),
-            time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
-          };
-          localStorage.setItem(DAILY_TX_GUARD_KEY, JSON.stringify(map));
-        } catch (e) {}
+        // تم إيقاف حارس التكرار المسبق قبل الحفظ لمنع الحظر الخاطئ عند عدم إتمام الحفظ الفعلي
+        try { localStorage.removeItem(DAILY_TX_GUARD_KEY); } catch (e) {}
         return true;
       },
 
@@ -5890,15 +5873,8 @@
         }
 
         const reg = this.getChequeRegistry();
-        const uniqueBankChequeKey = `${bank}_${chqNo}`;
-
-        // عند المرحلة (1) الإضافة للحافظة: منع تكرار رقم الشيك لنفس البنك نهائياً
-        if (stageNum === 1 && reg[uniqueBankChequeKey]) {
-          if (window.MgConstitution4) {
-            window.MgConstitution4.showStandardToast('error', `⛔ ممنوع: رقم الشيك (${chqNo}) مسجل مسبقاً على نفس البنك (${bank})!`, chqNoEl);
-          }
-          return;
-        }
+        const uniqueBankChequeKey = `${bank}_${chqNo}_${Date.now()}`;
+        // تكرار رقم الشيك مسموح في كامل النظام (حافظات الشيكات وكافة الشاشات)
 
         let entryText = '';
         if (stageNum === 1) {

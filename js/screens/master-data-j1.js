@@ -3234,16 +3234,8 @@
                 return;
             }
 
-            // قفل عدم تكرار رقم الشيك لنفس البنك (الإضافة المعتمدة رقم 2)
+            // تكرار رقم الشيك مسموح في كامل النظام
             var list = getMdC11Cheques();
-            var dup = list.find(function(c) {
-                return String(c.bankId) === String(bankId) && String(c.chequeNo).trim() === String(chequeNo).trim();
-            });
-            if (dup) {
-                if (noEl) shakeMdField(noEl);
-                showMdToast('🚫 قفل رقابة الشيكات (الدستور 11): رقم الشيك #' + chequeNo + ' مسجل مسبقاً على نفس البنك بحالة (' + dup.stage + ') — يُمنع التكرار منعاً باتاً!', 'error');
-                return;
-            }
 
             var db = (typeof getDb === 'function') ? getDb() : { banks: [], customers: [], suppliers: [] };
             var bankObj = (db.banks || []).find(function(b) { return String(b.id) === String(bankId); });
@@ -6411,11 +6403,7 @@
                 return;
             }
             var list = getFc2ChequesList();
-            if (list.some(function(c) { return String(c.num).toUpperCase() === num; })) {
-                window.logMdFc2ForensicEvent('RED', 'محاولة إدخال رقم شيك مكرر (' + num + ')', 'تم حظر التكرار فوراً');
-                window.notifyMdFc2UnifiedToast('🚨 مرفوض أمنياً: رقم الشيك (' + num + ') مسجل مسبقاً! يمنع تكرار رقم الشيك.', 'error', numEl);
-                return;
-            }
+            // تكرار رقم الشيك مسموح في كامل النظام
             list.unshift({ num: num, party: party, amount: amt, stage: 'في الحافظة (حساب وسيط)', due: new Date().toISOString().slice(0, 10) });
             try { localStorage.setItem(FC2_CHEQUES_KEY, JSON.stringify(list)); } catch (e) {}
             window.broadcastMdFc2AtomicSync('CHEQUE_ADDED', num, amt);

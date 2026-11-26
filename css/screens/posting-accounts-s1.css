@@ -309,3 +309,39 @@ body.pa-zero-header-100dvh header,body.pa-zero-header-100dvh .filters-wrapper{di
 body.pa-zero-header-100dvh .page-wrapper{padding:2px !important;height:100dvh !important}
 @media (orientation: landscape) and (max-height: 540px){header{display:none !important}
 .page-wrapper{padding:2px 6px !important}}}
+
+
+/* ═══ INBOUND DRAWER TWIN VISUAL DNA 2027 (CRISP ZERO-BLUR EDITION) ═══ */
+html, body { background: #060b16 !important; font-family: 'Cairo', 'Tajawal', sans-serif !important; min-height: 100vh !important; height: auto !important; overflow-y: auto !important; overflow-x: hidden !important; filter: none !important; zoom: 1 !important; }
+body.pa-mask-balances *, .amount-col, .val-local, .val-net { filter: none !important; }
+#pa-c13-idle-lock-overlay, #pa-c15-floating-rail, #pa-fc1-shortcut-bar { display: none !important; }
+.page-wrapper, #pa-proportional-root { display: flex !important; flex-direction: column !important; gap: 10px !important; padding: 6px 12px 18px !important; min-height: 100vh !important; height: auto !important; overflow: visible !important; transform: none !important; zoom: 1 !important; }
+.filters-wrapper.pa-inbound-twin-bar { padding: 10px 14px !important; border-radius: 12px !important; background: linear-gradient(90deg, #0f172a 0%, #1e293b 100%) !important; border: 1.8px solid rgba(56,189,248,0.55) !important; display: flex !important; flex-direction: column !important; gap: 8px !important; box-shadow: 0 8px 24px rgba(0,0,0,0.5) !important; animation: none !important; }
+.pa-twin-header-row { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 8px !important; flex-wrap: wrap !important; }
+.pa-twin-tabs-row { display: flex !important; align-items: center !important; justify-content: space-between !important; gap: 8px !important; flex-wrap: wrap !important; padding-top: 8px !important; border-top: 1px solid rgba(148,163,184,0.24) !important; }
+.type-chip { height: 34px !important; padding: 0 12px !important; border-radius: 8px !important; font-size: 0.86rem !important; font-weight: 900 !important; font-family: 'Cairo', 'Tajawal', sans-serif !important; background: #0b1222 !important; border: 1.5px solid rgba(148,163,184,0.35) !important; color: #e2e8f0 !important; box-shadow: none !important; gap: 6px !important; }
+.split-layout { display: flex !important; gap: 12px !important; min-height: calc(100vh - 215px) !important; height: auto !important; overflow: visible !important; align-items: stretch !important; }
+.master-pane { flex: 1 1 auto !important; width: 100% !important; min-height: 480px !important; background: linear-gradient(155deg, #0b1222 0%, #0f172a 60%, #060b16 100%) !important; border: 1.8px solid rgba(56,189,248,0.48) !important; border-radius: 12px !important; display: flex !important; flex-direction: column !important; overflow: hidden !important; opacity: 1 !important; visibility: visible !important; }
+.master-pane.shrunk { flex: 0 0 62% !important; width: 62% !important; }
+.detail-pane.expanded { flex: 0 0 37% !important; width: 37% !important; background: linear-gradient(155deg, #0b1222 0%, #0f172a 60%, #060b16 100%) !important; border: 1.8px solid rgba(56,189,248,0.48) !important; border-radius: 12px !important; opacity: 1 !important; visibility: visible !important; }
+.erp-table { display: table !important; width: 100% !important; border-collapse: collapse !important; }
+.erp-table thead { background: #090f1d !important; border-bottom: 2px solid rgba(56,189,248,0.45) !important; }
+.erp-table th { padding: 11px 12px !important; font-size: 0.88rem !important; font-weight: 900 !important; color: #fde047 !important; font-family: 'Cairo', 'Tajawal', sans-serif !important; white-space: nowrap !important; }
+.main-row td { padding: 10px 12px !important; font-size: 0.9rem !important; font-weight: 800 !important; color: #ffffff !important; border-bottom: 1px solid rgba(148,163,184,0.16) !important; font-variant-numeric: tabular-nums !important; }
+html.light-theme body { background: var(--lt-canvas, #f3ead8) !important; }
+html.light-theme .filters-wrapper.pa-inbound-twin-bar,
+html.light-theme .master-pane,
+html.light-theme .detail-pane.expanded { background: linear-gradient(150deg, #ffffff 0%, var(--lt-card-2, #f5ead6) 100%) !important; border: 2px solid var(--lt-border, #5c2808) !important; color: #0f172a !important; }
+html.light-theme .erp-table thead { background: var(--lt-sub-2, #efe4ce) !important; }
+html.light-theme .erp-table th { color: #120500 !important; }
+html.light-theme .main-row td { color: #0f172a !important; }
+
+/* ═══ ZERO-LAG 60FPS HARDWARE SMOOTHNESS OVERRIDE ═══ */
+html.has-sidebar body:not(.no-sidebar) { margin-right: var(--sb-collapsed, 62px) !important; width: auto !important; }
+.erp-table tbody:hover tr:not(:hover):not(.selected):not(.pa-cursor-active) { opacity: 1 !important; transition: none !important; }
+.main-row, .main-row:hover { transform: none !important; transition: background-color 0.08s ease !important; will-change: auto !important; }
+.main-row:hover { background: rgba(56,189,248,0.12) !important; outline: 1.5px solid rgba(56,189,248,0.45) !important; outline-offset: -1.5px !important; }
+button, .pa-dna-btn, .status-btn, .type-chip, .btn-post-batch, .btn-post-single, .modal-btn { will-change: auto !important; transition: background-color 0.1s ease, border-color 0.1s ease !important; }
+button:hover, .pa-dna-btn:hover, .type-chip:hover, .btn-post-batch:hover, .btn-post-single:hover, .modal-btn:hover { transform: none !important; box-shadow: none !important; }
+.master-pane, .detail-pane { transition: none !important; animation: none !important; }
+.table-scroll { contain: layout style; -webkit-overflow-scrolling: touch; }

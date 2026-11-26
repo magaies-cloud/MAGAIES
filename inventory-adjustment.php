@@ -898,7 +898,7 @@ $header_theme_class = "header-theme-inventory";
                         description: `قيد تسوية جردية معتمد رقم [${voucherId}] للمستودع (${targetWh}) — (${changedItems.length} أصناف)`,
                         totalDebit: absVal,
                         totalCredit: absVal,
-                        isPosted: true,
+                        isPosted: (window.getPostingMode && window.getPostingMode() === 'auto'), status: (window.getPostingMode && window.getPostingMode() === 'auto') ? 'posted' : 'pending',
                         source: 'inventory_adjustment',
                         lines: [
                             { accountName: debitAcc, debit: absVal, credit: 0, note: `تسوية مخزنية ${voucherId}` },
@@ -1116,7 +1116,7 @@ $header_theme_class = "header-theme-inventory";
                         description: `قيد مناقلة مخزنية داخلية رقم [${transferId}] من (${fromWh}) إلى (${toWh}) — (${totalQty} وحدة)`,
                         totalDebit: totalTransferCost,
                         totalCredit: totalTransferCost,
-                        isPosted: true,
+                        isPosted: (window.getPostingMode && window.getPostingMode() === 'auto'), status: (window.getPostingMode && window.getPostingMode() === 'auto') ? 'posted' : 'pending',
                         source: 'warehouse_transfer',
                         lines: [
                             { accountName: `ح/ مخزون البضاعة - ${toWh}`, debit: totalTransferCost, credit: 0, note: `استلام مناقلة مخزنية ${transferId}` },

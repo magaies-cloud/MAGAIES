@@ -636,11 +636,11 @@
             if (optBtn) optBtn.className = 'btn crystal-btn btn-auto-send-options-unit active';
             if (icon) icon.innerHTML = '⚡';
             
-            let label = 'مفعّل (إذن استلام)';
-            if (s.mode === 'invoice_doc') label = 'مفعّل (فاتورة مصممة)';
-            else if (s.mode === 'invoice') label = 'مفعّل (فاتورة وكشف)';
-            else if (s.mode === 'delivery_order_text') label = 'مفعّل (إذن نصي)';
-            else if (s.mode === 'delivery_order_doc') label = 'مفعّل (إذن رسمي)';
+            let label = 'إذن';
+            if (s.mode === 'invoice_doc') label = 'فاتورة';
+            else if (s.mode === 'invoice') label = 'كشف';
+            else if (s.mode === 'delivery_order_text') label = 'إذن نصي';
+            else if (s.mode === 'delivery_order_doc') label = 'إذن رسمي';
 
             if (pill) {
                 pill.textContent = label;
@@ -655,7 +655,7 @@
             if (icon) icon.innerHTML = '💾';
             if (pill) {
                 const isLight = document.documentElement.classList.contains('light-theme');
-                pill.textContent = 'معطّل (حفظ فقط)';
+                pill.textContent = 'معطّل';
                 pill.style.background = isLight ? '#dfd0b5' : 'rgba(148, 163, 184, 0.25)';
                 pill.style.color = isLight ? '#140c06' : '#ffffff';
                 pill.style.border = isLight ? '1.5px solid #78350f' : '1px solid rgba(148, 163, 184, 0.4)';

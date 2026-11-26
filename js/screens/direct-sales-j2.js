@@ -893,7 +893,10 @@
     window.quickResetGrid = async function() {
         const menu = document.getElementById('col-context-menu');
         if (menu) menu.style.display = 'none';
-        if (confirm("هل أنت متأكد من استعادة التنسيق والترتيب الافتراضي لجدول المبيعات المباشرة وحفظه في قاعدة البيانات؟")) {
+        const okReset = typeof window.showCenteredConfirmModal === 'function'
+            ? await window.showCenteredConfirmModal({ title: 'استعادة تنسيق الجدول', badge: 'الوضع الافتراضي', icon: '🔄', tone: 'warning', message: 'هل أنت متأكد من استعادة التنسيق والترتيب الافتراضي لجدول المبيعات المباشرة وحفظه في قاعدة البيانات؟', confirmText: '✅ نعم، استعادة', cancelText: '✕ إلغاء' })
+            : confirm("هل أنت متأكد من استعادة التنسيق والترتيب الافتراضي لجدول المبيعات المباشرة وحفظه في قاعدة البيانات؟");
+        if (okReset) {
             try {
                 // Try to fetch factory default from DB
                 const res = await fetch('api/get_grid_config.php?grid_id=sales_grid_default&_t=' + Date.now());

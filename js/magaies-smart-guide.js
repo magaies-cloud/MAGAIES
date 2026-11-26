@@ -4226,7 +4226,7 @@
     }
 
     function ensureFixedSquareLauncher() {
-        let pod = document.getElementById('msg-universal-fixed-launcher');
+        return; /* Header buttons in includes/header.php handle on-demand Smart Guide & TV cleanly without DOM reflow */
         const isMobileOrSubView = (window.innerWidth <= 960) || (window.self !== window.top) || /(mobile-|preview-|print-)/i.test(window.location.pathname);
         if (isLandingStartupScreen() || isMobileOrSubView) {
             if (pod) {
@@ -6728,8 +6728,8 @@
         const esc = x => String(x).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
         if (btn) { btn.disabled = true; btn.textContent = '⏳ يفكر...'; }
         try {
-            const msg = `اشرح للمحاسب بالعربية الفصحى المبسطة في 5 جمل قصيرة واضحة بدون رموز: «${title}» في شاشة «${document.title || location.pathname}»${val ? ' وقيمتها الحالية ' + val : ''}. اذكر الوظيفة، ومثالاً عملياً بالأرقام، والأثر المحاسبي، وخطأً شائعاً يجب تجنبه.`;
-            const res = await fetch('api/ai-assistant.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg, context: String(window.__lastGlobalDblRightSpeech || '').slice(0, 1500) }) });
+            const msg = `أنت البروفيسور المعلّم الأول لنظام السجانة ERP، تشرح لمستخدم يجلس أمام الشاشة لأول مرة حتى يصل لدرجة خبير بروفيسور. اشرح العنصر «${title}» في شاشة «${document.title || location.pathname}»${val ? ' (القيمة الحالية: ' + val + ')' : ''} بالعربية الفصحى السلسة الواضحة جداً بدون رموز معقدة، مرتباً في 6 نقاط مركزة: 1) ما هذا الحقل أو الزر ببساطة تامة؟ 2) من أين تأتي إليه المعلومات؟ 3) يسمّع وين في الحسابات والمخازن والتقارير عند الحفظ؟ 4) ما أهم خصائصه وميزاته؟ 5) ما مخاطره والتحذير لو أخطأت فيه أو تركته فارغاً؟ 6) القاعدة الذهبية لاحترافه.`;
+            const res = await fetch('api/ai-assistant.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: msg, context: String(window.__lastGlobalDblRightSpeech || '').slice(0, 1800) }) });
             const j = await res.json();
             const reply = String((j && j.reply) || '').trim();
             if (!reply) throw new Error('empty');
@@ -6747,7 +6747,7 @@
     };
     function showGlobalSmartExplanationAt(e, forcedTarget, speakMode) {
         if (e && e.type === "contextmenu" && !speakMode) { if (typeof window.__openErpRightClickChoiceMenu === "function") return window.__openErpRightClickChoiceMenu(e); return; }
-        if (typeof window.__mdHandleUnifiedHumanExplain === 'function' && window.__mdHandleUnifiedHumanExplain(e, forcedTarget, speakMode || 'audio')) return;
+        const oldMiniTip = document.getElementById('md-delayed-tip'); if (oldMiniTip) oldMiniTip.style.display = 'none';
         const tipEl = document.getElementById('msg-smart-hover-tooltip');
         if (tipEl && tipEl.contains(e.target)) return;
         let target = forcedTarget || (e.target && e.target.closest ? e.target.closest('button, a, input, select, textarea, .pro-field-card, .input-group, .h-form-group, .form-group, .spotlight-card, .kpi-card, .stat-card, .hub-action-card, .fin-metric-pill, .qa-master-btn, .cat-hub-btn, .msg-quartet-btn, .md-tab-btn, .sl-btn, .uiverse-switch, canvas, th, td, [role="button"], [role="tab"], [onclick], [data-md-tip], [data-guide-desc]') : null);
@@ -6928,225 +6928,11 @@
         return el;
     }
 
-    let lastHoverInspectedEl = null;
-    document.addEventListener('mouseover', function (e) {
-        // 🚫 ممنوع ظهور الشرح عند تمرير الماوس (Hover)؛ الشرح المعتمد في البرنامج يظهر فقط عند الضغط دبل كليك يمين (Double Right-Click)
-        return;
-        if (window.__MUTE_LEGACY_GUIDE_AUDIO__ || window.__CINEMA_4K_ACTIVE__) return;
-        // 👑 Interactive Hover Inspection ("الشرح التفاعلي عند التأشير بالمؤشر") when Guide is active on master-data.php, purchase.php, direct-sales.php, purchase-receipt.php, smart-logistics.php & multi-cash-payment.php
-        if (window.__mdInteractiveGuideActive && (typeof window.explainMasterDataDomElement === 'function' || typeof window.explainPurchaseDomElement === 'function' || typeof window.explainDirectSalesDomElement === 'function' || typeof window.explainPurchaseReceiptDomElement === 'function' || typeof window.explainSmartLogisticsDomElement === 'function' || typeof window.explainMultiCashPaymentDomElement === 'function')) {
-            if (isAutopilotRunning && !isPickElementModeActive && (Date.now() - lastAutopilotStepStartTs < 1600)) return;
-            if (e.target.closest('#msg-live-coach-bar, #msg-smart-hover-tooltip, #msg-universal-fixed-launcher')) return;
-            const inspectTarget = e.target.closest('button, a, input, select, textarea, .md-tab-btn, .pro-field-card, .input-group, .h-form-group, .hub-action-card, .fin-metric-pill, .tot-toggle-btn, .pay-toggle-btn, #customer-financial-card, #fin-strip, #purchase-3way-match-badge, .uiverse-switch, .grn-qc-pill, .grn-nav-pill, .grn-col-origQty, .grn-col-item, .grn-col-unit, .grn-col-qty, .grn-col-pendingBase, .grn-col-baseQty, .grn-progress-wrap, .grn-meta-bar > div, .sl-mode-tab, .sl-kpi-card, .sl-unit-box, .account-block, .voucher-type-btn, .crystal-btn, #grand-tafqeet-container, #mcp-world-summary-bar, th');
-            if (!inspectTarget || inspectTarget === lastHoverInspectedEl) return;
-            if (isMdQuickQuizActive && checkMdQuickQuizHit(inspectTarget)) return;
-            const mdInfo = (typeof window.explainMultiCashPaymentDomElement === 'function' && window.explainMultiCashPaymentDomElement(inspectTarget))
-                || (typeof window.explainSmartLogisticsDomElement === 'function' && window.explainSmartLogisticsDomElement(inspectTarget))
-                || (typeof window.explainPurchaseReceiptDomElement === 'function' && window.explainPurchaseReceiptDomElement(inspectTarget))
-                || (typeof window.explainDirectSalesDomElement === 'function' && window.explainDirectSalesDomElement(inspectTarget))
-                || (typeof window.explainPurchaseDomElement === 'function' && window.explainPurchaseDomElement(inspectTarget))
-                || (typeof window.explainMasterDataDomElement === 'function' && window.explainMasterDataDomElement(inspectTarget))
-                || (typeof window.autoSynthesizeElementExplanation === 'function' && window.autoSynthesizeElementExplanation(inspectTarget));
-            if (!mdInfo) return;
-            if (hoverTooltipTimer) clearTimeout(hoverTooltipTimer);
-            const hoverDelayMs = (isAutopilotRunning && !isPickElementModeActive) ? 550 : 220;
-            hoverTooltipTimer = setTimeout(() => {
-                if (!window.__mdInteractiveGuideActive) return;
-                if (isAutopilotRunning && !isPickElementModeActive && (Date.now() - lastAutopilotStepStartTs < 1600)) return;
-                lastHoverInspectedEl = inspectTarget;
-                const liveVal = extractLiveElementValueReadback(inspectTarget);
-                const liveValHtml = liveVal
-                    ? `<div style="margin-top:4px; padding:3px 8px; border-radius:6px; background:rgba(16,185,129,0.16); border:1px solid rgba(16,185,129,0.45); font-size:0.74rem; font-weight:900;">📌 القيمة المسجلة حالياً: <span>${escapeSvgText(liveVal)}</span></div>`
-                    : '';
-                const tip = getOrCreateHoverTooltipEl();
-                const rect = inspectTarget.getBoundingClientRect();
-                tip.innerHTML = `
-                    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-                        <span style="font-size:0.82rem; font-weight:900;">🎓 ${mdInfo.title}</span>
-                        <svg viewBox="0 0 92 22" width="84" height="20" style="flex-shrink:0;">
-                            <rect x="1" y="2" width="26" height="18" rx="4" fill="rgba(56,189,248,0.2)" stroke="#38bdf8" stroke-width="1.2"/>
-                            <text x="14" y="14" fill="currentColor" font-size="7.5" font-weight="bold" text-anchor="middle">إدخال</text>
-                            <path d="M29 11 L41 11" stroke="#fbbf24" stroke-width="1.5"/>
-                            <rect x="43" y="2" width="47" height="18" rx="4" fill="rgba(16,185,129,0.22)" stroke="#10b981" stroke-width="1.2"/>
-                            <text x="66" y="14" fill="currentColor" font-size="7.5" font-weight="bold" text-anchor="middle">⚡ تسميع فوري</text>
-                        </svg>
-                    </div>
-                    <div style="font-size:0.78rem; line-height:1.6;">${mdInfo.desc}</div>
-                    ${liveValHtml}
-                `;
-                tip.style.display = 'flex';
-                const topPos = rect.bottom + 10 + 110 < window.innerHeight ? rect.bottom + 10 : Math.max(8, rect.top - 110);
-                const leftPos = Math.max(10, Math.min(window.innerWidth - 360, rect.left));
-                tip.style.top = `${topPos}px`;
-                tip.style.left = `${leftPos}px`;
-
-                // Update live coach bar & speak immediately on hover inspection WITHOUT repeating the Salawat!
-                cleanupGuideTempPopups(inspectTarget);
-                const coachBar = document.getElementById('msg-live-coach-bar');
-                const speechBox = document.getElementById('msg-coach-speech-text');
-                const badge = document.getElementById('msg-coach-step-badge');
-                if (coachBar) coachBar.style.display = 'flex';
-                const spokenWithVal = liveVal
-                    ? `${mdInfo.title}. ${mdInfo.desc} والقيمة المسجلة حالياً في هذه الخانة هي: ${liveVal}.`
-                    : `${mdInfo.title}. ${mdInfo.desc}`;
-                const adaptedBody = stripAllSalawatPrefixes(adaptTextToDialect(spokenWithVal, selectedMaleProfile));
-                if (badge) badge.textContent = `👆 ${mdInfo.title}`;
-                if (speechBox) speechBox.textContent = adaptedBody;
-                renderLiveDubbedVisualStage({
-                    badge: mdInfo.title,
-                    cursorLabel: mdInfo.title,
-                    screenPath: `الشرح التفاعلي الحي ⬅ ${mdInfo.title}`,
-                    diagramType: (inspectTarget.tagName === 'SELECT' || inspectTarget.querySelector?.('select')) ? 'dropdown-open' : 'screen-hub',
-                    diagramMeta: {
-                        parentScreen: 'الشرح بالتأشير المباشر',
-                        actionLabel: `تفصيل وظيفة (${mdInfo.title}):`,
-                        childItems: [
-                            `🎯 العنصر: ${mdInfo.title}`,
-                            mdInfo.desc.slice(0, 75),
-                            '⚡ متزامن بالصوت الرجالي والمخطط البصري'
-                        ],
-                        effectLabel: 'دبلجة فورية بالصوت والصورة'
-                    }
-                }, 0, 1);
-                if (inspectTarget.tagName === 'SELECT' || inspectTarget.querySelector?.('select')) {
-                    showLiveSelectOptionsMirror(inspectTarget, null, mdInfo.title);
-                } else {
-                    triggerLiveChildScreenPreviewForElement(inspectTarget);
-                }
-                moveGhostCursorToElement(inspectTarget, mdInfo.title, false);
-                speakArabicMaleText(adaptedBody, () => {
-                    if (isAutopilotRunning && !isAudioPaused && !isPickElementModeActive) {
-                        nextStepTimeoutId = setTimeout(() => {
-                            if (isAutopilotRunning && !isAudioPaused) window.stepLiveAutopilot(1);
-                        }, 450);
-                    }
-                }, selectedMaleProfile);
-            }, hoverDelayMs);
-            return;
-        }
-
-        if (isAutopilotRunning || isPickElementModeActive) return;
-        const btnCandidate = e.target && e.target.closest ? e.target.closest('button, a.btn, .sl-btn, .msg-quartet-btn') : null;
-        if (!btnCandidate) return;
-        const activeHoverKey = resolveActiveGuideKeyFast() || 'smart-logistics';
-        const data = window.MagaiesSmartGuides && (window.MagaiesSmartGuides[activeHoverKey] || window.MagaiesSmartGuides['smart-logistics']);
-        if (!data || !Array.isArray(data.buttonsDict)) return;
-
-        let matchedItem = null;
-        let matchedDom = null;
-        for (const item of data.buttonsDict) {
-            if (item.targetSelector) {
-                const candidate = e.target.closest(item.targetSelector);
-                if (candidate) {
-                    matchedItem = item;
-                    matchedDom = candidate;
-                    break;
-                }
-            }
-        }
-        if (!matchedItem || !matchedDom) return;
-
-        if (hoverTooltipTimer) clearTimeout(hoverTooltipTimer);
-        hoverTooltipTimer = setTimeout(() => {
-            if (isAutopilotRunning || isPickElementModeActive) return;
-            const tip = getOrCreateHoverTooltipEl();
-            const rect = matchedDom.getBoundingClientRect();
-            const safeTitle = matchedItem.label.replace(/'/g, "\\'");
-            const safeSpeech = (matchedItem.whatItDoes + ' ' + matchedItem.whatHappensIfClicked).replace(/`/g, '').replace(/'/g, "\\'");
-
-            tip.innerHTML = `
-                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-                    <span style="font-size:0.78rem; font-weight:900; color:#fde047;">💡 ${matchedItem.label}</span>
-                    <button type="button" onclick="document.getElementById('msg-smart-hover-tooltip').style.display='none'; window.pointGhostCursorAt('${matchedItem.targetSelector.replace(/'/g, "\\'")}', '${safeTitle}', '${safeSpeech}')" style="background:linear-gradient(135deg,#0284c7,#2563eb); color:#fff; border:1px solid #38bdf8; border-radius:99px; padding:2px 9px; font-size:0.71rem; font-weight:900; cursor:pointer; white-space:nowrap;">
-                        🔊 اسمع الشرح
-                    </button>
-                </div>
-                <div style="font-size:0.75rem; color:#e2e8f0; line-height:1.5;">${matchedItem.whatItDoes}</div>
-            `;
-            tip.style.display = 'flex';
-            const topPos = rect.bottom + 8 + 95 < window.innerHeight ? rect.bottom + 8 : Math.max(8, rect.top - 95);
-            const leftPos = Math.max(10, Math.min(window.innerWidth - 350, rect.left));
-            tip.style.top = `${topPos}px`;
-            tip.style.left = `${leftPos}px`;
-        }, 1250);
-    }, { passive: true });
-
-    document.addEventListener('mousedown', function (e) {
-        if (e.button === 2 || window.__isDblRightCardPinned) return;
-        const tip = document.getElementById('msg-smart-hover-tooltip');
-        if (tip && tip.style.display === 'flex' && !tip.contains(e.target)) {
-            if (typeof window.stopMdExplanationPanelAudio === 'function') window.stopMdExplanationPanelAudio();
-            tip.style.display = 'none';
-        }
-    }, { passive: true });
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') {
-            window.__isDblRightCardPinned = false;
-            const tip = document.getElementById('msg-smart-hover-tooltip');
-            if (tip && tip.style.display === 'flex') { if (window.stopMdExplanationPanelAudio) window.stopMdExplanationPanelAudio(); tip.style.display = 'none'; }
-            if (window.__CINEMA_4K_ACTIVE__ && typeof window.stopMagaies4KCinemaMode === 'function') window.stopMagaies4KCinemaMode();
-        } else if (isAutopilotRunning && !e.target.closest('input, textarea, select')) {
-            if (e.key === 'PageDown') { e.preventDefault(); window.stepLiveAutopilot(1); }
-            else if (e.key === 'PageUp') { e.preventDefault(); window.stepLiveAutopilot(-1); }
-        }
-    });
-    document.addEventListener('mouseout', function (e) {
-        return;
-        if (hoverTooltipTimer) {
-            clearTimeout(hoverTooltipTimer);
-            hoverTooltipTimer = null;
-        }
-        const tip = document.getElementById('msg-smart-hover-tooltip');
-        if (tip && tip.style.display === 'flex') {
-            if (hoverHideTimer) clearTimeout(hoverHideTimer);
-            hoverHideTimer = setTimeout(() => {
-                tip.style.display = 'none';
-            }, 350);
-        }
-    }, { passive: true });
-
     window.prewarmSmartGuideScreen = function (guideKey) {
         const key = guideKey || buildUniversalScreenGuideIfNeeded() || 'smart-logistics';
         prewarmGuideAudio(key, selectedMaleProfile);
     };
-
-    // 🔮 محرك الاكتشاف الذاتي المستقبلي لأي زر أو خانة أو شاشة تُضاف بعد شهر (Debounced Future DOM Auto-Discovery)
-    let _futureDomSyncTimer = null;
-    function initFutureDomAutoDiscoveryObserver() {
-        if (window.__msgFutureDomObserverBound || !window.MutationObserver || !document.body) return;
-        window.__msgFutureDomObserverBound = true;
-        const obs = new MutationObserver((mutations) => {
-            let hasNewNodes = false;
-            for (let i = 0; i < mutations.length; i++) {
-                if (mutations[i].addedNodes && mutations[i].addedNodes.length > 0) { hasNewNodes = true; break; }
-            }
-            if (!hasNewNodes) return;
-            if (_futureDomSyncTimer) clearTimeout(_futureDomSyncTimer);
-            _futureDomSyncTimer = setTimeout(() => {
-                if (isAutopilotRunning && typeof window.syncDynamicDomElementsIntoSmartGuide === 'function') {
-                    try { window.syncDynamicDomElementsIntoSmartGuide(currentGuideKey); } catch (_) {}
-                }
-            }, 1200);
-        });
-        obs.observe(document.body, { childList: true, subtree: true });
-    }
-
-    function prewarmActiveScreenOnReady() {
-        ensureFixedSquareLauncher();
-        initFutureDomAutoDiscoveryObserver();
-    }
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', prewarmActiveScreenOnReady);
-    } else {
-        prewarmActiveScreenOnReady();
-    }
-
-    window.addEventListener('load', () => {
-        ensureFixedSquareLauncher();
-    });
-
-    // ══════════════════════════════════════════════════════════════════════════
+    /* Dead hover/mouseout/MutationObserver removed: Smart Guide runs 100% strictly on demand (0ms background load) */
     // 📐 الدستور الخامس عشر والأخير (15/15 — محرك التوريث العابر لجميع الشاشات والشاشات الوليدة):
     // 1) حفظ وتوريث مقاس الشاشة التناسبي (6:8) عند الإغلاق والفتح وبين الشاشات المشابهة
     // 2) نقل وتعميم فواصل وتنسيق "شاشة المشتريات (ما بعد الدساتير)" المستقلة عن currentColor

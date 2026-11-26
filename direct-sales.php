@@ -854,16 +854,16 @@ try {
                             <tr style="background: rgba(15, 23, 42, 0.8); border-bottom: 2px solid rgba(56, 189, 248, 0.6);">
                                 <th data-col-id="col_num" class="th-num" style="width: 3%;">#</th>
                                 <th data-col-id="col_item" class="th-item" style="width: 18%;">الصنف</th>
-                                <th data-col-id="col_unit" class="th-unit" style="width: 7%;">الوحدات</th>
-                                <th data-col-id="col_factor" class="th-factor" style="width: 5%;">التعادل</th>
-                                <th data-col-id="col_qty" class="th-qty" style="width: 7%;">الكمية</th>
-                                <th data-col-id="col_price" class="th-price" style="width: 8%;">السعر</th>
-                                <th data-col-id="col_baseqty" class="th-baseqty" style="width: 6%;">العدد</th>
-                                <th data-col-id="col_avail" class="th-avail" style="width: 6%; color:#0ea5e9;">المتاح</th>
-                                <th data-col-id="col_wh" class="th-wh" style="width: 8%;">المخزن</th>
-                                <th data-col-id="col_note" class="th-note" style="width: 10%;">ملاحظة</th>
-                                <th data-col-id="col_total" class="th-total" style="width: 240px; min-width: 240px;">الإجمالي</th>
-                                <th data-col-id="col_del" class="th-del" style="width: 90px; min-width: 90px; max-width: 90px;">الإجراءات</th>
+                                <th data-col-id="col_unit" class="th-unit" style="width: 9%;">الوحدات</th>
+                                <th data-col-id="col_factor" class="th-factor" style="width: 8%;">التعادل</th>
+                                <th data-col-id="col_qty" class="th-qty" style="width: 9%;">الكمية</th>
+                                <th data-col-id="col_price" class="th-price" style="width: 10%;">السعر</th>
+                                <th data-col-id="col_baseqty" class="th-baseqty" style="width: 8%;">العدد</th>
+                                <th data-col-id="col_avail" class="th-avail" style="width: 9%; color:#0ea5e9;">المتاح</th>
+                                <th data-col-id="col_wh" class="th-wh" style="width: 10%;">المخزن</th>
+                                <th data-col-id="col_note" class="th-note" style="width: 8%;">ملاحظة</th>
+                                <th data-col-id="col_total" class="th-total" style="width: 11%; min-width: 115px;">الإجمالي</th>
+                                <th data-col-id="col_del" class="th-del" style="width: 78px; min-width: 78px; max-width: 78px;">الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody id="grid-body"></tbody>
@@ -1021,7 +1021,7 @@ try {
     <link rel="stylesheet" id="grand-total-dynamic-anim-css" href="css/screens/direct-sales-inline-14.css?v=<?= @filemtime(__DIR__ . '/css/screens/direct-sales-inline-14.css') ?: '2027' ?>">
 
             <!-- ══ FULL-WIDTH: تفاصيل الدفع (نسخة مطابقة 100% للمشتريات) ══ -->
-            <div class="panel" id="payment-panel" style="display: none; z-index: 40; margin-top: 15px; padding: 0 !important; background: rgba(15, 23, 42, 0.95) !important; border: 1px solid rgba(234, 179, 8, 0.22) !important;">
+            <div class="panel" id="payment-panel" style="display: none; z-index: 40; margin-top: 15px; padding: 0 !important;">
                 <link rel="stylesheet" href="css/screens/direct-sales-inline-15.css?v=<?= @filemtime(__DIR__ . '/css/screens/direct-sales-inline-15.css') ?: '2027' ?>">
                 <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 10px 18px; background: rgba(15,23,42,0.4); border-bottom: 1px solid rgba(255,255,255,0.06); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
                     <div style="display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap;">
@@ -1144,15 +1144,20 @@ try {
                     <span class="del-btn-label btn-fit-label">حذف</span>
                 </button>
 
-                <!-- Unified Print Studio & Preview Button -->
-                <button type="button" id="btn-preview-invoice" class="btn-action royal-crystal-btn royal-btn-print btn-preview" style="flex: 1.05 1 0%; min-width: 0; height: 44px; font-weight: 900; border-radius: 11px;" onclick="openStandalonePrintPreview();" title="استوديو الطباعة والمعاينة الحية">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                    <span class="btn-fit-label">طباعة</span>
-                    <kbd style="font-size:0.62rem; padding:1px 4px; border-radius:4px; background:rgba(0,0,0,0.28); border:1px solid rgba(255,255,255,0.22); font-family:monospace; color:#e2e8f0; flex-shrink:0;">F8</kbd>
+                <!-- 4. إذن استلام بضاعة (كميات فقط بدون أسعار) -->
+                <button type="button" id="btn-delivery-permit-invoice" class="btn-action royal-crystal-btn btn-permit" style="flex: 0.82 1 0%; min-width: 0; height: 44px; font-weight: 900; border-radius: 11px; background: linear-gradient(135deg, #0284c7, #0369a1) !important; border: 1px solid rgba(56, 189, 248, 0.55) !important; color: #ffffff !important; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.32) !important;" onclick="if(typeof openDeliveryPermitPreview==='function') openDeliveryPermitPreview();" title="إذن استلام بضاعة للعميل (الكميات فقط بدون أسعار)">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <span class="btn-fit-label">إذن</span>
                 </button>
 
-                <div class="preset-selector-container" style="flex: 1.05; min-width: 120px; display: flex; gap: 4px;">
-                    <select id="preset-selector" class="ctrl-input" style="margin: 0; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.4); color: #fff; flex: 1;" onchange="loadPreset(this.value)">
+                <!-- 5. كشف حساب (الكميات + الأسعار والمبالغ) -->
+                <button type="button" id="btn-preview-invoice" class="btn-action royal-crystal-btn royal-btn-print btn-preview" style="flex: 1.05 1 0%; min-width: 0; height: 44px; font-weight: 900; border-radius: 11px;" onclick="openStandalonePrintPreview();" title="طباعة ومعاينة الفاتورة وكشف الحساب (الكميات والأسعار والمبالغ) — F8">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                    <span class="btn-fit-label">كشف حساب</span>
+                </button>
+
+                <div class="preset-selector-container" style="display: none;">
+                    <select id="preset-selector" class="ctrl-input" onchange="loadPreset(this.value)">
                         <option value="">⚙️ التخصيصات (0)</option>
                     </select>
                 </div>
@@ -1193,24 +1198,18 @@ try {
                     </div>
                 </div>
 
-                <!-- New Button: Unified Cyan-Sky Crystal Gradient -->
+                <!-- 7. جديد -->
                 <button type="button" class="btn-action royal-crystal-btn royal-btn-new btn-new" id="btn-new-invoice" style="flex: 0.82 1 0%; min-width: 0; height: 44px; font-weight: 900; border-radius: 11px;" onclick="onSuccessNewInvoice(false);" title="بدء فاتورة مبيعات جديدة وتفريغ الحقول (+)">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     <span class="btn-fit-label">جديد</span>
                 </button>
 
-                <!-- OCR Scanner Button -->
-                <button type="button" class="btn-action royal-crystal-btn btn-ocr" style="flex: 1.05 1 0%; min-width: 0; height: 44px; font-weight: 900; border-radius: 11px;" onclick="if(typeof triggerInvoiceOCR==='function') triggerInvoiceOCR(); else if(typeof window.openSalesFc1AiOcrAndPriceAdvisorModal==='function') window.openSalesFc1AiOcrAndPriceAdvisorModal();">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                    <span class="btn-fit-label">مسح فاتورة</span>
-                </button>
-
-                <!-- زر التحكم في الإرسال التلقائي مع الحفظ -->
+                <!-- 8. زر التحكم في الإرسال التلقائي مع الحفظ (مختصر لإتاحة مساحة) -->
                 <div class="auto-send-control-box" id="auto-send-control-wrapper-sales">
                     <button type="button" class="btn crystal-btn btn-auto-send-toggle-unit inactive" id="btn-toggle-auto-send-sales" onclick="window.toggleSalesAutoSendMode()" title="التحكم في الإرسال التلقائي: انقر للتبديل بين الحفظ مع الإرسال، أو الحفظ فقط بدون إرسال">
-                        <span id="auto-send-sales-icon" style="font-size: 1.02rem;">💾</span>
-                        <span id="auto-send-sales-label" style="font-weight: 800; font-size: 0.85rem;">إرسال تلقائي:</span>
-                        <span id="auto-send-sales-status-pill" style="padding: 2px 7px; border-radius: 6px; font-size: 0.73rem; font-weight: 900;">معطّل (حفظ فقط)</span>
+                        <span id="auto-send-sales-icon" style="font-size: 0.92rem;">💾</span>
+                        <span id="auto-send-sales-label" style="font-weight: 800; font-size: 0.78rem;">إرسال:</span>
+                        <span id="auto-send-sales-status-pill" style="padding: 1px 6px; border-radius: 6px; font-size: 0.72rem; font-weight: 900;">معطّل</span>
                     </button>
                     <button type="button" class="btn crystal-btn btn-auto-send-options-unit inactive" id="btn-auto-send-options-sales" onclick="window.toggleSalesAutoSendDropdown(event)" title="خيارات نوع الإرسال التلقائي (إذن استلام، فاتورة وكشف)">
                         ▼
@@ -1268,11 +1267,11 @@ try {
                     </div>
                 </div>
                 
-                <!-- Submit Button (F10 Single-Click Save Lock) -->
+                <!-- 9. حفظ (F10 Single-Click Save Lock) -->
                 <span style="display:none;" id="footer-grand"></span>
-                <button type="button" id="btn-submit-invoice" class="btn-action royal-crystal-btn royal-btn-save btn-submit" style="flex: 1.35; min-width: 148px;" onclick="submitInvoice()" title="حفظ واعتماد الفاتورة مع التسميع الذري (F10 — قفل الحفظ مرة واحدة)">
+                <button type="button" id="btn-submit-invoice" class="btn-action royal-crystal-btn royal-btn-save btn-submit" style="flex: 1.15; min-width: 115px;" onclick="submitInvoice()" title="حفظ الفاتورة (F10)">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                    <span>حفظ واعتماد <kbd class="c3-kbd" style="font-size:0.72rem;padding:1px 5px;border-radius:4px;background:rgba(255,255,255,0.2);">F10</kbd></span>
+                    <span class="btn-fit-label">حفظ</span>
                 </button>
             </div>
         </div>
@@ -1289,9 +1288,9 @@ try {
 </div>
     </div>
     
-    <script src="js/localforage.min.js"></script>
-    <script src="js/direct-sales-studio.js?v=<?php echo file_exists('js/direct-sales-studio.js') ? filemtime('js/direct-sales-studio.js') : '1.0.0'; ?>"></script>
-    <script defer src="js/html2pdf.bundle.min.js"></script>
+    <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/direct-sales-studio.js?v=<?php echo file_exists('js/direct-sales-studio.js') ? filemtime('js/direct-sales-studio.js') : '1.0.0'; ?>"></script>
+    <script>window.addEventListener('load',function(){var f=function(){if(!window.html2pdf&&!document.getElementById('lazy-h2p')){var s=document.createElement('script');s.id='lazy-h2p';s.src='js/html2pdf.bundle.min.js';document.body.appendChild(s);}};if(window.requestIdleCallback)requestIdleCallback(f,{timeout:1800});else setTimeout(f,900);},{once:true});</script>
     <script defer src="js/whatsapp-integration.js?v=<?php echo file_exists('js/whatsapp-integration.js') ? filemtime('js/whatsapp-integration.js') : '1.0.0'; ?>"></script>
     <script defer src="js/erp-whatsapp-suite.js?v=<?php echo file_exists('js/erp-whatsapp-suite.js') ? filemtime('js/erp-whatsapp-suite.js') : '1.0.0'; ?>"></script>
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '20261104'; ?>"></script>
@@ -1764,17 +1763,17 @@ try {
         </div>
     </div>
 
-<script src="js/screens/direct-sales-j3.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-j3.js') ?: '2027' ?>"></script>
+<script defer src="js/screens/direct-sales-j3.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-j3.js') ?: '2027' ?>"></script>
 <link rel="stylesheet" id="pur-clean-theme-style" href="css/screens/direct-sales-s5.css?v=<?= @filemtime(__DIR__ . '/css/screens/direct-sales-s5.css') ?: '2027' ?>">
-    <script id="sales-fin-strip-and-tfoot-organizer" src="js/screens/direct-sales-inline-23.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-inline-23.js') ?: '2027' ?>"></script>
+    <script defer id="sales-fin-strip-and-tfoot-organizer" src="js/screens/direct-sales-inline-23.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-inline-23.js') ?: '2027' ?>"></script>
 <link rel="stylesheet" id="split-constitution1-engine-style" href="css/screens/direct-sales-inline-17.css?v=<?= @filemtime(__DIR__ . '/css/screens/direct-sales-inline-17.css') ?: '2027' ?>">
 
-<script id="split-constitution1-engine-script" src="js/screens/direct-sales-inline-24.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-inline-24.js') ?: '2027' ?>"></script>
+<script defer id="split-constitution1-engine-script" src="js/screens/direct-sales-inline-24.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-inline-24.js') ?: '2027' ?>"></script>
 <link rel="stylesheet" id="split-constitution2-silk-style" href="css/screens/direct-sales-inline-18.css?v=<?= @filemtime(__DIR__ . '/css/screens/direct-sales-inline-18.css') ?: '2027' ?>">
-<script id="split-constitution2-silk-engine" src="js/screens/direct-sales-inline-25.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-inline-25.js') ?: '2027' ?>"></script>
+<script defer id="split-constitution2-silk-engine" src="js/screens/direct-sales-inline-25.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-inline-25.js') ?: '2027' ?>"></script>
 <link rel="stylesheet" id="split-constitution3-dna-style" href="css/screens/direct-sales-inline-19.css?v=<?= @filemtime(__DIR__ . '/css/screens/direct-sales-inline-19.css') ?: '2027' ?>">
 
-<script id="split-constitution3-dna-engine" src="js/screens/direct-sales-inline-26.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-inline-26.js') ?: '2027' ?>"></script>
+<script defer id="split-constitution3-dna-engine" src="js/screens/direct-sales-inline-26.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-inline-26.js') ?: '2027' ?>"></script>
 <link rel="stylesheet" id="split-constitution4-microhud-style" href="css/screens/direct-sales-inline-20.css?v=<?= @filemtime(__DIR__ . '/css/screens/direct-sales-inline-20.css') ?: '2027' ?>">
 <style id="split-constitution5-spotlight-style">
     /* الدستور الخامس (5 من 14): البؤرة الضوئية المركزة (Spotlight) على العنصر المشروح */
@@ -1786,39 +1785,39 @@ try {
         pointer-events: none !important;
     }
 </style>
-<script id="split-constitution5-dynamic-guide-engine" src="js/screens/direct-sales-inline-27.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-inline-27.js') ?: '2027' ?>"></script>
-<script id="split-constitution6-flash-sync-engine" src="js/screens/direct-sales-inline-28.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-inline-28.js') ?: '2027' ?>"></script>
+<script defer id="split-constitution5-dynamic-guide-engine" src="js/screens/direct-sales-inline-27.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-inline-27.js') ?: '2027' ?>"></script>
+<script defer id="split-constitution6-flash-sync-engine" src="js/screens/direct-sales-inline-28.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-inline-28.js') ?: '2027' ?>"></script>
 <link rel="stylesheet" id="split-constitution7-optical-style" href="css/screens/direct-sales-inline-21.css?v=<?= @filemtime(__DIR__ . '/css/screens/direct-sales-inline-21.css') ?: '2027' ?>">
 
-<script id="split-constitution7-foundations-engine" src="js/screens/direct-sales-inline-29.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-inline-29.js') ?: '2027' ?>"></script>
+<script defer id="split-constitution7-foundations-engine" src="js/screens/direct-sales-inline-29.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-inline-29.js') ?: '2027' ?>"></script>
 <link rel="stylesheet" id="split-constitution8-cognitive-style" href="css/screens/direct-sales-inline-22.css?v=<?= @filemtime(__DIR__ . '/css/screens/direct-sales-inline-22.css') ?: '2027' ?>">
 
-<script id="split-constitution8-cognitive-engine" src="js/screens/direct-sales-j4.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-j4.js') ?: '2027' ?>"></script>
+<script defer id="split-constitution8-cognitive-engine" src="js/screens/direct-sales-j4.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-j4.js') ?: '2027' ?>"></script>
 <link rel="stylesheet" id="split-constitution9-wms-style" href="css/screens/direct-sales-inline-23.css?v=<?= @filemtime(__DIR__ . '/css/screens/direct-sales-inline-23.css') ?: '2027' ?>">
 
-<script id="split-constitution9-wms-engine" src="js/screens/direct-sales-inline-30.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-inline-30.js') ?: '2027' ?>"></script>
+<script defer id="split-constitution9-wms-engine" src="js/screens/direct-sales-inline-30.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-inline-30.js') ?: '2027' ?>"></script>
 <link rel="stylesheet" id="split-constitution10-commercial-style" href="css/screens/direct-sales-inline-24.css?v=<?= @filemtime(__DIR__ . '/css/screens/direct-sales-inline-24.css') ?: '2027' ?>">
 
-<script id="split-constitution10-commercial-engine" src="js/screens/direct-sales-j5.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-j5.js') ?: '2027' ?>"></script>
+<script defer id="split-constitution10-commercial-engine" src="js/screens/direct-sales-j5.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-j5.js') ?: '2027' ?>"></script>
 <link rel="stylesheet" id="split-constitution11-banking-style" href="css/screens/direct-sales-inline-25.css?v=<?= @filemtime(__DIR__ . '/css/screens/direct-sales-inline-25.css') ?: '2027' ?>">
 
-<script id="split-constitution11-banking-engine" src="js/screens/direct-sales-j6.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-j6.js') ?: '2027' ?>"></script>
+<script defer id="split-constitution11-banking-engine" src="js/screens/direct-sales-j6.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-j6.js') ?: '2027' ?>"></script>
 <link rel="stylesheet" id="split-constitution12-security-style" href="css/screens/direct-sales-inline-26.css?v=<?= @filemtime(__DIR__ . '/css/screens/direct-sales-inline-26.css') ?: '2027' ?>">
 
-<script id="split-constitution12-security-engine" src="js/screens/direct-sales-inline-31.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-inline-31.js') ?: '2027' ?>"></script>
+<script defer id="split-constitution12-security-engine" src="js/screens/direct-sales-inline-31.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-inline-31.js') ?: '2027' ?>"></script>
 <link rel="stylesheet" id="split-constitution13-cyber-style" href="css/screens/direct-sales-inline-27.css?v=<?= @filemtime(__DIR__ . '/css/screens/direct-sales-inline-27.css') ?: '2027' ?>">
 
-<script id="split-constitution13-cyber-engine" src="js/screens/direct-sales-j7.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-j7.js') ?: '2027' ?>"></script>
+<script defer id="split-constitution13-cyber-engine" src="js/screens/direct-sales-j7.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-j7.js') ?: '2027' ?>"></script>
 <link rel="stylesheet" id="split-constitution14-reports-mobile-style" href="css/screens/direct-sales-inline-28.css?v=<?= @filemtime(__DIR__ . '/css/screens/direct-sales-inline-28.css') ?: '2027' ?>">
 
-<script id="split-constitution14-reports-mobile-engine" src="js/screens/direct-sales-j8.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-j8.js') ?: '2027' ?>"></script>
+<script defer id="split-constitution14-reports-mobile-engine" src="js/screens/direct-sales-j8.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-j8.js') ?: '2027' ?>"></script>
 <link rel="stylesheet" id="split-constitution15-zero-error-audit-style" href="css/screens/direct-sales-inline-29.css?v=<?= @filemtime(__DIR__ . '/css/screens/direct-sales-inline-29.css') ?: '2027' ?>">
 
-<script id="split-constitution15-zero-error-audit-engine" src="js/screens/direct-sales-inline-32.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-inline-32.js') ?: '2027' ?>"></script>
+<script defer id="split-constitution15-zero-error-audit-engine" src="js/screens/direct-sales-inline-32.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-inline-32.js') ?: '2027' ?>"></script>
 <link rel="stylesheet" id="split-constitution16-zero-error-master-style" href="css/screens/direct-sales-inline-30.css?v=<?= @filemtime(__DIR__ . '/css/screens/direct-sales-inline-30.css') ?: '2027' ?>">
 
-<script id="split-constitution16-zero-error-master-engine" src="js/screens/direct-sales-j9.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-j9.js') ?: '2027' ?>"></script>
-<script src="js/split-purchase-constitution-2027.js?v=2027_clean_v2"></script>
+<script defer id="split-constitution16-zero-error-master-engine" src="js/screens/direct-sales-j9.js?v=<?= @filemtime(__DIR__ . '/js/screens/direct-sales-j9.js') ?: '2027' ?>"></script>
+<script defer src="js/split-purchase-constitution-2027.js?v=2027_clean_v2"></script>
 <script>window.DB_NEXT_SALES_FIN_VOUCHER_NO = <?= json_encode($salNextFinNo) ?>;</script>
 <?php if (file_exists(__DIR__ . '/includes/inbound-bankak-drawer.php')) include_once __DIR__ . '/includes/inbound-bankak-drawer.php'; ?>
 <link rel="stylesheet" id="sales-cloned-purchase-card-2027" href="css/screens/sales-cloned-purchase-card.css?v=<?= @filemtime(__DIR__ . '/css/screens/sales-cloned-purchase-card.css') ?: '2027' ?>">

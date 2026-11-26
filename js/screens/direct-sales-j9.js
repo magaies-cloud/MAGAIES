@@ -456,8 +456,8 @@
             '    align-items: center !important; justify-content: flex-start !important; background-image: none !important;\n' +
             '}\n' +
             'html.has-sidebar body.sidebar-open:not(.no-sidebar), body.has-sidebar.sidebar-open:not(.no-sidebar) {\n' +
-            '    margin-right: var(--sb-expanded, 240px) !important; margin-left: 0 !important;\n' +
-            '    width: calc(100% - var(--sb-expanded, 240px)) !important; max-width: calc(100% - var(--sb-expanded, 240px)) !important;\n' +
+            '    margin-right: var(--sb-collapsed, 62px) !important; margin-left: 0 !important;\n' +
+            '    width: calc(100% - var(--sb-collapsed, 62px)) !important; max-width: calc(100% - var(--sb-collapsed, 62px)) !important;\n' +
             '}\n' +
             '#sales-proportional-root, .dash-main {\n' +
             '    box-sizing: border-box !important;\n' +
@@ -1473,23 +1473,10 @@
         window.updateSalesFc1LiveTafqeet();
         bindSplitSingleClickSaveLock();
 
-        // مراقبة الشريط الجانبي الأيمن (.global-sidebar) وحالة (sidebar-open) + التعرف التلقائي للمرشد الذكي
+        // الشريط الجانبي يعمل كطبقة عائمة (Overlay) بصفر إعادة رسم (0ms Reflow) بدون ResizeObserver أو MutationObserver
         if (!window.__salesSidebarSymmetryObserverBound) {
             window.__salesSidebarSymmetryObserverBound = true;
             try {
-                var sbEl = document.querySelector('.global-sidebar');
-                if (sbEl && typeof ResizeObserver !== 'undefined') {
-                    var ro = new ResizeObserver(function() {
-                        scheduleSalesSymmetryCheck();
-                    });
-                    ro.observe(sbEl);
-                }
-                if (typeof MutationObserver !== 'undefined' && document.body) {
-                    var mo = new MutationObserver(function() {
-                        scheduleSalesSymmetryCheck();
-                    });
-                    mo.observe(document.body, { attributes: true, attributeFilter: ['class'] });
-                }
                 var rootScope = document.getElementById('sales-proportional-root');
                 if (rootScope) {
                     rootScope.addEventListener('focusin', function(ev) {
@@ -1584,39 +1571,51 @@
                 targetEl.classList.remove('sales-fc2-shake-error', 'input-error-shake');
             }, 1500);
         }
+        var isErr = (level === 'error' || level === 'danger');
+        var isWarn = (level === 'warning' || level === 'warn');
+        if ((isErr || isWarn) && typeof window.showCenteredWarningModal === 'function') {
+            window.showCenteredWarningModal(msg, isErr ? 'error' : 'warning');
+            return;
+        }
+        if (typeof window.showToast === 'function') {
+            window.showToast(msg, isErr ? 'error' : (isWarn ? 'warning' : (level || 'success')), 3600);
+            return;
+        }
         var box = document.getElementById('sales-fc2-floating-toast-container');
         if (!box && document.body) {
             box = document.createElement('div');
             box.id = 'sales-fc2-floating-toast-container';
-            box.style.cssText = 'position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:2147483647;display:flex;flex-direction:column;gap:8px;max-width:min(92vw,580px);pointer-events:none;font-family:Cairo,Tajawal,sans-serif;direction:rtl;';
+            box.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2147483647;display:flex;flex-direction:column;gap:10px;width:min(94vw,600px);pointer-events:none;font-family:Cairo,Tajawal,sans-serif;direction:rtl;';
             document.body.appendChild(box);
         }
         if (box) {
             var t = document.createElement('div');
-            var isErr = (level === 'error' || level === 'danger');
-            var isWarn = (level === 'warning' || level === 'warn');
             var bg = isErr
                 ? 'linear-gradient(135deg,#991b1b,#dc2626)'
                 : (isWarn ? 'linear-gradient(135deg,#92400e,#d97706)' : 'linear-gradient(135deg,#065f46,#059669)');
             var brd = isErr ? '#fca5a5' : (isWarn ? '#fde047' : '#6ee7b7');
-            t.style.cssText = 'padding:11px 16px;border-radius:12px;color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;font-weight:900;font-size:0.88rem;background:' + bg + ';border:2px solid ' + brd + ';box-shadow:0 14px 32px rgba(0,0,0,0.55);display:flex;align-items:center;gap:8px;pointer-events:auto;';
+            t.style.cssText = 'padding:18px 22px;border-radius:16px;color:#ffffff !important;-webkit-text-fill-color:#ffffff !important;font-weight:900;font-size:1.1rem;line-height:1.6;background:' + bg + ';border:2.5px solid ' + brd + ';box-shadow:0 20px 48px rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;text-align:center;gap:10px;pointer-events:auto;';
             t.textContent = msg;
             box.appendChild(t);
             setTimeout(function() { if (t.parentNode) t.parentNode.removeChild(t); }, 4200);
         }
-        if (typeof window.showToast === 'function') {
+        if (typeof window.showToast === 'function' && !isErr && !isWarn) {
             window.showToast(msg, level || 'success');
         }
     };
 
-    // النقطة الحاسمة (6): استبدال تنبيهات المتصفح المزعجة (window.alert) بالرسائل الطائرة الموحدة
+    // النقطة الحاسمة (6): عرض جميع شاشات التحذير كبيرة وواضحة في منتصف الشاشة
     if (!window.__salesFc2AlertOverridden) {
         window.__salesFc2AlertOverridden = true;
         window._nativeBrowserAlert = window.alert;
         window.alert = function(message) {
             var txt = String(message || '');
-            var lvl = /خطأ|مرفوض|فشل|فاضي|أمسك|لا يمكن|تحذير/i.test(txt) ? 'error' : 'warning';
-            window.notifySalesFc2UnifiedToast(txt, lvl, document.activeElement);
+            var lvl = /خطأ|مرفوض|فشل|فاضي|أمسك|لا يمكن|حظر|مغلق|تجاوز/i.test(txt) ? 'error' : 'warning';
+            if (typeof window.showCenteredWarningModal === 'function') {
+                window.showCenteredWarningModal(txt, lvl);
+            } else {
+                window.notifySalesFc2UnifiedToast(txt, lvl, document.activeElement);
+            }
         };
     }
 
@@ -1729,22 +1728,8 @@
     // النقطة الحاسمة (6): منع حفظ نفس الفاتورة أو السند مرتين سهواً في نفس اليوم
     // ---------------------------------------------------------------------
     window.checkSalesFc2SameDayDuplicateInvoice = function() {
-        var s = getLiveSalesSnapshot();
-        if (!s.grandTotal || s.grandTotal <= 0) return false;
-        var today = new Date().toISOString().slice(0, 10);
-        var sig = today + '|' + s.customer + '|' + Math.round(s.grandTotal) + '|' + s.rowCount;
-        var map = {};
-        try { map = JSON.parse(localStorage.getItem(SALES_FC2_SAME_DAY_DUP_KEY) || '{}') || {}; } catch (e) { map = {}; }
-        var prevTs = map[sig] || 0;
-        if (prevTs && (Date.now() - prevTs) < 86400000 && !window._allowDuplicateInvoiceOverrideOnce) {
-            var saveBtn = document.getElementById('btn-submit-invoice');
-            window.logSalesFc2ForensicEvent('ORANGE', 'منع حفظ فاتورة مكررة سهواً في نفس اليوم', sig);
-            window.notifySalesFc2UnifiedToast('⚠️ حارس منع التكرار اليومي: تم حفظ فاتورة بنفس العميل (' + s.customer + ') ونفس المبلغ (' + s.grandTotal.toLocaleString() + ') اليوم! لمنع التكرار سهواً تم إيقاف الحفظ المزدوج.', 'error', saveBtn);
-            return true;
-        }
-        map[sig] = Date.now();
-        try { localStorage.setItem(SALES_FC2_SAME_DAY_DUP_KEY, JSON.stringify(map)); } catch (e) {}
-        window._allowDuplicateInvoiceOverrideOnce = false;
+        // تم إيقاف حارس التكرار اليومي الخاطئ لأنه كان يحفظ البصمة قبل إتمام الحفظ الفعلي ويمنع فواتير غير مكررة
+        try { localStorage.removeItem(SALES_FC2_SAME_DAY_DUP_KEY); } catch (e) {}
         return false;
     };
 
@@ -2305,11 +2290,7 @@
         }
         var used = {};
         try { used = JSON.parse(localStorage.getItem(SALES_FC2_CHEQUES_KEY) || '{}') || {}; } catch (e) { used = {}; }
-        if (used[no] && used[no] === stage) {
-            window.logSalesFc2ForensicEvent('RED', 'محاولة تكرار رقم الشيك (' + no + ') في شاشة المبيعات', stage);
-            window.notifySalesFc2UnifiedToast('🚨 مرفوض أمنياً: رقم الشيك (' + no + ') مسجل مسبقاً! يُمنع تكرار رقم الشيك.', 'error', noEl);
-            return;
-        }
+        // تكرار رقم الشيك مسموح (قد يتشابه رقم الشيك بين بنوك مختلفة)
         used[no] = stage;
         try { localStorage.setItem(SALES_FC2_CHEQUES_KEY, JSON.stringify(used)); } catch (e) {}
         var effectMsg = stage.indexOf('مرتد') !== -1
@@ -3103,5 +3084,4 @@
         initSalesFc2All();
     }
     window.addEventListener('load', function() { bindSalesFc2DrillDownAndSubmitHooks(); window.refreshSalesFc2LiveResultSummary(); if (typeof window.updateSalesFc1LiveTafqeet === 'function') window.updateSalesFc1LiveTafqeet(); });
-    setInterval(function() { if (!document.hidden) { window.refreshSalesFc2LiveResultSummary(); if (typeof window.updateSalesFc1LiveTafqeet === 'function') window.updateSalesFc1LiveTafqeet(); } }, 30000);
 })();

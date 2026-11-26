@@ -2326,19 +2326,24 @@
 
             const effectiveRcptMode = policyRcptMode === 'review_first_all' ? 'review_first' : (policyRcptMode === 'auto_post_all' ? 'auto_post' : rcptMode);
             const roleWord = entityType === 'supplier' ? 'المورد' : 'العميل';
+            const tipDisabled = `موقوف نهائياً: لا يستطيع هذا ${roleWord} طلب الرصيد ولا كشف الحساب عبر الواتساب.`;
+            const tipBalance = `الرصيد فقط: حينما يكون مفعّلاً يستطيع هذا ${roleWord} طلب الرصيد عن طريق الواتساب (بدون كشف حساب مفصل).`;
+            const tipDetailed = `كشف الحساب والرصيد: حينما يكون مفعّلاً يستطيع هذا ${roleWord} طلب كشف الحساب المفصل والرصيد عن طريق الواتساب.`;
+            const tipAuto = `نزول تلقائي: يستطيع هذا ${roleWord} إرسال الإشعارات البنكية عن طريق الواتساب وتنزل في الحساب تلقائياً وفوراً (اضغط للتبديل إلى مراجعة).`;
+            const tipReview = `انتظار المراجعة: حينما يرسل هذا ${roleWord} الإشعارات البنكية لا تُضاف في الحساب مباشرة، بل تنتظر المراجعة والموافقة من الإدارة أولاً (اضغط للتبديل إلى تلقائي).`;
             const rcptPillHtml = effectiveRcptMode === 'review_first'
-                ? `<button type="button" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" data-md-tip-title="انتظار المراجعة للإشعارات" data-md-tip="عند إرسال إشعار بنكي من هذا ${roleWord} عبر الواتساب لا ينزل في رصيده تلقائياً، بل ينتظر المراجعة والاعتماد اليدوي أولاً (اضغط للتبديل إلى تلقائي)." style="background:rgba(245,158,11,0.2); color:#fcd34d; border:1px solid rgba(245,158,11,0.5); padding:0 3px; border-radius:3px; font-size:0.43rem; line-height:1.35; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; white-space:nowrap;">مراجعة</button>`
-                : `<button type="button" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" data-md-tip-title="نزول تلقائي للإشعارات" data-md-tip="عند إرسال إشعار بنكي من هذا ${roleWord} عبر الواتساب ينزل المبلغ في حسابه ورصيده تلقائياً وفوراً (اضغط للتبديل إلى انتظار المراجعة)." style="background:rgba(16,185,129,0.16); color:#6ee7b7; border:1px solid rgba(16,185,129,0.45); padding:0 3px; border-radius:3px; font-size:0.43rem; line-height:1.35; font-weight:800; cursor:pointer; display:inline-flex; align-items:center; white-space:nowrap;">تلقائي</button>`;
+                ? `<button type="button" class="md-stmt-mini-btn md-stmt-amber" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" title="${tipReview}" data-md-tip-title="⏳ مراجعة — انتظار موافقة الإدارة" data-md-tip="${tipReview}">مراجعة</button>`
+                : `<button type="button" class="md-stmt-mini-btn md-stmt-green" onclick="setEntityReceiptApprovalMode('${entityType}', '${item.id}')" title="${tipAuto}" data-md-tip-title="⚡ تلقائي — نزول فوري بالحساب" data-md-tip="${tipAuto}">تلقائي</button>`;
 
             const customBankBadge = item.defaultBankName
-                ? `<span data-md-tip-title="البنك الافتراضي (${item.defaultBankName})" data-md-tip="حينما يرسل هذا ${roleWord} إشعار تحويل عبر الواتساب يُعتمد ويُودع في هذا البنك تلقائياً." style="font-size:0.45rem; color:#fcd34d; font-weight:800; white-space:nowrap;">${item.defaultBankName}</span>`
+                ? `<span class="md-stmt-bank-tag" title="البنك الافتراضي (${item.defaultBankName}): يُعتمد فيه إشعار التحويل تلقائياً" data-md-tip-title="البنك الافتراضي (${item.defaultBankName})" data-md-tip="حينما يرسل هذا ${roleWord} إشعار تحويل عبر الواتساب يُعتمد ويُودع في هذا البنك تلقائياً.">${item.defaultBankName}</span>`
                 : '';
 
-            return `<div style="display:inline-flex; align-items:center; gap:2px; flex-wrap:nowrap; white-space:nowrap;">
-                <div style="display:inline-flex; align-items:center; gap:1px; background:rgba(15,23,42,0.65); padding:1px; border-radius:4px; border:1px solid rgba(148,163,184,0.2); white-space:nowrap;">
-                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'disabled')" data-md-tip-title="موقوف نهائياً" data-md-tip="موقوف نهائياً: لا يستطيع هذا ${roleWord} طلب الرصيد ولا كشف الحساب عبر الواتساب." style="${btnStyle('disabled')} padding:0 3px; border-radius:3px; font-size:0.43rem; line-height:1.35; cursor:pointer; white-space:nowrap;">موقوف</button>
-                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'balance_only')" data-md-tip-title="الرصيد فقط" data-md-tip="يستطيع هذا ${roleWord} أن يطلب معرفة الرصيد فقط عبر الواتساب (بدون كشف حساب مفصل)." style="${btnStyle('balance_only')} padding:0 3px; border-radius:3px; font-size:0.43rem; line-height:1.35; cursor:pointer; white-space:nowrap;">الرصيد</button>
-                    <button type="button" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'detailed')" data-md-tip-title="كشف الحساب والرصيد" data-md-tip="يستطيع هذا ${roleWord} أن يطلب كشف الحساب المفصل وكذلك الرصيد عبر الواتساب." style="${btnStyle('detailed')} padding:0 3px; border-radius:3px; font-size:0.43rem; line-height:1.35; cursor:pointer; white-space:nowrap;">كشف</button>
+            return `<div class="md-stmt-ctrl-wrap">
+                <div class="md-stmt-seg-box">
+                    <button type="button" class="md-stmt-mini-btn ${mode === 'disabled' ? 'is-active-red' : 'is-dim'}" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'disabled')" title="${tipDisabled}" data-md-tip-title="🔒 موقوف نهائياً" data-md-tip="${tipDisabled}">${mode === 'disabled' ? '✓ ' : ''}موقوف</button>
+                    <button type="button" class="md-stmt-mini-btn ${mode === 'balance_only' ? 'is-active-amber' : 'is-dim'}" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'balance_only')" title="${tipBalance}" data-md-tip-title="💰 الرصيد فقط" data-md-tip="${tipBalance}">${mode === 'balance_only' ? '✓ ' : ''}رصيد</button>
+                    <button type="button" class="md-stmt-mini-btn ${mode === 'detailed' ? 'is-active-green' : 'is-dim'}" onclick="setEntityStatementMode('${entityType}', '${item.id}', 'detailed')" title="${tipDetailed}" data-md-tip-title="📊 كشف الحساب والرصيد" data-md-tip="${tipDetailed}">${mode === 'detailed' ? '✓ ' : ''}كشف</button>
                 </div>
                 ${rcptPillHtml}
                 ${customBankBadge}
@@ -2573,6 +2578,7 @@
             const paymentTermsDays = parseInt(document.getElementById('cust-payment-terms')?.value, 10) || 0;
             const security = parseInt(document.getElementById('cust-security').value) || 1;
             const status = document.getElementById('cust-status').value || 'active';
+            const isDualPartner = Boolean(document.getElementById('cust-is-dual')?.checked);
             const notes = document.getElementById('cust-notes').value;
             const rawCustMode = document.getElementById('cust-statement-mode')?.value || '';
             const statementAccessMode = ['disabled', 'balance_only', 'detailed'].includes(rawCustMode)
@@ -2678,7 +2684,7 @@
                 creditLimit: limit,
                 credit_limit: limit,
                 priceTier, paymentTermsDays,
-                securityLevel: security, status: status, notes,
+                securityLevel: security, status: status, isDualPartner: isDualPartner, notes,
                 bankAccounts: bankAccounts,
                 date: existingIdx > -1 ? (customers[existingIdx].date || todayStr) : todayStr,
                 createdAt: existingIdx > -1 ? (customers[existingIdx].createdAt || nowIso) : nowIso
@@ -2702,6 +2708,7 @@
             logMasterDataAudit(existingIdx > -1 ? 'تعديل' : 'إضافة', 'العملاء', name, `رصيد افتتاحي: ${opBalance} | شريحة: ${priceTier} | أجل سداد: ${paymentTermsDays} يوم`);
             clearCustomerForm();
             renderCustomers();
+            if (typeof renderSuppliers === 'function') renderSuppliers();
             triggerMasterSavePulse('#customer-form');
             if (typeof showToast === 'function') showToast(`✅ تم حفظ العميل "${name}" (🔐 ${statementPin})`, 'success', 2000);
 
@@ -2745,12 +2752,50 @@
             }
         }
 
+        window.toggleEntityDualPartner = async function(entityType, id) {
+            const isCust = (entityType === 'customer');
+            const storageKey = isCust ? 'erp_customers_v1' : 'erp_suppliers_v1';
+            const saveAction = isCust ? 'save_customer' : 'save_supplier';
+            let list = [];
+            try { list = JSON.parse(localStorage.getItem(storageKey) || '[]') || []; } catch (e) { list = []; }
+            const idx = list.findIndex(x => x && !x.deleted && String(x.id) === String(id));
+            if (idx === -1) return;
+            list[idx].isDualPartner = !Boolean(list[idx].isDualPartner);
+            setMasterLocalData(storageKey, list, true);
+            try { localStorage.setItem('erp_dual_sync_ts', String(Date.now())); } catch (_) {}
+            renderCustomers(document.getElementById('customer-search-input')?.value || '');
+            renderSuppliers(document.getElementById('supplier-search-input')?.value || '');
+            if (typeof showToast === 'function') {
+                showToast(list[idx].isDualPartner
+                    ? `✓ تم اعتماد "${list[idx].name}" كعميل مزدوج (عميل ومورد)`
+                    : `تم إلغاء وضع العميل المزدوج عن "${list[idx].name}"`, list[idx].isDualPartner ? 'success' : 'info', 2400);
+            }
+            try { await syncToBackend(saveAction, list[idx]); } catch (e) {}
+        };
+
+        function buildDualToggleBtnHtml(entityType, id, isDual, crossSourceLabel) {
+            const safeId = String(id || '').replace(/'/g, "\\'");
+            const active = Boolean(isDual || crossSourceLabel);
+            const pillStyle = active
+                ? 'background:linear-gradient(135deg,rgba(124,58,237,0.32),rgba(79,70,229,0.26));color:#f5f3ff;border:1.5px solid #a78bfa;box-shadow:0 2px 8px rgba(139,92,246,0.28);padding:2px 7px;'
+                : 'background:rgba(148,163,184,0.08);color:#94a3b8;border:1px solid rgba(148,163,184,0.30);padding:1px 6px;opacity:0.82;';
+            const checkBox = active
+                ? '<span style="display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:4px;background:#10b981;color:#fff;font-size:0.62rem;font-weight:900;line-height:1;box-shadow:0 0 6px rgba(16,185,129,0.5);">✓</span>'
+                : '<span style="display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;border-radius:4px;border:1.5px solid rgba(148,163,184,0.65);background:transparent;"></span>';
+            const txt = active ? 'عميل مزدوج (عميل ومورد)' : 'مزدوج';
+            return `<button type="button" onclick="event.stopPropagation();toggleEntityDualPartner('${entityType}','${safeId}')" title="${active ? 'مفعّل كعميل مزدوج (عميل ومورد) — اضغط للإلغاء' : 'اضغط لتفعيله كعميل مزدوج (عميل ومورد)'}" style="margin-right:6px;display:inline-flex;align-items:center;gap:5px;border-radius:999px;font-size:0.60rem;font-weight:900;cursor:pointer;vertical-align:middle;transition:all 0.18s ease;${pillStyle}"><span>${txt}</span>${checkBox}</button>`;
+        }
+
         function renderCustomers(query = '') {
             populateWaReceiptBankDropdowns();
             const tbody = document.getElementById('customers-tbody');
             if(!tbody) return;
             let customers = ensureCustomerReceiptCodes();
-            customers = customers.filter(c => !c.deleted);
+            customers = customers.filter(c => !c.deleted).map(c => Object.assign({}, c, { _sourceType: 'customer' }));
+            try {
+                const dualSups = (JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]') || []).filter(s => s && !s.deleted && s.isDualPartner && !customers.some(c => String(c.id) === String(s.id)));
+                dualSups.forEach(s => customers.push(Object.assign({}, s, { _sourceType: 'supplier', _crossLabel: 'مورد' })));
+            } catch (_e) {}
 
             if (query) {
                 const norm = typeof window.normalizeArabicFuzzyText === 'function' ? window.normalizeArabicFuzzyText : (s => normalizeDigitsToAscii(s || '').trim().toLowerCase());
@@ -2782,20 +2827,25 @@
             const visibleCustomers = customers.slice(0, maxShow);
             const rowsHtml = [];
             visibleCustomers.forEach(c => {
-                const statusMap = {'vip': '<span style="background:rgba(168,85,247,0.15); color:#a855f7; padding:1px 5px; border-radius:8px; font-size:0.68rem; font-weight:700;">🌟 VIP</span>', 'blacklisted': '<span style="background:rgba(239,68,68,0.15); color:#ef4444; padding:1px 5px; border-radius:8px; font-size:0.68rem; font-weight:700;">🔴 محظور</span>'};
-                const statusBadge = statusMap[c.status] || '<span style="background:rgba(52,211,153,0.15); color:#34d399; padding:1px 5px; border-radius:8px; font-size:0.68rem; font-weight:700;">🟢 نشط</span>';
-                const bal = (typeof window.computeLiveEntityLedgerBalance === 'function')
-                    ? window.computeLiveEntityLedgerBalance('customer', c)
-                    : (parseFloat(c.currentBalance) || ((parseFloat(c.openingDebit) || 0) - (parseFloat(c.openingCredit) || 0)));
+                const statusMap = {'vip': '<span class="md-status-plain md-status-vip">VIP</span>', 'blacklisted': '<span class="md-status-plain md-status-blocked">محظور</span>', 'inactive': '<span class="md-status-plain md-status-blocked">موقوف</span>'};
+                const statusBadge = statusMap[c.status] || '<span class="md-status-plain md-status-active">نشط</span>';
+                const isCrossSup = (c._sourceType === 'supplier');
+                const entityType = isCrossSup ? 'supplier' : 'customer';
+                const rawBal = (typeof window.computeLiveEntityLedgerBalance === 'function')
+                    ? window.computeLiveEntityLedgerBalance(entityType, c)
+                    : (isCrossSup
+                        ? (parseFloat(c.currentBalance) || ((parseFloat(c.openingCredit) || 0) - (parseFloat(c.openingDebit) || 0)))
+                        : (parseFloat(c.currentBalance) || ((parseFloat(c.openingDebit) || 0) - (parseFloat(c.openingCredit) || 0))));
+                const bal = isCrossSup ? -rawBal : rawBal;
                 const lim = parseFloat(c.creditLimit) || 0;
                 const isOverLimit = lim > 0 && bal > lim;
-                const balColor = bal > 0 ? '#f87171' : (bal < 0 ? '#34d399' : '#94a3b8');
+                const balCls = bal > 0 ? 'md-bal-debit' : (bal < 0 ? 'md-bal-credit' : 'md-bal-zero');
                 const balLabel = bal > 0 ? 'عليه' : (bal < 0 ? 'له' : 'مسدد');
-                const overLimitBadge = isOverLimit ? ' <span style="background:rgba(239,68,68,0.22); color:#fca5a5; border:1px solid rgba(239,68,68,0.5); padding:1px 4px; border-radius:4px; font-size:0.60rem; font-weight:900;" title="تجاوز سقف الائتمان المسموح">⚠️ سقف</span>' : '';
-                const agingBadge = (typeof window.computeEntityDebtAgingBadge === 'function') ? window.computeEntityDebtAgingBadge('customer', c, bal) : '';
+                const overLimitBadge = isOverLimit ? ' <span class="md-overlimit-tag" title="تجاوز سقف الائتمان المسموح">سقف</span>' : '';
+                const agingBadge = (typeof window.computeEntityDebtAgingBadge === 'function') ? window.computeEntityDebtAgingBadge(entityType, c, rawBal) : '';
                 const balStr = Math.abs(bal).toLocaleString();
-                const balFs = balStr.length > 10 ? '0.68rem' : (balStr.length > 7 ? '0.74rem' : '0.80rem');
-                const balDisplay = `<span onclick="openEntityDrillDownStatementModal('customer', '${c.id}')" style="color:${balColor}; font-weight:900; font-family:monospace; font-size:${balFs}; cursor:pointer; text-decoration:underline dotted;" title="اضغط لفتح كشف الحساب التفصيلي والحركات (Drill-Down)">${balStr}</span> <small style="color:${balColor}; opacity:0.8; font-size:0.64rem;">${balLabel}</small>${overLimitBadge}${agingBadge}`;
+                const balFs = balStr.length > 10 ? '0.60rem' : (balStr.length > 7 ? '0.64rem' : '0.68rem');
+                const balDisplay = `<span class="${balCls}" onclick="openEntityDrillDownStatementModal('${entityType}', '${c.id}')" style="font-size:${balFs}; cursor:pointer; text-decoration:underline dotted;" title="اضغط لفتح كشف الحساب التفصيلي والحركات (Drill-Down)">${balStr}</span> <small class="${balCls}" style="font-size:0.56rem;">${balLabel}</small>${overLimitBadge}${agingBadge}`;
                 
                 const pInfo = getEntityFull5DigitPin(c.whatsapp || c.phone || '', c.statementPin);
                 const cleanPin = pInfo.pin3;
@@ -2805,28 +2855,31 @@
                 const pinTip = (pInfo.last2 && cleanPin.length === 3)
                     ? `الرقم السري (5 أرقام): ${pInfo.full5} = آخر رقمين من الواتساب (${pInfo.last2}) + الثلاثة أرقام السرية (${cleanPin}) — اضغط للنسخ`
                     : `الرقم السري: ${cleanPin || '-'} (أضف رقم الواتساب ليصبح 5 أرقام)`;
-                const pinBadge = `<span onclick="copyEntityWhatsAppCard('customer', '${c.id}')" title="${pinTip}" style="background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.45); padding:0 4px; border-radius:4px; font-weight:900; font-family:monospace; font-size:0.54rem; display:inline-block; cursor:pointer; direction:ltr; white-space:nowrap;">${pinLabelHtml}</span>`;
+                const pinBadge = `<span class="md-pin-badge" onclick="copyEntityWhatsAppCard('customer', '${c.id}')" title="${pinTip}">${pinLabelHtml}</span>`;
                 
                 const subCount = Array.isArray(c.subPhones) ? c.subPhones.length : 0;
                 const subPhonesBadge = subCount > 0 ? ` <span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:1px 4px; border-radius:4px; font-size:0.54rem; font-weight:700;">+${subCount}</span>` : '';
 
-                const stmtToggleBtn = buildTableStatementControlHtml('customer', c);
+                const stmtToggleBtn = buildTableStatementControlHtml(entityType, c);
                 const cName = String(c.name || '');
                 const cNameFs = cName.length > 26 ? '0.60rem' : (cName.length > 18 ? '0.66rem' : '0.72rem');
                 const cPhoneStr = String(c.whatsapp || c.phone || '-');
                 const cPhoneFs = cPhoneStr.length > 12 ? '0.62rem' : '0.70rem';
+                const dualBtnHtml = buildDualToggleBtnHtml(entityType, c.id, Boolean(c.isDualPartner), c._crossLabel || '');
+                const editFnCall = isCrossSup ? `switchTab('tab-suppliers');editSupplier('${c.id}')` : `editCustomer('${c.id}')`;
+                const delBtnHtml = isCrossSup ? '' : `<button class="btn-text md-tbl-act-btn act-danger" onclick="deleteCustomer('${c.id}')" title="حذف العميل">حذف</button>`;
 
                 rowsHtml.push(`<tr>
                     <td style="text-align:center; white-space:nowrap;">${pinBadge}</td>
-                    <td style="font-weight:800; font-size:${cNameFs}; line-height:1.25; white-space:normal; word-break:break-word;" title="${cName.replace(/"/g, '&quot;')}">${cName}</td>
+                    <td style="font-weight:800; font-size:${cNameFs}; line-height:1.25; white-space:normal; word-break:break-word;" title="${cName.replace(/"/g, '&quot;')}">${cName}${dualBtnHtml}</td>
                     <td style="text-align:center; direction:ltr; white-space:nowrap;"><span style="font-family:monospace; font-weight:800; font-size:${cPhoneFs};">${cPhoneStr}</span>${subPhonesBadge}</td>
                     <td style="text-align:center; white-space:nowrap;">${stmtToggleBtn}</td>
                     <td style="text-align:center; white-space:nowrap;">${statusBadge}</td>
                     <td style="text-align:center; white-space:nowrap;">${balDisplay}</td>
-                    <td style="text-align:center; cursor:pointer; white-space:nowrap; font-size:0.70rem;" ondblclick="startInlineMasterEdit(this, 'customer_limit', '${c.id}', ${parseFloat(c.creditLimit) || 0})" title="انقر مرتين لتعديل حد الائتمان مباشرة">${(c.creditLimit || 0).toLocaleString()}</td>
-                    <td style="font-size:0.68rem; text-align:center; white-space:nowrap;">${c.contactPerson || '-'}</td>
+                    <td style="text-align:center; cursor:pointer; white-space:nowrap; font-size:0.68rem;" ondblclick="startInlineMasterEdit(this, '${isCrossSup ? 'supplier_limit' : 'customer_limit'}', '${c.id}', ${parseFloat(c.creditLimit) || 0})" title="انقر مرتين لتعديل حد الائتمان مباشرة">${(c.creditLimit || 0).toLocaleString()}</td>
+                    <td style="font-size:0.66rem; text-align:center; white-space:nowrap;">${c.contactPerson || '-'}</td>
                     <td style="text-align:center; white-space:nowrap; font-size:0.52rem; font-weight:800;">${c.securityLevel || 1}</td>
-                    <td style="text-align:center; white-space:nowrap;"><div style="display:inline-flex; align-items:center; gap:2px; flex-wrap:nowrap; white-space:nowrap;"><button class="btn-text" style="color:#fbbf24; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="openEntityDrillDownStatementModal('customer', '${c.id}')" title="كشف الحساب التفصيلي">📊</button><button class="btn-text" style="color:#38bdf8; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="window.location.href='account-statement.php?partner='+encodeURIComponent('${cName.replace(/'/g, "\\'")}')" title="كشف الحساب الرسمي">📄</button><button class="btn-text" style="color:#c084fc; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="window.location.href='customer-portfolio.php'" title="محفظة العميل">💼</button><button class="btn-text" style="color:#34d399; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="openEntityQrCardModal('customer', '${c.id}')" title="بطاقة QR">🪪</button><button class="btn-text" style="color:#38bdf8; font-weight:800; padding:1px 3px; font-size:0.70rem; white-space:nowrap;" onclick="editCustomer('${c.id}')">✏️</button><button class="btn-text" style="color:var(--danger-color); font-weight:800; padding:1px 3px; font-size:0.70rem; white-space:nowrap;" onclick="deleteCustomer('${c.id}')">🗑️</button></div></td>
+                    <td style="text-align:center; white-space:nowrap;"><div class="md-tbl-act-group"><button class="btn-text md-tbl-act-btn act-amber" onclick="openEntityDrillDownStatementModal('${entityType}', '${c.id}')" title="كشف الحساب التفصيلي">تفصيلي</button><button class="btn-text md-tbl-act-btn act-sky" onclick="window.location.href='account-statement.php?partner='+encodeURIComponent('${cName.replace(/'/g, "\\'")}')" title="كشف الحساب الرسمي">كشف حساب</button><button class="btn-text md-tbl-act-btn act-purple" onclick="window.location.href='customer-portfolio.php'" title="محفظة العميل">محفظة</button><button class="btn-text md-tbl-act-btn act-emerald" onclick="openEntityQrCardModal('${entityType}', '${c.id}')" title="بطاقة العميل QR">بطاقة</button><button class="btn-text md-tbl-act-btn act-blue" onclick="${editFnCall}" title="تعديل العميل">تعديل</button>${delBtnHtml}</div></td>
                 </tr>`);
             });
             if (!query && customers.length > maxShow) {
@@ -2907,6 +2960,7 @@
             if (document.getElementById('cust-payment-terms')) document.getElementById('cust-payment-terms').value = '';
             document.getElementById('cust-security').value = '1';
             document.getElementById('cust-status').value = 'active';
+            if (document.getElementById('cust-is-dual')) document.getElementById('cust-is-dual').checked = false;
             document.getElementById('cust-notes').value = '';
             
             const subPhonesContainer = document.getElementById('cust-sub-phones-container');
@@ -2965,6 +3019,7 @@
             if (document.getElementById('cust-payment-terms')) document.getElementById('cust-payment-terms').value = cust.paymentTermsDays || '';
             document.getElementById('cust-security').value = cust.securityLevel || '1';
             document.getElementById('cust-status').value = cust.status || 'active';
+            if (document.getElementById('cust-is-dual')) document.getElementById('cust-is-dual').checked = Boolean(cust.isDualPartner);
             document.getElementById('cust-notes').value = cust.notes || '';
             
             const subPhonesContainer = document.getElementById('cust-sub-phones-container');
@@ -3025,9 +3080,10 @@
             const phone = rawWhatsapp;
             const email = document.getElementById('sup-email').value;
             const address = document.getElementById('sup-address').value;
+            const isDualSupFlag = Boolean(document.getElementById('sup-is-dual')?.checked);
             const opBalance = parseFloat(document.getElementById('sup-opening-balance').value) || 0;
-            const openingCredit = opBalance >= 0 ? opBalance : 0;
-            const openingDebit = opBalance < 0 ? Math.abs(opBalance) : 0;
+            const openingDebit = isDualSupFlag ? (opBalance >= 0 ? opBalance : 0) : (opBalance < 0 ? Math.abs(opBalance) : 0);
+            const openingCredit = isDualSupFlag ? (opBalance < 0 ? Math.abs(opBalance) : 0) : (opBalance >= 0 ? opBalance : 0);
             // Read exchange rate from form input or fallback to settings
             const currency = document.getElementById('sup-currency').value || 'SDG';
             let exRate = parseFloat(document.getElementById('sup-ex-rate')?.value) || 1;
@@ -3045,6 +3101,7 @@
             const paymentTermsDays = parseInt(document.getElementById('sup-payment-terms')?.value, 10) || 0;
             const security = parseInt(document.getElementById('sup-security').value) || 1;
             const status = document.getElementById('sup-status').value || 'active';
+            const isDualPartner = Boolean(document.getElementById('sup-is-dual')?.checked);
             const notes = document.getElementById('sup-notes').value;
             const rawSupMode = document.getElementById('sup-statement-mode')?.value || '';
             const statementAccessMode = ['disabled', 'balance_only', 'detailed'].includes(rawSupMode)
@@ -3134,7 +3191,7 @@
                 creditLimit: limit,
                 credit_limit: limit,
                 paymentTermsDays,
-                securityLevel: security, status: status, notes,
+                securityLevel: security, status: status, isDualPartner: isDualPartner, notes,
                 date: existingIdx > -1 ? (suppliers[existingIdx].date || todayStr) : todayStr,
                 createdAt: existingIdx > -1 ? (suppliers[existingIdx].createdAt || nowIso) : nowIso
             };
@@ -3156,6 +3213,7 @@
             logMasterDataAudit(existingIdx > -1 ? 'تعديل' : 'إضافة', 'الموردين', name, `رصيد افتتاحي: ${opBalance} | أجل سداد: ${paymentTermsDays} يوم`);
             clearSupplierForm();
             renderSuppliers();
+            if (typeof renderCustomers === 'function') renderCustomers();
             triggerMasterSavePulse('#supplier-form');
             if (typeof showToast === 'function') showToast(`✅ تم حفظ المورد "${name}" (🔐 ${statementPin})`, 'success', 2000);
 
@@ -3180,7 +3238,11 @@
             const tbody = document.querySelector('#tab-suppliers-table tbody');
             if(!tbody) return;
             let suppliers = ensureSupplierReceiptCodes();
-            suppliers = suppliers.filter(s => !s.deleted);
+            suppliers = suppliers.filter(s => !s.deleted).map(s => Object.assign({}, s, { _sourceType: 'supplier' }));
+            try {
+                const dualCusts = (JSON.parse(localStorage.getItem('erp_customers_v1') || '[]') || []).filter(c => c && !c.deleted && c.isDualPartner && !suppliers.some(s => String(s.id) === String(c.id)));
+                dualCusts.forEach(c => suppliers.push(Object.assign({}, c, { _sourceType: 'customer', _crossLabel: 'عميل' })));
+            } catch (_e) {}
             const isTenant12Demo = (typeof window.getTenantPrefix === 'function' && window.getTenantPrefix() === 'tenant_12_');
             if (suppliers.length === 0 && !query && isTenant12Demo) {
                 suppliers = [
@@ -3224,17 +3286,22 @@
             const visibleSuppliers = suppliers.slice(0, maxShowSup);
             const rowsHtmlSup = [];
             visibleSuppliers.forEach(s => {
-                const statusMap = {'vip': '<span style="background:rgba(168,85,247,0.15); color:#a855f7; padding:1px 5px; border-radius:8px; font-size:0.68rem; font-weight:700;">🌟 VIP</span>', 'blacklisted': '<span style="background:rgba(239,68,68,0.15); color:#ef4444; padding:1px 5px; border-radius:8px; font-size:0.68rem; font-weight:700;">🔴 محظور</span>'};
-                const statusBadge = statusMap[s.status] || '<span style="background:rgba(52,211,153,0.15); color:#34d399; padding:1px 5px; border-radius:8px; font-size:0.68rem; font-weight:700;">🟢 نشط</span>';
-                const bal = (typeof window.computeLiveEntityLedgerBalance === 'function')
-                    ? window.computeLiveEntityLedgerBalance('supplier', s)
-                    : (parseFloat(s.currentBalance) || ((parseFloat(s.openingCredit) || 0) - (parseFloat(s.openingDebit) || 0)));
-                const balColor = bal > 0 ? '#34d399' : (bal < 0 ? '#f87171' : '#94a3b8');
+                const statusMap = {'vip': '<span class="md-status-plain md-status-vip">VIP</span>', 'blacklisted': '<span class="md-status-plain md-status-blocked">محظور</span>', 'inactive': '<span class="md-status-plain md-status-blocked">موقوف</span>'};
+                const statusBadge = statusMap[s.status] || '<span class="md-status-plain md-status-active">نشط</span>';
+                const isCrossCust = (s._sourceType === 'customer');
+                const supEntityType = isCrossCust ? 'customer' : 'supplier';
+                const rawBalSup = (typeof window.computeLiveEntityLedgerBalance === 'function')
+                    ? window.computeLiveEntityLedgerBalance(supEntityType, s)
+                    : (isCrossCust
+                        ? (parseFloat(s.currentBalance) || ((parseFloat(s.openingDebit) || 0) - (parseFloat(s.openingCredit) || 0)))
+                        : (parseFloat(s.currentBalance) || ((parseFloat(s.openingCredit) || 0) - (parseFloat(s.openingDebit) || 0))));
+                const bal = isCrossCust ? -rawBalSup : rawBalSup;
+                const balClsSup = bal > 0 ? 'md-bal-credit' : (bal < 0 ? 'md-bal-debit' : 'md-bal-zero');
                 const balLabel = bal > 0 ? 'له' : (bal < 0 ? 'عليه' : 'مسدد');
-                const agingBadgeSup = (typeof window.computeEntityDebtAgingBadge === 'function') ? window.computeEntityDebtAgingBadge('supplier', s, bal) : '';
+                const agingBadgeSup = (typeof window.computeEntityDebtAgingBadge === 'function') ? window.computeEntityDebtAgingBadge(supEntityType, s, rawBalSup) : '';
                 const balStrSup = Math.abs(bal).toLocaleString();
-                const balFsSup = balStrSup.length > 10 ? '0.68rem' : (balStrSup.length > 7 ? '0.74rem' : '0.80rem');
-                const balDisplay = `<span onclick="openEntityDrillDownStatementModal('supplier', '${s.id}')" style="color:${balColor}; font-weight:900; font-family:monospace; font-size:${balFsSup}; cursor:pointer; text-decoration:underline dotted;" title="اضغط لفتح كشف الحساب التفصيلي والحركات (Drill-Down)">${balStrSup}</span> <small style="color:${balColor}; opacity:0.8; font-size:0.64rem;">${balLabel}</small>${agingBadgeSup}`;
+                const balFsSup = balStrSup.length > 10 ? '0.60rem' : (balStrSup.length > 7 ? '0.64rem' : '0.68rem');
+                const balDisplay = `<span class="${balClsSup}" onclick="openEntityDrillDownStatementModal('${supEntityType}', '${s.id}')" style="font-size:${balFsSup}; cursor:pointer; text-decoration:underline dotted;" title="اضغط لفتح كشف الحساب التفصيلي والحركات (Drill-Down)">${balStrSup}</span> <small class="${balClsSup}" style="font-size:0.56rem;">${balLabel}</small>${agingBadgeSup}`;
                 
                 const pInfo = getEntityFull5DigitPin(s.whatsapp || s.phone || '', s.statementPin);
                 const cleanPin = pInfo.pin3;
@@ -3244,27 +3311,30 @@
                 const pinTip = (pInfo.last2 && cleanPin.length === 3)
                     ? `الرقم السري (5 أرقام): ${pInfo.full5} = آخر رقمين من الواتساب (${pInfo.last2}) + الثلاثة أرقام السرية (${cleanPin}) — اضغط للنسخ`
                     : `الرقم السري: ${cleanPin || '-'} (أضف رقم الواتساب ليصبح 5 أرقام)`;
-                const pinBadge = `<span onclick="copyEntityWhatsAppCard('supplier', '${s.id}')" title="${pinTip}" style="background:rgba(168,85,247,0.18); color:#e9d5ff; border:1px solid rgba(168,85,247,0.45); padding:0 4px; border-radius:4px; font-weight:900; font-family:monospace; font-size:0.54rem; display:inline-block; cursor:pointer; direction:ltr; white-space:nowrap;">${pinLabelHtml}</span>`;
+                const pinBadge = `<span class="md-pin-badge" onclick="copyEntityWhatsAppCard('supplier', '${s.id}')" title="${pinTip}">${pinLabelHtml}</span>`;
 
                 const subCount = Array.isArray(s.subPhones) ? s.subPhones.length : 0;
                 const subPhonesBadge = subCount > 0 ? ` <span style="background:rgba(56,189,248,0.12); color:#38bdf8; padding:1px 4px; border-radius:4px; font-size:0.54rem; font-weight:700;">+${subCount}</span>` : '';
 
-                const stmtToggleBtn = buildTableStatementControlHtml('supplier', s);
+                const stmtToggleBtn = buildTableStatementControlHtml(supEntityType, s);
                 const sName = String(s.name || '');
                 const sNameFs = sName.length > 26 ? '0.60rem' : (sName.length > 18 ? '0.66rem' : '0.72rem');
                 const sPhoneStr = String(s.whatsapp || s.phone || '-');
                 const sPhoneFs = sPhoneStr.length > 12 ? '0.62rem' : '0.70rem';
+                const dualBtnSupHtml = buildDualToggleBtnHtml(supEntityType, s.id, Boolean(s.isDualPartner), s._crossLabel || '');
+                const editSupCall = isCrossCust ? `switchTab('tab-customers');editCustomer('${s.id}')` : `editSupplier('${s.id}')`;
+                const delSupBtnHtml = isCrossCust ? '' : `<button class="btn-text md-tbl-act-btn act-danger" onclick="deleteSupplier('${s.id}')" title="حذف المورد">حذف</button>`;
 
                 rowsHtmlSup.push(`<tr>
                     <td style="text-align:center; white-space:nowrap;">${pinBadge}</td>
-                    <td style="font-weight:800; font-size:${sNameFs}; line-height:1.25; white-space:normal; word-break:break-word;" title="${sName.replace(/"/g, '&quot;')}">${sName}</td>
+                    <td style="font-weight:800; font-size:${sNameFs}; line-height:1.25; white-space:normal; word-break:break-word;" title="${sName.replace(/"/g, '&quot;')}">${sName}${dualBtnSupHtml}</td>
                     <td style="text-align:center; direction:ltr; white-space:nowrap;"><span style="font-family:monospace; font-weight:800; font-size:${sPhoneFs};">${sPhoneStr}</span>${subPhonesBadge}</td>
                     <td style="text-align:center; white-space:nowrap;">${stmtToggleBtn}</td>
                     <td style="text-align:center; white-space:nowrap;">${statusBadge}</td>
                     <td style="text-align:center; white-space:nowrap;">${balDisplay}</td>
-                    <td style="text-align:center; cursor:pointer; white-space:nowrap; font-size:0.70rem;" ondblclick="startInlineMasterEdit(this, 'supplier_limit', '${s.id}', ${parseFloat(s.creditLimit) || 0})">${(s.creditLimit || 0).toLocaleString()}</td>
+                    <td style="text-align:center; cursor:pointer; white-space:nowrap; font-size:0.68rem;" ondblclick="startInlineMasterEdit(this, '${isCrossCust ? 'customer_limit' : 'supplier_limit'}', '${s.id}', ${parseFloat(s.creditLimit) || 0})">${(s.creditLimit || 0).toLocaleString()}</td>
                     <td style="text-align:center; white-space:nowrap; font-size:0.52rem; font-weight:800;">${s.securityLevel || 1}</td>
-                    <td style="text-align:center; white-space:nowrap;"><div style="display:inline-flex; align-items:center; gap:2px; flex-wrap:nowrap; white-space:nowrap;"><button class="btn-text" style="color:#fbbf24; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="openEntityDrillDownStatementModal('supplier', '${s.id}')" title="كشف الحساب التفصيلي">📊</button><button class="btn-text" style="color:#38bdf8; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="window.location.href='account-statement.php?partner='+encodeURIComponent('${sName.replace(/'/g, "\\'")}')" title="كشف الحساب الرسمي">📄</button><button class="btn-text" style="color:#f59e0b; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="window.location.href='supplier_reliability.php'" title="موثوقية المورد">🏭</button><button class="btn-text" style="color:#34d399; font-weight:800; padding:1px 2px; font-size:0.72rem;" onclick="openEntityQrCardModal('supplier', '${s.id}')" title="بطاقة QR">🪪</button><button class="btn-text" style="color:#38bdf8; font-weight:800; padding:1px 3px; font-size:0.70rem; white-space:nowrap;" onclick="editSupplier('${s.id}')">✏️</button><button class="btn-text" style="color:var(--danger-color); font-weight:800; padding:1px 3px; font-size:0.70rem; white-space:nowrap;" onclick="deleteSupplier('${s.id}')">🗑️</button></div></td>
+                    <td style="text-align:center; white-space:nowrap;"><div class="md-tbl-act-group"><button class="btn-text md-tbl-act-btn act-amber" onclick="openEntityDrillDownStatementModal('${supEntityType}', '${s.id}')" title="كشف الحساب التفصيلي">تفصيلي</button><button class="btn-text md-tbl-act-btn act-sky" onclick="window.location.href='account-statement.php?partner='+encodeURIComponent('${sName.replace(/'/g, "\\'")}')" title="كشف الحساب الرسمي">كشف حساب</button><button class="btn-text md-tbl-act-btn act-orange" onclick="window.location.href='supplier_reliability.php'" title="موثوقية المورد">موثوقية</button><button class="btn-text md-tbl-act-btn act-emerald" onclick="openEntityQrCardModal('${supEntityType}', '${s.id}')" title="بطاقة المورد QR">بطاقة</button><button class="btn-text md-tbl-act-btn act-blue" onclick="${editSupCall}" title="تعديل المورد">تعديل</button>${delSupBtnHtml}</div></td>
                 </tr>`);
             });
             if (!query && suppliers.length > maxShowSup) {
@@ -3308,6 +3378,7 @@
             if (document.getElementById('sup-payment-terms')) document.getElementById('sup-payment-terms').value = '';
             document.getElementById('sup-security').value = '1';
             document.getElementById('sup-status').value = 'active';
+            if (document.getElementById('sup-is-dual')) document.getElementById('sup-is-dual').checked = false;
             document.getElementById('sup-notes').value = '';
             const subPhonesContainer = document.getElementById('sup-sub-phones-container');
             if (subPhonesContainer) {
@@ -3323,7 +3394,11 @@
         function editSupplier(id) {
             populateWaReceiptBankDropdowns();
             let suppliers = ensureSupplierReceiptCodes();
-            suppliers = suppliers.filter(s => !s.deleted);
+            suppliers = suppliers.filter(s => !s.deleted).map(s => Object.assign({}, s, { _sourceType: 'supplier' }));
+            try {
+                const dualCusts = (JSON.parse(localStorage.getItem('erp_customers_v1') || '[]') || []).filter(c => c && !c.deleted && c.isDualPartner && !suppliers.some(s => String(s.id) === String(c.id)));
+                dualCusts.forEach(c => suppliers.push(Object.assign({}, c, { _sourceType: 'customer', _crossLabel: 'عميل' })));
+            } catch (_e) {}
             const sup = suppliers.find(s => s.id === id);
             if(!sup) return;
             document.getElementById('sup-id').value = sup.id;
@@ -3344,7 +3419,8 @@
             document.getElementById('sup-whatsapp').value = unifiedWa;
             document.getElementById('sup-email').value = sup.email || '';
             document.getElementById('sup-address').value = sup.address || '';
-            const bal = (sup.openingCredit || 0) - (sup.openingDebit || 0);
+            const isDualSupEdit = Boolean(sup.isDualPartner);
+            const bal = isDualSupEdit ? ((sup.openingDebit || 0) - (sup.openingCredit || 0)) : ((sup.openingCredit || 0) - (sup.openingDebit || 0));
             document.getElementById('sup-opening-balance').value = bal || '';
             document.getElementById('sup-currency').value = sup.currency || 'SDG';
             if (typeof updateSupExchangeRate === 'function') updateSupExchangeRate();
@@ -3358,6 +3434,8 @@
             if (document.getElementById('sup-payment-terms')) document.getElementById('sup-payment-terms').value = sup.paymentTermsDays || '';
             document.getElementById('sup-security').value = sup.securityLevel || '1';
             document.getElementById('sup-status').value = sup.status || 'active';
+            if (document.getElementById('sup-is-dual')) document.getElementById('sup-is-dual').checked = Boolean(sup.isDualPartner);
+            if (typeof window.syncSupDualOpBalLabels === 'function') window.syncSupDualOpBalLabels();
             document.getElementById('sup-notes').value = sup.notes || '';
             const subPhonesContainer = document.getElementById('sup-sub-phones-container');
             if (subPhonesContainer) {
@@ -3435,9 +3513,9 @@
                         <button class="btn-text" style="color:#38bdf8; background:rgba(56,189,248,0.14); border:1px solid rgba(56,189,248,0.4); padding:3px 9px; border-radius:7px; font-weight:900; margin-left:6px;" onclick="window.openEmployeeScreenBoxesModal ? window.openEmployeeScreenBoxesModal('${emp.id}') : (window.location.href='users-roles.php')" title="تحديد مربعات الشاشات والتقارير المسموحة والممنوعة لهذا الموظف">☑️ مربعات الشاشات</button>
                         <button class="btn-text" style="color:#f59e0b; font-weight:800; margin-left:6px;" onclick="window.location.href='account-statement.php?id='+encodeURIComponent('${emp.id}')" title="كشف حساب الموظف في دفتر الأستاذ">📄 كشف حساب</button>
                         <button class="btn-text" style="color:#34d399; font-weight:800; margin-left:6px;" onclick="window.location.href='payroll.php'" title="مسير الرواتب والاستحقاقات">💵 الرواتب</button>
-                        <button class="btn-text" style="color:#10b981; font-weight:900; margin-left:6px;" onclick="window.shareSingleEmployeeWhatsApp && window.shareSingleEmployeeWhatsApp('${emp.id}')" title="واتساب الموظف">💬</button>
-                        <button class="btn-text" style="color:#a855f7; font-weight:bold; margin-left:6px;" onclick="editEmployee('${emp.id}')">✏️ تعديل</button>
-                        <button class="btn-text" style="color:var(--danger-color); font-weight:bold;" onclick="deleteEmployee('${emp.id}')">🗑️</button>
+                        <button class="btn-text md-tbl-act-btn act-emerald" onclick="window.shareSingleEmployeeWhatsApp && window.shareSingleEmployeeWhatsApp('${emp.id}')" title="واتساب الموظف">واتساب</button>
+                        <button class="btn-text md-tbl-act-btn act-blue" onclick="editEmployee('${emp.id}')">تعديل</button>
+                        <button class="btn-text md-tbl-act-btn act-danger" onclick="deleteEmployee('${emp.id}')">حذف</button>
                     </td>
                 </tr>`;
             }).join('');
@@ -4407,9 +4485,9 @@
                 let cost = parseFloat(i.costPrice || i.cost || i.openingValue || (i.units && i.units[0] ? i.units[0].purchasePrice : 0)) || 0;
                 const isMarginWarn = (price <= 0 || (cost > 0 && price <= cost));
                 const marginBadge = isMarginWarn ? ` <span style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid rgba(245,158,11,0.45); padding:1px 6px; border-radius:6px; font-size:0.72rem; font-weight:800;" title="تنبيه تسعير: سعر البيع صفر أو أقل/يساوي التكلفة (${cost.toLocaleString()})">⚠️ راجع السعر</span>` : '';
-                const badge = i.status === 'inactive' ? '<span style="color:var(--danger-color); font-size:0.8rem; font-weight:bold; background:rgba(239,68,68,0.1); padding:3px 8px; border-radius:6px;">🔴 موقوف</span>' : '<span style="color:var(--success-color); font-size:0.8rem; font-weight:bold; background:rgba(52,211,153,0.1); padding:3px 8px; border-radius:6px;">🟢 نشط</span>';
+                const badge = i.status === 'inactive' ? '<span class="md-status-plain md-status-blocked">موقوف</span>' : '<span class="md-status-plain md-status-active">نشط</span>';
                 const subCat = i.subCategory ? ' <small style="color:var(--text-secondary);">(' + i.subCategory + ')</small>' : '';
-                rowsHtmlItems.push(`<tr class="item-row"><td class="item-id-cell" style="font-weight:bold; color:#38bdf8;">${i.id}</td><td class="item-name-cell" style="font-weight:bold;">${i.name}${subCat}</td><td><span style="background:rgba(255,255,255,0.05); padding:3px 8px; border-radius:6px; font-size:0.85rem;">${i.category || '-'}</span></td><td>${bu}${unitsCount}${stockPill}</td><td style="font-weight:bold; color:var(--success-color); cursor:pointer;" ondblclick="startInlineMasterEdit(this, 'item_price', '${i.id}', ${price})" title="انقر مرتين للتعديل المباشر لسعر البيع مثل Excel ثم اضغط Enter">${price.toLocaleString()} SDG <small style="opacity:0.45;">✏️</small>${marginBadge}</td><td>${badge}</td><td style="white-space:nowrap;"><button class="btn-text" style="color:#fbbf24; font-size:1rem; margin-left:5px;" onclick="window.location.href='item-ledger.php?item='+encodeURIComponent('${(i.name || '').replace(/'/g, "\\'")}')" title="فتح كرت الصنف التفصيلي وحركاته">📦</button><button class="btn-text" style="color:#34d399; font-size:1rem; margin-left:5px;" onclick="if(typeof window.openMdInspectionAndPartialReceiptModal==='function')window.openMdInspectionAndPartialReceiptModal('${i.id}')" title="فحص واستلام بضاعة (سليم / تالف / مرفوض)">🔬</button><button class="btn-text" style="color:#38bdf8; font-size:1.05rem; margin-left:6px;" onclick="openItemPriceHistoryModal('${i.id}')" title="سجل تاريخ الأسعار">📜</button><button class="btn-text" style="color:#a855f7; font-size:1.1rem; margin-left:8px;" onclick="editItem('${i.id}')" title="تعديل">✏️</button><button class="btn-text" style="color:var(--danger-color); font-size:1.1rem;" onclick="deleteItem('${i.id}')" title="حذف">🗑️</button></td></tr>`);
+                rowsHtmlItems.push(`<tr class="item-row"><td class="item-id-cell" style="font-weight:bold; color:#38bdf8;">${i.id}</td><td class="item-name-cell" style="font-weight:bold;">${i.name}${subCat}</td><td><span class="md-cat-tag">${i.category || '-'}</span></td><td>${bu}${unitsCount}${stockPill}</td><td class="md-item-price-cell" style="font-weight:bold; cursor:pointer;" ondblclick="startInlineMasterEdit(this, 'item_price', '${i.id}', ${price})" title="انقر مرتين للتعديل المباشر لسعر البيع مثل Excel ثم اضغط Enter">${price.toLocaleString()} SDG${marginBadge}</td><td style="text-align:center;">${badge}</td><td style="white-space:nowrap; text-align:center;"><div class="md-tbl-act-group"><button class="btn-text md-tbl-act-btn act-amber" onclick="window.location.href='item-ledger.php?item='+encodeURIComponent('${(i.name || '').replace(/'/g, "\\'")}')" title="فتح كرت الصنف التفصيلي وحركاته">كرت الصنف</button><button class="btn-text md-tbl-act-btn act-emerald" onclick="if(typeof window.openMdInspectionAndPartialReceiptModal==='function')window.openMdInspectionAndPartialReceiptModal('${i.id}')" title="فحص واستلام بضاعة (سليم / تالف / مرفوض)">فحص</button><button class="btn-text md-tbl-act-btn act-sky" onclick="openItemPriceHistoryModal('${i.id}')" title="سجل تاريخ الأسعار">الأسعار</button><button class="btn-text md-tbl-act-btn act-blue" onclick="editItem('${i.id}')" title="تعديل الصنف">تعديل</button><button class="btn-text md-tbl-act-btn act-danger" onclick="deleteItem('${i.id}')" title="حذف الصنف">حذف</button></div></td></tr>`);
             });
             tbody.innerHTML = rowsHtmlItems.join('');
             

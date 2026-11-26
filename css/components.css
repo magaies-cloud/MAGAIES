@@ -1088,7 +1088,7 @@ body.sidebar-open .global-sidebar .sidebar-logo-text,
 }
 
 .sidebar-item:hover .sidebar-icon {
-    transform: translateY(-50%) scale(1.12);
+    transform: translateY(-50%) scale(1);
 }
 
 /* ── TEXT: beside the icon (right:62px), hidden when collapsed ── */

@@ -58,11 +58,15 @@
         },
 
         showAlertBanner: function(msg, severity = 'warning', duration = 6000) {
+            if (typeof window.showCenteredWarningModal === 'function') {
+                window.showCenteredWarningModal(msg, severity === 'danger' ? 'error' : 'warning');
+                return;
+            }
             let container = document.getElementById('erp-alerts-guard-container');
             if (!container) {
                 container = document.createElement('div');
                 container.id = 'erp-alerts-guard-container';
-                container.style.cssText = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:999999; display:flex; flex-direction:column; gap:10px; width:90%; max-width:560px; pointer-events:none; font-family:"Cairo","Tajawal",sans-serif;';
+                container.style.cssText = 'position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:2147483647; display:flex; flex-direction:column; gap:12px; width:min(94vw,600px); pointer-events:none; font-family:"Cairo","Tajawal",sans-serif; direction:rtl;';
                 document.body.appendChild(container);
             }
 
@@ -538,16 +542,7 @@
                 }
             }
 
-            // Check rapid duplicate invoice
-            if (this.isRuleEnabled('sales_rapid_duplicate_invoice')) {
-                const now = Date.now();
-                const cust = document.getElementById('customer-select') ? document.getElementById('customer-select').value : '1';
-                if (this.lastInvoiceCustomer === cust && (now - this.lastInvoiceTimestamp) < 60000) {
-                    this.showAlertBanner('⚠️ تنبيه تكرار سريع: تم إصدار فاتورة سابقة لنفس العميل خلال أقل من دقيقة!', 'warning');
-                }
-                this.lastInvoiceTimestamp = now;
-                this.lastInvoiceCustomer = cust;
-            }
+            // تم إيقاف تنبيه التكرار السريع لفواتير العميل لمنع التنبيهات الخاطئة عند تكرار البيع لنفس العميل أو العميل النقدي
         },
 
         checkDuplicateTransfer: function(inputEl) {
@@ -570,22 +565,9 @@
         },
 
         checkDuplicateCheque: function(inputEl) {
-            if (!this.isRuleEnabled('fin_duplicate_cheque_no')) return;
-            const val = inputEl.value.trim();
-            if (!val || val === '0') return;
-
-            const allCheques = document.querySelectorAll('.block-cheque-no-input, #cheque-no-input, #block-cheque-no-input');
-            let count = 0;
-            allCheques.forEach(el => {
-                if (el.value.trim() === val) count++;
-            });
-
-            if (count > 1) {
-                inputEl.classList.add('erp-alert-highlight-danger');
-                this.showAlertBanner('🚨 تكرار رقم الشيك البنكي (' + val + ') في المعاملات المالية!', 'danger');
-            } else {
-                inputEl.classList.remove('erp-alert-highlight-danger');
-            }
+            // تكرار رقم الشيك مسموح (قد يتشابه رقم الشيك بين بنوك مختلفة مثل بنك فيصل وبنك الجزيرة)
+            if (inputEl) inputEl.classList.remove('erp-alert-highlight-danger');
+            return;
         }
     };
 

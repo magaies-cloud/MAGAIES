@@ -23,7 +23,7 @@ $page_title = 'لوحة التحكم';
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<script src="js/lang.js?v=20261115_natural_v6"></script>
+<script src="js/lang.js?v=<?= @filemtime(__DIR__ . '/js/lang.js') ?: '2027' ?>"></script>
 <script>
 (function(){
     var l = localStorage.getItem('erp_lang') || 'ar';
@@ -125,7 +125,7 @@ function switchToMobileEdition() {
     <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <title>Magaiees ERP - التحكم المتكاملة | الشاشة العالمية الموحدة</title>
     <link rel="stylesheet" href="css/tailwind.min.css">
-    <script src="js/tailwind.min.js"></script>
+    <style>.text-\[10\.5px\]{font-size:10.5px}</style>
     <link rel="preload" href="css/design-system.css?v=20260723_v14" as="style">
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=<?php echo file_exists('css/theme.css') ? filemtime('css/theme.css') : '12'; ?>">
@@ -574,10 +574,7 @@ function switchToMobileEdition() {
                 #market-broker-offers-row, html.light-theme #market-broker-offers-row, html.light-theme[data-light-tone] #market-broker-offers-row { background: #0c1d47 !important; border: none !important; box-shadow: none !important; }
                 #market-broker-orders-row, html.light-theme #market-broker-orders-row, html.light-theme[data-light-tone] #market-broker-orders-row { background: #0a2536 !important; border: none !important; box-shadow: none !important; }
                 #market-broker-ticker-track > div > span[onclick], #market-broker-orders-track > div > span[onclick] { padding: 0 10px !important; border: none !important; line-height: 1.15 !important; }
-                html.light-theme[data-light-tone="rose_blossom"] body, html.light-theme[data-light-tone="rose_blossom"] .dash-main { background: linear-gradient(180deg, #fdf2f8 0%, #fce7f3 50%, #fdf2f8 100%) !important; color: #000000 !important; }
-                html.light-theme[data-light-tone="royal_bronze"] body, html.light-theme[data-light-tone="royal_bronze"] .dash-main { background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 50%, #fffbeb 100%) !important; color: #000000 !important; }
-                html.light-theme[data-light-tone="crystal_silver"] body, html.light-theme[data-light-tone="crystal_silver"] .dash-main, html.light-theme[data-light-tone="platinum_gray"] body, html.light-theme[data-light-tone="platinum_gray"] .dash-main { background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 50%, #f8fafc 100%) !important; color: #000000 !important; }
-                html.light-theme[data-light-tone="sage_pearl"] body, html.light-theme[data-light-tone="sage_pearl"] .dash-main { background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 50%, #f0fdf4 100%) !important; color: #000000 !important; }
+                html.light-theme body #market-broker-ticker-wrap#market-broker-ticker-wrap { border: 2.5px solid var(--lt-border, #5c2808) !important; box-shadow: 0 4px 12px rgba(15,23,42,0.22) !important; }
                 #market-broker-ticker-wrap .brk-pill-hdr-off, html.light-theme #market-broker-ticker-wrap .brk-pill-hdr-off { color: #fde047 !important; -webkit-text-fill-color: #fde047 !important; font-weight: 900 !important; }
                 #market-broker-ticker-wrap .brk-off-txt-0, html.light-theme #market-broker-ticker-wrap .brk-off-txt-0 { color: #fdba74 !important; -webkit-text-fill-color: #fdba74 !important; }
                 #market-broker-ticker-wrap .brk-off-txt-1, html.light-theme #market-broker-ticker-wrap .brk-off-txt-1 { color: #fde047 !important; -webkit-text-fill-color: #fde047 !important; }
@@ -588,9 +585,32 @@ function switchToMobileEdition() {
                 #market-broker-ticker-wrap .brk-ord-txt-1, html.light-theme #market-broker-ticker-wrap .brk-ord-txt-1 { color: #dcfce7 !important; -webkit-text-fill-color: #dcfce7 !important; }
                 #market-broker-ticker-wrap .brk-ord-txt-2, html.light-theme #market-broker-ticker-wrap .brk-ord-txt-2 { color: #ffffff !important; -webkit-text-fill-color: #ffffff !important; }
                 #market-broker-ticker-wrap .brk-ord-time, html.light-theme #market-broker-ticker-wrap .brk-ord-time { color: #bbf7d0 !important; -webkit-text-fill-color: #bbf7d0 !important; font-weight: 900 !important; }
-                html.light-theme #dash-today-harvest-strip .exec-jewel-btn { border: 2.5px solid #0f172a !important; background: #ffffff !important; box-shadow: 0 6px 16px rgba(15,23,42,0.12) !important; }
-                html.light-theme #dash-today-harvest-strip .exec-jewel-lbl, html.light-theme #dash-today-harvest-strip .exec-jewel-lbl *, html.light-theme #dash-today-harvest-strip .exec-jewel-lbl-ap, html.light-theme #dash-today-harvest-strip .exec-jewel-lbl-ap * { color: #0f172a !important; -webkit-text-fill-color: #0f172a !important; font-weight: 900 !important; }
-                html.light-theme #dash-today-harvest-strip .exec-jewel-val { color: #120500 !important; -webkit-text-fill-color: #120500 !important; font-weight: 900 !important; text-shadow: none !important; }
+                html:not(.light-theme) #dash-today-harvest-strip .exec-jewel-btn { background: var(--jewel-bg, linear-gradient(165deg, rgba(14,165,233,0.16), rgba(15,23,42,0.96))) !important; }
+                html.light-theme body #new-unified-dashboard-design #dash-today-harvest-strip { background: linear-gradient(150deg, var(--lt-card-1, #fffdf8) 0%, var(--lt-card-2, #f1e4ce) 100%) !important; border: 2.5px solid var(--lt-border, #4a2106) !important; box-shadow: 0 8px 22px rgba(15,23,42,0.18), inset 0 1px 0 #ffffff !important; }
+                html.light-theme body #new-unified-dashboard-design #dash-today-harvest-strip .exec-jewel-btn { border: 2.5px solid var(--lt-border, #4a2106) !important; border-right: 6px solid var(--jewel-accent, #0284c7) !important; background: #ffffff !important; box-shadow: 0 4px 12px rgba(15,23,42,0.16) !important; }
+                html.light-theme body #new-unified-dashboard-design #dash-today-harvest-strip .exec-jewel-btn:hover { border-color: var(--jewel-accent, #0284c7) !important; border-right: 6px solid var(--jewel-accent, #0284c7) !important; box-shadow: 0 8px 20px rgba(15,23,42,0.24) !important; }
+                html.light-theme body #new-unified-dashboard-design #dash-today-harvest-strip .exec-jewel-lbl, html.light-theme body #new-unified-dashboard-design #dash-today-harvest-strip .exec-jewel-lbl > span, html.light-theme body #new-unified-dashboard-design #dash-today-harvest-strip .exec-jewel-lbl-ap, html.light-theme body #new-unified-dashboard-design #dash-today-harvest-strip .exec-jewel-lbl-ap > span { color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 900 !important; }
+                html.light-theme body #new-unified-dashboard-design #dash-today-harvest-strip .exec-jewel-lbl small, html.light-theme body #new-unified-dashboard-design #dash-today-harvest-strip .exec-jewel-lbl-ap small { background: var(--lt-sub-2, #e5d8c0) !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; border: 1.5px solid var(--lt-border, #4a2106) !important; padding: 1px 6px !important; border-radius: 6px !important; font-weight: 900 !important; }
+                html.light-theme body #new-unified-dashboard-design #dash-today-harvest-strip .exec-jewel-val, html.prof-ux-2027.light-theme body #new-unified-dashboard-design #dash-today-harvest-strip .exec-jewel-val { background: var(--lt-card-1, #fcfaf5) !important; border: 2px solid var(--lt-border, #4a2106) !important; font-weight: 900 !important; text-shadow: none !important; box-shadow: inset 0 1px 2px rgba(0,0,0,0.08) !important; }
+                html.light-theme body #new-unified-dashboard-design #dash-today-harvest-strip .exec-unit-tag { color: #000000 !important; -webkit-text-fill-color: #000000 !important; font-weight: 900 !important; opacity: 1 !important; }
+                html:not(.light-theme) #strip-sal-amt, html:not(.light-theme) #strip-ap-amt { color: #fde047 !important; -webkit-text-fill-color: #fde047 !important; }
+                html:not(.light-theme) #strip-pur-amt { color: #fbbf24 !important; -webkit-text-fill-color: #fbbf24 !important; }
+                html:not(.light-theme) #strip-liq-amt { color: #6ee7b7 !important; -webkit-text-fill-color: #6ee7b7 !important; }
+                html:not(.light-theme) #strip-prf-amt, html:not(.light-theme) #strip-ar-amt { color: #4ade80 !important; -webkit-text-fill-color: #4ade80 !important; }
+                html:not(.light-theme) #strip-exp-amt { color: #fda4af !important; -webkit-text-fill-color: #fda4af !important; }
+                html:not(.light-theme) #stock-mkt-val { color: #7dd3fc !important; -webkit-text-fill-color: #7dd3fc !important; }
+                html:not(.light-theme) #strip-in-amt { color: #5eead4 !important; -webkit-text-fill-color: #5eead4 !important; }
+                html:not(.light-theme) #strip-out-amt { color: #fb7185 !important; -webkit-text-fill-color: #fb7185 !important; }
+                html.light-theme body #new-unified-dashboard-design #strip-sal-amt { color: #0c4a6e !important; -webkit-text-fill-color: #0c4a6e !important; border-color: #0369a1 !important; }
+                html.light-theme body #new-unified-dashboard-design #strip-pur-amt { color: #7c2d12 !important; -webkit-text-fill-color: #7c2d12 !important; border-color: #b45309 !important; }
+                html.light-theme body #new-unified-dashboard-design #strip-liq-amt { color: #022c22 !important; -webkit-text-fill-color: #022c22 !important; border-color: #047857 !important; }
+                html.light-theme body #new-unified-dashboard-design #strip-prf-amt { color: #064e3b !important; -webkit-text-fill-color: #064e3b !important; border-color: #065f46 !important; }
+                html.light-theme body #new-unified-dashboard-design #strip-exp-amt { color: #881337 !important; -webkit-text-fill-color: #881337 !important; border-color: #be123c !important; }
+                html.light-theme body #new-unified-dashboard-design #stock-mkt-val { color: #1e3a8a !important; -webkit-text-fill-color: #1e3a8a !important; border-color: #1d4ed8 !important; }
+                html.light-theme body #new-unified-dashboard-design #strip-in-amt { color: #115e59 !important; -webkit-text-fill-color: #115e59 !important; border-color: #0f766e !important; }
+                html.light-theme body #new-unified-dashboard-design #strip-out-amt { color: #7f1d1d !important; -webkit-text-fill-color: #7f1d1d !important; border-color: #b91c1c !important; }
+                html.light-theme body #new-unified-dashboard-design #strip-ap-amt { color: #4c1d95 !important; -webkit-text-fill-color: #4c1d95 !important; border-color: #6d28d9 !important; }
+                html.light-theme body #new-unified-dashboard-design #strip-ar-amt { color: #064e3b !important; -webkit-text-fill-color: #064e3b !important; border-color: #047857 !important; }
                 #exec-sticky-command-bar > div { display: flex !important; align-items: center !important; flex-shrink: 0 !important; gap: 5px !important; }
                 #market-broker-ticker-track, #market-broker-orders-track { display: inline-flex !important; width: max-content !important; align-items: center !important; gap: 18px !important; white-space: nowrap !important; direction: rtl !important; will-change: transform; backface-visibility: hidden; -webkit-font-smoothing: antialiased; animation: mktBrokerMarquee var(--brk-dur, 78s) linear infinite !important; }
                 #market-broker-offers-row:hover #market-broker-ticker-track, #market-broker-orders-row:hover #market-broker-orders-track { animation-play-state: paused !important; }
@@ -598,7 +618,6 @@ function switchToMobileEdition() {
                 html.prof-ux-2027 #exec-sticky-command-bar .exec-royal-action:hover,
                 html.prof-ux-2027 #dash-today-harvest-strip .exec-jewel-btn:hover { transform: translateY(-1px) scale(1) !important; }
                 html.prof-ux-2027 #exec-sticky-command-bar .exec-period-pill.active-period { transform: none !important; }
-                html.prof-ux-2027.light-theme #dash-today-harvest-strip .exec-jewel-val { background: #ffffff !important; color: #000000 !important; -webkit-text-fill-color: #000000 !important; border: 2px solid #0f172a !important; text-shadow: none !important; box-shadow: inset 0 1px 2px rgba(0,0,0,0.08) !important; }
                 html.prof-ux-2027 #exec-sticky-command-bar .exec-period-extra { display: none !important; }
                 html.prof-ux-2027.show-all-periods #exec-sticky-command-bar .exec-period-extra { display: inline-flex !important; }
                 html.prof-zen-mode #sec-calm, html.prof-zen-mode #sec-global-ai-innovations, html.prof-zen-mode #sec-flow, html.prof-zen-mode #sec-ops-audit { display: none !important; }
@@ -677,45 +696,45 @@ function switchToMobileEdition() {
             </script>
             <div id="dash-today-harvest-strip" class="bento-card" style="padding: 12px 16px; border-radius: 18px; border: 1.5px solid rgba(56,189,248,0.45); background: linear-gradient(180deg, rgba(9,15,29,0.98) 0%, rgba(4,8,18,0.99) 100%); box-shadow: 0 18px 42px rgba(0,0,0,0.68), inset 0 1px 2px rgba(255,255,255,0.18);">
                 <div class="exec-jewel-grid num-font">
-                    <button type="button" onclick="switchSalesProfitCardView('day')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #38bdf8; --jewel-glow: rgba(56,189,248,0.78); background: linear-gradient(165deg, rgba(14,165,233,0.16), rgba(15,23,42,0.96)) !important;">
+                    <button type="button" onclick="switchSalesProfitCardView('day')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #0284c7; --jewel-glow: rgba(56,189,248,0.78); --jewel-bg: linear-gradient(165deg, rgba(14,165,233,0.16), rgba(15,23,42,0.96));">
                         <span class="exec-jewel-lbl"><span>📈 المبيعات</span><small style="font-size:10px;color:#38bdf8;">مؤشر حي</small></span>
-                        <strong class="exec-jewel-val text-amber-300" style="color:#fde047!important;-webkit-text-fill-color:#fde047!important;" id="strip-sal-amt" data-sdg="1890000">1,890,000 <small class="exec-unit-tag">ج.س</small></strong>
+                        <strong class="exec-jewel-val text-amber-300" id="strip-sal-amt" data-sdg="1890000">1,890,000 <small class="exec-unit-tag">ج.س</small></strong>
                     </button>
-                    <button type="button" onclick="switchSalesProfitCardView('purchases', document.getElementById('btn-card2-purchases'))" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #f59e0b; --jewel-glow: rgba(245,158,11,0.75); background: linear-gradient(165deg, rgba(251,191,36,0.15), rgba(15,23,42,0.96)) !important;">
+                    <button type="button" onclick="switchSalesProfitCardView('purchases', document.getElementById('btn-card2-purchases'))" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #d97706; --jewel-glow: rgba(245,158,11,0.75); --jewel-bg: linear-gradient(165deg, rgba(251,191,36,0.15), rgba(15,23,42,0.96));">
                         <span class="exec-jewel-lbl"><span>🛒 المشتريات</span><small style="font-size:10px;color:#fbbf24;">توريد</small></span>
-                        <strong class="exec-jewel-val text-amber-300" style="color:#fbbf24!important;-webkit-text-fill-color:#fbbf24!important;" id="strip-pur-amt" data-sdg="1420000">1,420,000 <small class="exec-unit-tag">ج.س</small></strong>
+                        <strong class="exec-jewel-val text-amber-300" id="strip-pur-amt" data-sdg="1420000">1,420,000 <small class="exec-unit-tag">ج.س</small></strong>
                     </button>
-                    <button type="button" onclick="switchLiquidityCardView('overview')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #34d399; --jewel-glow: rgba(52,211,153,0.75); background: linear-gradient(165deg, rgba(52,211,153,0.16), rgba(15,23,42,0.96)) !important;">
+                    <button type="button" onclick="switchLiquidityCardView('overview')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #059669; --jewel-glow: rgba(52,211,153,0.75); --jewel-bg: linear-gradient(165deg, rgba(52,211,153,0.16), rgba(15,23,42,0.96));">
                         <span class="exec-jewel-lbl"><span>💎 السيولة</span><small style="font-size:10px;color:#6ee7b7;">خزن وبنوك</small></span>
-                        <strong class="exec-jewel-val text-emerald-300" style="color:#6ee7b7!important;-webkit-text-fill-color:#6ee7b7!important;" id="strip-liq-amt" data-sdg="3450000">3,450,000 <small class="exec-unit-tag">ج.س</small></strong>
+                        <strong class="exec-jewel-val text-emerald-300" id="strip-liq-amt" data-sdg="3450000">3,450,000 <small class="exec-unit-tag">ج.س</small></strong>
                     </button>
-                    <button type="button" onclick="switchSalesProfitCardView('day')" class="inner-box exec-jewel-btn text-right cursor-pointer" id="strip-prf-card" style="--jewel-accent: #10b981; --jewel-glow: rgba(16,185,129,0.8); background: linear-gradient(165deg, rgba(16,185,129,0.18), rgba(15,23,42,0.96)) !important;">
+                    <button type="button" onclick="switchSalesProfitCardView('day')" class="inner-box exec-jewel-btn text-right cursor-pointer" id="strip-prf-card" style="--jewel-accent: #15803d; --jewel-glow: rgba(16,185,129,0.8); --jewel-bg: linear-gradient(165deg, rgba(16,185,129,0.18), rgba(15,23,42,0.96));">
                         <span class="exec-jewel-lbl" id="strip-prf-lbl"><span>🏆 الأرباح</span><small style="font-size:10px;color:#4ade80;">صافي</small></span>
-                        <strong class="exec-jewel-val text-emerald-400" style="color:#4ade80!important;-webkit-text-fill-color:#4ade80!important;" id="strip-prf-amt" data-sdg="348000">+348,000 <small class="exec-unit-tag">ج.س</small></strong>
+                        <strong class="exec-jewel-val text-emerald-400" id="strip-prf-amt" data-sdg="348000">+348,000 <small class="exec-unit-tag">ج.س</small></strong>
                     </button>
-                    <button type="button" onclick="switchCashflowCardView('ai_cf')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #f43f5e; --jewel-glow: rgba(244,63,94,0.75); background: linear-gradient(165deg, rgba(244,63,94,0.16), rgba(15,23,42,0.96)) !important;">
+                    <button type="button" onclick="switchCashflowCardView('ai_cf')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #e11d48; --jewel-glow: rgba(244,63,94,0.75); --jewel-bg: linear-gradient(165deg, rgba(244,63,94,0.16), rgba(15,23,42,0.96));">
                         <span class="exec-jewel-lbl" id="strip-exp-lbl"><span>📉 المصروفات</span><small style="font-size:10px;color:#fda4af;">تشغيل</small></span>
-                        <strong class="exec-jewel-val text-rose-300" style="color:#fda4af!important;-webkit-text-fill-color:#fda4af!important;" id="strip-exp-amt" data-sdg="42000">42,000 <small class="exec-unit-tag">ج.س</small></strong>
+                        <strong class="exec-jewel-val text-rose-300" id="strip-exp-amt" data-sdg="42000">42,000 <small class="exec-unit-tag">ج.س</small></strong>
                     </button>
-                    <button type="button" onclick="switchSalesProfitCardView('warehouses')" title="القيمة السوقية الإجمالية = الكاش + البنوك + الشيكات + قيمة البضاعة بسعر السوق اليوم" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #0ea5e9; --jewel-glow: rgba(14,165,233,0.8); background: linear-gradient(165deg, rgba(14,165,233,0.16), rgba(15,23,42,0.96)) !important;">
+                    <button type="button" onclick="switchSalesProfitCardView('warehouses')" title="القيمة السوقية الإجمالية = الكاش + البنوك + الشيكات + قيمة البضاعة بسعر السوق اليوم" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #1d4ed8; --jewel-glow: rgba(14,165,233,0.8); --jewel-bg: linear-gradient(165deg, rgba(14,165,233,0.16), rgba(15,23,42,0.96));">
                         <span class="exec-jewel-lbl"><span>🏛️ القيمة السوقية</span><small style="font-size:10px;color:#7dd3fc;">إجمالي</small></span>
-                        <strong class="exec-jewel-val text-sky-300" style="color:#7dd3fc!important;-webkit-text-fill-color:#7dd3fc!important;" id="stock-mkt-val" data-sdg="184300000">184.3M <small class="exec-unit-tag">ج.س</small></strong>
+                        <strong class="exec-jewel-val text-sky-300" id="stock-mkt-val" data-sdg="184300000">184.3M <small class="exec-unit-tag">ج.س</small></strong>
                     </button>
-                    <button type="button" onclick="switchLiveRadarFeed('vouchers')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #14b8a6; --jewel-glow: rgba(20,184,166,0.75); background: linear-gradient(165deg, rgba(20,184,166,0.16), rgba(15,23,42,0.96)) !important;">
+                    <button type="button" onclick="switchLiveRadarFeed('vouchers')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #0f766e; --jewel-glow: rgba(20,184,166,0.75); --jewel-bg: linear-gradient(165deg, rgba(20,184,166,0.16), rgba(15,23,42,0.96));">
                         <span class="exec-jewel-lbl"><span>📥 المقبوضات</span><small style="font-size:10px;color:#5eead4;">تحصيل</small></span>
-                        <strong class="exec-jewel-val text-emerald-300" style="color:#5eead4!important;-webkit-text-fill-color:#5eead4!important;" id="strip-in-amt" data-sdg="1320000">+1,320,000 <small class="exec-unit-tag">ج.س</small></strong>
+                        <strong class="exec-jewel-val text-emerald-300" id="strip-in-amt" data-sdg="1320000">+1,320,000 <small class="exec-unit-tag">ج.س</small></strong>
                     </button>
-                    <button type="button" onclick="switchLiveRadarFeed('vouchers')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #f97316; --jewel-glow: rgba(249,115,22,0.75); background: linear-gradient(165deg, rgba(249,115,22,0.16), rgba(15,23,42,0.96)) !important;">
+                    <button type="button" onclick="switchLiveRadarFeed('vouchers')" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #c2410c; --jewel-glow: rgba(249,115,22,0.75); --jewel-bg: linear-gradient(165deg, rgba(249,115,22,0.16), rgba(15,23,42,0.96));">
                         <span class="exec-jewel-lbl"><span>📤 المدفوعات</span><small style="font-size:10px;color:#fb7185;">منصرف</small></span>
-                        <strong class="exec-jewel-val text-rose-400" style="color:#fb7185!important;-webkit-text-fill-color:#fb7185!important;" id="strip-out-amt" data-sdg="368000">-368,000 <small class="exec-unit-tag">ج.س</small></strong>
+                        <strong class="exec-jewel-val text-rose-400" id="strip-out-amt" data-sdg="368000">-368,000 <small class="exec-unit-tag">ج.س</small></strong>
                     </button>
-                    <button type="button" onclick="openFullCardModal('debt_aging')" title="مجموع المبالغ التي يريدها منا الموردون كلهم" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #a855f7; --jewel-glow: rgba(168,85,247,0.75); background: linear-gradient(165deg, rgba(168,85,247,0.16), rgba(15,23,42,0.96)) !important;">
+                    <button type="button" onclick="openFullCardModal('debt_aging')" title="مجموع المبالغ التي يريدها منا الموردون كلهم" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #7c3aed; --jewel-glow: rgba(168,85,247,0.75); --jewel-bg: linear-gradient(165deg, rgba(168,85,247,0.16), rgba(15,23,42,0.96));">
                         <span class="exec-jewel-lbl-ap"><span>🚚 مستحقات الموردين</span><small style="font-size:10px;color:#d8b4fe;">التزامات</small></span>
-                        <strong class="exec-jewel-val text-amber-300" style="color:#fde047!important;-webkit-text-fill-color:#fde047!important;" id="strip-ap-amt" data-sdg="290000">290,000 <small class="exec-unit-tag">ج.س</small></strong>
+                        <strong class="exec-jewel-val text-amber-300" id="strip-ap-amt" data-sdg="290000">290,000 <small class="exec-unit-tag">ج.س</small></strong>
                     </button>
-                    <button type="button" onclick="openFullCardModal('debt_aging')" title="مجموع المبالغ التي نريدها من العملاء كلهم" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #34d399; --jewel-glow: rgba(52,211,153,0.75); background: linear-gradient(165deg, rgba(52,211,153,0.16), rgba(15,23,42,0.96)) !important;">
+                    <button type="button" onclick="openFullCardModal('debt_aging')" title="مجموع المبالغ التي نريدها من العملاء كلهم" class="inner-box exec-jewel-btn text-right cursor-pointer" style="--jewel-accent: #047857; --jewel-glow: rgba(52,211,153,0.75); --jewel-bg: linear-gradient(165deg, rgba(52,211,153,0.16), rgba(15,23,42,0.96));">
                         <span class="exec-jewel-lbl"><span>👥 ديون العملاء</span><small style="font-size:10px;color:#4ade80;">لنا بالسوق</small></span>
-                        <strong class="exec-jewel-val text-emerald-300" style="color:#4ade80!important;-webkit-text-fill-color:#4ade80!important;" id="strip-ar-amt" data-sdg="820,000">820,000 <small class="exec-unit-tag">ج.س</small></strong>
+                        <strong class="exec-jewel-val text-emerald-300" id="strip-ar-amt" data-sdg="820,000">820,000 <small class="exec-unit-tag">ج.س</small></strong>
                     </button>
                 </div>
             </div>
@@ -725,15 +744,15 @@ function switchToMobileEdition() {
                 <!-- البطاقة اليمنى العريضة (6 أعمدة): صافي السيولة النقدية والبنكية المتاحة الآن -->
                 <div class="lg:col-span-6 bento-card p-5 flex flex-col justify-between">
                     <div>
-                        <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-1.5 min-w-0 flex-1">
-                                <button type="button" onclick="openFullCardModal('vaults')" title="عرض كشف جميع الخزن والحسابات البنكية بالكامل" class="w-7 h-7 rounded-lg bg-emerald-500/25 hover:bg-emerald-500/45 border-2 border-emerald-400 text-white font-black text-lg flex items-center justify-center cursor-pointer shrink-0 shadow">+</button>
-                                <button type="button" onclick="openChartCardModal('vaults')" title="عرض الرسوم البيانية الشاملة لكل الخزن والبنوك والسيولة" class="w-7 h-7 rounded-lg bg-amber-500/25 hover:bg-amber-500/45 border-2 border-amber-400 text-amber-300 font-black text-sm flex items-center justify-center cursor-pointer shrink-0 shadow">📊</button>
-                                <span class="font-black text-emerald-300 whitespace-nowrap flex-1" id="dash-liq-card-title" style="font-size:19px!important;line-height:1.2;">صافي السيولة النقدية والبنكية المتاحة</span>
+                        <div class="dash-card-hdr-row flex items-center justify-between gap-1.5 mb-2">
+                            <div class="dash-card-hdr-lead flex items-center gap-1.5 min-w-0 flex-1">
+                                <button type="button" onclick="openFullCardModal('vaults')" title="عرض كشف جميع الخزن والحسابات البنكية بالكامل" class="dash-hdr-mini-btn rounded-lg bg-emerald-500/25 hover:bg-emerald-500/45 border-2 border-emerald-400 text-white font-black flex items-center justify-center cursor-pointer shrink-0 shadow">+</button>
+                                <button type="button" onclick="openChartCardModal('vaults')" title="عرض الرسوم البيانية الشاملة لكل الخزن والبنوك والسيولة" class="dash-hdr-mini-btn rounded-lg bg-amber-500/25 hover:bg-amber-500/45 border-2 border-amber-400 text-amber-300 font-black flex items-center justify-center cursor-pointer shrink-0 shadow">📊</button>
+                                <span class="dash-card-hdr-title font-black text-emerald-300 flex-1" id="dash-liq-card-title">صافي السيولة النقدية والبنكية المتاحة</span>
                             </div>
-                            <div class="flex items-center gap-1 shrink-0">
-                                <button type="button" id="dash-liq-period-btn" onclick="toggleLiquidityPeriod()" class="px-2 py-0.5 rounded-lg bg-slate-900 border border-emerald-400/50 text-[11px] font-black cursor-pointer" style="color:#fde68a!important;-webkit-text-fill-color:#fde68a!important;">📅 اليوم ⇄</button>
-                                <span title="نسبة نمو السيولة النقدية والبنكية مقارنة بالفترة السابقة" class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-emerald-500/20 text-emerald-300 shrink-0" id="dash-liq-card-badge">نمو +12.4% ▲</span>
+                            <div class="dash-card-hdr-trail flex items-center gap-1 shrink-0">
+                                <button type="button" id="dash-liq-period-btn" onclick="toggleLiquidityPeriod()" class="px-1.5 py-0.5 rounded-lg bg-slate-900 border border-emerald-400/50 text-[10px] font-black cursor-pointer whitespace-nowrap" style="color:#fde68a!important;-webkit-text-fill-color:#fde68a!important;">📅 اليوم ⇄</button>
+                                <span title="نسبة نمو السيولة النقدية والبنكية مقارنة بالفترة السابقة" class="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 shrink-0 whitespace-nowrap" id="dash-liq-card-badge">نمو +12.4% ▲</span>
                             </div>
                         </div>
                         <div class="grid grid-cols-4 gap-1.5 mb-2" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;">
@@ -1084,8 +1103,29 @@ function switchToMobileEdition() {
                             </tbody>
                         </table>
                     </div>
-                    <div class="grid grid-cols-1 gap-2.5 mt-3 pt-3 border-t border-white/10">
-                        <button type="button" onclick="window.location.href='direct-sales.php'" class="py-2.5 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs transition cursor-pointer">🛒 فتح شاشة المبيعات الكاملة</button>
+                    <div class="mt-2.5 pt-2.5 border-t border-white/15 flex flex-col gap-2 num-font">
+                        <div class="inner-box p-2.5 flex flex-col gap-1.5">
+                            <div class="flex items-center justify-between text-xs font-black">
+                                <span class="text-amber-300">📊 هيكل الملاءة وتغطية الأصول للالتزامات</span>
+                                <span class="text-emerald-400">نسبة الأمان 99.8% ▲</span>
+                            </div>
+                            <div class="w-full h-3 rounded-full overflow-hidden flex border border-white/20">
+                                <div style="width:74%;background:linear-gradient(90deg,#059669,#10b981);" title="المخزون السلعي 74%"></div>
+                                <div style="width:18%;background:linear-gradient(90deg,#0284c7,#38bdf8);" title="السيولة النقدية والبنكية 18%"></div>
+                                <div style="width:6%;background:#f59e0b;" title="ذمم العملاء 6%"></div>
+                                <div style="width:2%;background:#f43f5e;" title="التزامات الموردين 2%"></div>
+                            </div>
+                            <div class="flex justify-between text-[11px] font-bold text-slate-300">
+                                <span>🟢 مخزون 74%</span><span>🔵 سيولة 18%</span><span>🟡 عملاء 6%</span><span>🔴 التزامات 2%</span>
+                            </div>
+                        </div>
+                        <div class="inner-box p-2 border-r-4 border-r-emerald-400 text-xs font-bold text-slate-200 leading-relaxed">
+                            💡 <strong class="text-emerald-300">خلاصة المطابقة الذكية:</strong> الأصول السائلة والمخزنية تغطي التزامات الموردين بأكثر من <strong class="text-amber-300">11.8 ضعفاً</strong> مع صفر فروقات دفترية معلقة.
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" onclick="window.location.href='direct-sales.php'" class="py-2 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold text-xs cursor-pointer">🛒 شاشة المبيعات</button>
+                            <button type="button" onclick="window.location.href='posting-accounts.php'" class="py-2 px-3 rounded-xl bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold text-xs cursor-pointer">📑 ترحيل الحسابات</button>
+                        </div>
                     </div>
                 </div>
                 <div class="lg:col-span-4 bento-card p-5 flex flex-col justify-between">
@@ -1151,6 +1191,19 @@ function switchToMobileEdition() {
                         <div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟢 دوران البضاعة</span><strong class="text-base font-black text-sky-300">2.4x</strong></div>
                         <div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟢 تغطية الشيكات</span><strong class="text-base font-black text-emerald-300">96%</strong></div>
                         <div class="inner-box p-3 flex items-center justify-between"><span class="text-sm font-bold text-white">🟢 هامش الأمان</span><strong class="text-base font-black text-emerald-300">88%</strong></div>
+                    </div>
+                    <div class="inner-box p-2.5 mt-2 flex flex-col gap-1.5 num-font">
+                        <div class="flex items-center justify-between text-xs font-black">
+                            <span class="text-sky-300">📈 منحنى صافي التدفق ودوران النقدية (7 أيام)</span>
+                            <span class="text-emerald-400">+22.4% فائض تشغيلي ▲</span>
+                        </div>
+                        <svg viewBox="0 0 320 54" style="width:100%;height:50px;overflow:visible;">
+                            <defs><linearGradient id="cfMiniG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#10b981" stop-opacity="0.45"/><stop offset="100%" stop-color="#0284c7" stop-opacity="0.02"/></linearGradient></defs>
+                            <path d="M4,42 Q52,36 98,28 T196,18 T316,8 L316,50 L4,50 Z" fill="url(#cfMiniG)"/>
+                            <path d="M4,42 Q52,36 98,28 T196,18 T316,8" fill="none" stroke="#34d399" stroke-width="2.8" stroke-linecap="round"/>
+                            <circle cx="98" cy="28" r="3.5" fill="#38bdf8"/><circle cx="196" cy="18" r="3.5" fill="#fbbf24"/><circle cx="316" cy="8" r="4" fill="#fde047" stroke="#059669" stroke-width="1.5"/>
+                        </svg>
+                        <div class="text-[11px] font-bold text-slate-300">⚡ سرعة التحول النقدي ممتازة: المتاح النقدي يمول دورة التوريد القادمة دون سحب ائتماني.</div>
                     </div>
                     <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-white/10 text-xs num-font">
                         <div class="inner-box p-2.5"><span class="text-slate-300 block text-xs mb-1">1. التدفقات الداخلة</span><strong class="text-emerald-400 text-sm font-black" id="cf-in-val">+1,320,000</strong></div>

@@ -8490,13 +8490,7 @@
                 if (!window.checkGrnFiscalPeriodOpen(issue, 'إصدار أو استلام شيك')) return;
 
                 const radar = window.getGrnChequeRadarMetrics();
-                // منع تكرار نفس رقم الشيك لنفس البنك نهائياً
-                const isDup = radar.allCheques.some(c =>
-                    c && String(c.chequeNo).trim().toUpperCase() === chqNo.toUpperCase() && String(c.bankName).trim() === bank
-                );
-                if (isDup) {
-                    return window.showToast(`🚨 قفل حماية الشيكات: رقم الشيك (${chqNo}) مسجل مسبقاً على (${bank})! يُمنع تكرار نفس رقم الشيك لنفس البنك نهائياً.`, 'error');
-                }
+                // تكرار رقم الشيك مسموح في كامل النظام
 
                 // التحقق من السقف البنكي المعتمد للشيكات الصادرة
                 if (dir === 'outgoing' && (radar.totalActivePortfolioVal + amt) > radar.bankCeiling) {
@@ -14426,11 +14420,7 @@
             }
             var used = {};
             try { used = JSON.parse(localStorage.getItem(GRN_FC2_CHEQUES_KEY) || '{}'); } catch (e) {}
-            if (used[no] && used[no] === stage) {
-                window.logGrnFc2ForensicEvent('RED', 'محاولة تكرار رقم الشيك (' + no + ') في شاشة الاستلام', stage);
-                window.notifyGrnFc2UnifiedToast('🚨 مرفوض أمنياً: رقم الشيك (' + no + ') مسجل مسبقاً في نفس المرحلة!', 'error', noEl);
-                return;
-            }
+            // تكرار رقم الشيك مسموح في كامل النظام
             used[no] = stage;
             try { localStorage.setItem(GRN_FC2_CHEQUES_KEY, JSON.stringify(used)); } catch (e) {}
             window.broadcastGrnFc2AtomicSync('GRN_CHEQUE_STAGE_UPDATE');
@@ -14747,15 +14737,8 @@
                         window.notifyGrnFc2UnifiedToast('🔒 الفترة المالية مغلقة! لا يمكن الإدخال أو الترحيل بأثر رجعي إلا بإذن المدير.', 'error');
                         return;
                     }
-                    var s = getLiveGrnSnapshot();
-                    var dupKey = s.invNo + '|' + s.supplier + '|' + s.totalQty + '|' + new Date().toISOString().slice(0, 10);
-                    if (s.totalQty > 0 && sessionStorage.getItem(GRN_FC2_SAME_DAY_DUP_KEY) === dupKey) {
-                        window.notifyGrnFc2UnifiedToast('⚠️ حارس منع التكرار: تم حفظ نفس سند الاستلام بنفس الكمية اليوم! لمنع التكرار السهو تم إيقاف الإرسال المكرر.', 'warning');
-                        return;
-                    }
-                    if (s.totalQty > 0) {
-                        try { sessionStorage.setItem(GRN_FC2_SAME_DAY_DUP_KEY, dupKey); } catch (e) {}
-                    }
+                    // تم إزالة قفل التكرار المسبق قبل الحفظ لمنع الحظر الخاطئ عند إعادة المحاولة أو تشابه الكميات
+                    try { sessionStorage.removeItem(GRN_FC2_SAME_DAY_DUP_KEY); } catch (e) {}
                     window.broadcastGrnFc2AtomicSync('GRN_SAVED_ATOMIC_SYNC');
                     return origSubmit.apply(this, arguments);
                 };

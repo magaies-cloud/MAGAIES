@@ -159,8 +159,9 @@ function getSortedSalesInvoices() {
     const mergedMap = new Map();
     const addInv = (inv) => {
         if (!inv || typeof inv !== 'object') return;
+        if (inv.deleted || inv.isDeleted || inv.isReturn || inv.isGRN) return;
         const no = String(inv.invoiceNo || inv.id || '').trim();
-        if (!no || no === 'preliminary' || no.startsWith('PRE-')) return;
+        if (!no || no === 'preliminary' || /^(PRE-|GRN|Z\d|RET)/i.test(no)) return;
         if (!mergedMap.has(no)) {
             mergedMap.set(no, Object.assign({ invoiceNo: no, id: no }, inv));
         } else {
@@ -193,12 +194,18 @@ function getSortedSalesInvoices() {
         }
     } catch(e) {}
 
+    const extractSeqKey = (no) => {
+        const s = String(no || '').trim();
+        const m = s.match(/^[A-Za-z]+(\d+)$/);
+        if (m) return parseInt(m[1], 10);
+        const d = s.replace(/\D/g, '');
+        return d ? parseInt(d, 10) : 0;
+    };
     const sorted = Array.from(mergedMap.values()).sort((a, b) => {
-        const cmp = String(a.date || a.savedAt || a.createdAt || '').localeCompare(String(b.date || b.savedAt || b.createdAt || ''));
-        if (cmp !== 0) return cmp;
-        const tcmp = String(a.time || '').localeCompare(String(b.time || ''));
-        if (tcmp !== 0) return tcmp;
-        return String(a.invoiceNo || '').localeCompare(String(b.invoiceNo || ''));
+        const sa = extractSeqKey(a.invoiceNo || a.id);
+        const sb = extractSeqKey(b.invoiceNo || b.id);
+        if (sa !== sb) return sa - sb;
+        return String(a.invoiceNo || '').localeCompare(String(b.invoiceNo || ''), undefined, { numeric: true });
     });
 
     window._cachedSalesInvoicesRaw = cacheKey;
@@ -253,22 +260,64 @@ function fmtNum(n, colId = null) {
 function parseNum(str) {
     return parseFloat(String(str).replace(/,/g, '')) || 0;
 }
-function showToast(msg, type = 'success', ms = 3000) {
-    const c = document.getElementById('toast-container');
-    if (c) {
-        const existingToasts = c.querySelectorAll('.toast');
-        for (let t of existingToasts) {
-            if (t.innerHTML === msg) return;
-        }
+function showToast(msg, type = 'success', ms = 3200) {
+    if (typeof window.showUnifiedToast === 'function') {
+        window.showUnifiedToast(msg, type, ms);
+        return;
     }
+    let c = document.getElementById('toast-container');
+    if (!c && document.body) {
+        c = document.createElement('div');
+        c.id = 'toast-container';
+        c.className = 'toast-container';
+        document.body.appendChild(c);
+    }
+    if (!c) return;
+    const normType = (type === 'danger' ? 'error' : (type === 'warn' ? 'warning' : (['success', 'error', 'warning', 'info'].includes(type) ? type : 'info')));
+    const badgeMap = { success: '✨ تم بنجاح', error: '🚫 تنبيه هام', warning: '⚠️ تنبيه', info: '💡 معلومة' };
+    c.innerHTML = '';
     const t = document.createElement('div');
-    t.className = `toast ${type}`;
-    t.innerHTML = msg;
+    t.className = `toast ${normType}`;
+    t.title = 'اضغط للإغلاق';
+    t.innerHTML = `<span class="toast-badge">${badgeMap[normType]}</span><div class="toast-msg">${msg}</div>`;
+    const dismiss = () => {
+        if (t.dataset.closing) return;
+        t.dataset.closing = '1';
+        t.classList.add('hide');
+        setTimeout(() => t.remove(), 280);
+    };
+    t.onclick = dismiss;
     c.appendChild(t);
-    setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 500); }, ms);
+    setTimeout(dismiss, Math.max(1800, ms || 3200));
 }
 function openModal(id) { document.getElementById(id).classList.add('visible'); }
 function closeModal(id) { document.getElementById(id).classList.remove('visible'); }
+
+window.adjustSalesPartnerBalance = function adjustSalesPartnerBalance(partnerId, deltaCust) {
+    if (!partnerId || partnerId === 'walk-in' || !deltaCust) return null;
+    try {
+        let customers = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]') || [];
+        const cIdx = customers.findIndex(c => c && String(c.id) === String(partnerId));
+        if (cIdx > -1) {
+            if (customers[cIdx].openingBalance === undefined && customers[cIdx].opening_balance === undefined) customers[cIdx].openingBalance = parseFloat(customers[cIdx].balance || 0) || 0;
+            const cur = parseFloat(customers[cIdx].currentBalance ?? customers[cIdx].balance ?? customers[cIdx].openingBalance ?? 0) || 0;
+            customers[cIdx].currentBalance = cur + deltaCust;
+            localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
+            return customers[cIdx].currentBalance;
+        }
+        let suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]') || [];
+        const sIdx = suppliers.findIndex(s => s && String(s.id) === String(partnerId));
+        if (sIdx > -1) {
+            if (suppliers[sIdx].openingBalance === undefined && suppliers[sIdx].opening_balance === undefined) suppliers[sIdx].openingBalance = parseFloat(suppliers[sIdx].balance || 0) || 0;
+            const curS = parseFloat(suppliers[sIdx].currentBalance ?? suppliers[sIdx].balance ?? suppliers[sIdx].openingBalance ?? 0) || 0;
+            suppliers[sIdx].currentBalance = curS - deltaCust;
+            localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
+            try { if (window.BroadcastChannel) new BroadcastChannel('erp_global_sync').postMessage({ key: 'erp_suppliers_v1', ts: Date.now() }); } catch(_bc) {}
+            return -suppliers[sIdx].currentBalance;
+        }
+    } catch(_e) {}
+    return null;
+};
 
 // ════════════════════════════════════════
 //  SEQUENTIAL INVOICE NUMBER
@@ -435,7 +484,7 @@ function initSalesApp() {
                 localCusts = window.MagaieesPermissions.filterEntitiesByClearance(localCusts);
             }
             localCusts.forEach(c => {
-                if (c && c.id) {
+                if (c && c.id && !c.deleted) {
                     const rawCustBal = parseFloat(c.currentBalance ?? c.balance ?? c.openingBalance ?? 0) || 0;
                     CUSTOMERS.push({
                         id: c.id,
@@ -445,11 +494,32 @@ function initSalesApp() {
                         ledger: rawCustBal,
                         checks: 0,
                         creditLimit: parseFloat(c.creditLimit || 0) || 0,
-                        status: c.status || 'active'
+                        status: c.status || 'active',
+                        isDualPartner: Boolean(c.isDualPartner)
                     });
                 }
             });
         }
+        try {
+            const dualSups = (JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]') || []).filter(s => s && !s.deleted && s.isDualPartner === true);
+            dualSups.forEach(s => {
+                if (!CUSTOMERS.some(x => String(x.id) === String(s.id))) {
+                    const rawSupBal = parseFloat(s.currentBalance ?? s.balance ?? s.openingBalance ?? 0) || 0;
+                    CUSTOMERS.push({
+                        id: s.id,
+                        name: s.name || 'شريك بدون اسم',
+                        phone: s.phone || s.whatsapp || '',
+                        email: s.email || '',
+                        ledger: -rawSupBal,
+                        checks: 0,
+                        creditLimit: parseFloat(s.creditLimit || 0) || 0,
+                        status: s.status || 'active',
+                        isSupplier: true,
+                        isDualPartner: true
+                    });
+                }
+            });
+        } catch(_ds) {}
 
         // Load Master Data Items with O(N+M) Map indexing
         let rawItems = [];
@@ -1098,19 +1168,14 @@ function setInvoiceLockState(isLocked, isPosted = false, invNo = '') {
         if (isLocked) {
             if (saveBtn) saveBtn.style.display = 'none';
             const badgeContent = `
-                <div style="display: flex; gap: 8px; width: 100%; align-items: center; justify-content: center;">
-                    <div style="flex: 1; height: 45px; display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(16, 185, 129, 0.15); border: 1.5px solid rgba(16, 185, 129, 0.4); color: #34d399; border-radius: 8px; font-weight: 800; font-size: 0.95rem;">
-                        <span style="font-size:1.15rem;">🔒</span> <span>الفاتورة مرحّلة</span>
-                    </div>
-                    <button type="button" class="btn-action" onclick="requestEditPostedInvoice('${invNo}')" style="flex: 1.2; height: 45px; background: linear-gradient(135deg, #f59e0b, #d97706); border: none; color: #fff; font-size: 0.95rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3); display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.boxShadow='0 4px 15px rgba(245, 158, 11, 0.5)';" onmouseout="this.style.boxShadow='0 2px 10px rgba(245, 158, 11, 0.3)';" title="فك القفل وتفعيل وضع التعديل الرسمي">
-                        <span>✏️</span> <span>تعديل الفاتورة</span>
-                    </button>
-                </div>
+                <button type="button" class="btn-action royal-crystal-btn" onclick="requestEditPostedInvoice('${invNo}')" style="width: 100%; height: 44px; background: linear-gradient(135deg, #f59e0b, #d97706) !important; border: 1px solid rgba(251, 191, 36, 0.6) !important; color: #fff !important; font-size: 0.94rem; font-weight: 900; border-radius: 11px; cursor: pointer; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35); display: flex; align-items: center; justify-content: center; gap: 6px;" title="الفاتورة مرحّلة — اضغط لفك القفل وتفعيل التعديل">
+                    <span>✏️</span> <span class="btn-fit-label">تعديل</span>
+                </button>
             `;
             if (!lockedBadge && saveBtn && saveBtn.parentNode) {
                 lockedBadge = document.createElement('div');
                 lockedBadge.id = 'locked-submit-badge';
-                lockedBadge.style.cssText = 'flex: 1.5; height: 45px; display: flex; align-items: center; justify-content: center;';
+                lockedBadge.style.cssText = 'flex: 1.15; min-width: 105px; height: 44px; display: flex; align-items: center; justify-content: center;';
                 lockedBadge.innerHTML = badgeContent;
                 saveBtn.parentNode.insertBefore(lockedBadge, saveBtn);
             } else if (lockedBadge) {
@@ -1123,11 +1188,11 @@ function setInvoiceLockState(isLocked, isPosted = false, invNo = '') {
                 if (window.isInvoiceEditingPermitted || window.isAmendingInvoice) {
                     saveBtn.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
                     saveBtn.style.boxShadow = '0 2px 10px rgba(245, 158, 11, 0.4)';
-                    saveBtn.innerHTML = '💾 تأكيد وحفظ التعديل وإرسال الإشعار';
+                    saveBtn.innerHTML = '💾 حفظ التعديل';
                 } else {
                     saveBtn.style.background = 'linear-gradient(135deg, #0ea5e9, #2563eb)';
                     saveBtn.style.boxShadow = '0 2px 10px rgba(56, 189, 248, 0.4)';
-                    saveBtn.innerHTML = '✅ تأكيد وحفظ';
+                    saveBtn.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span class="btn-fit-label">حفظ</span>';
                 }
             }
             if (lockedBadge) lockedBadge.style.display = 'none';
@@ -1814,11 +1879,12 @@ function renderCustomerDropdown(filter = '') {
             const phoneH = c.phone ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(c.phone), filter) : c.phone) : '';
             const emailH = c.email ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(c.email), filter) : c.email) : '';
 
-            item.dataset.rcAccountId = 'cust-' + String(c.id).replace(/^cust-/, '');
+            item.dataset.rcAccountId = (c.isSupplier ? 'supp-' : 'cust-') + String(c.id).replace(/^(cust|supp)-/, '');
             item.dataset.rcAccountName = c.name || '';
             item.dataset.rcAccountPhone = c.phone || c.whatsapp || '';
-            item.dataset.rcAccountType = 'customer';
-            item.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: right; dir: rtl; padding: 6px 4px;"><div style="display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap;"><span style="font-weight: 800; font-size: 1.35rem; color: #6ee7b7; text-shadow: 0 0 6px rgba(110,231,183,0.2);">${nameH}</span>${emailH ? `<span style="font-size:0.85rem; color:#64748b;">[${emailH}]</span>` : ''}</div></div>`;
+            item.dataset.rcAccountType = c.isSupplier ? 'supplier' : 'customer';
+            const dualBadge = (c.isDualPartner || c.isSupplier) ? '<span style="display:inline-flex; align-items:center; gap:5px; font-size:0.74rem; background:linear-gradient(135deg,rgba(124,58,237,0.32),rgba(79,70,229,0.26)); color:#f5f3ff; border:1.5px solid #a78bfa; padding:2px 9px; border-radius:999px; font-weight:900; box-shadow:0 2px 8px rgba(139,92,246,0.25);"><span>عميل مزدوج (عميل ومورد)</span><span style="display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:4px;background:#10b981;color:#fff;font-size:0.68rem;">✓</span></span>' : '';
+            item.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: right; dir: rtl; padding: 6px 4px;"><div style="display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap;"><span style="font-weight: 800; font-size: 1.35rem; color: #6ee7b7; text-shadow: 0 0 6px rgba(110,231,183,0.2);">${nameH}</span>${dualBadge}${emailH ? `<span style="font-size:0.85rem; color:#64748b;">[${emailH}]</span>` : ''}</div></div>`;
             item.onmousedown = () => selectCustomer(c.id, c.name); 
             item.onpointerdown = () => selectCustomer(c.id, c.name);
             listEl.appendChild(item);
@@ -3898,7 +3964,7 @@ function saveDraft() {
     showToast('📑 تم حفظ المسودة بنجاح', 'success', 2500);
 }
 
-function submitInvoice(ignoreWarnings = false) {
+async function submitInvoice(ignoreWarnings = false) {
     if (window.isSubmitting) return;
     window.isSubmitting = true;
 
@@ -3918,7 +3984,11 @@ function submitInvoice(ignoreWarnings = false) {
                 return; // blocked by policy
             }
 
-            if (!confirm(`⚠️ تأكيد حفظ التعديلات:\n\nالفاتورة رقم (${currentViewedInvoiceNo}) مرحّلة ومثبتة في قيود النظام.\n\nسيتم حفظ التعديلات كـ «نسخة معدّلة» وتحديث قيود الحسابات والأرصدة، وإرسال إشعار رسمي للعميل يفيد بتعديل الفاتورة.\n\nهل تريد المتابعة وحفظ التعديلات الآن؟`)) {
+            const amendMsg = `الفاتورة رقم (${currentViewedInvoiceNo}) مرحّلة ومثبتة في قيود النظام.\nسيتم حفظ التعديلات كـ «نسخة معدّلة» وتحديث قيود الحسابات والأرصدة، وإرسال إشعار رسمي للعميل يفيد بتعديل الفاتورة.\nهل تريد المتابعة وحفظ التعديلات الآن؟`;
+            const okAmend = typeof window.showCenteredConfirmModal === 'function'
+                ? await window.showCenteredConfirmModal({ title: 'تأكيد حفظ التعديلات', badge: 'فاتورة مرحّلة', icon: '✏️', tone: 'warning', message: amendMsg, confirmText: '✅ نعم، حفظ التعديلات', cancelText: '✕ إلغاء' })
+                : confirm(amendMsg);
+            if (!okAmend) {
                 window.isSubmitting = false;
                 return;
             }
@@ -4280,7 +4350,12 @@ function submitInvoice(ignoreWarnings = false) {
         if (creditAmt > 0 && cust && cust.id !== 'walk-in' && parseFloat(cust.creditLimit) > 0) {
             const liveCusts = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
             const liveC = liveCusts.find(x => String(x.id) === String(cust.id));
-            const curLedger = liveC ? (parseFloat(liveC.currentBalance ?? liveC.balance ?? liveC.openingBalance ?? 0) || 0) : (parseFloat(cust.ledger) || 0);
+            let curLedger = liveC ? (parseFloat(liveC.currentBalance ?? liveC.balance ?? liveC.openingBalance ?? 0) || 0) : (parseFloat(cust.ledger) || 0);
+            if (!liveC) {
+                const liveSups = JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]');
+                const liveS = liveSups.find(x => String(x.id) === String(cust.id));
+                if (liveS) curLedger = -(parseFloat(liveS.currentBalance ?? liveS.balance ?? liveS.openingBalance ?? 0) || 0);
+            }
             const totalDebt = curLedger + (parseFloat(cust.checks) || 0);
             const remainingLimit = parseFloat(cust.creditLimit) - totalDebt;
             if (creditAmt > remainingLimit + 0.01) {
@@ -4325,7 +4400,7 @@ function submitInvoice(ignoreWarnings = false) {
 
     const paymentAccountId = document.getElementById('hdr-payment-account').value; // Cash account ID
 
-    const postingMode = window.getPostingMode ? window.getPostingMode() : 'auto';
+    const postingMode = window.getPostingMode ? window.getPostingMode() : (localStorage.getItem('erp_posting_mode') || 'manual');
     let finalStatus = 'pending_delivery';
     if (currentSaleType === 'preliminary') {
         finalStatus = 'preliminary';
@@ -4472,17 +4547,11 @@ function submitInvoice(ignoreWarnings = false) {
         
         localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
         
-        // C. Customer Credit Debt / Surplus Portion
+        // C. Customer Credit Debt / Surplus Portion (also handles Dual Partner in erp_suppliers_v1)
         if ((creditAmt > 0 || overpaidAmt > 0) && custId && custId !== 'walk-in') {
-            let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-            const cIdx = customers.findIndex(c => String(c.id) === String(custId));
-            if (cIdx > -1) {
-                if (customers[cIdx].openingBalance === undefined && customers[cIdx].opening_balance === undefined) customers[cIdx].openingBalance = parseFloat(customers[cIdx].balance || 0) || 0;
-                let currentBalance = parseFloat(customers[cIdx].currentBalance ?? customers[cIdx].balance ?? customers[cIdx].openingBalance ?? 0) || 0;
-                customers[cIdx].currentBalance = currentBalance + (creditAmt > 0 ? creditAmt : -overpaidAmt);
-                localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
-                if (cust) cust.ledger = customers[cIdx].currentBalance;
-            }
+            const deltaCust = (creditAmt > 0 ? creditAmt : -overpaidAmt);
+            const updatedBal = adjustSalesPartnerBalance(custId, deltaCust);
+            if (cust && updatedBal !== null) cust.ledger = updatedBal;
         }
         try { if (window.BroadcastChannel) new BroadcastChannel('erp_global_sync').postMessage({ key: 'erp_customers_v1', ts: Date.now() }); } catch(_bc) {}
     }
@@ -5032,8 +5101,20 @@ function onSuccessReturnToInvoice(invoiceNo) {
     }
 }
 
-function onSuccessNewInvoice(closeModalFlag = true) {
-    if (!closeModalFlag && typeof rows !== 'undefined' && rows.length > 0 && rows.some(r => r && (r.itemId || (r.price && Number(r.price) > 0)))) {
+function onSuccessNewInvoice(closeModalFlag = true, _confirmed = false) {
+    if (!_confirmed && !closeModalFlag && typeof rows !== 'undefined' && rows.length > 0 && rows.some(r => r && (r.itemId || (r.price && Number(r.price) > 0)))) {
+        if (typeof window.showCenteredConfirmModal === 'function') {
+            window.showCenteredConfirmModal({
+                title: 'بدء فاتورة جديدة',
+                badge: 'تفريغ النموذج',
+                icon: '🆕',
+                tone: 'warning',
+                message: 'هل تريد بالتأكيد إلغاء البيانات الحالية وتفريغ النموذج لبدء فاتورة جديدة؟',
+                confirmText: '✅ نعم، فاتورة جديدة',
+                cancelText: '✕ تراجع'
+            }).then(ok => { if (ok) onSuccessNewInvoice(closeModalFlag, true); });
+            return;
+        }
         if (!confirm('هل تريد بالتأكيد إلغاء البيانات الحالية وتفريغ النموذج لبدء فاتورة جديدة؟')) {
             return;
         }
@@ -5060,7 +5141,7 @@ function onSuccessNewInvoice(closeModalFlag = true) {
         saveBtn.style.display = 'flex';
         saveBtn.style.background = 'linear-gradient(135deg, #0ea5e9, #2563eb)';
         saveBtn.style.boxShadow = '0 2px 10px rgba(56, 189, 248, 0.4)';
-        saveBtn.innerHTML = '✅ تأكيد وحفظ';
+        saveBtn.innerHTML = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span class="btn-fit-label">حفظ</span>';
     }
 
     const amendedBadge = document.getElementById('hdr-amended-badge');
@@ -5736,8 +5817,11 @@ function confirmExecuteDeliveryAction() {
     loadDeliveryTransactions();
 }
 
-function convertToOfficial(invNo) {
-    if (!confirm('تحويل الفاتورة المبدئية رقم ' + invNo + ' إلى فاتورة رسمية (تحديث الحسابات)؟')) return;
+async function convertToOfficial(invNo) {
+    const okConv = typeof window.showCenteredConfirmModal === 'function'
+        ? await window.showCenteredConfirmModal({ title: 'تحويل لفاتورة رسمية', badge: 'تحديث الحسابات', icon: '🧾', tone: 'sky', message: `هل تريد تحويل الفاتورة المبدئية رقم (${invNo}) إلى فاتورة رسمية وتحديث الحسابات؟`, confirmText: '✅ نعم، تحويل الآن', cancelText: '✕ إلغاء' })
+        : confirm('تحويل الفاتورة المبدئية رقم ' + invNo + ' إلى فاتورة رسمية (تحديث الحسابات)؟');
+    if (!okConv) return;
 
     let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
     let invIndex = allSales.findIndex(i => i.invoiceNo === invNo);
@@ -5762,14 +5846,7 @@ function convertToOfficial(invNo) {
     }
     
     if (inv.paymentMethod === 'credit' && inv.customer && inv.customer !== 'walk-in') {
-        let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-        const cIdx = customers.findIndex(c => c.id === inv.customer);
-        if (cIdx > -1) {
-            let currentBalance = parseFloat(customers[cIdx].currentBalance);
-            if (isNaN(currentBalance)) currentBalance = 0;
-            customers[cIdx].currentBalance = currentBalance + grandAmount;
-            localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
-        }
+        adjustSalesPartnerBalance(inv.customer, grandAmount);
     }
 
     inv.status = 'pending_delivery';
@@ -5814,6 +5891,10 @@ async function sendInvoiceWA(invoiceNo) {
     if (inv.customer && inv.customer !== 'walk-in') {
         let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
         let cust = customers.find(c => String(c.id) === String(inv.customer));
+        if (!cust) {
+            let suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+            cust = suppliers.find(s => String(s.id) === String(inv.customer));
+        }
         if(cust) {
             defaultPhone = cust.whatsapp || cust.phone || '';
             customerName = cust.name || inv.customerName || 'عميل مسجل';
@@ -5987,12 +6068,7 @@ async function sendInvoiceWA(invoiceNo) {
 
 function updateActionButtonsVisibility() {
     const previewBtn = document.getElementById('btn-preview-invoice');
-    const invNo = (typeof currentViewedInvoiceNo !== 'undefined' && currentViewedInvoiceNo) ? currentViewedInvoiceNo : window.currentViewedInvoiceNo;
-    if (invNo && invNo !== '---' && invNo !== 'SAL-NEW' && invNo !== 'جديد') {
-        if (previewBtn) previewBtn.style.display = 'flex';
-    } else {
-        if (previewBtn) previewBtn.style.display = 'none';
-    }
+    if (previewBtn) previewBtn.style.display = 'flex';
 }
 
 async function sendCurrentInvoiceWA() {
@@ -7522,12 +7598,7 @@ function submitInvoiceSplit(autoPrintVouchers = false) {
             creditAddAmount = grandAmount;
         }
         if (creditAddAmount > 0 && cInv.customer && cInv.customer !== 'walk-in') {
-            let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-            const cIdx = customers.findIndex(c => c.id === cInv.customer || c.id === cInv.customerId);
-            if (cIdx > -1) {
-                customers[cIdx].currentBalance = (parseFloat(customers[cIdx].currentBalance) || 0) + creditAddAmount;
-                localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
-            }
+            adjustSalesPartnerBalance(cInv.customer || cInv.customerId, creditAddAmount);
         }
 
         let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
@@ -8037,13 +8108,7 @@ function revertSalesInvoiceEffects(invNo, revertInventory = true) {
             creditRevertAmount = grandAmount;
         }
         if (creditRevertAmount > 0 && oldInv.customer && oldInv.customer !== 'walk-in') {
-            let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-            const cIdx = customers.findIndex(c => c.id === oldInv.customer);
-            if (cIdx > -1) {
-                let currentBalance = parseFloat(customers[cIdx].currentBalance) || 0;
-                customers[cIdx].currentBalance = currentBalance - creditRevertAmount;
-                localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
-            }
+            adjustSalesPartnerBalance(oldInv.customer, -creditRevertAmount);
         }
 
         // 2. Revert Bank/Safe Balance
@@ -8150,7 +8215,7 @@ function updateSalesPostingStatusBar(status) {
         return;
     }
 
-    const postingMode = window.getPostingMode ? window.getPostingMode() : 'auto';
+    const postingMode = window.getPostingMode ? window.getPostingMode() : (localStorage.getItem('erp_posting_mode') || 'manual');
     
     if (postingMode === 'auto' || status === 'new' || status === 'preliminary' || status === 'draft') {
         bar.style.display = 'none';
@@ -8272,12 +8337,7 @@ function postSalesInvoice(invNo) {
         creditRevertAmount = grandAmount;
     }
     if (creditRevertAmount > 0 && oldInv.customer && oldInv.customer !== 'walk-in') {
-        let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-        const cIdx = customers.findIndex(c => c.id === oldInv.customer);
-        if (cIdx > -1) {
-            customers[cIdx].currentBalance = (parseFloat(customers[cIdx].currentBalance) || 0) + creditRevertAmount;
-            localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
-        }
+        adjustSalesPartnerBalance(oldInv.customer, creditRevertAmount);
     }
     
     // Update invoice status
@@ -8298,10 +8358,13 @@ function postSalesInvoice(invNo) {
     showToast('✅ تم ترحيل الفاتورة بنجاح', 'success');
 }
 
-function unpostSalesInvoice(invNo) {
+async function unpostSalesInvoice(invNo) {
     if (!invNo) return;
-    
-    if (!confirm('هل أنت متأكد من إلغاء ترحيل هذه الفاتورة؟ سيتم عكس التأثيرات المالية.')) return;
+
+    const okUnpost = typeof window.showCenteredConfirmModal === 'function'
+        ? await window.showCenteredConfirmModal({ title: 'إلغاء ترحيل الفاتورة', badge: 'عكس القيود', icon: '↩️', tone: 'danger', message: `هل أنت متأكد من إلغاء ترحيل الفاتورة رقم (${invNo})؟\nسيتم عكس جميع التأثيرات المالية والمخزنية.`, confirmText: '✅ نعم، إلغاء الترحيل', cancelText: '✕ تراجع' })
+        : confirm('هل أنت متأكد من إلغاء ترحيل هذه الفاتورة؟ سيتم عكس التأثيرات المالية.');
+    if (!okUnpost) return;
     
     revertSalesInvoiceEffects(invNo, false);
     

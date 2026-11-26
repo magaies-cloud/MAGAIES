@@ -165,6 +165,8 @@ if (isset($_GET['api']) && $_GET['api'] === 'flash_delta_sync') {
                     $rec['id']             = $vNo;
                     $rec['voucherNo']      = $vNo;
                     $rec['isGrouped']      = true;
+                    /* MAGAIES_MCP_GATHER_DEFAULT */
+                    if (!array_key_exists('isPosted', $rec)) { $rec['isPosted'] = false; $rec['status'] = 'pending'; }
                     $rec['idempotencyKey'] = $idemKey;
                     $rec['hlcTimestamp']   = $incHlc;
                     $rec['updatedAtMs']    = $incTs;
@@ -1848,7 +1850,7 @@ window.DB_UNIVERSAL_MAX_SEQ = <?php echo (int)$UNIVERSAL_MAX_SEQ; ?>;
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/html2pdf.bundle.min.js"></script>
+    <script>window.addEventListener('load',function(){var f=function(){if(!window.html2pdf&&!document.getElementById('lazy-h2p')){var s=document.createElement('script');s.id='lazy-h2p';s.src='js/html2pdf.bundle.min.js';document.body.appendChild(s);}};if(window.requestIdleCallback)requestIdleCallback(f,{timeout:1800});else setTimeout(f,900);},{once:true});</script>
     <script defer src="js/whatsapp-integration.js?v=<?= file_exists('js/whatsapp-integration.js') ? filemtime('js/whatsapp-integration.js') : '1' ?>"></script>
     <script defer src="js/app.js?v=20261016_v28"></script>
     <script defer src="js/promissory-flight-animation.js?v=<?= file_exists('js/promissory-flight-animation.js') ? filemtime('js/promissory-flight-animation.js') : '1' ?>"></script>

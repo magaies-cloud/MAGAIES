@@ -136,6 +136,48 @@ function openStandalonePrintPreview() {
     }
 }
 
+// إذن استلام بضاعة للعميل (الكميات فقط بدون أسعار أو مبالغ)
+window.openDeliveryPermitPreview = function() {
+    const data = (typeof getInvoiceDataForPrint === 'function') ? getInvoiceDataForPrint() : null;
+    const validItems = (data && Array.isArray(data.items)) ? data.items.filter(it => it && (it.name || it.itemName) && (parseFloat(it.quantity || it.qty || 0) > 0)) : [];
+    if (!data || validItems.length === 0) {
+        if (typeof window.showCenteredWarningModal === 'function') window.showCenteredWarningModal('يرجى إضافة صنف وكمية واحدة على الأقل لإصدار إذن الاستلام.', 'warning');
+        else alert('يرجى إضافة صنف وكمية واحدة على الأقل لإصدار إذن الاستلام.');
+        return;
+    }
+    const old = document.getElementById('delivery-permit-preview-modal');
+    if (old) old.remove();
+    const esc = (s) => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const compName = (data.companyName || (window.SERVER_TENANT && window.SERVER_TENANT.name) || 'إذن استلام بضاعة');
+    const rowsHtml = validItems.map((it, i) => `<tr><td style="padding:10px 8px;border:1px solid #cbd5e1;text-align:center;font-weight:800;">${i + 1}</td><td style="padding:10px 10px;border:1px solid #cbd5e1;font-weight:900;font-size:1.05rem;">${esc(it.name || it.itemName)}</td><td style="padding:10px 8px;border:1px solid #cbd5e1;text-align:center;font-weight:800;">${esc(it.unit || it.selectedUnit || 'وحدة')}</td><td style="padding:10px 8px;border:1px solid #cbd5e1;text-align:center;font-weight:900;font-size:1.18rem;color:#0369a1;">${esc(it.quantity || it.qty)}</td><td style="padding:10px 8px;border:1px solid #cbd5e1;text-align:center;">${esc(it.note || '')}</td></tr>`).join('');
+    const permitDocHtml = `<div id="delivery-permit-printable" style="background:#ffffff;color:#0f172a;padding:24px 26px;border-radius:14px;direction:rtl;font-family:'Cairo','Tajawal',sans-serif;">`
+        + `<div style="text-align:center;border-bottom:2.5px solid #0284c7;padding-bottom:12px;margin-bottom:16px;"><div style="font-size:1.35rem;font-weight:900;color:#0f172a;">${esc(compName)}</div><div style="display:inline-block;margin-top:6px;padding:4px 18px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-size:1.08rem;font-weight:900;border:1.5px solid #38bdf8;">📦 إذن استلام بضاعة (كميات فقط)</div></div>`
+        + `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-bottom:16px;font-size:0.95rem;">`
+        + `<div><strong>رقم الإذن / الفاتورة:</strong> <span style="font-family:monospace;font-weight:900;">${esc(data.invoiceNo || '-')}</span></div>`
+        + `<div><strong>التاريخ:</strong> ${esc(data.date || new Date().toISOString().slice(0,10))}</div>`
+        + `<div><strong>العميل:</strong> ${esc(data.customerName || 'عميل نقدي')}</div>`
+        + `<div><strong>المخزن:</strong> ${esc(data.warehouseName || 'المخزن الرئيسي')}</div></div>`
+        + `<table style="width:100%;border-collapse:collapse;margin-bottom:20px;"><thead><tr style="background:#0f172a;color:#ffffff;"><th style="padding:10px 8px;border:1px solid #0f172a;width:44px;">م</th><th style="padding:10px 10px;border:1px solid #0f172a;text-align:right;">الصنف</th><th style="padding:10px 8px;border:1px solid #0f172a;width:100px;">الوحدة</th><th style="padding:10px 8px;border:1px solid #0f172a;width:110px;">الكمية</th><th style="padding:10px 8px;border:1px solid #0f172a;width:130px;">ملاحظات</th></tr></thead><tbody>${rowsHtml}</tbody></table>`
+        + `<div style="display:flex;justify-content:space-between;padding-top:18px;border-top:1.5px dashed #cbd5e1;font-weight:800;font-size:0.95rem;"><div>توقيع أمين المخزن: ........................</div><div>توقيع المستلم: ........................</div></div></div>`;
+    const overlay = document.createElement('div');
+    overlay.id = 'delivery-permit-preview-modal';
+    overlay.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;background:rgba(2,6,23,0.82);backdrop-filter:blur(8px);z-index:2147483647;display:flex;justify-content:center;align-items:center;padding:18px;direction:rtl;font-family:"Cairo","Tajawal",sans-serif;';
+    overlay.innerHTML = `<div style="background:#0f172a;border:2px solid #38bdf8;border-radius:20px;width:min(95vw,760px);max-height:92vh;overflow-y:auto;padding:20px;box-shadow:0 30px 70px rgba(0,0,0,0.75);">`
+        + permitDocHtml
+        + `<div style="display:flex;gap:12px;margin-top:16px;justify-content:center;">`
+        + `<button type="button" id="btn-print-delivery-permit-now" style="flex:1.2;background:linear-gradient(135deg,#0284c7,#2563eb);color:#fff;border:none;padding:12px 20px;border-radius:12px;font-size:1.05rem;font-weight:900;cursor:pointer;font-family:inherit;">🖨️ طباعة الإذن</button>`
+        + `<button type="button" id="btn-close-delivery-permit-now" style="flex:0.8;background:rgba(148,163,184,0.16);color:#e2e8f0;border:1.5px solid rgba(148,163,184,0.4);padding:12px 18px;border-radius:12px;font-size:1rem;font-weight:900;cursor:pointer;font-family:inherit;">✕ إغلاق</button></div></div>`;
+    overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+    document.body.appendChild(overlay);
+    overlay.querySelector('#btn-close-delivery-permit-now').onclick = () => overlay.remove();
+    overlay.querySelector('#btn-print-delivery-permit-now').onclick = () => {
+        const w = window.open('', '_blank', 'width=820,height=720');
+        if (!w) return;
+        w.document.write(`<html dir="rtl"><head><title>إذن استلام بضاعة</title><style>body{margin:0;padding:16px;font-family:'Cairo','Tajawal',Tahoma,sans-serif;}@media print{body{padding:0;}}</style></head><body>${permitDocHtml}<script>window.onload=function(){window.print();};<\/script></body></html>`);
+        w.document.close();
+    };
+};
+
 function toggleSettingsPanel() {
     const p = document.getElementById('settings-panel');
     if (!p) return;

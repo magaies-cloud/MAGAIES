@@ -829,10 +829,12 @@ function lightenHex3Shades(hex) {
 }
 
 function getFactoryPreset2LedgerConfigs() {
-    const baseSoftMap = { 0: '#edfafd', 5: '#e6f2ff', 7: '#e6f2ff', 6: '#ffeef0', 8: '#ffeef0', 9: '#e8fbf0', 10: '#fef7d6', 11: '#fef7d6', 12: '#e9fbee', 13: '#ede9fe' };
+    const baseSoftMap = { 0: '#e0f2fe', 5: '#dbeafe', 7: '#dbeafe', 6: '#ffe4e6', 8: '#ffe4e6', 9: '#d1fae5', 10: '#fef3c7', 11: '#fef3c7', 12: '#ecfdf5', 13: '#ede9fe' };
+    const deepTextMap = { 5: '#1d4ed8', 7: '#1e40af', 6: '#be123c', 8: '#9f1239', 9: '#065f46', 10: '#78350f', 11: '#451a03' };
     return getFactoryPreset1LedgerConfigs().map((c, idx) => ({
         ...c,
-        color: c.color ? lightenHex3Shades(c.color) : c.color,
+        fontWeight: '900',
+        color: deepTextMap[idx] || c.color || '#0f172a',
         bgColor: lightenHex3Shades(baseSoftMap[idx] || c.bgColor || '#f1f5f9')
     }));
 }
@@ -840,7 +842,18 @@ function getFactoryPreset2LedgerConfigs() {
 const NO_CLIP_AUTO_FIT_COLS = [0, 5, 6, 7, 8, 9, 10, 11, 13];
 
 function calcAutoFitNumberRem(textStr, baseRem, colWidthPx) {
-    return baseRem;
+    const s = String(textStr || '').trim();
+    if (!s || s === '-' || s === '0') return baseRem;
+    const len = s.length;
+    const availPx = (colWidthPx && colWidthPx > 24) ? (colWidthPx - 6) : 0;
+    let targetRem = baseRem;
+    if (availPx > 0) {
+        const estPx = len * (baseRem * 16 * 0.62);
+        if (estPx > availPx) targetRem = baseRem * (availPx / estPx);
+    } else if (len > 9) {
+        targetRem = baseRem * Math.max(0.64, 9.5 / len);
+    }
+    return Math.max(0.62, Math.min(baseRem, Number(targetRem.toFixed(2))));
 }
 
 function getFactoryPreset1LedgerConfigs() {
@@ -1920,7 +1933,7 @@ function renderTable() {
             let rowBg = isPatternMode
                 ? (conf.bgColor || unifiedSoftBgMap[idx] || '#ffffff')
                 : ((currentPresetIndex === 0) ? (unifiedSoftBgMap[idx] || validCustomBg) : ((conf.bgColor && conf.bgColor !== '#ffffff' && conf.bgColor !== '#fcfdff') ? conf.bgColor : lightenHex3Shades(unifiedSoftBgMap[idx] || '#f1f5f9')));
-            const defFs = (idx === 0 || idx === 13) ? 1.16 : ((idx === 10 || idx === 11) ? 1.36 : (c.isNum ? 1.32 : ((idx === 2 || idx === 12) ? 0.78 : 1.16)));
+            const defFs = (idx === 0 || idx === 13) ? 1.16 : ((idx === 10 || idx === 11) ? 1.36 : (idx === 9 ? 1.12 : (c.isNum ? 1.32 : ((idx === 2 || idx === 12) ? 0.78 : 1.16))));
             const oldFsList = [0.80, 0.84, 0.86, 0.9, 0.96, 1.0, 1.02, 1.04, 1.06, 1.08, 1.12, 1.14, 1.20, 1.22, 1.24, 1.28];
             let finalFs = (isPatternMode && conf.fs)
                 ? Number(conf.fs)
@@ -1935,6 +1948,7 @@ function renderTable() {
                     finalFs = Math.max(0.84, +(finalFs - Math.min(0.36, (textLen - 11) * 0.035)).toFixed(2));
                 }
             }
+            td.dataset.baseFs = String(finalFs);
             td.style.setProperty('font-size', finalFs + 'rem', 'important');
             td.style.setProperty('text-align', (!isPatternMode) ? 'center' : (conf.align || 'center'), 'important');
             td.style.setProperty('vertical-align', 'middle', 'important');
@@ -2044,7 +2058,9 @@ function renderTable() {
                     footerVal = filteredData.length > 0 ? parseFloat(getRawFieldValue(filteredData[filteredData.length - 1], 'balanceForeign') || 0) : 0;
                 }
                 td.innerText = formatCustomNumber(footerVal, conf);
-                td.style.setProperty('font-size', (conf.fs && Number(conf.fs) > 1.0 ? Number(conf.fs) : 1.32) + 'rem', 'important');
+                const footBaseFs = (c.field === 'exchangeRate') ? 1.12 : ((conf.fs && Number(conf.fs) > 1.0) ? Number(conf.fs) : 1.32);
+                td.dataset.baseFs = String(footBaseFs);
+                td.style.setProperty('font-size', footBaseFs + 'rem', 'important');
                 td.style.setProperty('padding-left', '0.5mm', 'important');
                 td.style.setProperty('padding-right', '0.5mm', 'important');
                 td.style.fontWeight = '900';
@@ -2079,7 +2095,7 @@ function renderTable() {
         pager.style.display = 'none';
     }
 
-    requestAnimationFrame(() => {
+    const runAutoFitPass = () => {
         const ctx = (window.__plFitCanvas || (window.__plFitCanvas = document.createElement('canvas'))).getContext('2d');
         const cells = document.querySelectorAll('#preview-tbody td:not([data-col-idx="2"]):not([data-col-idx="12"]), #preview-tfoot td:not([data-col-idx="2"]):not([data-col-idx="12"])');
         const updates = [];
@@ -2087,18 +2103,49 @@ function renderTable() {
             const txt = (cell.innerText || '').trim();
             if (!txt || txt === '-') return;
             const cw = cell.clientWidth;
-            if (!cw) return;
+            if (!cw || cw < 12) return;
+            const baseRem = parseFloat(cell.dataset.baseFs || '');
+            if (baseRem > 0) cell.style.setProperty('font-size', baseRem + 'rem', 'important');
             const cs = window.getComputedStyle(cell);
-            const compPx = parseFloat(cs.fontSize) || 19;
+            const compPx = parseFloat(cs.fontSize) || 18;
             ctx.font = `${cs.fontWeight || '900'} ${compPx}px ${cs.fontFamily || 'monospace'}`;
             const textW = ctx.measureText(txt).width;
-            const availW = Math.max(24, cw - 3.8); // 0.5mm right + 0.5mm left (~1.9px + 1.9px)
-            if (textW > availW) {
-                const fittedPx = Math.max(8, +(compPx * (availW / textW) * 0.985).toFixed(2));
-                updates.push([cell, fittedPx + 'px']);
+            const availW = Math.max(16, cw - 5);
+            let targetPx = compPx;
+            if (textW > availW) targetPx = Math.max(6.5, +(compPx * (availW / textW) * 0.94).toFixed(2));
+            if (targetPx < compPx) updates.push([cell, targetPx]);
+        });
+        for (let i = 0; i < updates.length; i++) updates[i][0].style.setProperty('font-size', updates[i][1] + 'px', 'important');
+        // Second DOM-verified pass: guarantee zero horizontal clipping (especially exchangeRate col 9)
+        cells.forEach(cell => {
+            const txt = (cell.innerText || '').trim();
+            if (!txt || txt === '-' || !cell.clientWidth) return;
+            const sw = cell.scrollWidth, cw = cell.clientWidth;
+            if (sw > cw + 0.5) {
+                const curPx = parseFloat(window.getComputedStyle(cell).fontSize) || 14;
+                let nextPx = Math.max(6.5, +(curPx * ((cw - 2) / sw) * 0.96).toFixed(2));
+                cell.style.setProperty('font-size', nextPx + 'px', 'important');
+                let guard = 0;
+                while (cell.scrollWidth > cell.clientWidth + 0.5 && nextPx > 6.5 && guard < 6) {
+                    nextPx = Math.max(6.5, +(nextPx * 0.92).toFixed(2));
+                    cell.style.setProperty('font-size', nextPx + 'px', 'important');
+                    guard++;
+                }
             }
         });
-        for (let i = 0; i < updates.length; i++) updates[i][0].style.setProperty('font-size', updates[i][1], 'important');
+    };
+    window.__plRunAutoFitPass = runAutoFitPass;
+    requestAnimationFrame(() => {
+        runAutoFitPass();
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => requestAnimationFrame(runAutoFitPass));
+    });
+}
+if (!window.__plFitResizeBound) {
+    window.__plFitResizeBound = true;
+    let _plFitT = null;
+    window.addEventListener('resize', () => {
+        clearTimeout(_plFitT);
+        _plFitT = setTimeout(() => { if (typeof window.__plRunAutoFitPass === 'function') window.__plRunAutoFitPass(); }, 80);
     });
 }
 window.__plStepPage = function(delta) {
@@ -2872,148 +2919,76 @@ function collectAllTransactions() {
         return (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate > 0 ? ledgerExchangeRate : 1);
     }
 
-    // 1. Single Receipts
-    const receipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
-    receipts.forEach(v => {
+    // 1 & 2. Single Receipts & Single Payments (Full Per-Method Breakdown: Transfers + Cheques + Cash/Safe)
+    const emitSingleVoucherSplit = (v, kind) => {
+        if (!v || v.deleted) return;
         const costCenter = v.costCenter || 'بدون مركز';
         const currency = v.currency || 'SDG';
         const time = v.time || timeNow;
         const isPosted = v.isPosted !== false;
-        
         const rate = parseNum(v.rate || 1);
         const effRate = getEffectiveRate(v, rate);
         const isBaseSDG = (currency === 'SDG');
-        const amount = parseNum(v.amount);
-        const amountLocal = parseNum(v.amountLocal || (amount * rate));
+        const amount = parseNum(v.amount !== undefined ? v.amount : (isBaseSDG ? v.amountLocal : v.amountForeign));
+        const amountLocal = parseNum(v.amountLocal || (amount * effRate));
         const valLoc = amountLocal;
         const valFc = isBaseSDG ? (amountLocal / effRate) : amount;
-
-        // Receiving side (Safe/Bank)
-        txns.push({
-            date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند قبض',
-            account: v.toAccount || 'safe-001', counterAccount: v.fromAccount,
-            statement: 'سند قبض #' + (v.voucherNo || v.id),
-            additionalNote: v.fromStatement || 'سند قبض نقدي',
-            debit: valLoc, credit: 0, 
-            debitForeign: valFc, creditForeign: 0,
-            costCenter, currency,
-            exchangeRate: effRate,
-            isPosted: isPosted
+        const refNo = v.voucherNo || v.id;
+        const isRec = (kind === 'receipt');
+        const safeLbl = v.cashSafeName || 'الخزينة الرئيسية';
+        const validTransfers = Array.isArray(v.bankTransfers) ? v.bankTransfers.filter(bt => parseNum(bt.amount) > 0) : [];
+        const validCheques = Array.isArray(v.cheques) ? v.cheques.filter(ch => parseNum(ch.amount) > 0) : [];
+        const hasTransfers = validTransfers.length > 0;
+        const hasCheques = validCheques.length > 0;
+        const pushPair = (amtLoc, amtFc, stmt, note, extra) => {
+            const drAcc = isRec ? (v.toAccount || 'safe-001') : v.toAccount;
+            const crAcc = isRec ? v.fromAccount : (v.fromAccount || 'safe-001');
+            txns.push(Object.assign({ date: v.date, time, ref: refNo, type: kind, typeLabel: isRec ? 'سند قبض' : 'سند صرف', account: drAcc, counterAccount: crAcc, statement: stmt, additionalNote: note, debit: amtLoc, credit: 0, debitForeign: amtFc, creditForeign: 0, costCenter, currency, exchangeRate: effRate, isPosted }, extra));
+            txns.push(Object.assign({ date: v.date, time, ref: refNo, type: kind, typeLabel: isRec ? 'سند قبض' : 'سند صرف', account: crAcc, counterAccount: drAcc, statement: stmt, additionalNote: note, debit: 0, credit: amtLoc, debitForeign: 0, creditForeign: amtFc, costCenter, currency, exchangeRate: effRate, isPosted }, extra));
+        };
+        let assignedLoc = 0;
+        validTransfers.forEach(bt => {
+            const amt = parseNum(bt.amount);
+            const aLoc = isBaseSDG ? amt : (amt > valFc * 1.5 ? amt : amt * effRate);
+            const aFc = isBaseSDG ? (aLoc / effRate) : (amt > valFc * 1.5 ? (aLoc / effRate) : amt);
+            assignedLoc += aLoc;
+            const bName = bt.bankName || bt.note || '';
+            const tNo = bt.transferNo || bt.reference || '';
+            const tag = `تحويلة بنكية${bName ? ' (' + bName + ')' : ''}${tNo ? ' رقم ' + tNo : ''}`;
+            const stmt = bt.statement ? `${tag} - ${bt.statement}` : (v.statement ? `${tag} - ${v.statement}` : `${tag} - سند #${refNo}`);
+            pushPair(aLoc, aFc, stmt, bt.statement || tag, { transferNo: tNo, bankName: bName });
         });
-        // Disbursing side (Customer/Supplier pays us)
-        txns.push({
-            date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند صرف',
-            account: v.fromAccount, counterAccount: v.toAccount || 'safe-001',
-            statement: 'سند قبض #' + (v.voucherNo || v.id),
-            additionalNote: v.fromStatement || 'سند صرف نقدي',
-            debit: 0, credit: valLoc, 
-            debitForeign: 0, creditForeign: valFc,
-            costCenter, currency,
-            exchangeRate: effRate,
-            isPosted: isPosted
+        validCheques.forEach(ch => {
+            const amt = parseNum(ch.amount);
+            const aLoc = isBaseSDG ? amt : (amt > valFc * 1.5 ? amt : amt * effRate);
+            const aFc = isBaseSDG ? (aLoc / effRate) : (amt > valFc * 1.5 ? (aLoc / effRate) : amt);
+            assignedLoc += aLoc;
+            const cNo = ch.checkNo || ch.chequeNo || '';
+            const cBank = ch.checkBranch || ch.checkBank || '';
+            const tag = `شيك${cBank ? ' (' + cBank + ')' : ''}${cNo ? ' رقم ' + cNo : ''}`;
+            const stmt = ch.statement ? `${tag} - ${ch.statement}` : (v.statement ? `${tag} - ${v.statement}` : `${tag} - سند #${refNo}`);
+            pushPair(aLoc, aFc, stmt, ch.statement || tag, { checkNo: cNo, bankName: cBank });
         });
-    });
-
-    // 2. Single Payments
-    const payments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
-    payments.forEach(v => {
-        const costCenter = v.costCenter || 'بدون مركز';
-        const currency = v.currency || 'SDG';
-        const time = v.time || timeNow;
-        const isPosted = v.isPosted !== false;
-
-        const rate = parseNum(v.rate || 1);
-        const effRate = getEffectiveRate(v, rate);
-        const isBaseSDG = (currency === 'SDG');
-        const amount = parseNum(v.amount);
-        const amountLocal = parseNum(v.amountLocal || (amount * rate));
-        const valLoc = amountLocal;
-        const valFc = isBaseSDG ? (amountLocal / effRate) : amount;
-
-        const method = v.paymentMethod || 'cash';
-        if (method === 'mobile' && v.bankTransfers && v.bankTransfers.length > 0) {
-            v.bankTransfers.forEach(bt => {
-                const amt = parseNum(bt.amount);
-                const amtLoc = isBaseSDG ? amt : amt * rate;
-                const amtFc = isBaseSDG ? (amtLoc / effRate) : amt;
-                const stmt = bt.statement || v.statement || v.toStatement || ('تحويل بنكي - سند صرف #' + (v.voucherNo || v.id));
-
-                // Disbursing side (Safe/Bank)
-                txns.push({
-                    date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند صرف',
-                    account: v.fromAccount || 'safe-001', counterAccount: v.toAccount,
-                    statement: stmt,
-                    additionalNote: stmt,
-                    debit: 0, credit: amtLoc, 
-                    debitForeign: 0, creditForeign: amtFc,
-                    costCenter, currency, exchangeRate: effRate, isPosted
-                });
-                // Receiving side (Supplier/Customer receives from us)
-                txns.push({
-                    date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند استلام',
-                    account: v.toAccount, counterAccount: v.fromAccount || 'safe-001',
-                    statement: stmt,
-                    additionalNote: stmt,
-                    debit: amtLoc, credit: 0, 
-                    debitForeign: amtFc, creditForeign: 0,
-                    costCenter, currency, exchangeRate: effRate, isPosted
-                });
-            });
-        } else if (method === 'check' && v.cheques && v.cheques.length > 0) {
-            v.cheques.forEach(ch => {
-                const amt = parseNum(ch.amount);
-                const amtLoc = isBaseSDG ? amt : amt * rate;
-                const amtFc = isBaseSDG ? (amtLoc / effRate) : amt;
-                const stmt = ch.statement || v.statement || v.toStatement || ('شيك - سند صرف #' + (v.voucherNo || v.id));
-
-                // Disbursing side (Safe/Bank)
-                txns.push({
-                    date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند صرف',
-                    account: v.fromAccount || 'safe-001', counterAccount: v.toAccount,
-                    statement: stmt,
-                    additionalNote: stmt,
-                    debit: 0, credit: amtLoc, 
-                    debitForeign: 0, creditForeign: amtFc,
-                    costCenter, currency, exchangeRate: effRate, isPosted
-                });
-                // Receiving side (Supplier/Customer receives from us)
-                txns.push({
-                    date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند استلام',
-                    account: v.toAccount, counterAccount: v.fromAccount || 'safe-001',
-                    statement: stmt,
-                    additionalNote: stmt,
-                    debit: amtLoc, credit: 0, 
-                    debitForeign: amtFc, creditForeign: 0,
-                    costCenter, currency, exchangeRate: effRate, isPosted
-                });
-            });
+        if (hasTransfers || hasCheques) {
+            let cashRem = parseNum(v.cashAmount || 0);
+            if (cashRem <= 0 && (valLoc - assignedLoc) > 0.5) cashRem = Number((valLoc - assignedLoc).toFixed(2));
+            if (cashRem > 0) {
+                const cLoc = isBaseSDG ? cashRem : (cashRem > valFc * 1.5 ? cashRem : cashRem * effRate);
+                const cFc = isBaseSDG ? (cLoc / effRate) : (cashRem > valFc * 1.5 ? (cLoc / effRate) : cashRem);
+                const tag = `نقدي (${safeLbl})`;
+                const stmt = v.statement ? `${tag} - ${v.statement}` : `${tag} - سند #${refNo}`;
+                pushPair(cLoc, cFc, stmt, tag, { bankName: safeLbl });
+            }
         } else {
-            // Disbursing side (Safe/Bank)
-            txns.push({
-                date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند صرف',
-                account: v.fromAccount || 'safe-001', counterAccount: v.toAccount,
-                statement: v.statement || 'سند صرف #' + (v.voucherNo || v.id),
-                additionalNote: v.toStatement || 'سند صرف نقدي',
-                debit: 0, credit: valLoc, 
-                debitForeign: 0, creditForeign: valFc,
-                costCenter, currency,
-                exchangeRate: effRate,
-                isPosted: isPosted
-            });
-            // Receiving side (Supplier/Customer receives from us)
-            txns.push({
-                date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند استلام',
-                account: v.toAccount, counterAccount: v.fromAccount || 'safe-001',
-                statement: v.statement || 'سند صرف #' + (v.voucherNo || v.id),
-                additionalNote: v.toStatement || 'سند استلام نقدي',
-                debit: valLoc, credit: 0, 
-                debitForeign: valFc, creditForeign: 0,
-                costCenter, currency,
-                exchangeRate: effRate,
-                isPosted: isPosted
-            });
+            const tag = `نقدي (${safeLbl})`;
+            const stmt = v.statement ? `${tag} - ${v.statement}` : `${tag} - سند #${refNo}`;
+            pushPair(valLoc, valFc, stmt, v.toStatement || v.fromStatement || tag, { transferNo: v.transferNo || v.mobileTransferNo || '', checkNo: v.checkNo || v.chequeNo || '', bankName: v.bankName || v.mobileNote || safeLbl });
         }
-    });
+    };
+    const receipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
+    receipts.forEach(v => emitSingleVoucherSplit(v, 'receipt'));
+    const payments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+    payments.forEach(v => emitSingleVoucherSplit(v, 'payment'));
 
     // Helper to resolve safe/bank account name/id from ACCOUNTS list
     const resolveAccount = (accVal, fallback) => {

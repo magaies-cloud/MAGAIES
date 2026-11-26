@@ -364,15 +364,8 @@
             st.textContent = `@keyframes profMicGlow { 0%, 100% { box-shadow: 0 0 18px #10b981, 0 0 34px rgba(253,224,71,0.7), inset 0 0 10px rgba(255,255,255,0.4) !important; border-color: #fde047 !important; } 50% { box-shadow: 0 0 28px #34d399, 0 0 46px rgba(16,185,129,0.95), inset 0 0 14px rgba(253,224,71,0.6) !important; border-color: #ffffff !important; } } .prof-mic-illuminated-active { background: linear-gradient(135deg, #059669, #10b981, #047857) !important; border: 2px solid #fde047 !important; animation: profMicGlow 1.5s infinite ease-in-out !important; color: #ffffff !important; } .prof-mic-illuminated-speaking { background: linear-gradient(135deg, #d97706, #b45309) !important; border: 2px solid #fef08a !important; box-shadow: 0 0 22px rgba(245,158,11,0.85) !important; color: #ffffff !important; }`;
             document.head.appendChild(st);
         }
-        if (!document.getElementById('global-prof-ai-fab')) {
-            const fab = document.createElement('button');
-            fab.id = 'global-prof-ai-fab';
-            fab.type = 'button';
-            fab.title = 'مايك الحوار المباشر مع البروفيسور (اضغط ليضيء المايك وتحدث مباشرة)';
-            fab.innerHTML = '🎙️';
-            fab.style.cssText = 'position:fixed;bottom:82px;left:14px;z-index:99995;width:46px;height:46px;padding:0;border-radius:50%;background:linear-gradient(135deg,#059669,#0284c7);color:#ffffff;border:2px solid #fde047;font-size:22px;line-height:1;cursor:pointer;box-shadow:0 8px 22px rgba(0,0,0,0.65);display:inline-flex;align-items:center;justify-content:center;transition:all 0.25s ease;';
-            fab.onclick = () => toggleVoiceInput();
-            document.body.appendChild(fab);
-        }
+        /* Top header 6-button pod already houses 🎙️ الحوار (#header-live-mic-btn) — remove duplicate bottom floating mic */
+        const staleProfFab = document.getElementById('global-prof-ai-fab');
+        if (staleProfFab) staleProfFab.remove();
     });
 })();

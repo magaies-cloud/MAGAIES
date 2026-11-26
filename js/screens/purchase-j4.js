@@ -102,10 +102,11 @@
                     const totalRect = totalCol.getBoundingClientRect();
                     if (!cardRect.width || !totalRect.width) return;
 
-                    const boxW = primaryBox.offsetWidth || 175;
-                    const totalCenter = totalRect.left + (totalRect.width / 2);
-                    const targetBoxLeft = totalCenter - (boxW / 2);
-                    const padLeft = Math.max(10, Math.round(targetBoxLeft - cardRect.left));
+                    const colW = Math.max(130, Math.round(totalRect.width));
+                    primaryBox.style.setProperty('min-width', colW + 'px', 'important');
+                    const boxW = primaryBox.offsetWidth || colW;
+                    const targetBoxLeft = totalRect.left + ((totalRect.width - boxW) / 2);
+                    const padLeft = Math.max(6, Math.round(targetBoxLeft - cardRect.left));
                     card.style.setProperty('padding-left', padLeft + 'px', 'important');
                 } catch (_e) {}
             };

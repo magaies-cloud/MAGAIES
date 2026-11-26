@@ -421,38 +421,39 @@
 
     // ─── Core Functions ────────────────────────────────────────
 
+    const SUPPORTED_LANGS = ['ar', 'en', 'zh'];
+    const RTL_LANGS = ['ar'];
+
     /** Get current language */
     function getLang() {
-        return localStorage.getItem('erp_lang') || 'ar';
+        const saved = localStorage.getItem('erp_lang') || 'ar';
+        return SUPPORTED_LANGS.includes(saved) ? saved : 'ar';
     }
 
     /** Translate key */
     function t(key, fallback) {
         const lang = getLang();
         const entry = translations[key];
-        if (entry) return entry[lang] || entry['ar'] || fallback || key;
+        if (entry) return entry[lang] || entry[lang === 'ar' ? 'ar' : 'en'] || entry['ar'] || fallback || key;
         return fallback || key;
     }
 
-    /** Set language and reload */
+    /** Set language and persist cookie + localStorage */
     function setLang(lang) {
-        localStorage.setItem('erp_lang', lang);
-        applyDirection(lang);
+        const valid = SUPPORTED_LANGS.includes(lang) ? lang : 'ar';
+        localStorage.setItem('erp_lang', valid);
+        try { document.cookie = 'erp_lang=' + valid + '; path=/; max-age=31536000; SameSite=Lax'; } catch (e) {}
+        applyDirection(valid);
         applyTranslations();
-        // Dispatch event so other JS can react
-        window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang: lang } }));
+        window.dispatchEvent(new CustomEvent('languageChanged', { detail: { lang: valid } }));
     }
 
-    /** Apply text direction based on language */
+    /** Apply text direction based on language (RTL for Arabic & Urdu, LTR for English/Hindi/Turkish/Chinese) */
     function applyDirection(lang) {
         const html = document.documentElement;
-        if (lang === 'en') {
-            html.setAttribute('dir', 'ltr');
-            html.setAttribute('lang', 'en');
-        } else {
-            html.setAttribute('dir', 'rtl');
-            html.setAttribute('lang', 'ar');
-        }
+        const isRtl = RTL_LANGS.includes(lang);
+        html.setAttribute('dir', isRtl ? 'rtl' : 'ltr');
+        html.setAttribute('lang', lang || 'ar');
     }
 
     /** Scan DOM for data-i18n attributes and apply translations */
@@ -506,9 +507,20 @@
             }
         }
 
-        // Run the dynamic Arabic -> English DOM replacement engine if language is English
+        // Zero-Lag Multi-Language Engine: runs ONLY when non-Arabic language is chosen
         if (lang === 'en') {
             autoTranslatePage();
+        }
+        if (lang !== 'ar') {
+            if (typeof window.applyMagaiesMultiLang === 'function') {
+                window.applyMagaiesMultiLang(lang);
+            } else if (!document.querySelector('script[data-lang-6pack="1"]')) {
+                const s = document.createElement('script');
+                s.src = 'js/lang-6pack.js?v=20261126_6langs';
+                s.dataset.lang6pack = '1';
+                s.onload = () => { if (window.applyMagaiesMultiLang) window.applyMagaiesMultiLang(lang); };
+                (document.head || document.documentElement).appendChild(s);
+            }
         }
     }
 
@@ -817,25 +829,29 @@
             }
         }
 
+        if (getLang() === 'ar') return;
         walkDOM(document.body);
 
-        const observer = new MutationObserver((mutations) => {
-            observer.disconnect();
-            mutations.forEach(mutation => {
-                mutation.addedNodes.forEach(node => {
-                    walkDOM(node);
+        if (!window.__erpEnLangObserver) {
+            window.__erpEnLangObserver = new MutationObserver((mutations) => {
+                if (getLang() === 'ar') return;
+                window.__erpEnLangObserver.disconnect();
+                mutations.forEach(mutation => {
+                    mutation.addedNodes.forEach(node => {
+                        walkDOM(node);
+                    });
                 });
+                window.__erpEnLangObserver.observe(document.body, { childList: true, subtree: true });
             });
-            observer.observe(document.body, { childList: true, subtree: true });
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
+            window.__erpEnLangObserver.observe(document.body, { childList: true, subtree: true });
+        }
     }
 
     // ─── Auto-initialize on page load ─────────────────────────
     function init() {
         const lang = getLang();
         applyDirection(lang);
-        // Wait for DOM to be ready
+        if (lang === 'ar') return;
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', () => {
                 applyTranslations();

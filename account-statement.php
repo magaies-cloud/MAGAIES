@@ -1741,27 +1741,37 @@ input:checked + .slider:before { transform: translateX(20px); }
         if (rowMenu) rowMenu.classList.remove('active');
     }
 
+    function resolveFastOriginUrl(rawRef, addPrint = false) {
+        const cleanRef = String(rawRef || '').replace(/-(PUR|SAL)-PAID.*|-PAID.*|-BT\d+|-CH\d+$/i, '').trim();
+        let targetUrl = '';
+        if (/^(INV|SAL|DS|S\d{4})/i.test(cleanRef)) targetUrl = `direct-sales.php?id=${encodeURIComponent(cleanRef)}`;
+        else if (/^(RET-|SR-)/i.test(cleanRef)) targetUrl = `sales-return.php?id=${encodeURIComponent(cleanRef)}`;
+        else if (/^(PUR|PINV|P\d{4})/i.test(cleanRef)) targetUrl = `purchase.php?id=${encodeURIComponent(cleanRef)}`;
+        else if (/^(PRET-|PR-)/i.test(cleanRef)) targetUrl = `purchase-return.php?id=${encodeURIComponent(cleanRef)}`;
+        else if (/^(MREC-)/i.test(cleanRef)) targetUrl = `multi-cash-payment.php?type=receipt&id=${encodeURIComponent(cleanRef)}`;
+        else if (/^(MPAY-)/i.test(cleanRef)) targetUrl = `multi-cash-payment.php?type=payment&id=${encodeURIComponent(cleanRef)}`;
+        else if (/^(REC|RCP|SREC|RV-)/i.test(cleanRef)) targetUrl = `single-cash-payment.php?type=receipt&id=${encodeURIComponent(cleanRef)}`;
+        else if (/^(JV|JE)/i.test(cleanRef)) targetUrl = `journal-voucher.php?id=${encodeURIComponent(cleanRef)}`;
+        else targetUrl = `single-cash-payment.php?type=payment&id=${encodeURIComponent(cleanRef)}`;
+        if (addPrint) targetUrl += '&print=true';
+        try {
+            const getTK = window.getTenantKey || ((k) => k);
+            for (const sk of ['erp_single_payments_v1', 'erp_single_receipts_v1']) {
+                const arr = JSON.parse(localStorage.getItem(getTK(sk)) || localStorage.getItem(sk) || '[]');
+                const hit = Array.isArray(arr) ? arr.find(x => x && (String(x.id) === cleanRef || String(x.voucherNo) === cleanRef)) : null;
+                if (hit) { localStorage.setItem('_fast_drilldown_voucher', JSON.stringify({ id: cleanRef, ts: Date.now(), voucher: hit })); break; }
+            }
+        } catch (_) {}
+        return targetUrl;
+    }
+
     function viewVoucher() {
-        if(currentRowRef) {
-            let page = 'journal-voucher.php';
-            if (currentRowRef.startsWith('INV')) page = 'sales-invoice.php';
-            else if (currentRowRef.startsWith('RCP')) page = 'single-cash-payment.php?type=receipt';
-            else if (currentRowRef.startsWith('EXP') || currentRowRef.startsWith('PAY')) page = 'single-cash-payment.php';
-            
-            window.open(page + '?id=' + encodeURIComponent(currentRowRef), '_blank');
-        }
+        if (currentRowRef) window.open(resolveFastOriginUrl(currentRowRef, false), '_blank');
         closeRowMenu();
     }
     
     function printVoucher() {
-        if(currentRowRef) {
-            let page = 'journal-voucher.php';
-            if (currentRowRef.startsWith('INV')) page = 'sales-invoice.php';
-            else if (currentRowRef.startsWith('RCP')) page = 'single-cash-payment.php?type=receipt';
-            else if (currentRowRef.startsWith('EXP') || currentRowRef.startsWith('PAY')) page = 'single-cash-payment.php';
-            
-            window.open(page + '?id=' + encodeURIComponent(currentRowRef) + '&print=true', '_blank');
-        }
+        if (currentRowRef) window.open(resolveFastOriginUrl(currentRowRef, true), '_blank');
         closeRowMenu();
     }
 

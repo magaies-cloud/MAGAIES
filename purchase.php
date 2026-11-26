@@ -689,7 +689,7 @@ try {
 
 
             <!-- ══ FULL-WIDTH: تفاصيل الدفع ══ -->
-            <div class="panel" id="payment-panel" style="display: none; z-index: 40; margin-top: 15px; padding: 0 !important; background: rgba(15, 23, 42, 0.95) !important; border: 1px solid rgba(234, 179, 8, 0.22) !important;">
+            <div class="panel" id="payment-panel" style="display: none; z-index: 40; margin-top: 15px; padding: 0 !important;">
                 <link rel="stylesheet" href="css/screens/purchase-inline-16.css?v=<?= @filemtime(__DIR__ . '/css/screens/purchase-inline-16.css') ?: '2027' ?>">
                 <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding: 10px 18px; background: rgba(15,23,42,0.4); border-bottom: 1px solid rgba(255,255,255,0.06); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
                     <div style="display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap;">
@@ -941,7 +941,7 @@ try {
     </div>
 </div>
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/html2pdf.bundle.min.js"></script>
+    <script>window.addEventListener('load',function(){var f=function(){if(!window.html2pdf&&!document.getElementById('lazy-h2p')){var s=document.createElement('script');s.id='lazy-h2p';s.src='js/html2pdf.bundle.min.js';document.body.appendChild(s);}};if(window.requestIdleCallback)requestIdleCallback(f,{timeout:1800});else setTimeout(f,900);},{once:true});</script>
     <script defer src="js/whatsapp-integration.js?v=20261029_fast"></script>
     <script defer src="js/erp-whatsapp-suite.js?v=20261029_fast"></script>
     <script defer src="js/app.js?v=20261016_v28"></script>
@@ -1376,19 +1376,19 @@ try {
     <script>window.DB_NEXT_FIN_VOUCHER_NO = <?= json_encode($purNextFinNo) ?>;</script>
     <?php if (file_exists(__DIR__ . '/includes/inbound-bankak-drawer.php')) include_once __DIR__ . '/includes/inbound-bankak-drawer.php'; ?>
     <?php include 'includes/financial-ocr-modal.php'; ?>
-    <script src="js/magaies-offline-sync.js?v=20261014"></script>
+    <script defer src="js/magaies-offline-sync.js?v=20261014"></script>
     <script defer src="js/financial-ocr.js?v=<?php echo file_exists('js/financial-ocr.js') ? filemtime('js/financial-ocr.js') : 1; ?>"></script>
-<script src="js/screens/purchase-j3.js?v=<?= @filemtime(__DIR__ . '/js/screens/purchase-j3.js') ?: '2027' ?>"></script>
+<script defer src="js/screens/purchase-j3.js?v=<?= @filemtime(__DIR__ . '/js/screens/purchase-j3.js') ?: '2027' ?>"></script>
 
 <link rel="stylesheet" id="pur-clean-theme-style" href="css/screens/purchase-s4.css?v=<?= @filemtime(__DIR__ . '/css/screens/purchase-s4.css') ?: '2027' ?>">
-<script id="pur-fin-strip-and-tfoot-organizer" src="js/screens/purchase-j4.js?v=<?= @filemtime(__DIR__ . '/js/screens/purchase-j4.js') ?: '2027' ?>"></script>
+<script defer id="pur-fin-strip-and-tfoot-organizer" src="js/screens/purchase-j4.js?v=<?= @filemtime(__DIR__ . '/js/screens/purchase-j4.js') ?: '2027' ?>"></script>
     <!-- ══════════════════════════════════════════════════════════════════════════
          PURCHASE DESIGN CONSTITUTION 2027 — HUB VIEW (#purchase-hub-view)
          9 Tones + 3px Sculpted Borders + Crisp White Inputs + Dual Currency Toggle
          ══════════════════════════════════════════════════════════════════════════ -->
     <link rel="stylesheet" id="purchase-hub-constitution-2027-style" href="css/screens/purchase-inline-18.css?v=<?= @filemtime(__DIR__ . '/css/screens/purchase-inline-18.css') ?: '2027' ?>">
 
-    <script id="purchase-hub-constitution-2027-script" src="js/screens/purchase-inline-26.js?v=<?= @filemtime(__DIR__ . '/js/screens/purchase-inline-26.js') ?: '2027' ?>"></script>
+    <script defer id="purchase-hub-constitution-2027-script" src="js/screens/purchase-inline-26.js?v=<?= @filemtime(__DIR__ . '/js/screens/purchase-inline-26.js') ?: '2027' ?>"></script>
 <link rel="stylesheet" href="css/pay-amount-typing-2027.css?v=<?= @filemtime(__DIR__ . '/css/pay-amount-typing-2027.css') ?: '2027' ?>">
 </body>
 </html>

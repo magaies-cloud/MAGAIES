@@ -2198,12 +2198,8 @@
             return;
         }
         const portfolio = safeParseJSON(localStorage.getItem('erp_cheques_portfolio_v11'), []);
-        const dupChq = portfolio.find(function(c) { return c && c.chequeNo === chqNo && c.bank === bank && stage === 'in_portfolio'; });
-        if (dupChq) {
-            showDmrToast('🚫 منع تكرار الشيكات: رقم الشيك (' + chqNo + ') مسجل مسبقاً لنفس البنك (' + bank + ')!', 'error', chqNoEl);
-            return;
-        }
-        portfolio.unshift({ id: chqNo, chequeNo: chqNo, bank: bank, issueDate: issueDate, dueDate: dueDate, party: party, amount: amt, stage: stage, extra: extra, ts: Date.now() });
+        // تكرار رقم الشيك مسموح في كامل النظام
+        portfolio.unshift({ id: chqNo + '_' + Date.now(), chequeNo: chqNo, bank: bank, issueDate: issueDate, dueDate: dueDate, party: party, amount: amt, stage: stage, extra: extra, ts: Date.now() });
         localStorage.setItem('erp_cheques_portfolio_v11', JSON.stringify(portfolio.slice(0, 500)));
         try {
             const jvList = safeParseJSON(localStorage.getItem('erp_journal_vouchers_v1'), []);

@@ -386,18 +386,25 @@ function addNewCustomer() {
     showToast(`✅ تم إضافة العميل: ${name}`);
 }
 
+function _seqKeySalesInv(no) {
+    const s = String(no || '').trim();
+    const m = s.match(/^[A-Za-z]+(\d+)$/);
+    if (m) return parseInt(m[1], 10);
+    const d = s.replace(/\D/g, '');
+    return d ? parseInt(d, 10) : 0;
+}
+
 function loadPreviousInvoice() {
     const currentNoStr = document.getElementById('hdr-inv-no').value;
-    let list = window.getAllSalesInvoices();
-    
-    let previousInvoices = list
-        .filter(inv => inv.invoiceNo && inv.invoiceNo < currentNoStr)
-        .sort((a, b) => b.invoiceNo.localeCompare(a.invoiceNo));
-        
-    if (previousInvoices.length > 0) {
-        const prevNo = previousInvoices[0].invoiceNo;
-        if (loadInvoiceFromStorage(prevNo)) {
-            showToast(`✅ تم استرجاع الفاتورة ${prevNo}`);
+    const curSeq = _seqKeySalesInv(currentNoStr);
+    let list = (window.getAllSalesInvoices() || [])
+        .filter(inv => inv && !inv.deleted && !inv.isDeleted && inv.invoiceNo && !/^(PRE-|GRN|Z\d|RET)/i.test(inv.invoiceNo))
+        .sort((a, b) => _seqKeySalesInv(a.invoiceNo) - _seqKeySalesInv(b.invoiceNo));
+    let idx = list.findIndex(inv => inv.invoiceNo === currentNoStr);
+    let target = idx > 0 ? list[idx - 1] : (idx === -1 ? list.filter(inv => !curSeq || _seqKeySalesInv(inv.invoiceNo) < curSeq).pop() : null);
+    if (target) {
+        if (loadInvoiceFromStorage(target.invoiceNo)) {
+            showToast(`✅ تم استرجاع الفاتورة ${target.invoiceNo}`);
             return;
         }
     }
@@ -406,16 +413,15 @@ function loadPreviousInvoice() {
 
 function loadNextInvoice() {
     const currentNoStr = document.getElementById('hdr-inv-no').value;
-    let list = window.getAllSalesInvoices();
-    
-    let nextInvoices = list
-        .filter(inv => inv.invoiceNo && inv.invoiceNo > currentNoStr)
-        .sort((a, b) => a.invoiceNo.localeCompare(b.invoiceNo));
-        
-    if (nextInvoices.length > 0) {
-        const nextNo = nextInvoices[0].invoiceNo;
-        if (loadInvoiceFromStorage(nextNo)) {
-            showToast(`✅ تم استرجاع الفاتورة ${nextNo}`);
+    const curSeq = _seqKeySalesInv(currentNoStr);
+    let list = (window.getAllSalesInvoices() || [])
+        .filter(inv => inv && !inv.deleted && !inv.isDeleted && inv.invoiceNo && !/^(PRE-|GRN|Z\d|RET)/i.test(inv.invoiceNo))
+        .sort((a, b) => _seqKeySalesInv(a.invoiceNo) - _seqKeySalesInv(b.invoiceNo));
+    let idx = list.findIndex(inv => inv.invoiceNo === currentNoStr);
+    let target = (idx >= 0 && idx < list.length - 1) ? list[idx + 1] : (idx === -1 && curSeq ? list.find(inv => _seqKeySalesInv(inv.invoiceNo) > curSeq) : null);
+    if (target) {
+        if (loadInvoiceFromStorage(target.invoiceNo)) {
+            showToast(`✅ تم استرجاع الفاتورة ${target.invoiceNo}`);
             return;
         }
     }

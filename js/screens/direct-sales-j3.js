@@ -2347,8 +2347,11 @@
         }
 
         // Undo / Reverse Delivery & Restore Warehouse Stock
-        window.undoGdnDelivery = function(invNo) {
-            if (!confirm(`هل أنت متأكد من إلغاء تسليم الفاتورة #${invNo} وإعادة الكميات المصروفة إلى رصيد المخزن؟`)) return;
+        window.undoGdnDelivery = async function(invNo) {
+            const okUndo = typeof window.showCenteredConfirmModal === 'function'
+                ? await window.showCenteredConfirmModal({ title: 'إلغاء تسليم الفاتورة', badge: 'إرجاع للمخزن', icon: '↩️', tone: 'danger', message: `هل أنت متأكد من إلغاء تسليم الفاتورة رقم (#${invNo}) وإعادة الكميات المصروفة إلى رصيد المخزن؟`, confirmText: '✅ نعم، إلغاء التسليم', cancelText: '✕ تراجع' })
+                : confirm(`هل أنت متأكد من إلغاء تسليم الفاتورة #${invNo} وإعادة الكميات المصروفة إلى رصيد المخزن؟`);
+            if (!okUndo) return;
             let invoices = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
             const idx = invoices.findIndex(i => String(i.invoiceNo || i.serial || i.id) === String(invNo));
             if (idx === -1) return;

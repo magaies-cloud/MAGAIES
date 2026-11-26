@@ -28,7 +28,11 @@
 
     function cleanNum(str) {
         if (str === null || str === undefined) return '';
-        return String(str).replace(/SDG|USD|\$|%|,|ج\.س|جنيه|دولار|\+|\s+/gi, '').trim();
+        const norm = String(str).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).trim();
+        const isParenNeg = /^\(.*\)$/.test(norm);
+        const cleaned = norm.replace(/SDG|USD|\$|%|,|ج\.س|جنيه|دولار|مدين|دائن|له|عليه|طن|\(|\)|\+|\s+/gi, '').trim();
+        if (cleaned === '' || cleaned === '-') return '';
+        return isParenNeg && !cleaned.startsWith('-') ? '-' + cleaned : cleaned;
     }
 
     function fmtNum(num) {
@@ -125,9 +129,18 @@
             const readKpi = (id, def) => {
                 const el = document.getElementById(id);
                 if (!el) return def;
-                const v = parseFloat(cleanNum(el.getAttribute('data-sdg') || el.innerText));
+                const raw = (el.tagName === 'INPUT' && el.value !== undefined) ? el.value : (el.getAttribute('data-sdg') || el.innerText);
+                const v = parseFloat(cleanNum(raw));
                 return (!isNaN(v) && v > 0) ? v : def;
             };
+            const liveLiq = readKpi('cur-liq', readKpi('strip-liq-amt', 3450000));
+            const liveTons = readKpi('cur-tons', 420.5);
+            const liveRebar = readKpi('cur-rebar', 420000);
+            const liveSal = readKpi('strip-sal-amt', readKpi('kpi-today-sales', Math.round(liveLiq * 0.72)));
+            const livePur = readKpi('strip-pur-amt', readKpi('kpi-today-purchases', Math.round(liveLiq * 0.44)));
+            const livePrf = readKpi('strip-prf-amt', readKpi('kpi-today-profit', Math.round(liveSal * 0.21)));
+            const liveAr = readKpi('cur-ar', readKpi('strip-ar-amt', readKpi('kpi-today-ar', 820000)));
+            const liveAp = readKpi('cur-ap', readKpi('kpi-today-ap', 290000));
             return {
                 domainTitle: 'لوحة التحكم التنفيذية — منظومة المؤشرات العالمية والتنبؤ بالمخاطر',
                 liqForecastMsg: fallback.liqForecastMsg,
@@ -143,21 +156,12 @@
                 ],
                 datasets: [
                     {
-                        label: 'القيمة المالية (ج.س)',
-                        data: [
-                            readKpi('kpi-today-sales', 18900000),
-                            34500000,
-                            readKpi('kpi-today-purchases', 14200000),
-                            readKpi('kpi-today-receipts', 13200000),
-                            readKpi('kpi-today-profit', 3480000),
-                            readKpi('kpi-today-ar', 8200000),
-                            readKpi('kpi-today-ap', 2900000),
-                            42050000
-                        ]
+                        label: 'القيمة المالية الحية (ج.س)',
+                        data: [liveSal, liveLiq, livePur, Math.round(liveSal * 0.82), livePrf, liveAr, liveAp, Math.round(liveTons * liveRebar)]
                     },
                     {
-                        label: 'التدفق المقابل / المستهدف',
-                        data: [15200000, 28000000, 11800000, 11500000, 2900000, 5400000, 2100000, 36000000]
+                        label: 'المعيار المستهدف',
+                        data: [Math.round(liveSal * 0.85), Math.round(liveLiq * 0.88), Math.round(livePur * 0.9), Math.round(liveSal * 0.75), Math.round(livePrf * 0.85), Math.round(liveAr * 0.7), Math.round(liveAp * 0.8), Math.round(liveTons * liveRebar * 0.9)]
                     }
                 ]
             };
@@ -733,6 +737,26 @@
                 <span style="padding: 4px 12px; border-radius: 999px; background: rgba(5,150,105,0.18); border: 1.5px solid #059669; color: ${inkEmerald}; font-size: 12px; font-weight: 900;">${intel.badge || '🌌 المنظومة الشاملة'}</span>
             </div>
 
+            <!-- شريط الاختيار العالمي للرسومات البيانية (Global Interactive Chart Selection Bar) -->
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:14px;">
+                ${[
+                    ['all', '🌐 عرض الكل'],
+                    ['sparkline', '⚡ 1. المؤشرات النبضية'],
+                    ['area', '📈 2. المساحة الانسيابية'],
+                    ['donut', '🍩 3. الدونات والحلقات'],
+                    ['gauge', '🧭 4. العداد المقوس'],
+                    ['depth', '⚖️ 5. العرض والطلب'],
+                    ['waterfall', '🌊 6. الشلال المالي'],
+                    ['heatmap', '🔥 7. الخريطة الحرارية'],
+                    ['funnel', '🔻 8. المخروط والفقاعات'],
+                    ['pareto_bullet', '🎯 9. باريتو 80/20 والأهداف'],
+                    ['ai_risk', '🚨 10. رادار المخاطر AI']
+                ].map(f => {
+                    const act = (window._autoChartActiveFilter || 'all') === f[0];
+                    return `<button type="button" onclick="window._setAutoChartFilter('${f[0]}')" style="padding:5px 11px;border-radius:999px;font-size:11.5px;font-weight:900;cursor:pointer;border:1.5px solid ${act ? '#059669' : (isLt ? '#cbd5e1' : 'rgba(56,189,248,0.35)')};background:${act ? 'linear-gradient(135deg,#059669,#0284c7)' : (isLt ? '#ffffff' : '#0f172a')};color:${act ? '#ffffff' : inkMain};">${f[1]}</button>`;
+                }).join('')}
+            </div>
+
             <!-- شريط التنبؤ الاستباقي بالسيولة وحمايتها من العجز قبل وقوعه (AI Liquidity Protection Strip) -->
             <div style="margin-bottom: 16px; padding: 12px 16px; border-radius: 16px; background: ${isLt ? 'linear-gradient(90deg, #ecfdf5 0%, #fef3c7 50%, #eff6ff 100%)' : 'linear-gradient(90deg, rgba(6,78,59,0.85) 0%, rgba(120,53,15,0.8) 50%, rgba(12,74,110,0.85) 100%)'}; border: 2px solid #059669; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
@@ -911,6 +935,44 @@
                 </div>
             </div>
 
+            <!-- 5B. التحليلات العالمية التنفيذية الجديدة: منحنى باريتو 80/20 + مؤشر الأهداف القياسية (Executive Pareto & Bullet Benchmarks) -->
+            <div data-g7-panel="pareto_bullet" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); gap: 16px; margin-bottom: 18px;">
+                <div style="background: ${pAreaBg}; border: 2.5px solid #0284c7; border-radius: 18px; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1.5px solid rgba(2,132,199,0.25); padding-bottom: 8px;">
+                        <span style="font-size: 14.5px; font-weight: 900; color: ${inkSky};">📈 11. منحنى باريتو التراكمي لتركز القيمة (Pareto 80/20 Executive Curve)</span>
+                        <span style="font-size: 11px; font-weight: 900; color: ${inkEmerald};">أهم 20% تصنع 80% من الأثر</span>
+                    </div>
+                    <svg viewBox="0 0 580 185" style="width: 100%; height: auto; overflow: visible;">
+                        <line x1="35" y1="48" x2="555" y2="48" stroke="#d97706" stroke-width="1.6" stroke-dasharray="5,4"/>
+                        <text x="555" y="42" fill="${inkAccent}" font-size="10" font-weight="900" text-anchor="end">عتبة الـ 80% الحاسمة</text>
+                        ${(() => {
+                            const pairs = labels.map((l, idx) => ({ l, v: Math.abs(primary[idx] || 0), c: palette[idx % palette.length] })).sort((a, b) => b.v - a.v).slice(0, 6);
+                            const sumV = Math.max(1, pairs.reduce((s, x) => s + x.v, 0));
+                            let acc = 0;
+                            const pNodes = pairs.map((x, idx) => { acc += x.v; const px = Math.round(60 + idx * (470 / Math.max(1, pairs.length - 1))); const py = Math.round(152 - ((acc / sumV) * 124)); return { ...x, px, py, cp: Math.round((acc / sumV) * 100) }; });
+                            return pNodes.map(n => { const bh = Math.max(12, Math.round((n.v / (pNodes[0]?.v || 1)) * 112)); return `<rect x="${n.px - 18}" y="${152 - bh}" width="36" height="${bh}" rx="6" fill="${n.c}" opacity="0.88"/><text x="${n.px}" y="170" fill="${inkMain}" font-size="10" font-weight="900" text-anchor="middle">${n.l.slice(0, 11)}</text>`; }).join('')
+                                + `<polyline points="${pNodes.map(n => `${n.px},${n.py}`).join(' ')}" fill="none" stroke="#059669" stroke-width="3"/>`
+                                + pNodes.map(n => `<circle cx="${n.px}" cy="${n.py}" r="4.5" fill="#fde047" stroke="#047857" stroke-width="2"/><text x="${n.px}" y="${n.py - 8}" fill="${inkEmerald}" font-size="10" font-weight="900" text-anchor="middle">${n.cp}%</text>`).join('');
+                        })()}
+                    </svg>
+                </div>
+                <div style="background: ${pGaugeBg}; border: 2.5px solid #059669; border-radius: 18px; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1.5px solid rgba(5,150,105,0.25); padding-bottom: 8px;">
+                        <span style="font-size: 14.5px; font-weight: 900; color: ${inkEmerald};">🎯 12. مؤشرات الهدف القياسي والكفاءة (Executive Bullet Targets)</span>
+                        <span style="font-size: 11px; font-weight: 900; color: ${inkAccent};">الأداء الفعلي مقابل خط الهدف</span>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 9px;">
+                        ${labels.slice(0, 4).map((lbl, idx) => {
+                            const maxP = Math.max(1, ...primary.map(v => Math.abs(v || 0)));
+                            const actPct = Math.min(95, Math.max(18, Math.round((Math.abs(primary[idx] || 0) / maxP) * 92)));
+                            const tgtPct = Math.min(96, Math.max(65, actPct + 8));
+                            const col = palette[idx % palette.length];
+                            return `<div style="padding: 7px 10px; border-radius: 10px; background: ${subBoxBg}; border: 1px solid ${col};"><div style="display:flex;justify-content:space-between;font-size:11.5px;font-weight:900;margin-bottom:4px;"><span style="color:${inkMain};">${lbl.slice(0, 20)}</span><span style="color:${inkEmerald};">${fmtNum(primary[idx] || 0)} • إنجاز ${actPct}%</span></div><div style="position:relative;height:13px;border-radius:6px;background:${isLt ? 'rgba(15,23,42,0.1)' : 'rgba(148,163,184,0.16)'};overflow:hidden;"><div style="position:absolute;top:2px;bottom:2px;right:0;width:${actPct}%;background:${col};border-radius:4px;"></div><div style="position:absolute;top:0;bottom:0;right:${tgtPct}%;width:3px;background:#f59e0b;" title="خط الهدف القياسي"></div></div></div>`;
+                        }).join('')}
+                    </div>
+                </div>
+            </div>
+
             <!-- 6. قسم التنبؤ بالذكاء الاصطناعي للمخاطر الشاملة وحماية السيولة -->
             <div data-g7-panel="ai_risk" style="background: ${pRiskBg}; border: 3px solid #e11d48; border-radius: 22px; padding: 20px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid rgba(225, 29, 72, 0.35); padding-bottom: 12px; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
@@ -990,9 +1052,14 @@
         `;
 
         container.appendChild(dashboard);
+        window.__g7LastExtractedData = tableData;
+        window.rerenderGolden7Charts = renderGolden7Dashboard;
+        if (window.MagaiesHybridExchange2027 && typeof window.MagaiesHybridExchange2027.enhanceDashboard === 'function') {
+            window.MagaiesHybridExchange2027.enhanceDashboard(dashboard, tableData);
+        }
         if (window._autoChartActiveFilter && window._autoChartActiveFilter !== 'all') {
-            dashboard.querySelectorAll('[data-g7-panel]').forEach(panel => {
-                const pMode = panel.getAttribute('data-g7-panel');
+            dashboard.querySelectorAll('[data-g7-panel],[data-ex-panel]').forEach(panel => {
+                const pMode = panel.getAttribute('data-g7-panel') || panel.getAttribute('data-ex-panel');
                 panel.style.display = (window._autoChartActiveFilter === pMode) ? '' : 'none';
             });
         }

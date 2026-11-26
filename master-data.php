@@ -450,6 +450,16 @@
                                 </select>
                             </div>
 
+                            <div class="pro-field-card accent-purple dual-partner-card">
+                                <label class="pro-field-label">
+                                    <span>🔄 تصنيف الحساب</span>
+                                </label>
+                                <label class="dual-partner-toggle-pill" for="cust-is-dual">
+                                    <input type="checkbox" id="cust-is-dual" style="width:16px; height:16px; accent-color:#10b981; cursor:pointer; margin:0; flex:0 0 16px;">
+                                    <span>عميل مزدوج (عميل ومورد • (+) لنا | (−) له)</span>
+                                </label>
+                            </div>
+
                             <div class="pro-field-card">
                                 <label class="pro-field-label">
                                     <span>👔 المسؤول</span>
@@ -566,7 +576,7 @@
 
                     <div class="table-responsive" style="overflow-x: auto;">
                         <table class="pro-table">
-                            <thead><tr><th style="width:7%;text-align:center;">🔐 السري</th><th style="width:16%;text-align:right;">العميل</th><th style="width:10%;text-align:center;">الواتساب</th><th style="width:22%;text-align:center;">كشف الحساب والإشعارات</th><th style="width:6%;text-align:center;">الحالة</th><th style="width:11%;text-align:center;">الرصيد</th><th style="width:7%;text-align:center;">الائتمان</th><th style="width:6%;text-align:center;">المسؤول</th><th style="width:4%;text-align:center;">السرية</th><th style="width:11%;text-align:center;">الإجراء</th></tr></thead>
+                            <thead><tr><th style="width:5%;text-align:center;">السري</th><th style="width:19%;text-align:right;">العميل</th><th style="width:10%;text-align:center;">الواتساب</th><th style="width:18%;text-align:center;">الكشف والإشعارات</th><th style="width:5%;text-align:center;">الحالة</th><th style="width:12%;text-align:center;">الرصيد</th><th style="width:7%;text-align:center;">الائتمان</th><th style="width:7%;text-align:center;">المسؤول</th><th style="width:4%;text-align:center;">السرية</th><th style="width:13%;text-align:center;">الإجراء</th></tr></thead>
                             <tbody id="customers-tbody"></tbody>
                         </table>
                     </div>
@@ -773,6 +783,24 @@
                                     if (bNeg) bNeg.classList.toggle('active', effNeg);
                                 }
                             };
+                            window.syncSupDualOpBalLabels = function() {
+                                var isDual = Boolean(document.getElementById('sup-is-dual')?.checked);
+                                var box = document.getElementById('sup-op-infield-hint');
+                                if (box) {
+                                    var posEl = box.querySelector('[data-sign="pos"]');
+                                    var negEl = box.querySelector('[data-sign="neg"]');
+                                    if (posEl) {
+                                        posEl.textContent = isDual ? '(+) مدين • عليه • لنا' : '(+) دائن • له • علينا';
+                                        posEl.className = isDual ? 'op-owe-us' : 'op-we-owe';
+                                    }
+                                    if (negEl) {
+                                        negEl.textContent = isDual ? '(−) دائن • له • علينا' : '(−) مدين • عليه • لنا';
+                                        negEl.className = isDual ? 'op-we-owe' : 'op-owe-us';
+                                    }
+                                }
+                                var el = document.getElementById('sup-opening-balance');
+                                if (el && window.syncMdOpBalHint) window.syncMdOpBalHint(el, 'sup', false);
+                            };
                             </script>
 
                             <div class="pro-field-card">
@@ -797,6 +825,16 @@
                                     <option value="active">🟢 نشط</option>
                                     <option value="blacklisted">🔴 محظور</option>
                                 </select>
+                            </div>
+
+                            <div class="pro-field-card accent-purple dual-partner-card">
+                                <label class="pro-field-label">
+                                    <span>🔄 تصنيف الحساب</span>
+                                </label>
+                                <label class="dual-partner-toggle-pill" for="sup-is-dual">
+                                    <input type="checkbox" id="sup-is-dual" onchange="window.syncSupDualOpBalLabels && window.syncSupDualOpBalLabels()" style="width:16px; height:16px; accent-color:#10b981; cursor:pointer; margin:0; flex:0 0 16px;">
+                                    <span>عميل مزدوج (عميل ومورد • (+) لنا | (−) له)</span>
+                                </label>
                             </div>
 
                             <div class="pro-field-card">
@@ -881,7 +919,7 @@
 
                     <div class="table-responsive" style="overflow-x: auto;">
                         <table class="pro-table" id="tab-suppliers-table">
-                            <thead><tr><th style="width:7%;text-align:center;">🔐 السري</th><th style="width:18%;text-align:right;">المورد</th><th style="width:10%;text-align:center;">الواتساب</th><th style="width:23%;text-align:center;">كشف الحساب والإشعارات</th><th style="width:6%;text-align:center;">الحالة</th><th style="width:12%;text-align:center;">الرصيد</th><th style="width:8%;text-align:center;">الائتمان</th><th style="width:4%;text-align:center;">السرية</th><th style="width:12%;text-align:center;">الإجراء</th></tr></thead>
+                            <thead><tr><th style="width:5%;text-align:center;">السري</th><th style="width:22%;text-align:right;">المورد</th><th style="width:11%;text-align:center;">الواتساب</th><th style="width:18%;text-align:center;">الكشف والإشعارات</th><th style="width:5%;text-align:center;">الحالة</th><th style="width:13%;text-align:center;">الرصيد</th><th style="width:8%;text-align:center;">الائتمان</th><th style="width:4%;text-align:center;">السرية</th><th style="width:14%;text-align:center;">الإجراء</th></tr></thead>
                             <tbody></tbody>
                         </table>
                     </div>

@@ -304,7 +304,7 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
                     time: new Date().toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit'}),
                     description: 'تحويل بنكي: ' + (fromBank.name || fromBank.bankName) + ' ← ' + (toBank.name || toBank.bankName) + ' | مرجع: ' + ref,
                     notes: notes,
-                    isPosted: true,
+                    isPosted: (window.getPostingMode && window.getPostingMode() === 'auto'), status: (window.getPostingMode && window.getPostingMode() === 'auto') ? 'posted' : 'pending',
                     type: 'BANK_TRANSFER'
                 });
                 localStorage.setItem('erp_single_receipts_v1', JSON.stringify(receipts));

@@ -6486,7 +6486,8 @@
             }));
             const dbIds = new Set(dbVouchers.map(v => String(v.id)));
             const pendingLocalVouchers = vouchersList.filter(v => v && v.isOffline && !dbIds.has(String(v.id)));
-            vouchersList = dbVouchers.concat(pendingLocalVouchers);
+            const _vSeq = (v) => { const s = String(v && (v.voucherNo || v.id) || '').trim(); const m = s.match(/^[A-Za-z]+(\d+)$/); if (m) return parseInt(m[1], 10); const d = s.replace(/\D/g, ''); return d ? parseInt(d, 10) : 0; };
+            vouchersList = dbVouchers.concat(pendingLocalVouchers).filter(v => v && !v.deleted && !v.isDeleted).sort((a, b) => (_vSeq(a) - _vSeq(b)) || String(a.id || '').localeCompare(String(b.id || ''), undefined, { numeric: true }));
             if (isAtNewVoucher) {
               currentIndex = vouchersList.length;
             }
@@ -7536,7 +7537,8 @@
       }
     } catch(e) {}
 
-    vouchersList = Array.from(mergedVouchersMap.values());
+    const _vSeqInit = (v) => { const s = String(v && (v.voucherNo || v.id) || '').trim(); const m = s.match(/^[A-Za-z]+(\d+)$/); if (m) return parseInt(m[1], 10); const d = s.replace(/\D/g, ''); return d ? parseInt(d, 10) : 0; };
+    vouchersList = Array.from(mergedVouchersMap.values()).filter(v => v && !v.deleted && !v.isDeleted).sort((a, b) => (_vSeqInit(a) - _vSeqInit(b)) || String(a.id || '').localeCompare(String(b.id || ''), undefined, { numeric: true }));
     currentIndex = vouchersList.length > 0 ? vouchersList.length - 1 : -1;
 
     // ════════════════════════════════════════════════════════════════

@@ -293,8 +293,24 @@ function resetVoucherSilent() {
     setNextVoucherNumber();
 }
 
+function _getSortedPayments() {
+    const raw = (JSON.parse(localStorage.getItem('erp_payments_v1')) || []).filter(v => v && !v.deleted && !v.isDeleted);
+    const seqKey = (v) => {
+        const s = String(v.voucherNo || v.id || '').trim();
+        const m = s.match(/^[A-Za-z]+(\d+)$/);
+        if (m) return parseInt(m[1], 10);
+        const d = s.replace(/\D/g, '');
+        return d ? parseInt(d, 10) : 0;
+    };
+    return raw.sort((a, b) => {
+        const sa = seqKey(a), sb = seqKey(b);
+        if (sa !== sb) return sa - sb;
+        return String(a.id || '').localeCompare(String(b.id || ''), undefined, { numeric: true });
+    });
+}
+
 function loadPreviousVoucher() {
-    paymentsData = JSON.parse(localStorage.getItem('erp_payments_v1')) || [];
+    paymentsData = _getSortedPayments();
     if (paymentsData.length === 0) return showToast("لا توجد سندات سابقة", "warning");
     
     if (currentViewedIndex === -1) {
@@ -308,7 +324,7 @@ function loadPreviousVoucher() {
 }
 
 function loadNextVoucher() {
-    paymentsData = JSON.parse(localStorage.getItem('erp_payments_v1')) || [];
+    paymentsData = _getSortedPayments();
     if (currentViewedIndex === -1) return; // already at new
     
     if (currentViewedIndex < paymentsData.length - 1) {

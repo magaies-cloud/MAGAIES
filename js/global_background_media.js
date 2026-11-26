@@ -27,8 +27,8 @@
     'use strict';
 
     const STORAGE_KEY = 'elsajana_global_media_state';
-    const _curPage = ((window.location.pathname || '').toLowerCase().split('/').pop() || 'index.php');
-    if (['', 'index.php', 'index.html', 'login.php', 'login.html', 'register.php', 'saas-admin.php', 'saas-admin.html'].includes(_curPage)) return;
+    const _curPage = ((window.location.pathname || '').toLowerCase().split('/').pop() || '');
+    if (['login.php', 'login.html', 'register.php', 'saas-admin.php', 'saas-admin.html'].includes(_curPage)) return;
     const BROADCAST_CHANNEL_NAME = 'elsajana_media_broadcast';
     const isTopWindow = (window.self === window.top);
 
@@ -47,6 +47,9 @@
     }
 
     const CHANNELS_INFO = {
+        abdulbasit: { title: "إذاعة الشيخ عبدالباسط عبدالصمد", sub: "تلاوة خاشعة هادئة", audioUrl: "https://backup.qurango.net/radio/abdulbasit_abdulsamad_mojawwad", backupAudioUrl: "https://qurango.net/radio/abdulbasit_abdulsamad_mojawwad", icon: "headphones", color: "#38bdf8" },
+        minshawi: { title: "إذاعة الشيخ محمد صديق المنشاوي", sub: "تلاوة خاشعة هادئة", audioUrl: "https://backup.qurango.net/radio/mohammed_siddiq_alminshawi", backupAudioUrl: "https://qurango.net/radio/mohammed_siddiq_alminshawi", icon: "headphones", color: "#a78bfa" },
+        husary: { title: "إذاعة الشيخ محمود خليل الحصري", sub: "المصحف المرتل بصوت هادئ", audioUrl: "https://backup.qurango.net/radio/mahmoud_khalil_alhussary", backupAudioUrl: "https://qurango.net/radio/mahmoud_khalil_alhussary", icon: "headphones", color: "#fbbf24" },
         quran_mp3: {
             title: "القرآن الكريم MP3 - تلاوات خاشعة لكبار القراء",
             sub: "تلاوات عطرة متواصلة في الخلفية",
@@ -56,7 +59,7 @@
             color: "#06b6d4"
         },
         majd: {
-            title: "تلفزيون وإذاعة المجد للقرآن الكريم (بث مباشر)",
+            title: "إذاعة القرآن الكريم — تلاوات خاشعة",
             sub: "تلاوات عطرة خاشعة متواصلة 24/7",
             audioUrl: "https://backup.qurango.net/radio/tarateel",
             backupAudioUrl: "https://qurango.net/radio/tarateel",
@@ -64,7 +67,7 @@
             color: "#f59e0b"
         },
         makkah: {
-            title: "تلفزيون مكة المكرمة - الحرم المكي الشريف",
+            title: "إذاعة القرآن الكريم — الشيخ ماهر المعيقلي",
             sub: "بث حي ومباشر من بيت الله الحرام 24/7",
             audioUrl: "https://backup.qurango.net/radio/maher",
             backupAudioUrl: "https://qurango.net/radio/maher",
@@ -72,7 +75,7 @@
             color: "#eab308"
         },
         madinah: {
-            title: "تلفزيون المدينة المنورة - المسجد النبوي",
+            title: "إذاعة القرآن الكريم — الشيخ علي الحذيفي",
             sub: "بث حي ومباشر من الروضة الشريفة 24/7",
             audioUrl: "https://backup.qurango.net/radio/ali_alhuthaifi",
             backupAudioUrl: "https://qurango.net/radio/ali_alhuthaifi",

@@ -134,8 +134,9 @@ function getPurchaseInvoicesList() {
     const mergedMap = new Map();
     const addPur = (inv) => {
         if (!inv || typeof inv !== 'object') return;
+        if (inv.deleted || inv.isDeleted || inv.isGRN || inv.isReturn) return;
         const no = String(inv.invoiceNo || inv.id || '').trim();
-        if (!no || no === 'preliminary' || no.startsWith('PRE-')) return;
+        if (!no || no === 'preliminary' || /^(PRE-|GRN|Z\d|RET)/i.test(no)) return;
         if (!mergedMap.has(no)) {
             mergedMap.set(no, Object.assign({ invoiceNo: no, id: no }, inv));
         } else {
@@ -169,10 +170,18 @@ function getPurchaseInvoicesList() {
         }
     } catch(e) {}
 
+    const extractSeqKey = (no) => {
+        const s = String(no || '').trim();
+        const m = s.match(/^[A-Za-z]+(\d+)$/);
+        if (m) return parseInt(m[1], 10);
+        const d = s.replace(/\D/g, '');
+        return d ? parseInt(d, 10) : 0;
+    };
     const list = Array.from(mergedMap.values()).sort((a, b) => {
-        const cmp = String(a.date || a.savedAt || a.createdAt || '').localeCompare(String(b.date || b.savedAt || b.createdAt || ''));
-        if (cmp !== 0) return cmp;
-        return String(a.invoiceNo || '').localeCompare(String(b.invoiceNo || ''));
+        const sa = extractSeqKey(a.invoiceNo || a.id);
+        const sb = extractSeqKey(b.invoiceNo || b.id);
+        if (sa !== sb) return sa - sb;
+        return String(a.invoiceNo || '').localeCompare(String(b.invoiceNo || ''), undefined, { numeric: true });
     });
 
     window._cachedPurchaseInvoicesRaw = cacheKey;
@@ -252,6 +261,10 @@ function parseNum(str) {
     return isNaN(n) ? 0 : n;
 }
 function showToast(msg, type = 'success', ms = 3000) {
+    if (typeof window.showUnifiedToast === 'function') {
+        window.showUnifiedToast(msg, type, ms);
+        return;
+    }
     const c = document.getElementById('toast-container');
     if (c) {
         const existingToasts = c.querySelectorAll('.toast');
@@ -372,13 +385,15 @@ function initPurchaseApp() {
                 id: s.id, name: s.name,
                 phone: s.phone || '', code: s.code || '',
                 ledger: parseFloat(s.currentBalance) || 0, checks: 0,
-                creditLimit: s.creditLimit || 0
+                creditLimit: s.creditLimit || 0,
+                isDualPartner: Boolean(s.isDualPartner)
             })),
             ...dualCusts.filter(c => c.id && !uniquePartners.some(s => String(s.id) === String(c.id))).map(c => ({
                 id: c.id, name: c.name, isCustomer: true,
                 phone: c.phone || '', code: c.code || '',
                 ledger: -(parseFloat(c.currentBalance ?? c.balance ?? c.openingBalance ?? 0) || 0), checks: 0,
-                creditLimit: c.creditLimit || 0
+                creditLimit: c.creditLimit || 0,
+                isDualPartner: Boolean(c.isDualPartner)
             }))
         ];
 
@@ -1420,7 +1435,8 @@ async function renderCustomerDropdown(filter = '') {
                 VENDORS.push({
                     id: s.id, name: s.name || 'بدون اسم', phone: s.phone || '', code: s.code || '',
                     ledger: parseFloat(s.currentBalance) || 0, checks: 0,
-                    creditLimit: parseFloat(s.creditLimit) || 0
+                    creditLimit: parseFloat(s.creditLimit) || 0,
+                    isDualPartner: Boolean(s.isDualPartner)
                 });
             }
         });
@@ -1430,8 +1446,8 @@ async function renderCustomerDropdown(filter = '') {
                 if (!c || !c.id) return;
                 let existing = VENDORS.find(v => String(v.id) === String(c.id));
                 const pLedger = -(parseFloat(c.currentBalance ?? c.balance ?? c.openingBalance ?? 0) || 0);
-                if (existing && existing.isCustomer) { existing.name = c.name || 'بدون اسم'; existing.ledger = pLedger; existing.creditLimit = parseFloat(c.creditLimit) || 0; }
-                else if (!existing) VENDORS.push({ id: c.id, name: c.name || 'بدون اسم', isCustomer: true, phone: c.phone || '', code: c.code || '', ledger: pLedger, checks: 0, creditLimit: parseFloat(c.creditLimit) || 0 });
+                if (existing && existing.isCustomer) { existing.name = c.name || 'بدون اسم'; existing.ledger = pLedger; existing.creditLimit = parseFloat(c.creditLimit) || 0; existing.isDualPartner = Boolean(c.isDualPartner); }
+                else if (!existing) VENDORS.push({ id: c.id, name: c.name || 'بدون اسم', isCustomer: true, phone: c.phone || '', code: c.code || '', ledger: pLedger, checks: 0, creditLimit: parseFloat(c.creditLimit) || 0, isDualPartner: Boolean(c.isDualPartner) });
             });
         } catch (_ec) {}
 
@@ -1487,7 +1503,7 @@ async function renderCustomerDropdown(filter = '') {
                         <span style="font-weight: bold; color: #fff; font-size: 1.05rem;">👤 ${nameH}</span>
                         ${codeH ? `<span style="font-size:0.75rem; color:#38bdf8; background: rgba(56,189,248,0.1); padding: 1px 6px; border-radius: 4px; font-family: monospace;">[${codeH}]</span>` : ''}
                     </div>
-                    <span style="font-size:0.75rem; background:rgba(244,114,182,0.15); color:#f472b6; padding: 3px 10px; border-radius: 12px; font-weight: bold;">${c.isCustomer ? 'عميل' : 'مورد'}</span>
+                    <span style="display:inline-flex; align-items:center; gap:5px; font-size:0.74rem; background:${c.isDualPartner ? 'linear-gradient(135deg,rgba(124,58,237,0.32),rgba(79,70,229,0.26))' : 'rgba(244,114,182,0.15)'}; color:${c.isDualPartner ? '#f5f3ff' : '#f472b6'}; border:${c.isDualPartner ? '1.5px solid #a78bfa' : 'none'}; padding: 2px 9px; border-radius: 999px; font-weight: 900;">${c.isDualPartner ? '<span>عميل مزدوج (عميل ومورد)</span><span style="display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:4px;background:#10b981;color:#fff;font-size:0.68rem;">✓</span>' : (c.isCustomer ? 'عميل' : 'مورد')}</span>
                 </div>
             `;
 
@@ -3157,7 +3173,6 @@ function submitInvoice(ignoreWarnings = false) {
     }
 
     if (cheques.length > 0) {
-        const seenInForm = new Set();
         for (const ch of cheques) {
             const chTag = ' (الشيك رقم ' + ch._rowNum + ')';
             if (!ch.chequeNo) {
@@ -3168,30 +3183,12 @@ function submitInvoice(ignoreWarnings = false) {
                 rollbackFail(ch._bankEl || '#cheques-list', '🚫 يرجى اختيار البنك للشيك' + chTag + ' قبل الحفظ — جميع البيانات محفوظة كما هي.');
                 return;
             }
-            const norm = String(ch.chequeNo || '').trim().toUpperCase();
-            const dup = (window.ElsajanaAccountingBrain && norm) ? window.ElsajanaAccountingBrain.checkDuplicateChequeNo(norm, currentViewedInvoiceNo || '') : { duplicate: false };
-            if ((norm && seenInForm.has(norm)) || dup.duplicate) {
-                rollbackFail(ch._noEl || '#cheques-list', `🚫 رقم الشيك (${ch.chequeNo})${chTag} مكرر وموجود مسبقاً في حافظة الشيكات — عدّله واحفظ.`);
-                return;
-            }
-            if (norm) seenInForm.add(norm);
+            // تكرار رقم الشيك مسموح (مثلاً نفس الرقم من بنكين مختلفين مثل بنك فيصل وبنك الجزيرة)
             delete ch._noEl; delete ch._bankEl; delete ch._rowNum;
         }
     }
 
-    if (!currentViewedInvoiceNo && !ignoreWarnings && window.ElsajanaAccountingBrain) {
-        const sameDayHit = window.ElsajanaAccountingBrain.checkSameDayDuplicateInvoice(custId, grandAmount, rows, _docDateStr);
-        if (sameDayHit) {
-            window.isSubmitting = false;
-            window.ElsajanaAccountingBrain.floatingToast(
-                `⚠️ تنبيه منع التكرار: هذه الفاتورة محفوظة اليوم مسبقاً برقم (#${sameDayHit.invoiceNo || sameDayHit.id}) بنفس المورد والمبلغ والأصناف!`,
-                'warning', 6500, 'حفظ رغم التكرار', () => submitInvoice(true)
-            );
-            const sb = document.getElementById('btn-submit-purchase-invoice');
-            if (sb) { sb.classList.add('input-error-shake'); setTimeout(() => sb.classList.remove('input-error-shake'), 800); }
-            return;
-        }
-    }
+    // تم إزالة منع تكرار فاتورة نفس اليوم لعدم تعطيل الفواتير المتشابهة (قفل الضغط المزدوج isSubmitting ما زال فعالاً)
 
     // The remaining unpaid portion is automatically treated as Credit (آجل على حساب المورد)
     const totalPaymentsPaid = cashAmt + transfersSum + chequesSum;
@@ -3359,14 +3356,15 @@ function submitInvoice(ignoreWarnings = false) {
         landedCostMode: document.getElementById('hdr-landed-cost-mode')?.value || 'value'
     };
 
-    const postingMode = window.getPostingMode ? window.getPostingMode() : 'auto';
+    const postingMode = window.getPostingMode ? window.getPostingMode() : (localStorage.getItem('erp_posting_mode') || 'manual');
     const shouldApplyEffects = (postingMode === 'auto' && currentSaleType !== 'proforma');
 
     // Set status based on posting mode
+    data.isPosted = !!shouldApplyEffects;
     if (shouldApplyEffects) {
-        data.status = 'posted'; // Auto mode: mark as posted immediately
+        data.status = 'posted';
     } else {
-        data.status = 'confirmed'; // Manual mode: confirmed but not posted
+        data.status = 'pending';
     }
 
     // If edit mode is active AND the old invoice was posted, revert effects first
@@ -3522,7 +3520,7 @@ function submitInvoice(ignoreWarnings = false) {
                 bankName: normTransfers[0] ? normTransfers[0].bankName : '',
                 bankTransfers: normTransfers, cheques: normCheques,
                 statement: fullStmt, toStatement: fullStmt, fromStatement: fullStmt,
-                refInvoice: committedNo, autoFromPurchase: true, isPosted: true, updatedAtMs: Date.now()
+                refInvoice: committedNo, autoFromPurchase: true, isPosted: !!shouldApplyEffects, status: shouldApplyEffects ? 'posted' : 'pending', updatedAtMs: Date.now()
             };
             data.linkedFinancialVoucherNo = finVNo;
             const getTK = window.getTenantKey || ((k) => k);
@@ -4129,7 +4127,7 @@ function unpostInvoice(invoiceNo) {
 function updatePostingStatusBar(status) {
     const bar = document.getElementById('posting-status-bar');
     if (!bar) return;
-    const postingMode = window.getPostingMode ? window.getPostingMode() : 'auto';
+    const postingMode = window.getPostingMode ? window.getPostingMode() : (localStorage.getItem('erp_posting_mode') || 'manual');
     
     if (postingMode === 'auto' || !currentViewedInvoiceNo) {
         bar.style.display = 'none';

@@ -783,27 +783,18 @@
                 transition: opacity 0.05s linear;
             }
 
-            /* Explicit Light Theme Surfaces (Beige, White, Gray) */
+            /* Dynamic Light Theme Surfaces — Adapts to Active Light Tone with Darker Sculpted Borders */
+            html.light-theme #magaiees-panoramic-flyout,
             html[data-theme="warm_cream"] #magaiees-panoramic-flyout,
             html[data-theme="warm-alabaster"] #magaiees-panoramic-flyout,
-            html[data-theme="beige"] #magaiees-panoramic-flyout {
-                background: #fbf7ee !important;
-                border-color: #c8b69e !important;
-                border-right: 4px solid var(--pf-accent, #b45309) !important;
-                box-shadow: -14px 18px 45px rgba(28, 25, 23, 0.16) !important;
-            }
+            html[data-theme="beige"] #magaiees-panoramic-flyout,
             html[data-theme="ultra_white"] #magaiees-panoramic-flyout,
-            html[data-theme="white"] #magaiees-panoramic-flyout {
-                background: #ffffff !important;
-                border-color: #cbd5e1 !important;
-                border-right: 4px solid var(--pf-accent, #2563eb) !important;
-                box-shadow: -14px 18px 45px rgba(15, 23, 42, 0.13) !important;
-            }
+            html[data-theme="white"] #magaiees-panoramic-flyout,
             html[data-theme="exec_gray"] #magaiees-panoramic-flyout {
-                background: #f1f5f9 !important;
-                border-color: #cbd5e1 !important;
-                border-right: 4px solid var(--pf-accent, #1d4ed8) !important;
-                box-shadow: -14px 18px 45px rgba(15, 23, 42, 0.14) !important;
+                background: linear-gradient(160deg, var(--lt-canvas-1, #dfd0b4) 0%, var(--lt-canvas-2, #d2be9a) 100%) !important;
+                border: 3px solid var(--lt-border, #5c2808) !important;
+                border-right: 5px solid var(--lt-border, #5c2808) !important;
+                box-shadow: -10px 14px 32px rgba(15, 23, 42, 0.26) !important;
             }
 
             #magaiees-panoramic-flyout.is-visible {
@@ -867,20 +858,15 @@
             }
             .pf-more-btn:hover { background: rgba(var(--pf-accent-rgb, 56, 189, 248), 0.3); transform: scale(1.03); }
             html.light-theme .pf-more-btn { color: #0f172a !important; }
+            html.light-theme .pf-header,
             html[data-theme="warm_cream"] .pf-header,
             html[data-theme="warm-alabaster"] .pf-header,
-            html[data-theme="beige"] .pf-header {
-                background: #f5eedd !important;
-                border-color: #dcd1be !important;
-            }
+            html[data-theme="beige"] .pf-header,
             html[data-theme="ultra_white"] .pf-header,
-            html[data-theme="white"] .pf-header {
-                background: #f8fafc !important;
-                border-color: #e2e8f0 !important;
-            }
+            html[data-theme="white"] .pf-header,
             html[data-theme="exec_gray"] .pf-header {
-                background: #e2e8f0 !important;
-                border-color: #cbd5e1 !important;
+                background: linear-gradient(135deg, var(--lt-card-1, #ffffff) 0%, var(--lt-card-2, #f5ead6) 100%) !important;
+                border: 2px solid var(--lt-border, #5c2808) !important;
             }
 
             .pf-header-emblem {
@@ -943,26 +929,17 @@
                 overflow: hidden;
                 transition: background 0.1s ease, border-color 0.1s ease !important;
             }
+            html.light-theme .pf-bento-card,
             html[data-theme="warm_cream"] .pf-bento-card,
             html[data-theme="warm-alabaster"] .pf-bento-card,
-            html[data-theme="beige"] .pf-bento-card {
-                background: #ffffff !important;
-                border: 1.5px solid #dcd1be !important;
-                border-bottom: 2.5px solid var(--card-color, #b45309) !important;
-                box-shadow: 0 2px 6px rgba(28, 25, 23, 0.06) !important;
-            }
+            html[data-theme="beige"] .pf-bento-card,
             html[data-theme="ultra_white"] .pf-bento-card,
-            html[data-theme="white"] .pf-bento-card {
-                background: #f8fafc !important;
-                border: 1.5px solid #cbd5e1 !important;
-                border-bottom: 2.5px solid var(--card-color, #2563eb) !important;
-                box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05) !important;
-            }
+            html[data-theme="white"] .pf-bento-card,
             html[data-theme="exec_gray"] .pf-bento-card {
-                background: #ffffff !important;
-                border: 1.5px solid #cbd5e1 !important;
-                border-bottom: 2.5px solid var(--card-color, #1d4ed8) !important;
-                box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05) !important;
+                background: linear-gradient(180deg, #ffffff 0%, var(--lt-card-2, #f5ead6) 100%) !important;
+                border: 2px solid var(--lt-border, #5c2808) !important;
+                border-bottom: 3.5px solid var(--lt-border, #5c2808) !important;
+                box-shadow: 0 3px 8px rgba(15, 23, 42, 0.14) !important;
             }
 
             .pf-bento-card:hover {
@@ -971,20 +948,16 @@
                 border-color: var(--card-color, #38bdf8) !important;
                 box-shadow: 0 5px 14px rgba(var(--card-rgb, 56, 189, 248), 0.24) !important;
             }
+            html.light-theme .pf-bento-card:hover,
             html[data-theme="warm_cream"] .pf-bento-card:hover,
             html[data-theme="warm-alabaster"] .pf-bento-card:hover,
-            html[data-theme="beige"] .pf-bento-card:hover {
-                background: #f5eedd !important;
-                border-color: var(--card-color, #b45309) !important;
-            }
+            html[data-theme="beige"] .pf-bento-card:hover,
             html[data-theme="ultra_white"] .pf-bento-card:hover,
-            html[data-theme="white"] .pf-bento-card:hover {
-                background: #f1f5f9 !important;
-                border-color: var(--card-color, #2563eb) !important;
-            }
+            html[data-theme="white"] .pf-bento-card:hover,
             html[data-theme="exec_gray"] .pf-bento-card:hover {
-                background: #e2e8f0 !important;
-                border-color: var(--card-color, #1d4ed8) !important;
+                background: #ffffff !important;
+                border-color: var(--lt-ink, #000000) !important;
+                border-bottom: 3.5px solid var(--card-color, var(--lt-border, #5c2808)) !important;
             }
 
             /* Small Icon Box */

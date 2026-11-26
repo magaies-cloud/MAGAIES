@@ -434,7 +434,6 @@
 
   /* Kill Blurry Neon Halos/Rays on Quick-Action Ribbon, Audit Log, Smart Guardian & Golden Bar */
   html body #qa-bar-container,
-  html body #qa-bar-container *,
   html body .qa-master-btn,
   html body .qa-ribbon-btn,
   html body .radar-glow-btn,
@@ -443,6 +442,12 @@
   html body #exec-sticky-command-bar .exec-royal-action {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.42) !important;
     animation: none !important;
+  }
+  html body #qa-bar-container .qa-ribbon-btn .btn-text,
+  html body #qa-bar-container .qa-ribbon-btn i {
+    box-shadow: none !important;
+    background: transparent !important;
+    border: none !important;
   }
 
   html.light-theme body header.premium-header,

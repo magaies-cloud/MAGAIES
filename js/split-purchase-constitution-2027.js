@@ -631,28 +631,31 @@
         }
         return card;
     }
+    let _spHoverTimer = 0;
     document.addEventListener('mouseover', function (e) {
+        if (_spHoverTimer) { clearTimeout(_spHoverTimer); _spHoverTimer = 0; }
         const t = e.target;
-        if (!t || !t.closest || !t.closest('#sales-proportional-root')) return;
-        let txt = '';
-        if (t.tagName === 'INPUT' && (t.type === 'text' || !t.type)) {
-            txt = (t.value || '').trim();
-        } else if (t.tagName === 'TD' || t.tagName === 'TH') {
-            if (!t.querySelector('input, button, select')) txt = (t.textContent || '').trim();
-        }
-        const card = getOrCreateSmartPreviewCard();
-        if (!card) return;
-        if (txt.length >= 22 || (txt.length >= 10 && t.scrollWidth > t.clientWidth + 4)) {
-            card.textContent = '🔍 المعاينة الكاملة: ' + txt;
-            const r = t.getBoundingClientRect();
-            card.style.top = Math.max(8, r.top - 44) + 'px';
-            card.style.left = Math.max(10, Math.min(window.innerWidth - 360, r.left)) + 'px';
-            card.style.display = 'block';
-        } else if (card.style.display === 'block') {
-            card.style.display = 'none';
-        }
+        if (!t || (t.tagName !== 'INPUT' && t.tagName !== 'TD') || !t.closest || !t.closest('#sales-proportional-root')) return;
+        _spHoverTimer = setTimeout(() => {
+            _spHoverTimer = 0;
+            if (!t.isConnected) return;
+            let txt = '';
+            if (t.tagName === 'INPUT' && (t.type === 'text' || !t.type)) txt = (t.value || '').trim();
+            else if (t.tagName === 'TD' && !t.querySelector('input, button, select')) txt = (t.textContent || '').trim();
+            if (txt.length < 24) return;
+            const card = getOrCreateSmartPreviewCard();
+            if (!card) return;
+            if (t.scrollWidth > t.clientWidth + 4) {
+                card.textContent = '🔍 المعاينة الكاملة: ' + txt;
+                const r = t.getBoundingClientRect();
+                card.style.top = Math.max(8, r.top - 44) + 'px';
+                card.style.left = Math.max(10, Math.min(window.innerWidth - 360, r.left)) + 'px';
+                card.style.display = 'block';
+            }
+        }, 550);
     }, { passive: true });
     document.addEventListener('mouseout', function () {
+        if (_spHoverTimer) { clearTimeout(_spHoverTimer); _spHoverTimer = 0; }
         const card = document.getElementById('sales-smart-text-preview-card');
         if (card && card.style.display === 'block') card.style.display = 'none';
     }, { passive: true });
@@ -1039,7 +1042,20 @@
 
     const splitView = document.getElementById('split-invoice-view');
     if (splitView && typeof MutationObserver !== 'undefined') {
-        new MutationObserver(() => requestAnimationFrame(refreshSplitConstitutionEnhancements)).observe(splitView, { childList: true, subtree: true });
+        let _spObsTimer = 0, _spRunning = false;
+        const _spObs = new MutationObserver(() => {
+            if (_spRunning || _spObsTimer || splitView.style.display === 'none') return;
+            _spObsTimer = setTimeout(() => {
+                _spObsTimer = 0;
+                _spRunning = true;
+                _spObs.disconnect();
+                try { refreshSplitConstitutionEnhancements(); } finally {
+                    _spObs.observe(splitView, { childList: true, subtree: true });
+                    _spRunning = false;
+                }
+            }, 140);
+        });
+        _spObs.observe(splitView, { childList: true, subtree: true });
     }
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', refreshSplitConstitutionEnhancements);

@@ -322,12 +322,21 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         .pos-grid { width: 100%; border-collapse: collapse; font-family: 'Tajawal', sans-serif; }
         .pos-grid th, .pos-grid td { padding: 8px 10px; font-size: 0.85rem; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.05); color:#f8fafc; white-space: nowrap; }
         .pos-grid thead th { background: rgba(15, 23, 42, 0.95); color: #fb923c; font-weight: 800; border-bottom: 2px solid #0284c7; position: sticky; top: 0; z-index: 10; }
-        :root.light-theme .pos-grid th, :root.light-theme .pos-grid td { color: #0f172a !important; border-color: rgba(0,0,0,0.05) !important; }
-        :root.light-theme .pos-grid thead th { background: #f1f5f9 !important; color: #c2410c !important; border-bottom: 2px solid #c2410c !important; }
+        :root.light-theme .pos-grid th, :root.light-theme .pos-grid td { color: #0f172a !important; font-weight: 800 !important; border: 1.5px solid var(--lt-border, #5c2808) !important; }
+        :root.light-theme .pos-grid thead th { background: linear-gradient(180deg, var(--lt-th-1, #f5ead4) 0%, var(--lt-th-2, #e6d4b5) 100%) !important; color: var(--lt-ink, #0f172a) !important; font-weight: 900 !important; border-bottom: 2.5px solid var(--lt-border, #5c2808) !important; }
+        :root.light-theme .pos-grid tbody td[data-col-id="debit"], :root.light-theme .pos-grid tbody td[data-col-id="debitForeign"] { color: #047857 !important; -webkit-text-fill-color: #047857 !important; font-weight: 900 !important; }
+        :root.light-theme .pos-grid tbody td[data-col-id="credit"], :root.light-theme .pos-grid tbody td[data-col-id="creditForeign"] { color: #be123c !important; -webkit-text-fill-color: #be123c !important; font-weight: 900 !important; }
+        :root.light-theme .pos-grid tbody td[data-col-id="exchangeRate"] { color: #9a3412 !important; -webkit-text-fill-color: #9a3412 !important; font-weight: 900 !important; }
+        :root.light-theme .pos-grid tbody td[data-col-id="transferNo"] { color: #0369a1 !important; -webkit-text-fill-color: #0369a1 !important; font-weight: 900 !important; }
+        :root.light-theme .pos-grid tbody td[data-col-id="bankName"] { color: #6d28d9 !important; -webkit-text-fill-color: #6d28d9 !important; font-weight: 900 !important; }
+        :root.light-theme .pos-grid tbody td[data-col-id="balance"], :root.light-theme .pos-grid tbody td[data-col-id="balanceForeign"] { color: #0f172a !important; -webkit-text-fill-color: #0f172a !important; font-weight: 900 !important; }
+        :root.light-theme .pos-grid tbody td[data-col-id="balance"][style*="#34d399"], :root.light-theme .pos-grid tbody td[data-col-id="balanceForeign"][style*="#34d399"] { color: #047857 !important; -webkit-text-fill-color: #047857 !important; }
+        :root.light-theme .pos-grid tbody td[data-col-id="balance"][style*="#f87171"], :root.light-theme .pos-grid tbody td[data-col-id="balanceForeign"][style*="#f87171"] { color: #be123c !important; -webkit-text-fill-color: #be123c !important; }
+        :root.light-theme .pos-grid tbody td[data-col-id="typeLabel"] span { background: #ede9fe !important; color: #5b21b6 !important; -webkit-text-fill-color: #5b21b6 !important; border: 1.5px solid #6d28d9 !important; font-weight: 900 !important; }
         .pos-grid tbody tr:nth-child(even) td { background: rgba(255,255,255,0.06); }
-        :root.light-theme .pos-grid tbody tr:nth-child(even) td { background: rgba(0,0,0,0.06) !important; }
+        :root.light-theme .pos-grid tbody tr:nth-child(even) td { background: var(--lt-row-even, #f8f2e4) !important; }
         .pos-grid tbody tr:hover td { background: rgba(56, 189, 248,0.08) !important; }
-        :root.light-theme .pos-grid tbody tr:hover td { background: rgba(56, 189, 248,0.05) !important; }
+        :root.light-theme .pos-grid tbody tr:hover td { background: var(--lt-th-1, #fef3c7) !important; }
         
         .pos-grid tbody tr { transform: none !important; opacity: 1; }
         
@@ -364,16 +373,17 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             color: #0f172a !important;
         }
 
-        /* ── Magnified Number Audit Effect (Size-Only Enlarge — Preserves Original Background & Text Colors) ── */
+        /* ── Magnified Number Audit Effect (Enlarge + Distinct Review Color Shift) ── */
         table#recent-table tbody td.num-magnified, table#preview-table tbody td.num-magnified,
-        .pos-grid tbody td.num-magnified, .excel-table tbody td.num-magnified, .excel-table td.num-magnified, td.num-magnified,
-        :root.light-theme table#recent-table tbody td.num-magnified, :root.light-theme table#preview-table tbody td.num-magnified,
-        :root.light-theme .pos-grid tbody td.num-magnified, :root.light-theme .excel-table tbody td.num-magnified, :root.light-theme .excel-table td.num-magnified {
+        .pos-grid tbody td.num-magnified, .excel-table tbody td.num-magnified, .excel-table td.num-magnified, td.num-magnified {
             font-size: 1.45rem !important;
             font-weight: 900 !important;
             font-variant-numeric: tabular-nums !important;
+            background: rgba(250, 204, 21, 0.22) !important;
+            color: #fef08a !important;
+            -webkit-text-fill-color: #fef08a !important;
             border-radius: 5px !important;
-            box-shadow: inset 0 0 0 1.5px currentColor !important;
+            box-shadow: inset 0 0 0 2px #facc15 !important;
             padding: 4px 7px !important;
             white-space: nowrap !important;
             display: table-cell !important;
@@ -382,7 +392,14 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             transform: none !important;
             line-height: 1.18 !important;
             cursor: pointer !important;
-            transition: font-size 0.14s ease !important;
+            transition: font-size 0.14s ease, background-color 0.14s ease, color 0.14s ease !important;
+        }
+        :root.light-theme table#recent-table tbody td.num-magnified, :root.light-theme table#preview-table tbody td.num-magnified,
+        :root.light-theme .pos-grid tbody td.num-magnified, :root.light-theme .excel-table tbody td.num-magnified, :root.light-theme .excel-table td.num-magnified, :root.light-theme td.num-magnified {
+            background: #fef3c7 !important;
+            color: #9a3412 !important;
+            -webkit-text-fill-color: #9a3412 !important;
+            box-shadow: inset 0 0 0 2.5px #d97706 !important;
         }
 
         /* ── Custom Context Menu Styling ── */

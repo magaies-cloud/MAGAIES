@@ -52,7 +52,18 @@ function readAllStoredJVs() {
                 lines: Array.isArray(item.lines) ? item.lines : []
             });
         });
-        return Array.from(map.values());
+        const seqKey = (v) => {
+            const s = String(v.id || v.entryNo || '').trim();
+            const m = s.match(/^[A-Za-z]+(\d+)$/);
+            if (m) return parseInt(m[1], 10);
+            const d = s.replace(/\D/g, '');
+            return d ? parseInt(d, 10) : 0;
+        };
+        return Array.from(map.values()).sort((a, b) => {
+            const sa = seqKey(a), sb = seqKey(b);
+            if (sa !== sb) return sa - sb;
+            return String(a.id || '').localeCompare(String(b.id || ''), undefined, { numeric: true });
+        });
     } catch (e) {
         return [];
     }

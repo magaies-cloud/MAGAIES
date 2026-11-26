@@ -1582,6 +1582,22 @@ function calcTotal() {
 
 
 function showCenterError(msg, type = 'default') {
+    if (typeof window.showCenteredWarningModal === 'function') {
+        const cleanMsg = String(msg || '').replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]+>/g, '').trim();
+        const titleMap = {
+            duplicate: 'تنبيه: رقم مكرر مسبقاً',
+            short: 'تنبيه: رقم التحويلة أقل من 6 خانات',
+            empty: 'تنبيه: يرجى إكمال البيانات المطلوبة'
+        };
+        if (typeof playErrorSound === 'function') playErrorSound();
+        window.showCenteredWarningModal({
+            title: titleMap[type] || undefined,
+            message: cleanMsg,
+            buttonText: (type === 'short' || type === 'duplicate') ? '✏️ تعديل الرقم' : 'حسناً — إغلاق',
+            level: 'error'
+        });
+        return;
+    }
     const existing = document.getElementById('center-error-modal');
     if (existing) existing.remove();
     
@@ -1639,6 +1655,10 @@ function showCenterError(msg, type = 'default') {
 
 
 function showToast(msg, type = 'success', duration = null, targetEl = null) {
+    if (typeof window.showUnifiedToast === 'function') {
+        window.showUnifiedToast(msg, type, duration, targetEl);
+        return;
+    }
     const container = document.getElementById('toast-container');
     if (!container) return;
     // الدستور الثالث (الأمر 5): رسائل النجاح تظهر لثانيتين (2000ms) وتختفي تلقائياً دون إيقاف عمل المحاسب
@@ -1992,8 +2012,19 @@ async function _saveVoucherCore() {
                     }
                     const cleanDigits = String(tno).replace(/\D/g, '');
                     if (cleanDigits.length < 6) {
-                        showToast(`رقم التحويل البنكي للحساب (${accountName}) يجب أن لا يقل عن 6 أرقام`, 'error');
-                        highlightError(row.querySelector('.block-transfer-no-input'));
+                        const tInpShort = row.querySelector('.block-transfer-no-input');
+                        if (typeof window.showCenteredWarningModal === 'function') {
+                            window.showCenteredWarningModal({
+                                title: 'تنبيه: رقم التحويلة أقل من 6 خانات',
+                                message: 'يجب أن يكون رقم التحويلة 6 خانات وما فوق',
+                                buttonText: '✏️ تعديل الرقم',
+                                level: 'error',
+                                targetEl: tInpShort
+                            });
+                        } else {
+                            showToast(`يجب أن يكون رقم التحويلة 6 خانات وما فوق (${accountName})`, 'error', 3600, tInpShort);
+                        }
+                        highlightError(tInpShort);
                         hasInvalidTransfer = true;
                         break;
                     }
@@ -2060,15 +2091,7 @@ async function _saveVoucherCore() {
                         hasInvalidCheque = true;
                         break;
                     }
-                    const currentVoucherNo = document.getElementById('voucher-no-display')?.value || '';
-                    if (window.ElsajanaAccountingBrain) {
-                        const chkDup = window.ElsajanaAccountingBrain.checkDuplicateChequeNo(no, currentVoucherNo);
-                        if (chkDup.duplicate) {
-                            window.ElsajanaAccountingBrain.shakeAndFocus(row.querySelector('.block-cheque-no-input'), `🚫 رقم الشيك (${no}) مسجل مسبقاً في حافظة الشيكات!`, 'error', 4800);
-                            hasInvalidCheque = true;
-                            break;
-                        }
-                    }
+                    // تكرار رقم الشيك مسموح (لإمكانية تشابه رقم الشيك بين بنوك مختلفة)
                     chequeTotalAmt += amt;
                     cheques.push({ amount: amt, chequeBank: bank, chequeNo: no, chequeDate: dt, statement: desc });
                 }
@@ -3006,11 +3029,18 @@ async function refreshVoucherNavigationList() {
     const storageKey = type === 'payment' ? 'erp_payments_v1' : 'erp_receipts_v1';
     let existingData = getStoredVouchers(storageKey);
     
-    currentVoucherList = existingData.filter(v => v.isGrouped);
+    currentVoucherList = existingData.filter(v => v && v.isGrouped && !v.deleted && !v.isDeleted);
+    const seqKey = (v) => {
+        const s = String(v.voucherNo || v.id || '').trim();
+        const m = s.match(/^[A-Za-z]+(\d+)$/);
+        if (m) return parseInt(m[1], 10);
+        const d = s.replace(/\D/g, '');
+        return d ? parseInt(d, 10) : 0;
+    };
     currentVoucherList.sort((a, b) => {
-        const da = a.date + ' ' + (a.createdAt || '');
-        const db = b.date + ' ' + (b.createdAt || '');
-        return da.localeCompare(db);
+        const sa = seqKey(a), sb = seqKey(b);
+        if (sa !== sb) return sa - sb;
+        return String(a.voucherNo || a.id || '').localeCompare(String(b.voucherNo || b.id || ''), undefined, { numeric: true });
     });
 }
 

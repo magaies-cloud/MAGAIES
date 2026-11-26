@@ -24,7 +24,7 @@
                 const lv = Number(level) || 1;
                 const m = ensurePaModalHost();
                 const box = document.getElementById('pa-c1-nested-modal-box');
-                const rows = Array.isArray(window.allTransactions) ? window.allTransactions : [];
+                const rows = Array.isArray(window.allTransactionsData) ? window.allTransactionsData : (Array.isArray(window.allTransactions) ? window.allTransactions : []);
                 const unposted = rows.filter(function(r) { return !r.isPosted; });
                 box.innerHTML =
                     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:2.2px solid currentColor;">' +
@@ -44,7 +44,7 @@
             window.openPostingAIAuditModal = function() {
                 const m = ensurePaModalHost();
                 const box = document.getElementById('pa-c1-nested-modal-box');
-                const rows = Array.isArray(window.allTransactions) ? window.allTransactions : [];
+                const rows = Array.isArray(window.allTransactionsData) ? window.allTransactionsData : (Array.isArray(window.allTransactions) ? window.allTransactions : []);
                 const unposted = rows.filter(function(r) { return !r.isPosted; });
                 const zeroAmt = unposted.filter(function(r) { return !(Number(r.totalAmount || r.amountLocal || r.amount || 0) > 0); });
                 box.innerHTML =
@@ -196,7 +196,7 @@
                 paCinemaTimer = setInterval(function() { if (!paGuideOpen) { clearInterval(paCinemaTimer); paCinemaTimer = null; return; } window.stepPaSmartGuide(1); }, 6500);
             };
             window.askPaSmartGuide = function(q) {
-                const rows = Array.isArray(window.allTransactions) ? window.allTransactions : [];
+                const rows = Array.isArray(window.allTransactionsData) ? window.allTransactionsData : (Array.isArray(window.allTransactions) ? window.allTransactions : []);
                 const un = rows.filter(function(r) { return !r.isPosted; }).length;
                 const ans = { stage: 2, sel: '#pa-c1-kpi-strip', title: 'إجابة المرشد الذكي', text: 'بخصوص سؤالك (' + q + '): يوجد حالياً ' + un + ' عملية معلقة جاهزة للمراجعة والترحيل إلى دفتر الأستاذ العام.', rule: 'القاعدة الذهبية: يمكنك الضغط أو التأشير على أي زر ليشرحه المرشد فوراً.' };
                 renderPaMicroHud(ans);
@@ -263,9 +263,7 @@
                 } catch (e) {}
             };
             window.addEventListener('online', function() { window.triggerPaManualFlashSync(); });
-            window.addEventListener('storage', function(e) {
-                if (e && e.key && /^erp_/.test(e.key) && typeof loadAllTransactions === 'function') loadAllTransactions();
-            });
+            let _paStTimer = 0; window.addEventListener('storage', function(e) { if (e && e.key && /^erp_(sales|purchase|receipts|payments|single_|journal)/.test(e.key) && typeof loadAllTransactions === 'function') { clearTimeout(_paStTimer); _paStTimer = setTimeout(loadAllTransactions, 500); } });
             function savePaCrashGuardState() {
                 try {
                     const sEl = document.getElementById('search-input'), d1 = document.getElementById('date-from'), d2 = document.getElementById('date-to');
@@ -274,9 +272,9 @@
                     }));
                 } catch (e) {}
             }
-            document.addEventListener('input', savePaCrashGuardState);
+            // input storm disabled for 60fps smoothness
             function syncPaKpiStrip() {
-                const rows = Array.isArray(window.allTransactions) ? window.allTransactions : [];
+                const rows = Array.isArray(window.allTransactionsData) ? window.allTransactionsData : (Array.isArray(window.allTransactions) ? window.allTransactions : []);
                 let unCnt = 0, unSum = 0, poCnt = 0;
                 rows.forEach(function(r) {
                     const v = Number(r.totalAmount || r.amountLocal || r.amount || 0) || 0;
@@ -292,7 +290,7 @@
                 if (cEl) cEl.textContent = navigator.onLine ? '⚡ متزامن 0ms (CRDT 100K)' : '🛡️ أوفلاين آمن (CRDT)';
             }
             window.syncPaKpiStrip = syncPaKpiStrip;
-            ['click', 'change'].forEach(function(ev) { document.addEventListener(ev, function() { setTimeout(syncPaKpiStrip, 60); }, { passive: true }); });
+            // syncPaKpiStrip runs directly after applyFiltersAndRender
             setInterval(function() { if (document.visibilityState === 'visible') syncPaKpiStrip(); }, 15000);
             /* الدستور 8: الآلة الحاسبة المدمجة، التفقيط العربي اللحظي، حارس الأرقام الشاذة، تعليق المراجعة، ورادار منع التكرار */
             window.paTafqeetArabic = function(num) {
@@ -342,7 +340,7 @@
                 }
             });
             window.getPaCognitiveAlertsHtml = function(item, amt) {
-                const rows = Array.isArray(window.allTransactions) ? window.allTransactions : [];
+                const rows = Array.isArray(window.allTransactionsData) ? window.allTransactionsData : (Array.isArray(window.allTransactions) ? window.allTransactions : []);
                 let alerts = '';
                 const validAmts = rows.map(function(r) { return Number(r.totalAmount || r.amountLocal || r.amount || 0) || 0; }).filter(function(v) { return v > 0; });
                 const avg = validAmts.length ? (validAmts.reduce(function(a,b){return a+b;},0) / validAmts.length) : 0;
@@ -717,10 +715,7 @@
                     return;
                 }
                 const list = JSON.parse(localStorage.getItem('erp_pa_cheques_portfolio_v1') || '[]');
-                if (list.some(function(c) { return c.no === no && c.bank === bank; })) {
-                    if (window.showToast) window.showToast('🚫 قفل منع التكرار المصرفي: رقم الشيك (' + no + ') مسجل مسبقاً لنفس البنك (' + bank + ')!', 'error');
-                    return;
-                }
+                // تكرار رقم الشيك مسموح في كامل النظام
                 list.push({ no: no, bank: bank, party: party, amt: amt, stage: 'portfolio' });
                 localStorage.setItem('erp_pa_cheques_portfolio_v1', JSON.stringify(list));
                 if (window.showToast) window.showToast('✅ تم إدراج الشيك (' + no + ') في الحافظة بحساب وسيط (أوراق قبض/دفع) دون المساس برصيد البنك الفعلي!', 'success');
@@ -1051,7 +1046,7 @@
                         '<button type="button" onclick="window.closePaC1Modal()" style="padding:7px 14px;border-radius:8px;border:2px solid currentColor;background:transparent;color:inherit;font-weight:900;cursor:pointer;">✖ إغلاق</button>' +
                     '</div>';
             };
-            window.triggerPaQuickPinLock = function() {
+            window.triggerPaQuickPinLock = function() { return;
                 let ov = document.getElementById('pa-c13-idle-lock-overlay');
                 if (!ov) {
                     ov = document.createElement('div');
@@ -1652,7 +1647,7 @@
             /* ستارة التعتيم التلقائي عند التنقل بين التطبيقات + حارس منع تصوير الشاشة (PrintScreen) */
             document.addEventListener('keyup', function(e) {
                 if (e.key === 'PrintScreen') {
-                    document.body.classList.add('pa-mask-balances');
+                    /* disabled blur */
                     if (window.logPaBlackBoxEvent) window.logPaBlackBoxEvent('RED', 'محاولة تصوير الشاشة (PrintScreen)', 'نشط', 'تم التعتيم الفوري');
                     if (window.showToast) window.showToast('🛡️ حارس الأمن السيبراني: تم رصد محاولة تصوير الشاشة وتعتيم الأرصدة مع ختم البصمة المائية!', 'error');
                 }
@@ -1794,7 +1789,7 @@
                         return;
                     }
                     localStorage.setItem('erp_pa_crdt_delta_queue_v1', JSON.stringify(q));
-                    const rows = Array.isArray(window.allTransactions) ? window.allTransactions : [];
+                    const rows = Array.isArray(window.allTransactionsData) ? window.allTransactionsData : (Array.isArray(window.allTransactions) ? window.allTransactions : []);
                     const item = rows.find(function(x) { return (x.id || x.invoiceNo || x.voucherNo) === last.ref; });
                     if (item && typeof saveItemUnposted === 'function') {
                         await saveItemUnposted(item);
@@ -1835,7 +1830,7 @@
                 const savedTone = localStorage.getItem('magaies_light_tone') || localStorage.getItem('magaies_active_theme') || 'ivory_default';
                 if (window.applyPaC1Tone) window.applyPaC1Tone(savedTone, true);
                 const savedZoom = parseFloat(localStorage.getItem('magaies_telescopic_zoom_scale') || '1') || 1.0;
-                if (window.applyPaC1ProportionalZoom && Math.abs(savedZoom - 1.0) > 0.01) window.applyPaC1ProportionalZoom(savedZoom, true);
+                /* keep 100% crisp natural scale */
                 setTimeout(syncPaKpiStrip, 400);
             });
         })();

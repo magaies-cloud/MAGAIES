@@ -248,9 +248,28 @@ function getSlItemStockInWarehouse(itemMeta, whIdOrName) {
     return 0;
 }
 
+function _slSeqNum(no) {
+    const s = String(no || '').trim();
+    const m = s.match(/^[A-Za-z]+(\d+)$/);
+    if (m) return parseInt(m[1], 10);
+    const d = s.replace(/\D/g, '');
+    return d ? parseInt(d, 10) : 0;
+}
+
 // ── PURCHASE PENDING & RECEIVED CALCULATION ENGINE (100% COMPATIBLE WITH purchase-receipt.php) ──
 function getProcessedPurchaseInvoices() {
-    const allPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]');
+    const mergedMap = new Map();
+    ['erp_purchase_invoices_v1', 'erp_purchases_v5', 'magaies_local_purchase_invoices_v1'].forEach(k => {
+        try {
+            (JSON.parse(localStorage.getItem(k) || '[]') || []).forEach(p => {
+                if (!p || typeof p !== 'object') return;
+                const pid = String(p.invoiceNo || p.id || '').trim();
+                if (!pid) return;
+                mergedMap.set(pid, mergedMap.has(pid) ? Object.assign({}, mergedMap.get(pid), p) : p);
+            });
+        } catch (e) {}
+    });
+    const allPurchases = Array.from(mergedMap.values());
     const grnList = allPurchases.filter(p => p && !p.deleted && p.isGRN);
     const returnList = allPurchases.filter(p => p && !p.deleted && p.isReturn);
 
@@ -413,8 +432,10 @@ function switchLogisticsMode(mode, silent = false) {
         : 'سجل فواتير وأذونات المشتريات');
     setTxt('sl-reg-th-party', isSales ? '👤 العميل' : '🏢 المورد');
     setTxt('sl-lbl-party-title', isSales ? '👤 العميل' : '🏢 المورد');
-    setTxt('sl-lbl-wh-select', isSales ? '🏢 مخزن الصرف:' : '🏢 مخزن الاستلام:');
-    setTxt('sl-lbl-receiver', isSales ? '🤝 المستلم:' : '🤝 أمين المخزن المستلم:');
+    setTxt('sl-lbl-wh-select', isSales ? 'مخزن الصرف:' : 'مخزن الاستلام:');
+    setTxt('sl-lbl-receiver', isSales ? 'المستلم:' : 'المخزنجي:');
+    setTxt('sl-lbl-rec-no-title', isSales ? 'رقم التسليم:' : 'رقم الاستلام:');
+    setTxt('sl-lbl-rec-date-title', isSales ? 'تاريخ التسليم:' : 'تاريخ الاستلام:');
     setTxt('sl-th-dual-action', isSales
         ? '📤 الكمية المسلّمة الآن (أساسية ⇄ فرعية)'
         : '📥 الكمية المستلمة الآن (أساسية ⇄ فرعية)');
@@ -447,6 +468,19 @@ function switchLogisticsMode(mode, silent = false) {
     renderSlRegistry();
 }
 
+function resolveSlWarehouseKeeper(whIdOrName) {
+    const q = String(whIdOrName || '').trim();
+    if (!q) return '';
+    let allWh = getSlWarehouses();
+    try {
+        const tk = typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_warehouses_v1') : 'erp_warehouses_v1';
+        const tWh = JSON.parse(localStorage.getItem(tk) || localStorage.getItem('erp_warehouses_v1') || '[]');
+        if (Array.isArray(tWh) && tWh.length) allWh = tWh;
+    } catch (_) {}
+    const found = allWh.find(w => w && (String(w.id) === q || String(w.name) === q));
+    return found ? String(found.keeper || found.storekeeper || found.manager || found.responsible || '').trim() : '';
+}
+
 function populateSlWarehouseSelects() {
     const whs = getSlWarehouses();
     const masterSel = document.getElementById('sl-master-warehouse');
@@ -456,15 +490,30 @@ function populateSlWarehouseSelects() {
         const prev = masterSel.value;
         masterSel.innerHTML = whs.map(w => `<option value="${w.id}">${w.name}</option>`).join('');
         if (prev && whs.some(w => String(w.id) === String(prev))) masterSel.value = prev;
+        if (slCurrentMode === 'purchases') {
+            const recIn = document.getElementById('sl-receiver-name');
+            if (recIn && !recIn.value) recIn.value = resolveSlWarehouseKeeper(masterSel.value);
+        }
     }
     if (filterSel) {
-        const prevF = filterSel.value || 'all';
-        filterSel.innerHTML = `<option value="all">🏢 كل المخازن</option>` + whs.map(w => `<option value="${w.id}">${w.name}</option>`).join('');
+        const defaultF = (slCurrentMode === 'purchases') ? 'PENDING_RECEIPT' : 'all';
+        const prevF = filterSel.dataset.userPicked ? filterSel.value : defaultF;
+        filterSel.innerHTML = (slCurrentMode === 'purchases'
+            ? `<option value="PENDING_RECEIPT">⏳ قيد الاستلام</option><option value="all">🏢 كل المخازن</option>`
+            : `<option value="all">🏢 كل المخازن</option>`) + whs.map(w => `<option value="${w.id}">${w.name}</option>`).join('');
         filterSel.value = prevF;
+        if (!filterSel._slUserPickBound) {
+            filterSel._slUserPickBound = true;
+            filterSel.addEventListener('change', () => { filterSel.dataset.userPicked = '1'; });
+        }
     }
 }
 
 function onSlMasterWarehouseChange(newWhId) {
+    if (slCurrentMode === 'purchases') {
+        const recIn = document.getElementById('sl-receiver-name');
+        if (recIn) recIn.value = resolveSlWarehouseKeeper(newWhId);
+    }
     document.querySelectorAll('.sl-row-wh-select').forEach(sel => {
         sel.value = newWhId;
         const idx = sel.dataset.itemIdx;
@@ -525,10 +574,29 @@ function renderSlRegistry() {
         ? (getSlCachedStore('erp_delivery_notes_v1', []) || []).filter(n => n && !n.deleted)
         : (getSlCachedStore('erp_purchase_invoices_v1', []) || []).filter(n => n && !n.deleted && n.isGRN);
 
-    const kpiPending = sourceList.filter(i => i._slStatus === 'pending').length;
-    const kpiPartial = sourceList.filter(i => i._slStatus === 'partial').length;
-    const kpiDone    = sourceList.filter(i => i._slStatus === 'done').length;
-    const kpiNotes   = allNotes.length;
+    const q = (document.getElementById('sl-reg-search')?.value || '').trim().toLowerCase();
+    const whFilter = document.getElementById('sl-reg-wh-filter')?.value || 'all';
+    const limit = parseInt(document.getElementById('sl-reg-limit')?.value || '50', 10) || 50;
+    const whs = getSlWarehouses();
+
+    const matchesWhFilter = (whVal, rawInv) => {
+        if (whFilter === 'all') return true;
+        if (whFilter === 'PENDING_RECEIPT') {
+            const wStr = String(whVal || rawInv?.warehouse || '');
+            const wId = String(rawInv?.warehouseId || '');
+            return wStr.includes('قيد الاستلام') || wStr === 'PENDING_RECEIPT' || wId === 'PENDING_RECEIPT' || (!wStr && !wId && rawInv?._slStatus === 'pending');
+        }
+        const whObj = whs.find(w => String(w.id) === String(whFilter));
+        return !!(whObj && (String(whVal || '').includes(whObj.name) || String(whVal || '') === String(whObj.id) || String(rawInv?.warehouseId || '') === String(whObj.id)));
+    };
+
+    const whFilteredSource = sourceList.filter(inv => matchesWhFilter(inv.deliveredWarehouseName || inv.warehouseName || inv.warehouse || '', inv));
+    const whFilteredNotes = allNotes.filter(n => whFilter === 'all' || whFilter === 'PENDING_RECEIPT' ? true : matchesWhFilter(n.warehouse || n.warehouseName || '', n));
+
+    const kpiPending = whFilteredSource.filter(i => i._slStatus === 'pending').length;
+    const kpiPartial = whFilteredSource.filter(i => i._slStatus === 'partial').length;
+    const kpiDone    = whFilteredSource.filter(i => i._slStatus === 'done').length;
+    const kpiNotes   = whFilteredNotes.length;
 
     const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
     setVal('sl-kpi-val-pending', kpiPending);
@@ -539,15 +607,10 @@ function renderSlRegistry() {
     const tbody = document.getElementById('sl-registry-tbody');
     if (!tbody) return;
 
-    const q = (document.getElementById('sl-reg-search')?.value || '').trim().toLowerCase();
-    const whFilter = document.getElementById('sl-reg-wh-filter')?.value || 'all';
-    const limit = parseInt(document.getElementById('sl-reg-limit')?.value || '50', 10) || 50;
-    const whs = getSlWarehouses();
-
     // If 'notes' filter is selected, show official GDN / GRN notes
     let rowsData = [];
     if (slRegistryFilter === 'notes') {
-        rowsData = allNotes.map(n => ({
+        rowsData = whFilteredNotes.map(n => ({
             isOfficialNote: true,
             noteId: n.id || n.deliveryNo || '---',
             invoiceNo: n.invoiceNo || n.originalInvoiceId || n.id,
@@ -560,7 +623,7 @@ function renderSlRegistry() {
             rawNote: n
         }));
     } else {
-        rowsData = sourceList.filter(inv => {
+        rowsData = whFilteredSource.filter(inv => {
             if (slRegistryFilter === 'pending' && inv._slStatus !== 'pending') return false;
             if (slRegistryFilter === 'partial' && inv._slStatus !== 'partial') return false;
             if (slRegistryFilter === 'done' && inv._slStatus !== 'done') return false;
@@ -579,13 +642,8 @@ function renderSlRegistry() {
         }));
     }
 
-    // Apply search & warehouse filter
+    // Apply search filter
     const filtered = rowsData.filter(r => {
-        if (whFilter !== 'all') {
-            const whObj = whs.find(w => String(w.id) === String(whFilter));
-            const matchWh = whObj && (String(r.warehouse).includes(whObj.name) || String(r.warehouse) === String(whObj.id));
-            if (!matchWh) return false;
-        }
         if (!q) return true;
         const itemsTxt = (r.items || []).map(it => resolveSlItemMeta(it).name).join(' ').toLowerCase();
         return (
@@ -594,6 +652,11 @@ function renderSlRegistry() {
             String(r.partyName).toLowerCase().includes(q) ||
             itemsTxt.includes(q)
         );
+    }).sort((a, b) => {
+        const sa = _slSeqNum(a.isOfficialNote ? a.noteId : a.invoiceNo);
+        const sb = _slSeqNum(b.isOfficialNote ? b.noteId : b.invoiceNo);
+        if (sa !== sb) return sb - sa;
+        return String(b.invoiceNo || '').localeCompare(String(a.invoiceNo || ''), undefined, { numeric: true });
     });
 
     const countBadge = document.getElementById('sl-reg-count-badge');
@@ -613,31 +676,33 @@ function renderSlRegistry() {
                 ? `<span class="sl-badge sl-badge-partial">🌗 ${isSales ? 'صرف جزئي' : 'استلام جزئي'}</span>`
                 : `<span class="sl-badge sl-badge-pending">⏳ ${isSales ? 'قيد الصرف' : 'قيد الاستلام'}</span>`;
 
-        const itemsPills = (r.items || []).slice(0, 4).map((it, idx) => {
+        const itemsPills = (r.items || []).map((it, idx) => {
             const m = resolveSlItemMeta(it);
-            const rem = it.remainingQty !== undefined ? it.remainingQty : m.qty;
-            return `<span onclick="event.stopPropagation(); loadSlDocument('${r.invoiceNo}', ${idx})" style="display:inline-flex; align-items:center; gap:4px; background:rgba(15,23,42,0.85); border:1px solid rgba(148,163,184,0.28); padding:3px 9px; border-radius:8px; font-size:0.77rem; font-weight:800; margin:2px; cursor:pointer;" title="اضغط لفتح وتقسيم هذا الصنف مباشرة">
-                📦 <strong style="color:#fff;">${m.name}</strong>
-                <span style="color:var(--sl-primary-light);">(${m.qty} ${m.unit})</span>
-                ${rem < m.qty && rem > 0 ? `<span style="color:#fbbf24;">[متبقي: ${rem}]</span>` : ''}
-            </span>`;
-        }).join('') + ((r.items || []).length > 4 ? `<span style="font-size:0.75rem; color:#94a3b8; font-weight:800;"> +${r.items.length - 4} أصناف</span>` : '');
+            const totQ = Math.max(0.0001, parseFloat(m.qty) || 0);
+            const rem = it.remainingQty !== undefined ? parseFloat(it.remainingQty) : totQ;
+            const pendPct = Math.max(0, Math.min(100, Math.round((rem / totQ) * 100)));
+            const lineVal = Math.round((parseFloat(it.total || it.lineTotal) || (totQ * (parseFloat(m.price) || 0))) || 0);
+            const barClr = pendPct === 0 ? '#10b981' : (pendPct < 100 ? '#38bdf8' : '#f59e0b');
+            return `<div onclick="event.stopPropagation(); loadSlDocument('${r.invoiceNo}', ${idx})" style="display:flex; align-items:center; gap:8px; padding:3px 7px; margin:2px 0; border-radius:7px; background:rgba(2,6,23,0.48); border:1px solid rgba(148,163,184,0.25); cursor:pointer;">
+                <span style="font-size:0.72rem; font-weight:800; color:#ffffff; min-width:110px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${m.name} <span style="color:#7dd3fc;">(${m.qty} ${m.unit})</span></span>
+                <div style="flex:1; min-width:70px; height:7px; background:rgba(148,163,184,0.22); border-radius:99px; overflow:hidden; position:relative;" title="المعلق: ${pendPct}%">
+                    <div style="width:${pendPct}%; height:100%; background:${barClr}; border-radius:99px;"></div>
+                </div>
+                <span style="font-size:0.69rem; font-weight:900; color:${barClr}; min-width:32px; text-align:center;">${pendPct}%</span>
+                <span style="font-size:0.71rem; font-weight:900; color:#fde047; font-family:'Outfit',monospace; white-space:nowrap;">${lineVal.toLocaleString('en-US')}</span>
+            </div>`;
+        }).join('');
 
         return `
-            <tr class="${isSelected ? 'sl-selected-row' : ''}" onclick="loadSlDocument('${r.invoiceNo}')" style="cursor:pointer;">
-                <td style="text-align:right; font-family:'Inter',monospace; font-weight:900;">
-                    <div style="color:var(--sl-primary-light); font-size:0.96rem;">#${r.invoiceNo}</div>
-                    ${r.noteId ? `<div style="font-size:0.73rem; color:#c084fc;">🏷️ ${r.noteId}</div>` : ''}
-                </td>
-                <td style="text-align:center; font-size:0.84rem; color:#cbd5e1; font-weight:800;">
+            <tr class="${isSelected ? 'sl-selected-row' : ''}" data-rc-invoice-no="${r.invoiceNo}" data-rc-invoice-mode="${isSales ? 'sales' : 'purchases'}" onclick="loadSlDocument('${r.invoiceNo}')" style="cursor:pointer;">
+                <td style="text-align:center; font-size:0.76rem; color:#cbd5e1; font-weight:800;">
                     <div>${r.date || '---'}</div>
-                    ${r.time ? `<div style="font-size:0.72rem; color:#64748b;">${r.time}</div>` : ''}
                 </td>
-                <td style="text-align:right; font-weight:900; color:#ffffff;">
-                    <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
-                        <span>${r.partyName}</span>
-                        <button type="button" onclick="event.stopPropagation(); window.location.href='account-statement.php?type=${isSales ? 'customer' : 'supplier'}&search='+encodeURIComponent('${(r.partyName || '').replace(/'/g, "\\'")}')" class="sl-btn" style="padding:2px 8px; font-size:0.72rem; background:linear-gradient(135deg,#0284c7,#0369a1); border:1.5px solid #7dd3fc; color:#fff !important; -webkit-text-fill-color:#fff !important; border-radius:6px;" title="دفتر الأستاذ وكشف الحساب">📖 أستاذ</button>
-                    </div>
+                <td data-rc-invoice-no="${r.invoiceNo}" data-rc-invoice-mode="${isSales ? 'sales' : 'purchases'}" onclick="event.stopPropagation(); loadSlDocument('${r.invoiceNo}'); if(typeof window.__openErpRightClickChoiceMenu==='function'){ window.__openErpRightClickChoiceMenu(event); }" style="text-align:right; font-family:'Inter',monospace; font-weight:900;" title="اضغط أو كليك يمين للشرح والذهاب إلى أصل الفاتورة">
+                    <div style="color:var(--sl-primary-light); font-size:0.84rem; text-decoration:underline; text-underline-offset:3px;">#${r.invoiceNo}</div>
+                </td>
+                <td data-rc-account-name="${(r.partyName || '').replace(/"/g, '&quot;')}" data-rc-account-type="${isSales ? 'customer' : 'supplier'}" data-rc-invoice-no="${r.invoiceNo}" data-rc-invoice-mode="${isSales ? 'sales' : 'purchases'}" style="text-align:right; font-weight:900; font-size:0.86rem; color:#ffffff;">
+                    <span>${r.partyName}</span>
                 </td>
                 <td style="text-align:right;">
                     ${itemsPills || '<span style="color:#64748b;">---</span>'}
@@ -675,6 +740,8 @@ function clearSlDocumentCard() {
     setTxt('sl-lbl-inv-no', '---');
     setTxt('sl-lbl-party-name', '---');
     setTxt('sl-lbl-date', '---');
+    setTxt('sl-lbl-rec-no', '---');
+    setTxt('sl-lbl-rec-date', '---');
     setTxt('sl-lbl-hash', '---');
     const tbody = document.getElementById('sl-items-tbody');
     if (tbody) {
@@ -706,9 +773,16 @@ function loadSlDocument(queryNo, focusItemIdx = null) {
     slCurrentDoc = doc;
     const partyName = resolveSlPartyName(doc, slCurrentMode);
 
-    document.getElementById('sl-lbl-inv-no').textContent = `#${doc.invoiceNo}` + (doc._slNoteNo ? ` (${doc._slNoteNo})` : '');
+    document.getElementById('sl-lbl-inv-no').textContent = `#${doc.invoiceNo}`;
     document.getElementById('sl-lbl-party-name').textContent = partyName;
     document.getElementById('sl-lbl-date').textContent = (doc.date || doc.savedAt || '---').slice(0, 10);
+    const recNoEl = document.getElementById('sl-lbl-rec-no');
+    if (recNoEl) recNoEl.textContent = doc._slNoteNo ? `#${doc._slNoteNo}` : 'تلقائي';
+    const recDtEl = document.getElementById('sl-lbl-rec-date');
+    if (recDtEl) {
+        const lastGrn = Array.isArray(doc._slGrns) && doc._slGrns.length ? doc._slGrns[doc._slGrns.length - 1] : null;
+        recDtEl.textContent = lastGrn ? String(lastGrn.date || lastGrn.createdAt || '').slice(0, 10) : new Date().toISOString().slice(0, 10);
+    }
     document.getElementById('sl-lbl-hash').textContent = doc.hash || (`${isSales ? 'GDN' : 'GRN'}-SEC-` + btoa(unescape(encodeURIComponent(String(doc.invoiceNo)))).slice(0, 14));
 
     const statusPill = document.getElementById('sl-doc-status-pill');
@@ -732,7 +806,9 @@ function loadSlDocument(queryNo, focusItemIdx = null) {
     const wNotes   = document.getElementById('sl-warehouse-notes');
     const pNotes   = document.getElementById('sl-personal-notes');
 
-    if (recInput) recInput.value = doc.receiverName || partyName || '';
+    const masterWhVal = document.getElementById('sl-master-warehouse')?.value || '';
+    const whKeeper = resolveSlWarehouseKeeper(masterWhVal);
+    if (recInput) recInput.value = (doc.receiverName && doc.receiverName !== partyName ? doc.receiverName : '') || (isSales ? partyName : whKeeper) || '';
     if (drvInput) drvInput.value = doc.driverName || '';
     if (trkInput) trkInput.value = doc.truckPlate || '';
     if (gpInput)  gpInput.value  = doc.gatePassNo || (`${isSales ? 'GP' : 'GRN'}-` + String(doc.invoiceNo).replace(/\D/g, '').slice(-4) + '-' + Date.now().toString().slice(-3));

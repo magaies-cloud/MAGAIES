@@ -163,40 +163,7 @@
         });
     }
 
-    // Zero-reflow pointer spotlight (throttled via rAF without getBoundingClientRect)
-    let _pmRaf = 0, _pmBtn = null, _pmX = 0, _pmY = 0;
-    document.addEventListener('pointermove', function (e) {
-        const btn = e.target && e.target.closest ? e.target.closest('.royal-crystal-btn') : null;
-        if (!btn) return;
-        _pmBtn = btn; _pmX = e.offsetX; _pmY = e.offsetY;
-        if (_pmRaf) return;
-        _pmRaf = requestAnimationFrame(() => {
-            _pmRaf = 0;
-            if (!_pmBtn) return;
-            const w = _pmBtn.offsetWidth || 1, h = _pmBtn.offsetHeight || 1;
-            _pmBtn.style.setProperty('--royal-mx', Math.max(0, Math.min(100, (_pmX / w) * 100)).toFixed(1) + '%');
-            _pmBtn.style.setProperty('--royal-my', Math.max(0, Math.min(100, (_pmY / h) * 100)).toFixed(1) + '%');
-        });
-    }, { passive: true });
-
-    document.addEventListener('pointerdown', function (e) {
-        const btn = e.target && e.target.closest ? e.target.closest('.royal-crystal-btn') : null;
-        if (!btn) return;
-        const rect = btn.getBoundingClientRect();
-        const wave = document.createElement('span');
-        wave.className = 'royal-click-wave';
-        wave.style.left = (e.clientX - rect.left) + 'px';
-        wave.style.top = (e.clientY - rect.top) + 'px';
-        btn.appendChild(wave);
-        setTimeout(() => {
-            if (wave.parentNode) wave.parentNode.removeChild(wave);
-        }, 680);
-
-        // Subtle tactile micro-vibration on mobile devices
-        if (e.pointerType === 'touch' && navigator.vibrate) {
-            try { navigator.vibrate(10); } catch (_) {}
-        }
-    }, { passive: true });
+    /* Zero-lag cursor & click: pointermove spotlight & click-wave DOM churn removed for featherweight 0ms response */
 
     // ─── Universal Desktop Sync Shield Modal & Long-Press Inspector ───
     window.openDesktopSyncAuditModal = function () {
@@ -341,16 +308,24 @@
 
         if (window.MutationObserver && document.body) {
             let _btnObsTimer = 0;
+            const _pendingRoots = new Set();
             const obs = new MutationObserver((mutations) => {
-                if (_btnObsTimer) return;
-                let hasElem = false;
                 for (let i = 0; i < mutations.length; i++) {
                     const an = mutations[i].addedNodes;
-                    for (let j = 0; j < an.length; j++) { if (an[j].nodeType === 1) { hasElem = true; break; } }
-                    if (hasElem) break;
+                    for (let j = 0; j < an.length; j++) {
+                        if (an[j].nodeType === 1) _pendingRoots.add(an[j]);
+                    }
                 }
-                if (!hasElem) return;
-                _btnObsTimer = setTimeout(() => { _btnObsTimer = 0; classifyAndEnhanceButtons(document); }, 120);
+                if (!_pendingRoots.size || _btnObsTimer) return;
+                _btnObsTimer = setTimeout(() => {
+                    _btnObsTimer = 0;
+                    _pendingRoots.forEach(node => {
+                        if (!node.isConnected) return;
+                        if (node.matches && node.matches('button, .btn, .modern-btn, .action-btn')) classifyAndEnhanceButtons(node.parentElement || document);
+                        else classifyAndEnhanceButtons(node);
+                    });
+                    _pendingRoots.clear();
+                }, 180);
             });
             obs.observe(document.body, { childList: true, subtree: true });
         }

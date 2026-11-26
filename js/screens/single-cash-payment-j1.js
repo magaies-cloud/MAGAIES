@@ -237,34 +237,27 @@
             }
             if (typeof window.updateLiveTafqeetAndBalances === 'function') window.updateLiveTafqeetAndBalances();
             
-            // Update unified total box
+            // Update unified total box (always visible so Cash + Transfers + Cheques + Grand Total are immediately clear)
             const unifiedBox = document.getElementById('unified-total-box');
             if (unifiedBox) {
-                if (method !== 'cash') {
-                    unifiedBox.style.display = 'block';
-                    const uBank = document.getElementById('unified-bank-total');
-                    const uCheque = document.getElementById('unified-cheque-total');
-                    const uGrand = document.getElementById('unified-grand-total');
-                    
-                    if (uBank) {
-                        let parts = tSum.toFixed(2).split('.');
-                        if (parts[1] === '00') parts = [parts[0]];
-                        uBank.textContent = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (parts[1] ? '.' + parts[1] : '');
-                    }
-                    if (uCheque) {
-                        let parts = cSum.toFixed(2).split('.');
-                        if (parts[1] === '00') parts = [parts[0]];
-                        uCheque.textContent = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (parts[1] ? '.' + parts[1] : '');
-                    }
-                    if (uGrand) {
-                        let totalSum = cashSum + tSum + cSum;
-                        let parts = totalSum.toFixed(2).split('.');
-                        if (parts[1] === '00') parts = [parts[0]];
-                        uGrand.textContent = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (parts[1] ? '.' + parts[1] : '');
-                    }
-                } else {
-                    unifiedBox.style.display = 'none';
-                }
+                unifiedBox.style.display = 'block';
+                const fmtCard = (v) => {
+                    let parts = (Number(v) || 0).toFixed(2).split('.');
+                    if (parts[1] === '00') parts = [parts[0]];
+                    return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (parts[1] ? '.' + parts[1] : '');
+                };
+                const uCash = document.getElementById('unified-cash-total');
+                const uCashSafe = document.getElementById('unified-cash-safe-badge');
+                const uBank = document.getElementById('unified-bank-total');
+                const uCheque = document.getElementById('unified-cheque-total');
+                const uGrand = document.getElementById('unified-grand-total');
+                const safeSel = document.getElementById('pay-cash-safe');
+                const safeLabel = (safeSel && safeSel.selectedOptions && safeSel.selectedOptions[0]) ? safeSel.selectedOptions[0].textContent.replace(/^💰\s*/, '').trim() : '';
+                if (uCash) uCash.textContent = fmtCard(cashSum);
+                if (uCashSafe) uCashSafe.textContent = (cashSum > 0 && safeLabel) ? ('الخزنة: ' + safeLabel) : '';
+                if (uBank) uBank.textContent = fmtCard(tSum);
+                if (uCheque) uCheque.textContent = fmtCard(cSum);
+                if (uGrand) uGrand.textContent = fmtCard(cashSum + tSum + cSum || amount);
             }
             
             // Progress widths
@@ -292,19 +285,19 @@
             // Update status badge
             const badge = document.getElementById('payment-status-badge');
             if (badge) {
-                if (method === 'hybrid') {
-                    let tSum = 0;
-                    document.querySelectorAll('.transfer-row .transfer-amount').forEach(inp => tSum += parseFloat(inp.value.replace(/,/g, '')) || 0);
-                    let cSum = 0;
-                    document.querySelectorAll('.cheque-row .cheque-amount').forEach(inp => cSum += parseFloat(inp.value.replace(/,/g, '')) || 0);
-                    
-                    if (Math.abs((tSum + cSum) - amount) < 0.01) {
-                        badge.textContent = '💳 مدفوعة بالكامل (تحويل وشيك)';
+                if (method === 'hybrid' || method === 'multi') {
+                    const combined = cashSum + tSum + cSum;
+                    if (Math.abs(combined - amount) < 0.01 && amount > 0) {
+                        const partsLbl = [];
+                        if (cashSum > 0) partsLbl.push('نقدي');
+                        if (tSum > 0) partsLbl.push('تحويل');
+                        if (cSum > 0) partsLbl.push('شيك');
+                        badge.textContent = `💳 مدفوعة بالكامل (${partsLbl.join(' + ')})`;
                         badge.style.background = 'rgba(56, 189, 248, 0.15)';
                         badge.style.color = '#38bdf8';
                         badge.style.boxShadow = '0 0 10px rgba(56, 189, 248, 0.2)';
                     } else {
-                        const remaining = amount - (tSum + cSum);
+                        const remaining = amount - combined;
                         let parts = remaining.toFixed(2).split('.');
                         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
                         badge.textContent = `⏳ متبقي: ${parts.join('.')}`;

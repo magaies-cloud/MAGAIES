@@ -258,13 +258,22 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
         :root.light-theme .modern-btn:hover {
             color: #0f172a !important;
         }
-        /* Neon text colors correction for light theme */
-        :root.light-theme .text-emerald-400, :root.light-theme span[style*="color: #34d399"], :root.light-theme span[style*="color:#34d399"] { color: #059669 !important; }
-        :root.light-theme .text-rose-400, :root.light-theme span[style*="color: #f87171"], :root.light-theme span[style*="color:#f87171"] { color: #e11d48 !important; }
-        :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
-        :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
-        :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
-\n</style>
+        /* Neon text colors & Procurement Hub Cards Shield for ALL light themes */
+        :root.light-theme .text-emerald-400, :root.light-theme span[style*="color: #34d399"], :root.light-theme span[style*="color:#34d399"] { color: #065f46 !important; font-weight: 900 !important; }
+        :root.light-theme .text-rose-400, :root.light-theme span[style*="color: #f87171"], :root.light-theme span[style*="color:#f87171"] { color: #991b1b !important; font-weight: 900 !important; }
+        :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0c4a6e !important; font-weight: 900 !important; }
+        :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #5b21b6 !important; font-weight: 900 !important; }
+        :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #7c2d12 !important; font-weight: 900 !important; }
+        :root.light-theme .dash-main > div > div[style*="rgba(15,23,42"], :root.light-theme #return-kpi-strip > div { background: linear-gradient(145deg, var(--lt-card-1, #fffdf8), var(--lt-card-2, #f1e4ce)) !important; border: 2px solid var(--lt-border, #4a2106) !important; color: #000000 !important; box-shadow: 0 4px 12px rgba(15,23,42,0.14) !important; }
+        :root.light-theme .dash-main > div > div[style*="rgba(15,23,42"] span[style*="#fda4af"] { color: #881337 !important; font-weight: 900 !important; }
+        :root.light-theme .dash-main > div > div[style*="rgba(15,23,42"] a { background: #ffffff !important; border: 2px solid var(--lt-border, #4a2106) !important; color: #000000 !important; font-weight: 900 !important; }
+        :root.light-theme #return-kpi-strip > div > div:first-child { color: #000000 !important; font-weight: 900 !important; }
+        :root.light-theme #kpi-ret-eligible { color: #0c4a6e !important; }
+        :root.light-theme #kpi-ret-count { color: #881337 !important; }
+        :root.light-theme #kpi-ret-total-val { color: #064e3b !important; }
+        :root.light-theme #kpi-ret-rate-ai { color: #7c2d12 !important; }
+        :root.light-theme #tab-btn-returns { background: #ffffff !important; color: #000000 !important; border: 2px solid var(--lt-border, #4a2106) !important; font-weight: 900 !important; }
+</style>
 </head>
 <body>
 

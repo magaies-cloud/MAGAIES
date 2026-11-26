@@ -261,11 +261,7 @@
             if (typeof showToast === 'function') showToast('⚠️ جميع بيانات الشيك إلزامية (رقم الشيك، البنك، الفرع، تاريخ الاستحقاق، الساحب، والمبلغ)', 'warning');
             return;
         }
-        const dup = window.isDuplicateChequeForBank(chqNo, bank, null);
-        if (dup) {
-            if (typeof showToast === 'function') showToast(`🚫 منع تكرار الشيكات: رقم الشيك (#${chqNo}) مسجل مسبقاً على (${bank})!`, 'error');
-            return;
-        }
+        // تكرار رقم الشيك مسموح في المبيعات (لإمكانية تشابه رقم الشيك بين بنوك مختلفة)
         const list = JSON.parse(localStorage.getItem(CHEQUE_PORTFOLIO_KEY) || '[]') || [];
         list.unshift({
             id: 'CHQ-' + Date.now(),

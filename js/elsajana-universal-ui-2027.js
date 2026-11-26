@@ -493,20 +493,33 @@
         setTelescopicZoom(1);
 
         let _dlTimer = 0;
+        const _dlPending = new Set();
         if (typeof MutationObserver !== 'undefined') {
             new MutationObserver((mutations) => {
-                if (!document.documentElement.classList.contains('light-theme') || _dlTimer) return;
-                let hasElem = false;
+                if (!document.documentElement.classList.contains('light-theme')) return;
                 for (let i = 0; i < mutations.length; i++) {
                     const an = mutations[i].addedNodes;
-                    for (let j = 0; j < an.length; j++) { if (an[j].nodeType === 1) { hasElem = true; break; } }
-                    if (hasElem) break;
+                    for (let j = 0; j < an.length; j++) {
+                        const n = an[j];
+                        if (n.nodeType === 1 && (!n.closest || !n.closest('#pos-grid, #purchase-grid, #preview-table, .custom-dropdown-list'))) {
+                            _dlPending.add(n);
+                        }
+                    }
                 }
-                if (!hasElem) return;
-                _dlTimer = setTimeout(() => { _dlTimer = 0; runStrictDaylightGuardScan(); }, 180);
+                if (!_dlPending.size || _dlTimer) return;
+                _dlTimer = setTimeout(() => {
+                    _dlTimer = 0;
+                    const runBatch = () => {
+                        _dlPending.forEach(n => { if (n.isConnected) runStrictDaylightGuardScan(n); });
+                        _dlPending.clear();
+                    };
+                    if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(runBatch, { timeout: 500 });
+                    else runBatch();
+                }, 260);
             }).observe(document.body, { childList: true, subtree: true });
         }
-        runStrictDaylightGuardScan();
+        if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(() => runStrictDaylightGuardScan(), { timeout: 600 });
+        else setTimeout(() => runStrictDaylightGuardScan(), 120);
         applyScreenErgonomics();
         const pinOphthLast = () => { const ophthLk = document.getElementById('magaies-ophthalmic-ergo-css'); if (ophthLk && document.body) document.body.appendChild(ophthLk); };
         pinOphthLast();
@@ -1182,41 +1195,49 @@
         window.addEventListener('magaiesDataUpdated', () => { if (document.getElementById('magaies-health-pill')) window.runAccountingHealthCheck(false); });
     }
 
-    // التحجيم الديناميكي التلقائي لأرقام المبالغ الطويلة (صفر مؤقتات، يعمل فقط عند الإدخال أو التركيز)
-    const _fitAmtSel = '#pay-cash-amount,#pay-cash-ref,#pay-credit-amount,.bt-amount-input,.bt-ref-input,.ch-amount-input,.ch-no-input';
+    // التمدد الديناميكي لمستطيل المبالغ وأرقام المرجع/التحويلة/الشيك أثناء الكتابة مع عودته لحجمه الصغير الطبيعي فور خروج المؤشر
+    const _fitAmtSel = '#pay-cash-amount,#pay-cash-ref,#pay-credit-amount,.bt-amount-input,.bt-ref-input,.bt-no-input,.ch-amount-input,.ch-no-input,.transfer-amount,.cheque-amount,.transfer-no,.cheque-no,.block-cash-amount,.block-bank-amount,.block-cheque-amount,.block-sub-amount,.block-total-amount,.block-transfer-no-input,.block-cheque-no-input';
+    const _findPayRow = (el) => el.closest('.payment-row-item, .transfer-row, .cheque-row, .bank-row, #pay-credit-section, #pay-cash-section');
     const _autoFitPayInput = (el) => {
         if (!el || !el.matches || !el.matches(_fitAmtSel)) return;
-        const len = String(el.value || '').trim().length;
-        if (len <= 7) { el.style.removeProperty('--dyn-fit-fs'); el.style.removeProperty('--dyn-fit-hover-fs'); el.style.removeProperty('--dyn-fit-focus-fs'); return; }
-        const base = len <= 10 ? 1.85 : (len <= 13 ? 1.50 : (len <= 16 ? 1.25 : 1.05));
-        const hov  = Math.min(base + 0.25, 2.35);
-        const foc  = Math.min(base + 0.55, 2.75);
-        el.style.setProperty('--dyn-fit-fs', base.toFixed(2) + 'rem');
-        el.style.setProperty('--dyn-fit-hover-fs', hov.toFixed(2) + 'rem');
-        el.style.setProperty('--dyn-fit-focus-fs', foc.toFixed(2) + 'rem');
+        const txt = String(el.value || '').trim();
+        const len = txt.length;
+        // في الوضع الطبيعي (خارج التركيز): خط صغير متناسق يتأقلم مع المربع الصغير
+        if (len <= 8) { el.style.removeProperty('--dyn-fit-fs'); el.style.removeProperty('--dyn-fit-hover-fs'); }
+        else {
+            const base = len <= 11 ? 1.45 : (len <= 14 ? 1.22 : (len <= 17 ? 1.05 : 0.92));
+            el.style.setProperty('--dyn-fit-fs', base.toFixed(2) + 'rem');
+            el.style.setProperty('--dyn-fit-hover-fs', Math.min(base + 0.2, 1.85).toFixed(2) + 'rem');
+        }
+        // أثناء الكتابة (التركيز): الخط يبقى كبيراً وواضحاً (3.25rem) والمستطيل هو الذي يتسع ديناميكياً ليظهر كل الأرقام
+        if (document.activeElement === el) {
+            const focRem = len <= 14 ? 2.22 : (len <= 18 ? 1.92 : 1.65);
+            el.style.setProperty('--dyn-fit-focus-fs', focRem.toFixed(2) + 'rem');
+            const rootPx = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+            const fsPx = focRem * rootPx;
+            const ctx = window._elsPayFitCtx || (window._elsPayFitCtx = document.createElement('canvas').getContext('2d'));
+            ctx.font = '900 ' + fsPx + 'px ' + (getComputedStyle(el).fontFamily || 'Tajawal, sans-serif');
+            const sample = txt || el.placeholder || '000000';
+            const textPx = ctx.measureText(sample).width;
+            const row = _findPayRow(el);
+            const rowW = (row && row.clientWidth) ? row.clientWidth : (window.innerWidth * 0.85);
+            const maxBoxPx = Math.max(210, Math.round(rowW * 0.36));
+            const targetBoxPx = Math.min(maxBoxPx, Math.max(190, Math.ceil(textPx + 38)));
+            el.style.setProperty('--dyn-box-w', targetBoxPx + 'px');
+            if (row) row.style.setProperty('--dyn-box-w', targetBoxPx + 'px');
+        }
+    };
+    const _resetPayBoxOnBlur = (el) => {
+        if (!el || !el.matches || !el.matches(_fitAmtSel)) return;
+        el.style.removeProperty('--dyn-box-w');
+        el.style.removeProperty('--dyn-fit-focus-fs');
+        const row = _findPayRow(el);
+        if (row) row.style.removeProperty('--dyn-box-w');
+        _autoFitPayInput(el);
     };
     document.addEventListener('input', (e) => _autoFitPayInput(e.target), true);
     document.addEventListener('focusin', (e) => _autoFitPayInput(e.target), true);
-    // أثناء الكتابة: المستطيل يكبر طولاً وعرضاً بنفس نسبة الخط الكبير (3.5rem) ويرجع عند الخروج
-    const _growSel = '#pay-cash-amount,#pay-cash-ref,.bt-amount-input,.bt-ref-input,.bt-no-input,.ch-amount-input,.ch-no-input,.transfer-amount,.cheque-amount,.cheque-no-input,.transfer-no-input,.cheque-no,.transfer-no,.block-cash-amount,.block-bank-amount,.block-cheque-amount,.block-cheque-no-input';
-    const _growPayInput = (el) => {
-        if (!el || !el.matches || !el.matches(_growSel) || document.activeElement !== el) return;
-        const fs = 3.5 * (parseFloat(getComputedStyle(document.documentElement).fontSize) || 16);
-        const c = window._elsGrowCtx || (window._elsGrowCtx = document.createElement('canvas').getContext('2d'));
-        c.font = '900 ' + fs + 'px ' + (getComputedStyle(el).fontFamily || 'Tajawal');
-        const txt = String(el.value || '');
-        const isNo = /ref|-no/.test(el.id + ' ' + el.className) && !/amount/.test(el.id + ' ' + el.className);
-        const n = Math.max(txt.length + 1, 7);
-        const w = Math.min(Math.max(c.measureText(txt).width, n * 0.64 * fs) + fs * 1.3, window.innerWidth * 0.94);
-        el.style.setProperty('min-width', w + 'px', 'important'); el.style.setProperty('width', w + 'px', 'important'); el.style.setProperty('max-width', '94vw', 'important');
-        el.dataset.growNo = isNo ? '1' : '0';
-        el.style.setProperty('height', Math.round(fs * 1.55) + 'px', 'important');
-        el.style.setProperty('position', 'relative', 'important'); el.style.setProperty('z-index', '50', 'important');
-    };
-    const _shrinkPayInput = (el) => { if (!el || !el.matches || !el.matches(_growSel)) return; ['min-width', 'width', 'max-width', 'height', 'position', 'z-index'].forEach(p => el.style.removeProperty(p)); };
-    document.addEventListener('focusin', (e) => setTimeout(() => _growPayInput(e.target), 0), true);
-    document.addEventListener('input', (e) => _growPayInput(e.target), true);
-    document.addEventListener('focusout', (e) => _shrinkPayInput(e.target), true);
+    document.addEventListener('focusout', (e) => _resetPayBoxOnBlur(e.target), true);
 
     // حظر تكرار الأسماء الموحد بالعربية المطبّعة (عملاء، موردين، مخازن، أصناف، بنوك، خزائن)
     window.normalizeArabicNameStrict = function (s) {
@@ -1235,7 +1256,7 @@
     if (_isAnyReportPage) {
         document.addEventListener('click', (e) => {
             const td = e.target && e.target.closest ? e.target.closest('tbody td') : null;
-            if (!td || td.closest('#balances-tbody') || td.closest('#recent-tbody') || td.querySelector('button,a,input,select')) return;
+            if (!td || td.closest('#balances-tbody') || td.closest('#recent-tbody') || td.closest('#preview-table') || td.closest('#preview-tbody') || td.querySelector('button,a,input,select')) return;
             const txt = String(td.textContent || '').trim();
             if (!txt || txt === '-' || !/[\d٠-٩]/.test(txt)) return;
             const isMag = td.classList.contains('num-magnified');

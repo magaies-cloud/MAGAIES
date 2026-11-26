@@ -1616,7 +1616,7 @@
                         description: `قيد تسوية جردية من شاشة حركات البضائع [${adjInv.id}] لمخزن (${wh})`,
                         totalDebit: absVal,
                         totalCredit: absVal,
-                        isPosted: true,
+                        isPosted: (window.getPostingMode && window.getPostingMode() === 'auto'), status: (window.getPostingMode && window.getPostingMode() === 'auto') ? 'posted' : 'pending',
                         source: 'inventory_movement_stocktake',
                         lines: [
                             { accountName: isSurplus ? `ح/ مخزون البضاعة - ${wh}` : `ح/ مصروف عجز وتوالف المخزون - ${wh}`, debit: absVal, credit: 0, note: adjInv.notes },

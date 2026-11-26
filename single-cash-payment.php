@@ -277,6 +277,8 @@ if ((isset($_GET['api']) && $_GET['api'] === 'save_voucher') || (isset($_POST['a
         $tId = !empty($authUser['tenant_id']) ? (int)$authUser['tenant_id'] : (int)($GLOBAL_TENANT_ID ?: 12);
 
         // ═══ فحص الضوابط المحاسبية والأمنية على الخادم (Server-Side Accounting Validation) ═══
+        /* MAGAIES_GATHER_UNPOSTED_DEFAULT */
+        if (!array_key_exists('isPosted', $payload)) { $payload['isPosted'] = false; $payload['status'] = 'pending'; }
         $srvAmtLocal = (float)($payload['amountLocal'] ?? ($payload['amount'] ?? ($payload['sdg'] ?? 0)));
         $srvFromAcc = trim((string)($payload['fromAccount'] ?? ($payload['from'] ?? '')));
         $srvToAcc = trim((string)($payload['toAccount'] ?? ($payload['to'] ?? '')));
@@ -373,6 +375,11 @@ if ((isset($_GET['api']) && $_GET['api'] === 'save_voucher') || (isset($_POST['a
         }
         if ($srvMethod === 'hybrid' && ($srvTransfersSum + $srvChequesSum) > 0 && abs(($srvTransfersSum + $srvChequesSum) - $srvAmtLocal) > 1.0) {
             echo json_encode(['success' => false, 'error' => 'رفض محاسبي: مجموع التحويلات والشيكات لا يطابق إجمالي مبلغ السند.'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+        $srvCashAmt = (float)($payload['cashAmount'] ?? 0);
+        if ($srvMethod === 'multi' && ($srvCashAmt + $srvTransfersSum + $srvChequesSum) > 0 && abs(($srvCashAmt + $srvTransfersSum + $srvChequesSum) - $srvAmtLocal) > 1.0) {
+            echo json_encode(['success' => false, 'error' => 'رفض محاسبي: مجموع النقدي والتحويلات والشيكات لا يطابق إجمالي مبلغ السند.'], JSON_UNESCAPED_UNICODE);
             exit;
         }
 
@@ -533,27 +540,10 @@ if (isset($_GET['api']) && $_GET['api'] === 'flash_delta_sync') {
 }
 $prefix = 'E' . date('ym');
 $maxSeq = 0;
-try {
-    if ($pdo) {
-        $effTenant = !empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 12;
-        $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ?");
-        $stmt->execute([$effTenant]);
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $d = json_decode($row['data'], true);
-            $id = isset($d['id']) ? (string)$d['id'] : '';
-            if (strpos($id, $prefix) === 0) {
-                $seq = (int)substr($id, strlen($prefix));
-                if ($seq > $maxSeq) $maxSeq = $seq;
-            }
-        }
-    }
-} catch (Exception $e) {
-    // fallback
-}
-$voucher_no = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
 $page_title = 'حركة مالية';
 $SERVER_SINGLE_PAYMENTS_json = '[]';
 $SERVER_ALL_TRANSFERS_json = '[]';
+$isFastDrillDownReq = !empty($_GET['id']);
 try {
     if ($pdo) {
         $effTenant = !empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 12;
@@ -561,12 +551,22 @@ try {
         $stmt->execute([$effTenant]);
         $arr = [];
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            $arr[] = json_decode($row['data'], true);
+            $d = json_decode($row['data'], true);
+            if (!is_array($d)) continue;
+            $arr[] = $d;
+            $id = isset($d['id']) ? (string)$d['id'] : '';
+            if (strpos($id, $prefix) === 0) {
+                $seq = (int)substr($id, strlen($prefix));
+                if ($seq > $maxSeq && $seq < 999999) $maxSeq = $seq;
+            }
         }
-        $SERVER_SINGLE_PAYMENTS_json = json_encode($arr);
-        $SERVER_ALL_TRANSFERS_json = json_encode(fetchAllDbTransfers($pdo, $effTenant), JSON_UNESCAPED_UNICODE);
+        $SERVER_SINGLE_PAYMENTS_json = json_encode($arr, JSON_UNESCAPED_UNICODE);
+        if (!$isFastDrillDownReq) {
+            $SERVER_ALL_TRANSFERS_json = json_encode(fetchAllDbTransfers($pdo, $effTenant), JSON_UNESCAPED_UNICODE);
+        }
     }
 } catch (Exception $e) {}
+$voucher_no = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
 ?>
 
 <!DOCTYPE html>
@@ -943,14 +943,17 @@ try {
                                 <div class="payment-details-card" style="flex: 1; min-width: 100%; display: flex; flex-direction: column; gap: 10px;">
 
                                     <!-- Cash section -->
-                                    <div id="pay-cash-section" class="payment-method-box" style="background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.18); border-radius: 12px; padding: 12px 15px; display: none; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
-                                        <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
+                                    <div id="pay-cash-section" class="payment-method-box" style="background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.18); border-radius: 12px; padding: 12px 15px; display: none; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: nowrap;">
+                                        <div style="display: flex; align-items: center; gap: 8px; min-width: 165px; flex: none;">
                                             <span style="font-size: 1.2rem;">💵</span>
-                                            <span style="font-weight: 900; color: #34d399; font-size: 1.25rem;">الدفع النقدي (كاش)</span>
+                                            <span style="font-weight: 900; color: #34d399; font-size: 1.15rem; white-space: nowrap;">الدفع النقدي (كاش)</span>
                                         </div>
-                                        <div style="display: flex; gap: 12px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
-                                            <input type="text" id="pay-cash-amount" class="v-input ctrl-input dynamic-focus-input" placeholder="مبلغ الكاش" oninput="restrictToNumbers(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" style="width: 240px; height: 48px; background: rgba(15,23,42,0.6); border: 1.5px solid rgba(16,185,129,0.5); border-radius: 10px; color: #34d399; font-size: 1.55rem; font-weight: 900; text-align: center; font-variant-numeric: tabular-nums;">
-                                            <span id="pay-cash-hint" style="color: #94a3b8; font-size: 0.9rem;">سيتم السداد نقداً من خلال الصندوق المحدد.</span>
+                                        <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 0; flex-wrap: nowrap;">
+                                            <input type="text" id="pay-cash-amount" class="v-input ctrl-input dynamic-focus-input" placeholder="مبلغ الكاش" oninput="restrictToNumbers(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" style="flex: 1.1; min-width: 140px; height: 54px; background: rgba(15,23,42,0.6); border: 1.5px solid rgba(16,185,129,0.5); border-radius: 10px; color: #34d399; font-size: 1.5rem; font-weight: 900; text-align: center; font-variant-numeric: tabular-nums;">
+                                            <select id="pay-cash-safe" class="v-input ctrl-input" onchange="if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" title="اختر الخزنة التي يُودع أو يُسحب منها النقدي" style="flex: 1.2; min-width: 170px; height: 54px; background: rgba(15,23,42,0.8); border: 1.5px solid rgba(16,185,129,0.55); border-radius: 10px; color: #6ee7b7; font-size: 1.1rem; font-weight: 900; text-align: center; padding: 0 10px;">
+                                                <option value="safe-001">💰 الخزينة الرئيسية</option>
+                                            </select>
+                                            <span id="pay-cash-hint" style="color: #94a3b8; font-size: 0.85rem; white-space: nowrap; flex: none;">الخزنة المحددة للنقدي</span>
                                         </div>
                                     </div>
 
@@ -970,24 +973,30 @@ try {
 
                                     <!-- Unified Total Box Redesign -->
                                     <div id="unified-total-box" style="display: block !important; width: 100%; margin-top: 15px; padding: 10px 0;">
-                                        <div style="display: flex; justify-content: space-between; align-items: stretch; gap: 15px; flex-wrap: wrap;">
+                                        <div style="display: flex; justify-content: space-between; align-items: stretch; gap: 12px; flex-wrap: wrap;">
+                                            <!-- Cash Total -->
+                                            <div class="total-glass-card cash-glow" style="flex: 1; min-width: 170px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px; border-radius: 16px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.45); position: relative; overflow: hidden;">
+                                                <span style="color: #fbbf24; font-size: 1.35rem; font-weight: 900; z-index: 2; margin-bottom: 4px;">مجموع النقدي</span>
+                                                <span id="unified-cash-total" style="color: #fef08a; font-size: 2.2rem; font-weight: 900; z-index: 2; font-variant-numeric: tabular-nums;">0</span>
+                                                <span id="unified-cash-safe-badge" style="color: #fde68a; font-size: 0.8rem; font-weight: 800; z-index: 2; margin-top: 2px;"></span>
+                                            </div>
                                             <!-- Cheques Total -->
-                                            <div class="total-glass-card cheque-glow" style="flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; border-radius: 16px; background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.4); position: relative; overflow: hidden;">
+                                            <div class="total-glass-card cheque-glow" style="flex: 1; min-width: 170px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px; border-radius: 16px; background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.4); position: relative; overflow: hidden;">
                                                 <div class="glow-orb" style="position: absolute; top: -50px; right: -50px; width: 100px; height: 100px; background: rgba(168, 85, 247, 0.5); filter: blur(40px); border-radius: 50%; animation: pulseOrb 3s infinite alternate;"></div>
-                                                <span style="color: #c084fc; font-size: 1.55rem; font-weight: 900; z-index: 2; margin-bottom: 6px; text-shadow: 0 0 15px rgba(168,85,247,0.6);">مجموع الشيكات</span>
-                                                <span id="unified-cheque-total" style="color: #e9d5ff; font-size: 2.5rem; font-weight: 900; z-index: 2; text-shadow: 0 0 20px rgba(168,85,247,0.9); font-variant-numeric: tabular-nums;">0</span>
+                                                <span style="color: #c084fc; font-size: 1.35rem; font-weight: 900; z-index: 2; margin-bottom: 4px; text-shadow: 0 0 15px rgba(168,85,247,0.6);">مجموع الشيكات</span>
+                                                <span id="unified-cheque-total" style="color: #e9d5ff; font-size: 2.2rem; font-weight: 900; z-index: 2; text-shadow: 0 0 20px rgba(168,85,247,0.9); font-variant-numeric: tabular-nums;">0</span>
                                             </div>
                                             <!-- Bank Total -->
-                                            <div class="total-glass-card bank-glow" style="flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; border-radius: 16px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.4); position: relative; overflow: hidden;">
+                                            <div class="total-glass-card bank-glow" style="flex: 1; min-width: 170px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px; border-radius: 16px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.4); position: relative; overflow: hidden;">
                                                 <div class="glow-orb" style="position: absolute; top: -50px; right: -50px; width: 100px; height: 100px; background: rgba(16, 185, 129, 0.5); filter: blur(40px); border-radius: 50%; animation: pulseOrb 3.5s infinite alternate-reverse;"></div>
-                                                <span style="color: #34d399; font-size: 1.55rem; font-weight: 900; z-index: 2; margin-bottom: 6px; text-shadow: 0 0 15px rgba(16,185,129,0.6);">مجموع التحويلات</span>
-                                                <span id="unified-bank-total" style="color: #a7f3d0; font-size: 2.5rem; font-weight: 900; z-index: 2; text-shadow: 0 0 20px rgba(16,185,129,0.9); font-variant-numeric: tabular-nums;">0</span>
+                                                <span style="color: #34d399; font-size: 1.35rem; font-weight: 900; z-index: 2; margin-bottom: 4px; text-shadow: 0 0 15px rgba(16,185,129,0.6);">مجموع التحويلات</span>
+                                                <span id="unified-bank-total" style="color: #a7f3d0; font-size: 2.2rem; font-weight: 900; z-index: 2; text-shadow: 0 0 20px rgba(16,185,129,0.9); font-variant-numeric: tabular-nums;">0</span>
                                             </div>
                                             <!-- Grand Total -->
-                                            <div class="total-glass-card grand-glow" style="flex: 1; min-width: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; border-radius: 16px; background: rgba(56, 189, 248, 0.15); border: 2px solid rgba(56, 189, 248, 0.6); position: relative; overflow: hidden; transform: scale(1.02); box-shadow: 0 0 20px rgba(56,189,248,0.2);">
+                                            <div class="total-glass-card grand-glow" style="flex: 1.2; min-width: 210px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px; border-radius: 16px; background: rgba(56, 189, 248, 0.15); border: 2px solid rgba(56, 189, 248, 0.6); position: relative; overflow: hidden; transform: scale(1.02); box-shadow: 0 0 20px rgba(56,189,248,0.2);">
                                                 <div class="glow-orb" style="position: absolute; top: -50px; left: -50px; width: 120px; height: 120px; background: rgba(56, 189, 248, 0.6); filter: blur(50px); border-radius: 50%; animation: pulseOrb 2.5s infinite alternate;"></div>
-                                                <span style="color: #7dd3fc; font-size: 1.85rem; font-weight: 900; z-index: 2; margin-bottom: 6px; text-shadow: 0 0 20px rgba(56,189,248,0.8);">إجمالي الجملة</span>
-                                                <span id="unified-grand-total" style="color: #ffffff; font-size: 3.1rem; font-weight: 900; z-index: 2; text-shadow: 0 0 30px rgba(56,189,248,1); font-variant-numeric: tabular-nums;">0</span>
+                                                <span style="color: #7dd3fc; font-size: 1.65rem; font-weight: 900; z-index: 2; margin-bottom: 4px; text-shadow: 0 0 20px rgba(56,189,248,0.8);">إجمالي الجملة</span>
+                                                <span id="unified-grand-total" style="color: #ffffff; font-size: 2.7rem; font-weight: 900; z-index: 2; text-shadow: 0 0 30px rgba(56,189,248,1); font-variant-numeric: tabular-nums;">0</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1455,7 +1464,7 @@ try {
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/promissory-flight-animation.js?v=20261029_fast"></script>
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '20261117'; ?>"></script>
-    <script defer src="js/html2pdf.bundle.min.js"></script>
+    <script>window.addEventListener('load',function(){var f=function(){if(!window.html2pdf&&!document.getElementById('lazy-h2p')){var s=document.createElement('script');s.id='lazy-h2p';s.src='js/html2pdf.bundle.min.js';document.body.appendChild(s);}};if(window.requestIdleCallback)requestIdleCallback(f,{timeout:1800});else setTimeout(f,900);},{once:true});</script>
     <script defer src="js/whatsapp-integration.js?v=<?php echo file_exists('js/whatsapp-integration.js') ? filemtime('js/whatsapp-integration.js') : '20261117'; ?>"></script>
     
     <script>

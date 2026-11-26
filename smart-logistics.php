@@ -445,20 +445,28 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
     };
     </script>
 
-    <div id="sl-main-wrapper" style="padding: 6px 0 55px 0; width: calc(100% - 24px); max-width: calc(100% - 24px); margin: 0 auto; display: flex; flex-direction: column; gap: 8px; box-sizing: border-box;">
+    <div id="sl-main-wrapper" style="padding: 10px 0 55px 0; width: calc(100% - 24px); max-width: calc(100% - 24px); margin: 0 auto; display: flex; flex-direction: column; gap: 36px; box-sizing: border-box;">
 
         <!-- ═══════════════════════════════════════════════════════════════════
              1. TOP COCKPIT BAR: CLEAN NAVIGATION + ACTIVE TOOLS ONLY
              ═══════════════════════════════════════════════════════════════════ -->
-        <div id="sl-top-cockpit-bar" class="sl-glass-card" style="background: var(--sl-header-grad); padding: 10px 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-            <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
-                <div id="sl-main-title-banner" style="display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #1d3561 0%, #142547 100%); border: 1.5px solid rgba(56, 189, 248, 0.65); padding: 7px 18px; border-radius: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.12);">
-                    <span id="sl-main-title-icon" style="font-size: 1.35rem;"><?php echo (isset($_GET['mode']) && $_GET['mode'] === 'purchases') ? '📥' : '📤'; ?></span>
-                    <h1 id="sl-main-title-text" style="margin: 0; font-size: 1.18rem; font-weight: 900; color: #ffffff; letter-spacing: 0.2px;"><?php echo (isset($_GET['mode']) && $_GET['mode'] === 'purchases') ? 'بوابة استلام المشتريات' : 'بوابة تسليم المبيعات'; ?></h1>
-                </div>
+        <div id="sl-top-cockpit-bar" class="sl-glass-card" style="background: var(--sl-header-grad); padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: nowrap; gap: 10px;">
+            <div id="sl-main-title-banner" style="display: inline-flex; align-items: center; background: linear-gradient(135deg, #1d3561 0%, #142547 100%); border: 1.5px solid rgba(56, 189, 248, 0.65); padding: 6px 14px; border-radius: 10px; box-shadow: 0 4px 14px rgba(0,0,0,0.45); flex-shrink: 0;">
+                <span id="sl-main-title-icon" style="display:none !important;"></span>
+                <h1 id="sl-main-title-text" style="margin: 0; font-size: 0.96rem; font-weight: 900; color: #ffffff; white-space: nowrap;"><?php echo (isset($_GET['mode']) && $_GET['mode'] === 'purchases') ? 'بوابة استلام المشتريات' : 'بوابة تسليم المبيعات'; ?></h1>
             </div>
 
-            <div id="magaies-quartet-header-slot" style="display:flex; align-items:center;"></div>
+            <input type="text" id="sl-reg-search" class="sl-input" placeholder="🔍 بحث برقم الفاتورة أو المورد أو الصنف..." oninput="renderSlRegistry()" onkeydown="if(event.key==='Enter'){event.preventDefault(); quickLoadFirstMatch(this.value);}" style="flex: 1; min-width: 180px; font-size: 0.84rem; padding: 6px 14px !important; color: #cbd5e1 !important;">
+
+            <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+                <button type="button" onclick="refreshAllSlData()" class="sl-btn" style="color:#38bdf8; border-color:rgba(56,189,248,0.45); padding: 6px 12px; font-size: 0.8rem; white-space: nowrap;">🔄 تحديث</button>
+                <input type="hidden" id="sl-qr-guard-mode" value="auto">
+                <button type="button" onclick="openSlMobileBridgeModal()" class="sl-btn" style="background: linear-gradient(135deg, #0284c7, #0369a1); border-color: #7dd3fc; color: #ffffff; padding: 6px 12px; font-size: 0.8rem; border-radius: 9px; white-space: nowrap;">
+                    <span id="sl-bridge-live-dot" class="sl-pulse-dot" style="background:#fde047;"></span>
+                    📱 ربط كاميرا الجوال
+                </button>
+                <div id="magaies-quartet-header-slot" style="display:flex; align-items:center;"></div>
+            </div>
         </div>
 
         <!-- Hidden mode elements preserved for JS compatibility without visual clutter -->
@@ -483,60 +491,129 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
         <!-- ═══════════════════════════════════════════════════════════════════
              4. SMART INTERACTIVE REGISTRY (WITH INLINE COUNTER BADGES)
              ═══════════════════════════════════════════════════════════════════ -->
-        <div id="sl-registry-card" class="sl-glass-card" style="padding: 12px 16px;">
-            <div style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid rgba(56,189,248,0.22);">
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; flex-wrap: nowrap;">
-                    <div style="display: flex; align-items: center; gap: 8px; white-space: nowrap; flex-shrink: 0;">
-                        <span style="font-size: 1.15rem;">📋</span>
-                        <h3 id="sl-registry-title" style="margin: 0; font-size: 1rem; font-weight: 900; color: #ffffff;">
-                            سجل فواتير وأذونات المشتريات
-                        </h3>
-                        <span id="sl-reg-count-badge" class="sl-badge sl-badge-partial">0 مستند</span>
+        <div id="sl-filter-bar-card" class="sl-glass-card" style="padding: 8px 14px;">
+            <div id="sl-registry-filter-row" style="display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; width: 100%;">
+                <span id="sl-registry-title" style="display:none !important;"></span>
+                <span id="sl-reg-count-badge" style="display:none !important;"></span>
+
+                <label for="sl-reg-wh-filter" id="sl-reg-wh-filter-lbl" style="font-size: 0.82rem; font-weight: 900; color: #fcd34d; white-space: nowrap; flex-shrink: 0;">مخزن المشتريات:</label>
+                <select id="sl-reg-wh-filter" class="sl-input" onchange="renderSlRegistry()" style="font-size: 0.82rem; padding: 5px 10px !important; flex: 1 1 auto !important; min-width: 170px !important; color: #fcd34d !important;">
+                    <option value="PENDING_RECEIPT" selected>⏳ قيد الاستلام</option>
+                    <option value="all">🏢 كل المخازن</option>
+                </select>
+
+                <button type="button" id="sl-filter-btn-pending" onclick="setSlRegistryFilter('pending')" class="sl-btn" style="background: var(--sl-primary); color: #fff; border-color: var(--sl-primary-light); padding: 5px 10px; font-size: 0.78rem; white-space: nowrap; flex-shrink: 0;">قيد الاستلام <span id="sl-kpi-val-pending" class="sl-btn-cnt">0</span></button>
+                <button type="button" id="sl-filter-btn-partial" onclick="setSlRegistryFilter('partial')" class="sl-btn" style="padding: 5px 10px; font-size: 0.78rem; white-space: nowrap; flex-shrink: 0;">الجزئي <span id="sl-kpi-val-partial" class="sl-btn-cnt">0</span></button>
+                <button type="button" id="sl-filter-btn-done" onclick="setSlRegistryFilter('done')" class="sl-btn" style="padding: 5px 10px; font-size: 0.78rem; white-space: nowrap; flex-shrink: 0;">المكتمل <span id="sl-kpi-val-done" class="sl-btn-cnt">0</span></button>
+                <button type="button" id="sl-filter-btn-notes" onclick="setSlRegistryFilter('notes')" class="sl-btn" style="padding: 5px 10px; font-size: 0.78rem; white-space: nowrap; flex-shrink: 0;">الأذونات <span id="sl-kpi-val-notes" class="sl-btn-cnt">0</span></button>
+                <button type="button" id="sl-filter-btn-all" onclick="setSlRegistryFilter('all')" class="sl-btn" style="padding: 5px 10px; font-size: 0.78rem; white-space: nowrap; flex-shrink: 0;">الكل</button>
+
+                <select id="sl-reg-limit" class="sl-input" onchange="renderSlRegistry()" style="font-size: 0.82rem; padding: 5px 12px !important; width: 155px !important; max-width: 155px !important; min-width: 155px !important; flex: 0 0 155px !important;">
+                    <option value="6" selected>6 فواتير</option>
+                    <option value="15">15 فاتورة</option>
+                    <option value="20">20 فاتورة</option>
+                    <option value="30">30 فاتورة</option>
+                    <option value="40">40 فاتورة</option>
+                    <option value="50">50 فاتورة</option>
+                    <option value="60">60 فاتورة</option>
+                    <option value="100">100 فاتورة</option>
+                    <option value="99999">الكل</option>
+                </select>
+            </div>
+        </div>
+
+                <!-- 3. COMPACT HORIZONTAL DOCUMENT & WAREHOUSE RECEIPT CARD -->
+        <div id="sl-inspection-cockpit" style="display: block; width: 100%;">
+            <div id="sl-doc-meta-card" class="sl-glass-card" style="padding: 10px 14px; display: flex; flex-direction: column; gap: 8px;">
+                <div style="display: grid; grid-template-columns: 0.9fr 1fr 1.6fr 1fr 0.9fr auto; gap: 8px; align-items: end; padding-bottom: 8px; border-bottom: 1px solid rgba(251,191,36,0.28);">
+                    <h3 id="sl-doc-card-title" style="display:none !important;"></h3>
+                    <span id="sl-doc-card-sub" style="display:none !important;"></span>
+                    <span id="sl-lbl-hash" style="display:none !important;">---</span>
+                    <div>
+                        <label class="sl-field-badge" style="color:#cbd5e1; font-size:0.74rem; margin-bottom:3px; display:block;">تاريخ الفاتورة:</label>
+                        <div id="sl-lbl-date" class="sl-input sl-card3-uniform" style="font-size:0.80rem !important; font-weight:900; color:#e2e8f0 !important; font-family:'Outfit','Tajawal',sans-serif;">---</div>
                     </div>
-
-                    <input type="text" id="sl-reg-search" class="sl-input" placeholder="🔍 بحث برقم الفاتورة أو المورد أو الصنف..." oninput="renderSlRegistry()" onkeydown="if(event.key==='Enter'){event.preventDefault(); quickLoadFirstMatch(this.value);}" style="flex: 1; max-width: 520px; min-width: 200px; font-size: 0.84rem; padding: 6px 14px !important;">
-
-                    <div style="display: flex; align-items: center; flex-shrink: 0;">
-                        <input type="hidden" id="sl-qr-guard-mode" value="auto">
-                        <button type="button" onclick="openSlMobileBridgeModal()" class="sl-btn" style="background: linear-gradient(135deg, #0284c7, #0369a1); border-color: #7dd3fc; color: #ffffff; padding: 6px 14px; font-size: 0.84rem; border-radius: 9px; white-space: nowrap;">
-                            <span id="sl-bridge-live-dot" class="sl-pulse-dot" style="background:#fde047;"></span>
-                            📱 ربط كاميرا الجوال
-                        </button>
+                    <div data-rc-invoice-no="" id="sl-top-inv-box">
+                        <label class="sl-field-badge" style="color:#7dd3fc; font-size:0.74rem; margin-bottom:3px; display:block;">رقم الفاتورة:</label>
+                        <div id="sl-lbl-inv-no" class="sl-input sl-card3-uniform" style="font-size:0.84rem !important; font-weight:900; color:#38bdf8 !important; font-family:'Outfit','Tajawal',monospace;">---</div>
+                    </div>
+                    <div>
+                        <label id="sl-lbl-party-title" class="sl-field-badge" style="color:#fcd34d; font-size:0.74rem; margin-bottom:3px; display:block;">المورد:</label>
+                        <div id="sl-lbl-party-name" class="sl-input sl-card3-uniform" style="font-size:0.82rem !important; font-weight:900; color:#ffffff !important; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">---</div>
+                    </div>
+                    <div>
+                        <label id="sl-lbl-rec-no-title" class="sl-field-badge" style="color:#6ee7b7; font-size:0.74rem; margin-bottom:3px; display:block;">رقم الاستلام:</label>
+                        <div id="sl-lbl-rec-no" class="sl-input sl-card3-uniform" style="font-size:0.83rem !important; font-weight:900; color:#34d399 !important; font-family:'Outfit','Tajawal',monospace;">---</div>
+                    </div>
+                    <div>
+                        <label id="sl-lbl-rec-date-title" class="sl-field-badge" style="color:#6ee7b7; font-size:0.74rem; margin-bottom:3px; display:block;">تاريخ الاستلام:</label>
+                        <div id="sl-lbl-rec-date" class="sl-input sl-card3-uniform" style="font-size:0.80rem !important; font-weight:900; color:#e2e8f0 !important; font-family:'Outfit','Tajawal',sans-serif;">---</div>
+                    </div>
+                    <div style="display:flex; align-items:center; height:32px;">
+                        <div id="sl-doc-status-pill" class="sl-badge sl-badge-pending" style="white-space:nowrap;">جاهز للاستلام</div>
                     </div>
                 </div>
 
-                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-                    <select id="sl-reg-wh-filter" class="sl-input" onchange="renderSlRegistry()" style="font-size: 0.8rem; padding: 6px 10px !important; color: #fcd34d !important;">
-                        <option value="all">🏢 كل المخازن</option>
-                    </select>
+                <!-- Hidden legacy elements preserved so JS never errors -->
+                <div style="display:none !important;">
+                    <input type="checkbox" id="sl-auto-execute-qr" checked>
+                    <input type="file" id="sl-photo-input" accept="image/*" onchange="handleSlPhotoUpload(event)">
+                    <button type="button" id="sl-supplier-ledger-btn" onclick="openSlPartyLedger()"></button>
+                    <div id="sl-party-fin-strip"><button type="button" id="sl-fin-strip-currency-btn" data-cur-mode="SDG"></button><span id="sl-fin-ledger">0</span><span id="sl-fin-debt">0</span><span id="sl-fin-checks">0</span><span id="sl-fin-limit">0</span><span id="sl-fin-rem">0</span></div>
+                    <input type="text" id="sl-personal-notes">
+                    <span id="sl-verify-badge"></span>
+                    <div id="sl-camera-placeholder"></div>
+                </div>
 
-                    <select id="sl-reg-limit" class="sl-input" onchange="renderSlRegistry()" style="font-size: 0.8rem; padding: 6px 10px !important;">
-                        <option value="6" selected>6 فواتير</option>
-                        <option value="15">15 مستند</option>
-                        <option value="50">50 مستند</option>
-                        <option value="100">100 مستند</option>
-                        <option value="99999">الكل</option>
-                    </select>
+                <div style="display: grid; grid-template-columns: 1.2fr 1fr 1fr 0.85fr 0.85fr 1.5fr; gap: 8px; align-items: end;">
+                    <div>
+                        <label id="sl-lbl-wh-select" class="sl-field-badge" style="color:#fcd34d; font-size:0.76rem; margin-bottom:3px; display:block;">مخزن الاستلام:</label>
+                        <select id="sl-master-warehouse" class="sl-input" style="width:100%; padding:5px 8px !important; font-size:0.82rem !important;" onchange="onSlMasterWarehouseChange(this.value)"></select>
+                    </div>
+                    <div>
+                        <label id="sl-lbl-receiver" class="sl-field-badge" style="color:#6ee7b7; font-size:0.76rem; margin-bottom:3px; display:block;">المخزنجي:</label>
+                        <input type="text" id="sl-receiver-name" class="sl-input" placeholder="اسم المخزنجي..." style="width:100%; padding:5px 8px !important; font-size:0.82rem !important;">
+                    </div>
+                    <div>
+                        <label class="sl-field-badge" style="color:#7dd3fc; font-size:0.76rem; margin-bottom:3px; display:block;">السائق:</label>
+                        <input type="text" id="sl-driver-name" class="sl-input" placeholder="اسم السائق..." style="width:100%; padding:5px 8px !important; font-size:0.82rem !important;">
+                    </div>
+                    <div>
+                        <label class="sl-field-badge" style="color:#c084fc; font-size:0.76rem; margin-bottom:3px; display:block;">رقم اللوحة:</label>
+                        <input type="text" id="sl-truck-plate" class="sl-input" placeholder="رقم اللوحة..." style="width:100%; padding:5px 8px !important; font-size:0.82rem !important;">
+                    </div>
+                    <div>
+                        <label class="sl-field-badge" style="color:#38bdf8; font-size:0.76rem; margin-bottom:3px; display:block;">رقم المرجع:</label>
+                        <input type="text" id="sl-gate-pass-no" class="sl-input" placeholder="رقم المرجع..." style="width:100%; padding:5px 8px !important; font-size:0.82rem !important;">
+                    </div>
+                    <div>
+                        <label class="sl-field-badge" style="color:#fbbf24; font-size:0.76rem; margin-bottom:3px; display:block;">ملحوظة:</label>
+                        <input type="text" id="sl-warehouse-notes" class="sl-input" placeholder="ملحوظة..." style="width:100%; padding:5px 8px !important; font-size:0.82rem !important;">
+                    </div>
+                </div>
 
-                    <button type="button" id="sl-filter-btn-pending" onclick="setSlRegistryFilter('pending')" class="sl-btn" style="background: var(--sl-primary); color: #fff; border-color: var(--sl-primary-light); padding: 6px 11px; font-size: 0.78rem;">قيد الاستلام <span id="sl-kpi-val-pending" class="sl-btn-cnt">0</span></button>
-                    <button type="button" id="sl-filter-btn-partial" onclick="setSlRegistryFilter('partial')" class="sl-btn" style="padding: 6px 11px; font-size: 0.78rem;">الجزئي <span id="sl-kpi-val-partial" class="sl-btn-cnt">0</span></button>
-                    <button type="button" id="sl-filter-btn-done" onclick="setSlRegistryFilter('done')" class="sl-btn" style="padding: 6px 11px; font-size: 0.78rem;">المكتمل <span id="sl-kpi-val-done" class="sl-btn-cnt">0</span></button>
-                    <button type="button" id="sl-filter-btn-notes" onclick="setSlRegistryFilter('notes')" class="sl-btn" style="padding: 6px 11px; font-size: 0.78rem;">الأذونات <span id="sl-kpi-val-notes" class="sl-btn-cnt">0</span></button>
-                    <button type="button" id="sl-filter-btn-all" onclick="setSlRegistryFilter('all')" class="sl-btn" style="padding: 6px 11px; font-size: 0.78rem;">الكل</button>
-                    <button type="button" onclick="refreshAllSlData()" class="sl-btn" style="color:#38bdf8; border-color:rgba(56,189,248,0.45); padding: 6px 11px; font-size: 0.78rem;">🔄 تحديث</button>
+                <div id="sl-qr-reader-wrap" style="display:none; flex-direction:column; gap:8px; max-width:320px;">
+                    <div id="sl-qr-reader" style="width:100%; border-radius:10px; overflow:hidden; border:2px solid var(--sl-primary-light); aspect-ratio:4/3; background:#000;"></div>
+                    <button type="button" onclick="stopSlLocalCamera()" class="sl-btn" style="background:rgba(239,68,68,0.2); border-color:#ef4444; color:#fca5a5;">⏹️ إيقاف الكاميرا</button>
+                </div>
+                <div id="sl-photo-preview-wrap" style="display:none; text-align:right;">
+                    <img id="sl-photo-preview-img" src="" style="max-height:52px; border-radius:8px; border:1px solid var(--sl-primary-light);">
                 </div>
             </div>
+        </div>
+
+        <div id="sl-registry-card" class="sl-glass-card" style="padding: 8px 14px;">
 
             <div id="sl-registry-scroll-wrap" style="overflow-x: auto; overflow-y: visible !important; max-height: none !important; border-radius: 12px; border: 1.5px solid rgba(56,189,248,0.28);">
                 <table class="sl-table">
                     <thead>
                         <tr>
-                            <th style="text-align: right; width: 13%;">رقم الفاتورة / الإذن</th>
-                            <th style="text-align: center; width: 12%;">التاريخ</th>
-                            <th id="sl-reg-th-party" style="text-align: right; width: 18%;">🏢 المورد</th>
-                            <th style="text-align: right; width: 31%;">الأصناف والكميات</th>
-                            <th style="text-align: center; width: 12%;">المخزن والحالة</th>
-                            <th style="text-align: center; width: 14%;">إجراءات</th>
+                            <th style="text-align: center; width: 10%;">التاريخ</th>
+                            <th style="text-align: right; width: 12%;">رقم الفاتورة</th>
+                            <th id="sl-reg-th-party" style="text-align: right; width: 17%;">المورد</th>
+                            <th style="text-align: right; width: 37%;">الأصناف (المعلق والقيمة)</th>
+                            <th style="text-align: center; width: 11%;">المخزن والحالة</th>
+                            <th style="text-align: center; width: 13%;">إجراءات</th>
                         </tr>
                     </thead>
                     <tbody id="sl-registry-tbody"></tbody>
@@ -547,133 +624,7 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
         <!-- ═══════════════════════════════════════════════════════════════════
              5. WORKSTATION COCKPIT: DOCUMENT CARD + QR CAMERA
              ═══════════════════════════════════════════════════════════════════ -->
-        <div id="sl-inspection-cockpit" style="display: grid; grid-template-columns: 1fr 330px; gap: 8px;">
 
-            <!-- RIGHT: DOCUMENT META & LOGISTICS FIELDS -->
-            <div id="sl-doc-meta-card" class="sl-glass-card" style="padding: 12px 16px; display: flex; flex-direction: column; gap: 10px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding-bottom: 8px; border-bottom: 1px solid rgba(56,189,248,0.22);">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 1.2rem;">📄</span>
-                        <h3 id="sl-doc-card-title" style="margin: 0; font-size: 1rem; font-weight: 900; color: #ffffff;">
-                            بيانات الفاتورة والاستلام المخزني
-                        </h3>
-                        <span id="sl-doc-card-sub" style="display:none;"></span>
-                    </div>
-                    <div id="sl-doc-status-pill" class="sl-badge sl-badge-pending">جاهز للاستلام</div>
-                </div>
-
-                <!-- 3 ESSENTIAL INFO BOXES (WITH COMPACT SERIAL, FIXED LEDGER BUTTON & FINANCIAL STRIP) -->
-                <div style="display: grid; grid-template-columns: 0.9fr 1.5fr 0.9fr; gap: 8px;">
-                    <div class="sl-sub-region" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-                        <label class="sl-field-badge" style="margin:0;">📄 الرقم:</label>
-                        <div id="sl-lbl-inv-no" style="font-size: 1.58rem; font-weight: 900; color: #38bdf8; font-family: 'Outfit', 'Tajawal', monospace; line-height:1.1;">---</div>
-                    </div>
-                    <div class="sl-sub-region sl-supplier-region" style="position:relative; padding-left:92px !important;">
-                        <label id="sl-lbl-party-title" class="sl-field-badge sl-supplier-badge">🏢 المورد</label>
-                        <div id="sl-lbl-party-name" style="font-size: 1.08rem; font-weight: 900; color: #ffffff; margin-top: 2px;">---</div>
-                        <button type="button" id="sl-supplier-ledger-btn" onclick="openSlPartyLedger()" title="كشف حساب المورد / العميل (دفتر الأستاذ)">📖 أستاذ</button>
-                    </div>
-                    <div class="sl-sub-region" style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
-                        <label class="sl-field-badge" style="margin:0;">📅 التاريخ:</label>
-                        <div id="sl-lbl-date" style="font-size: 1.38rem; font-weight: 900; color: #e2e8f0; font-family: 'Outfit', 'Tajawal', sans-serif;">---</div>
-                        <div id="sl-lbl-hash" style="display:none;">---</div>
-                    </div>
-                </div>
-
-                <!-- PURCHASE CONSTITUTION FINANCIAL STRIP + CURRENCY TOGGLE (جنيه ⇄ دولار) -->
-                <div id="sl-party-fin-strip" class="sl-fin-strip-bar">
-                    <button type="button" id="sl-fin-strip-currency-btn" data-cur-mode="SDG" onclick="toggleSlFinStripCurrency()">جنيه ⇄</button>
-                    <div class="sl-fin-pill pill-ledger"><span class="fin-lbl">الرصيد:</span><span id="sl-fin-ledger" class="fin-val">0</span></div>
-                    <div class="sl-fin-pill pill-debt"><span class="fin-lbl">المديونية:</span><span id="sl-fin-debt" class="fin-val">0</span></div>
-                    <div class="sl-fin-pill pill-checks"><span class="fin-lbl">الشيكات:</span><span id="sl-fin-checks" class="fin-val">0</span></div>
-                    <div class="sl-fin-pill pill-limit"><span class="fin-lbl">الحد:</span><span id="sl-fin-limit" class="fin-val">0</span></div>
-                    <div class="sl-fin-pill pill-rem"><span class="fin-lbl">المتاح:</span><span id="sl-fin-rem" class="fin-val" style="font-size:1.28rem !important;">0</span></div>
-                </div>
-
-                <!-- LOGISTICS INPUTS (WAREHOUSE, RECEIVER, DRIVER, PLATE, GATE PASS) -->
-                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
-                    <div class="sl-sub-region">
-                        <label id="sl-lbl-wh-select" class="sl-field-badge" style="color: #fcd34d;">🏢 مخزن الاستلام:</label>
-                        <select id="sl-master-warehouse" class="sl-input" style="width: 100%; padding: 6px 10px !important; font-size: 0.84rem !important;" onchange="onSlMasterWarehouseChange(this.value)"></select>
-                    </div>
-                    <div class="sl-sub-region">
-                        <label id="sl-lbl-receiver" class="sl-field-badge" style="color: #6ee7b7;">🤝 أمين المخزن المستلم:</label>
-                        <input type="text" id="sl-receiver-name" class="sl-input" placeholder="الاسم..." style="width: 100%; padding: 6px 10px !important; font-size: 0.84rem !important;">
-                    </div>
-                    <div class="sl-sub-region">
-                        <label class="sl-field-badge" style="color: #7dd3fc;">🚚 السائق / المندوب:</label>
-                        <input type="text" id="sl-driver-name" class="sl-input" placeholder="اسم السائق..." style="width: 100%; padding: 6px 10px !important; font-size: 0.84rem !important;">
-                    </div>
-                    <div class="sl-sub-region">
-                        <label class="sl-field-badge" style="color: #c084fc;">🔢 رقم اللوحة:</label>
-                        <input type="text" id="sl-truck-plate" class="sl-input" placeholder="رقم اللوحة..." style="width: 100%; padding: 6px 10px !important; font-size: 0.84rem !important;">
-                    </div>
-                    <div class="sl-sub-region">
-                        <label class="sl-field-badge" style="color: #38bdf8;">🎫 رقم المرجع / الإذن:</label>
-                        <input type="text" id="sl-gate-pass-no" class="sl-input" placeholder="تلقائي..." style="width: 100%; padding: 6px 10px !important; font-size: 0.84rem !important;">
-                    </div>
-                </div>
-
-                <!-- NOTES ROW -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <div class="sl-sub-region">
-                        <label class="sl-field-badge" style="color: #fbbf24;">📝 بيان وملاحظات الاستلام:</label>
-                        <input type="text" id="sl-warehouse-notes" class="sl-input" placeholder="ملاحظات فحص واستلام البضاعة..." style="width: 100%; padding: 6px 10px !important; font-size: 0.84rem !important;">
-                    </div>
-                    <div class="sl-sub-region">
-                        <label class="sl-field-badge" style="color: #cbd5e1;">📌 ملاحظات إضافية:</label>
-                        <input type="text" id="sl-personal-notes" class="sl-input" placeholder="ملاحظات اختيارية..." style="width: 100%; padding: 6px 10px !important; font-size: 0.84rem !important;">
-                    </div>
-                </div>
-            </div>
-
-            <!-- LEFT: LASER QR CAMERA & VISUAL PROOF -->
-            <div id="sl-qr-camera-card" class="sl-glass-card" style="padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between; gap: 8px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid rgba(56,189,248,0.22);">
-                    <h3 style="margin: 0; font-size: 0.96rem; font-weight: 900; color: #ffffff;">📷 المسح الضوئي (QR) والمرفقات</h3>
-                    <span id="sl-verify-badge" class="sl-badge sl-badge-done">جاهز</span>
-                </div>
-
-                <label style="display:flex; align-items:center; gap:8px; background:rgba(14,165,233,0.14); border:1px solid rgba(56,189,248,0.4); padding:7px 10px; border-radius:10px; font-size:0.78rem; font-weight:800; color:#fff; cursor:pointer;">
-                    <input type="checkbox" id="sl-auto-execute-qr" checked style="width:15px; height:15px; accent-color:var(--sl-primary);">
-                    <span>⚡ استلام فوري عند مسح الباركود</span>
-                </label>
-
-                <div id="sl-qr-reader-wrap" style="display:none; flex-direction:column; gap:8px;">
-                    <div id="sl-qr-reader" style="width:100%; border-radius:12px; overflow:hidden; border:2px solid var(--sl-primary-light); aspect-ratio:4/3; background:#000;"></div>
-                    <button type="button" onclick="stopSlLocalCamera()" class="sl-btn" style="background:rgba(239,68,68,0.2); border-color:#ef4444; color:#fca5a5;">⏹️ إيقاف الكاميرا</button>
-                </div>
-
-                <div id="sl-camera-placeholder" class="sl-sub-region" style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:12px; text-align:center;">
-                    <div style="font-size:1.8rem; margin-bottom:4px;">📱⚡</div>
-                    <div style="font-size:0.78rem; color:#cbd5e1; font-weight:700; margin-bottom:8px;">
-                        مسح باركود الفاتورة بالجوال أو الكاميرا
-                    </div>
-                    <div style="display:flex; gap:8px; width:100%; flex-wrap:wrap;">
-                        <button type="button" onclick="openSlMobileBridgeModal()" class="sl-btn" style="flex:1; background:linear-gradient(135deg,#0284c7,#0369a1); border-color:#38bdf8; color:#fff; font-size:0.8rem;">
-                            📱 كاميرا الجوال
-                        </button>
-                        <button type="button" onclick="startSlLocalCamera()" class="sl-btn" style="flex:1; background:rgba(56,189,248,0.18); border-color:#38bdf8; color:#38bdf8; font-size:0.8rem;">
-                            📷 كاميرا الجهاز
-                        </button>
-                    </div>
-                </div>
-
-                <div>
-                    <input type="file" id="sl-photo-input" accept="image/*" style="display:none;" onchange="handleSlPhotoUpload(event)">
-                    <button type="button" onclick="document.getElementById('sl-photo-input').click()" class="sl-btn" style="width:100%; background:rgba(245,158,11,0.14); border-color:rgba(245,158,11,0.4); color:#fcd34d; font-size:0.8rem;">
-                        📎 إرفاق صورة المستند
-                    </button>
-                    <div id="sl-photo-preview-wrap" style="display:none; margin-top:6px; text-align:center;">
-                        <img id="sl-photo-preview-img" src="" style="max-height:60px; border-radius:8px; border:1px solid var(--sl-primary-light);">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ═══════════════════════════════════════════════════════════════════
-             6. UNIFIED DUAL-UNIT & MULTI-WAREHOUSE SPLIT INSPECTION GRID
-             ═══════════════════════════════════════════════════════════════════ -->
         <div id="sl-items-grid-card" class="sl-glass-card" style="padding: 14px 16px;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
                 <div style="display: flex; align-items: center; gap: 8px;">
@@ -914,10 +865,11 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=20261016_v28"></script>
     <script defer src="js/print-engine.js"></script>
-    <script>(function(){var l=0,v="<?php echo file_exists('js/magaies-smart-guide.js') ? filemtime('js/magaies-smart-guide.js') : '2027'; ?>";window.loadMagaiesSmartGuide=function(c){if(l){if(c)c();return;}l=1;var s=document.createElement('script');s.src='js/magaies-smart-guide.js?v='+v;s.onload=function(){if(c)c();};document.body.appendChild(s);};window.addEventListener('keydown',function(e){if(e.key==='F1'){e.preventDefault();window.loadMagaiesSmartGuide();}});window.addEventListener('contextmenu',function(){window.loadMagaiesSmartGuide();},{once:true,passive:true});})();</script>
+    <script defer src="js/md-delayed-tooltips.js?v=<?php echo file_exists('js/md-delayed-tooltips.js') ? filemtime('js/md-delayed-tooltips.js') : '2027'; ?>"></script>
+    <script defer src="js/magaies-smart-guide.js?v=<?php echo file_exists('js/magaies-smart-guide.js') ? filemtime('js/magaies-smart-guide.js') : '2027'; ?>"></script>
     <script defer src="js/smart-logistics.js?v=<?php echo file_exists('js/smart-logistics.js') ? filemtime('js/smart-logistics.js') : '20261104_v5'; ?>"></script>
     <script>(function(){var l=0,q=[];window.ensureGlobalBgMedia=function(c){if(l&&typeof window.quickHeaderPlay==='function'){if(c)c();return;}if(c)q.push(c);if(document.querySelector('script[data-lazy-bgm]'))return;var s=document.createElement('script');s.src='js/global_background_media.js?v=<?= @filemtime(__DIR__."/js/global_background_media.js")?:2027 ?>';s.dataset.lazyBgm='1';s.onload=function(){l=1;q.splice(0).forEach(function(fn){try{fn();}catch(_){}});};document.body.appendChild(s);};['quickHeaderPlay','setHeaderMediaVolume','quickHeaderStop','openBackgroundPopout','toggleHeaderMediaDropdown','playPersistentMedia'].forEach(function(fn){if(typeof window[fn]!=='function')window[fn]=function(){var a=arguments;window.ensureGlobalBgMedia(function(){if(typeof window[fn]==='function')window[fn].apply(window,a);});};});try{if(localStorage.getItem('erp_bg_media_playing')==='1'||localStorage.getItem('magaies_live_tv_active')==='1')window.addEventListener('DOMContentLoaded',function(){setTimeout(function(){window.ensureGlobalBgMedia();},300);},{once:true});}catch(_){}})();</script>
-    <script src="js/magaiees_back.js?v=20261022_v23" defer></script>
+    <script src="js/magaiees_back.js?v=<?php echo file_exists('js/magaiees_back.js') ? filemtime('js/magaiees_back.js') : '20261126_v24'; ?>" defer></script>
     <script defer src="js/elsajana-universal-ui-2027.js?v=<?php echo file_exists('js/elsajana-universal-ui-2027.js') ? filemtime('js/elsajana-universal-ui-2027.js') : 1; ?>"></script>
     <!-- ═══════════════════════════════════════════════════════════════════
          💎 تناغم بصري موحد مع شاشة المشتريات (خلفية سوداء #030712 + مناطق كحلية داكنة متدرجة + إضاءة الحواف عند المرور)
@@ -1100,6 +1052,33 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
         .sl-floating-summary { position: static !important; bottom: auto !important; }
         #msg-universal-fixed-launcher, #msg-universal-fixed-launcher.is-scroll-floating, .msg-fixed-command-pod { position: static !important; top: auto !important; left: auto !important; right: auto !important; transform: none !important; }
         .sl-btn-cnt { display: inline-flex; align-items: center; justify-content: center; background: rgba(2, 6, 23, 0.65); color: #fde047 !important; -webkit-text-fill-color: #fde047 !important; font-family: 'Inter', monospace; font-size: 0.78rem; font-weight: 900; padding: 1px 7px; border-radius: 99px; border: 1px solid rgba(250, 204, 21, 0.45); margin-right: 4px; }
+        #sl-main-wrapper #sl-doc-meta-card.sl-glass-card {
+            background: linear-gradient(135deg, #451a03 0%, #78350f 46%, #064e3b 100%) !important;
+            border: 2.5px solid #fbbf24 !important;
+            box-shadow: 0 10px 28px rgba(245, 158, 11, 0.28), inset 0 1px 0 rgba(254, 240, 138, 0.35) !important;
+        }
+        :root.light-theme #sl-main-wrapper #sl-doc-meta-card.sl-glass-card {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 52%, #fed7aa 100%) !important;
+            border: 3px solid #b45309 !important;
+            box-shadow: 0 8px 22px rgba(180, 83, 9, 0.22) !important;
+        }
+        #sl-doc-meta-card .sl-input, #sl-doc-meta-card .sl-card3-uniform { height: 32px !important; min-height: 32px !important; max-height: 32px !important; padding: 3px 9px !important; display: flex !important; align-items: center !important; justify-content: center !important; text-align: center !important; box-sizing: border-box !important; }
+        #sl-doc-meta-card .sl-field-badge { text-align: center !important; }
+        .sl-table th, .sl-table td { text-align: center !important; vertical-align: middle !important; }
+        #sl-registry-card .sl-table { border-collapse: collapse !important; width: 100% !important; }
+        #sl-registry-card .sl-table th, #sl-registry-card .sl-table td { border-left: 1px solid rgba(148, 163, 184, 0.28) !important; border-bottom: 1.5px solid rgba(56, 189, 248, 0.35) !important; padding: 7px 10px !important; }
+        #sl-registry-card .sl-table th:last-child, #sl-registry-card .sl-table td:last-child { border-left: none !important; }
+        #sl-registry-card .sl-table tbody tr:nth-child(odd) { background: #070e1d !important; }
+        #sl-registry-card .sl-table tbody tr:nth-child(even) { background: #1d3557 !important; }
+        #sl-registry-card .sl-table tbody tr:hover { background: rgba(14, 165, 233, 0.30) !important; }
+        :root.light-theme #sl-registry-card .sl-table th, :root.light-theme #sl-registry-card .sl-table td { border-left: 1px solid rgba(92, 40, 8, 0.22) !important; border-bottom: 1.5px solid rgba(92, 40, 8, 0.32) !important; }
+        :root.light-theme #sl-registry-card .sl-table tbody tr:nth-child(odd) { background: #ffffff !important; }
+        :root.light-theme #sl-registry-card .sl-table tbody tr:nth-child(even) { background: #e6d8c3 !important; }
+        #sl-reg-wh-filter { width: auto !important; max-width: none !important; min-width: 170px !important; flex: 1 1 auto !important; }
+        #sl-reg-limit { width: 155px !important; max-width: 155px !important; flex: 0 0 155px !important; }
+        #sl-reg-search::placeholder { color: #94a3b8 !important; -webkit-text-fill-color: #94a3b8 !important; opacity: 1 !important; font-weight: 700 !important; }
+        #sl-reg-search { color: #cbd5e1 !important; -webkit-text-fill-color: #cbd5e1 !important; }
+        :root.light-theme #sl-reg-search { color: #475569 !important; -webkit-text-fill-color: #475569 !important; }
         @media (max-width: 1100px) { #sl-inspection-cockpit { grid-template-columns: 1fr !important; } }
     </style>
 </body>

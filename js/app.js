@@ -314,16 +314,25 @@ JSON.parse = function(val) {
             }
         })).catch(e => {});
         window.__DB_HYDRATION_PROMISE = _hydrateFromIdb;
-        try {
-            await promiseTimeout(_hydrateFromIdb, 3000);
-            _lateHydratedKeys = [];
-        } catch (e) {
-            // Timed out: when IndexedDB finally finishes, notify all screens to rebuild with the full data
+        const _isFastDrilldownUrl = /[?&]id=[^&]+/.test(window.location.search || '');
+        const _hasLocalCore = !!(window.DB_STORE[window.getTenantKey('erp_customers_v1')] || window.DB_STORE['erp_customers_v1'] || window.DB_STORE[window.getTenantKey('erp_items_v1')]);
+        if (_isFastDrilldownUrl && _hasLocalCore) {
             _hydrateFromIdb.then(() => {
                 if (_lateHydratedKeys.length) {
                     try { window.dispatchEvent(new CustomEvent('magaiesDataUpdated', { detail: { source: 'idb_hydration', keys: _lateHydratedKeys.slice() } })); } catch(_) {}
                 }
             });
+        } else {
+            try {
+                await promiseTimeout(_hydrateFromIdb, 1200);
+                _lateHydratedKeys = [];
+            } catch (e) {
+                _hydrateFromIdb.then(() => {
+                    if (_lateHydratedKeys.length) {
+                        try { window.dispatchEvent(new CustomEvent('magaiesDataUpdated', { detail: { source: 'idb_hydration', keys: _lateHydratedKeys.slice() } })); } catch(_) {}
+                    }
+                });
+            }
         }
 
         // Complete fallback check: Ensure all syncKeys are loaded in DB_STORE from localStorage if still empty
@@ -1424,7 +1433,7 @@ JSON.parse = function(val) {
 
     // Global helper for checking uniqueness of Check/Transfer Numbers across all vouchers
     window.isBankReferenceUnique = function(num, type, excludeVoucherId = null) {
-        if (!num) return true;
+        if (!num || type === 'check') return true;
 
         const normRefDigits = (val) => {
             if (!val) return '';
@@ -2104,12 +2113,14 @@ JSON.parse = function(val) {
             });
     };
 
-    // Throttle auto-pull across screen navigations (once per 3 min instead of re-downloading full DB on every click)
+    // Throttle auto-pull across screen navigations & new tabs (shared via localStorage so _blank drill-down tabs open instantly!)
     document.addEventListener("DOMContentLoaded", () => {
         if (window.location.pathname.includes('login')) return;
+        if (/[?&]id=[^&]+/.test(window.location.search || '')) return; // Never block drill-down to original voucher with full cloud sync
         const isLocalEnv = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1');
-        const lastPullTs = parseInt(sessionStorage.getItem('last_local_sync_pull_ts') || '0', 10);
+        const lastPullTs = parseInt(localStorage.getItem('last_local_sync_pull_ts') || sessionStorage.getItem('last_local_sync_pull_ts') || '0', 10);
         if ((localStorage.getItem('authToken') || isLocalEnv) && (Date.now() - lastPullTs > 180000)) {
+            localStorage.setItem('last_local_sync_pull_ts', String(Date.now()));
             sessionStorage.setItem('last_local_sync_pull_ts', String(Date.now()));
             const runIdle = window.requestIdleCallback || ((fn) => setTimeout(fn, 600));
             runIdle(() => {
@@ -2141,110 +2152,183 @@ JSON.parse = function(val) {
 
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 0.1 Global Glassmorphism Alert Override ---
-    window.alert = function(message) {
-        if (document.getElementById('glass-alert-modal')) {
-            document.getElementById('glass-alert-modal').remove();
+    // --- 0.1 Unified Luxury Centered Message System (نفس تصميم تنبيه رقم التحويلة 6 خانات في كل الشاشات) ---
+    const _mgUnifiedPalette = (type, isLight) => {
+        if (type === 'error' || type === 'danger') return {
+            icon: '🚫', rgb: '239,68,68', border: isLight ? '#dc2626' : '#f87171', titleCol: isLight ? '#b91c1c' : '#fca5a5',
+            cardBg: isLight ? 'linear-gradient(160deg,#ffffff 0%,#fff7ed 60%,#fee2e2 100%)' : 'linear-gradient(160deg,#172554 0%,#0f172a 58%,#1e1b4b 100%)',
+            orbBg: 'radial-gradient(circle at 30% 30%,#fca5a5 0%,#ef4444 48%,#991b1b 100%)', orbBrd: '#fecaca',
+            btnBg: 'linear-gradient(180deg,#ef4444 0%,#dc2626 52%,#b91c1c 100%)', btnBrd: '#fca5a5', btnBtm: '#7f1d1d',
+            pillBg: isLight ? '#fee2e2' : 'rgba(239,68,68,0.22)', pillCol: isLight ? '#991b1b' : '#fecaca', badge: 'تنبيه هام'
+        };
+        if (type === 'warning' || type === 'warn') return {
+            icon: '⚠️', rgb: '245,158,11', border: isLight ? '#d97706' : '#fbbf24', titleCol: isLight ? '#b45309' : '#fde047',
+            cardBg: isLight ? 'linear-gradient(160deg,#ffffff 0%,#fffbeb 60%,#fef3c7 100%)' : 'linear-gradient(160deg,#172554 0%,#0f172a 58%,#1e1b4b 100%)',
+            orbBg: 'radial-gradient(circle at 30% 30%,#fde68a 0%,#f59e0b 48%,#b45309 100%)', orbBrd: '#fef08a',
+            btnBg: 'linear-gradient(180deg,#f59e0b 0%,#d97706 52%,#b45309 100%)', btnBrd: '#fde68a', btnBtm: '#78350f',
+            pillBg: isLight ? '#fef3c7' : 'rgba(245,158,11,0.22)', pillCol: isLight ? '#92400e' : '#fde68a', badge: 'تحذير'
+        };
+        if (type === 'success') return {
+            icon: '✅', rgb: '16,185,129', border: isLight ? '#059669' : '#34d399', titleCol: isLight ? '#047857' : '#6ee7b7',
+            cardBg: isLight ? 'linear-gradient(160deg,#ffffff 0%,#ecfdf5 60%,#d1fae5 100%)' : 'linear-gradient(160deg,#064e3b 0%,#0f172a 58%,#062e25 100%)',
+            orbBg: 'radial-gradient(circle at 30% 30%,#a7f3d0 0%,#10b981 48%,#047857 100%)', orbBrd: '#a7f3d0',
+            btnBg: 'linear-gradient(180deg,#10b981 0%,#059669 52%,#047857 100%)', btnBrd: '#6ee7b7', btnBtm: '#064e3b',
+            pillBg: isLight ? '#d1fae5' : 'rgba(16,185,129,0.22)', pillCol: isLight ? '#065f46' : '#a7f3d0', badge: 'تم بنجاح'
+        };
+        return {
+            icon: 'ℹ️', rgb: '56,189,248', border: isLight ? '#0284c7' : '#38bdf8', titleCol: isLight ? '#0369a1' : '#7dd3fc',
+            cardBg: isLight ? 'linear-gradient(160deg,#ffffff 0%,#f0f9ff 60%,#e0f2fe 100%)' : 'linear-gradient(160deg,#0c4a6e 0%,#0f172a 58%,#1e1b4b 100%)',
+            orbBg: 'radial-gradient(circle at 30% 30%,#bae6fd 0%,#0ea5e9 48%,#0369a1 100%)', orbBrd: '#bae6fd',
+            btnBg: 'linear-gradient(180deg,#0ea5e9 0%,#0284c7 52%,#0369a1 100%)', btnBrd: '#7dd3fc', btnBtm: '#0c4a6e',
+            pillBg: isLight ? '#e0f2fe' : 'rgba(56,189,248,0.22)', pillCol: isLight ? '#075985' : '#bae6fd', badge: 'معلومة'
+        };
+    };
+    const _mgEnsureUnifiedAnim = () => {
+        if (document.getElementById('mg-unified-msg-anim')) return;
+        const st = document.createElement('style');
+        st.id = 'mg-unified-msg-anim';
+        st.textContent = '@keyframes mgUnifiedPop{from{opacity:0;transform:scale(0.88) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}@keyframes mgUnifiedFadeOut{to{opacity:0;transform:scale(0.92) translateY(-8px)}}';
+        document.head.appendChild(st);
+    };
+    const _mgFocusTarget = (el) => {
+        const t = (typeof el === 'string') ? document.querySelector(el) : el;
+        if (!t || !t.style) return;
+        const pSec = t.closest && t.closest('#pay-bank-section, #pay-cheque-section, #pay-cash-section');
+        if (pSec) pSec.style.display = 'flex';
+        t.style.border = '3px solid #ef4444';
+        t.style.boxShadow = '0 0 18px rgba(239,68,68,0.78)';
+        try { t.scrollIntoView({ behavior: 'smooth', block: 'center' }); t.focus(); if (typeof t.select === 'function') t.select(); } catch (_) {}
+        setTimeout(() => { if (t && t.style) { t.style.border = ''; t.style.boxShadow = ''; } }, 5000);
+    };
+    window._mgUnifiedPalette = _mgUnifiedPalette;
+    window._mgEnsureUnifiedAnim = _mgEnsureUnifiedAnim;
+
+    window.showCenteredWarningModal = function(message, forcedLevel, extraOpts) {
+        _mgEnsureUnifiedAnim();
+        const opts = (message && typeof message === 'object') ? message : Object.assign({ message: message, level: forcedLevel }, extraOpts || {});
+        const msgStr = String(opts.message || '').replace(/^🚫\s*/, '').trim();
+        if (!msgStr) return;
+        const old = document.getElementById('glass-alert-modal');
+        if (old) old.remove();
+        const isDup = /مكرر|مسجل مسبقاً|موجود مسبقاً|تم استخدامه من قبل|مستخدم مسبقاً/.test(msgStr);
+        const isShort = !isDup && /6 خانات|6 أرقام|أقل من 6/.test(msgStr);
+        const isNeg = /لم يتم|لا يوجد|غير صحيح|خطأ|فشل|تعذر|حظر|مرفوض|ممنوع|مغلق|تجاوز|معلّق|موقوف|مطلوب|إجباري|عجز|مكرر|6 خانات|6 أرقام/.test(msgStr);
+        let type = opts.level || forcedLevel || '';
+        if (!type) {
+            if (!isNeg && /نجاح|بنجاح|تم الحفظ|تم الترحيل|تم اعتماد/.test(msgStr)) type = 'success';
+            else if (isNeg) type = 'error';
+            else if (/تنبيه|تحذير|هل أنت متأكد|⚠️/.test(msgStr)) type = 'warning';
+            else type = 'info';
         }
-
-        // --- Smart Type Detection ---
-        let type = 'info';
-        let iconHtml = 'ℹ️';
-        let mainColorRGB = '56, 189, 248'; // Blue
-        let btnGradient = 'linear-gradient(135deg, #38bdf8, #0284c7)';
-        let iconAnimation = 'floatIcon 2s ease-in-out infinite';
-
-        const isNegative = message.includes('لم يتم') || message.includes('لا يوجد') || message.includes('غير صحيح') || message.includes('خطأ') || message.includes('فشل') || message.includes('تعذر');
-
-        if (!isNegative && (message.includes('نجاح') || message.includes('تم ') || message.includes('بنجاح') || message.includes('اعتمد'))) {
-            type = 'success';
-            iconHtml = '✅';
-            mainColorRGB = '16, 185, 129'; // Green
-            btnGradient = 'linear-gradient(135deg, #10b981, #059669)';
-            iconAnimation = 'bounceIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-        } else if (message.includes('خطأ') || message.includes('فشل') || message.includes('غير صحيح') || message.includes('معلّق') || message.includes('موقوف') || message.includes('مستخد') || message.includes('مطلوب')) {
-            type = 'error';
-            iconHtml = '❌';
-            mainColorRGB = '239, 68, 68'; // Red
-            btnGradient = 'linear-gradient(135deg, #ef4444, #b91c1c)';
-            iconAnimation = 'shakeIcon 0.5s';
-        } else if (message.includes('تنبيه') || message.includes('تحذير') || message.includes('هل أنت متأكد')) {
-            type = 'warning';
-            iconHtml = '⚠️';
-            mainColorRGB = '245, 158, 11'; // Orange
-            btnGradient = 'linear-gradient(135deg, #f59e0b, #d97706)';
-        }
-
+        const isLight = document.documentElement.classList.contains('light-theme');
+        const p = _mgUnifiedPalette(type, isLight);
+        const txtCol = isLight ? '#140c06' : '#ffffff';
+        const esc = (s) => String(s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const lines = msgStr.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+        const autoTitle = isDup ? 'تنبيه: رقم مكرر مسبقاً' : (isShort ? 'تنبيه: رقم التحويلة أقل من 6 خانات' : (lines.length > 1 ? lines[0] : p.badge));
+        const titleTxt = opts.title || autoTitle;
+        const bodyLines = (opts.title || isDup || isShort || lines.length === 1) ? lines : lines.slice(1);
+        const valPill = opts.value ? `<div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:10px;background:${p.pillBg};border:1.5px solid ${p.border};color:${p.pillCol};font-size:1.15rem;font-weight:900;font-family:Outfit,monospace;direction:ltr;margin-bottom:14px;">${esc(opts.value)}</div>` : '';
+        const bodyHtml = bodyLines.length > 1
+            ? `<div style="text-align:right;background:${isLight ? 'rgba(0,0,0,0.04)' : 'rgba(15,23,42,0.55)'};border:1px solid ${isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.12)'};border-radius:14px;padding:14px 18px;margin:0 0 22px;display:flex;flex-direction:column;gap:6px;">`
+              + bodyLines.map(l => `<div style="color:${txtCol};font-size:1.1rem;font-weight:800;line-height:1.65;">${esc(l)}</div>`).join('') + '</div>'
+            : `<div style="font-size:1.18rem;font-weight:800;line-height:1.7;color:${txtCol};margin-bottom:22px;">${esc(bodyLines[0] || msgStr)}</div>`;
+        const btnTxt = opts.buttonText || ((isShort || isDup) ? '✏️ تعديل الرقم' : 'حسناً — إغلاق');
         const overlay = document.createElement('div');
         overlay.id = 'glass-alert-modal';
-        overlay.style.cssText = `
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-            z-index: 9999999; display: flex; justify-content: center; align-items: center;
-            opacity: 0; animation: fadeInGlass 0.3s forwards;
-            font-family: 'Inter', sans-serif; direction: rtl;
-        `;
-
-        const modal = document.createElement('div');
-        modal.style.cssText = `
-            background: rgba(30, 41, 59, 0.95); border: 1px solid rgba(${mainColorRGB}, 0.3);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-            border-radius: 20px; padding: 40px 30px 30px; width: 90%; max-width: 400px; text-align: center;
-            transform: scale(0.9) translateY(20px); animation: slideUpGlass 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-            position: relative; overflow: hidden;
-        `;
-
-        const glow = document.createElement('div');
-        glow.style.cssText = `
-            position: absolute; top: -50px; left: 50%; transform: translateX(-50%);
-            width: 150px; height: 150px; background: radial-gradient(circle, rgba(${mainColorRGB},0.4) 0%, transparent 70%);
-            border-radius: 50%; pointer-events: none;
-        `;
-
-        const icon = document.createElement('div');
-        icon.innerHTML = iconHtml;
-        icon.style.cssText = `font-size: 4rem; margin-bottom: 20px; filter: drop-shadow(0 0 15px rgba(${mainColorRGB}, 0.6)); animation: ${iconAnimation};`;
-
-        const text = document.createElement('p');
-        text.innerText = message;
-        text.style.cssText = `color: #f8fafc; font-size: 1.1rem; font-weight: 600; line-height: 1.6; margin-bottom: 30px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);`;
-
-        const btn = document.createElement('button');
-        btn.innerText = 'حسناً';
-        btn.style.cssText = `
-            background: ${btnGradient}; color: white; border: none; padding: 12px 30px;
-            border-radius: 12px; font-size: 1rem; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(${mainColorRGB}, 0.4); transition: all 0.2s ease; width: 100%;
-            outline: none;
-        `;
-        
-        btn.onmouseover = () => btn.style.transform = 'translateY(-2px)';
-        btn.onmouseout = () => btn.style.transform = 'translateY(0)';
-        
-        btn.onclick = () => {
-            overlay.style.animation = 'fadeOutGlass 0.3s forwards';
-            modal.style.animation = 'slideDownGlass 0.3s forwards';
-            setTimeout(() => overlay.remove(), 300);
-        };
-
-        if (!document.getElementById('glass-alert-styles')) {
-            const style = document.createElement('style');
-            style.id = 'glass-alert-styles';
-            style.innerHTML = `
-                @keyframes fadeInGlass { from { opacity: 0; } to { opacity: 1; } }
-                @keyframes fadeOutGlass { from { opacity: 1; } to { opacity: 0; } }
-                @keyframes slideUpGlass { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-                @keyframes slideDownGlass { from { opacity: 1; transform: scale(1) translateY(0); } to { opacity: 0; transform: scale(0.9) translateY(20px); } }
-                @keyframes floatIcon { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-                @keyframes bounceIn { 0% { transform: scale(0); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
-                @keyframes shakeIcon { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 50% { transform: translateX(10px); } 75% { transform: translateX(-10px); } }
-            `;
-            document.head.appendChild(style);
-        }
-
-        modal.appendChild(glow); modal.appendChild(icon); modal.appendChild(text); modal.appendChild(btn); overlay.appendChild(modal); document.body.appendChild(overlay);
-        setTimeout(() => btn.focus(), 100);
+        overlay.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;background:rgba(2,6,23,0.68);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);z-index:2147483647;display:flex;justify-content:center;align-items:center;padding:20px;font-family:"Cairo","Tajawal",sans-serif;direction:rtl;';
+        overlay.innerHTML = `<div style="width:min(${bodyLines.length > 1 ? '540px' : '470px'},94vw);max-height:88vh;overflow-y:auto;background:${p.cardBg};border:${isLight ? '3px' : '2.5px'} solid ${p.border};border-radius:22px;padding:28px 26px 24px;text-align:center;box-shadow:0 28px 75px rgba(0,0,0,0.62),0 0 0 4px rgba(${p.rgb},0.22),inset 0 1.5px 0 rgba(255,255,255,0.25);animation:mgUnifiedPop 0.24s cubic-bezier(0.22,1,0.36,1);">`
+            + `<div style="width:70px;height:70px;margin:0 auto 14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:${p.orbBg};border:3px solid ${p.orbBrd};box-shadow:0 0 28px rgba(${p.rgb},0.65),inset 0 2px 4px rgba(255,255,255,0.65);">${opts.icon || p.icon}</div>`
+            + `<div style="font-size:1.45rem;font-weight:900;color:${p.titleCol};margin-bottom:10px;line-height:1.4;">${esc(titleTxt)}</div>`
+            + valPill + bodyHtml
+            + `<div><button type="button" id="glass-alert-close-btn" style="min-width:210px;height:48px;padding:0 26px;border-radius:13px;border:2px solid ${p.btnBrd};border-bottom:4px solid ${p.btnBtm};background:${p.btnBg};color:#ffffff;font-family:Cairo,Tajawal,sans-serif;font-size:1.12rem;font-weight:900;cursor:pointer;box-shadow:0 10px 24px rgba(${p.rgb},0.45),inset 0 1.5px 0 rgba(255,255,255,0.45);">${esc(btnTxt)}</button></div></div>`;
+        const closeModal = () => { document.removeEventListener('keydown', onKey); overlay.remove(); if (opts.targetEl) _mgFocusTarget(opts.targetEl); if (typeof opts.onClose === 'function') opts.onClose(); };
+        const onKey = (ev) => { if (ev.key === 'Escape' || ev.key === 'Enter') { ev.preventDefault(); closeModal(); } };
+        overlay.onclick = (ev) => { if (ev.target === overlay) closeModal(); };
+        document.addEventListener('keydown', onKey);
+        document.body.appendChild(overlay);
+        const btn = overlay.querySelector('#glass-alert-close-btn');
+        if (btn) { btn.onclick = closeModal; setTimeout(() => btn.focus(), 50); }
     };
+    window.showUnifiedAlertModal = window.showCenteredWarningModal;
+
+    window.showUnifiedToast = function(msg, type = 'success', ms = 3000, targetEl = null) {
+        _mgEnsureUnifiedAnim();
+        const plain = String(msg || '').replace(/<[^>]+>/g, '').trim();
+        if (!plain) return;
+        const normType = (type === 'danger' ? 'error' : (type === 'warn' ? 'warning' : (['success', 'error', 'warning', 'info'].includes(type) ? type : 'info')));
+        if (normType === 'error' && /6 خانات|6 أرقام|أقل من 6|مكرر/.test(plain)) {
+            window.showCenteredWarningModal({ message: plain, level: 'error', targetEl: targetEl });
+            return;
+        }
+        if (normType === 'error' && targetEl) _mgFocusTarget(targetEl);
+        let box = document.getElementById('mg-unified-toast-wrap');
+        if (!box && document.body) {
+            box = document.createElement('div');
+            box.id = 'mg-unified-toast-wrap';
+            box.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2147483645;width:min(470px,92vw);pointer-events:none;direction:rtl;font-family:Cairo,Tajawal,sans-serif;';
+            document.body.appendChild(box);
+        }
+        if (!box) return;
+        const isLight = document.documentElement.classList.contains('light-theme');
+        const p = _mgUnifiedPalette(normType, isLight);
+        const txtCol = isLight ? '#140c06' : '#ffffff';
+        box.innerHTML = '';
+        const card = document.createElement('div');
+        card.title = 'اضغط للإغلاق';
+        card.style.cssText = `pointer-events:auto;cursor:pointer;background:${p.cardBg};border:${isLight ? '3px' : '2.5px'} solid ${p.border};border-radius:22px;padding:22px 24px 20px;text-align:center;box-shadow:0 26px 68px rgba(0,0,0,0.58),0 0 0 4px rgba(${p.rgb},0.22),inset 0 1.5px 0 rgba(255,255,255,0.25);animation:mgUnifiedPop 0.24s cubic-bezier(0.22,1,0.36,1);`;
+        card.innerHTML = `<div style="width:54px;height:54px;margin:0 auto 10px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.75rem;background:${p.orbBg};border:2.5px solid ${p.orbBrd};box-shadow:0 0 22px rgba(${p.rgb},0.6),inset 0 2px 4px rgba(255,255,255,0.65);">${p.icon}</div>`
+            + `<div style="font-size:1.18rem;font-weight:900;color:${p.titleCol};margin-bottom:6px;">${p.badge}</div>`
+            + `<div style="font-size:1.1rem;font-weight:800;line-height:1.65;color:${txtCol};white-space:pre-line;">${msg}</div>`;
+        const dismiss = () => {
+            if (card.dataset.closing) return;
+            card.dataset.closing = '1';
+            card.style.animation = 'mgUnifiedFadeOut 0.22s ease forwards';
+            setTimeout(() => { if (card.parentNode) card.remove(); }, 220);
+        };
+        card.onclick = dismiss;
+        box.appendChild(card);
+        setTimeout(dismiss, Math.max(1800, Number(ms) || (normType === 'success' ? 2400 : 3400)));
+    };
+    if (typeof window.showToast !== 'function') window.showToast = window.showUnifiedToast;
+    window.showCenteredConfirmModal = function(opts) {
+        if (typeof window._mgEnsureUnifiedAnim === 'function') window._mgEnsureUnifiedAnim();
+        return new Promise((resolve) => {
+            const o = (typeof opts === 'string') ? { message: opts } : (opts || {});
+            const old = document.getElementById('glass-confirm-modal');
+            if (old) old.remove();
+            const isLight = document.documentElement.classList.contains('light-theme');
+            const tone = o.tone === 'danger' ? 'error' : (o.tone === 'sky' ? 'info' : (o.tone === 'success' ? 'success' : 'warning'));
+            const p = window._mgUnifiedPalette(tone, isLight);
+            const txtCol = isLight ? '#140c06' : '#ffffff';
+            const esc = (s) => String(s || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const title = esc(o.title || 'تأكيد الإجراء');
+            const msgLines = String(o.message || '').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+            const okTxt = esc(o.confirmText || '✅ نعم، متابعة');
+            const noTxt = esc(o.cancelText || '✕ إلغاء');
+            const overlay = document.createElement('div');
+            overlay.id = 'glass-confirm-modal';
+            overlay.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;background:rgba(2,6,23,0.68);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);z-index:2147483647;display:flex;justify-content:center;align-items:center;padding:20px;font-family:"Cairo","Tajawal",sans-serif;direction:rtl;';
+            overlay.innerHTML = `<div style="width:min(510px,94vw);background:${p.cardBg};border:${isLight ? '3px' : '2.5px'} solid ${p.border};box-shadow:0 28px 75px rgba(0,0,0,0.62),0 0 0 4px rgba(${p.rgb},0.22),inset 0 1.5px 0 rgba(255,255,255,0.25);border-radius:22px;padding:28px 26px 24px;text-align:center;animation:mgUnifiedPop 0.24s cubic-bezier(0.22,1,0.36,1);">`
+                + `<div style="width:70px;height:70px;margin:0 auto 14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.2rem;background:${p.orbBg};border:3px solid ${p.orbBrd};box-shadow:0 0 28px rgba(${p.rgb},0.65),inset 0 2px 4px rgba(255,255,255,0.65);">${o.icon || p.icon}</div>`
+                + `<div style="font-size:1.45rem;font-weight:900;color:${p.titleCol};margin-bottom:12px;line-height:1.4;">${title}</div>`
+                + `<div style="background:${isLight ? 'rgba(0,0,0,0.04)' : 'rgba(15,23,42,0.55)'};border:1px solid ${isLight ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.12)'};border-radius:14px;padding:14px 18px;margin:0 0 22px;display:flex;flex-direction:column;gap:6px;">`
+                + msgLines.map(l => `<div style="color:${txtCol};font-size:1.12rem;font-weight:800;line-height:1.65;">${esc(l)}</div>`).join('')
+                + `</div><div style="display:flex;gap:12px;justify-content:center;">`
+                + `<button type="button" id="glass-confirm-ok" style="flex:1.25;height:48px;background:${p.btnBg};color:#fff;border:2px solid ${p.btnBrd};border-bottom:4px solid ${p.btnBtm};border-radius:13px;font-size:1.08rem;font-weight:900;cursor:pointer;box-shadow:0 10px 24px rgba(${p.rgb},0.42);font-family:inherit;">${okTxt}</button>`
+                + `<button type="button" id="glass-confirm-no" style="flex:0.85;height:48px;background:${isLight ? '#e2e8f0' : 'rgba(148,163,184,0.16)'};color:${isLight ? '#1e293b' : '#e2e8f0'};border:2px solid ${isLight ? '#94a3b8' : 'rgba(148,163,184,0.42)'};border-bottom:4px solid ${isLight ? '#64748b' : 'rgba(15,23,42,0.85)'};border-radius:13px;font-size:1.04rem;font-weight:900;cursor:pointer;font-family:inherit;">${noTxt}</button>`
+                + `</div></div>`;
+            const done = (val) => { document.removeEventListener('keydown', onKey); overlay.remove(); resolve(val); };
+            const onKey = (ev) => { if (ev.key === 'Escape') { ev.preventDefault(); done(false); } else if (ev.key === 'Enter') { ev.preventDefault(); done(true); } };
+            overlay.onclick = (ev) => { if (ev.target === overlay) done(false); };
+            document.addEventListener('keydown', onKey);
+            document.body.appendChild(overlay);
+            overlay.querySelector('#glass-confirm-ok').onclick = () => done(true);
+            overlay.querySelector('#glass-confirm-no').onclick = () => done(false);
+            setTimeout(() => overlay.querySelector('#glass-confirm-ok')?.focus(), 50);
+        });
+    };
+    window.alert = function(message) { window.showCenteredWarningModal(message); };
     // --- Global Theme Toggle Binding (Delegated) ---
     document.body.addEventListener('click', (e) => {
         if (e.target.closest('.theme-toggle-btn')) {
@@ -3098,7 +3182,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // --- 5b. Posting Mode Helper ---
     window.getPostingMode = function() {
-        return localStorage.getItem('erp_posting_mode') || 'auto';
+        try {
+            if (localStorage.getItem('magaies_gather_posting_v2027') !== '1') {
+                localStorage.setItem('magaies_gather_posting_v2027', '1');
+                localStorage.setItem('erp_posting_mode', 'manual');
+            }
+            return localStorage.getItem('erp_posting_mode') || 'manual';
+        } catch (e) { return 'manual'; }
     };
     window.setPostingMode = function(mode) {
         localStorage.setItem('erp_posting_mode', mode);
@@ -5800,6 +5890,13 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         return accVal;
     }
 
+    function getSafeNameById(sid) {
+        if (!sid) return '';
+        const clean = String(sid).replace(/^safe-/i, '').trim().toLowerCase();
+        const hit = (safes || []).find(s => s && (String(s.id || '').replace(/^safe-/i, '').trim().toLowerCase() === clean || String(s.name || '').trim().toLowerCase() === clean));
+        return hit ? (hit.name || '') : '';
+    }
+
     // 1. Single Receipts (erp_single_receipts_v1)
     const receipts = loadSourceTable('erp_single_receipts_v1');
     receipts.forEach(v => {
@@ -5819,83 +5916,99 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         const fromAcct = resolveAccount(v.fromAccount);
         const refNo = v.voucherNo || v.id;
 
-        const hasTransfers = v.bankTransfers && v.bankTransfers.length > 0;
-        const hasCheques = v.cheques && v.cheques.length > 0;
+        const validTransfers = Array.isArray(v.bankTransfers) ? v.bankTransfers.filter(bt => parseNum(bt.amount) > 0) : [];
+        const validCheques = Array.isArray(v.cheques) ? v.cheques.filter(ch => parseNum(ch.amount) > 0) : [];
+        const hasTransfers = validTransfers.length > 0;
+        const hasCheques = validCheques.length > 0;
+        const safeNameLbl = v.cashSafeName || (v.cashSafeId ? (getSafeNameById(v.cashSafeId) || v.cashSafeId) : (String(toAcct).startsWith('safe-') ? (getSafeNameById(toAcct) || 'الخزينة') : 'الخزينة الرئيسية'));
+        let splitAssignedLoc = 0;
 
-        if (hasTransfers && v.paymentMethod !== 'cash') {
-            v.bankTransfers.forEach(bt => {
+        if (hasTransfers) {
+            validTransfers.forEach(bt => {
                 const amt = parseNum(bt.amount);
-                if (amt <= 0) return;
                 const amtLoc = isBaseSDG ? amt : (amt > valFc * 1.5 ? amt : amt * effRate);
                 const amtFc = isBaseSDG ? (amt / effRate) : (amt > valFc * 1.5 ? (amt / effRate) : amt);
-                const stmt = bt.statement || v.statement || v.fromStatement || ('تحويل بنكي - سند قبض #' + refNo);
+                splitAssignedLoc += amtLoc;
+                const bName = bt.bankName || bt.note || '';
+                const tNo = bt.transferNo || bt.reference || '';
+                const detailTag = `تحويلة بنكية${bName ? ' (' + bName + ')' : ''}${tNo ? ' رقم ' + tNo : ''}`;
+                const stmt = bt.statement ? `${detailTag} - ${bt.statement}` : (v.statement ? `${detailTag} - ${v.statement}` : `${detailTag} - سند #${refNo}`);
                 const btToAcct = resolveAccount(bt.bankAccountId || bt.bankId || v.toAccount || 'bank-001', toAcct);
 
                 txns.push({
                     date: v.date, time: time, ref: refNo, type: 'receipt', typeLabel: 'سند قبض',
                     account: btToAcct, counterAccount: fromAcct,
-                    statement: stmt, additionalNote: stmt,
-                    transferNo: bt.transferNo || bt.reference || '', bankName: bt.bankName || bt.note || '',
+                    statement: stmt, additionalNote: bt.statement || detailTag,
+                    transferNo: tNo, bankName: bName,
                     debit: amtLoc, credit: 0, debitForeign: amtFc, creditForeign: 0,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
                 txns.push({
                     date: v.date, time: time, ref: refNo, type: 'receipt', typeLabel: 'سند قبض',
                     account: fromAcct, counterAccount: btToAcct,
-                    statement: stmt, additionalNote: stmt,
-                    transferNo: bt.transferNo || bt.reference || '', bankName: bt.bankName || bt.note || '',
+                    statement: stmt, additionalNote: bt.statement || detailTag,
+                    transferNo: tNo, bankName: bName,
                     debit: 0, credit: amtLoc, debitForeign: 0, creditForeign: amtFc,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
             });
         }
         
-        if (hasCheques && v.paymentMethod !== 'cash') {
-            v.cheques.forEach(ch => {
+        if (hasCheques) {
+            validCheques.forEach(ch => {
                 const amt = parseNum(ch.amount);
-                if (amt <= 0) return;
                 const amtLoc = isBaseSDG ? amt : (amt > valFc * 1.5 ? amt : amt * effRate);
                 const amtFc = isBaseSDG ? (amt / effRate) : (amt > valFc * 1.5 ? (amt / effRate) : amt);
-                const chkLabel = ch.checkNo || ch.chequeNo ? ('الشيك ' + (ch.checkNo || ch.chequeNo)) : 'الشيك';
-                const stmt = ch.statement || (chkLabel + ' / قبض نقدية');
+                splitAssignedLoc += amtLoc;
+                const cNo = ch.checkNo || ch.chequeNo || '';
+                const cBank = ch.checkBranch || ch.checkBank || '';
+                const detailTag = `شيك${cBank ? ' (' + cBank + ')' : ''}${cNo ? ' رقم ' + cNo : ''}`;
+                const stmt = ch.statement ? `${detailTag} - ${ch.statement}` : (v.statement ? `${detailTag} - ${v.statement}` : `${detailTag} - سند #${refNo}`);
                 const chToAcct = resolveAccount(ch.bankAccountId || v.toAccount || 'cheques-receivable', toAcct);
 
                 txns.push({
                     date: v.date, time: time, ref: refNo, type: 'receipt', typeLabel: 'سند قبض',
                     account: chToAcct, counterAccount: fromAcct,
-                    statement: stmt, additionalNote: stmt,
-                    checkNo: ch.checkNo || ch.chequeNo || '', bankName: ch.checkBranch || ch.checkBank || '',
+                    statement: stmt, additionalNote: ch.statement || detailTag,
+                    checkNo: cNo, bankName: cBank,
                     debit: amtLoc, credit: 0, debitForeign: amtFc, creditForeign: 0,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
                 txns.push({
                     date: v.date, time: time, ref: refNo, type: 'receipt', typeLabel: 'سند قبض',
                     account: fromAcct, counterAccount: chToAcct,
-                    statement: stmt, additionalNote: stmt,
-                    checkNo: ch.checkNo || ch.chequeNo || '', bankName: ch.checkBranch || ch.checkBank || '',
+                    statement: stmt, additionalNote: ch.statement || detailTag,
+                    checkNo: cNo, bankName: cBank,
                     debit: 0, credit: amtLoc, debitForeign: 0, creditForeign: amtFc,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
             });
         }
 
-        // Hybrid cash portion when receipt combines cash + bank transfers or cheques
-        const hybridRecCashAmt = (hasTransfers || hasCheques) ? parseNum(v.cashAmount || 0) : 0;
-        if (hybridRecCashAmt > 0 && v.paymentMethod !== 'cash') {
-            const cLoc = isBaseSDG ? hybridRecCashAmt : (hybridRecCashAmt * effRate);
-            const cFc = isBaseSDG ? (hybridRecCashAmt / effRate) : hybridRecCashAmt;
-            const cStmt = v.statement || ('قبض نقدي (دفع مختلط) - سند #' + refNo);
+        // Hybrid/mixed cash portion when receipt combines cash + bank transfers or cheques
+        let hybridRecCashAmt = (hasTransfers || hasCheques) ? parseNum(v.cashAmount || 0) : 0;
+        if (hybridRecCashAmt <= 0 && (hasTransfers || hasCheques) && (valLoc - splitAssignedLoc) > 0.5) {
+            hybridRecCashAmt = Number((valLoc - splitAssignedLoc).toFixed(2));
+        }
+        if (hybridRecCashAmt > 0) {
+            const cLoc = isBaseSDG ? hybridRecCashAmt : (hybridRecCashAmt > valFc * 1.5 ? hybridRecCashAmt : hybridRecCashAmt * effRate);
+            const cFc = isBaseSDG ? (cLoc / effRate) : (hybridRecCashAmt > valFc * 1.5 ? (cLoc / effRate) : hybridRecCashAmt);
+            const cashToAcct = (v.cashSafeId && /^safe-/i.test(toAcct)) ? resolveAccount(v.cashSafeId, toAcct) : toAcct;
+            const cashTag = `نقدي (${safeNameLbl})`;
+            const cStmt = v.statement ? `${cashTag} - ${v.statement}` : `${cashTag} - سند #${refNo}`;
             txns.push({
                 date: v.date, time: time, ref: refNo, type: 'receipt', typeLabel: 'سند قبض',
-                account: toAcct, counterAccount: fromAcct,
-                statement: cStmt, additionalNote: 'الجزء النقدي من السند #' + refNo,
+                account: cashToAcct, counterAccount: fromAcct,
+                statement: cStmt, additionalNote: cashTag,
+                bankName: safeNameLbl,
                 debit: cLoc, credit: 0, debitForeign: cFc, creditForeign: 0,
                 costCenter, currency, exchangeRate: effRate, isPosted
             });
             txns.push({
                 date: v.date, time: time, ref: refNo, type: 'receipt', typeLabel: 'سند قبض',
-                account: fromAcct, counterAccount: toAcct,
-                statement: cStmt, additionalNote: 'الجزء النقدي من السند #' + refNo,
+                account: fromAcct, counterAccount: cashToAcct,
+                statement: cStmt, additionalNote: cashTag,
+                bankName: safeNameLbl,
                 debit: 0, credit: cLoc, debitForeign: 0, creditForeign: cFc,
                 costCenter, currency, exchangeRate: effRate, isPosted
             });
@@ -5904,13 +6017,14 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         if (!hasTransfers && !hasCheques) {
             // Pure Cash Single Receipt
             const singleTr = v.transferNo || v.mobileTransferNo || "";
-            const singleBank = v.bankName || v.mobileNote || "";
+            const singleBank = v.bankName || v.mobileNote || safeNameLbl;
             const singleChk = v.checkNo || v.chequeNo || "";
+            const pureStmt = v.statement ? `نقدي (${safeNameLbl}) - ${v.statement}` : `نقدي (${safeNameLbl}) - سند قبض #${refNo}`;
             txns.push({
                 date: v.date, time: time, ref: refNo, type: "receipt", typeLabel: "سند قبض",
                 account: toAcct, counterAccount: fromAcct,
-                statement: v.statement || "سند قبض #" + refNo,
-                additionalNote: v.fromStatement || "سند قبض نقدي",
+                statement: pureStmt,
+                additionalNote: v.fromStatement || `نقدي (${safeNameLbl})`,
                 transferNo: singleTr, bankName: singleBank, checkNo: singleChk,
                 debit: valLoc, credit: 0, debitForeign: valFc, creditForeign: 0,
                 costCenter, currency, exchangeRate: effRate, isPosted
@@ -5918,8 +6032,8 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
             txns.push({
                 date: v.date, time: time, ref: refNo, type: "receipt", typeLabel: "سند صرف",
                 account: fromAcct, counterAccount: toAcct,
-                statement: v.statement || "سند قبض #" + refNo,
-                additionalNote: v.fromStatement || "سند قبض نقدي",
+                statement: pureStmt,
+                additionalNote: v.fromStatement || `نقدي (${safeNameLbl})`,
                 transferNo: singleTr, bankName: singleBank, checkNo: singleChk,
                 debit: 0, credit: valLoc, debitForeign: 0, creditForeign: valFc,
                 costCenter, currency, exchangeRate: effRate, isPosted
@@ -5946,83 +6060,99 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         const toAcct = resolveAccount(v.toAccount);
         const refNo = v.voucherNo || v.id;
 
-        const hasTransfers = v.bankTransfers && v.bankTransfers.length > 0;
-        const hasCheques = v.cheques && v.cheques.length > 0;
+        const validTransfers = Array.isArray(v.bankTransfers) ? v.bankTransfers.filter(bt => parseNum(bt.amount) > 0) : [];
+        const validCheques = Array.isArray(v.cheques) ? v.cheques.filter(ch => parseNum(ch.amount) > 0) : [];
+        const hasTransfers = validTransfers.length > 0;
+        const hasCheques = validCheques.length > 0;
+        const safeNameLbl = v.cashSafeName || (v.cashSafeId ? (getSafeNameById(v.cashSafeId) || v.cashSafeId) : (String(fromAcct).startsWith('safe-') ? (getSafeNameById(fromAcct) || 'الخزينة') : 'الخزينة الرئيسية'));
+        let splitAssignedLoc = 0;
 
-        if (hasTransfers && v.paymentMethod !== 'cash') {
-            v.bankTransfers.forEach(bt => {
+        if (hasTransfers) {
+            validTransfers.forEach(bt => {
                 const amt = parseNum(bt.amount);
-                if (amt <= 0) return;
                 const amtLoc = isBaseSDG ? amt : (amt > valFc * 1.5 ? amt : amt * effRate);
                 const amtFc = isBaseSDG ? (amt / effRate) : (amt > valFc * 1.5 ? (amt / effRate) : amt);
-                const stmt = bt.statement || v.statement || v.toStatement || ('تحويل بنكي - سند صرف #' + refNo);
+                splitAssignedLoc += amtLoc;
+                const bName = bt.bankName || bt.note || '';
+                const tNo = bt.transferNo || bt.reference || '';
+                const detailTag = `تحويلة بنكية${bName ? ' (' + bName + ')' : ''}${tNo ? ' رقم ' + tNo : ''}`;
+                const stmt = bt.statement ? `${detailTag} - ${bt.statement}` : (v.statement ? `${detailTag} - ${v.statement}` : `${detailTag} - سند #${refNo}`);
                 const btFromAcct = resolveAccount(bt.bankAccountId || bt.bankId || v.fromAccount || 'bank-001', fromAcct);
 
                 txns.push({
                     date: v.date, time: time, ref: refNo, type: 'payment', typeLabel: 'سند صرف',
                     account: toAcct, counterAccount: btFromAcct,
-                    statement: stmt, additionalNote: stmt,
-                    transferNo: bt.transferNo || bt.reference || '', bankName: bt.bankName || bt.note || '',
+                    statement: stmt, additionalNote: bt.statement || detailTag,
+                    transferNo: tNo, bankName: bName,
                     debit: amtLoc, credit: 0, debitForeign: amtFc, creditForeign: 0,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
                 txns.push({
                     date: v.date, time: time, ref: refNo, type: 'payment', typeLabel: 'سند صرف',
                     account: btFromAcct, counterAccount: toAcct,
-                    statement: stmt, additionalNote: stmt,
-                    transferNo: bt.transferNo || bt.reference || '', bankName: bt.bankName || bt.note || '',
+                    statement: stmt, additionalNote: bt.statement || detailTag,
+                    transferNo: tNo, bankName: bName,
                     debit: 0, credit: amtLoc, debitForeign: 0, creditForeign: amtFc,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
             });
         }
         
-        if (hasCheques && v.paymentMethod !== 'cash') {
-            v.cheques.forEach(ch => {
+        if (hasCheques) {
+            validCheques.forEach(ch => {
                 const amt = parseNum(ch.amount);
-                if (amt <= 0) return;
                 const amtLoc = isBaseSDG ? amt : (amt > valFc * 1.5 ? amt : amt * effRate);
                 const amtFc = isBaseSDG ? (amt / effRate) : (amt > valFc * 1.5 ? (amt / effRate) : amt);
-                const chkLabel = ch.checkNo || ch.chequeNo ? ('الشيك ' + (ch.checkNo || ch.chequeNo)) : 'الشيك';
-                const stmt = ch.statement || (chkLabel + ' / صرف نقدية');
+                splitAssignedLoc += amtLoc;
+                const cNo = ch.checkNo || ch.chequeNo || '';
+                const cBank = ch.checkBranch || ch.checkBank || '';
+                const detailTag = `شيك${cBank ? ' (' + cBank + ')' : ''}${cNo ? ' رقم ' + cNo : ''}`;
+                const stmt = ch.statement ? `${detailTag} - ${ch.statement}` : (v.statement ? `${detailTag} - ${v.statement}` : `${detailTag} - سند #${refNo}`);
                 const chFromAcct = resolveAccount(ch.bankAccountId || v.fromAccount || 'cheques-payable', fromAcct);
 
                 txns.push({
                     date: v.date, time: time, ref: refNo, type: 'payment', typeLabel: 'سند صرف',
                     account: toAcct, counterAccount: chFromAcct,
-                    statement: stmt, additionalNote: stmt,
-                    checkNo: ch.checkNo || ch.chequeNo || '', bankName: ch.checkBranch || ch.checkBank || '',
+                    statement: stmt, additionalNote: ch.statement || detailTag,
+                    checkNo: cNo, bankName: cBank,
                     debit: amtLoc, credit: 0, debitForeign: amtFc, creditForeign: 0,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
                 txns.push({
                     date: v.date, time: time, ref: refNo, type: 'payment', typeLabel: 'سند صرف',
                     account: chFromAcct, counterAccount: toAcct,
-                    statement: stmt, additionalNote: stmt,
-                    checkNo: ch.checkNo || ch.chequeNo || '', bankName: ch.checkBranch || ch.checkBank || '',
+                    statement: stmt, additionalNote: ch.statement || detailTag,
+                    checkNo: cNo, bankName: cBank,
                     debit: 0, credit: amtLoc, debitForeign: 0, creditForeign: amtFc,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
             });
         }
 
-        // Hybrid cash portion when payment combines cash + bank transfers or cheques
-        const hybridCashAmt = (hasTransfers || hasCheques) ? parseNum(v.cashAmount || 0) : 0;
-        if (hybridCashAmt > 0 && v.paymentMethod !== 'cash') {
-            const cLoc = isBaseSDG ? hybridCashAmt : (hybridCashAmt * effRate);
-            const cFc = isBaseSDG ? (hybridCashAmt / effRate) : hybridCashAmt;
-            const cStmt = v.statement || ('صرف نقدي (دفع مختلط) - سند #' + refNo);
+        // Hybrid/mixed cash portion when payment combines cash + bank transfers or cheques
+        let hybridCashAmt = (hasTransfers || hasCheques) ? parseNum(v.cashAmount || 0) : 0;
+        if (hybridCashAmt <= 0 && (hasTransfers || hasCheques) && (valLoc - splitAssignedLoc) > 0.5) {
+            hybridCashAmt = Number((valLoc - splitAssignedLoc).toFixed(2));
+        }
+        if (hybridCashAmt > 0) {
+            const cLoc = isBaseSDG ? hybridCashAmt : (hybridCashAmt > valFc * 1.5 ? hybridCashAmt : hybridCashAmt * effRate);
+            const cFc = isBaseSDG ? (cLoc / effRate) : (hybridCashAmt > valFc * 1.5 ? (cLoc / effRate) : hybridCashAmt);
+            const cashFromAcct = (v.cashSafeId && /^safe-/i.test(fromAcct)) ? resolveAccount(v.cashSafeId, fromAcct) : fromAcct;
+            const cashTag = `نقدي (${safeNameLbl})`;
+            const cStmt = v.statement ? `${cashTag} - ${v.statement}` : `${cashTag} - سند #${refNo}`;
             txns.push({
                 date: v.date, time: time, ref: refNo, type: 'payment', typeLabel: 'سند صرف',
-                account: toAcct, counterAccount: fromAcct,
-                statement: cStmt, additionalNote: 'الجزء النقدي من السند #' + refNo,
+                account: toAcct, counterAccount: cashFromAcct,
+                statement: cStmt, additionalNote: cashTag,
+                bankName: safeNameLbl,
                 debit: cLoc, credit: 0, debitForeign: cFc, creditForeign: 0,
                 costCenter, currency, exchangeRate: effRate, isPosted
             });
             txns.push({
                 date: v.date, time: time, ref: refNo, type: 'payment', typeLabel: 'سند صرف',
-                account: fromAcct, counterAccount: toAcct,
-                statement: cStmt, additionalNote: 'الجزء النقدي من السند #' + refNo,
+                account: cashFromAcct, counterAccount: toAcct,
+                statement: cStmt, additionalNote: cashTag,
+                bankName: safeNameLbl,
                 debit: 0, credit: cLoc, debitForeign: 0, creditForeign: cFc,
                 costCenter, currency, exchangeRate: effRate, isPosted
             });
@@ -6031,13 +6161,14 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         if (!hasTransfers && !hasCheques) {
             // Pure Cash Single Payment
             const singleTr = v.transferNo || v.mobileTransferNo || "";
-            const singleBank = v.bankName || v.mobileNote || "";
+            const singleBank = v.bankName || v.mobileNote || safeNameLbl;
             const singleChk = v.checkNo || v.chequeNo || "";
+            const pureStmt = v.statement ? `نقدي (${safeNameLbl}) - ${v.statement}` : `نقدي (${safeNameLbl}) - سند صرف #${refNo}`;
             txns.push({
                 date: v.date, time: time, ref: refNo, type: "payment", typeLabel: "سند صرف",
                 account: toAcct, counterAccount: fromAcct,
-                statement: v.statement || "سند صرف #" + refNo,
-                additionalNote: v.toStatement || "سند صرف نقدي",
+                statement: pureStmt,
+                additionalNote: v.toStatement || `نقدي (${safeNameLbl})`,
                 transferNo: singleTr, bankName: singleBank, checkNo: singleChk,
                 debit: valLoc, credit: 0, debitForeign: valFc, creditForeign: 0,
                 costCenter, currency, exchangeRate: effRate, isPosted
@@ -6045,8 +6176,8 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
             txns.push({
                 date: v.date, time: time, ref: refNo, type: "payment", typeLabel: "سند صرف",
                 account: fromAcct, counterAccount: toAcct,
-                statement: v.statement || "سند صرف #" + refNo,
-                additionalNote: v.toStatement || "سند صرف نقدي",
+                statement: pureStmt,
+                additionalNote: v.toStatement || `نقدي (${safeNameLbl})`,
                 transferNo: singleTr, bankName: singleBank, checkNo: singleChk,
                 debit: 0, credit: valLoc, debitForeign: 0, creditForeign: valFc,
                 costCenter, currency, exchangeRate: effRate, isPosted
@@ -6104,7 +6235,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                     txns.push({
                         date: v.date, time: time, ref: refNo, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
                         account: safeAcct, counterAccount: itemAcct,
-                        statement: v.description || stmt,
+                        statement: stmt,
                         additionalNote: v.description || stmt,
                         debit: amtLoc, credit: 0, 
                         debitForeign: amtFc, creditForeign: 0,
@@ -6133,13 +6264,13 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                         const amtFc = isBaseSDG ? (amt / effRate) : amt;
                         const bankAcct = mainAcc;
                         const baseStmt = bt.statement || item.statement || v.description || 'قبض تحويل بنكي';
-                        const stmt = bt.bankName ? `بنك: ${bt.bankName} - ${baseStmt}` : baseStmt;
+                        const stmt = `تحويلة${bt.bankName ? ' (' + bt.bankName + ')' : ''}${bt.transferNo ? ' رقم ' + bt.transferNo : ''} - ${baseStmt}`;
 
                         // Bank/Main Account (Debit)
                         txns.push({
                             date: v.date, time: time, ref: refNo, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
                             account: bankAcct, counterAccount: itemAcct,
-                            statement: v.description || stmt,
+                            statement: stmt,
                             additionalNote: v.description || stmt,
                             transferNo: bt.transferNo, bankName: bt.bankName || bt.note,
                             debit: amtLoc, credit: 0, 
@@ -6170,14 +6301,15 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                         const amtLoc = isBaseSDG ? amt : amt * effRate;
                         const amtFc = isBaseSDG ? (amt / effRate) : amt;
                         const chequeAcct = mainAcc;
+                        const cNum = ch.chequeNo || ch.checkNo || '';
                         const baseStmt = ch.statement || item.statement || v.description || 'قبض شيك';
-                        const stmt = ch.chequeBank ? `شيك بنك: ${ch.chequeBank} - ${baseStmt}` : baseStmt;
+                        const stmt = `شيك${ch.chequeBank ? ' (' + ch.chequeBank + ')' : ''}${cNum ? ' رقم ' + cNum : ''} - ${baseStmt}`;
 
                         // Cheque/Main Account (Debit)
                         txns.push({
                             date: v.date, time: time, ref: refNo, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
                             account: chequeAcct, counterAccount: itemAcct,
-                            statement: v.description || stmt,
+                            statement: stmt,
                             additionalNote: v.description || stmt,
                             checkNo: ch.chequeNo || ch.checkNo, bankName: ch.chequeBank || ch.checkBank,
                             debit: amtLoc, credit: 0, 
@@ -6361,7 +6493,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                     txns.push({
                         date: v.date, time: time, ref: refNo, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
                         account: safeAcct, counterAccount: itemAcct,
-                        statement: v.description || stmt,
+                        statement: stmt,
                         additionalNote: v.description || stmt,
                         debit: 0, credit: amtLoc, 
                         debitForeign: 0, creditForeign: amtFc,
@@ -6379,7 +6511,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                         const amtFc = isBaseSDG ? (amt / effRate) : amt;
                         const bankAcct = mainAcc;
                         const baseStmt = bt.statement || item.statement || v.description || 'صرف تحويل بنكي';
-                        const stmt = bt.bankName ? `بنك: ${bt.bankName} - ${baseStmt}` : baseStmt;
+                        const stmt = `تحويلة${bt.bankName ? ' (' + bt.bankName + ')' : ''}${bt.transferNo ? ' رقم ' + bt.transferNo : ''} - ${baseStmt}`;
 
                         // Recipient Account (Debit)
                         txns.push({
@@ -6397,7 +6529,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                         txns.push({
                             date: v.date, time: time, ref: refNo, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
                             account: bankAcct, counterAccount: itemAcct,
-                            statement: v.description || stmt,
+                            statement: stmt,
                             additionalNote: v.description || stmt,
                             transferNo: bt.transferNo, bankName: bt.bankName || bt.note,
                             debit: 0, credit: amtLoc, 
@@ -6416,8 +6548,9 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                         const amtLoc = isBaseSDG ? amt : amt * effRate;
                         const amtFc = isBaseSDG ? (amt / effRate) : amt;
                         const chequeAcct = mainAcc;
+                        const cNum = ch.chequeNo || ch.checkNo || '';
                         const baseStmt = ch.statement || item.statement || v.description || 'صرف شيك';
-                        const stmt = ch.chequeBank ? `شيك بنك: ${ch.chequeBank} - ${baseStmt}` : baseStmt;
+                        const stmt = `شيك${ch.chequeBank ? ' (' + ch.chequeBank + ')' : ''}${cNum ? ' رقم ' + cNum : ''} - ${baseStmt}`;
 
                         // Recipient Account (Debit)
                         txns.push({
@@ -6435,7 +6568,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                         txns.push({
                             date: v.date, time: time, ref: refNo, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
                             account: chequeAcct, counterAccount: itemAcct,
-                            statement: v.description || stmt,
+                            statement: stmt,
                             additionalNote: v.description || stmt,
                             checkNo: ch.chequeNo || ch.checkNo, bankName: ch.chequeBank || ch.checkBank,
                             debit: 0, credit: amtLoc, 
@@ -6790,8 +6923,9 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                         txns.push({
                             date: inv.date, time: time, ref: `${refNo}-CH${idx+1}`, type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
                             account: chequeAcct, counterAccount: customerAcct,
-                            statement: `شيك رقم #${ch.chequeNo || ''} استحقاق ${ch.dueDate || ''}`,
+                            statement: `شيك${ch.bankName ? ' (' + ch.bankName + ')' : ''} رقم #${ch.chequeNo || ''} استحقاق ${ch.dueDate || ''}`,
                             additionalNote: isReturn ? 'إرجاع شيك' : 'سداد شيك مع الفاتورة',
+                            checkNo: ch.chequeNo || ch.checkNo || '', bankName: ch.bankName || 'البنك',
                             debit: debCh, credit: credCh, 
                             debitForeign: debChFc, creditForeign: credChFc,
                             costCenter, currency,
@@ -6801,8 +6935,9 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                         txns.push({
                             date: inv.date, time: time, ref: `${refNo}-CH${idx+1}`, type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
                             account: customerAcct, counterAccount: chequeAcct,
-                            statement: `شيك رقم #${ch.chequeNo || ''} استحقاق ${ch.dueDate || ''}`,
+                            statement: `شيك${ch.bankName ? ' (' + ch.bankName + ')' : ''} رقم #${ch.chequeNo || ''} استحقاق ${ch.dueDate || ''}`,
                             additionalNote: isReturn ? 'إرجاع شيك' : 'سداد شيك مع الفاتورة',
+                            checkNo: ch.chequeNo || ch.checkNo || '', bankName: ch.bankName || 'البنك',
                             debit: credCh, credit: debCh, 
                             debitForeign: credChFc, creditForeign: debChFc,
                             costCenter, currency,
@@ -6840,7 +6975,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                     if (sObj) safeName = sObj.name;
                 } catch(e) {}
                 
-                const stmt = isReturn ? 'سداد مرتجع نقدي' : 'استلام نقدية';
+                const stmt = (isReturn ? 'سداد مرتجع نقدي' : 'استلام نقدية') + ` (${safeName})`;
                 const addNote = isReturn ? `صرف مبالغ المرتجع من [${safeName}]` : `سداد نقدي مبيعات (${refNo})`;
 
                 txns.push({
@@ -6876,9 +7011,9 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                     const bObj = allBanks.find(b => String(b.id) === String(bt.bankAccountId));
                     if (bObj) bankName = bObj.name;
                     
-                    const stmt = isReturn ? 'سداد مرتجع تحويل بنكي' : 'استلام تحويل بنكي';
-                    const addNote = `سداد تحويلة مبيعات (${refNo})`;
                     const trNum = bt.reference || bt.transferNo || '';
+                    const stmt = (isReturn ? 'سداد مرتجع تحويل بنكي' : 'استلام تحويل بنكي') + ` (${bankName})${trNum ? ' رقم ' + trNum : ''}`;
+                    const addNote = `سداد تحويلة مبيعات (${refNo})`;
 
                     txns.push({
                         date: inv.date, time: time, ref: refNo + '-SAL-PAID-B' + idx, type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
@@ -6916,9 +7051,10 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                         if (bObj) bankName = bObj.name;
                     }
                     
-                    const stmt = isReturn ? 'سداد مرتجع شيك' : 'استلام شيك';
+                    const cNum = ch.chequeNo || ch.checkNo || '';
+                    const stmt = (isReturn ? 'سداد مرتجع شيك' : 'استلام شيك') + ` (${bankName})${cNum ? ' رقم ' + cNum : ''}`;
                     const addNote = `سداد شيك مبيعات (${refNo})`;
-                    const trNum = `شيك (${ch.chequeNo || ''})`;
+                    const trNum = `شيك (${cNum})`;
 
                     txns.push({
                         date: inv.date, time: time, ref: refNo + '-SAL-PAID-Q' + idx, type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
@@ -7137,7 +7273,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                     if (sObj) safeName = sObj.name;
                 } catch(e) {}
                 
-                const stmt = (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد نقدية' : 'صرف نقدية';
+                const stmt = ((typeof isReturn !== 'undefined' && isReturn) ? 'استرداد نقدية' : 'صرف نقدية') + ` (${safeName})`;
                 const addNote = (typeof isReturn !== 'undefined' && isReturn) ? `استرداد نقدي مع مرتجع الفاتورة من [${safeName}]` : `سداد نقدي مشتريات (${refNo})`;
 
                 txns.push({
@@ -7173,9 +7309,9 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                     const bObj = allBanks.find(b => String(b.id) === String(bt.bankAccountId));
                     if (bObj) bankName = bObj.name;
                     
-                    const stmt = (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد تحويل بنكي' : 'صرف تحويل بنكي';
-                    const addNote = `سداد تحويلة مشتريات (${refNo})`;
                     const trNum = bt.reference || bt.transferNo || '';
+                    const stmt = ((typeof isReturn !== 'undefined' && isReturn) ? 'استرداد تحويل بنكي' : 'صرف تحويل بنكي') + ` (${bankName})${trNum ? ' رقم ' + trNum : ''}`;
+                    const addNote = `سداد تحويلة مشتريات (${refNo})`;
 
                     txns.push({
                         date: inv.date, time: time, ref: refNo + '-PUR-PAID-B' + idx, type: (typeof isReturn !== 'undefined' && isReturn) ? 'receipt' : 'payment', typeLabel: (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد مشتريات' : 'سداد مشتريات',
@@ -7213,9 +7349,10 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                         if (bObj) bankName = bObj.name;
                     }
                     
-                    const stmt = (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد شيك' : 'صرف شيك';
+                    const cNum = ch.chequeNo || ch.checkNo || '';
+                    const stmt = ((typeof isReturn !== 'undefined' && isReturn) ? 'استرداد شيك' : 'صرف شيك') + ` (${bankName})${cNum ? ' رقم ' + cNum : ''}`;
                     const addNote = `سداد شيك مشتريات (${refNo})`;
-                    const trNum = `شيك (${ch.chequeNo || ''})`;
+                    const trNum = `شيك (${cNum})`;
 
                     txns.push({
                         date: inv.date, time: time, ref: refNo + '-PUR-PAID-Q' + idx, type: (typeof isReturn !== 'undefined' && isReturn) ? 'receipt' : 'payment', typeLabel: (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد مشتريات' : 'سداد مشتريات',

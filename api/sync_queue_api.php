@@ -341,7 +341,7 @@ try {
                         $payloadObj['id'] = $officialCloudId;
                         $payloadObj['voucherNo'] = $officialCloudId;
                         $payloadObj['offline_record_id'] = $recordId;
-                        $payloadObj['isPosted'] = true;
+                        $payloadObj['isPosted'] = !empty($payloadObj['isPosted']); if (!$payloadObj['isPosted']) $payloadObj['status'] = 'pending';
                         $payloadObj['sync_status'] = 'SYNCED';
                         $payloadObj['official_server_id'] = $officialCloudId;
                         $stmtDom = $pdo->prepare("INSERT INTO single_receipts (tenant_id, data) VALUES (?, ?)");
@@ -372,7 +372,7 @@ try {
                         $payloadObj['id'] = $officialCloudId;
                         $payloadObj['voucherNo'] = $officialCloudId;
                         $payloadObj['offline_record_id'] = $recordId;
-                        $payloadObj['isPosted'] = true;
+                        $payloadObj['isPosted'] = !empty($payloadObj['isPosted']); if (!$payloadObj['isPosted']) $payloadObj['status'] = 'pending';
                         $payloadObj['sync_status'] = 'SYNCED';
                         $payloadObj['official_server_id'] = $officialCloudId;
                         $stmtDom = $pdo->prepare("INSERT INTO single_payments (tenant_id, data) VALUES (?, ?)");

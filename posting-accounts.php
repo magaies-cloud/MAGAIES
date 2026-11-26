@@ -1,10 +1,8 @@
 <?php
-if (isset($_GET['api']) && $_GET['api'] === 'set_posted_batch') {
+if (isset($_GET['api']) && ($_GET['api'] === 'set_posted_batch' || $_GET['api'] === 'fetch_all_movements')) {
     header('Content-Type: application/json; charset=UTF-8');
-    require_once __DIR__ . '/db_bridge.php';
-    $pdo = getDBConnection();
-    $payload = json_decode(file_get_contents('php://input'), true) ?: [];
-    $items = is_array($payload['items'] ?? null) ? $payload['items'] : [];
+    require_once __DIR__ . '/api/db.php';
+    if (!isset($pdo) || !$pdo) { require_once __DIR__ . '/db_bridge.php'; $pdo = getDBConnection(); }
     $tblMap = [
         'erp_sales_invoices_v1' => 'sales_invoices',
         'erp_purchase_invoices_v1' => 'purchase_invoices',
@@ -12,8 +10,46 @@ if (isset($_GET['api']) && $_GET['api'] === 'set_posted_batch') {
         'erp_receipts_v1' => 'receipts',
         'erp_single_payments_v1' => 'single_payments',
         'erp_payments_v1' => 'payments',
-        'erp_journal_vouchers_v1' => 'journal_vouchers'
+        'erp_journal_vouchers_v1' => 'journal_vouchers',
+        'erp_bank_transfers_v1' => 'bank_transfers',
+        'erp_safe_transfers_v1' => 'safe_transfers',
+        'erp_purchase_returns_v1' => 'purchase_returns',
+        'erp_sales_returns_v1' => 'sales_returns'
     ];
+    if ($_GET['api'] === 'fetch_all_movements') {
+        $out = [];
+        if ($pdo) {
+            $existingTbls = array_flip($pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN));
+            foreach ($tblMap as $metaKey => $tbl) {
+                $out[$metaKey] = [];
+                if (!isset($existingTbls[$tbl])) continue;
+                try {
+                    // Fetch latest 220 rows + any unposted rows directly in SQL for <15ms speed
+                    $rows = $pdo->query('SELECT id, data FROM `' . $tbl . '` ORDER BY id DESC LIMIT 350')->fetchAll(PDO::FETCH_ASSOC);
+                    $seenIds = [];
+                    foreach ($rows as $r) {
+                        $rid = (int)$r['id'];
+                        if (isset($seenIds[$rid])) continue;
+                        $seenIds[$rid] = true;
+                        $d = json_decode($r['data'] ?? '', true);
+                        if (is_array($d) && empty($d['deleted'])) {
+                            if (empty($d['id'])) $d['id'] = (string)$rid;
+                            if (isset($d['items']) && is_array($d['items']) && count($d['items']) > 25) {
+                                $d['_totalItemsCount'] = count($d['items']);
+                                $d['items'] = array_slice($d['items'], 0, 25);
+                            }
+                            unset($d['gpsLocation'], $d['auditTrail'], $d['rawOcrText']);
+                            $out[$metaKey][] = $d;
+                        }
+                    }
+                } catch (Exception $e) {}
+            }
+        }
+        echo json_encode(['success' => true, 'movements' => $out], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+    $payload = json_decode(file_get_contents('php://input'), true) ?: [];
+    $items = is_array($payload['items'] ?? null) ? $payload['items'] : [];
     $updated = 0;
     $nowMs = (int)round(microtime(true) * 1000);
     if ($pdo && $items) {
@@ -43,6 +79,7 @@ if (isset($_GET['api']) && $_GET['api'] === 'set_posted_batch') {
                     foreach ($keys as $k) { if (array_key_exists($k, $refMap)) { $matched = $refMap[$k]; break; } }
                     if ($matched === null) continue;
                     $d['isPosted'] = $matched;
+                    $d['postedViaHub'] = $matched;
                     if ($tbl === 'sales_invoices' || $tbl === 'purchase_invoices') {
                         $d['status'] = $matched ? 'posted' : 'pending';
                     }
@@ -60,13 +97,13 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
 <?php $page_title = 'ترحيل الحسابات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<script src="js/lang.js"></script>
+<script src="js/lang.js?v=<?= @filemtime(__DIR__ . '/js/lang.js') ?: '2027' ?>"></script>
 <script>
 (function(){
     var l = localStorage.getItem('erp_lang') || 'ar';
-    if(l==='en') {
+    if(l==='en' || l==='zh') {
         document.documentElement.setAttribute('dir','ltr');
-        document.documentElement.setAttribute('lang','en');
+        document.documentElement.setAttribute('lang',l);
     }
 })();
 </script>
@@ -114,160 +151,62 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
         <?php include 'includes/header.php'; ?>
 
         <!-- Filters -->
-        <div class="filters-wrapper">
-            <div class="filters-top">
-                <div class="status-toggle">
-                    <button class="status-btn active unposted" id="status-unposted" onclick="setStatus('unposted')">⏳ معلقة</button>
-                    <button class="status-btn posted" id="status-posted" onclick="setStatus('posted')">✅ مرحّلة</button>
-                </div>
-                
-                <div class="search-box">
-                    <span class="icon">🔍</span>
-                    <input type="text" id="search-input" placeholder="بحث ذكي (F2): مرجع، اسم، مبلغ..." oninput="handleFilterChange()">
-                </div>
-                
-                <div class="date-filters">
-                    <label style="font-size:0.85rem; font-weight:900;">من:</label>
-                    <input type="date" id="date-from" class="date-input" onchange="handleFilterChange()">
-                    <label style="font-size:0.85rem; font-weight:900;">إلى:</label>
-                    <input type="date" id="date-to" class="date-input" onchange="handleFilterChange()">
+        <div class="filters-wrapper pa-inbound-twin-bar">
+            <div class="pa-twin-header-row">
+                <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+                    <div style="width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#0284c7,#10b981);border:1.5px solid #7dd3fc;display:flex;align-items:center;justify-content:center;font-size:1.05rem;">📑</div>
+                    <h3 style="margin:0;font-size:1.08rem;font-weight:900;color:#ffffff;display:flex;align-items:center;gap:8px;white-space:nowrap;">
+                        <span>ترحيل الحسابات والقيود المجمعة</span>
+                        <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#10b981;box-shadow:0 0 8px #10b981;"></span>
+                    </h3>
                 </div>
 
-                <button type="button" onclick="window.openPaQuickAddEntityModal()" style="height:36px; padding:0 12px; border-radius:10px; background:linear-gradient(135deg,#0284c7,#2563eb); border:2.2px solid #fde047; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.84rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>➕</span> <span>إضافة</span>
-                </button>
-                <button type="button" onclick="if(window.InboundBankakManager){InboundBankakManager.toggleDrawer(true); InboundBankakManager.setFilter('awaiting_approval');}" style="height:36px; padding:0 12px; border-radius:10px; background:linear-gradient(135deg,#059669,#0d9488); border:2.2px solid #34d399; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.84rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>📥</span> <span>إشعارات واتساب</span>
-                </button>
-                <button type="button" onclick="if(window.openPostingAIAuditModal) window.openPostingAIAuditModal()" style="height:36px; padding:0 12px; border-radius:10px; background:linear-gradient(135deg, #7c3aed, #2563eb); border:2.2px solid #fde047; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.84rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>🤖</span> <span>فحص AI</span>
-                </button>
-                <button type="button" id="pa-c1-appearance-btn" onclick="window.openPaC1TonePopover(this)" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#b45309,#f59e0b); border:2.2px solid #fde047; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.83rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>🎨</span> <span>المظهر</span>
-                </button>
-                <button type="button" id="pa-c1-guide-btn" onclick="window.openPaC1SmartGuide()" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#0d9488,#0284c7); border:2.2px solid #fde047; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.83rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>🧭</span> <span>المرشد</span>
-                </button>
-                <button type="button" onclick="window.openPaC1NestedChildModal(1)" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#1e40af,#0f766e); border:2.2px solid #38bdf8; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>🪟</span> <span>الشاشات الوليدة</span>
-                </button>
-                <button type="button" id="pa-c9-inspect-btn" onclick="window.openPaWarehouseInspectAndSortModal()" title="فحص واستلام البضاعة والفرز اللحظي (سليم / تالف / مرفوض) والتحويل المخزني" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#0f766e,#0284c7); border:2.2px solid #38bdf8; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>🔬</span> <span>فحص واستلام</span>
-                </button>
-                <button type="button" id="pa-c10-landed-btn" onclick="window.openPaLandedCostModal()" title="توزيع المصروفات المضافة (نقل، شحن، عتالة، رسوم) على تكلفة الوحدة" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#7c3aed,#4f46e5); border:2.2px solid #c4b5fd; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>🚢</span> <span>المصروفات المضافة</span>
-                </button>
-                <button type="button" id="pa-c10-lifecycle-btn" onclick="window.openPaDocLifecycleModal()" title="تحويل المستندات وتوليد إذن المخزن وسند القبض/الصرف بضغطة زر" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#0284c7,#0f766e); border:2.2px solid #7dd3fc; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>🔄</span> <span>الدورة المستندية</span>
-                </button>
-                <button type="button" id="pa-c10-return-btn" onclick="window.openPaReturnReverseModal()" title="إدارة المرتجعات الكلية والجزئية وتوليد القيد العكسي الآلي" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#e11d48,#be123c); border:2.2px solid #fda4af; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>↩️</span> <span>مرتجع وقيد عكسي</span>
-                </button>
-                <button type="button" id="pa-c11-cheque-btn" onclick="window.openPaChequeLifecycleModal()" title="حافظة ودورة الشيكات الكاملة من الألف للياء (في الحافظة / تحت التحصيل / محصل / مرتد / مظهر)" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#0f766e,#0284c7); border:2.2px solid #6ee7b7; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>🏦</span> <span>دورة الشيكات</span>
-                </button>
-                <button type="button" id="pa-c11-bankguard-btn" onclick="window.openPaBankGuardAndPeriodModal()" title="رقابة التحويلات البنكية ومنع تكرار رقم الإشعار للاختلاس وإقفال الفترات المالية" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#b45309,#d97706); border:2.2px solid #fde047; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>🛡️</span> <span>رقابة البنوك وإقفال الفترة</span>
-                </button>
-                <button type="button" id="pa-c12-printlock-btn" onclick="window.openPaForensicPrintModal()" title="قفل الطباعة الصارم والعلامة المائية لبدل الفاقد وباركود الصرف ذو الاستعمال الواحد" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#1e3a8a,#3b82f6); border:2.2px solid #93c5fd; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>🖨️</span> <span>قفل الطباعة والباركود</span>
-                </button>
-                <button type="button" id="pa-c12-blindcash-btn" onclick="window.openPaBlindCashClosingModal()" title="نظام الجرد الأعمى عند تسليم الخزينة والوردية وتقييد العجز على الموظف" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#881337,#e11d48); border:2.2px solid #fda4af; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>🕵️</span> <span>الجرد الأعمى للوردية</span>
-                </button>
-                <button type="button" id="pa-c13-blackbox-btn" onclick="window.openPaCyberBlackBoxAndRadarModal()" title="الصندوق الأسود الرقابي غير القابل للمسح ولوحة التنبيهات الأمنية السرية للمالك (🟡/🟠/🔴)" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#0f172a,#334155); border:2.2px solid #f43f5e; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>⬛</span> <span>الصندوق الأسود ورادار المالك</span>
-                </button>
-                <button type="button" id="pa-c13-pinlock-btn" onclick="window.triggerPaQuickPinLock()" title="قفل الخمول السريع بكلمة سر PIN من 4 أرقام لمنع انتحال الشخصية (F12)" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#4c1d95,#7c3aed); border:2.2px solid #ddd6fe; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>🔐</span> <span>قفل PIN</span> <kbd class="pa-kbd">F12</kbd>
-                </button>
-                <button type="button" id="pa-c14-reports-btn" onclick="window.openPaWorldReportAndPrintHubModal()" title="التقارير العالمية، الرصيد التراكمي، التعمق بضغطة زر (Drill-Down)، الطباعة الموزونة (A4/80mm)، والتصدير" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#047857,#0d9488); border:2.2px solid #6ee7b7; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>📊</span> <span>التقارير والطباعة (A4/80mm)</span>
-                </button>
-                <button type="button" id="pa-c15-master-btn" onclick="window.openPaC15MasterAuditModal()" title="بوابة المراجعة الختامية للدساتير الـ 15، الروابط الذرية المترابطة، ومعاينة أثر ميزان المراجعة" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#9333ea,#d97706); border:2.2px solid #fde047; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>🏆</span> <span>بوابة الدساتير الـ 15 والروابط</span>
-                </button>
-                <button type="button" id="pa-fc1-ai-btn" onclick="window.openPaSupremeAICopilotModal()" title="الذكاء الاصطناعي الهجين الفائق (0ms): الإدخال باللغة الطبيعية صوتاً أو كتابةً، قارئ الإشعارات AI OCR، واقتراح الخطوة التالية" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#6d28d9,#ec4899); border:2.2px solid #f9a8d4; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>🧠✨</span> <span>الذكاء الشامل واللغة الطبيعية</span>
-                </button>
-                <button type="button" id="pa-fc1-dualui-btn" onclick="window.openPaShortcutMatrixModal()" title="البوابة المزدوجة (الواجهة العصرية ↔ الكلاسيكية) ومصفوفة أزرار الاختصارات (1، 2، 3، 4) مع قفل حبس الاختصار" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#0369a1,#1d4ed8); border:2.2px solid #93c5fd; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>🎛️</span> <span>الواجهتان والاختصارات (1-4)</span>
-                </button>
-                <button type="button" id="pa-fc1-split-btn" onclick="window.togglePaDualSplitWorkspace()" title="نظام النصفين (يمين وشمال) ووضع ملء الشاشة (100dvh) للموبايل بالعرض" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#0f766e,#059669); border:2.2px solid #6ee7b7; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>📱⚖️</span> <span>النصفين (يمين/شمال)</span>
-                </button>
-                <button type="button" id="pa-fc1-gestures-btn" onclick="window.openPaGestureControlAndGuideModal()" title="مفتاح تفعيل/إيقاف إيماءات الأصابع للشاشات المرتجة وإخفاء الأرصدة (****)" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#b45309,#d97706); border:2.2px solid #fde047; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>✋👁️</span> <span>الإيماءات وإخفاء (****)</span>
-                </button>
-                <button type="button" id="pa-fc2-insights-btn" onclick="window.openPaAIExecutiveInsightsModal()" title="الذكاء الاصطناعي لتحليل النتائج والتقارير، التنبؤ المستقبلي، والاستعلام الذكي" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#0f766e,#1d4ed8); border:2.2px solid #7dd3fc; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>📈🤖</span> <span>المحلل المالي الذكي والتنبؤات</span>
-                </button>
-                <button type="button" id="pa-fc2-biometric-btn" onclick="window.openPaBiometricAndReceiptCardModal()" title="البصمة البيومترية، ضغط الإشعارات 40KB، حارس تصوير الشاشة، وتوليد بطاقة إيصال مصورة للواتساب" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#312e81,#7c3aed); border:2.2px solid #c4b5fd; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>🧬🖼️</span> <span>البصمة وبطاقة الواتساب (40KB)</span>
-                </button>
-                <button type="button" onclick="window.undoLastPaPostingAction()" title="التراجع الفوري عن آخر ترحيل (Ctrl+Z)" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#475569,#334155); border:2.2px solid #cbd5e1; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>↩️</span> <span>تراجع</span> <kbd class="pa-kbd">Ctrl+Z</kbd>
-                </button>
-                <button type="button" onclick="window.parkCurrentPaSelection()" title="تعليق المراجعة الحالية مؤقتاً بضغطة زر" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#d97706,#f59e0b); border:2.2px solid #fde047; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>⏸️</span> <span>تعليق مؤقت</span>
-                </button>
-                <button type="button" onclick="window.resetPaFiltersAndSearch()" title="تصفير الفلاتر والبحث" style="height:36px; padding:0 11px; border-radius:10px; background:linear-gradient(135deg,#0f766e,#047857); border:2.2px solid #6ee7b7; color:#ffffff !important; font-family:'Tajawal',sans-serif; font-size:0.82rem; font-weight:900; cursor:pointer; display:inline-flex; align-items:center; gap:5px;">
-                    <span>🆕</span> <span>تصفير</span>
-                </button>
-                <span id="pa-c7-conn-led" style="padding:4px 9px; border-radius:99px; border:2px solid #10b981; background:rgba(16,185,129,0.16); font-size:0.76rem; font-weight:900;">🟢 متصل ومؤمّن</span>
-                <div style="display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border-radius:10px; border:2.2px solid #f59e0b; background:rgba(245,158,11,0.14);" title="Ctrl + رولة الماوس للتكبير والتصغير التلسكوبي حتى 10 أضعاف (0.5x إلى 10x)">
-                    <span id="pa-c1-zoom-badge" onclick="window.applyPaC1ProportionalZoom(1.0)" style="cursor:pointer; font-size:0.78rem; font-weight:900;">📐 أبعاد (6:8) 100%</span>
-                    <button type="button" onclick="window.applyPaC1ProportionalZoom(0.75)" style="padding:2px 6px; border-radius:6px; border:1.5px solid currentColor; background:transparent; color:inherit; font-weight:900; cursor:pointer; font-size:0.74rem;">0.75x</button>
-                    <button type="button" onclick="window.applyPaC1ProportionalZoom(1.0)" style="padding:2px 6px; border-radius:6px; border:1.5px solid currentColor; background:transparent; color:inherit; font-weight:900; cursor:pointer; font-size:0.74rem;">1x</button>
-                    <button type="button" onclick="window.applyPaC1ProportionalZoom(2.0)" style="padding:2px 6px; border-radius:6px; border:1.5px solid currentColor; background:transparent; color:inherit; font-weight:900; cursor:pointer; font-size:0.74rem;">2x</button>
-                    <button type="button" onclick="window.applyPaC1ProportionalZoom(5.0)" style="padding:2px 6px; border-radius:6px; border:1.5px solid currentColor; background:transparent; color:inherit; font-weight:900; cursor:pointer; font-size:0.74rem;">5x</button>
-                    <button type="button" onclick="window.applyPaC1ProportionalZoom(10.0)" style="padding:2px 6px; border-radius:6px; border:1.5px solid currentColor; background:transparent; color:inherit; font-weight:900; cursor:pointer; font-size:0.74rem;">10x</button>
+                <div class="status-toggle" style="height:36px;padding:3px;border-radius:9px;background:#060b16;border:1.5px solid rgba(56,189,248,0.35);">
+                    <button class="status-btn active unposted" id="status-unposted" onclick="setStatus('unposted')" style="height:28px;padding:0 14px;font-size:0.85rem;font-weight:900;">⏳ معلقة (<span id="pa-kpi-unposted-count">0</span>)</button>
+                    <button class="status-btn posted" id="status-posted" onclick="setStatus('posted')" style="height:28px;padding:0 14px;font-size:0.85rem;font-weight:900;">✅ مرحّلة (<span id="pa-kpi-posted-count">0</span>)</button>
+                </div>
+
+                <div class="search-box" style="flex:1;min-width:210px;max-width:340px;">
+                    <span class="icon" style="font-size:0.95rem;">🔍</span>
+                    <input type="text" id="search-input" placeholder="بحث فوري بالمرجع أو الحساب أو المبلغ..." oninput="window.debouncedPaFilter ? window.debouncedPaFilter() : handleFilterChange()" style="height:36px;padding:0 34px 0 10px;border-radius:8px;background:#0f172a;border:1.6px solid rgba(56,189,248,0.45);font-size:0.86rem;font-weight:900;">
+                </div>
+
+                <div class="date-filters" style="gap:6px;">
+                    <span style="font-size:0.82rem;font-weight:900;color:#94a3b8;">من</span>
+                    <input type="date" id="date-from" class="date-input" onchange="handleFilterChange()" style="height:36px;padding:0 8px;border-radius:8px;background:#0f172a;border:1.5px solid rgba(148,163,184,0.32);font-size:0.84rem;font-weight:900;">
+                    <span style="font-size:0.82rem;font-weight:900;color:#94a3b8;">إلى</span>
+                    <input type="date" id="date-to" class="date-input" onchange="handleFilterChange()" style="height:36px;padding:0 8px;border-radius:8px;background:#0f172a;border:1.5px solid rgba(148,163,184,0.32);font-size:0.84rem;font-weight:900;">
+                </div>
+
+                <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+                    <button type="button" onclick="if(window.InboundBankakManager){InboundBankakManager.toggleDrawer(true);InboundBankakManager.setFilter('awaiting_approval');}" style="height:36px;padding:0 13px;border-radius:8px;background:linear-gradient(135deg,#059669,#0d9488);border:1.6px solid #34d399;color:#ffffff!important;font-family:'Cairo','Tajawal',sans-serif;font-size:0.86rem;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;">
+                        <span>📥</span><span>إشعارات واتساب</span>
+                    </button>
+                    <button type="button" onclick="toggleAllRows({checked:true});postAllChecked();" style="height:36px;padding:0 14px;border-radius:8px;background:linear-gradient(135deg,#0e7490,#0f766e);border:1.6px solid #2dd4bf;color:#f0fdfa!important;font-family:'Cairo','Tajawal',sans-serif;font-size:0.86rem;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;" title="تحديد وترحيل كافة الحركات المعلقة المعروضة">
+                        <span>✔️</span><span>ترحيل الكل</span>
+                    </button>
+                    <button type="button" onclick="if(window.resetPaFiltersAndSearch)window.resetPaFiltersAndSearch();loadAllTransactions();" style="height:36px;width:36px;border-radius:8px;background:rgba(56,189,248,0.16);border:1.5px solid #38bdf8;color:#7dd3fc;font-size:0.95rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;" title="تحديث وتصفير الفلاتر">🔄</button>
                 </div>
             </div>
-            <div class="type-filters" id="type-filters" style="justify-content:space-between; flex-wrap:wrap;">
-                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+
+            <div class="pa-twin-tabs-row" id="type-filters">
+                <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
                     <button class="type-chip active" id="type-all" onclick="setType('all')">الكل</button>
-                    <button class="type-chip" id="type-whatsapp" onclick="setType('whatsapp')" style="border-color:rgba(16,185,129,0.45); color:#34d399;">📲 إشعارات واتساب</button>
-                    <button class="type-chip" id="type-sales" onclick="setType('sales')">مبيعات</button>
-                    <button class="type-chip" id="type-purchases" onclick="setType('purchases')">مشتريات</button>
-                    <button class="type-chip" id="type-receipt" onclick="setType('receipt')">سندات قبض</button>
-                    <button class="type-chip" id="type-payment" onclick="setType('payment')">سندات صرف</button>
-                    <button class="type-chip" id="type-journal" onclick="setType('journal')">قيود يومية</button>
+                    <button class="type-chip" id="type-whatsapp" onclick="setType('whatsapp')" style="border-color:rgba(16,185,129,0.5);color:#34d399;">📲 إشعارات واتساب</button>
+                    <button class="type-chip" id="type-sales" onclick="setType('sales')">🛒 المبيعات</button>
+                    <button class="type-chip" id="type-purchases" onclick="setType('purchases')">📦 المشتريات</button>
+                    <button class="type-chip" id="type-receipt" onclick="setType('receipt')">📥 حركة مالية / قبض مجمع</button>
+                    <button class="type-chip" id="type-payment" onclick="setType('payment')">📤 حركة مالية / صرف مجمع</button>
+                    <button class="type-chip" id="type-transfer" onclick="setType('transfer')">🏦 تحويلات بنكية وخزن</button>
+                    <button class="type-chip" id="type-journal" onclick="setType('journal')">📒 قيود يومية</button>
                 </div>
-                <div style="display:flex; gap:6px; flex-wrap:wrap; align-items:center;">
-                    <a href="vouchers-hub.php" style="text-decoration:none; padding:4px 10px; border-radius:8px; background:rgba(59,130,246,0.14); border:2px solid rgba(59,130,246,0.65); color:#60a5fa; font-size:0.78rem; font-weight:900;">💰 مركز السندات</a>
-                    <a href="journal.php" style="text-decoration:none; padding:4px 10px; border-radius:8px; background:rgba(168,85,247,0.14); border:2px solid rgba(168,85,247,0.65); color:#c084fc; font-size:0.78rem; font-weight:900;">📒 القيود اليومية</a>
-                    <a href="general-ledger.php" style="text-decoration:none; padding:4px 10px; border-radius:8px; background:rgba(56,189,248,0.14); border:2px solid rgba(56,189,248,0.65); color:#38bdf8; font-size:0.78rem; font-weight:900;">📖 دفتر الأستاذ</a>
-                    <a href="checks-cycle.php" style="text-decoration:none; padding:4px 10px; border-radius:8px; background:rgba(245,158,11,0.14); border:2px solid rgba(245,158,11,0.65); color:#fbbf24; font-size:0.78rem; font-weight:900;">💳 دورة الشيكات</a>
-                </div>
-            </div>
-            <!-- شريط رادار توازن الدفعة والملخص المالي اللحظي (إضافة عالمية معتمدة - الدستور 1) -->
-            <div id="pa-c1-kpi-strip" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(175px, 1fr)); gap:8px; padding-top:8px; border-top:2px dashed rgba(148,163,184,0.35);">
-                <div class="pa-c1-card" style="padding:8px 12px; border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
-                    <span>⏳ معلقة للترحيل:</span>
-                    <strong id="pa-kpi-unposted-count" style="font-size:1.05rem;">0</strong>
-                </div>
-                <div class="pa-c1-card" style="padding:8px 12px; border-radius:10px; display:flex; flex-direction:column; gap:2px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span>💰 إجمالي المعلق:</span>
-                        <strong id="pa-kpi-unposted-sum" class="pa-c1-no-trunc" style="font-size:1.02rem;">0.00</strong>
-                    </div>
-                    <div id="pa-kpi-unposted-tafqeet" style="font-size:0.74rem; color:#10b981; font-weight:900;">فقط صفر جنيه سوداني لا غير</div>
-                </div>
-                <div class="pa-c1-card" style="padding:8px 12px; border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
-                    <span>✅ مكتملة الترحيل:</span>
-                    <strong id="pa-kpi-posted-count" style="font-size:1.05rem;">0</strong>
-                </div>
-                <div class="pa-c1-card" style="padding:8px 12px; border-radius:10px; display:flex; justify-content:space-between; align-items:center;">
-                    <span>⚖️ فحص القيد المزدوج:</span>
-                    <strong id="pa-kpi-balance-seal" style="font-size:0.88rem; color:#10b981;">متوازن 100% (زيرو فرق)</strong>
-                </div>
-                <div class="pa-c1-card" onclick="window.triggerPaManualFlashSync()" style="padding:8px 12px; border-radius:10px; display:flex; justify-content:space-between; align-items:center; cursor:pointer;" title="اضغط للمزامنة الفورية واختبار محرك 100 ألف سجل">
-                    <span>⚡ التزامن (CRDT 100K):</span>
-                    <strong id="pa-kpi-crdt-sync" style="font-size:0.84rem; color:#10b981;">متزامن 0ms (جوال↔لابتوب)</strong>
+                <div style="display:flex;align-items:center;gap:10px;font-size:0.85rem;font-weight:900;font-variant-numeric:tabular-nums;">
+                    <span style="padding:5px 11px;border-radius:8px;background:#0f172a;border:1.5px solid rgba(245,158,11,0.45);color:#fde047;">💰 إجمالي المعلق: <strong id="pa-kpi-unposted-sum">0.00</strong></span>
+                    <span id="pa-kpi-balance-seal" style="padding:5px 10px;border-radius:8px;background:rgba(16,185,129,0.16);border:1.5px solid #10b981;color:#34d399;">⚖️ القيد المزدوج متوازن 100%</span>
+                    <span id="pa-kpi-unposted-tafqeet" style="display:none;"></span>
                 </div>
             </div>
-            <div id="pa-parked-batches-bar" style="display:none; align-items:center; gap:6px; flex-wrap:wrap; padding:6px 10px; border-radius:10px; border:2px dashed #f59e0b; background:rgba(245,158,11,0.12);"></div>
+            <div id="pa-parked-batches-bar" style="display:none;"></div>
         </div>
 
         <!-- Split Layout -->
@@ -276,7 +215,7 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
             <!-- Master Pane (Right) -->
             <div class="master-pane">
                 <div class="table-scroll">
-                    <table class="erp-table" id="data-table" style="display: none;">
+                    <table class="erp-table" id="data-table">
                         <thead>
                             <tr onclick="resetSelection()" style="pointer-events: auto; cursor: pointer;" title="اضغط هنا لإلغاء التحديد وتكبير الجدول">
                                 <th style="width: 40px; text-align: center;" onclick="event.stopPropagation()">
@@ -299,7 +238,7 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
                         </tbody>
                     </table>
 
-                    <div id="no-data-msg" style="display: none; text-align: center; padding: 40px 20px; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <div id="no-data-msg" style="display: none; text-align: center; padding: 36px 20px; flex-direction: column; align-items: center; justify-content: center;">
                         <div style="font-size: 3rem; margin-bottom: 12px;">📭</div>
                         <h2 style="font-size: 1.2rem; margin: 0 0 14px 0;">لا توجد عمليات مطابقة</h2>
                         <button onclick="injectDummyData()" style="background: rgba(59,130,246,0.18); color: #60a5fa; border: 2.2px solid #3b82f6; padding: 8px 18px; border-radius: 10px; cursor: pointer; font-family: 'Tajawal', sans-serif; font-weight: 900; font-size: 0.9rem;">
@@ -450,7 +389,7 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
             };
             window.addEventListener('DOMContentLoaded', function() {
                 const savedZoom = parseFloat(localStorage.getItem('magaies_telescopic_zoom_scale') || localStorage.getItem('erp_pa_c15_zoom_scale') || '1') || 1.0;
-                if (Math.abs(savedZoom - 1.0) >= 0.01) window.applyPaC1ProportionalZoom(savedZoom, true);
+                try{localStorage.removeItem('erp_pa_c15_zoom_scale');localStorage.removeItem('magaies_telescopic_zoom_scale');document.body.classList.remove('pa-mask-balances','pa-zero-header-100dvh');}catch(e){}
             });
         })();
     </script>

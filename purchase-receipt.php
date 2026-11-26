@@ -437,11 +437,7 @@
                 <div class="neo-card-title">
                     <div id="hub-top-bar-items">
                                                 <span id="hub-title-text">قيد الاستلام</span><a href="smart-logistics.php?mode=purchases&from=purchase-receipt.php" id="btn-grn-logistics-portal" class="btn-action" style="text-decoration:none;">📥 بوابة استلام المشتريات</a>
-                        <div id="grn-3level-bar" style="display:inline-flex; align-items:center; gap:5px; background:#0f172a; padding:4px 7px; border-radius:10px; border:2px solid #38bdf8;">
-                            <button type="button" id="grn-lvl-1" class="grn-dark-surface-btn active-lvl" onclick="window.setGrnReceiptLevel && window.setGrnReceiptLevel(1)" style="padding:4px 10px; border-radius:7px; font-size:0.78rem; font-weight:900; cursor:pointer; border:1.5px solid #c4b5fd; background:linear-gradient(135deg,#7c3aed,#4f46e5); color:#ffffff !important; -webkit-text-fill-color:#ffffff !important;">👑 1. المدير</button>
-                            <button type="button" id="grn-lvl-2" class="grn-dark-surface-btn" onclick="window.setGrnReceiptLevel && window.setGrnReceiptLevel(2)" style="padding:4px 10px; border-radius:7px; font-size:0.78rem; font-weight:900; cursor:pointer; border:1.5px solid #475569; background:linear-gradient(135deg,#1e293b,#0f172a); color:#ffffff !important; -webkit-text-fill-color:#ffffff !important;">🏢 2. مدير المخزن</button>
-                            <button type="button" id="grn-lvl-3" class="grn-dark-surface-btn" onclick="window.setGrnReceiptLevel && window.setGrnReceiptLevel(3)" style="padding:4px 10px; border-radius:7px; font-size:0.78rem; font-weight:900; cursor:pointer; border:1.5px solid #475569; background:linear-gradient(135deg,#1e293b,#0f172a); color:#ffffff !important; -webkit-text-fill-color:#ffffff !important;">📦 3. المخزنجي (QR)</button>
-                        </div>
+                        <div id="grn-3level-bar" style="display:none !important;"></div>
                         
                         <div class="uiverse-switch demo3" title="اضغط للتبديل بين البضاعة قيد الاستلام والأذونات المستلمة">
                             <input type="checkbox" id="uiverse-toggle" onchange="toggleHubViewBySwitch(this.checked)">
@@ -496,28 +492,15 @@
                         <span class="grn-fin-cap" style="background: linear-gradient(135deg, #0284c7, #0369a1); border: 2px solid #7dd3fc; color: #ffffff !important; padding: 4px 13px; border-radius: 9px; font-weight: 900; font-size: 0.86rem; display: inline-flex; align-items: center; gap: 6px;">💵 بالدولار ($): <strong id="grn-hub-stat-val-usd" style="font-size: 1.25rem; font-family: 'Outfit', sans-serif; color: #ffffff !important;">$0.00</strong></span>
                     </div>
                     <div style="display: flex; align-items: center; gap: 7px; flex-wrap: wrap;">
-                        <button type="button" id="grn-hub-curr-btn" onclick="window.toggleGrnHubCurrency && window.toggleGrnHubCurrency()" style="height: 34px; padding: 0 13px; border-radius: 9px; background: linear-gradient(135deg, #7c3aed, #5b21b6); border: 2px solid #c4b5fd; color: #ffffff !important; font-weight: 900; font-size: 0.86rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">💱 <span id="grn-hub-curr-lbl">جنيه ⇄</span></button>
-                        <button type="button" onclick="window.openGrnAIAuditModal && window.openGrnAIAuditModal()" style="height: 34px; padding: 0 13px; border-radius: 9px; background: linear-gradient(135deg, #6d28d9, #4f46e5); border: 2px solid #c4b5fd; color: #ffffff !important; font-weight: 900; font-size: 0.84rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">🤖 الذكاء الاصطناعي للأسعار</button>
-                        <button type="button" class="unified-col-props-btn unified-col-props-far-left" onclick="openGridSettings()" style="display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:7px !important; height:43px !important; padding:0 18px !important; border-radius:10px !important; background:linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%) !important; border:1.8px solid #38bdf8 !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; font-family:'Cairo','Tajawal',sans-serif !important; font-size:0.92rem !important; font-weight:900 !important; cursor:pointer !important; box-shadow:0 4px 12px rgba(14,165,233,0.25) !important; white-space:nowrap !important; flex-shrink:0 !important; margin-right:auto !important;"><span>⚙️</span><span>خصائص الأعمدة</span></button>
+                        <button type="button" id="grn-hub-curr-btn" onclick="window.toggleGrnHubCurrency && window.toggleGrnHubCurrency()" style="height: 36px; padding: 0 13px; border-radius: 9px; background: linear-gradient(135deg, #7c3aed, #5b21b6); border: 2px solid #c4b5fd; color: #ffffff !important; font-weight: 900; font-size: 0.84rem; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;">💱 <span id="grn-hub-curr-lbl">جنيه ⇄</span></button>
+                        <button type="button" id="btn-grn-hub-excel" class="btn-action grn-light-clear-btn grn-btn-excel" style="height: 36px; padding: 0 12px; font-size: 0.82rem; font-weight: 900; border-radius: 9px; background: rgba(16, 185, 129, 0.25); border: 2px solid #10b981;" onclick="window.exportGrnHubToExcel && window.exportGrnHubToExcel()">📊 Excel</button>
+                        <button type="button" id="btn-grn-hub-a4" class="btn-action grn-light-clear-btn grn-btn-a4" style="height: 36px; padding: 0 12px; font-size: 0.82rem; font-weight: 900; border-radius: 9px; background: rgba(14, 165, 233, 0.25); border: 2px solid #0284c7;" onclick="window.printGrnHubReport && window.printGrnHubReport('a4')">📄 PDF</button>
+                        <button type="button" id="btn-grn-hub-thermal" class="btn-action grn-light-clear-btn grn-btn-thermal" style="height: 36px; padding: 0 12px; font-size: 0.82rem; font-weight: 900; border-radius: 9px; background: rgba(124, 58, 237, 0.25); border: 2px solid #7c3aed;" onclick="window.printGrnHubReport && window.printGrnHubReport('thermal')">🖨️ حراري</button>
+                        <button type="button" id="btn-grn-hub-wa" class="btn-action grn-light-clear-btn grn-btn-wa" style="height: 36px; padding: 0 12px; font-size: 0.82rem; font-weight: 900; border-radius: 9px; background: rgba(5, 150, 105, 0.25); border: 2px solid #059669;" onclick="window.shareGrnHubSummaryWhatsApp && window.shareGrnHubSummaryWhatsApp()">💬 واتساب</button>
+                        <button type="button" class="unified-col-props-btn" onclick="openGridSettings()" style="display:inline-flex !important; align-items:center !important; gap:6px !important; height:36px !important; padding:0 14px !important; border-radius:9px !important; background:linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%) !important; border:1.8px solid #38bdf8 !important; color:#ffffff !important; -webkit-text-fill-color:#ffffff !important; font-size:0.84rem !important; font-weight:900 !important; cursor:pointer !important;"><span>⚙️</span><span>الأعمدة</span></button>
                     </div>
                 </div>
-
-                <!-- السطر الثاني (الذي يليه): شريط الشاشات والتقارير المخزنية (الكتابة فقط بدون علامات صغيرة) + أدوات التصدير والطباعة -->
-                <div id="grn-hub-filters-bar" class="grn-logistics-bar" style="margin-bottom: 10px; padding: 8px 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;">
-                    <div id="grn-cross-screen-nav" class="grn-nav-links-bar">
-                        <a href="purchase.php?from=purchase-receipt.php" class="grn-nav-pill grn-pill-pur" onclick="window.markGrnReturnStep && window.markGrnReturnStep()" title="فتح شاشة فواتير المشتريات (مع رجوع خطوة واحدة)"><span class="grn-pill-ic">💵</span><span>فواتير المشتريات</span></a>
-                        <a href="inventory-movement.php?from=purchase-receipt.php" class="grn-nav-pill grn-pill-inv" onclick="window.markGrnReturnStep && window.markGrnReturnStep()" title="فتح شاشة جرد وأرصدة المستودعات (مع رجوع خطوة واحدة)"><span class="grn-pill-ic">📦</span><span>أرصدة المخازن</span></a>
-                        <a href="item-ledger.php?from=purchase-receipt.php" class="grn-nav-pill grn-pill-itm" onclick="window.markGrnReturnStep && window.markGrnReturnStep()" title="فتح كشف حركة الصنف التفصيلي (مع رجوع خطوة واحدة)"><span class="grn-pill-ic">📊</span><span>حركة الصنف</span></a>
-                        <a href="warehouse-ledger.php?from=purchase-receipt.php" class="grn-nav-pill grn-pill-whl" onclick="window.markGrnReturnStep && window.markGrnReturnStep()" title="فتح دفتر أستاذ المخزن (مع رجوع خطوة واحدة)"><span class="grn-pill-ic">📖</span><span>دفتر أستاذ المخزن</span></a>
-                        <a href="inventory-stocktake.php?from=purchase-receipt.php" class="grn-nav-pill grn-pill-stk" onclick="window.markGrnReturnStep && window.markGrnReturnStep()" title="فتح شاشة مخزن الجرد الفعلي والتسويات (مع رجوع خطوة واحدة)"><span class="grn-pill-ic">⚖️</span><span>مخزن الجرد والتسوية</span></a>
-                    </div>
-                    <div id="grn-hub-export-print-bar" style="display: flex; flex-wrap: wrap; gap: 7px; align-items: center;">
-                        <button type="button" id="btn-grn-hub-excel" class="btn-action grn-light-clear-btn grn-btn-excel" style="padding: 6px 14px; font-size: 0.84rem; font-weight: 900; border-radius: 9px; background: rgba(16, 185, 129, 0.25); border: 2px solid #10b981;" onclick="window.exportGrnHubToExcel && window.exportGrnHubToExcel()" title="تصدير الجدول إلى Excel">📊 Excel</button>
-                        <button type="button" id="btn-grn-hub-a4" class="btn-action grn-light-clear-btn grn-btn-a4" style="padding: 6px 14px; font-size: 0.84rem; font-weight: 900; border-radius: 9px; background: rgba(14, 165, 233, 0.25); border: 2px solid #0284c7;" onclick="window.printGrnHubReport && window.printGrnHubReport('a4')" title="طباعة تقرير A4 / PDF">📄 A4 / PDF</button>
-                        <button type="button" id="btn-grn-hub-thermal" class="btn-action grn-light-clear-btn grn-btn-thermal" style="padding: 6px 14px; font-size: 0.84rem; font-weight: 900; border-radius: 9px; background: rgba(124, 58, 237, 0.25); border: 2px solid #7c3aed;" onclick="window.printGrnHubReport && window.printGrnHubReport('thermal')" title="طباعة طابعة حرارية 80mm">🖨️ طابعة حرارية 80mm</button>
-                        <button type="button" id="btn-grn-hub-wa" class="btn-action grn-light-clear-btn grn-btn-wa" style="padding: 6px 14px; font-size: 0.84rem; font-weight: 900; border-radius: 9px; background: rgba(5, 150, 105, 0.25); border: 2px solid #059669;" onclick="window.shareGrnHubSummaryWhatsApp && window.shareGrnHubSummaryWhatsApp()" title="مشاركة التقرير عبر واتساب">💬 مشاركة واتساب</button>
-                    </div>
-                </div>
+                <div id="grn-hub-filters-bar" style="display:none !important;"><div id="grn-cross-screen-nav"></div></div>
                 
                 <div id="hub-pending-container">
                     <div class="grid-scroll-wrap">
@@ -932,35 +915,45 @@
         .grn-col-unit:hover,
         .grn-col-qty:hover,
         .grn-col-pendingBase:hover,
-        .grn-col-baseQty:hover,
-        .factor-input:hover,
-        .qty-input:hover,
-        .wh-select:hover,
-        .notes-input:hover,
-        .v-input:hover,
-        .factor-input:focus,
-        .qty-input:focus,
-        .wh-select:focus,
-        .notes-input:focus,
-        .v-input:focus {
-            border-color: transparent !important;
+        html:not(.light-theme) .grn-col-baseQty:hover,
+        html:not(.light-theme) .factor-input:hover,
+        html:not(.light-theme) .qty-input:hover,
+        html:not(.light-theme) .wh-select:hover,
+        html:not(.light-theme) .notes-input:hover,
+        html:not(.light-theme) .v-input:hover,
+        html:not(.light-theme) .factor-input:focus,
+        html:not(.light-theme) .qty-input:focus,
+        html:not(.light-theme) .wh-select:focus,
+        html:not(.light-theme) .notes-input:focus,
+        html:not(.light-theme) .v-input:focus {
+            border-color: #38bdf8 !important;
             outline: none !important;
-            transform: scale(1.055) translateY(-2px) !important;
+            transform: scale(1.03) translateY(-1px) !important;
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98)) !important;
-            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5),
-                        0 0 22px rgba(56, 189, 248, 0.38),
-                        inset 0 1px 2px rgba(255, 255, 255, 0.28) !important;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5), 0 0 18px rgba(56, 189, 248, 0.38) !important;
+            z-index: 15 !important;
+        }
+        html.light-theme .factor-input:focus,
+        html.light-theme .qty-input:focus,
+        html.light-theme .wh-select:focus,
+        html.light-theme .notes-input:focus,
+        html.light-theme .v-input:focus,
+        html.light-theme .write-indicator-box:focus,
+        html.light-theme .write-indicator-box.focused {
+            background: #ffffff !important;
+            color: #020617 !important;
+            -webkit-text-fill-color: #020617 !important;
+            border: 2.5px solid #0369a1 !important;
+            box-shadow: 0 0 0 3px rgba(3, 105, 161, 0.22) !important;
             z-index: 15 !important;
         }
 
-        .write-indicator-box:focus,
-        .write-indicator-box.focused {
+        html:not(.light-theme) .write-indicator-box:focus,
+        html:not(.light-theme) .write-indicator-box.focused {
             animation: none !important;
-            border-color: transparent !important;
-            transform: scale(1.065) translateY(-2px) !important;
-            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.55),
-                        0 0 26px rgba(16, 185, 129, 0.65),
-                        inset 0 1px 3px rgba(255, 255, 255, 0.35) !important;
+            border-color: #34d399 !important;
+            transform: scale(1.04) translateY(-1px) !important;
+            box-shadow: 0 10px 26px rgba(0, 0, 0, 0.55), 0 0 22px rgba(16, 185, 129, 0.65) !important;
             background: linear-gradient(135deg, rgba(6, 78, 59, 0.55), rgba(15, 23, 42, 0.98)) !important;
         }
 
@@ -1547,5 +1540,13 @@
     </div>
 
 <script id="grn-purchase-constitution-2027-script" src="js/screens/purchase-receipt-j3.js?v=<?= @filemtime(__DIR__ . '/js/screens/purchase-receipt-j3.js') ?: '2027' ?>"></script>
+<style id="grn-clean-minimal-2027">
+#grn-cross-screen-nav, #grn-hub-filters-bar, #grn-3level-bar, #btn-grn-c4-impact-pill, #btn-grn-c5-role-pill, #btn-grn-c6-sync-pill, #btn-grn-c7-eye-pill,
+#grn-c8-tafqeet-bar, #grn-c8-parked-strip, #grn-c9-staged-banner, #grn-c10-commercial-bar, #grn-c12-security-bar, #grn-c13-cyber-bar, #grn-c14-command-bar,
+#grn-c15-master-bar, #grn-c16-zero-error-bar, #grn-fc1-ai-command-bar, #grn-fc1-landscape-hdr-pill, #btn-grn-audio-summary, #grn-c5-dropdown-mirror,
+#btn-grn-fc2-proactive-alerts, #header-smart-guide-btn, #magaies-smart-guide-fab, .smart-guide-banner, .guide-hint-banner { display: none !important; }
+#hub-top-bar-items { display: flex !important; align-items: center !important; gap: 8px !important; flex-wrap: wrap !important; width: 100% !important; }
+#search-inv { flex: 1 1 200px !important; min-width: 180px !important; height: 36px !important; }
+</style>
 </body>
 </html>

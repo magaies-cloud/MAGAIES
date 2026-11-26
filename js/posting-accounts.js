@@ -27,7 +27,7 @@ async function initApp() {
             if (waChip) waChip.classList.add('active');
         }
     } catch (e) {}
-    await fetchExchangeRate();
+    fetchExchangeRate();
     await loadAllTransactions();
 }
 
@@ -80,49 +80,40 @@ let itemsList = [];
 
 async function loadEntities() {
     const getTenantKey = window.getTenantKey || ((k) => k);
-    
-    async function getList(key) {
-        let data = [];
+    function getFastList(key) {
         try {
-            let val = null;
-            if (typeof localforage !== 'undefined') {
-                val = await localforage.getItem(getTenantKey(key)) || await localforage.getItem(key);
+            const raw = localStorage.getItem(getTenantKey(key)) || localStorage.getItem(key);
+            if (raw) {
+                const parsed = JSON.parse(raw);
+                const arr = Array.isArray(parsed) ? parsed : (parsed && typeof parsed === 'object' ? Object.values(parsed) : []);
+                if (arr.length) return arr.filter(x => x && !x.deleted);
             }
-            if (val === null) {
-                val = localStorage.getItem(getTenantKey(key)) || localStorage.getItem(key);
-            }
-            
-            if (val) {
-                if (typeof val === 'string') {
-                    try {
-                        data = JSON.parse(val);
-                    } catch(e) {
-                        data = [];
-                    }
-                } else {
-                    data = val;
-                }
-            }
-        } catch(e) {
-            data = [];
-        }
-        
-        if (!Array.isArray(data)) {
-            if (data && typeof data === 'object') {
-                data = Object.values(data);
-            } else {
-                data = [];
-            }
-        }
-        return data.filter(x => !x.deleted);
+        } catch (e) {}
+        return null;
     }
-
-    accountsList = await getList('erp_accounts_v1');
-    safesList = await getList('erp_safes_v1');
-    banksList = await getList('erp_banks_v1');
-    suppliersList = await getList('erp_suppliers_v1');
-    customersList = await getList('erp_customers_v1');
-    itemsList = await getList('erp_items_v1');
+    async function getAsyncFallback(key) {
+        const fast = getFastList(key);
+        if (fast) return fast;
+        if (typeof localforage !== 'undefined') {
+            try {
+                const val = await localforage.getItem(getTenantKey(key)) || await localforage.getItem(key);
+                if (val) {
+                    const p = typeof val === 'string' ? JSON.parse(val) : val;
+                    const arr = Array.isArray(p) ? p : (p && typeof p === 'object' ? Object.values(p) : []);
+                    return arr.filter(x => x && !x.deleted);
+                }
+            } catch (e) {}
+        }
+        return [];
+    }
+    [accountsList, safesList, banksList, suppliersList, customersList, itemsList] = await Promise.all([
+        getAsyncFallback('erp_accounts_v1'),
+        getAsyncFallback('erp_safes_v1'),
+        getAsyncFallback('erp_banks_v1'),
+        getAsyncFallback('erp_suppliers_v1'),
+        getAsyncFallback('erp_customers_v1'),
+        getAsyncFallback('erp_items_v1')
+    ]);
     buildAccountNamesMap();
 }
 
@@ -404,6 +395,7 @@ function updateFilterChipsCounts() {
         purchases: statusData.filter(item => item._typeEn === 'purchases').length,
         receipt: statusData.filter(item => item._typeEn === 'receipt').length,
         payment: statusData.filter(item => item._typeEn === 'payment').length,
+        transfer: statusData.filter(item => item._typeEn === 'transfer').length,
         journal: statusData.filter(item => item._typeEn === 'journal').length
     };
 
@@ -414,6 +406,7 @@ function updateFilterChipsCounts() {
         purchases: 'مشتريات',
         receipt: 'سندات قبض',
         payment: 'سندات صرف',
+        transfer: 'تحويلات بنكية وخزن',
         journal: 'قيود يومية'
     };
 
@@ -424,6 +417,7 @@ function updateFilterChipsCounts() {
         purchases: '📥',
         receipt: '💰',
         payment: '💸',
+        transfer: '🏦',
         journal: '📊'
     };
 
@@ -588,18 +582,35 @@ async function syncWhatsAppReceiptsIntoLocalBeforeLoad() {
     }
 }
 
+var _paLoadInFlight = false;
+window.debouncedPaFilter = (function(){ let t = 0; return function(){ clearTimeout(t); t = setTimeout(() => handleFilterChange(), 110); }; })();
 async function loadAllTransactions() {
+    if (_paLoadInFlight) return;
+    _paLoadInFlight = true;
     try {
-        await loadEntities();
-        await syncWhatsAppReceiptsIntoLocalBeforeLoad();
         const getTenantKey = window.getTenantKey || ((k) => k);
+        let serverMovements = {};
+        await Promise.all([
+            loadEntities(),
+            syncWhatsAppReceiptsIntoLocalBeforeLoad(),
+            fetch('posting-accounts.php?api=fetch_all_movements', { cache: 'no-store' })
+                .then(r => r.json())
+                .then(j => { if (j && j.success && j.movements) serverMovements = j.movements; })
+                .catch(() => {})
+        ]);
+
         const keys = [
             { key: 'erp_sales_invoices_v1', type: 'مبيعات', typeEn: 'sales', class: 'type-sales' },
+            { key: 'erp_sales_returns_v1', type: 'مرتجع مبيعات', typeEn: 'sales', class: 'type-sales' },
             { key: 'erp_purchase_invoices_v1', type: 'مشتريات', typeEn: 'purchases', class: 'type-purchases' },
-            { key: 'erp_single_receipts_v1', type: 'سند قبض', typeEn: 'receipt', class: 'type-receipt' },
-            { key: 'erp_receipts_v1', type: 'سند قبض مجمع', typeEn: 'receipt', class: 'type-receipt' },
-            { key: 'erp_single_payments_v1', type: 'سند صرف', typeEn: 'payment', class: 'type-payment' },
-            { key: 'erp_payments_v1', type: 'سند صرف مجمع', typeEn: 'payment', class: 'type-payment' },
+            { key: 'erp_purchase_returns_v1', type: 'مرتجع مشتريات', typeEn: 'purchases', class: 'type-purchases' },
+            { key: 'erp_single_receipts_v1', type: 'حركة قبض مفردة', typeEn: 'receipt', class: 'type-receipt' },
+            { key: 'erp_receipts_v1', type: 'حركة قبض مجمعة', typeEn: 'receipt', class: 'type-receipt' },
+            { key: 'erp_single_payments_v1', type: 'حركة صرف مفردة', typeEn: 'payment', class: 'type-payment' },
+            { key: 'erp_payments_v1', type: 'حركة صرف مجمعة', typeEn: 'payment', class: 'type-payment' },
+            { key: 'erp_multi_payments_v1', type: 'حركة صرف مجمعة', typeEn: 'payment', class: 'type-payment' },
+            { key: 'erp_bank_transfers_v1', type: 'تحويل بنكي', typeEn: 'transfer', class: 'type-receipt' },
+            { key: 'erp_safe_transfers_v1', type: 'تحويل خزنة', typeEn: 'transfer', class: 'type-payment' },
             { key: 'erp_journal_vouchers_v1', type: 'قيد يومية', typeEn: 'journal', class: 'type-journal' }
         ];
 
@@ -608,11 +619,16 @@ async function loadAllTransactions() {
         for (const meta of keys) {
             const tKey = getTenantKey(meta.key);
             const sources = [];
+            if (Array.isArray(serverMovements[meta.key])) sources.push(serverMovements[meta.key]);
             try { sources.push(JSON.parse(localStorage.getItem(meta.key) || '[]')); } catch(e){}
             try { sources.push(JSON.parse(localStorage.getItem(tKey) || '[]')); } catch(e){}
-            if (typeof localforage !== 'undefined') {
-                try { sources.push(await localforage.getItem(meta.key) || []); } catch(e){}
-                try { sources.push(await localforage.getItem(tKey) || []); } catch(e){}
+            const hasImmediate = sources.some(arr => Array.isArray(arr) && arr.length > 0);
+            if (!hasImmediate && typeof localforage !== 'undefined') {
+                try {
+                    const [lfA, lfB] = await Promise.all([localforage.getItem(meta.key), tKey !== meta.key ? localforage.getItem(tKey) : null]);
+                    if (lfA) sources.push(lfA);
+                    if (lfB) sources.push(lfB);
+                } catch(e){}
             }
             const getRecTs = (x) => Number(x && (x.updatedAtMs || x._crdtLamportTs || 0)) || (x && x.updatedAt ? (Date.parse(x.updatedAt) || 0) : 0);
             const itemMap = new Map();
@@ -647,9 +663,10 @@ async function loadAllTransactions() {
 
                     const isWA = isWhatsAppReceiptItem(item);
                     const rawSt = String(item.status || '').toLowerCase();
+                    const isUnpostedStatus = (rawSt === 'draft' || rawSt === 'pending' || rawSt === 'unposted' || rawSt === 'awaiting_posting' || (rawSt === 'pending_delivery' && item.isPosted !== true));
                     const normalizedPosted = isWA
                         ? (item.isPosted === true)
-                        : ((item.isPosted === true) || (item.isPosted !== false && rawSt !== 'draft' && rawSt !== 'pending'));
+                        : (item.isPosted === false || isUnpostedStatus ? false : (item.isPosted === true || rawSt === 'posted' || item.isPosted == null));
                     allData.push({
                         ...item,
                         isPosted: normalizedPosted,
@@ -666,12 +683,14 @@ async function loadAllTransactions() {
 
         allData.sort((a, b) => b._date.getTime() - a._date.getTime());
         allTransactionsData = allData;
+        window.allTransactions = allData;
         applyFiltersAndRender();
+        if (window.syncPaKpiStrip) window.syncPaKpiStrip();
 
     } catch (e) {
         console.error('Error loading transactions:', e);
         showToast('خطأ في تحميل البيانات.', 'error');
-    }
+    } finally { _paLoadInFlight = false; }
 }
 
 let paVirtualRenderLimit = 150;
@@ -686,8 +705,9 @@ function renderMasterTable() {
     const noDataMsg = document.getElementById('no-data-msg');
 
     if (filteredData.length === 0) {
-        table.style.display = 'none';
-        noDataMsg.style.display = 'flex';
+        table.style.display = 'table';
+        noDataMsg.style.display = 'none';
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:38px 16px;color:#94a3b8;font-size:0.98rem;font-weight:900;">📭 لا توجد حركات مطابقة في هذا التبويب حالياً — يمكنك التبديل إلى (✅ مرحّلة) أو فتح (📥 إشعارات واتساب) أو الضغط على <button type="button" onclick="injectDummyData()" style="margin-right:8px;padding:5px 12px;border-radius:8px;background:rgba(56,189,248,0.18);border:1.5px solid #38bdf8;color:#7dd3fc;font-weight:900;cursor:pointer;">➕ تجربة قيد تجريبي</button></td></tr>';
         return;
     }
 
@@ -825,9 +845,7 @@ function renderDetailPane(index) {
     document.getElementById('empty-detail').style.display = 'none';
     const detailContent = document.getElementById('detail-content');
     
-    // Quick re-trigger of animation
-    detailContent.style.display = 'none';
-    setTimeout(() => { detailContent.style.display = 'flex'; }, 10);
+    detailContent.style.display = 'flex';
 
     const { localAmt, foreignAmt, currency } = getTransactionAmounts(item);
     const amt = localAmt;
@@ -952,19 +970,7 @@ function renderDetailPane(index) {
             <div class="detail-section-items">
                 <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
                     <span><span>📦</span> تفاصيل الأصناف والعمق المخزني والتجاري</span>
-                    <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;">
-                        <select id="pa-c10-tier-select" onchange="window.onPaPriceTierChange && window.onPaPriceTierChange(this.value)" title="شريحة التسعير الذكية" style="height:30px;padding:0 8px;border-radius:8px;font-weight:900;font-size:0.76rem;">
-                            <option value="1">🏷️ شريحة: جملة (أساسي)</option>
-                            <option value="1.08">🏷️ شريحة: نصف جملة (+8%)</option>
-                            <option value="1.18">🏷️ شريحة: قطاعي (+18%)</option>
-                            <option value="0.95">⭐ سعر خاص للعميل (-5%)</option>
-                            <option value="0.98">🕒 آخر سعر بيع للعميل</option>
-                        </select>
-                        <button type="button" class="pa-dna-btn pa-dna-save" style="height:30px;padding:0 9px;font-size:0.75rem;" onclick="window.openPaWarehouseInspectAndSortModal && window.openPaWarehouseInspectAndSortModal(${index})">🔬 فحص وفرز</button>
-                        <button type="button" class="pa-dna-btn" style="height:30px;padding:0 9px;font-size:0.75rem;background:linear-gradient(135deg,#7c3aed,#4f46e5);border:2px solid #c4b5fd;color:#fff !important;" onclick="window.openPaLandedCostModal && window.openPaLandedCostModal()">🚢 توزيع المصروفات</button>
-                        <button type="button" class="pa-dna-btn" style="height:30px;padding:0 9px;font-size:0.75rem;background:linear-gradient(135deg,#0284c7,#0f766e);border:2px solid #7dd3fc;color:#fff !important;" onclick="window.openPaDocLifecycleModal && window.openPaDocLifecycleModal()">🔄 الدورة المستندية</button>
-                        <button type="button" class="pa-dna-btn" style="height:30px;padding:0 9px;font-size:0.75rem;background:linear-gradient(135deg,#e11d48,#be123c);border:2px solid #fda4af;color:#fff !important;" onclick="window.openPaReturnReverseModal && window.openPaReturnReverseModal()">↩️ مرتجع وقيد عكسي</button>
-                    </div>
+
                 </div>
                 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding:6px 10px;margin-bottom:8px;border-radius:8px;border:2px solid rgba(56,189,248,0.4);font-size:0.78rem;font-weight:900;">
                     <span>💳 سقف الائتمان: <strong>${fmtCurrency(creditLimit)}</strong> | المديونية: <strong style="color:${creditOk ? '#10b981' : '#ef4444'};">${fmtCurrency(creditUsed)} (${creditOk ? 'ضمن الحد الآمن' : '⚠️ تجاوز السقف'})</strong> | الاستحقاق: <strong>${item.dueDate || item.date || 'فوري'}</strong></span>

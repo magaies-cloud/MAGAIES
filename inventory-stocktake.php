@@ -1372,7 +1372,7 @@ $header_theme_class = "header-theme-inventory";
                         description: `قيد تسوية جردية شامل رقم [${voucherNo}] لمستودع (${targetWh}) — عدد الأصناف (${adjustments.length})`,
                         totalDebit: absVal,
                         totalCredit: absVal,
-                        isPosted: true,
+                        isPosted: (window.getPostingMode && window.getPostingMode() === 'auto'), status: (window.getPostingMode && window.getPostingMode() === 'auto') ? 'posted' : 'pending',
                         source: 'inventory_stocktake',
                         lines: [
                             { accountName: debitAcc, debit: absVal, credit: 0, note: `إذن تسوية جرد ${voucherNo}` },

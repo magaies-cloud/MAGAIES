@@ -844,22 +844,13 @@
     // 7. مراقب التغييرات الديناميكية في DOM (MutationObserver)
     // ═══════════════════════════════════════════════════════════════════
     const observer = new MutationObserver(mutations => {
-        let shouldBind = false;
         for (const mut of mutations) {
-            if (mut.addedNodes && mut.addedNodes.length > 0) {
-                for (const node of mut.addedNodes) {
-                    if (node.nodeType === 1) { // ELEMENT_NODE
-                        if (isBankNameInput(node) || node.querySelector?.('input')) {
-                            shouldBind = true;
-                            break;
-                        }
-                    }
-                }
+            if (!mut.addedNodes || !mut.addedNodes.length) continue;
+            for (const node of mut.addedNodes) {
+                if (node.nodeType !== 1) continue;
+                if (isBankNameInput(node)) bindInputsInDocument(node.parentElement || document);
+                else if (node.querySelector?.('input')) bindInputsInDocument(node);
             }
-            if (shouldBind) break;
-        }
-        if (shouldBind) {
-            bindInputsInDocument(document);
         }
     });
 

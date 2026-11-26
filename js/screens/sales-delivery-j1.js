@@ -669,27 +669,15 @@
             window._slNativeAlert = window.alert;
             window.alert = function(message) {
                 const txt = String(message || '');
-                const lvl = /خطأ|مرفوض|فشل|فاضي|أمسك|لا يمكن|تحذير/i.test(txt) ? 'error' : 'warning';
-                window.notifySlFc2UnifiedToast(txt, lvl, document.activeElement);
+                const lvl = /خطأ|مرفوض|فشل|فاضي|أمسك|لا يمكن|حظر|تجاوز/i.test(txt) ? 'error' : 'warning';
+                if (typeof window.showCenteredWarningModal === 'function') window.showCenteredWarningModal(txt, lvl);
+                else window.notifySlFc2UnifiedToast(txt, lvl, document.activeElement);
             };
         }
 
         window.checkSlFc2SameDayDuplicateExecution = function() {
-            const s = getLiveSlSnapshot();
-            if (!s.invNo || s.invNo === '---' || s.nowQty <= 0) return false;
-            const today = new Date().toISOString().slice(0, 10);
-            const sig = today + '|' + s.mode + '|' + s.invNo + '|' + s.party + '|' + s.nowQty;
-            let map = {};
-            try { map = JSON.parse(localStorage.getItem(SL_FC2_SAME_DAY_DUP_KEY) || '{}') || {}; } catch (_e) { map = {}; }
-            const prevTs = map[sig] || 0;
-            if (prevTs && (Date.now() - prevTs) < 86400000 && !window._allowSlDuplicateOverrideOnce) {
-                const execBtn = document.getElementById('sl-btn-execute');
-                window.notifySlFc2UnifiedToast('⚠️ حارس منع التكرار اليومي: تم اعتماد نفس دفعة الاستلام/التسليم للمستند (' + s.invNo + ' — كمية ' + s.nowQty + ') اليوم! تم إيقاف الحفظ المزدوج سهواً.', 'error', execBtn);
-                return true;
-            }
-            map[sig] = Date.now();
-            try { localStorage.setItem(SL_FC2_SAME_DAY_DUP_KEY, JSON.stringify(map)); } catch (_e) {}
-            window._allowSlDuplicateOverrideOnce = false;
+            // تم إيقاف حارس التكرار اليومي المسبق لمنع الحظر الخاطئ عند عدم إتمام الحفظ أو تكرار نفس الكمية
+            try { localStorage.removeItem(SL_FC2_SAME_DAY_DUP_KEY); } catch (_e) {}
             return false;
         };
 
@@ -1023,10 +1011,7 @@
             }
             let used = {};
             try { used = JSON.parse(localStorage.getItem(SL_FC2_CHEQUES_KEY) || '{}') || {}; } catch (_e) { used = {}; }
-            if (used[no] && used[no] === stage) {
-                window.notifySlFc2UnifiedToast('🚨 مرفوض أمنياً: رقم الشيك (' + no + ') مسجل مسبقاً في نفس المرحلة! يُمنع تكرار رقم الشيك.', 'error', noEl);
-                return;
-            }
+            // تكرار رقم الشيك مسموح في كامل النظام
             used[no] = stage;
             try { localStorage.setItem(SL_FC2_CHEQUES_KEY, JSON.stringify(used)); } catch (_e) {}
             window.broadcastSlFc2AtomicSync('SL_CHEQUE_STAGE_UPDATED', { chequeNo: no, amount: amt, stage });

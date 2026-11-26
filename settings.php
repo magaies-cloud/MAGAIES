@@ -1318,14 +1318,12 @@ try {
                         <p style="margin: 5px 0 0; color: #94a3b8; font-size: 0.95rem;" data-i18n="settings.selectLang">اختر لغة واجهة النظام المفضلة لديك</p>
                     </div>
                 </div>
-                <div style="display: flex; gap: 20px;">
-                    <button type="button" id="lang-btn-ar" onclick="switchLanguage('ar')" class="action-btn" style="flex:1; padding: 18px; font-size: 1.2rem; font-weight: 800; border-radius: 16px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); transition: all 0.3s; cursor: pointer; color: #fff;">
-                        🇸🇦 العربية
-                    </button>
-                    <button type="button" id="lang-btn-en" onclick="switchLanguage('en')" class="action-btn" style="flex:1; padding: 18px; font-size: 1.2rem; font-weight: 800; border-radius: 16px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); transition: all 0.3s; cursor: pointer; color: #fff;">
-                        🇬🇧 English
-                    </button>
+                <div style="display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:14px;">
+                    <button type="button" id="lang-btn-ar" data-lang-code="ar" onclick="switchLanguage('ar')" class="action-btn" style="padding:16px; font-size:1.15rem; font-weight:900; border-radius:14px; background:rgba(59,130,246,0.1); border:1.5px solid rgba(59,130,246,0.3); cursor:pointer; color:#fff;">🇸🇦 العربية</button>
+                    <button type="button" id="lang-btn-en" data-lang-code="en" onclick="switchLanguage('en')" class="action-btn" style="padding:16px; font-size:1.15rem; font-weight:900; border-radius:14px; background:rgba(59,130,246,0.1); border:1.5px solid rgba(59,130,246,0.3); cursor:pointer; color:#fff;">🇬🇧 English (الإنجليزية)</button>
+                    <button type="button" id="lang-btn-zh" data-lang-code="zh" onclick="switchLanguage('zh')" class="action-btn" style="padding:16px; font-size:1.15rem; font-weight:900; border-radius:14px; background:rgba(59,130,246,0.1); border:1.5px solid rgba(59,130,246,0.3); cursor:pointer; color:#fff;">🇨🇳 中文 (الصينية)</button>
                 </div>
+                <p style="margin:12px 0 0; color:#34d399; font-size:0.85rem; font-weight:800;">⚡ هندسة صفر ثقل (0ms): تُحمَّل القواميس عند الطلب فقط، وزيادة اللغات أو تقليلها لا يؤثر إطلاقاً على سرعة البرنامج.</p>
             </div>
 
             <!-- System Settings Card -->
@@ -1429,21 +1427,17 @@ function switchLanguage(lang) {
     setTimeout(() => window.location.reload(), 300);
 }
 function highlightLangBtn(lang) {
-    const arBtn = document.getElementById('lang-btn-ar');
-    const enBtn = document.getElementById('lang-btn-en');
-    if (!arBtn || !enBtn) return;
-    arBtn.style.background = 'rgba(255,255,255,0.05)';
-    arBtn.style.borderColor = 'rgba(255,255,255,0.1)';
-    arBtn.style.color = '#94a3b8';
-    enBtn.style.background = 'rgba(255,255,255,0.05)';
-    enBtn.style.borderColor = 'rgba(255,255,255,0.1)';
-    enBtn.style.color = '#94a3b8';
-    const activeBtn = lang === 'ar' ? arBtn : enBtn;
-    activeBtn.style.background = 'linear-gradient(135deg, rgba(99,102,241,0.3), rgba(139,92,246,0.2))';
-    activeBtn.style.borderColor = 'rgba(99,102,241,0.6)';
-    activeBtn.style.color = '#fff';
-    activeBtn.style.boxShadow = '0 0 20px rgba(99,102,241,0.3)';
+    const btns = document.querySelectorAll('[data-lang-code]');
+    if (!btns.length) return;
+    btns.forEach(b => {
+        const act = b.getAttribute('data-lang-code') === (lang || 'ar');
+        b.style.background = act ? 'linear-gradient(135deg, rgba(16,185,129,0.35), rgba(59,130,246,0.28))' : 'rgba(255,255,255,0.05)';
+        b.style.borderColor = act ? '#34d399' : 'rgba(255,255,255,0.12)';
+        b.style.color = act ? '#ffffff' : '#94a3b8';
+        b.style.boxShadow = act ? '0 0 18px rgba(16,185,129,0.35)' : 'none';
+    });
 }
+document.addEventListener('DOMContentLoaded', () => { if (typeof getLang === 'function') highlightLangBtn(getLang()); });
 
         function getCurrencyLabel(code) {
             const labels = {
