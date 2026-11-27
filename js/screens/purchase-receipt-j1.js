@@ -394,31 +394,37 @@
                     const invData = pendingMap[id];
                     const supName = getSupplierName(invData.supplierId);
                     
-                    const totalPendingItems = Object.values(invData.lines).length;
-                    const itemNames = Object.values(invData.lines).map(line => getItemName(line.itemId)).join('، ');
-                    const pendingValSdg = Object.values(invData.lines).reduce((acc, l) => acc + ((parseFloat(l.pendingQty) || 0) * (parseFloat(l.price) || 0)), 0);
+                    const linesArr = Object.values(invData.lines);
+                    const totalPendingItems = linesArr.length;
                     const exRate = (typeof window.getGrnActiveExchangeRate === 'function' ? window.getGrnActiveExchangeRate() : 2650) || 2650;
+                    const pendingValSdg = linesArr.reduce((acc, l) => acc + ((parseFloat(l.pendingQty) || 0) * (parseFloat(l.price) || 0)), 0);
                     const valText = window._grnHubInUsd
                         ? ('$' + (pendingValSdg / exRate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))
                         : (Math.round(pendingValSdg).toLocaleString('en-US') + ' ج.س');
+                    const itemsBarsHtml = linesArr.map(l => {
+                        const nm = getItemName(l.itemId);
+                        const origQ = Math.max(0.0001, parseFloat(l.originalLine?.quantity ?? l.originalLine?.qty ?? l.pendingQty) || 1);
+                        const pendQ = Math.max(0, parseFloat(l.pendingQty) || 0);
+                        const pct = Math.max(0, Math.min(100, Math.round((pendQ / origQ) * 100)));
+                        const lVal = Math.round(pendQ * (parseFloat(l.price) || 0));
+                        const bClr = pct === 0 ? '#10b981' : (pct < 100 ? '#38bdf8' : '#f59e0b');
+                        return `<div style="display:flex;align-items:center;gap:7px;padding:3px 7px;margin:2px 0;border-radius:7px;background:rgba(2,6,23,0.48);border:1px solid rgba(148,163,184,0.25);">
+                            <span style="font-size:0.74rem;font-weight:800;color:#fff;min-width:105px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${nm} <span style="color:#7dd3fc;">(${pendQ})</span></span>
+                            <div style="flex:1;min-width:65px;height:7px;background:rgba(148,163,184,0.22);border-radius:99px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:${bClr};border-radius:99px;"></div></div>
+                            <span style="font-size:0.69rem;font-weight:900;color:${bClr};min-width:30px;">${pct}%</span>
+                            <span style="font-size:0.72rem;font-weight:900;color:#fde047;font-family:'Outfit',monospace;white-space:nowrap;">${lVal.toLocaleString('en-US')}</span>
+                        </div>`;
+                    }).join('');
 
                     const tr = document.createElement('tr');
+                    tr.setAttribute('data-rc-invoice-no', id);
+                    tr.setAttribute('data-rc-invoice-mode', 'purchases');
                     tr.innerHTML = `
-                        <td class="grn-hub-col-inv" style="text-align:right; font-family:'Outfit','Cairo',sans-serif; color:#38bdf8; font-size:1.22rem; font-weight:900; cursor:pointer;" onclick="window.openGrnDrillDownModal && window.openGrnDrillDownModal('${id}')" ondblclick="window.open('purchase.php?id=${id}', '_blank')" title="انقر لمعاينة أصل الفاتورة (Drill-Down) أو انقر مرتين لفتحها في شاشة المشتريات">📄 ${id}</td>
-                        <td style="text-align:right; font-family:'Outfit','Cairo',sans-serif; font-size:1.05rem; font-weight:900;">${new Date(invData.date).toLocaleDateString('en-GB')}</td>
-                        <td style="text-align:right; font-weight:900; font-size:1.02rem;">
-                            <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
-                                <span>${supName}</span>
-                                <button type="button" class="grn-pending-ledger-btn grn-light-clear-btn" onclick="event.stopPropagation(); window.open('account-statement.php?id='+encodeURIComponent(invData.supplierId || ''),'_blank');" title="كشف حساب المورد (أستاذ)" style="height:28px; padding:0 10px; border-radius:7px; background:linear-gradient(135deg,#0284c7,#0369a1); border:2px solid #38bdf8; color:#fff; font-size:0.78rem; font-weight:900; cursor:pointer; flex-shrink:0;">📖 أستاذ</button>
-                            </div>
-                        </td>
-                        <td style="text-align:center; font-weight:900; font-size:0.95rem; max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${itemNames}">📦 ${itemNames}</td>
-                        <td style="text-align:center; font-family:'Outfit','Cairo',sans-serif; font-weight:900; font-size:1.05rem;">
-                            <span style="display:inline-flex; align-items:center; gap:6px;">
-                                <span class="pur-price-lamp ${pendingValSdg > 0 ? 'lamp-green' : 'lamp-blue'}"></span>
-                                <span>${totalPendingItems} صنف (${valText})</span>
-                            </span>
-                        </td>
+                        <td style="text-align:center; font-family:'Outfit','Cairo',sans-serif; font-size:0.84rem; font-weight:900;">${new Date(invData.date).toLocaleDateString('en-GB')}</td>
+                        <td class="grn-hub-col-inv" data-rc-invoice-no="${id}" data-rc-invoice-mode="purchases" style="text-align:center; font-family:'Outfit','Cairo',sans-serif; color:#38bdf8; font-size:0.92rem; font-weight:900; cursor:pointer; text-decoration:underline; text-underline-offset:3px;" onclick="event.stopPropagation(); if(typeof window.__openErpRightClickChoiceMenu==='function'){ window.__openErpRightClickChoiceMenu(event); } else if(window.openGrnDrillDownModal){ window.openGrnDrillDownModal('${id}'); }" title="اضغط أو كليك يمين للشرح والذهاب إلى أصل الفاتورة">#${id}</td>
+                        <td data-rc-account-name="${String(supName || '').replace(/"/g, '&quot;')}" data-rc-account-type="supplier" data-rc-invoice-no="${id}" data-rc-invoice-mode="purchases" style="text-align:center; font-weight:900; font-size:0.88rem;">${supName}</td>
+                        <td style="text-align:center; min-width: 280px;">${itemsBarsHtml}</td>
+                        <td style="text-align:center; font-family:'Outfit','Cairo',sans-serif; font-weight:900; font-size:0.88rem;">${totalPendingItems} صنف (${valText})</td>
                         <td style="text-align:center;">
                             <div class="grn-row-action-capsule" data-inv-id="${id}">
                                 <button type="button" class="btn-action grn-pending-inspect-btn grn-kinetic-btn grn-light-clear-btn" data-inv-id="${id}" onclick="event.stopPropagation(); if(window.triggerGrnKineticFeedback) window.triggerGrnKineticFeedback(this,'inspect'); openReceiptEditor('${id}')">📥 فحص واستلام</button>

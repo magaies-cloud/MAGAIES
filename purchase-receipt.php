@@ -507,12 +507,12 @@
                         <table class="pos-grid" id="grn-hub-pending-table">
                             <thead>
                                 <tr>
-                                    <th style="text-align:right;">📄 الرقم</th>
-                                    <th style="text-align:right;">📅 التاريخ</th>
-                                    <th style="text-align:right;">👤 المورد</th>
-                                    <th style="text-align:center;">📦 الأصناف</th>
-                                    <th style="text-align:center;">🔢 المعلق / القيمة</th>
-                                    <th style="text-align:center;">⚡ إجراء</th>
+                                    <th style="text-align:center;">التاريخ</th>
+                                    <th style="text-align:center;">رقم الفاتورة</th>
+                                    <th style="text-align:center;">المورد</th>
+                                    <th style="text-align:center;">الأصناف (المعلق والقيمة)</th>
+                                    <th style="text-align:center;">إجمالي المعلق</th>
+                                    <th style="text-align:center;">إجراء</th>
                                 </tr>
                             </thead>
                             <tbody id="invoices-tbody">
@@ -1547,6 +1547,14 @@
 #btn-grn-fc2-proactive-alerts, #header-smart-guide-btn, #magaies-smart-guide-fab, .smart-guide-banner, .guide-hint-banner { display: none !important; }
 #hub-top-bar-items { display: flex !important; align-items: center !important; gap: 8px !important; flex-wrap: wrap !important; width: 100% !important; }
 #search-inv { flex: 1 1 200px !important; min-width: 180px !important; height: 36px !important; }
+#grn-hub-pending-table { border-collapse: collapse !important; width: 100% !important; }
+#grn-hub-pending-table th, #grn-hub-pending-table td { border-left: 1px solid rgba(148, 163, 184, 0.28) !important; border-bottom: 1.5px solid rgba(56, 189, 248, 0.35) !important; text-align: center !important; vertical-align: middle !important; padding: 7px 10px !important; }
+#grn-hub-pending-table th:last-child, #grn-hub-pending-table td:last-child { border-left: none !important; }
+#grn-hub-pending-table tbody tr:nth-child(odd) { background: #070e1d !important; }
+#grn-hub-pending-table tbody tr:nth-child(even) { background: #1d3557 !important; }
+:root.light-theme #grn-hub-pending-table th, :root.light-theme #grn-hub-pending-table td { border-left: 1px solid rgba(92, 40, 8, 0.22) !important; border-bottom: 1.5px solid rgba(92, 40, 8, 0.32) !important; }
+:root.light-theme #grn-hub-pending-table tbody tr:nth-child(odd) { background: #ffffff !important; }
+:root.light-theme #grn-hub-pending-table tbody tr:nth-child(even) { background: #e6d8c3 !important; }
 </style>
 </body>
 </html>
