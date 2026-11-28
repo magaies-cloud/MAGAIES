@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>إعلان 4K الاحترافي — تطبيق مقاييس (بالصوت الكامل وصور المنتجات الفعلية)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800;900&family=Tajawal:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', 'Tajawal', sans-serif; }
+    body {
+      background: radial-gradient(circle at 50% 0%, #0F296B 0%, #040914 75%);
+      color: #F8FAFC;
+      padding: 16px;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .header-card {
+      background: rgba(11, 21, 45, 0.94);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      border-radius: 20px;
+      padding: 14px 18px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+    }
+    .header-title { font-size: 17px; font-weight: 900; color: #FFFFFF; }
+    .header-sub { font-size: 12.5px; color: #38BDF8; font-weight: 700; margin-top: 2px; }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-sound {
+      background: linear-gradient(135deg, #F59E0B, #EA580C);
+      color: #FFFFFF;
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #2563EB, #059669);
+      color: #FFFFFF;
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+    }
+    .vol-control {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #1E293B;
+      padding: 6px 12px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      font-size: 12px;
+      font-weight: 800;
+      color: #FDE68A;
+    }
+    .status-box {
+      display: none;
+      background: linear-gradient(90deg, #1E1B4B, #0F172A);
+      border: 1px solid #F59E0B;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 800;
+      align-items: center;
+      justify-content: space-between;
+      color: #FDE68A;
+    }
+    .status-box.active { display: flex; }
+    .canvas-stage {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      aspect-ratio: 1 / 1;
+      border-radius: 28px;
+      overflow: hidden;
+      border: 2px solid rgba(56, 189, 248, 0.55);
+      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.78), 0 0 45px rgba(37, 99, 235, 0.32);
+      background: #040914;
+    }
+    canvas { width: 100%; height: 100%; display: block; }
+    .sound-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(4, 9, 20, 0.76);
+      backdrop-filter: blur(6px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      z-index: 10;
+      transition: opacity 0.35s ease;
+    }
+    .sound-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .big-play-btn {
+      background: linear-gradient(135deg, #F59E0B, #DC2626);
+      color: #FFFFFF;
+      border: 3px solid rgba(255,255,255,0.9);
+      border-radius: 999px;
+      padding: 18px 36px;
+      font-size: 19px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 18px 45px rgba(234, 88, 12, 0.65);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: pulseBtn 1.6s infinite;
+    }
+    @keyframes pulseBtn {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+    }
+    .scenes-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .scene-btn {
+      background: rgba(15, 23, 42, 0.92);
+      border: 1px solid #1E293B;
+      border-radius: 14px;
+      padding: 10px 6px;
+      color: #F8FAFC;
+      font-size: 12.5px;
+      font-weight: 800;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+    .scene-btn:hover, .scene-btn.active {
+      border-color: #F59E0B;
+      background: linear-gradient(180deg, #1E293B, #0F172A);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.22);
+    }
+    .scene-btn span { display: block; font-weight: 700; color: #38BDF8; margin-top: 2px; font-size: 11px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header-card">
+      <div>
+        <div class="header-title">🎬 الإعلان الترويجي الفائق (4K Motion & Infographic) — تطبيق مقاييس</div>
+        <div class="header-sub">صور المنتجات والأقسام الفعلية من داخل التطبيق + خط Cairo الفاخر + صوت مضخّم استوديو</div>
+      </div>
+      <div class="btn-row">
+        <div class="vol-control">
+          <span>🔊 قوة الصوت:</span>
+          <input id="volSlider" type="range" min="1" max="5" step="0.2" value="3.8" style="width: 75px; accent-color: #F59E0B;" oninput="updateVoiceBoost(this.value)" />
+        </div>
+        <button id="muteBtn" class="btn btn-sound" onclick="startWithSound()">▶️ تشغيل بالصوت العالي</button>
+        <button id="recordBtn" class="btn btn-primary" onclick="startRecordingWithAudio()">⬇️ تحميل الفيديو 4K بالصوت</button>
+      </div>
+    </div>
+
+    <div id="statusBox" class="status-box">
+      <span id="statusLabel">🔴 جاري تسجيل الفيديو الفائق (مع الصوت المضخّم وصور التطبيق الفعلية)...</span>
+      <span id="timerText" style="font-family: monospace; font-size: 15px;">00:00 / 00:30</span>
+    </div>
+
+    <div class="canvas-stage">
+      <canvas id="promoCanvas" width="1440" height="1440"></canvas>
+      <div id="soundOverlay" class="sound-overlay">
+        <button class="big-play-btn" onclick="startWithSound()">
+          <span style="font-size: 26px;">🔊</span>
+          <span>اضغط لتشغيل الإعلان بصوت استوديو عالي وواضح</span>
+        </button>
+        <div style="color: #FDE68A; font-size: 14px; font-weight: 800;">
+          ✓ صور منتجات التطبيق الحقيقية   •   ✓ إنفوجرافيك متحرك 4K   •   ✓ خط Cairo الإعلاني
+        </div>
+      </div>
+    </div>
+
+    <div class="scenes-grid">
+      <button id="sbtn0" class="scene-btn active" onclick="jumpToScene(0)">المشهد 1 (00:00)<span>واجهة التطبيق والأقسام</span></button>
+      <button id="sbtn1" class="scene-btn" onclick="jumpToScene(1)">المشهد 2 (00:07)<span>معرض المنتجات والوسيط</span></button>
+      <button id="sbtn2" class="scene-btn" onclick="jumpToScene(2)">المشهد 3 (00:15)<span>إنفوجرافيك التاجر الموثق</span></button>
+      <button id="sbtn3" class="scene-btn" onclick="jumpToScene(3)">المشهد 4 (00:22)<span>التحميل من المتاجر</span></button>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('promoCanvas');
+    const ctx = canvas.getContext('2d');
+    // Scale 1080 logical units onto 1440x1440 ultra-crisp canvas
+    const SCALE_FACTOR = 1440 / 1080;
+    const DURATION = 30.0;
+    const SCENE_TIMES = [0, 7.5, 15.0, 22.5, 30.0];
+
+    // Ensure Google Font Cairo is loaded
+    if (document.fonts && document.fonts.load) {
+      document.fonts.load('900 48px "Cairo"');
+      document.fonts.load('800 32px "Cairo"');
+      document.fonts.load('700 24px "Cairo"');
+    }
+
+    // Load Real App Assets & Real Product Photos from promo_assets/
+    const assets = {};
+    const assetList = {
+      logo: 'logo_final.png',
+      rebar16: 'promo_assets/rebar16.png',
+      cement50: 'promo_assets/cement50.png',
+      rebar12: 'promo_assets/rebar12.png',
+      pipes: 'promo_assets/pipes.png',
+      porcelain: 'promo_assets/porcelain.png',
+      pump: 'promo_assets/pump.jpg',
+      white_cement: 'promo_assets/white_cement.png',
+      paint: 'promo_assets/paint.png',
+      chandelier: 'promo_assets/chandelier.png',
+      tank: 'promo_assets/tank.png',
+      solar: 'promo_assets/solar.png',
+      plumbing: 'promo_assets/plumbing.png'
+    };
+
+    Object.entries(assetList).forEach(([key, src]) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = src;
+      assets[key] = img;
+    });
+
+    // Real Products from Magaiees Database
+    const realProducts = [
+      { key: 'rebar16', name: 'حديد تسليح عالي المقاومة 16 ملم', price: '977,523 ج.س', unit: 'للطن', badge: 'حصري مقاييس ✓', col: '#2563EB' },
+      { key: 'cement50', name: 'أسمنت بورتلاندي عادي 50 كجم', price: '32,775 ج.س', unit: 'للكيس', badge: 'سعر المصنع ✓', col: '#059669' },
+      { key: 'porcelain', name: 'بورسلين أرضيات نخب أول 60×60', price: '53,000 ج.س', unit: 'للمتر', badge: 'نخب أول ★', col: '#D97706' },
+      { key: 'pump', name: 'موتور مياه 3 حصان إيطالي أصلي', price: '49,500 ج.س', unit: 'للقطعة', badge: 'ضمان معتمد ✓', col: '#0284C7' },
+      { key: 'rebar12', name: 'سيخ حديد تسليح 12 ملم أوميقا', price: '943,023 ج.س', unit: 'للطن', badge: 'توريد فوري ✓', col: '#4F46E5' },
+      { key: 'tank', name: 'خزان مياه بولي إيثيلين 1000 لتر', price: '35,000 ج.س', unit: 'للقطعة', badge: 'عازل حراري ✓', col: '#059669' },
+      { key: 'chandelier', name: 'نجف كريستال عصري فاخر', price: '955,680 ج.س', unit: 'للقطعة', badge: 'تشطيب فاخر ★', col: '#9333EA' },
+      { key: 'paint', name: 'دهان أكريليك مطفي للجدران 20 لتر', price: '76,500 ج.س', unit: 'للبرميل', badge: 'جودة عالية ✓', col: '#EA580C' }
+    ];
+
+    const realCategories = [
+      { key: 'porcelain', name: 'البلاط والسيراميك' },
+      { key: 'solar', name: 'الطاقة الشمسية' },
+      { key: 'plumbing', name: 'مواد السباكة' },
+      { key: 'pipes', name: 'الحديد والمواسير' }
+    ];
+
+    // Studio Broadcast Audio & Voiceover Engine
+    let audioCtx = null;
+    let masterGain = null;
+    let voPreGain = null;
+    let compressor = null;
+    let mediaStreamDest = null;
+    let soundEnabled = false;
+    let voBuffers = [null, null, null, null];
+    let currentVoSource = null;
+    let activeSceneIndex = -1;
+    let musicInterval = null;
+    let beatStep = 0;
+    let voiceBoostLevel = 3.8; // 3.8x default loud studio boost!
+
+    const subtitles = [
+      '«تبني مشروعك وتبحث عن أسعار المصانع الحقيقية؟ اكتشف تطبيق مقاييس لمواد البناء!»',
+      '«تصفح المنتجات الحقيقية بالصور والأسعار اللحظية، واطلب تسعيرات الكميات عبر الوسيط الرقمي!»',
+      '«لأصحاب المصانع والتجار: رقِّ حسابك مجاناً، احصل على شارة التوثيق، وضاعف مبيعاتك!»',
+      '«حمّل تطبيق مقاييس الآن مجاناً من App Store و Google Play وسجّل حسابك اليوم!»'
+    ];
+
+    function updateVoiceBoost(val) {
+      voiceBoostLevel = parseFloat(val) || 3.8;
+      if (voPreGain && audioCtx) {
+        voPreGain.gain.setValueAtTime(voiceBoostLevel, audioCtx.currentTime);
+      }
+    }
+
+    async function initAudioEngine() {
+      if (!audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioContextClass();
+
+        // Broadcast Dynamics Compressor so voiceover is LOUD, PUNCHY & NEVER CLIPS
+        compressor = audioCtx.createDynamicsCompressor();
+        compressor.threshold.setValueAtTime(-22, audioCtx.currentTime);
+        compressor.knee.setValueAtTime(8, audioCtx.currentTime);
+        compressor.ratio.setValueAtTime(5, audioCtx.currentTime);
+        compressor.attack.setValueAtTime(0.003, audioCtx.currentTime);
+        compressor.release.setValueAtTime(0.18, audioCtx.currentTime);
+
+        masterGain = audioCtx.createGain();
+        masterGain.gain.value = 1.35;
+
+        mediaStreamDest = audioCtx.createMediaStreamDestination();
+        compressor.connect(masterGain);
+        masterGain.connect(audioCtx.destination);
+        masterGain.connect(mediaStreamDest);
+      }
+      if (audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+      }
+      for (let i = 0; i < 4; i++) {
+        if (!voBuffers[i]) {
+          try {
+            const resp = await fetch(`vo_scene${i + 1}.mp3?v=${Date.now()}`);
+            if (resp.ok) {
+              const arr = await resp.arrayBuffer();
+              voBuffers[i] = await audioCtx.decodeAudioData(arr);
+            }
+          } catch (e) {
+            console.warn('Voiceover load warning:', e);
+          }
+        }
+      }
+      startBackgroundMusicLoop();
+    }
+
+    function triggerSceneVoiceover(sceneIdx, offsetSec = 0) {
+      if (!audioCtx || !soundEnabled) return;
+      if (currentVoSource) {
+        try { currentVoSource.stop(); } catch (_) {}
+        currentVoSource = null;
+      }
+      playCinematicWhoosh();
+
+      const buf = voBuffers[sceneIdx];
+      if (buf) {
+        const src = audioCtx.createBufferSource();
+        src.buffer = buf;
+        const targetMaxDuration = 7.15;
+        src.playbackRate.value = buf.duration > targetMaxDuration ? Math.min(1.28, buf.duration / targetMaxDuration) : 1.1;
+
+        // Studio EQ Chain: Warmth + Crisp Presence Boost + High Pre-Gain
+        const lowBoost = audioCtx.createBiquadFilter();
+        lowBoost.type = 'lowshelf';
+        lowBoost.frequency.value = 210;
+        lowBoost.gain.value = 4.0;
+
+        const presenceBoost = audioCtx.createBiquadFilter();
+        presenceBoost.type = 'peaking';
+        presenceBoost.frequency.value = 3100;
+        presenceBoost.Q.value = 1.0;
+        presenceBoost.gain.value = 5.5;
+
+        voPreGain = audioCtx.createGain();
+        voPreGain.gain.value = voiceBoostLevel; // 3.8x loud boost
+
+        src.connect(lowBoost);
+        lowBoost.connect(presenceBoost);
+        presenceBoost.connect(voPreGain);
+        voPreGain.connect(compressor);
+
+        const startOffset = Math.min(offsetSec, Math.max(0, buf.duration - 0.1));
+        src.start(0, startOffset);
+        currentVoSource = src;
+      }
+    }
+
+    function playCinematicWhoosh() {
+      if (!audioCtx || !soundEnabled) return;
+      try {
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(95, now);
+        osc.frequency.exponentialRampToValueAtTime(380, now + 0.16);
+        osc.frequency.exponentialRampToValueAtTime(70, now + 0.36);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.12, now + 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+        osc.connect(gain);
+        gain.connect(compressor);
+        osc.start(now);
+        osc.stop(now + 0.4);
+      } catch (_) {}
+    }
+
+    function startBackgroundMusicLoop() {
+      if (musicInterval) clearInterval(musicInterval);
+      const bassNotes = [110, 110, 130.81, 146.83, 110, 110, 164.81, 146.83];
+      beatStep = 0;
+      musicInterval = setInterval(() => {
+        if (!audioCtx || !soundEnabled) return;
+        const now = audioCtx.currentTime;
+        const bassOsc = audioCtx.createOscillator();
+        const bassGain = audioCtx.createGain();
+        bassOsc.type = 'sine';
+        bassOsc.frequency.setValueAtTime(bassNotes[beatStep % bassNotes.length], now);
+        bassGain.gain.setValueAtTime(0.001, now);
+        bassGain.gain.linearRampToValueAtTime(0.045, now + 0.03); // Duck music under voiceover
+        bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.34);
+        bassOsc.connect(bassGain);
+        bassGain.connect(masterGain);
+        bassOsc.start(now);
+        bassOsc.stop(now + 0.36);
+        beatStep++;
+      }, 420);
+    }
+
+    async function startWithSound() {
+      document.getElementById('soundOverlay').classList.add('hidden');
+      soundEnabled = true;
+      await initAudioEngine();
+      activeSceneIndex = -1;
+      startTime = performance.now();
+      document.getElementById('muteBtn').textContent = '🔄 إعادة التشغيل بالصوت العالي';
+    }
+
+    function jumpToScene(idx) {
+      startTime = performance.now() - SCENE_TIMES[idx] * 1000;
+      activeSceneIndex = -1;
+    }
+
+    // Geometry & Image Helpers
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+
+    function easeOutCubic(x) {
+      return 1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3);
+    }
+
+    function easeOutBack(x) {
+      const c1 = 1.70158;
+      const c3 = c1 + 1;
+      const v = Math.min(1, Math.max(0, x));
+      return 1 + c3 * Math.pow(v - 1, 3) + c1 * Math.pow(v - 1, 2);
+    }
+
+    function drawImageCover(ctx, img, x, y, w, h, r = 14) {
+      ctx.save();
+      roundRect(ctx, x, y, w, h, r);
+      ctx.clip();
+      if (img && img.complete && img.naturalWidth > 0) {
+        const imgRatio = img.naturalWidth / img.naturalHeight;
+        const boxRatio = w / h;
+        let drawW = w, drawH = h, dx = x, dy = y;
+        if (imgRatio > boxRatio) {
+          drawW = h * imgRatio;
+          dx = x - (drawW - w) / 2;
+        } else {
+          drawH = w / imgRatio;
+          dy = y - (drawH - h) / 2;
+        }
+        ctx.drawImage(img, dx, dy, drawW, drawH);
+      } else {
+        const g = ctx.createLinearGradient(x, y, x + w, y + h);
+        g.addColorStop(0, '#1E3A8A');
+        g.addColorStop(1, '#0F172A');
+        ctx.fillStyle = g;
+        ctx.fillRect(x, y, w, h);
+      }
+      ctx.restore();
+    }
+
+    function draw4KBackdrop(t, sceneIdx) {
+      const grad = ctx.createLinearGradient(0, 0, 1080, 1080);
+      if (sceneIdx === 0) {
+        grad.addColorStop(0, '#030816');
+        grad.addColorStop(0.5, '#0B1D48');
+        grad.addColorStop(1, '#040B1C');
+      } else if (sceneIdx === 1) {
+        grad.addColorStop(0, '#04122C');
+        grad.addColorStop(0.5, '#0C2D48');
+        grad.addColorStop(1, '#050E21');
+      } else if (sceneIdx === 2) {
+        grad.addColorStop(0, '#031A17');
+        grad.addColorStop(0.5, '#06342B');
+        grad.addColorStop(1, '#051024');
+      } else {
+        grad.addColorStop(0, '#09132C');
+        grad.addColorStop(0.5, '#172E6E');
+        grad.addColorStop(1, '#040814');
+      }
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 1080, 1080);
+
+      // Animated 3D Perspective Grid Floor
+      ctx.save();
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.1)';
+      ctx.lineWidth = 1.5;
+      for (let i = 0; i < 12; i++) {
+        const y = 140 + i * 85 + ((t * 25) % 85);
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(1080, y);
+        ctx.stroke();
+      }
+      for (let i = 0; i < 12; i++) {
+        const x = i * 100;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, 1080);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Dynamic Glowing Aura Orbs
+      const orbX = 540 + Math.cos(t * 1.2) * 160;
+      const orbY = 520 + Math.sin(t * 1.5) * 120;
+      const aura = ctx.createRadialGradient(orbX, orbY, 20, orbX, orbY, 460);
+      aura.addColorStop(0, sceneIdx === 2 ? 'rgba(16, 185, 129, 0.32)' : 'rgba(59, 130, 246, 0.34)');
+      aura.addColorStop(0.5, 'rgba(245, 158, 11, 0.12)');
+      aura.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = aura;
+      ctx.fillRect(0, 0, 1080, 1080);
+
+      // Top Executive Glass Header Bar
+      ctx.save();
+      roundRect(ctx, 36, 26, 1008, 82, 24);
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      drawImageCover(ctx, assets.logo, 962, 38, 58, 58, 14);
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '900 31px "Cairo", sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText('منصة مقاييس | MAGAIEES', 944, 78);
+
+      // Left Live Badge
+      roundRect(ctx, 58, 44, 275, 46, 23);
+      const pillG = ctx.createLinearGradient(58, 44, 333, 90);
+      pillG.addColorStop(0, '#059669');
+      pillG.addColorStop(1, '#0284C7');
+      ctx.fillStyle = pillG;
+      ctx.fill();
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '800 20px "Cairo", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('✓ سوق مواد البناء والمقاولات', 195, 74);
+      ctx.restore();
+    }
+
+    function drawFloatingInfographicCard(x, y, w, h, icon, title, value, sub, accentColor, appearP) {
+      ctx.save();
+      const s = easeOutBack(appearP);
+      ctx.translate(x + w / 2, y + h / 2);
+      ctx.scale(s, s);
+      ctx.translate(-(x + w / 2), -(y + h / 2));
+
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.55)';
+      ctx.shadowBlur = 25;
+      ctx.shadowOffsetY = 12;
+
+      roundRect(ctx, x, y, w, h, 22);
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.94)';
+      ctx.fill();
+      ctx.strokeStyle = accentColor;
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Top accent strip
+      roundRect(ctx, x + 20, y, w - 40, 6, 3);
+      ctx.fillStyle = accentColor;
+      ctx.fill();
+
+      ctx.fillStyle = accentColor;
+      ctx.font = '900 22px "Cairo", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${icon} ${title}`, x + w / 2, y + 40);
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '900 30px "Cairo", sans-serif';
+      ctx.fillText(value, x + w / 2, y + 82);
+
+      ctx.fillStyle = '#CBD5E1';
+      ctx.font = '700 17px "Cairo", sans-serif';
+      ctx.fillText(sub, x + w / 2, y + 112);
+
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // SCENE 1: REAL APP HOME SCREEN + REAL CATEGORY & PRODUCT PHOTOS + INFOGRAPHICS
+    // =========================================================================
+    function drawScene1(t) {
+      const p = easeOutBack(t / 0.85);
+      ctx.save();
+      ctx.textAlign = 'center';
+
+      ctx.fillStyle = '#FBBF24';
+      ctx.font = '800 27px "Cairo", sans-serif';
+      ctx.fillText('🔥 من داخل تطبيق «مقاييس» الفعلي — بدون وسطاء', 540, 148);
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '900 46px "Cairo", sans-serif';
+      ctx.fillText('آلاف المنتجات الحقيقية بأسعار المصانع!', 540, 206);
+
+      // 3D Phone in Center Showing REAL Magaiees Home Screen with Real Supabase Images
+      const phoneY = 580 + Math.sin(t * 2.4) * 6;
+      ctx.save();
+      ctx.translate(540, phoneY);
+      ctx.scale(0.88 + 0.12 * easeOutCubic(t / 0.7), 0.88 + 0.12 * easeOutCubic(t / 0.7));
+      ctx.rotate(Math.sin(t * 1.4) * 0.02);
+
+      const pw = 470, ph = 690;
+      const px = -pw / 2, py = -ph / 2;
+
+      // Phone Shadow & Titanium Frame
+      ctx.shadowColor = 'rgba(0,0,0,0.8)';
+      ctx.shadowBlur = 45;
+      roundRect(ctx, px - 12, py - 12, pw + 24, ph + 24, 46);
+      ctx.fillStyle = '#334155';
+      ctx.fill();
+      ctx.strokeStyle = '#94A3B8';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      ctx.save();
+      roundRect(ctx, px, py, pw, ph, 36);
+      ctx.clip();
+
+      // App Screen Background
+      ctx.fillStyle = '#F1F5F9';
+      ctx.fillRect(px, py, pw, ph);
+
+      // App Top Bar with Real Logo
+      ctx.fillStyle = '#0F172A';
+      ctx.fillRect(px, py, pw, 86);
+      drawImageCover(ctx, assets.logo, px + pw - 66, py + 22, 48, 48, 12);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '900 21px "Cairo", sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText('مقاييس — السوق الرئيسي', px + pw - 82, py + 55);
+
+      // Live Price Ticker Bar
+      ctx.fillStyle = '#1E293B';
+      ctx.fillRect(px, py + 86, pw, 36);
+      ctx.fillStyle = '#FBBF24';
+      ctx.font = '800 14.5px "Cairo", sans-serif';
+      ctx.fillText('⚡ أسعار اليوم: حديد 16مم 977,523 ج.س • أسمنت عطبرة 32,775 ج.س • بورسلين 53,000 ج.س', px + pw - 14, py + 110);
+
+      // Real Categories Horizontal Row (Using REAL Category Photos!)
+      ctx.fillStyle = '#0F172A';
+      ctx.font = '900 16px "Cairo", sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText('الأقسام المعتمدة في التطبيق:', px + pw - 16, py + 148);
+
+      realCategories.forEach((cat, idx) => {
+        const cx = px + pw - 116 - idx * 112;
+        const cy = py + 158;
+        roundRect(ctx, cx, cy, 102, 86, 14);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fill();
+        drawImageCover(ctx, assets[cat.key], cx + 8, cy + 6, 86, 52, 10);
+        ctx.fillStyle = '#0F172A';
+        ctx.font = '800 11.5px "Cairo", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(cat.name, cx + 51, cy + 76);
+      });
+
+      // Smoothly Scrolling Real Product Cards Grid (2x2 with REAL Product Photos!)
+      const scrollY = Math.max(0, (t - 1.2) * 28);
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(px, py + 252, pw, ph - 302);
+      ctx.clip();
+
+      realProducts.slice(0, 6).forEach((prod, idx) => {
+        const colIdx = idx % 2;
+        const rowIdx = Math.floor(idx / 2);
+        const cardX = px + 16 + colIdx * 224;
+        const cardY = py + 258 + rowIdx * 195 - scrollY;
+
+        roundRect(ctx, cardX, cardY, 214, 182, 16);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fill();
+        ctx.strokeStyle = '#CBD5E1';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+
+        // Real Product Photo from Supabase!
+        drawImageCover(ctx, assets[prod.key], cardX + 8, cardY + 8, 198, 104, 12);
+
+        // Verified Badge on Photo
+        roundRect(ctx, cardX + 14, cardY + 14, 92, 24, 8);
+        ctx.fillStyle = prod.col;
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '800 11px "Cairo", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(prod.badge, cardX + 60, cardY + 30);
+
+        // Product Arabic Title & Real Price
+        ctx.fillStyle = '#0F172A';
+        ctx.font = '800 13.5px "Cairo", sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(prod.name.substring(0, 24), cardX + 204, cardY + 134);
+
+        ctx.fillStyle = prod.col;
+        ctx.font = '900 15.5px "Cairo", sans-serif';
+        ctx.fillText(`${prod.price} / ${prod.unit}`, cardX + 204, cardY + 162);
+      });
+      ctx.restore();
+
+      // App Bottom Bar
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(px, py + ph - 50, pw, 50);
+      ctx.fillStyle = '#1E40AF';
+      ctx.font = '800 13.5px "Cairo", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('🏠 الرئيسية     📦 طلباتي     🤝 الوسيط الرقمي     👤 حسابي', px + pw / 2, py + ph - 18);
+
+      ctx.restore(); // end phone clip
+      ctx.restore(); // end phone transform
+
+      // Floating 3D Infographic Cards Flanking the Phone
+      const float1 = Math.sin(t * 3) * 8;
+      drawFloatingInfographicCard(
+        785, 290 + float1, 265, 130,
+        '📊', 'بورصة الأسعار', '+1,200 منتج', 'محدثة لحظياً من المصانع', '#38BDF8',
+        (t - 0.4) / 0.6
+      );
+      drawFloatingInfographicCard(
+        30, 440 - float1, 265, 130,
+        '🛡️', 'موردون معتمدون', '100% موثق', 'بشارة التوثيق الرسمية ✓', '#10B981',
+        (t - 0.8) / 0.6
+      );
+      drawFloatingInfographicCard(
+        785, 620 - float1, 265, 130,
+        '🚚', 'توريد للمشاريع', 'توصيل فوري', 'حاسبة نقل وعتالة شفافة', '#F59E0B',
+        (t - 1.2) / 0.6
+      );
+
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // SCENE 2: 4K PRODUCT SHOWCASE CAROUSEL + DIGITAL BROKER INFOGRAPHIC
+    // =========================================================================
+    function drawScene2(t) {
+      const localT = t - 7.5;
+      ctx.save();
+      ctx.textAlign = 'center';
+
+      ctx.fillStyle = '#38BDF8';
+      ctx.font = '800 27px "Cairo", sans-serif';
+      ctx.fillText('✨ منتجات حقيقية من التطبيق + الوسيط الرقمي للمشاريع', 540, 148);
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '900 44px "Cairo", sans-serif';
+      ctx.fillText('كل مستلزمات البناء والتشطيب في مكان واحد!', 540, 204);
+
+      // 8 Real Product Cards in a Dynamic 4x2 Animated Showcase Grid with Real Photos
+      realProducts.forEach((prod, idx) => {
+        const col = idx % 4;
+        const row = Math.floor(idx / 4);
+        const appear = easeOutBack((localT - idx * 0.12) / 0.65);
+        const floatY = Math.sin(localT * 3 + idx) * 5;
+
+        const cw = 232, ch = 265;
+        const cx = 42 + col * 252;
+        const cy = 242 + row * 285 + floatY;
+
+        ctx.save();
+        ctx.translate(cx + cw / 2, cy + ch / 2);
+        ctx.scale(appear, appear);
+        ctx.translate(-(cx + cw / 2), -(cy + ch / 2));
+
+        ctx.shadowColor = 'rgba(0,0,0,0.45)';
+        ctx.shadowBlur = 20;
+        roundRect(ctx, cx, cy, cw, ch, 22);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fill();
+        ctx.strokeStyle = prod.col;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Real Product Photo
+        drawImageCover(ctx, assets[prod.key], cx + 10, cy + 10, cw - 20, 148, 16);
+
+        // Exclusive Badge
+        roundRect(ctx, cx + 18, cy + 18, 110, 28, 10);
+        ctx.fillStyle = prod.col;
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '800 13px "Cairo", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(prod.badge, cx + 73, cy + 37);
+
+        // Product Name
+        ctx.fillStyle = '#0F172A';
+        ctx.font = '800 16px "Cairo", sans-serif';
+        ctx.fillText(prod.name.substring(0, 22), cx + cw / 2, cy + 188);
+
+        // Price Pill
+        roundRect(ctx, cx + 16, cy + 204, cw - 32, 44, 12);
+        ctx.fillStyle = '#F1F5F9';
+        ctx.fill();
+        ctx.fillStyle = prod.col;
+        ctx.font = '900 18px "Cairo", sans-serif';
+        ctx.fillText(`${prod.price} / ${prod.unit}`, cx + cw / 2, cy + 233);
+
+        ctx.restore();
+      });
+
+      // Bottom Infographic Banner for Digital Broker B2B
+      const bAppear = easeOutCubic((localT - 0.8) / 0.6);
+      ctx.save();
+      ctx.globalAlpha = bAppear;
+      roundRect(ctx, 42, 822, 996, 112, 24);
+      const bGrad = ctx.createLinearGradient(42, 822, 1038, 934);
+      bGrad.addColorStop(0, '#065F46');
+      bGrad.addColorStop(0.5, '#1E40AF');
+      bGrad.addColorStop(1, '#0F172A');
+      ctx.fillStyle = bGrad;
+      ctx.fill();
+      ctx.strokeStyle = '#34D399';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      ctx.fillStyle = '#FCD34D';
+      ctx.font = '900 27px "Cairo", sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText('🤝 ميزة الوسيط الرقمي (B2B): اطلب تسعيرة كميات لمشروعك الكامل بضغطة زر!', 1005, 868);
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '700 21px "Cairo", sans-serif';
+      ctx.fillText('✓ عروض أسعار تنافسية من المصانع   •   ✓ تسهيلات ائتمانية للشركات   •   ✓ توصيل مباشر للموقع', 1005, 908);
+      ctx.restore();
+
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // SCENE 3: INTERACTIVE INFOGRAPHIC — MERCHANT UPGRADE & FINANCIAL GROWTH
+    // =========================================================================
+    function drawScene3(t) {
+      const localT = t - 15.0;
+      ctx.save();
+      ctx.textAlign = 'center';
+
+      ctx.fillStyle = '#34D399';
+      ctx.font = '800 28px "Cairo", sans-serif';
+      ctx.fillText('🏪 لأصحاب المصانع والشركات وتجار مواد البناء', 540, 148);
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '900 46px "Cairo", sans-serif';
+      ctx.fillText('افتح متجرك الموثق وضاعف مبيعاتك اليوم!', 540, 206);
+
+      // 4 High-Impact Animated Infographic Cards + Central Growth Chart
+      const steps = [
+        { num: '01', title: 'ترقية فورية لتاجر معتمد', desc: 'ارفع مستند التوثيق من داخل التطبيق واحصل على شارة التوثيق الزرقاء ✓', col: '#2563EB', icon: '✔️' },
+        { num: '02', title: 'عرض المنتجات بالصور والأسعار', desc: 'أضف منتجاتك، حدد سعر الطن أو الوحدة، وفعّل التسعير التلقائي بالدولار', col: '#059669', icon: '📦' },
+        { num: '03', title: 'استلام المدفوعات فوراً بأمان', desc: 'دعم كامل لتحويلات بنكك، أوكاش، والحسابات البنكية مع إرفاق الإيصال', col: '#D97706', icon: '💳' },
+        { num: '04', title: 'لوحة تقارير ومحفظة وفريق عمل', desc: 'تابع أرباحك، أدر فريق المبيعات، واكسب نقاط التاجر لتصدر نتائج البحث', col: '#9333EA', icon: '📈' }
+      ];
+
+      steps.forEach((st, idx) => {
+        const col = idx % 2;
+        const row = Math.floor(idx / 2);
+        const p = easeOutBack((localT - idx * 0.2) / 0.7);
+        const cx = 48 + col * 504;
+        const cy = 248 + row * 215;
+        const cw = 480, ch = 192;
+
+        ctx.save();
+        ctx.translate(cx + cw / 2, cy + ch / 2);
+        ctx.scale(p, p);
+        ctx.translate(-(cx + cw / 2), -(cy + ch / 2));
+
+        roundRect(ctx, cx, cy, cw, ch, 24);
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.94)';
+        ctx.fill();
+        ctx.strokeStyle = st.col;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        // Number Badge on Right
+        roundRect(ctx, cx + cw - 92, cy + 24, 68, 68, 18);
+        ctx.fillStyle = st.col;
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '900 28px "Cairo", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(st.icon, cx + cw - 58, cy + 70);
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '900 25px "Cairo", sans-serif';
+        ctx.textAlign = 'right';
+        ctx.fillText(st.title, cx + cw - 110, cy + 62);
+
+        ctx.fillStyle = '#CBD5E1';
+        ctx.font = '700 18.5px "Cairo", sans-serif';
+        const words = st.desc.split(' ');
+        const line1 = words.slice(0, 7).join(' ');
+        const line2 = words.slice(7).join(' ');
+        ctx.fillText(line1, cx + cw - 110, cy + 112);
+        ctx.fillText(line2, cx + cw - 110, cy + 148);
+
+        ctx.restore();
+      });
+
+      // Animated Live KPI Counter Strip at Bottom of Scene 3
+      const kpiP = easeOutCubic((localT - 0.9) / 0.7);
+      ctx.save();
+      ctx.globalAlpha = kpiP;
+      roundRect(ctx, 48, 688, 984, 240, 26);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
+      ctx.fill();
+      ctx.strokeStyle = '#10B981';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      ctx.fillStyle = '#0F172A';
+      ctx.font = '900 26px "Cairo", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('📊 مؤشرات نمو المتاجر المعتمدة في منصة «مقاييس»', 540, 738);
+
+      const kpis = [
+        { val: `+${Math.min(300, Math.floor(localT * 85))}%`, label: 'زيادة في وصول العملاء', col: '#059669' },
+        { val: '24/7', label: 'استقبال طلبات وتسعيرات', col: '#2563EB' },
+        { val: '100%', label: 'شفافية في الفواتير والمحفظة', col: '#D97706' }
+      ];
+      kpis.forEach((k, idx) => {
+        const kx = 100 + idx * 310;
+        roundRect(ctx, kx, 765, 260, 135, 18);
+        ctx.fillStyle = '#F8FAFC';
+        ctx.fill();
+        ctx.strokeStyle = '#E2E8F0';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = k.col;
+        ctx.font = '900 44px "Cairo", sans-serif';
+        ctx.fillText(k.val, kx + 130, 830);
+
+        ctx.fillStyle = '#334155';
+        ctx.font = '800 19px "Cairo", sans-serif';
+        ctx.fillText(k.label, kx + 130, 875);
+      });
+      ctx.restore();
+
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // SCENE 4: 4K GRAND FINALE — APP STORE & GOOGLE PLAY + ORBITING PRODUCTS
+    // =========================================================================
+    function drawScene4(t) {
+      const localT = t - 22.5;
+      const p = easeOutBack(localT / 0.8);
+      ctx.save();
+      ctx.textAlign = 'center';
+
+      // Orbiting Real Product Thumbnails around the Top Logo
+      const orbitImages = ['rebar16', 'cement50', 'porcelain', 'pump', 'tank', 'chandelier'];
+      orbitImages.forEach((key, idx) => {
+        const angle = (idx / orbitImages.length) * Math.PI * 2 + t * 0.6;
+        const ox = 540 + Math.cos(angle) * 340;
+        const oy = 235 + Math.sin(angle) * 65;
+        ctx.save();
+        ctx.shadowColor = 'rgba(0,0,0,0.5)';
+        ctx.shadowBlur = 15;
+        roundRect(ctx, ox - 44, oy - 44, 88, 88, 20);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fill();
+        drawImageCover(ctx, assets[key], ox - 40, oy - 40, 80, 80, 16);
+        ctx.restore();
+      });
+
+      // Center Real Logo with Glowing Ring
+      ctx.save();
+      ctx.translate(540, 235);
+      ctx.scale(p, p);
+      ctx.shadowColor = 'rgba(56, 189, 248, 0.65)';
+      ctx.shadowBlur = 40;
+      roundRect(ctx, -82, -82, 164, 164, 38);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fill();
+      ctx.strokeStyle = '#F59E0B';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+      drawImageCover(ctx, assets.logo, -74, -74, 148, 148, 32);
+      ctx.restore();
+
+      ctx.fillStyle = '#FBBF24';
+      ctx.font = '900 30px "Cairo", sans-serif';
+      ctx.fillText('📲 التسجيل والتحميل مجاناً الآن!', 540, 382);
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '900 56px "Cairo", sans-serif';
+      ctx.fillText('حمّل تطبيق «مقاييس» اليوم', 540, 452);
+
+      ctx.fillStyle = '#93C5FD';
+      ctx.font = '800 28px "Cairo", sans-serif';
+      ctx.fillText('سجّل كمشتري للتسوق وطلب التسعيرات أو رقِّ حسابك إلى تاجر معتمد', 540, 505);
+
+      // App Store & Google Play 3D Badges
+      const pulse = 1 + Math.sin(t * 5) * 0.025;
+      ctx.save();
+      ctx.translate(540, 625);
+      ctx.scale(pulse, pulse);
+
+      // App Store Card (Right)
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 25;
+      roundRect(ctx, 24, -78, 445, 152, 30);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fill();
+      ctx.strokeStyle = '#38BDF8';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      ctx.fillStyle = '#0F172A';
+      ctx.font = 'bold 68px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('', 400, 20);
+      ctx.textAlign = 'right';
+      ctx.font = '800 22px "Cairo", sans-serif';
+      ctx.fillStyle = '#475569';
+      ctx.fillText('حمّل التطبيق للايفون من', 342, -16);
+      ctx.font = '900 44px "Cairo", sans-serif';
+      ctx.fillStyle = '#0F172A';
+      ctx.fillText('App Store', 342, 38);
+
+      // Google Play Card (Left)
+      roundRect(ctx, -469, -78, 445, 152, 30);
+      const gpGrad = ctx.createLinearGradient(-469, -78, -24, 74);
+      gpGrad.addColorStop(0, '#1D4ED8');
+      gpGrad.addColorStop(1, '#059669');
+      ctx.fillStyle = gpGrad;
+      ctx.fill();
+      ctx.strokeStyle = '#93C5FD';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 56px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('▶', -92, 18);
+      ctx.textAlign = 'right';
+      ctx.font = '800 22px "Cairo", sans-serif';
+      ctx.fillStyle = '#DBEAFE';
+      ctx.fillText('حمّل التطبيق للأندرويد من', -148, -16);
+      ctx.font = '900 42px "Cairo", sans-serif';
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillText('Google Play', -148, 38);
+
+      ctx.restore();
+
+      // Bottom Summary Callout Box
+      roundRect(ctx, 56, 738, 968, 192, 28);
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+      ctx.fill();
+      ctx.strokeStyle = '#F59E0B';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      ctx.fillStyle = '#FCD34D';
+      ctx.font = '900 32px "Cairo", sans-serif';
+      ctx.fillText('مقاييس — كل ما يحتاجه مشروعك من مواد البناء بضغطة زر!', 540, 798);
+
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = '800 24px "Cairo", sans-serif';
+      ctx.fillText('✓ أسعار مصانع لحظية   •   ✓ موردون موثقون   •   ✓ الوسيط الرقمي للمشاريع', 540, 852);
+
+      ctx.fillStyle = '#38BDF8';
+      ctx.font = '800 24px "Cairo", sans-serif';
+      ctx.fillText('ابحث عن «مقاييس Magaiees» في متجر التطبيقات وابدأ اليوم!', 540, 902);
+
+      ctx.restore();
+    }
+
+    function drawSubtitleBar(sceneIdx, t) {
+      ctx.save();
+      roundRect(ctx, 38, 952, 1004, 86, 22);
+      ctx.fillStyle = 'rgba(4, 9, 20, 0.94)';
+      ctx.fill();
+      ctx.strokeStyle = '#F59E0B';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      for (let i = 0; i < 4; i++) {
+        const bh = 16 + Math.abs(Math.sin(t * 12 + i * 1.3)) * 32;
+        roundRect(ctx, 1008 - i * 11, 995 - bh / 2, 6, bh, 3);
+        ctx.fillStyle = '#F59E0B';
+        ctx.fill();
+      }
+
+      ctx.fillStyle = '#FDE68A';
+      ctx.font = '800 23.5px "Cairo", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(subtitles[sceneIdx] || '', 512, 1004);
+
+      ctx.fillStyle = 'rgba(255,255,255,0.18)';
+      ctx.fillRect(0, 1068, 1080, 12);
+      ctx.fillStyle = '#F59E0B';
+      ctx.fillRect(0, 1068, (t / DURATION) * 1080, 12);
+      ctx.restore();
+    }
+
+    // Main Render Loop
+    let startTime = performance.now();
+    let isRecording = false;
+    let mediaRecorder = null;
+    let recordedChunks = [];
+
+    function getSceneIndex(elapsed) {
+      if (elapsed < 7.5) return 0;
+      if (elapsed < 15.0) return 1;
+      if (elapsed < 22.5) return 2;
+      return 3;
+    }
+
+    function updateSceneButtons(sIdx) {
+      for (let i = 0; i < 4; i++) {
+        const b = document.getElementById('sbtn' + i);
+        if (b) {
+          if (i === sIdx) b.classList.add('active');
+          else b.classList.remove('active');
+        }
+      }
+    }
+
+    function renderLoop(now) {
+      let elapsed = (now - startTime) / 1000;
+      if (!isRecording) {
+        elapsed = elapsed % DURATION;
+      } else {
+        if (elapsed >= DURATION) {
+          elapsed = DURATION;
+          stopRecordingExport();
+        }
+        document.getElementById('timerText').textContent =
+          `00:${String(Math.floor(elapsed)).padStart(2, '0')} / 00:30`;
+      }
+
+      const sIdx = getSceneIndex(elapsed);
+      if (sIdx !== activeSceneIndex) {
+        activeSceneIndex = sIdx;
+        updateSceneButtons(sIdx);
+        const sceneOffset = elapsed - SCENE_TIMES[sIdx];
+        triggerSceneVoiceover(sIdx, Math.max(0, sceneOffset));
+      }
+
+      ctx.save();
+      ctx.scale(SCALE_FACTOR, SCALE_FACTOR);
+
+      draw4KBackdrop(elapsed, sIdx);
+      if (sIdx === 0) drawScene1(elapsed);
+      else if (sIdx === 1) drawScene2(elapsed);
+      else if (sIdx === 2) drawScene3(elapsed);
+      else drawScene4(elapsed);
+
+      drawSubtitleBar(sIdx, elapsed);
+      ctx.restore();
+
+      requestAnimationFrame(renderLoop);
+    }
+
+    async function startRecordingWithAudio() {
+      if (isRecording) return;
+      document.getElementById('soundOverlay').classList.add('hidden');
+      soundEnabled = true;
+      await initAudioEngine();
+
+      recordedChunks = [];
+      const canvasStream = canvas.captureStream(30);
+      const combinedTracks = [
+        ...canvasStream.getVideoTracks(),
+        ...(mediaStreamDest ? mediaStreamDest.stream.getAudioTracks() : [])
+      ];
+      const combinedStream = new MediaStream(combinedTracks);
+
+      let mimeType = 'video/webm;codecs=vp9,opus';
+      if (!MediaRecorder.isTypeSupported(mimeType)) {
+        mimeType = 'video/webm';
+      }
+      mediaRecorder = new MediaRecorder(combinedStream, {
+        mimeType,
+        videoBitsPerSecond: 12000000
+      });
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) recordedChunks.push(e.data);
+      };
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'magaiees_4k_commercial_arabic.webm';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        document.getElementById('statusBox').classList.remove('active');
+        document.getElementById('recordBtn').disabled = false;
+        document.getElementById('recordBtn').textContent = '⬇️ تحميل الفيديو 4K بالصوت';
+      };
+
+      isRecording = true;
+      activeSceneIndex = -1;
+      startTime = performance.now();
+      document.getElementById('statusBox').classList.add('active');
+      document.getElementById('recordBtn').disabled = true;
+      document.getElementById('recordBtn').textContent = '⏳ جاري التسجيل 4K (30 ثانية)...';
+      mediaRecorder.start(200);
+    }
+
+    function stopRecordingExport() {
+      if (!isRecording) return;
+      isRecording = false;
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
+    }
+
+    requestAnimationFrame(renderLoop);
+  </script>
+</body>
+</html>
