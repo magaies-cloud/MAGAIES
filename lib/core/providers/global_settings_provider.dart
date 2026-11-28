@@ -97,6 +97,75 @@ class GlobalSettings {
   bool isCategoryVisible(String categoryId) => !hiddenCategoryIds.contains(categoryId);
   bool isSubCategoryVisible(String subCategoryId) => !hiddenSubCategoryIds.contains(subCategoryId);
 
+  // Support & Contact getters (synced with Admin Settings -> Brand & Identity)
+  static const String currentAppVersion = '1.0.11';
+
+  String get latestAppVersion {
+    final v = platformSettings['latestAppVersion']?.toString().trim() ?? '';
+    return v.isNotEmpty ? v : currentAppVersion;
+  }
+
+  bool get optionalUpdatesOnly {
+    final val = platformSettings['optionalUpdatesOnly'];
+    if (val == null) return true;
+    return val == true || val == 'true';
+  }
+
+  String get updateMessageAr {
+    final msg = platformSettings['updateMessageAr']?.toString().trim() ?? '';
+    return msg.isNotEmpty
+        ? msg
+        : 'يتوفر إصدار جديد من تطبيق منصة مقاييس يتضمن تحسينات في الأداء وميزات جديدة.';
+  }
+
+  String get playStoreUrl {
+    final url = platformSettings['playStore']?.toString().trim() ?? '';
+    return url.isNotEmpty
+        ? url
+        : 'https://play.google.com/store/apps/details?id=com.magaiees.app';
+  }
+
+  String get appStoreUrl {
+    final url = platformSettings['appStore']?.toString().trim() ?? '';
+    return url.isNotEmpty
+        ? url
+        : 'https://apps.apple.com/app/magaiees/id123456789';
+  }
+
+  bool get isUpdateAvailable => _isVersionNewer(currentAppVersion, latestAppVersion);
+
+  static bool _isVersionNewer(String current, String latest) {
+    final cleanCurrent = current.split('+').first.trim();
+    final cleanLatest = latest.split('+').first.trim();
+    if (cleanCurrent == cleanLatest || cleanLatest.isEmpty) return false;
+    final currParts = cleanCurrent.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+    final latestParts = cleanLatest.split('.').map((e) => int.tryParse(e) ?? 0).toList();
+    final maxLen = currParts.length > latestParts.length ? currParts.length : latestParts.length;
+    for (int i = 0; i < maxLen; i++) {
+      final c = i < currParts.length ? currParts[i] : 0;
+      final l = i < latestParts.length ? latestParts[i] : 0;
+      if (l > c) return true;
+      if (l < c) return false;
+    }
+    return false;
+  }
+
+  String get supportPhone {
+    final p = platformSettings['phone']?.toString().trim() ?? '';
+    return p.isNotEmpty ? p : '0096899051925';
+  }
+
+  String get supportWhatsapp {
+    final w = platformSettings['whatsapp']?.toString().trim() ?? '';
+    if (w.isNotEmpty) return w;
+    return supportPhone;
+  }
+
+  String get supportEmail {
+    final e = platformSettings['email']?.toString().trim() ?? '';
+    return e.isNotEmpty ? e : 'support@magaiees.com';
+  }
+
   // Backward compatibility getters
   bool get isBankakEnabled => exclusiveBankak;
   bool get isOcashEnabled => exclusiveOcash;

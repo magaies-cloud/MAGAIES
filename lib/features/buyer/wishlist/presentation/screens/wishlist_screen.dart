@@ -9,6 +9,7 @@ import 'package:magaiees_marketplace/features/buyer/wishlist/application/wishlis
 
 import 'package:magaiees_marketplace/core/providers/global_settings_provider.dart';
 import 'package:magaiees_marketplace/core/utils/app_notification.dart';
+import 'package:magaiees_marketplace/core/utils/product_variants_helper.dart';
 import 'package:magaiees_marketplace/core/utils/unit_formatter.dart';
 
 final wishlistProductsProvider = FutureProvider.autoDispose<List<ProductCardModel>>((ref) async {
@@ -35,14 +36,14 @@ final wishlistProductsProvider = FutureProvider.autoDispose<List<ProductCardMode
 
     double sdg = (json['price_sdg'] as num?)?.toDouble() ?? 0.0;
     final double? rawUsd = (json['price_usd'] as num?)?.toDouble();
-    if (sdg <= 0 && rawUsd != null && rawUsd > 0 && effectiveRate > 0) {
+    if (rawUsd != null && rawUsd > 0 && effectiveRate > 0) {
       sdg = rawUsd * effectiveRate;
     }
     final double calculatedUsd;
-    if (sdg > 0 && effectiveRate > 0) {
-      calculatedUsd = sdg / effectiveRate;
-    } else if (rawUsd != null && rawUsd > 0) {
+    if (rawUsd != null && rawUsd > 0) {
       calculatedUsd = rawUsd;
+    } else if (sdg > 0 && effectiveRate > 0) {
+      calculatedUsd = sdg / effectiveRate;
     } else {
       calculatedUsd = 0.0;
     }
@@ -57,9 +58,10 @@ final wishlistProductsProvider = FutureProvider.autoDispose<List<ProductCardMode
       categoryNameAr: 'عام',
       name: json['name'] ?? '',
       nameAr: json['name_ar'] ?? '',
-      imageUrl: (json['images'] != null && (json['images'] as List).isNotEmpty)
-          ? json['images'][0]
-          : (json['image_url'] != null ? json['image_url'].toString() : null),
+      imageUrl: ProductVariantsHelper.extractMainImageUrl(
+        json['images'],
+        json['image_url'],
+      ),
       pricePerTon: sdg,
       priceInUsd: calculatedUsd,
       unit: cleanUnit.isNotEmpty ? cleanUnit : 'ton',
@@ -70,6 +72,9 @@ final wishlistProductsProvider = FutureProvider.autoDispose<List<ProductCardMode
       storeNameAr: storeNameAr,
       isMagaieesExclusive: isExclusive,
       storeUsdRate: effectiveRate,
+      availableColors: ProductVariantsHelper.extractColors(json),
+      availableSizes: ProductVariantsHelper.extractSizes(json),
+      description: ProductVariantsHelper.extractDescription(json),
     );
   }).toList();
 });

@@ -337,6 +337,41 @@ class _CartItemTile extends ConsumerWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
+                if (item.selectedColor != null || item.selectedSize != null) ...[
+                  const SizedBox(height: 4),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 4,
+                    children: [
+                      if (item.selectedColor != null && item.selectedColor!.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF3E8FF),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: const Color(0xFFD8B4FE)),
+                          ),
+                          child: Text(
+                            isRtl ? 'اللون: ${item.selectedColor}' : 'Color: ${item.selectedColor}',
+                            style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFF6B21A8)),
+                          ),
+                        ),
+                      if (item.selectedSize != null && item.selectedSize!.isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFDBEAFE),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: const Color(0xFF93C5FD)),
+                          ),
+                          child: Text(
+                            isRtl ? 'المقاس: ${item.selectedSize}' : 'Size: ${item.selectedSize}',
+                            style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFF1E40AF)),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: 4),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

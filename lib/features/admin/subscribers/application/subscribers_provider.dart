@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -51,11 +52,47 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
   bool _hasMore = true;
   bool _isLoadingMore = false;
   int _queryEpoch = 0; // Prevents stale responses from overwriting fresh data
+  List<SubscriberModel> _allUsersSnapshot = [];
+  RealtimeChannel? _usersRealtimeChannel;
+  Timer? _realtimeDebounce;
 
-  SubscribersNotifier(this._ref) : super(const AsyncValue.loading());
+  SubscribersNotifier(this._ref) : super(const AsyncValue.loading()) {
+    _initRealtimeSubscription();
+  }
+
+  void _initRealtimeSubscription() {
+    try {
+      _usersRealtimeChannel = _supabase
+          .channel('public:users:subscribers_live_sync')
+          .onPostgresChanges(
+            event: PostgresChangeEvent.all,
+            schema: 'public',
+            table: 'users',
+            callback: (payload) {
+              _realtimeDebounce?.cancel();
+              _realtimeDebounce = Timer(const Duration(milliseconds: 600), () {
+                if (mounted) {
+                  loadSubscribers(reset: true);
+                }
+              });
+            },
+          )
+          .subscribe();
+    } catch (e) {
+      debugPrint('Subscribers realtime subscription warning: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    _realtimeDebounce?.cancel();
+    _usersRealtimeChannel?.unsubscribe();
+    super.dispose();
+  }
 
   bool get hasMore => _hasMore;
   bool get isLoadingMore => _isLoadingMore;
+  List<SubscriberModel> get allUsersSnapshot => _allUsersSnapshot;
 
   Future<void> loadSubscribers({bool reset = false}) async {
     try {
@@ -75,8 +112,8 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
       final from = _currentPage * _pageSize;
       final to = from + _pageSize - 1;
 
-      // Build query with server-side filtering
-      var query = _supabase.from('users').select();
+      // Build query with server-side filtering (always exclude soft-deleted guest records)
+      var query = _supabase.from('users').select().neq('role', 'guest');
 
       // Apply role/status filter server-side
       switch (queryState.filter) {
@@ -96,7 +133,7 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
           query = query.eq('is_suspended', true);
           break;
         case UiServerFilter.pending:
-          query = query.eq('is_verified', false);
+          query = query.or('is_verified.eq.false,permissions->>merchant_upgrade_pending.eq.true');
           break;
         case UiServerFilter.rejected:
           query = query.not('permissions->rejection_reason', 'is', 'null');
@@ -107,19 +144,21 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
       }
 
       // Apply search server-side (sanitize input to prevent PostgREST syntax errors)
-      if (queryState.searchQuery.isNotEmpty) {
-        final sanitized = queryState.searchQuery
-            .replaceAll(',', '')
-            .replaceAll('(', '')
-            .replaceAll(')', '')
-            .trim();
-        if (sanitized.isNotEmpty) {
-          final q = '%$sanitized%';
-          query = query.or('name.ilike.$q,name_ar.ilike.$q,email.ilike.$q,phone.ilike.$q,store_name.ilike.$q,store_name_ar.ilike.$q');
-        }
+      final rawSearch = queryState.searchQuery
+          .replaceAll(',', '')
+          .replaceAll('(', '')
+          .replaceAll(')', '')
+          .trim();
+
+      if (rawSearch.isNotEmpty) {
+        final q = '%$rawSearch%';
+        query = query.or('name.ilike.$q,name_ar.ilike.$q,email.ilike.$q,phone.ilike.$q,store_name.ilike.$q,store_name_ar.ilike.$q');
       }
 
-      // Parallel fetch: Users, Stores, Orders, and Ads for live accounting and advertiser correlation
+      final isUnfilteredFirstPage =
+          queryState.filter == UiServerFilter.all && rawSearch.isEmpty && _currentPage == 0;
+
+      // Parallel fetch: Filtered Users, All Users (for global KPI accuracy), Stores, Orders, and Ads
       final results = await Future.wait([
         safeSupabaseQuery(
           () => query.order('created_at', ascending: false).range(from, to),
@@ -137,6 +176,11 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
           () => _supabase.from('ads').select('id, title, company, price, is_active'),
           fallback: () => <dynamic>[],
         ),
+        if (!isUnfilteredFirstPage)
+          safeSupabaseQuery(
+            () => _supabase.from('users').select().neq('role', 'guest').order('created_at', ascending: false).limit(500),
+            fallback: () => <dynamic>[],
+          ),
       ]);
 
       // Discard stale responses if a newer reset happened while we were waiting
@@ -149,19 +193,21 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
       final rawStores = results[1];
       final rawOrders = results[2];
       final rawAds = results[3];
+      final rawAllUsers = isUnfilteredFirstPage ? rawUsers : (results.length > 4 ? results[4] : rawUsers);
 
-      // 1. Build Store maps
+      // 1. Build Store maps (separating English and Arabic store names)
       final Map<String, String> ownerToStoreName = {};
+      final Map<String, String> ownerToStoreNameAr = {};
       final Map<String, String> storeIdToOwnerId = {};
       for (var s in rawStores) {
         if (s is Map) {
           final ownerId = s['owner_id']?.toString() ?? '';
           final storeId = s['id']?.toString() ?? '';
-          final nameAr = s['name_ar']?.toString();
+          final nameAr = s['name_ar']?.toString() ?? '';
           final name = s['name']?.toString() ?? '';
-          final resolvedName = (nameAr != null && nameAr.isNotEmpty) ? nameAr : name;
           if (ownerId.isNotEmpty) {
-            ownerToStoreName[ownerId] = resolvedName;
+            ownerToStoreName[ownerId] = name.isNotEmpty ? name : nameAr;
+            ownerToStoreNameAr[ownerId] = nameAr.isNotEmpty ? nameAr : name;
             storeIdToOwnerId[storeId] = ownerId;
           }
         }
@@ -196,7 +242,7 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
         }
       }
 
-      // 3. Aggregate Advertiser Campaigns & Spend
+      // 3. Aggregate Advertiser Campaigns & Spend across all users
       final Map<String, int> userAdsCount = {};
       final Map<String, double> userAdSpend = {};
 
@@ -206,8 +252,8 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
           final price = (num.tryParse(ad['price']?.toString() ?? '0') ?? 0.0).toDouble();
           if (comp.isEmpty) continue;
 
-          // Match company to user
-          for (var u in rawUsers) {
+          // Match company to user across rawAllUsers
+          for (var u in rawAllUsers) {
             if (u is Map) {
               final uId = u['id']?.toString() ?? '';
               final uName = (u['name']?.toString() ?? '').trim().toLowerCase();
@@ -215,9 +261,11 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
               final uEmail = (u['email']?.toString() ?? '').trim().toLowerCase();
               final uStore = (u['store_name']?.toString() ?? '').trim().toLowerCase();
               final directStore = (ownerToStoreName[uId] ?? '').trim().toLowerCase();
+              final directStoreAr = (ownerToStoreNameAr[uId] ?? '').trim().toLowerCase();
 
               final isMatch = (uStore.isNotEmpty && (comp == uStore || comp.contains(uStore) || uStore.contains(comp))) ||
                   (directStore.isNotEmpty && (comp == directStore || comp.contains(directStore) || directStore.contains(comp))) ||
+                  (directStoreAr.isNotEmpty && (comp == directStoreAr || comp.contains(directStoreAr) || directStoreAr.contains(comp))) ||
                   (uName.isNotEmpty && (comp == uName || comp.contains(uName) || uName.contains(comp))) ||
                   (uNameAr.isNotEmpty && (comp == uNameAr || comp.contains(uNameAr) || uNameAr.contains(comp))) ||
                   (uEmail.isNotEmpty && comp == uEmail);
@@ -231,22 +279,66 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
         }
       }
 
-      List<SubscriberModel> newSubs = rawUsers.map((e) {
-        return _parseSubscriber(
-          e as Map<String, dynamic>,
-          ownerToStoreName: ownerToStoreName,
-          buyerOrdersCount: buyerOrdersCount,
-          buyerTotalSpent: buyerTotalSpent,
-          merchantOrdersCount: merchantOrdersCount,
-          merchantTotalSales: merchantTotalSales,
-          userAdsCount: userAdsCount,
-          userAdSpend: userAdSpend,
-        );
-      }).toList();
+      // Build global snapshot for KPI & Filter Badge accuracy (excluding deleted accounts)
+      _allUsersSnapshot = rawAllUsers
+          .map((e) {
+            return _parseSubscriber(
+              e as Map<String, dynamic>,
+              ownerToStoreName: ownerToStoreName,
+              ownerToStoreNameAr: ownerToStoreNameAr,
+              buyerOrdersCount: buyerOrdersCount,
+              buyerTotalSpent: buyerTotalSpent,
+              merchantOrdersCount: merchantOrdersCount,
+              merchantTotalSales: merchantTotalSales,
+              userAdsCount: userAdsCount,
+              userAdSpend: userAdSpend,
+            );
+          })
+          .where((s) => !_isDeletedSubscriber(s))
+          .toList();
 
-      // If filtering by advertisers, apply client-side filter
+      List<SubscriberModel> newSubs = rawUsers
+          .map((e) {
+            return _parseSubscriber(
+              e as Map<String, dynamic>,
+              ownerToStoreName: ownerToStoreName,
+              ownerToStoreNameAr: ownerToStoreNameAr,
+              buyerOrdersCount: buyerOrdersCount,
+              buyerTotalSpent: buyerTotalSpent,
+              merchantOrdersCount: merchantOrdersCount,
+              merchantTotalSales: merchantTotalSales,
+              userAdsCount: userAdsCount,
+              userAdSpend: userAdSpend,
+            );
+          })
+          .where((s) => !_isDeletedSubscriber(s))
+          .toList();
+
+      // Also include users whose store name in `stores` table matched search query even if `users.store_name` was empty
+      if (rawSearch.isNotEmpty) {
+        final searchLower = rawSearch.toLowerCase();
+        final existingIds = newSubs.map((s) => s.id).toSet();
+        for (final sub in _allUsersSnapshot) {
+          if (!existingIds.contains(sub.id)) {
+            final matchStore = (sub.storeName?.toLowerCase().contains(searchLower) ?? false) ||
+                (sub.storeNameAr?.toLowerCase().contains(searchLower) ?? false) ||
+                sub.membershipNumber.toLowerCase().contains(searchLower);
+            if (matchStore) {
+              newSubs.add(sub);
+            }
+          }
+        }
+      }
+
+      // Apply exact client-side refinement for status/advertiser filters
       if (queryState.filter == UiServerFilter.advertisers) {
         newSubs = newSubs.where((s) => s.isAdvertiser || s.totalAdsCount > 0).toList();
+      } else if (queryState.filter == UiServerFilter.pending) {
+        newSubs = newSubs.where((s) => s.status == SubscriberStatus.pendingVerification).toList();
+      } else if (queryState.filter == UiServerFilter.rejected) {
+        newSubs = newSubs.where((s) => s.status == SubscriberStatus.rejectedVerification).toList();
+      } else if (queryState.filter == UiServerFilter.active) {
+        newSubs = newSubs.where((s) => s.status == SubscriberStatus.active).toList();
       }
 
       _hasMore = rawUsers.length == _pageSize;
@@ -273,6 +365,7 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
   SubscriberModel _parseSubscriber(
     Map<String, dynamic> e, {
     Map<String, String> ownerToStoreName = const {},
+    Map<String, String> ownerToStoreNameAr = const {},
     Map<String, int> buyerOrdersCount = const {},
     Map<String, double> buyerTotalSpent = const {},
     Map<String, int> merchantOrdersCount = const {},
@@ -290,14 +383,23 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
       } catch (_) {}
     }
 
-    // Determine status: suspended > pendingVerification > rejectedVerification > active
+    // Determine status: suspended > rejectedVerification > pendingVerification > active
+    final hasRejection = perms.containsKey('rejection_reason') &&
+        perms['rejection_reason'] != null &&
+        perms['rejection_reason'].toString().trim().isNotEmpty &&
+        e['role'] != 'merchant';
+
+    final hasUpgradePending =
+        (perms['merchant_upgrade_pending'] == true || perms['merchant_upgrade_pending'] == 'true') &&
+        e['role'] != 'merchant';
+
     SubscriberStatus status;
     if (e['is_suspended'] == true) {
       status = SubscriberStatus.suspended;
-    } else if (e['is_verified'] == false) {
-      status = SubscriberStatus.pendingVerification;
-    } else if (perms.containsKey('rejection_reason') && perms['rejection_reason'] != null && e['role'] != 'merchant') {
+    } else if (hasRejection) {
       status = SubscriberStatus.rejectedVerification;
+    } else if (e['is_verified'] == false || hasUpgradePending) {
+      status = SubscriberStatus.pendingVerification;
     } else {
       status = SubscriberStatus.active;
     }
@@ -305,10 +407,14 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
     final userId = e['id'].toString();
     final role = _parseRole(e['role']);
 
-    // Resolved store name
-    String? storeName = e['store_name'];
-    if (storeName == null || storeName.isEmpty) {
+    // Resolved store name (both En and Ar)
+    String? storeName = e['store_name']?.toString();
+    if (storeName == null || storeName.trim().isEmpty) {
       storeName = ownerToStoreName[userId];
+    }
+    String? storeNameAr = e['store_name_ar']?.toString();
+    if (storeNameAr == null || storeNameAr.trim().isEmpty) {
+      storeNameAr = ownerToStoreNameAr[userId] ?? storeName;
     }
 
     // Resolved live accounting numbers
@@ -328,10 +434,15 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
     final isAdv = adsCount > 0 || perms['is_advertiser'] == true;
 
     final shortId = userId.length > 6 ? userId.substring(0, 6).toUpperCase() : userId;
+    final resolvedMembership = (e['membership_number']?.toString().trim().isNotEmpty == true)
+        ? e['membership_number'].toString().trim()
+        : (perms['membership_number']?.toString().trim().isNotEmpty == true
+            ? perms['membership_number'].toString().trim()
+            : 'MAG-$shortId');
 
     return SubscriberModel(
       id: userId,
-      membershipNumber: e['membership_number']?.toString() ?? 'MAG-$shortId',
+      membershipNumber: resolvedMembership,
       name: e['name'] ?? 'User',
       nameAr: e['name_ar'] ?? e['name'] ?? 'User',
       email: e['email'] ?? '',
@@ -347,9 +458,11 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
       bankName: e['bank_name'],
       bankAccountName: e['bank_account_name'],
       bankAccountNumber: e['bank_account_number'],
-      storeName: storeName,
-      storeNameAr: e['store_name_ar'] ?? storeName,
-      documentType: e['document_type'],
+      storeName: storeName ?? perms['requested_store_name']?.toString(),
+      storeNameAr: storeNameAr ?? perms['requested_store_name']?.toString(),
+      documentType: e['document_type']?.toString() ??
+          perms['verification_doc_type']?.toString() ??
+          perms['document_type']?.toString(),
       totalOrders: liveOrders,
       totalSpent: liveSpent,
       totalAdsCount: adsCount,
@@ -376,6 +489,112 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
     _updateLocal(userId, (sub) => sub.copyWith(role: newRole));
   }
 
+  /// Update subscriber's basic profile, contact numbers, store names, verification & tier
+  Future<void> updateSubscriberBasicAndStoreInfo({
+    required String userId,
+    required String name,
+    required String nameAr,
+    required String email,
+    required String phone,
+    String? secondaryPhone,
+    String? cityOrAddress,
+    String? membershipNumber,
+    String? storeName,
+    String? storeNameAr,
+    bool? isVerified,
+    String? merchantTier,
+    String? documentType,
+  }) async {
+    final sub = _findById(userId);
+    final perms = Map<String, dynamic>.from(sub?.permissions ?? {});
+
+    if (secondaryPhone != null) {
+      perms['secondary_phone'] = secondaryPhone.trim();
+    }
+    if (cityOrAddress != null) {
+      perms['address'] = cityOrAddress.trim();
+    }
+    if (membershipNumber != null && membershipNumber.trim().isNotEmpty) {
+      perms['membership_number'] = membershipNumber.trim();
+    }
+    if (documentType != null && documentType.trim().isNotEmpty) {
+      perms['document_type'] = documentType.trim();
+    }
+
+    final resolvedStoreEn = (storeName != null && storeName.trim().isNotEmpty)
+        ? storeName.trim()
+        : (storeNameAr != null && storeNameAr.trim().isNotEmpty ? storeNameAr.trim() : null);
+    final resolvedStoreAr = (storeNameAr != null && storeNameAr.trim().isNotEmpty)
+        ? storeNameAr.trim()
+        : resolvedStoreEn;
+
+    final Map<String, dynamic> userUpdatePayload = {
+      'name': name.trim().isNotEmpty ? name.trim() : nameAr.trim(),
+      'name_ar': nameAr.trim().isNotEmpty ? nameAr.trim() : name.trim(),
+      'email': email.trim(),
+      'phone': phone.trim(),
+      'permissions': perms,
+      'store_name': ?resolvedStoreEn,
+      'store_name_ar': ?resolvedStoreAr,
+      'is_verified': ?isVerified,
+      if (merchantTier != null && merchantTier.isNotEmpty) 'merchant_tier': merchantTier,
+    };
+
+    await _supabase.from('users').update(userUpdatePayload).eq('id', userId);
+
+    // Sync with `stores` table if store name is provided or subscriber is a merchant
+    if (resolvedStoreEn != null || resolvedStoreAr != null || sub?.role == UserRole.merchant) {
+      try {
+        final existingStore = await _supabase
+            .from('stores')
+            .select('id')
+            .eq('owner_id', userId)
+            .maybeSingle();
+
+        if (existingStore != null) {
+          await _supabase.from('stores').update({
+            'name': ?resolvedStoreEn,
+            'name_ar': ?resolvedStoreAr,
+          }).eq('owner_id', userId);
+        } else if (resolvedStoreEn != null) {
+          await _supabase.from('stores').insert({
+            'owner_id': userId,
+            'name': resolvedStoreEn,
+            'name_ar': resolvedStoreAr ?? resolvedStoreEn,
+            'is_open': true,
+          });
+        }
+      } catch (e) {
+        debugPrint('Store sync warning: $e');
+      }
+    }
+
+    _updateLocal(userId, (s) {
+      SubscriberStatus updatedStatus = s.status;
+      if (isVerified == true && s.status == SubscriberStatus.pendingVerification) {
+        updatedStatus = SubscriberStatus.active;
+      } else if (isVerified == false && s.status == SubscriberStatus.active) {
+        updatedStatus = SubscriberStatus.pendingVerification;
+      }
+      return s.copyWith(
+        name: name.trim().isNotEmpty ? name.trim() : nameAr.trim(),
+        nameAr: nameAr.trim().isNotEmpty ? nameAr.trim() : name.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        membershipNumber: (membershipNumber != null && membershipNumber.trim().isNotEmpty)
+            ? membershipNumber.trim()
+            : s.membershipNumber,
+        storeName: resolvedStoreEn ?? s.storeName,
+        storeNameAr: resolvedStoreAr ?? s.storeNameAr,
+        isVerified: isVerified ?? s.isVerified,
+        status: updatedStatus,
+        merchantTier: merchantTier ?? s.merchantTier,
+        documentType: documentType ?? s.documentType,
+        permissions: perms,
+      );
+    });
+  }
+
   Future<void> updatePermissions(String userId, Map<String, dynamic> perms) async {
     await _supabase.from('users').update({'permissions': perms}).eq('id', userId);
     _updateLocal(userId, (sub) => sub.copyWith(permissions: perms));
@@ -390,12 +609,6 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
       'direct_payment_enabled': isEnabled,
       'permissions': perms,
     }).eq('id', userId);
-
-    try {
-      await _supabase.from('stores').update({
-        'direct_payment_enabled': isEnabled,
-      }).eq('owner_id', userId);
-    } catch (_) {}
 
     _updateLocal(userId, (sub) => sub.copyWith(
       directPaymentEnabled: isEnabled,
@@ -475,10 +688,109 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
     _updateLocal(userId, (s) => s.copyWith(merchantPoints: newPoints));
   }
 
+  bool _isDeletedSubscriber(SubscriberModel s) {
+    if (s.permissions['is_deleted'] == true || s.permissions['deletion_requested'] == true) {
+      return true;
+    }
+    // Accounts previously soft-deleted by old removeSubscriber had role set to guest + suspended
+    if (s.role == UserRole.guest && s.status == SubscriberStatus.suspended) {
+      return true;
+    }
+    return false;
+  }
+
   Future<void> removeSubscriber(String id) async {
-    // Soft-delete: suspend + set role to guest to prevent FK violations
-    await _supabase.from('users').update({'is_suspended': true, 'role': 'guest'}).eq('id', id);
-    _updateLocal(id, (sub) => sub.copyWith(status: SubscriberStatus.suspended, role: UserRole.guest));
+    final sub = _findById(id);
+
+    // 1. Call server-side SECURITY DEFINER RPC to physically delete from both public.users and auth.users
+    bool hardDeleted = false;
+    try {
+      final rpcRes = await _supabase.rpc(
+        'delete_user_completely',
+        params: {'target_user_id': id},
+      );
+      if (rpcRes == true) {
+        hardDeleted = true;
+      }
+    } catch (_) {}
+
+    if (!hardDeleted) {
+      // 2. Clean up dependent records if any
+      try {
+        await _supabase.from('notifications').delete().eq('user_id', id);
+      } catch (_) {}
+      try {
+        await _supabase.from('stores').delete().eq('owner_id', id);
+      } catch (_) {}
+
+      // 3. Attempt physical hard-delete from public.users
+      try {
+        final deletedRows = await _supabase.from('users').delete().eq('id', id).select('id');
+        hardDeleted = deletedRows.isNotEmpty;
+      } catch (_) {}
+    }
+
+    // 4. Fallback if FK constraints or RLS block physical delete: mark as permanently deleted and free email
+    if (!hardDeleted) {
+      final perms = Map<String, dynamic>.from(sub?.permissions ?? {});
+      perms['is_deleted'] = true;
+      perms['deletion_requested'] = true;
+      perms['deleted_at'] = DateTime.now().toUtc().toIso8601String();
+      if (sub != null && sub.email.isNotEmpty) {
+        perms['deleted_email'] = sub.email;
+      }
+      final shortId = id.length > 8 ? id.substring(0, 8) : id;
+      await _supabase.from('users').update({
+        'is_suspended': true,
+        'role': 'guest',
+        'email': 'deleted_$shortId@deleted.local',
+        'permissions': perms,
+      }).eq('id', id);
+    }
+
+    // 4. Remove subscriber completely from local lists so it disappears immediately
+    _allUsersSnapshot = _allUsersSnapshot.where((s) => s.id != id).toList();
+    if (state.value != null) {
+      state = AsyncValue.data(state.value!.where((s) => s.id != id).toList());
+    }
+  }
+
+  /// Sends a targeted bulk notification to the specified list of subscriber IDs.
+  Future<int> sendBulkBroadcast({
+    required List<String> targetUserIds,
+    required String title,
+    required String body,
+    String type = 'admin_broadcast_info',
+  }) async {
+    final cleanIds = targetUserIds.where((id) => id.trim().isNotEmpty).toSet().toList();
+    if (cleanIds.isEmpty) return 0;
+
+    try {
+      final res = await _supabase.rpc(
+        'send_admin_broadcast_notifications',
+        params: {
+          'target_user_ids': cleanIds,
+          'msg_title': title.trim(),
+          'msg_body': body.trim(),
+          'msg_type': type,
+        },
+      );
+      if (res is num) return res.toInt();
+      return cleanIds.length;
+    } catch (_) {
+      // Fallback direct batch insert if RPC is unavailable
+      final rows = cleanIds
+          .map((uid) => {
+                'user_id': uid,
+                'title': title.trim(),
+                'body': body.trim(),
+                'type': type,
+                'is_read': false,
+              })
+          .toList();
+      await _supabase.from('notifications').insert(rows);
+      return cleanIds.length;
+    }
   }
 
   Future<void> approveMerchant(String id) async {
@@ -486,12 +798,36 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
     final perms = Map<String, dynamic>.from(sub?.permissions ?? {});
     perms.remove('rejection_reason');
     perms.remove('rejected_at');
+    perms['merchant_upgrade_pending'] = false;
+    if (perms['allowed_categories'] == null && perms['requested_categories'] != null) {
+      perms['allowed_categories'] = perms['requested_categories'];
+    }
 
     await _supabase.from('users').update({
       'role': 'merchant',
       'is_verified': true,
       'permissions': perms,
     }).eq('id', id);
+
+    // Ensure merchant has a store entry in `stores`
+    try {
+      final existingStore = await _supabase
+          .from('stores')
+          .select('id')
+          .eq('owner_id', id)
+          .maybeSingle();
+      if (existingStore == null && sub != null) {
+        final sName = (sub.storeName != null && sub.storeName!.isNotEmpty) ? sub.storeName! : sub.name;
+        final sNameAr = (sub.storeNameAr != null && sub.storeNameAr!.isNotEmpty) ? sub.storeNameAr! : sub.nameAr;
+        await _supabase.from('stores').insert({
+          'owner_id': id,
+          'name': sName,
+          'name_ar': sNameAr,
+          'is_open': true,
+          'status': 'approved',
+        });
+      }
+    } catch (_) {}
     
     _updateLocal(id, (sub) => sub.copyWith(
       role: UserRole.merchant,
@@ -506,6 +842,7 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
     final perms = Map<String, dynamic>.from(sub?.permissions ?? {});
     perms['rejection_reason'] = reason ?? 'الوثائق غير واضحة أو غير مطابقة للشروط';
     perms['rejected_at'] = DateTime.now().toIso8601String();
+    perms['merchant_upgrade_pending'] = false;
     
     await _supabase.from('users').update({
       'role': 'buyer',
@@ -531,20 +868,39 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
     String? storeNameAr,
   }) async {
     final roleStr = role.toString().split('.').last;
+    final resolvedStoreEn = (storeName != null && storeName.trim().isNotEmpty)
+        ? storeName.trim()
+        : (storeNameAr != null && storeNameAr.trim().isNotEmpty ? storeNameAr.trim() : null);
+    final resolvedStoreAr = (storeNameAr != null && storeNameAr.trim().isNotEmpty)
+        ? storeNameAr.trim()
+        : resolvedStoreEn;
+
     final payload = <String, dynamic>{
-      'name': name,
-      'name_ar': nameAr.isNotEmpty ? nameAr : name,
-      'email': email,
-      'phone': phone,
+      'name': name.trim().isNotEmpty ? name.trim() : nameAr.trim(),
+      'name_ar': nameAr.trim().isNotEmpty ? nameAr.trim() : name.trim(),
+      'email': email.trim(),
+      'phone': phone.trim(),
       'role': roleStr,
       'is_suspended': false,
       'is_verified': true,
-      if (storeName != null && storeName.isNotEmpty) 'store_name': storeName,
-      if (storeNameAr != null && storeNameAr.isNotEmpty) 'store_name_ar': storeNameAr,
+      'store_name': ?resolvedStoreEn,
+      'store_name_ar': ?resolvedStoreAr,
     };
     final res = await _supabase.from('users').insert(payload).select().maybeSingle();
 
     final newSub = _parseSubscriber(res ?? payload);
+    if (role == UserRole.merchant && newSub.id.isNotEmpty) {
+      try {
+        await _supabase.from('stores').insert({
+          'owner_id': newSub.id,
+          'name': resolvedStoreEn ?? newSub.name,
+          'name_ar': resolvedStoreAr ?? newSub.nameAr,
+          'is_open': true,
+        });
+      } catch (_) {}
+    }
+
+    _allUsersSnapshot = [newSub, ..._allUsersSnapshot];
     final currentList = state.valueOrNull ?? [];
     state = AsyncValue.data([newSub, ...currentList]);
   }
@@ -564,15 +920,23 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
 
   SubscriberModel? _findById(String id) {
     final list = state.valueOrNull;
-    if (list == null) return null;
-    try {
-      return list.firstWhere((s) => s.id == id);
-    } catch (_) {
-      return null;
+    if (list != null) {
+      for (final s in list) {
+        if (s.id == id) return s;
+      }
     }
+    for (final s in _allUsersSnapshot) {
+      if (s.id == id) return s;
+    }
+    return null;
   }
 
   void _updateLocal(String id, SubscriberModel Function(SubscriberModel) updater) {
+    _allUsersSnapshot = _allUsersSnapshot.map((sub) {
+      if (sub.id == id) return updater(sub);
+      return sub;
+    }).toList();
+
     if (state.value != null) {
       final updatedList = state.value!.map((sub) {
         if (sub.id == id) return updater(sub);
@@ -630,6 +994,11 @@ class MerchantUpgradeSettingNotifier extends StateNotifier<bool> {
             event: PostgresChangeEvent.all,
             schema: 'public',
             table: 'users',
+            filter: PostgresChangeFilter(
+              type: PostgresChangeFilterType.eq,
+              column: 'role',
+              value: 'admin',
+            ),
             callback: (payload) {
               _fetchSetting();
               _ref?.read(globalSettingsProvider.notifier).refresh();
@@ -643,7 +1012,11 @@ class MerchantUpgradeSettingNotifier extends StateNotifier<bool> {
 
   @override
   void dispose() {
-    _realtimeChannel?.unsubscribe();
+    final ch = _realtimeChannel;
+    if (ch != null) {
+      ch.unsubscribe();
+      _supabase.removeChannel(ch);
+    }
     super.dispose();
   }
 
@@ -737,6 +1110,11 @@ class PlatformUsdRateNotifier extends StateNotifier<double> {
             event: PostgresChangeEvent.all,
             schema: 'public',
             table: 'users',
+            filter: PostgresChangeFilter(
+              type: PostgresChangeFilterType.eq,
+              column: 'role',
+              value: 'admin',
+            ),
             callback: (payload) {
               _fetchSetting();
               _ref?.read(globalSettingsProvider.notifier).refresh();
@@ -748,7 +1126,11 @@ class PlatformUsdRateNotifier extends StateNotifier<double> {
 
   @override
   void dispose() {
-    _channel?.unsubscribe();
+    final ch = _channel;
+    if (ch != null) {
+      ch.unsubscribe();
+      _supabase.removeChannel(ch);
+    }
     super.dispose();
   }
 
@@ -787,8 +1169,7 @@ class PlatformUsdRateNotifier extends StateNotifier<double> {
 
   Future<void> updateRate(double newRate) async {
     if (newRate <= 0) return;
-    state = newRate;
-    _ref?.read(globalSettingsProvider.notifier).refresh();
+    double oldRate = state;
     try {
       final currentAdmin = await _supabase
           .from('users')
@@ -800,7 +1181,17 @@ class PlatformUsdRateNotifier extends StateNotifier<double> {
           ? Map<String, dynamic>.from(currentAdmin['permissions'] as Map)
           : <String, dynamic>{};
 
+      final dbExistingRate = double.tryParse(existingPerms['platform_usd_rate']?.toString() ?? '');
+      if (dbExistingRate != null && dbExistingRate > 0) {
+        oldRate = dbExistingRate;
+      }
+
+      state = newRate;
+      _ref?.read(globalSettingsProvider.notifier).refresh();
+
+      existingPerms['previous_platform_usd_rate'] = oldRate;
       existingPerms['platform_usd_rate'] = newRate;
+      existingPerms['platform_usd_rate_updated_at'] = DateTime.now().toUtc().toIso8601String();
       if (existingPerms['platform_settings'] is Map) {
         final ps = Map<String, dynamic>.from(existingPerms['platform_settings'] as Map);
         ps['platformUsdRate'] = newRate.toString();
@@ -815,6 +1206,21 @@ class PlatformUsdRateNotifier extends StateNotifier<double> {
 
       _ref?.read(pricingProvider.notifier).updateUsdRate(newRate);
       _ref?.read(globalSettingsProvider.notifier).refresh();
+
+      // Notify ONLY Merchants who use the Platform USD Rate (strictly never Buyers)
+      if ((newRate - oldRate).abs() >= 0.01) {
+        try {
+          await _supabase.rpc(
+            'notify_merchants_usd_rate_change',
+            params: {
+              'old_rate': oldRate,
+              'new_rate': newRate,
+            },
+          );
+        } catch (rpcErr) {
+          debugPrint('Error notifying merchants of USD rate change: $rpcErr');
+        }
+      }
     } catch (e) {
       debugPrint('Error updating platform USD rate: $e');
     }

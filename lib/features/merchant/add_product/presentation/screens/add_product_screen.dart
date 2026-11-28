@@ -1,9 +1,10 @@
 import 'dart:async';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -12,12 +13,14 @@ import 'package:magaiees_marketplace/core/providers/global_settings_provider.dar
 import 'package:magaiees_marketplace/core/services/translation_service.dart';
 import 'package:magaiees_marketplace/core/utils/data_validator.dart';
 import 'package:magaiees_marketplace/core/utils/image_picker_helper.dart';
+import 'package:magaiees_marketplace/core/utils/product_variants_helper.dart';
 import 'package:magaiees_marketplace/features/auth/application/auth_provider.dart';
 import 'package:magaiees_marketplace/features/auth/domain/models/user_model.dart';
 import 'package:magaiees_marketplace/features/buyer/home/application/home_provider.dart';
 import 'package:magaiees_marketplace/features/buyer/home/domain/models/category_model.dart';
 import 'package:magaiees_marketplace/features/buyer/home/domain/models/sub_category_model.dart';
 import 'package:magaiees_marketplace/features/merchant/inventory/presentation/screens/merchant_inventory_screen.dart';
+import 'package:magaiees_marketplace/routing/merchant_shell.dart';
 
 class AddProductScreen extends ConsumerStatefulWidget {
   const AddProductScreen({super.key});
@@ -47,6 +50,15 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
 
   bool _hasExpiryDate = false;
   DateTime? _expiryDate;
+
+  bool _hasColors = false;
+  final List<String> _selectedColors = [];
+  final _customColorController = TextEditingController();
+
+  bool _hasSizes = false;
+  final List<String> _selectedSizes = [];
+  final _customSizeController = TextEditingController();
+
   final List<String> _selectedPaymentMethods = [
     'cod',
     'bankak',
@@ -171,6 +183,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
   }
 
   void _resetForm() {
+    FocusManager.instance.primaryFocus?.unfocus();
     _nameArController.clear();
     _nameEnController.clear();
     _priceController.clear();
@@ -186,12 +199,44 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
         _isCustomUnit = false;
         _hasExpiryDate = false;
         _expiryDate = null;
+        _hasColors = false;
+        _selectedColors.clear();
+        _customColorController.clear();
+        _hasSizes = false;
+        _selectedSizes.clear();
+        _customSizeController.clear();
         _imageBytes = null;
         _imageExt = null;
         _inStock = true;
         _prevExchangeRate = 0.0;
       });
     }
+  }
+
+  void _navigateBack() {
+    FocusManager.instance.primaryFocus?.unfocus();
+    HapticFeedback.lightImpact();
+
+    if (Navigator.of(context).canPop()) {
+      Navigator.of(context).pop();
+      return;
+    }
+
+    try {
+      final shell = StatefulNavigationShell.of(context);
+      final currentUser = ref.read(authNotifierProvider).valueOrNull;
+      final isStaff = currentUser?.isStoreStaff ?? false;
+      int targetBranch = MerchantShell.lastNonAddBranchIndex;
+      if (targetBranch == 2) {
+        targetBranch = isStaff
+            ? (currentUser?.canManageStoreProducts == true ? 1 : 3)
+            : 0;
+      }
+      shell.goBranch(targetBranch);
+      return;
+    } catch (_) {}
+
+    context.go('/merchant/dashboard');
   }
 
   Future<void> _fetchMerchantPermissions() async {
@@ -332,6 +377,8 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     _customUnitController.dispose();
     _stockController.dispose();
     _descriptionController.dispose();
+    _customColorController.dispose();
+    _customSizeController.dispose();
     _previewTransformController.dispose();
     super.dispose();
   }
@@ -488,6 +535,12 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
       if (_descriptionController.text.trim().isNotEmpty) {
         descParts.add(_descriptionController.text.trim());
       }
+      if (_hasColors && _selectedColors.isNotEmpty) {
+        descParts.add('الألوان المتوفرة: ${_selectedColors.join("، ")}');
+      }
+      if (_hasSizes && _selectedSizes.isNotEmpty) {
+        descParts.add('المقاسات المتوفرة: ${_selectedSizes.join("، ")}');
+      }
       if (_hasExpiryDate && _expiryDate != null) {
         descParts.add('تاريخ الصلاحية/الضمان: ${DateFormat("yyyy-MM-dd").format(_expiryDate!)}');
       }
@@ -505,7 +558,12 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
         'price_sdg': double.tryParse(_priceController.text) ?? 0.0,
         'price_usd': double.tryParse(_priceUsdController.text) ?? 0.0,
         'stock': parsedStock,
-        'images': finalImageUrl != null ? [finalImageUrl] : [],
+        'images': ProductVariantsHelper.buildImagesArray(
+          mainImageUrl: finalImageUrl,
+          colors: _hasColors ? _selectedColors : const [],
+          sizes: _hasSizes ? _selectedSizes : const [],
+          description: fullDescription,
+        ),
         'is_magaiees_exclusive': false,
         'is_active': _inStock,
         if (fullDescription.isNotEmpty) 'description': fullDescription,
@@ -1913,6 +1971,8 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
           TextFormField(
             controller: _nameArController,
             onChanged: _onArabicNameChanged,
+            textInputAction: TextInputAction.next,
+            onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
             decoration: InputDecoration(
               labelText: isRtl
                   ? 'اسم الصنف والمقاس (عربي) *'
@@ -1945,6 +2005,8 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
 
           TextFormField(
             controller: _nameEnController,
+            textInputAction: TextInputAction.next,
+            onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
             decoration: InputDecoration(
               labelText: isRtl
                   ? 'اسم الصنف (إنجليزي - مترجم تلقائياً) *'
@@ -1994,6 +2056,8 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
           TextFormField(
             controller: _descriptionController,
             maxLines: 3,
+            textInputAction: TextInputAction.done,
+            onTapOutside: (_) => FocusManager.instance.primaryFocus?.unfocus(),
             decoration: InputDecoration(
               labelText: isRtl
                   ? 'وصف الصنف والمواصفات الفنية (اختياري)'
@@ -2018,6 +2082,375 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
               fillColor: const Color(0xFFF8FAFC),
               prefixIcon: const Icon(Icons.description_outlined,
                   color: Color(0xFF64748B)),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    // Card 3.5: Product Variants (Colors & Sizes)
+    final variantsCard = _buildSectionCard(
+      header: _buildSectionHeader(
+        icon: Icons.palette_rounded,
+        iconColor: const Color(0xFF9333EA),
+        iconBg: const Color(0xFFF3E8FF),
+        title: isRtl ? 'الألوان والمقاسات المتاحة' : 'Available Colors & Sizes',
+        subtitle: isRtl
+            ? 'فعّل خيارات الألوان أو المقاسات ليتمكن المشتري من اختيارها عند الطلب'
+            : 'Enable color or size options for buyers to select when ordering',
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 1. Colors Toggle & Selector
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: _hasColors ? const Color(0xFFFAF5FF) : const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: _hasColors ? const Color(0xFFD8B4FE) : const Color(0xFFE2E8F0),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF3E8FF),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.color_lens_rounded, color: Color(0xFF9333EA), size: 20),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isRtl ? 'تفعيل خيارات الألوان لهذا الصنف' : 'Enable Color Options',
+                            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5, color: Color(0xFF0F172A)),
+                          ),
+                          Text(
+                            isRtl ? 'مناسب للدهانات، السيراميك، الأدوات الصحية، الديكور، الكابلات...' : 'Ideal for paints, ceramics, sanitary ware, cables...',
+                            style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      value: _hasColors,
+                      activeThumbColor: const Color(0xFF9333EA),
+                      onChanged: (val) => setState(() => _hasColors = val),
+                    ),
+                  ],
+                ),
+                if (_hasColors) ...[
+                  const SizedBox(height: 14),
+                  Text(
+                    isRtl ? 'اختر الألوان المتوفرة (يمكنك تحديد أكثر من لون):' : 'Select available colors (multiple allowed):',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF475569)),
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: ProductVariantsHelper.presetColors.map((preset) {
+                      final colorLabel = isRtl ? preset.nameAr : preset.nameEn;
+                      final isSelected = _selectedColors.contains(colorLabel) || _selectedColors.contains(preset.nameAr);
+                      return InkWell(
+                        borderRadius: BorderRadius.circular(20),
+                        onTap: () {
+                          setState(() {
+                            if (_selectedColors.contains(preset.nameAr)) {
+                              _selectedColors.remove(preset.nameAr);
+                            } else {
+                              _selectedColors.add(preset.nameAr);
+                            }
+                          });
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 180),
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: isSelected ? const Color(0xFF9333EA).withValues(alpha: 0.12) : Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: isSelected ? const Color(0xFF9333EA) : const Color(0xFFCBD5E1),
+                              width: isSelected ? 1.8 : 1,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 16,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: preset.color,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: Colors.black26, width: 1),
+                                ),
+                                child: isSelected
+                                    ? Icon(
+                                        Icons.check,
+                                        size: 11,
+                                        color: preset.color.computeLuminance() > 0.5 ? Colors.black87 : Colors.white,
+                                      )
+                                    : null,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                colorLabel,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                                  color: isSelected ? const Color(0xFF6B21A8) : const Color(0xFF334155),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  if (_selectedColors.any((c) => !ProductVariantsHelper.presetColors.any((p) => p.nameAr == c))) ...[
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: _selectedColors
+                          .where((c) => !ProductVariantsHelper.presetColors.any((p) => p.nameAr == c))
+                          .map((customColor) => Chip(
+                                label: Text(customColor, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700)),
+                                backgroundColor: const Color(0xFFF3E8FF),
+                                deleteIconColor: const Color(0xFF9333EA),
+                                onDeleted: () => setState(() => _selectedColors.remove(customColor)),
+                              ))
+                          .toList(),
+                    ),
+                  ],
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _customColorController,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            hintText: isRtl ? 'أضف لوناً آخر يدوياً (مثال: رخامي، لؤلؤي)...' : 'Add custom color...',
+                            hintStyle: const TextStyle(fontSize: 12),
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+                            ),
+                          ),
+                          onSubmitted: (val) {
+                            final v = val.trim();
+                            if (v.isNotEmpty && !_selectedColors.contains(v)) {
+                              setState(() {
+                                _selectedColors.add(v);
+                                _customColorController.clear();
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF9333EA),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        onPressed: () {
+                          final v = _customColorController.text.trim();
+                          if (v.isNotEmpty && !_selectedColors.contains(v)) {
+                            setState(() {
+                              _selectedColors.add(v);
+                              _customColorController.clear();
+                            });
+                          }
+                        },
+                        icon: const Icon(Icons.add, size: 16),
+                        label: Text(isRtl ? 'إضافة' : 'Add', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 14),
+
+          // 2. Sizes Toggle & Selector
+          Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: _hasSizes ? const Color(0xFFEFF6FF) : const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: _hasSizes ? const Color(0xFF93C5FD) : const Color(0xFFE2E8F0),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFDBEAFE),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.straighten_rounded, color: Color(0xFF2563EB), size: 20),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isRtl ? 'تفعيل خيارات المقاسات والأحجام لهذا الصنف' : 'Enable Size & Dimension Options',
+                            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5, color: Color(0xFF0F172A)),
+                          ),
+                          Text(
+                            isRtl ? 'مناسب للحديد، المواسير، البلاط، الكابلات، الأخشاب، العبوات...' : 'Ideal for rebar, pipes, tiles, cables, timber, packs...',
+                            style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Switch(
+                      value: _hasSizes,
+                      activeThumbColor: const Color(0xFF2563EB),
+                      onChanged: (val) => setState(() => _hasSizes = val),
+                    ),
+                  ],
+                ),
+                if (_hasSizes) ...[
+                  const SizedBox(height: 14),
+                  Text(
+                    isRtl ? 'اختر المقاسات المتوفرة (يمكنك تحديد أكثر من مقاس):' : 'Select available sizes (multiple allowed):',
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF475569)),
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: ProductVariantsHelper.presetSizes.map((size) {
+                      final isSelected = _selectedSizes.contains(size);
+                      return InkWell(
+                        borderRadius: BorderRadius.circular(18),
+                        onTap: () {
+                          setState(() {
+                            if (isSelected) {
+                              _selectedSizes.remove(size);
+                            } else {
+                              _selectedSizes.add(size);
+                            }
+                          });
+                        },
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 180),
+                          padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: isSelected ? const Color(0xFF2563EB) : Colors.white,
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(
+                              color: isSelected ? const Color(0xFF2563EB) : const Color(0xFFCBD5E1),
+                            ),
+                          ),
+                          child: Text(
+                            size,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: isSelected ? Colors.white : const Color(0xFF334155),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  if (_selectedSizes.any((s) => !ProductVariantsHelper.presetSizes.contains(s))) ...[
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: _selectedSizes
+                          .where((s) => !ProductVariantsHelper.presetSizes.contains(s))
+                          .map((customSize) => Chip(
+                                label: Text(customSize, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700)),
+                                backgroundColor: const Color(0xFFDBEAFE),
+                                deleteIconColor: const Color(0xFF2563EB),
+                                onDeleted: () => setState(() => _selectedSizes.remove(customSize)),
+                              ))
+                          .toList(),
+                    ),
+                  ],
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _customSizeController,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                            hintText: isRtl ? 'أضف مقاساً مخصصاً (مثال: 120×60 سم، 3 بوصة)...' : 'Add custom size...',
+                            hintStyle: const TextStyle(fontSize: 12),
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+                            ),
+                          ),
+                          onSubmitted: (val) {
+                            final v = val.trim();
+                            if (v.isNotEmpty && !_selectedSizes.contains(v)) {
+                              setState(() {
+                                _selectedSizes.add(v);
+                                _customSizeController.clear();
+                              });
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF2563EB),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        onPressed: () {
+                          final v = _customSizeController.text.trim();
+                          if (v.isNotEmpty && !_selectedSizes.contains(v)) {
+                            setState(() {
+                              _selectedSizes.add(v);
+                              _customSizeController.clear();
+                            });
+                          }
+                        },
+                        icon: const Icon(Icons.add, size: 16),
+                        label: Text(isRtl ? 'إضافة' : 'Add', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                      ),
+                    ],
+                  ),
+                ],
+              ],
             ),
           ),
         ],
@@ -2130,6 +2563,9 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                   controller: _priceUsdController,
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
+                  textInputAction: TextInputAction.done,
+                  onTapOutside: (_) =>
+                      FocusManager.instance.primaryFocus?.unfocus(),
                   decoration: InputDecoration(
                     labelText: isRtl ? 'السعر بالدولار (\$)' : 'Price (USD)',
                     hintText: '0.00',
@@ -2170,6 +2606,9 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                   controller: _priceController,
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
+                  textInputAction: TextInputAction.done,
+                  onTapOutside: (_) =>
+                      FocusManager.instance.primaryFocus?.unfocus(),
                   decoration: InputDecoration(
                     labelText: isRtl ? 'السعر (ج.س)' : 'Price (SDG)',
                     hintText: '0',
@@ -2312,6 +2751,9 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
             const SizedBox(height: 12),
             TextFormField(
               controller: _customUnitController,
+              textInputAction: TextInputAction.done,
+              onTapOutside: (_) =>
+                  FocusManager.instance.primaryFocus?.unfocus(),
               decoration: InputDecoration(
                 labelText: isRtl
                     ? 'اكتب وحدة القياس المخصصة'
@@ -2410,6 +2852,9 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
             TextFormField(
               controller: _stockController,
               keyboardType: TextInputType.number,
+              textInputAction: TextInputAction.done,
+              onTapOutside: (_) =>
+                  FocusManager.instance.primaryFocus?.unfocus(),
               decoration: InputDecoration(
                 labelText: isRtl
                     ? 'الكمية المتوفرة في المستودع'
@@ -2718,14 +3163,41 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
     // SCAFFOLD & RESPONSIVE LAYOUT
     // ─────────────────────────────────────────────────────────────────────────
 
+    final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
+        leadingWidth: 96,
+        leading: Padding(
+          padding: const EdgeInsetsDirectional.only(start: 8, top: 8, bottom: 8),
+          child: TextButton.icon(
+            onPressed: _navigateBack,
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFF1E40AF),
+              backgroundColor: const Color(0xFFEFF6FF),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+                side: const BorderSide(color: Color(0xFFBFDBFE)),
+              ),
+            ),
+            icon: const Icon(Icons.arrow_back_ios_rounded, size: 15),
+            label: Text(
+              isRtl ? 'رجوع' : 'Back',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+              ),
+            ),
+          ),
+        ),
+        centerTitle: true,
         title: Text(
           isRtl ? 'إضافة صنف ومنتج جديد' : 'Add New Item / Product',
           style: const TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 18,
+            fontSize: 17,
           ),
         ),
         elevation: 0.5,
@@ -2740,78 +3212,166 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
           const SizedBox(width: 8),
         ],
       ),
-      body: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1200),
-              child: isDesktop
-                  ? Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Left / Main Column (60%)
-                        Expanded(
-                          flex: 60,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              _buildReadinessBar(isRtl),
-                              const SizedBox(height: 20),
-                              categoryCard,
-                              const SizedBox(height: 20),
-                              identityCard,
-                              const SizedBox(height: 20),
-                              pricingCard,
-                              const SizedBox(height: 20),
-                              stockCard,
-                              const SizedBox(height: 20),
-                              expiryCard,
-                              const SizedBox(height: 20),
-                              paymentCard,
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 24),
-                        // Right / Sidebar Column (40%)
-                        Expanded(
-                          flex: 40,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              _buildActionCard(isRtl),
-                              const SizedBox(height: 20),
-                              _buildLivePreviewCard(isRtl, categories),
-                            ],
-                          ),
-                        ),
-                      ],
-                    )
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        _buildReadinessBar(isRtl),
-                        const SizedBox(height: 16),
-                        categoryCard,
-                        const SizedBox(height: 16),
-                        identityCard,
-                        const SizedBox(height: 16),
-                        _buildLivePreviewCard(isRtl, categories),
-                        const SizedBox(height: 16),
-                        pricingCard,
-                        const SizedBox(height: 16),
-                        stockCard,
-                        const SizedBox(height: 16),
-                        expiryCard,
-                        const SizedBox(height: 16),
-                        paymentCard,
-                        const SizedBox(height: 20),
-                        _buildActionCard(isRtl),
-                      ],
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        onHorizontalDragEnd: (details) {
+          final velocity = details.primaryVelocity ?? 0.0;
+          // Support swipe-back in both RTL (swipe right-to-left: negative velocity)
+          // and standard iOS edge swipe (swipe left-to-right: positive velocity)
+          if (velocity.abs() > 550) {
+            _navigateBack();
+          }
+        },
+        child: Column(
+          children: [
+            Expanded(
+              child: Form(
+                key: _formKey,
+                child: SingleChildScrollView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1200),
+                      child: isDesktop
+                          ? Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Left / Main Column (60%)
+                                Expanded(
+                                  flex: 60,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      _buildReadinessBar(isRtl),
+                                      const SizedBox(height: 20),
+                                      categoryCard,
+                                      const SizedBox(height: 20),
+                                      identityCard,
+                                      const SizedBox(height: 20),
+                                      variantsCard,
+                                      const SizedBox(height: 20),
+                                      pricingCard,
+                                      const SizedBox(height: 20),
+                                      stockCard,
+                                      const SizedBox(height: 20),
+                                      expiryCard,
+                                      const SizedBox(height: 20),
+                                      paymentCard,
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 24),
+                                // Right / Sidebar Column (40%)
+                                Expanded(
+                                  flex: 40,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      _buildActionCard(isRtl),
+                                      const SizedBox(height: 20),
+                                      _buildLivePreviewCard(isRtl, categories),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                _buildReadinessBar(isRtl),
+                                const SizedBox(height: 16),
+                                categoryCard,
+                                const SizedBox(height: 16),
+                                identityCard,
+                                const SizedBox(height: 16),
+                                variantsCard,
+                                const SizedBox(height: 16),
+                                _buildLivePreviewCard(isRtl, categories),
+                                const SizedBox(height: 16),
+                                pricingCard,
+                                const SizedBox(height: 16),
+                                stockCard,
+                                const SizedBox(height: 16),
+                                expiryCard,
+                                const SizedBox(height: 16),
+                                paymentCard,
+                                const SizedBox(height: 20),
+                                _buildActionCard(isRtl),
+                              ],
+                            ),
                     ),
+                  ),
+                ),
+              ),
             ),
-          ),
+            if (isKeyboardOpen)
+              Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F5F9),
+                  border: const Border(
+                    top: BorderSide(color: Color(0xFFCBD5E1), width: 1),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.06),
+                      blurRadius: 8,
+                      offset: const Offset(0, -2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton.icon(
+                      onPressed: _navigateBack,
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFF475569),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
+                      ),
+                      icon: const Icon(Icons.arrow_back_ios_rounded, size: 14),
+                      label: Text(
+                        isRtl ? 'رجوع للشاشة السابقة' : 'Back',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    FilledButton.icon(
+                      onPressed: () =>
+                          FocusManager.instance.primaryFocus?.unfocus(),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFF1E40AF),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 6),
+                        minimumSize: const Size(0, 34),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      icon: const Icon(Icons.keyboard_hide_rounded, size: 16),
+                      label: Text(
+                        isRtl ? 'تم / إخفاء الكيبورد' : 'Done',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          ],
         ),
       ),
     );

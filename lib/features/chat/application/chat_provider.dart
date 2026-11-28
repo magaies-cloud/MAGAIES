@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:magaiees_marketplace/features/chat/domain/models/chat_room_model.dart';
@@ -27,6 +28,17 @@ class ChatRoomsNotifier extends StateNotifier<AsyncValue<List<ChatRoomModel>>> {
   final Set<String> blockedEntities;
   final _supabase = Supabase.instance.client;
   RealtimeChannel? _channel;
+  final Set<String> _myRoomIds = {};
+
+  bool _belongsToCurrentUser(Map<String, dynamic> roomRecord) {
+    if (_userId == null || _userId.isEmpty) return false;
+    final bId = roomRecord['buyer_id']?.toString();
+    final mId = roomRecord['merchant_id']?.toString();
+    final sId = roomRecord['store_id']?.toString();
+    if (bId == _userId || mId == _userId) return true;
+    if (storeId != null && storeId!.isNotEmpty && sId == storeId) return true;
+    return false;
+  }
 
   void _setupRealtimeListener() {
     if (_userId == null) return;
@@ -38,16 +50,47 @@ class ChatRoomsNotifier extends StateNotifier<AsyncValue<List<ChatRoomModel>>> {
           schema: 'public',
           table: 'chat_rooms',
           callback: (payload) {
-            _fetchRooms();
+            final rec = payload.newRecord.isNotEmpty
+                ? payload.newRecord
+                : payload.oldRecord;
+            if (rec.isEmpty ||
+                _belongsToCurrentUser(rec) ||
+                _myRoomIds.contains(rec['id']?.toString())) {
+              _fetchRooms();
+            }
           },
         )
         .onPostgresChanges(
           event: PostgresChangeEvent.all,
           schema: 'public',
           table: 'chat_messages',
-          callback: (payload) {
+          callback: (payload) async {
+            final newRec = payload.newRecord;
+            final oldRec = payload.oldRecord;
+            final roomId =
+                (newRec['room_id'] ?? oldRec['room_id'])?.toString();
+            if (roomId == null || roomId.isEmpty) return;
+
+            // Strict isolation: verify this room belongs to the current user/store
+            bool isMyRoom = _myRoomIds.contains(roomId);
+            if (!isMyRoom) {
+              try {
+                final roomCheck = await _supabase
+                    .from('chat_rooms')
+                    .select('id, buyer_id, merchant_id, store_id')
+                    .eq('id', roomId)
+                    .maybeSingle();
+                if (roomCheck != null && _belongsToCurrentUser(roomCheck)) {
+                  isMyRoom = true;
+                  _myRoomIds.add(roomId);
+                }
+              } catch (_) {}
+            }
+
+            // Ignore messages belonging to other merchants or other customers
+            if (!isMyRoom) return;
+
             if (payload.eventType == PostgresChangeEvent.insert) {
-              final newRec = payload.newRecord;
               final senderId = newRec['sender_id']?.toString();
               if (senderId != null && senderId != _userId) {
                 NotificationSoundService.play();
@@ -147,11 +190,16 @@ class ChatRoomsNotifier extends StateNotifier<AsyncValue<List<ChatRoomModel>>> {
         ));
       }
 
+      _myRoomIds
+        ..clear()
+        ..addAll(rooms.map((r) => r.id));
+
       if (mounted) {
         state = AsyncValue.data(rooms);
       }
     } catch (e, st) {
-      if (mounted) {
+      // Preserve existing loaded rooms on temporary network hiccups
+      if (mounted && !state.hasValue) {
         state = AsyncValue.error(e, st);
       }
     }
@@ -182,14 +230,95 @@ final chatRoomsProvider = StateNotifierProvider.autoDispose<ChatRoomsNotifier, A
   );
 });
 
+final Map<String, List<ChatMessageModel>> _roomMessagesCache = {};
+final Map<String, Future<void> Function()> _roomRefreshCallbacks = {};
+
 /// Provider that streams messages for a specific chat room in real-time
+/// Uses resilient HTTP REST + safe Realtime channel + fallback polling so WebSocket drops
+/// (RealtimeSubscribeException / SocketException) never crash or wipe the chat UI.
 final chatMessagesProvider = StreamProvider.autoDispose.family<List<ChatMessageModel>, String>((ref, roomId) {
-  return _supabase
-      .from('chat_messages')
-      .stream(primaryKey: ['id'])
-      .eq('room_id', roomId)
-      .order('created_at', ascending: true)
-      .map((data) => data.map((json) => ChatMessageModel.fromJson(json)).toList());
+  final controller = StreamController<List<ChatMessageModel>>();
+  bool isDisposed = false;
+  bool isFetching = false;
+
+  // Emit cached messages immediately if available
+  if (_roomMessagesCache.containsKey(roomId)) {
+    controller.add(_roomMessagesCache[roomId]!);
+  }
+
+  Future<void> fetchMessages() async {
+    if (isDisposed || isFetching) return;
+    isFetching = true;
+    try {
+      final data = await _supabase
+          .from('chat_messages')
+          .select()
+          .eq('room_id', roomId)
+          .order('created_at', ascending: true)
+          .timeout(const Duration(seconds: 10));
+
+      final list = (data as List)
+          .map((json) => ChatMessageModel.fromJson(json as Map<String, dynamic>))
+          .toList();
+
+      _roomMessagesCache[roomId] = list;
+      if (!isDisposed && !controller.isClosed) {
+        controller.add(list);
+      }
+    } catch (_) {
+      // On temporary offline/DNS failure, keep cached messages or emit empty list on first load
+      // so RealtimeSubscribeException never breaks the screen
+      if (!isDisposed && !controller.isClosed && _roomMessagesCache.containsKey(roomId)) {
+        controller.add(_roomMessagesCache[roomId]!);
+      } else if (!isDisposed && !controller.isClosed) {
+        controller.add(const <ChatMessageModel>[]);
+      }
+    } finally {
+      isFetching = false;
+    }
+  }
+
+  _roomRefreshCallbacks[roomId] = fetchMessages;
+  fetchMessages();
+
+  RealtimeChannel? channel;
+  try {
+    channel = _supabase
+        .channel('room_msgs_${roomId}_${DateTime.now().millisecondsSinceEpoch}')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'chat_messages',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'room_id',
+            value: roomId,
+          ),
+          callback: (_) {
+            fetchMessages();
+          },
+        )
+        .subscribe();
+  } catch (_) {}
+
+  final pollTimer = Timer.periodic(const Duration(seconds: 3), (_) {
+    fetchMessages();
+  });
+
+  ref.onDispose(() {
+    isDisposed = true;
+    _roomRefreshCallbacks.remove(roomId);
+    pollTimer.cancel();
+    if (channel != null) {
+      try {
+        channel.unsubscribe();
+        _supabase.removeChannel(channel);
+      } catch (_) {}
+    }
+    controller.close();
+  });
+
+  return controller.stream;
 });
 
 /// Service class with static methods for chat operations
@@ -214,6 +343,12 @@ class ChatService {
       'last_message': type == 'image' ? '📷 صورة / Image' : content,
       'last_message_at': DateTime.now().toUtc().toIso8601String(),
     }).eq('id', roomId);
+
+    // Immediately trigger message stream refresh for this room
+    final refreshFn = _roomRefreshCallbacks[roomId];
+    if (refreshFn != null) {
+      unawaited(refreshFn());
+    }
   }
 
   /// Get or create a chat room between buyer and merchant
@@ -304,12 +439,14 @@ class ChatService {
     required String roomId,
     required String currentUserId,
   }) async {
-    await _supabase
-        .from('chat_messages')
-        .update({'is_read': true})
-        .eq('room_id', roomId)
-        .neq('sender_id', currentUserId)
-        .eq('is_read', false);
+    try {
+      await _supabase
+          .from('chat_messages')
+          .update({'is_read': true})
+          .eq('room_id', roomId)
+          .neq('sender_id', currentUserId)
+          .eq('is_read', false);
+    } catch (_) {}
   }
 }
 

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:magaiees_marketplace/core/utils/image_optimizer.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -38,9 +39,9 @@ class CategoryGridWidget extends StatelessWidget {
         ),
         itemCount: visibleCategories.length + 1,
         itemBuilder: (context, index) {
-          // 11th item: Service Providers & Tradesmen
+          // 11th item: Contracting Companies, Service Providers & Tradesmen
           if (index == visibleCategories.length) {
-            final name = isRtl ? 'مقدمو الخدمات' : 'Services';
+            final name = isRtl ? 'المقاولات والخدمات' : 'Contracting & Services';
             return InkWell(
               onTap: () => context.push('/buyer/home/services'),
               borderRadius: BorderRadius.circular(cardRadius),
@@ -141,15 +142,26 @@ class CategoryGridWidget extends StatelessWidget {
                         ],
                       ),
                       child: Center(
-                        child: category.imageUrl != null
+                        child: category.imageUrl != null && category.imageUrl!.isNotEmpty
                             ? ClipRRect(
                                 borderRadius: BorderRadius.circular(cardRadius),
-                                child: Image.network(
-                                  ImageOptimizer.optimize(category.imageUrl!, width: 150),
+                                child: CachedNetworkImage(
+                                  imageUrl: ImageOptimizer.optimize(category.imageUrl!, width: 150),
                                   width: cardSize - 2,
                                   height: cardSize - 2,
+                                  memCacheWidth: 180,
                                   fit: BoxFit.contain,
-                                  errorBuilder: (c, e, s) => Icon(style.icon, color: style.color, size: iconSize),
+                                  fadeInDuration: const Duration(milliseconds: 120),
+                                  placeholder: (c, url) => Icon(
+                                    style.icon,
+                                    color: style.color.withValues(alpha: 0.35),
+                                    size: iconSize * 0.85,
+                                  ),
+                                  errorWidget: (c, url, e) => Icon(
+                                    style.icon,
+                                    color: style.color,
+                                    size: iconSize,
+                                  ),
                                 ),
                               )
                             : Icon(

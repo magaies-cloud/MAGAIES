@@ -11,6 +11,8 @@ import 'package:magaiees_marketplace/features/admin/presentation/screens/admin_a
 import 'package:magaiees_marketplace/features/chat/presentation/screens/chat_rooms_screen.dart';
 import 'package:magaiees_marketplace/features/admin/digital_broker/presentation/screens/quote_requests_management_screen.dart';
 import 'package:magaiees_marketplace/core/utils/app_notification.dart';
+import 'package:magaiees_marketplace/core/utils/notification_sound_service.dart';
+import 'package:magaiees_marketplace/core/services/local_notification_service.dart';
 import 'package:go_router/go_router.dart';
 import 'package:magaiees_marketplace/routing/route_names.dart';
 
@@ -30,16 +32,24 @@ class _EmployeeShellState extends ConsumerState<EmployeeShell> {
     final employeeState = ref.watch(employeeOrdersProvider);
     final pendingCount = employeeState.pendingOrders.length;
 
-    // Listen for new pending orders to show top notification banner
+    // Listen for new pending orders to play tone and show top notification banner
     ref.listen<EmployeeState>(employeeOrdersProvider, (prev, next) {
       if (next.pendingOrders.isNotEmpty) {
         final prevIds = prev?.pendingOrders.map((e) => e.id).toSet() ?? {};
         for (var order in next.pendingOrders) {
           if (!prevIds.contains(order.id)) {
+            NotificationSoundService.play();
+            final msg = 'طلب حصري جديد متاح (#${order.orderNumber}): ${order.buyerName.isNotEmpty ? order.buyerName : 'مشتري مقاييس'}';
+            LocalNotificationService.instance.showOrderNotification(
+              orderId: order.id,
+              title: '🔔 طلب جديد متاح في الرادار!',
+              body: msg,
+              payload: order.id,
+            );
             AppNotification.showNewOrder(
               context,
               orderId: order.orderNumber,
-              message: 'طلب حصري جديد متاح (#${order.orderNumber}): ${order.buyerName.isNotEmpty ? order.buyerName : 'مشتري مقاييس'}',
+              message: msg,
               onTap: () {
                 ref.read(employeeShellIndexProvider.notifier).state = 0; // Go to Radar
               },

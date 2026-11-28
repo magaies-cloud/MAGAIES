@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:magaiees_marketplace/core/providers/global_settings_provider.dart';
 import 'package:magaiees_marketplace/core/utils/app_notification.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class HelpCenterScreen extends StatefulWidget {
+class HelpCenterScreen extends ConsumerStatefulWidget {
   const HelpCenterScreen({super.key});
 
   @override
-  State<HelpCenterScreen> createState() => _HelpCenterScreenState();
+  ConsumerState<HelpCenterScreen> createState() => _HelpCenterScreenState();
 }
 
-class _HelpCenterScreenState extends State<HelpCenterScreen> {
+class _HelpCenterScreenState extends ConsumerState<HelpCenterScreen> {
   String _searchQuery = '';
   String _selectedCategory = 'all';
 
@@ -274,12 +277,28 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: () {
-                            AppNotification.showInfo(
-                              context,
-                              isRtl ? 'الاتصال بالرقم الموحد: 8001234567' : 'Calling 8001234567',
-                              icon: Icons.call,
-                            );
+                          onPressed: () async {
+                            final supportPhone = ref.read(globalSettingsProvider).supportPhone;
+                            final cleanTel = supportPhone.replaceAll(RegExp(r'[^0-9+]'), '');
+                            final uri = Uri.parse('tel:$cleanTel');
+                            try {
+                              final launched = await launchUrl(uri);
+                              if (!launched && context.mounted) {
+                                AppNotification.showInfo(
+                                  context,
+                                  isRtl ? 'الاتصال بالرقم الموحد: $supportPhone' : 'Calling $supportPhone',
+                                  icon: Icons.call,
+                                );
+                              }
+                            } catch (_) {
+                              if (context.mounted) {
+                                AppNotification.showInfo(
+                                  context,
+                                  isRtl ? 'الاتصال بالرقم الموحد: $supportPhone' : 'Calling $supportPhone',
+                                  icon: Icons.call,
+                                );
+                              }
+                            }
                           },
                           icon: const Icon(Icons.call, size: 18),
                           label: Text(isRtl ? 'اتصال هاتفي' : 'Call Support'),
@@ -289,12 +308,28 @@ class _HelpCenterScreenState extends State<HelpCenterScreen> {
                       Expanded(
                         child: FilledButton.icon(
                           style: FilledButton.styleFrom(backgroundColor: const Color(0xFF25D366)),
-                          onPressed: () {
-                            AppNotification.showInfo(
-                              context,
-                              isRtl ? 'فتح واتساب الدعم الفني...' : 'Opening WhatsApp Support...',
-                              icon: Icons.chat,
-                            );
+                          onPressed: () async {
+                            final supportWhatsapp = ref.read(globalSettingsProvider).supportWhatsapp;
+                            final cleanWa = supportWhatsapp.replaceAll(RegExp(r'[^0-9]'), '').replaceFirst(RegExp(r'^00'), '');
+                            final uri = Uri.parse('https://wa.me/$cleanWa');
+                            try {
+                              final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+                              if (!launched && context.mounted) {
+                                AppNotification.showInfo(
+                                  context,
+                                  isRtl ? 'فتح واتساب الدعم الفني ($supportWhatsapp)...' : 'Opening WhatsApp Support ($supportWhatsapp)...',
+                                  icon: Icons.chat,
+                                );
+                              }
+                            } catch (_) {
+                              if (context.mounted) {
+                                AppNotification.showInfo(
+                                  context,
+                                  isRtl ? 'فتح واتساب الدعم الفني ($supportWhatsapp)...' : 'Opening WhatsApp Support ($supportWhatsapp)...',
+                                  icon: Icons.chat,
+                                );
+                              }
+                            }
                           },
                           icon: const Icon(Icons.chat, size: 18),
                           label: Text(isRtl ? 'محادثة واتساب' : 'WhatsApp'),

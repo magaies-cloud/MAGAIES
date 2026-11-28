@@ -13,6 +13,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:magaiees_marketplace/core/providers/global_settings_provider.dart';
 import 'package:magaiees_marketplace/core/providers/ugc_moderation_provider.dart';
 import 'package:magaiees_marketplace/core/utils/unit_formatter.dart';
+import 'package:magaiees_marketplace/core/utils/product_variants_helper.dart';
 
 part 'home_provider.g.dart';
 
@@ -105,47 +106,64 @@ class Categories extends _$Categories {
     });
 
     final globalSettings = ref.watch(globalSettingsProvider);
-    final rawCats = await ref.read(apiHomeRepositoryProvider).getCategories();
-
+    final repo = ref.read(apiHomeRepositoryProvider);
     final hiddenCats = globalSettings.hiddenCategoryIds;
     final hiddenSubs = globalSettings.hiddenSubCategoryIds;
 
-    return rawCats.map((cat) {
-      final isCatVisible = !hiddenCats.contains(cat.id);
-      final updatedSubs = cat.subCategories.map((sub) {
-        final isSubVisible = !hiddenSubs.contains(sub.id) && isCatVisible;
-        return sub.copyWith(isVisible: isSubVisible);
-      }).toList();
+    List<CategoryModel> applyVisibility(List<CategoryModel> cats) {
+      return cats.map((cat) {
+        final isCatVisible = !hiddenCats.contains(cat.id);
+        final updatedSubs = cat.subCategories.map((sub) {
+          final isSubVisible = !hiddenSubs.contains(sub.id) && isCatVisible;
+          return sub.copyWith(isVisible: isSubVisible);
+        }).toList();
 
-      return cat.copyWith(
-        isVisible: isCatVisible,
-        subCategories: updatedSubs,
-      );
-    }).toList();
+        return cat.copyWith(
+          isVisible: isCatVisible,
+          subCategories: updatedSubs,
+        );
+      }).toList();
+    }
+
+    // 1. Emit cached categories immediately if available so icons render with 0ms wait
+    final cachedCats = await repo.getCachedCategories();
+    if (cachedCats.isNotEmpty && state.valueOrNull == null) {
+      state = AsyncData(applyVisibility(cachedCats));
+    }
+
+    // 2. Fetch fresh categories from Supabase and update
+    final rawCats = await repo.getCategories();
+    return applyVisibility(rawCats);
   }
 }
 
 @Riverpod(keepAlive: true)
 class Products extends _$Products {
   final _supabase = Supabase.instance.client;
+  Timer? _realtimeDebounce;
 
   @override
   FutureOr<List<ProductCardModel>> build() async {
-    // Setup Realtime listener for instant product & price updates
+    // Setup debounced Realtime listener for instant product & price updates without socket storms
     final channel = _supabase
-        .channel('public:products')
+        .channel('public:products_${DateTime.now().millisecondsSinceEpoch}')
         .onPostgresChanges(
           event: PostgresChangeEvent.all,
           schema: 'public',
           table: 'products',
           callback: (payload) {
-            ref.invalidateSelf();
+            _realtimeDebounce?.cancel();
+            _realtimeDebounce = Timer(const Duration(milliseconds: 600), () {
+              ref.invalidateSelf();
+            });
           },
         )
         .subscribe();
 
     ref.onDispose(() {
+      _realtimeDebounce?.cancel();
       channel.unsubscribe();
+      _supabase.removeChannel(channel);
     });
 
     try {
@@ -187,12 +205,17 @@ class Products extends _$Products {
           }
         }
 
-        String img = '';
-        if (json['images'] is List && (json['images'] as List).isNotEmpty) {
-          img = (json['images'] as List)[0]?.toString() ?? '';
-        } else if (json['image_url'] != null && json['image_url'].toString().isNotEmpty) {
-          img = json['image_url'].toString();
-        }
+        final String img = ProductVariantsHelper.extractMainImageUrl(
+              json['images'],
+              json['image_url'],
+            ) ??
+            '';
+        final List<String> extractedColors =
+            ProductVariantsHelper.extractColors(Map<String, dynamic>.from(json as Map));
+        final List<String> extractedSizes =
+            ProductVariantsHelper.extractSizes(Map<String, dynamic>.from(json));
+        final String? extractedDesc =
+            ProductVariantsHelper.extractDescription(Map<String, dynamic>.from(json));
 
         final double? usd = num.tryParse(json['price_usd']?.toString() ?? '')?.toDouble() ??
                             num.tryParse(json['price_in_usd']?.toString() ?? '')?.toDouble();
@@ -239,16 +262,16 @@ class Products extends _$Products {
         double sdg = num.tryParse(json['price_sdg']?.toString() ?? '')?.toDouble() ??
                      num.tryParse(json['price']?.toString() ?? '')?.toDouble() ??
                      0.0;
-        // If local currency price is not provided or zero, but USD is available, convert it to local currency!
-        if (sdg <= 0 && usd != null && usd > 0 && effectiveRate > 0) {
+        // Always calculate local currency price dynamically when USD price and effective exchange rate exist
+        if (usd != null && usd > 0 && effectiveRate > 0) {
           sdg = usd * effectiveRate;
         }
 
         final double calculatedUsd;
-        if (sdg > 0 && effectiveRate > 0) {
-          calculatedUsd = sdg / effectiveRate;
-        } else if (usd != null && usd > 0) {
+        if (usd != null && usd > 0) {
           calculatedUsd = usd;
+        } else if (sdg > 0 && effectiveRate > 0) {
+          calculatedUsd = sdg / effectiveRate;
         } else {
           calculatedUsd = 0.0;
         }
@@ -278,6 +301,9 @@ class Products extends _$Products {
           storeNameAr: finalStoreNameAr,
           isMagaieesExclusive: isExclusive,
           storeUsdRate: effectiveRate,
+          availableColors: extractedColors,
+          availableSizes: extractedSizes,
+          description: extractedDesc,
         );
       }).toList();
     } catch (e) {
@@ -298,7 +324,11 @@ class Products extends _$Products {
         'price_sdg': newProduct.pricePerTon,
         'price_usd': newProduct.priceInUsd,
         'stock': newProduct.inStock ? (newProduct.stockQuantity > 0 ? newProduct.stockQuantity : 100) : 0,
-        'images': [if (newProduct.imageUrl != null && newProduct.imageUrl!.isNotEmpty) newProduct.imageUrl!],
+        'images': ProductVariantsHelper.buildImagesArray(
+          mainImageUrl: newProduct.imageUrl,
+          colors: newProduct.availableColors,
+          sizes: newProduct.availableSizes,
+        ),
         'is_magaiees_exclusive': newProduct.isMagaieesExclusive,
         'unit': newProduct.unitAr,
         'is_active': newProduct.inStock,
@@ -334,7 +364,11 @@ class Products extends _$Products {
         'price_sdg': updatedProduct.pricePerTon,
         'price_usd': updatedProduct.priceInUsd,
         'stock': updatedProduct.inStock ? (updatedProduct.stockQuantity > 0 ? updatedProduct.stockQuantity : 100) : 0,
-        'images': [if (updatedProduct.imageUrl != null && updatedProduct.imageUrl!.isNotEmpty) updatedProduct.imageUrl!],
+        'images': ProductVariantsHelper.buildImagesArray(
+          mainImageUrl: updatedProduct.imageUrl,
+          colors: updatedProduct.availableColors,
+          sizes: updatedProduct.availableSizes,
+        ),
         'is_magaiees_exclusive': updatedProduct.isMagaieesExclusive,
         'unit': updatedProduct.unitAr,
         'is_active': updatedProduct.inStock,

@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:magaiees_marketplace/core/network/supabase_safe_query.dart';
 
@@ -103,11 +105,37 @@ class Ads extends _$Ads {
       channel.unsubscribe();
     });
 
+    // 1. Instant local cache load so banners appear immediately on startup
+    SharedPreferences? prefs;
+    List<AdModel> cachedAds = [];
+    try {
+      prefs = await SharedPreferences.getInstance();
+      final cachedRaw = prefs.getString('cached_ads_v1');
+      if (cachedRaw != null && cachedRaw.isNotEmpty) {
+        final decoded = jsonDecode(cachedRaw) as List<dynamic>;
+        cachedAds = decoded
+            .map((e) => AdModel.fromJson(Map<String, dynamic>.from(e as Map)))
+            .toList();
+        if (cachedAds.isNotEmpty && state.valueOrNull == null) {
+          state = AsyncData(cachedAds);
+        }
+      }
+    } catch (_) {}
+
+    // 2. Fetch fresh ads from Supabase and update local cache
     final data = await safeSupabaseQuery(
       () => _supabase.from('ads').select().order('created_at', ascending: false),
       fallback: () => <Map<String, dynamic>>[],
     );
-    return (data as List).map((e) => AdModel.fromJson(e as Map<String, dynamic>)).toList();
+    final freshList = (data as List).map((e) => AdModel.fromJson(e as Map<String, dynamic>)).toList();
+    if (freshList.isNotEmpty) {
+      try {
+        prefs ??= await SharedPreferences.getInstance();
+        await prefs.setString('cached_ads_v1', jsonEncode(data));
+      } catch (_) {}
+      return freshList;
+    }
+    return cachedAds;
   }
 
   Future<void> addAd(AdModel ad) async {

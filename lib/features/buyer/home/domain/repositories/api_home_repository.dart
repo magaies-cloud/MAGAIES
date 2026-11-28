@@ -1,9 +1,11 @@
+import 'dart:convert';
 import 'package:magaiees_marketplace/core/network/api_client.dart';
 import 'package:magaiees_marketplace/core/network/api_endpoints.dart';
 import 'package:magaiees_marketplace/features/buyer/home/domain/models/product_card_model.dart';
 import 'package:magaiees_marketplace/features/buyer/home/domain/models/category_model.dart';
 import 'package:magaiees_marketplace/features/buyer/home/domain/models/sub_category_model.dart';
 import 'package:magaiees_marketplace/features/buyer/home/domain/models/market_price_model.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:magaiees_marketplace/core/network/supabase_safe_query.dart';
 
@@ -27,6 +29,46 @@ class ApiHomeRepository {
     }
   }
 
+  List<CategoryModel> parseCategoriesJson(List<dynamic> data) {
+    return data.map((json) {
+      final subs = (json['subcategories'] as List<dynamic>? ?? []).map((sub) {
+        return SubCategoryModel(
+          id: sub['id'].toString(),
+          categoryId: sub['category_id'].toString(),
+          name: sub['name'] ?? '',
+          nameAr: sub['name_ar'] ?? '',
+          imageUrl: sub['image_url'],
+          productCount: 0,
+          isVisible: (sub['is_visible'] ?? sub['is_active'] ?? sub['isVisible']) != false,
+        );
+      }).toList();
+
+      return CategoryModel(
+        id: json['id'].toString(),
+        name: json['name'] ?? '',
+        nameAr: json['name_ar'] ?? '',
+        iconName: json['icon_name'] ?? 'category',
+        imageUrl: json['image_url'],
+        productCount: 0,
+        isExclusiveToMagaiees: json['is_magaiees_exclusive'] ?? false,
+        isVisible: (json['is_visible'] ?? json['is_active'] ?? json['isVisible']) != false,
+        subCategories: subs,
+      );
+    }).toList();
+  }
+
+  Future<List<CategoryModel>> getCachedCategories() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final cachedRaw = prefs.getString('cached_categories_v1');
+      if (cachedRaw != null && cachedRaw.isNotEmpty) {
+        final decoded = jsonDecode(cachedRaw) as List<dynamic>;
+        return parseCategoriesJson(decoded);
+      }
+    } catch (_) {}
+    return [];
+  }
+
   Future<List<CategoryModel>> getCategories() async {
     try {
       final response = await safeSupabaseQuery(
@@ -37,33 +79,16 @@ class ApiHomeRepository {
         fallback: () => <dynamic>[],
       );
       final List<dynamic> data = response;
-      return data.map((json) {
-        final subs = (json['subcategories'] as List<dynamic>? ?? []).map((sub) {
-          return SubCategoryModel(
-            id: sub['id'].toString(),
-            categoryId: sub['category_id'].toString(),
-            name: sub['name'] ?? '',
-            nameAr: sub['name_ar'] ?? '',
-            imageUrl: sub['image_url'],
-            productCount: 0,
-            isVisible: (sub['is_visible'] ?? sub['is_active'] ?? sub['isVisible']) != false,
-          );
-        }).toList();
-
-        return CategoryModel(
-          id: json['id'].toString(),
-          name: json['name'] ?? '',
-          nameAr: json['name_ar'] ?? '',
-          iconName: json['icon_name'] ?? 'category',
-          imageUrl: json['image_url'],
-          productCount: 0,
-          isExclusiveToMagaiees: json['is_magaiees_exclusive'] ?? false,
-          isVisible: (json['is_visible'] ?? json['is_active'] ?? json['isVisible']) != false,
-          subCategories: subs,
-        );
-      }).toList();
+      if (data.isNotEmpty) {
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('cached_categories_v1', jsonEncode(data));
+        } catch (_) {}
+        return parseCategoriesJson(data);
+      }
+      return await getCachedCategories();
     } catch (e) {
-      return [];
+      return await getCachedCategories();
     }
   }
 

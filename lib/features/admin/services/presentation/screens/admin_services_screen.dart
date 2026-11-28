@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart' hide TextDirection;
+import 'package:magaiees_marketplace/core/utils/phone_formatter.dart';
 import 'package:magaiees_marketplace/features/buyer/services/domain/models/service_provider_model.dart';
 import 'package:magaiees_marketplace/features/admin/services/application/admin_services_provider.dart';
 import 'package:magaiees_marketplace/features/admin/presentation/widgets/admin_error_view.dart';
@@ -15,6 +16,8 @@ const Color _kEmeraldDark = Color(0xFF059669);
 const Color _kAmberDark = Color(0xFFD97706);
 const Color _kCrimson = Color(0xFFEF4444);
 const Color _kPurple = Color(0xFF8B5CF6);
+const Color _kTealDeep = Color(0xFF0F766E);
+const Color _kTealLight = Color(0xFF0D9488);
 const Color _kBgLight = Color(0xFFF8FAFC);
 
 class AdminServicesScreen extends ConsumerStatefulWidget {
@@ -43,14 +46,18 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
     switch (cat) {
       case 'All':
         return isRtl ? 'الكل' : 'All';
+      case 'contracting':
+        return isRtl
+            ? 'شركات المقاولات والتشطيبات والهياكل الخرسانية'
+            : 'Contracting, Concrete & Finishing';
       case 'engineering':
         return isRtl ? 'استشارات وتصميم هندسي' : 'Engineering';
       case 'technicians':
         return isRtl ? 'فنيون ومهنيون' : 'Technicians';
       case 'labor':
-        return isRtl ? 'مقاولات وعمالة تنفيذية' : 'Labor & Contracting';
+        return isRtl ? 'عمالة وحرفيون تنفيذيون' : 'Construction Labor';
       case 'logistics':
-        return isRtl ? 'أساطيل النقل واللوجستيات' : 'Logistics & Fleet';
+        return isRtl ? 'شركات الشحن وأساطيل اللوجستيات' : 'Logistics & Shipping Fleet';
       default:
         return cat;
     }
@@ -67,6 +74,9 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
       case 1:
         s = s.where((p) => p.categoryId == 'logistics');
         break;
+      case 7:
+        s = s.where((p) => p.categoryId == 'contracting');
+        break;
       case 2:
         s = s.where((p) => p.categoryId == 'engineering');
         break;
@@ -77,7 +87,11 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
         s = s.where((p) => p.categoryId == 'labor');
         break;
       case 5:
-        s = s.where((p) => p.rating >= 4.9 || p.categoryId == 'logistics' || p.contractType != 'none');
+        s = s.where((p) =>
+            p.rating >= 4.9 ||
+            p.categoryId == 'logistics' ||
+            p.categoryId == 'contracting' ||
+            p.contractType != 'none');
         break;
       case 6:
         s = s.where((p) => !p.isVerified || p.contractType == 'pending');
@@ -325,7 +339,11 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
                         const SizedBox(height: 10),
                         _buildDetailRow('التخصص والمهنة:', provider.tradeAr.isNotEmpty ? provider.tradeAr : provider.trade),
                         _buildDetailRow('القطاع:', _getCategoryName(provider.categoryId, true)),
-                        _buildDetailRow('رقم الاتصال المباشر:', provider.phone.isNotEmpty ? provider.phone : 'غير مسجل'),
+                        _buildDetailRow(
+                          'رقم الاتصال المباشر:',
+                          provider.phone.isNotEmpty ? PhoneFormatter.format(provider.phone) : 'غير مسجل',
+                          forceLtr: provider.phone.isNotEmpty,
+                        ),
                         _buildDetailRow('نطاق التغطية والموقع:', provider.locationAr.isNotEmpty ? provider.locationAr : provider.location),
                         _buildDetailRow('سنوات الخبرة المعتمدة:', '${provider.experienceYears} سنوات'),
                         _buildDetailRow(
@@ -361,7 +379,7 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(String label, String value, {bool forceLtr = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
@@ -370,7 +388,19 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
           Text(label, style: TextStyle(fontSize: 12, color: Colors.grey.shade700, fontWeight: FontWeight.w600)),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(value, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.bold, color: _kDarkNavy)),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Text(
+                value,
+                textDirection: forceLtr ? TextDirection.ltr : null,
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.bold,
+                  color: _kDarkNavy,
+                  fontFamily: forceLtr ? 'monospace' : null,
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -420,74 +450,96 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
     required String label,
     required String value,
     required Color color,
+    required Color secondaryColor,
     required String badge,
+    required double width,
   }) {
     return Container(
-      width: 250,
-      padding: const EdgeInsets.all(18),
+      width: width,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: Colors.grey.shade200),
+        gradient: LinearGradient(
+          colors: [color, secondaryColor],
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.22), width: 1),
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: 0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
+            color: color.withValues(alpha: 0.22),
+            blurRadius: 10,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            padding: const EdgeInsets.all(14),
+            width: 38,
+            height: 38,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [color, color.withValues(alpha: 0.8)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: [
-                BoxShadow(
-                  color: color.withValues(alpha: 0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 3),
-                ),
-              ],
+              color: Colors.white.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.28)),
             ),
-            child: Icon(icon, size: 26, color: Colors.white),
+            child: Icon(icon, size: 20, color: Colors.white),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      value,
-                      style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 22, color: _kDarkNavy, height: 1.1),
+                    Expanded(
+                      child: Text(
+                        label,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: Colors.white.withValues(alpha: 0.92),
+                          fontWeight: FontWeight.w700,
+                          height: 1.15,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
+                    const SizedBox(width: 6),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
                       decoration: BoxDecoration(
-                        color: color.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.black.withValues(alpha: 0.22),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
                         badge,
-                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color),
+                        style: const TextStyle(
+                          fontSize: 9.5,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  label,
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.w600),
-                  overflow: TextOverflow.ellipsis,
+                const SizedBox(height: 5),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    value,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 17,
+                      color: Colors.white,
+                      letterSpacing: -0.2,
+                      height: 1.1,
+                    ),
+                    maxLines: 1,
+                  ),
                 ),
               ],
             ),
@@ -569,7 +621,9 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
   ) {
     final bool isPending = !p.isVerified || p.contractType == 'pending';
     final bool isLogistics = p.categoryId == 'logistics';
-    final bool isSponsored = p.rating >= 4.9 || isLogistics || p.contractType != 'none';
+    final bool isContracting = p.categoryId == 'contracting';
+    final bool isSponsored =
+        p.rating >= 4.9 || isLogistics || isContracting || p.contractType != 'none';
 
     return Container(
       decoration: BoxDecoration(
@@ -595,9 +649,11 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
               gradient: LinearGradient(
                 colors: isPending
                     ? [const Color(0xFFB45309), const Color(0xFFD97706)]
-                    : (isSponsored
-                        ? [const Color(0xFF1E3A8A), _kRoyalBlue]
-                        : [const Color(0xFF334155), const Color(0xFF64748B)]),
+                    : (isContracting
+                        ? [_kTealDeep, _kTealLight]
+                        : (isSponsored
+                            ? [const Color(0xFF1E3A8A), _kRoyalBlue]
+                            : [const Color(0xFF334155), const Color(0xFF64748B)])),
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -615,9 +671,9 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
                         : null,
                     child: p.avatarUrl == null || p.avatarUrl!.isEmpty
                         ? Icon(
-                            isLogistics ? Icons.local_shipping_rounded : Icons.engineering_rounded,
+                            _getCategoryIcon(p.categoryId),
                             size: 26,
-                            color: _kRoyalBlue,
+                            color: isContracting ? _kTealDeep : _kRoyalBlue,
                           )
                         : null,
                   ),
@@ -711,7 +767,10 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
                         const SizedBox(width: 8),
                         const Icon(Icons.phone_outlined, size: 14, color: Colors.grey),
                         const SizedBox(width: 4),
-                        Text(p.phone, style: TextStyle(fontSize: 11.5, color: Colors.grey.shade600)),
+                        PhoneFormatter.text(
+                          p.phone,
+                          style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, color: Colors.grey.shade700, fontFamily: 'monospace'),
+                        ),
                       ],
                     ],
                   ),
@@ -830,28 +889,42 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
   }
 
   Widget _buildGridMetric({required IconData icon, required Color color, required String value, required String label}) {
-    return Column(
-      children: [
-        Row(
-          mainAxisSize: MainAxisSize.min,
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        child: Column(
           children: [
-            Icon(icon, size: 14, color: color),
-            const SizedBox(width: 4),
-            Text(value, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: _kDarkNavy)),
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, size: 13.5, color: color),
+                  const SizedBox(width: 3),
+                  Text(value, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: _kDarkNavy)),
+                ],
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(label, style: TextStyle(fontSize: 9.5, color: Colors.grey.shade600), maxLines: 1, overflow: TextOverflow.ellipsis),
           ],
         ),
-        const SizedBox(height: 2),
-        Text(label, style: TextStyle(fontSize: 10, color: Colors.grey.shade600)),
-      ],
+      ),
     );
   }
 
   Color _getCategoryColor(String categoryId) {
     switch (categoryId) {
+      case 'contracting':
+        return _kTealDeep;
       case 'logistics':
         return _kAmberDark;
       case 'engineering':
         return _kPurple;
+      case 'technicians':
+        return _kRoyalBlue;
+      case 'labor':
+        return _kEmeraldDark;
       default:
         return _kRoyalBlue;
     }
@@ -859,13 +932,315 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
 
   IconData _getCategoryIcon(String categoryId) {
     switch (categoryId) {
+      case 'contracting':
+        return Icons.domain_rounded;
       case 'logistics':
         return Icons.local_shipping_rounded;
       case 'engineering':
         return Icons.architecture_rounded;
+      case 'technicians':
+        return Icons.handyman_rounded;
+      case 'labor':
+        return Icons.construction_rounded;
       default:
         return Icons.engineering_rounded;
     }
+  }
+
+  Widget _buildDedicatedSectorsHub(
+    BuildContext context,
+    AdminServicesInsights? insights,
+    bool isRtl,
+    bool isMobile,
+  ) {
+    final contractingCard = Container(
+      padding: EdgeInsets.all(isMobile ? 16 : 20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF0F292E), Color(0xFF0F766E)],
+          begin: Alignment.centerRight,
+          end: Alignment.centerLeft,
+        ),
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: _kTealDeep.withValues(alpha: 0.22),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(11),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.domain_rounded, color: Colors.white, size: 26),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'قطاع شركات المقاولات والتشطيبات والخرسانة',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'إدارة الشركات المنفذة للهياكل الخرسانية المسلحة، المباني، والتشطيبات المتكاملة',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        fontSize: 11.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.24),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${insights?.contractingCount ?? 0} شركة',
+                  style: const TextStyle(
+                    color: Color(0xFF5EEAD4),
+                    fontWeight: FontWeight.w900,
+                    fontSize: 12.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              _buildSectorMiniTag('🏗️ هياكل خرسانية مسلحة'),
+              _buildSectorMiniTag('🎨 تشطيبات تسليم مفتاح'),
+              _buildSectorMiniTag('🏢 مقاولات عامة وهناجر'),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: _kTealDeep,
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                onPressed: () => _showProviderDialog(
+                  context: context,
+                  isRtl: isRtl,
+                  initialCategory: 'contracting',
+                ),
+                icon: const Icon(Icons.add_business_rounded, size: 17),
+                label: const Text(
+                  'تسجيل شركة مقاولات +',
+                  style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12.5),
+                ),
+              ),
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  side: BorderSide(color: Colors.white.withValues(alpha: 0.35)),
+                  padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                onPressed: () => setState(() => _selectedSegment = 7),
+                icon: const Icon(Icons.filter_list_rounded, size: 17),
+                label: Text(
+                  _selectedSegment == 7 ? 'معروض الآن ✓' : 'عرض شركات المقاولات',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+
+    final logisticsCard = Container(
+      padding: EdgeInsets.all(isMobile ? 16 : 20),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Color(0xFF0F172A), Color(0xFF1E3A8A)],
+          begin: Alignment.centerRight,
+          end: Alignment.centerLeft,
+        ),
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: _kRoyalBlue.withValues(alpha: 0.2),
+            blurRadius: 12,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(11),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.local_shipping_rounded, color: Color(0xFFFBBF24), size: 26),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'قطاع شركات الشحن والخدمات اللوجستية',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15.5,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'إدارة شركات الشحن البري، التريلات المسطحة، القلابات، الدفارات وفرق التعتيل',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.85),
+                        fontSize: 11.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.24),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '${insights?.logisticsCount ?? 0} أسطول',
+                  style: const TextStyle(
+                    color: Color(0xFFFCD34D),
+                    fontWeight: FontWeight.w900,
+                    fontSize: 12.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              _buildSectorMiniTag('🚛 مسطحات وتريلات شحن'),
+              _buildSectorMiniTag('🚜 قلابات رمل وخرسانة'),
+              _buildSectorMiniTag('🚚 دفارات وتعتيل موقعي'),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFFF59E0B),
+                  foregroundColor: const Color(0xFF0F172A),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                onPressed: () => _showProviderDialog(
+                  context: context,
+                  isRtl: isRtl,
+                  initialCategory: 'logistics',
+                ),
+                icon: const Icon(Icons.local_shipping_rounded, size: 17),
+                label: const Text(
+                  'تسجيل شركة شحن / أسطول +',
+                  style: TextStyle(fontWeight: FontWeight.w900, fontSize: 12.5),
+                ),
+              ),
+              OutlinedButton.icon(
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  side: BorderSide(color: Colors.white.withValues(alpha: 0.35)),
+                  padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                onPressed: () => setState(() => _selectedSegment = 1),
+                icon: const Icon(Icons.filter_list_rounded, size: 17),
+                label: Text(
+                  _selectedSegment == 1 ? 'معروض الآن ✓' : 'عرض شركات اللوجستيات',
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 920) {
+          return Column(
+            children: [
+              contractingCard,
+              const SizedBox(height: 12),
+              logisticsCard,
+            ],
+          );
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: contractingCard),
+            const SizedBox(width: 14),
+            Expanded(child: logisticsCard),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildSectorMiniTag(String text) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.13),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
+      ),
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
   }
 
   Widget _buildContractBadge(String type, double value) {
@@ -1161,61 +1536,82 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
                             ),
                           const SizedBox(height: 20),
 
-                          // --- 2. Live Accounting & Fleet KPI Row (5 Cards) ---
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: [
-                                _buildStatCard(
-                                  icon: Icons.monetization_on_rounded,
-                                  label: 'عوائد النقل واللوجستيات المعتمدة',
-                                  value: insights != null ? ('${_fmtSdg(insights.totalLogisticsFees)} ج.س') : '...',
-                                  color: _kEmerald,
-                                  badge: insights != null ? ('${insights.logisticsOrdersCount} عملية توريد') : 'لوجستيات',
-                                ),
-                                const SizedBox(width: 12),
-                                _buildStatCard(
-                                  icon: Icons.groups_rounded,
-                                  label: 'إجمالي مقدمي الخدمات',
-                                  value: '${state.providers.length} مزود وشركة',
-                                  color: _kRoyalBlue,
-                                  badge: '100% موثق',
-                                ),
-                                const SizedBox(width: 12),
-                                _buildStatCard(
-                                  icon: Icons.local_shipping_rounded,
-                                  label: 'أساطيل النقل واللوجستيات',
-                                  value: insights != null ? ('${insights.logisticsCount} أساطيل معتمدة') : '...',
-                                  color: _kAmberDark,
-                                  badge: 'تريلات وقلابات',
-                                ),
-                                const SizedBox(width: 12),
-                                _buildStatCard(
-                                  icon: Icons.architecture_rounded,
-                                  label: 'المكاتب والاستشارات الهندسية',
-                                  value: insights != null ? ('${insights.engineeringCount} مكاتب معتمدة') : '...',
-                                  color: _kPurple,
-                                  badge: 'تصميم وإشراف',
-                                ),
-                                const SizedBox(width: 12),
-                                _buildStatCard(
-                                  icon: Icons.campaign_rounded,
-                                  label: 'مقدمو الخدمات المعلنون',
-                                  value: insights != null ? ('${insights.sponsoredCount} شريك معلن') : '...',
-                                  color: _kCrimson,
-                                  badge: 'رعاية مميزة',
-                                ),
-                                const SizedBox(width: 12),
-                                _buildStatCard(
-                                  icon: Icons.pending_actions_rounded,
-                                  label: 'طلبات الانضمام المعلقة',
-                                  value: '${insights?.pendingApprovalCount ?? 0} طلب',
-                                  color: const Color(0xFFD97706),
-                                  badge: (insights?.pendingApprovalCount ?? 0) > 0 ? 'تحتاج مراجعة' : 'مكتمل',
-                                ),
-                              ],
-                            ),
+                          // --- 2. Live Accounting & Fleet KPI Grid (6 Distinct Compact Cards) ---
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              const double spacing = 10.0;
+                              final int cols = constraints.maxWidth > 1050
+                                  ? 3
+                                  : (constraints.maxWidth > 620 ? 2 : 1);
+                              final double cardW =
+                                  (constraints.maxWidth - (spacing * (cols - 1))) / cols;
+
+                              return Wrap(
+                                spacing: spacing,
+                                runSpacing: spacing,
+                                children: [
+                                  _buildStatCard(
+                                    width: cardW,
+                                    icon: Icons.monetization_on_rounded,
+                                    label: 'عوائد النقل واللوجستيات المعتمدة',
+                                    value: insights != null ? '${_fmtSdg(insights.totalLogisticsFees)} ج.س' : '0 ج.س',
+                                    color: const Color(0xFF059669),
+                                    secondaryColor: const Color(0xFF047857),
+                                    badge: insights != null ? '${insights.logisticsOrdersCount} عملية توريد' : 'لوجستيات',
+                                  ),
+                                  _buildStatCard(
+                                    width: cardW,
+                                    icon: Icons.groups_rounded,
+                                    label: 'إجمالي مقدمي الخدمات',
+                                    value: '${state.providers.length} مزود وشركة',
+                                    color: const Color(0xFF2563EB),
+                                    secondaryColor: const Color(0xFF1E40AF),
+                                    badge: '${insights?.verifiedCount ?? state.providers.where((p) => p.isVerified).length} موثق ✓',
+                                  ),
+                                  _buildStatCard(
+                                    width: cardW,
+                                    icon: Icons.domain_rounded,
+                                    label: 'شركات المقاولات والهياكل الخرسانية',
+                                    value: '${insights?.contractingCount ?? 0} شركة معتمدة',
+                                    color: _kTealDeep,
+                                    secondaryColor: const Color(0xFF115E59),
+                                    badge: 'خرسانة وتشطيبات',
+                                  ),
+                                  _buildStatCard(
+                                    width: cardW,
+                                    icon: Icons.local_shipping_rounded,
+                                    label: 'شركات الشحن وأساطيل اللوجستيات',
+                                    value: '${insights?.logisticsCount ?? 0} أساطيل معتمدة',
+                                    color: const Color(0xFFD97706),
+                                    secondaryColor: const Color(0xFFB45309),
+                                    badge: 'تريلات وقلابات',
+                                  ),
+                                  _buildStatCard(
+                                    width: cardW,
+                                    icon: Icons.architecture_rounded,
+                                    label: 'المكاتب والاستشارات الهندسية',
+                                    value: '${insights?.engineeringCount ?? 0} مكاتب معتمدة',
+                                    color: const Color(0xFF7C3AED),
+                                    secondaryColor: const Color(0xFF5B21B6),
+                                    badge: 'تصميم وإشراف',
+                                  ),
+                                  _buildStatCard(
+                                    width: cardW,
+                                    icon: Icons.pending_actions_rounded,
+                                    label: 'طلبات الانضمام المعلقة',
+                                    value: '${insights?.pendingApprovalCount ?? 0} طلب انضمام',
+                                    color: const Color(0xFFE11D48),
+                                    secondaryColor: const Color(0xFF9F1239),
+                                    badge: (insights?.pendingApprovalCount ?? 0) > 0 ? 'تحتاج مراجعة' : 'مكتمل',
+                                  ),
+                                ],
+                              );
+                            },
                           ),
+                          const SizedBox(height: 18),
+
+                          // --- 2B. Dedicated Corporate Contracting & Logistics Hub ---
+                          _buildDedicatedSectorsHub(context, insights, isRtl, isMobile),
                           const SizedBox(height: 20),
 
                           // --- 3. Segment Navigation Tabs ---
@@ -1224,17 +1620,19 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
                             child: Row(
                               children: [
                                 _buildSegmentTab(0, '🌐 كل المزودين والشركات', Icons.all_inclusive_rounded, _kDarkNavy, state.providers.length),
-                                const SizedBox(width: 14),
+                                const SizedBox(width: 12),
+                                _buildSegmentTab(7, '🏢 شركات المقاولات والخرسانة والتشطيبات', Icons.domain_rounded, _kTealDeep, insights?.contractingCount ?? 0),
+                                const SizedBox(width: 12),
+                                _buildSegmentTab(1, '🚚 شركات الشحن واللوجستيات', Icons.local_shipping_rounded, _kAmberDark, insights?.logisticsCount ?? 0),
+                                const SizedBox(width: 12),
                                 _buildSegmentTab(6, '⏳ طلبات الانضمام المعلقة', Icons.pending_actions_rounded, const Color(0xFFD97706), insights?.pendingApprovalCount ?? 0),
-                                const SizedBox(width: 14),
-                                _buildSegmentTab(1, '🚚 أساطيل النقل واللوجستيات', Icons.local_shipping_rounded, _kAmberDark, insights?.logisticsCount ?? 0),
-                                const SizedBox(width: 14),
+                                const SizedBox(width: 12),
                                 _buildSegmentTab(2, '🏗️ الهندسة والتصميم', Icons.architecture_rounded, _kRoyalBlue, insights?.engineeringCount ?? 0),
-                                const SizedBox(width: 14),
+                                const SizedBox(width: 12),
                                 _buildSegmentTab(3, '⚡ الفنيون والمهنيون', Icons.handyman_rounded, _kPurple, insights?.techniciansCount ?? 0),
-                                const SizedBox(width: 14),
-                                _buildSegmentTab(4, '🔨 المقاولات والعمالة', Icons.construction_rounded, _kEmerald, insights?.laborCount ?? 0),
-                                const SizedBox(width: 14),
+                                const SizedBox(width: 12),
+                                _buildSegmentTab(4, '🔨 العمالة والحرفيون', Icons.construction_rounded, _kEmerald, insights?.laborCount ?? 0),
+                                const SizedBox(width: 12),
                                 _buildSegmentTab(5, '📢 شركاء برعاية إعلانية', Icons.campaign_rounded, _kCrimson, insights?.sponsoredCount ?? 0),
                               ],
                             ),
@@ -1465,73 +1863,75 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
                       )
                     else
                       SliverPadding(
-                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+                        padding: EdgeInsets.fromLTRB(isMobile ? 12 : 20, 0, isMobile ? 12 : 20, 24),
                         sliver: SliverToBoxAdapter(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(18),
-                              border: Border.all(color: Colors.grey.shade200),
-                              boxShadow: [
-                                BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 12, offset: const Offset(0, 4)),
-                              ],
-                            ),
-                            clipBehavior: Clip.antiAlias,
-                            child: Column(
-                              children: [
-                                // Table Header
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFF8FAFC),
-                                    border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
-                                  ),
-                                  child: const Row(
-                                    children: [
-                                      Expanded(flex: 3, child: Text('مقدم الخدمة والجهة الراعية', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: _kDarkNavy))),
-                                      Expanded(flex: 2, child: Text('القطاع والتخصص', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: _kDarkNavy))),
-                                      Expanded(flex: 2, child: Text('السعر التقديري', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: _kDarkNavy))),
-                                      Expanded(flex: 2, child: Text('التقييم والمراجعات', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: _kDarkNavy))),
-                                      Expanded(flex: 2, child: Text('نوع التعاقد', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: _kDarkNavy))),
-                                      Expanded(flex: 2, child: Text('الموقع والهاتف', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: _kDarkNavy))),
-                                      SizedBox(width: 150, child: Center(child: Text('الإجراءات', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: _kDarkNavy)))),
-                                    ],
-                                  ),
+                          child: LayoutBuilder(
+                            builder: (context, tableConstraints) {
+                              final tableBox = Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(18),
+                                  border: Border.all(color: Colors.grey.shade200),
+                                  boxShadow: [
+                                    BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 12, offset: const Offset(0, 4)),
+                                  ],
                                 ),
-                                // Table Rows
-                                ListView.separated(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount: filteredProviders.length,
-                                  separatorBuilder: (context, index) => Divider(height: 1, color: Colors.grey.shade100),
-                                  itemBuilder: (context, index) {
-                                    final p = filteredProviders[index];
-                                    final isPending = !p.isVerified || p.contractType == 'pending';
-                                    final isSponsored = p.rating >= 4.9 || p.categoryId == 'logistics' || p.contractType != 'none';
-
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                                      child: Row(
+                                clipBehavior: Clip.antiAlias,
+                                child: Column(
+                                  children: [
+                                    // Table Header
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF8FAFC),
+                                        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+                                      ),
+                                      child: const Row(
                                         children: [
-                                          // Provider Info
-                                          Expanded(
-                                            flex: 3,
-                                            child: Row(
-                                              children: [
-                                                CircleAvatar(
-                                                  radius: 20,
-                                                  backgroundColor: const Color(0xFFF1F5F9),
-                                                  backgroundImage: p.avatarUrl != null && p.avatarUrl!.isNotEmpty
-                                                      ? NetworkImage(p.avatarUrl!)
-                                                      : null,
-                                                  child: p.avatarUrl == null || p.avatarUrl!.isEmpty
-                                                      ? Icon(
-                                                          p.categoryId == 'logistics' ? Icons.local_shipping_rounded : Icons.person_rounded,
-                                                          size: 18,
-                                                          color: _kRoyalBlue,
-                                                        )
-                                                      : null,
-                                                ),
+                                          Expanded(flex: 3, child: Text('مقدم الخدمة والجهة الراعية', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: _kDarkNavy))),
+                                          Expanded(flex: 2, child: Text('القطاع والتخصص', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: _kDarkNavy))),
+                                          Expanded(flex: 2, child: Text('السعر التقديري', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: _kDarkNavy))),
+                                          Expanded(flex: 2, child: Text('التقييم والمراجعات', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: _kDarkNavy))),
+                                          Expanded(flex: 2, child: Text('نوع التعاقد', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: _kDarkNavy))),
+                                          Expanded(flex: 2, child: Text('الموقع والهاتف', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: _kDarkNavy))),
+                                          SizedBox(width: 150, child: Center(child: Text('الإجراءات', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: _kDarkNavy)))),
+                                        ],
+                                      ),
+                                    ),
+                                    // Table Rows
+                                    ListView.separated(
+                                      shrinkWrap: true,
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      itemCount: filteredProviders.length,
+                                      separatorBuilder: (context, index) => Divider(height: 1, color: Colors.grey.shade100),
+                                      itemBuilder: (context, index) {
+                                        final p = filteredProviders[index];
+                                        final isPending = !p.isVerified || p.contractType == 'pending';
+                                        final isSponsored = p.rating >= 4.9 || p.categoryId == 'logistics' || p.categoryId == 'contracting' || p.contractType != 'none';
+
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                                          child: Row(
+                                            children: [
+                                              // Provider Info
+                                              Expanded(
+                                                flex: 3,
+                                                child: Row(
+                                                  children: [
+                                                    CircleAvatar(
+                                                      radius: 20,
+                                                      backgroundColor: const Color(0xFFF1F5F9),
+                                                      backgroundImage: p.avatarUrl != null && p.avatarUrl!.isNotEmpty
+                                                          ? NetworkImage(p.avatarUrl!)
+                                                          : null,
+                                                      child: p.avatarUrl == null || p.avatarUrl!.isEmpty
+                                                          ? Icon(
+                                                              _getCategoryIcon(p.categoryId),
+                                                              size: 18,
+                                                              color: _getCategoryColor(p.categoryId),
+                                                            )
+                                                          : null,
+                                                    ),
                                                 const SizedBox(width: 12),
                                                 Expanded(
                                                   child: Column(
@@ -1613,7 +2013,10 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
                                               children: [
                                                 Text(p.locationAr.isNotEmpty ? p.locationAr : p.location, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: _kDarkNavy)),
                                                 if (p.phone.isNotEmpty)
-                                                  Text(p.phone, style: TextStyle(fontSize: 11, color: Colors.grey.shade600)),
+                                                  PhoneFormatter.text(
+                                                    p.phone,
+                                                    style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey.shade700, fontFamily: 'monospace'),
+                                                  ),
                                               ],
                                             ),
                                           ),
@@ -1658,11 +2061,20 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
                                 ),
                               ],
                             ),
-                          ),
-                        ),
+                          );
+                          if (tableConstraints.maxWidth < 940) {
+                            return SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: SizedBox(width: 960, child: tableBox),
+                            );
+                          }
+                          return tableBox;
+                        },
                       ),
-                  ],
-                ),
+                    ),
+                  ),
+              ],
+            ),
     );
   }
 
@@ -1670,6 +2082,7 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
     required BuildContext context,
     ServiceProviderModel? provider,
     required bool isRtl,
+    String initialCategory = 'logistics',
   }) async {
     final isEditing = provider != null;
 
@@ -1681,14 +2094,18 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
     final reviewsController = TextEditingController(text: provider != null ? provider.reviewsCount.toString() : '10');
     final experienceController = TextEditingController(text: provider?.experienceYears ?? '5');
     final priceController = TextEditingController(text: provider?.priceEstimate ?? 'حسب نوع المشروع');
-    final phoneController = TextEditingController(text: provider?.phone ?? '');
+    final phoneController = TextEditingController(
+      text: provider != null && provider.phone.trim().isNotEmpty
+          ? PhoneFormatter.format(provider.phone)
+          : '',
+    );
     final locationController = TextEditingController(text: provider?.location ?? '');
     final locationArController = TextEditingController(text: provider?.locationAr ?? '');
     final contractValueController = TextEditingController(text: provider != null ? provider.contractValue.toString() : '0.0');
     final completedOrdersController = TextEditingController(text: provider != null ? provider.completedOrdersCount.toString() : '0');
 
-    String selectedCategory = provider?.categoryId ?? 'logistics';
-    if (!['engineering', 'technicians', 'labor', 'logistics'].contains(selectedCategory)) {
+    String selectedCategory = provider?.categoryId ?? initialCategory;
+    if (!['contracting', 'engineering', 'technicians', 'labor', 'logistics'].contains(selectedCategory)) {
       selectedCategory = 'logistics';
     }
 
@@ -1867,7 +2284,9 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
                                               child: _buildTextField(
                                                 controller: tradeArController,
                                                 label: 'المهنة / التخصص الدقيق (بالعربية)',
-                                                hintText: 'مثال: قلابات 20 متر لنقل الرمل والحجر',
+                                                hintText: selectedCategory == 'contracting'
+                                                    ? 'مثال: تنفيذ هياكل خرسانية مسلحة وتشطيبات تسليم مفتاح'
+                                                    : 'مثال: قلابات 20 متر لنقل الرمل والحجر',
                                               ),
                                             ),
                                             const SizedBox(width: 12),
@@ -1881,6 +2300,7 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
                                         ),
                                         const SizedBox(height: 12),
                                         DropdownButtonFormField<String>(
+                                          isExpanded: true,
                                           initialValue: selectedCategory,
                                           decoration: InputDecoration(
                                             labelText: 'القطاع والتصنيف الرئيسي *',
@@ -1890,10 +2310,11 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
                                             contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                           ),
                                           items: [
-                                            DropdownMenuItem(value: 'logistics', child: Text(_getCategoryName('logistics', true))),
-                                            DropdownMenuItem(value: 'engineering', child: Text(_getCategoryName('engineering', true))),
-                                            DropdownMenuItem(value: 'technicians', child: Text(_getCategoryName('technicians', true))),
-                                            DropdownMenuItem(value: 'labor', child: Text(_getCategoryName('labor', true))),
+                                            DropdownMenuItem(value: 'contracting', child: Text(_getCategoryName('contracting', true), overflow: TextOverflow.ellipsis)),
+                                            DropdownMenuItem(value: 'logistics', child: Text(_getCategoryName('logistics', true), overflow: TextOverflow.ellipsis)),
+                                            DropdownMenuItem(value: 'engineering', child: Text(_getCategoryName('engineering', true), overflow: TextOverflow.ellipsis)),
+                                            DropdownMenuItem(value: 'technicians', child: Text(_getCategoryName('technicians', true), overflow: TextOverflow.ellipsis)),
+                                            DropdownMenuItem(value: 'labor', child: Text(_getCategoryName('labor', true), overflow: TextOverflow.ellipsis)),
                                           ],
                                           onChanged: (v) {
                                             if (v != null) setStateDialog(() => selectedCategory = v);
@@ -1906,7 +2327,9 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
                                               child: _buildTextField(
                                                 controller: phoneController,
                                                 label: 'رقم الهاتف المباشر',
+                                                hintText: '+249 912 300 000',
                                                 keyboardType: TextInputType.phone,
+                                                forceLtr: true,
                                               ),
                                             ),
                                             const SizedBox(width: 12),
@@ -1914,7 +2337,7 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
                                               child: _buildTextField(
                                                 controller: locationArController,
                                                 label: 'نطاق التغطية والموقع',
-                                                hintText: 'مثال: مسقط والسيب وبوشر',
+                                                hintText: 'مثال: الخرطوم، بحري، بورتسودان، عطبرة',
                                               ),
                                             ),
                                           ],
@@ -2089,7 +2512,7 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
                                           trade: tradeEn,
                                           tradeAr: tradeAr,
                                           categoryId: selectedCategory,
-                                          phone: phoneController.text.trim(),
+                                          phone: PhoneFormatter.format(phoneController.text),
                                           location: locationController.text.trim(),
                                           locationAr: locationArController.text.trim(),
                                           experienceYears: experienceController.text.trim(),
@@ -2183,12 +2606,15 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
     String? hintText,
     TextInputType? keyboardType,
     String? Function(String?)? validator,
+    bool forceLtr = false,
   }) {
     return TextFormField(
       controller: controller,
+      textDirection: forceLtr ? TextDirection.ltr : null,
       decoration: InputDecoration(
         labelText: label,
         hintText: hintText,
+        hintTextDirection: forceLtr ? TextDirection.ltr : null,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         filled: true,
         fillColor: Colors.white,

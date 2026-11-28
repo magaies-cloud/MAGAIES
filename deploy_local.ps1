@@ -1,10 +1,17 @@
 $ErrorActionPreference = "Stop"
 
 $source = "C:\xampp2\htdocs\Maga2app\build\web\*"
-$dest = "C:\xampp\htdocs\magaees\magaiees_app\"
+$dest = "C:\xampp\htdocs\magaiees_app\"
+New-Item -ItemType Directory -Force -Path $dest | Out-Null
 
 Write-Host "Copying files..."
 Copy-Item -Force -Recurse $source $dest
+
+# Ensure audio assets are accessible from all expected web URL paths
+if (Test-Path "$dest\assets\assets\audio") {
+    Copy-Item -Force -Recurse "$dest\assets\assets\audio" "$dest\assets\audio"
+    Copy-Item -Force -Recurse "$dest\assets\assets\audio" "$dest\audio"
+}
 
 Write-Host "Setting up index.php with cache busting headers..."
 $indexHtmlPath = Join-Path $dest "index.html"
@@ -22,7 +29,9 @@ header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
 ?>
 "@
 
-    # Script to aggressively kill any old Service Workers in the browser
+    $timestamp = (Get-Date).Ticks
+
+    # Script to aggressively kill any old Service Workers and bust cached font/manifest assets
     $swKiller = @"
 <script>
   if ('serviceWorker' in navigator) {
@@ -33,15 +42,26 @@ header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
       }
     });
   }
-  // Optional: add a version parameter to main.dart.js to force redownload
-  var dartVersion = '?v=' + new Date().getTime();
+  var dartBuildStamp = '$timestamp';
+  var dartVersion = '?v=' + dartBuildStamp;
+  if (window.fetch) {
+    var _origFetch = window.fetch;
+    window.fetch = function(input, init) {
+      if (typeof input === 'string' && (input.indexOf('MaterialIcons') !== -1 || input.indexOf('FontManifest') !== -1 || input.indexOf('AssetManifest') !== -1)) {
+        var sep = input.indexOf('?') !== -1 ? '&' : '?';
+        input = input + sep + 'v=' + dartBuildStamp;
+      }
+      return _origFetch.call(this, input, init);
+    };
+  }
 </script>
 "@
 
     # Inject the killer script right after <head>
     $htmlContent = $htmlContent -replace '(?i)<head>', "<head>`n$swKiller"
-    
-    $timestamp = (Get-Date).Ticks
+    # Ensure base href is dynamically set for both root domain (magaiees.elsajana.com) and subfolders
+    $phpBaseHref = '<base href="<?php echo rtrim(str_replace(''\\'', ''/'', dirname($_SERVER[''SCRIPT_NAME''] ?? ''/index.php'')), ''/'') . ''/''; ?>">'
+    $htmlContent = [regex]::Replace($htmlContent, '<base href=".*?">', { param($m) $phpBaseHref })
     # Replace flutter_bootstrap.js reference with a versioned one
     $htmlContent = $htmlContent -replace 'flutter_bootstrap\.js', "flutter_bootstrap.js?v=$timestamp"
     
@@ -69,4 +89,29 @@ if (Test-Path $bootstrapPath) {
     [System.IO.File]::WriteAllText($bootstrapPath, $bootstrapContent, $utf8NoBom)
 }
 
+# Recompress main.dart.js into main.dart.js.gz for Apache gzip delivery
+$jsPath = Join-Path $dest "main.dart.js"
+$gzPath = Join-Path $dest "main.dart.js.gz"
+if (Test-Path $jsPath) {
+    Write-Host "Compressing main.dart.js to main.dart.js.gz..."
+    $inputBytes = [System.IO.File]::ReadAllBytes($jsPath)
+    $outputStream = [System.IO.File]::Create($gzPath)
+    $gzipStream = New-Object System.IO.Compression.GZipStream($outputStream, [System.IO.Compression.CompressionLevel]::Optimal)
+    $gzipStream.Write($inputBytes, 0, $inputBytes.Length)
+    $gzipStream.Close()
+    $outputStream.Close()
+    Write-Host "main.dart.js.gz created successfully!"
+}
+
 Write-Host "Deployment to XAMPP successful! Cache aggressively busted."
+$extraLocalTargets = @(
+    "C:\xampp2\htdocs\magaiees_app",
+    "C:\xampp2\htdocs\Maga2app\magaiees_app",
+    "C:\xampp\htdocs\magaees\magaiees_app",
+    "C:\xampp2\htdocs\magaees\magaiees_app"
+)
+foreach ($targetDir in $extraLocalTargets) {
+    New-Item -ItemType Directory -Force -Path $targetDir | Out-Null
+    Copy-Item -Force -Recurse "$dest\*" $targetDir
+}
+Write-Host "Synced to standalone C:\xampp\htdocs\magaiees_app and all local XAMPP paths."

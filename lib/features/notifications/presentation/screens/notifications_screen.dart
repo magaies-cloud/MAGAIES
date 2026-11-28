@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:magaiees_marketplace/features/notifications/application/notifications_provider.dart';
+import 'package:magaiees_marketplace/features/merchant/presentation/widgets/usd_rate_history_dialog.dart';
 
 class NotificationsScreen extends ConsumerStatefulWidget {
   const NotificationsScreen({super.key});
@@ -64,21 +65,36 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                 }
 
                 IconData iconData;
+                Color iconColor = Colors.blue;
                 switch (type) {
                   case 'new_order':
                     iconData = Icons.shopping_cart;
                     break;
                   case 'payout_approved':
                     iconData = Icons.account_balance_wallet;
+                    iconColor = const Color(0xFF059669);
+                    break;
+                  case 'usd_rate_changed':
+                    iconData = Icons.currency_exchange_rounded;
+                    iconColor = const Color(0xFF059669);
                     break;
                   default:
-                    iconData = Icons.notifications;
+                    if (type != null && type.startsWith('admin_broadcast')) {
+                      iconData = Icons.campaign_rounded;
+                      iconColor = const Color(0xFF6D28D9);
+                    } else {
+                      iconData = Icons.notifications;
+                    }
                 }
 
                 return InkWell(
                   onTap: () {
                     if (!isRead) {
                       ref.read(notificationsProvider.notifier).markAsRead(id);
+                    }
+                    if (type == 'usd_rate_changed') {
+                      UsdRateHistoryDialog.show(context);
+                      return;
                     }
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('تم النقر على الإشعار')),
@@ -91,8 +107,8 @@ class _NotificationsScreenState extends ConsumerState<NotificationsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CircleAvatar(
-                          backgroundColor: Colors.grey.withOpacity(0.1),
-                          child: Icon(iconData, color: Colors.blue),
+                          backgroundColor: iconColor.withOpacity(0.1),
+                          child: Icon(iconData, color: iconColor),
                         ),
                         const SizedBox(width: 16),
                         Expanded(

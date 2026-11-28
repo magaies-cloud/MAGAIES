@@ -615,10 +615,18 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> with SingleTick
                     final num qty = item.quantity > 0
                         ? (item.quantity % 1 == 0 ? item.quantity.toInt() : item.quantity)
                         : 1;
+                    final baseProdName = item.product.nameAr.isNotEmpty ? item.product.nameAr : item.product.name;
+                    final variantSuffixParts = <String>[
+                      if (item.selectedColor != null && item.selectedColor!.isNotEmpty) 'اللون: ${item.selectedColor}',
+                      if (item.selectedSize != null && item.selectedSize!.isNotEmpty) 'المقاس: ${item.selectedSize}',
+                    ];
+                    final fullProdName = variantSuffixParts.isNotEmpty
+                        ? '$baseProdName (${variantSuffixParts.join(' - ')})'
+                        : baseProdName;
                     orderItemsToInsert.add({
                       'order_id': orderId,
                       'product_id': isProdUuid ? item.product.id : null,
-                      'product_name': item.product.nameAr.isNotEmpty ? item.product.nameAr : item.product.name,
+                      'product_name': fullProdName,
                       'quantity': qty,
                       'price_sdg': item.product.pricePerTon.round(),
                       'price_usd': (item.product.priceInUsd ?? 0.0).round(),

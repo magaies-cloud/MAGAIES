@@ -15,7 +15,12 @@
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
-    <!-- Remove restricted call/foreground-service permissions injected by plugins so Google Play accepts immediately -->
+    <!-- Remove restricted call/foreground-service & broad media permissions injected by plugins so Google Play accepts immediately -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" tools:node="remove"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" tools:node="remove"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" tools:node="remove"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:node="remove"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" tools:node="remove"/>
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" tools:node="remove"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" tools:node="remove"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_PHONE_CALL" tools:node="remove"/>
@@ -55,6 +60,10 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="magaiees_orders_channel" />
 
         <meta-data
             android:name="flutterEmbedding"

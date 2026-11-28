@@ -17,6 +17,8 @@ import 'package:printing/printing.dart';
 import 'package:magaiees_marketplace/core/network/supabase_safe_query.dart';
 import 'package:magaiees_marketplace/core/widgets/product_image_preview_box.dart';
 import 'package:magaiees_marketplace/core/constants/app_colors.dart';
+import 'package:magaiees_marketplace/core/utils/product_variants_helper.dart';
+import 'package:magaiees_marketplace/features/merchant/presentation/widgets/usd_rate_history_dialog.dart';
 
 // Provider for Store Info (to get USD rate with real-time sync across inventory and settings)
 final merchantStoreInfoProvider = StreamProvider.autoDispose<Map<String, dynamic>?>((ref) {
@@ -28,10 +30,20 @@ final merchantStoreInfoProvider = StreamProvider.autoDispose<Map<String, dynamic
   final controller = StreamController<Map<String, dynamic>?>.broadcast();
   RealtimeChannel? storeChannel;
   RealtimeChannel? userChannel;
+  Timer? debounceTimer;
 
   ref.onDispose(() {
-    storeChannel?.unsubscribe();
-    userChannel?.unsubscribe();
+    debounceTimer?.cancel();
+    final sCh = storeChannel;
+    if (sCh != null) {
+      sCh.unsubscribe();
+      Supabase.instance.client.removeChannel(sCh);
+    }
+    final uCh = userChannel;
+    if (uCh != null) {
+      uCh.unsubscribe();
+      Supabase.instance.client.removeChannel(uCh);
+    }
     controller.close();
   });
 
@@ -90,6 +102,13 @@ final merchantStoreInfoProvider = StreamProvider.autoDispose<Map<String, dynamic
     }
   }
 
+  void scheduleFetch() {
+    debounceTimer?.cancel();
+    debounceTimer = Timer(const Duration(milliseconds: 350), () {
+      if (!controller.isClosed) fetch();
+    });
+  }
+
   fetch();
 
   final timestamp = DateTime.now().millisecondsSinceEpoch;
@@ -104,7 +123,7 @@ final merchantStoreInfoProvider = StreamProvider.autoDispose<Map<String, dynamic
           column: 'owner_id',
           value: user.id,
         ),
-        callback: (_) => fetch(),
+        callback: (_) => scheduleFetch(),
       )
       .subscribe();
 
@@ -119,7 +138,7 @@ final merchantStoreInfoProvider = StreamProvider.autoDispose<Map<String, dynamic
           column: 'id',
           value: user.id,
         ),
-        callback: (_) => fetch(),
+        callback: (_) => scheduleFetch(),
       )
       .subscribe();
 
@@ -134,9 +153,11 @@ final merchantInventoryProvider = StreamProvider.autoDispose<List<Map<String, dy
 
   final controller = StreamController<List<Map<String, dynamic>>>.broadcast();
   RealtimeChannel? channel;
+  Timer? debounceTimer;
 
   // Register onDispose synchronously at provider initialization before any async gaps
   ref.onDispose(() {
+    debounceTimer?.cancel();
     final ch = channel;
     if (ch != null) {
       ch.unsubscribe();
@@ -180,6 +201,13 @@ final merchantInventoryProvider = StreamProvider.autoDispose<List<Map<String, dy
     }
   }
 
+  void scheduleFetch() {
+    debounceTimer?.cancel();
+    debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      if (!controller.isClosed) fetch();
+    });
+  }
+
   fetch();
 
   channel = Supabase.instance.client
@@ -188,7 +216,7 @@ final merchantInventoryProvider = StreamProvider.autoDispose<List<Map<String, dy
         event: PostgresChangeEvent.all,
         schema: 'public',
         table: 'products',
-        callback: (payload) => fetch(),
+        callback: (payload) => scheduleFetch(),
       )
       .subscribe();
 
@@ -203,6 +231,72 @@ class MerchantInventoryScreen extends ConsumerStatefulWidget {
 }
 
 class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScreen> {
+  bool _isSyncingPrices = false;
+  String? _lastAutoHealedSignature;
+
+  void _autoHealOutOfSyncProducts({
+    required String storeId,
+    required List<Map<String, dynamic>> products,
+    required double effectiveRate,
+  }) {
+    if (_isSyncingPrices || effectiveRate <= 0 || products.isEmpty) return;
+
+    final outOfSync = <Map<String, dynamic>>[];
+    for (final p in products) {
+      final rawUsd = double.tryParse(p['price_usd']?.toString() ?? '0') ?? 0;
+      final rawSdg = double.tryParse(p['price_sdg']?.toString() ?? '0') ?? 0;
+      double usd = rawUsd;
+      if (usd == 0 && rawSdg > 0) {
+        usd = rawSdg / effectiveRate;
+      }
+      if (usd > 0) {
+        final expectedSdg = double.parse((usd * effectiveRate).toStringAsFixed(2));
+        final roundedUsd = double.parse(usd.toStringAsFixed(2));
+        if ((expectedSdg - rawSdg).abs() >= 1.0 || (roundedUsd - rawUsd).abs() >= 0.01) {
+          outOfSync.add({
+            'id': p['id'],
+            'price_sdg': expectedSdg,
+            'price_usd': roundedUsd,
+          });
+        }
+      }
+    }
+
+    if (outOfSync.isEmpty) return;
+    final signature = '$storeId:${effectiveRate.toStringAsFixed(2)}:${outOfSync.length}';
+    if (_lastAutoHealedSignature == signature) return;
+    _lastAutoHealedSignature = signature;
+
+    Future.microtask(() async {
+      if (_isSyncingPrices) return;
+      _isSyncingPrices = true;
+      try {
+        for (var i = 0; i < outOfSync.length; i += 3) {
+          final batch = outOfSync.skip(i).take(3);
+          await Future.wait(
+            batch.map((item) async {
+              try {
+                await safeSupabaseQuery(
+                  () => Supabase.instance.client
+                      .from('products')
+                      .update({
+                        'price_sdg': item['price_sdg'],
+                        'price_usd': item['price_usd'],
+                      })
+                      .eq('id', item['id'])
+                      .eq('store_id', storeId),
+                );
+              } catch (e) {
+                debugPrint('Background price auto-heal warning for ${item['id']}: $e');
+              }
+            }),
+          );
+        }
+      } finally {
+        _isSyncingPrices = false;
+      }
+    });
+  }
 
   Future<void> _generateAndPrintPDF(List<Map<String, dynamic>> products, double exchangeRate, bool isRtl) async {
     final doc = pw.Document();
@@ -244,8 +338,13 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
                     : ['Product Name', 'Price (SDG)', 'Price (USD)', 'Stock'],
                 data: products.map((p) {
                   final name = isRtl ? (p['name_ar'] ?? p['name']) : (p['name'] ?? p['name_ar']);
-                  final sdg = NumberFormat('#,##0').format(double.tryParse(p['price_sdg']?.toString() ?? '0') ?? 0);
-                  final usd = double.tryParse(p['price_usd']?.toString() ?? '0') ?? 0;
+                  double rawSdg = double.tryParse(p['price_sdg']?.toString() ?? '0') ?? 0;
+                  double usd = double.tryParse(p['price_usd']?.toString() ?? '0') ?? 0;
+                  if (usd == 0 && rawSdg > 0 && exchangeRate > 0) {
+                    usd = rawSdg / exchangeRate;
+                  }
+                  final effectiveSdg = (usd > 0 && exchangeRate > 0) ? (usd * exchangeRate) : rawSdg;
+                  final sdg = NumberFormat('#,##0').format(effectiveSdg);
                   final stock = p['stock']?.toString() ?? '0';
                   
                   return isRtl 
@@ -493,56 +592,94 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
     required double effectiveRate,
     required bool isRtl,
   }) async {
+    if (_isSyncingPrices) return;
+    _isSyncingPrices = true;
+
     try {
       final user = ref.read(authNotifierProvider).valueOrNull;
       if (user != null) {
-        final userRow = await Supabase.instance.client
-            .from('users')
-            .select('permissions')
-            .eq('id', user.id)
-            .maybeSingle();
+        final userRow = await safeSupabaseQuery(
+          () => Supabase.instance.client
+              .from('users')
+              .select('permissions')
+              .eq('id', user.id)
+              .maybeSingle(),
+          fallback: () => null,
+        );
         final perms = (userRow != null && userRow['permissions'] is Map)
             ? Map<String, dynamic>.from(userRow['permissions'] as Map)
             : <String, dynamic>{};
         perms['usd_rate_source'] = source;
         perms['store_usd_rate'] = effectiveRate;
-        await Supabase.instance.client
-            .from('users')
-            .update({'permissions': perms})
-            .eq('id', user.id);
+        await safeSupabaseQuery(
+          () => Supabase.instance.client
+              .from('users')
+              .update({'permissions': perms})
+              .eq('id', user.id),
+        );
       }
 
-      await Supabase.instance.client
-          .from('stores')
-          .update({'usd_exchange_rate': effectiveRate})
-          .eq('id', storeId);
+      await safeSupabaseQuery(
+        () => Supabase.instance.client
+            .from('stores')
+            .update({'usd_exchange_rate': effectiveRate})
+            .eq('id', storeId),
+      );
 
-      // Recalculate product prices based on effective USD rate
-      final products = await Supabase.instance.client
-          .from('products')
-          .select('id, price_usd, price_sdg')
-          .eq('store_id', storeId);
+      // Recalculate product prices based on effective USD rate (only updating rows that actually changed)
+      final products = await safeSupabaseQuery(
+        () => Supabase.instance.client
+            .from('products')
+            .select('id, price_usd, price_sdg')
+            .eq('store_id', storeId),
+        fallback: () => <dynamic>[],
+      );
 
-      for (var p in products) {
-        double usd = double.tryParse(p['price_usd']?.toString() ?? '0') ?? 0;
-        double sdg = double.tryParse(p['price_sdg']?.toString() ?? '0') ?? 0;
+      final updates = <Map<String, dynamic>>[];
+      for (final p in products) {
+        final rawUsd = double.tryParse(p['price_usd']?.toString() ?? '0') ?? 0;
+        final rawSdg = double.tryParse(p['price_sdg']?.toString() ?? '0') ?? 0;
+        double usd = rawUsd;
 
-        if (usd == 0 && sdg > 0 && effectiveRate > 0) {
-          usd = sdg / effectiveRate;
+        if (usd == 0 && rawSdg > 0 && effectiveRate > 0) {
+          usd = rawSdg / effectiveRate;
         }
 
         if (usd > 0) {
-          final newSdg = usd * effectiveRate;
-          await Supabase.instance.client.from('products').update({
-            'price_sdg': newSdg,
-            'price_usd': usd,
-          }).eq('id', p['id']).eq('store_id', storeId);
+          final newSdg = double.parse((usd * effectiveRate).toStringAsFixed(2));
+          final roundedUsd = double.parse(usd.toStringAsFixed(2));
+          if ((newSdg - rawSdg).abs() >= 0.5 || (roundedUsd - rawUsd).abs() >= 0.01) {
+            updates.add({
+              'id': p['id'],
+              'price_sdg': newSdg,
+              'price_usd': roundedUsd,
+            });
+          }
         }
       }
 
-      ref.invalidate(merchantStoreInfoProvider);
-      ref.invalidate(merchantInventoryProvider);
-      try { ref.invalidate(productsProvider); } catch (_) {}
+      // Process updates in small resilient batches so a transient socket issue never aborts the loop
+      for (var i = 0; i < updates.length; i += 3) {
+        final batch = updates.skip(i).take(3);
+        await Future.wait(
+          batch.map((item) async {
+            try {
+              await safeSupabaseQuery(
+                () => Supabase.instance.client
+                    .from('products')
+                    .update({
+                      'price_sdg': item['price_sdg'],
+                      'price_usd': item['price_usd'],
+                    })
+                    .eq('id', item['id'])
+                    .eq('store_id', storeId),
+              );
+            } catch (e) {
+              debugPrint('Warning updating product ${item['id']} price: $e');
+            }
+          }),
+        );
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -563,9 +700,23 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(
+              isRtl
+                  ? 'تعذر حفظ سعر الصرف بسبب ضعف الاتصال، يرجى المحاولة مرة أخرى.'
+                  : 'Could not update exchange rate due to connection error. Please try again.',
+            ),
+            backgroundColor: Colors.red,
+          ),
         );
       }
+    } finally {
+      _isSyncingPrices = false;
+      ref.invalidate(merchantStoreInfoProvider);
+      ref.invalidate(merchantInventoryProvider);
+      try {
+        ref.invalidate(productsProvider);
+      } catch (_) {}
     }
   }
 
@@ -609,27 +760,73 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
 
     if (result != null && result > 0 && mounted) {
       try {
-        final products = await Supabase.instance.client.from('products').select('id, price_usd, price_sdg').eq('store_id', storeId);
+        final store = ref.read(merchantStoreInfoProvider).valueOrNull;
+        final platformRate = ref.read(globalSettingsProvider).platformUsdRate;
+        final rateSource = store?['usd_rate_source'] ?? 'platform';
+        final effectiveRate = rateSource == 'platform'
+            ? platformRate
+            : (double.tryParse(store?['usd_exchange_rate']?.toString() ?? '') ?? platformRate);
+
+        final products = await safeSupabaseQuery(
+          () => Supabase.instance.client
+              .from('products')
+              .select('id, price_usd, price_sdg')
+              .eq('store_id', storeId),
+          fallback: () => <dynamic>[],
+        );
         final multiplier = 1 + (result / 100);
         
-        for (var p in products) {
-          final usd = double.tryParse(p['price_usd']?.toString() ?? '0') ?? 0;
-          final sdg = double.tryParse(p['price_sdg']?.toString() ?? '0') ?? 0;
-          
-          await Supabase.instance.client.from('products').update({
-            'price_usd': usd * multiplier,
-            'price_sdg': sdg * multiplier,
-          }).eq('id', p['id']).eq('store_id', storeId);
+        for (var i = 0; i < products.length; i += 3) {
+          final batch = products.skip(i).take(3);
+          await Future.wait(
+            batch.map((p) async {
+              double usd = double.tryParse(p['price_usd']?.toString() ?? '0') ?? 0;
+              double sdg = double.tryParse(p['price_sdg']?.toString() ?? '0') ?? 0;
+              if (usd == 0 && sdg > 0 && effectiveRate > 0) {
+                usd = sdg / effectiveRate;
+              }
+              final newUsd = double.parse((usd * multiplier).toStringAsFixed(2));
+              final newSdg = (newUsd > 0 && effectiveRate > 0)
+                  ? double.parse((newUsd * effectiveRate).toStringAsFixed(2))
+                  : double.parse((sdg * multiplier).toStringAsFixed(2));
+
+              try {
+                await safeSupabaseQuery(
+                  () => Supabase.instance.client
+                      .from('products')
+                      .update({
+                        'price_usd': newUsd,
+                        'price_sdg': newSdg,
+                      })
+                      .eq('id', p['id'])
+                      .eq('store_id', storeId),
+                );
+              } catch (e) {
+                debugPrint('Warning applying markup to ${p['id']}: $e');
+              }
+            }),
+          );
         }
         
-        try { ref.invalidate(productsProvider); } catch (_) {}
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(isRtl ? 'تم تطبيق الزيادة على جميع المنتجات!' : 'Markup applied to all products!'), backgroundColor: Colors.green));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(isRtl ? 'تم تطبيق الزيادة على جميع المنتجات!' : 'Markup applied to all products!'),
+              backgroundColor: Colors.green,
+            ),
+          );
         }
       } catch (e) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          );
         }
+      } finally {
+        ref.invalidate(merchantInventoryProvider);
+        try {
+          ref.invalidate(productsProvider);
+        } catch (_) {}
       }
     }
   }
@@ -640,11 +837,15 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
     
     if (initialUsd == 0 && initialSdg > 0 && exchangeRate > 0) {
       initialUsd = initialSdg / exchangeRate;
+    } else if (initialUsd > 0 && exchangeRate > 0) {
+      initialSdg = initialUsd * exchangeRate;
     }
 
     final nameArCtrl = TextEditingController(text: product['name_ar']?.toString() ?? product['name']?.toString() ?? '');
     final nameEnCtrl = TextEditingController(text: product['name']?.toString() ?? '');
-    final descCtrl = TextEditingController(text: product['description']?.toString() ?? '');
+    final descCtrl = TextEditingController(text: ProductVariantsHelper.extractDescription(product) ?? '');
+    final customColorCtrl = TextEditingController();
+    final customSizeCtrl = TextEditingController();
     String selectedUnit = product['unit']?.toString() ?? 'ton';
     final usdCtrl = TextEditingController(text: initialUsd == 0 ? '' : initialUsd.toStringAsFixed(2));
     final sdgCtrl = TextEditingController(text: initialSdg == 0 ? '' : initialSdg.toStringAsFixed(0));
@@ -654,9 +855,15 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
     String? newImageExt;
     bool isUploading = false;
     final rawImages = product['images'];
-    String? currentImageUrl = (rawImages is List && rawImages.isNotEmpty)
-        ? rawImages.first?.toString()
-        : null;
+    String? currentImageUrl = ProductVariantsHelper.extractMainImageUrl(rawImages);
+    final List<String> selectedColors = List<String>.from(
+      ProductVariantsHelper.extractColors(product),
+    );
+    bool hasColors = selectedColors.isNotEmpty;
+    final List<String> selectedSizes = List<String>.from(
+      ProductVariantsHelper.extractSizes(product),
+    );
+    bool hasSizes = selectedSizes.isNotEmpty;
     final editImageBoxController = ProductImagePreviewBoxController();
     bool hasPreloaded = false;
 
@@ -836,6 +1043,201 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
                     ),
                     keyboardType: TextInputType.number,
                   ),
+                  const SizedBox(height: 14),
+                  // Colors Option in Edit Dialog
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: hasColors ? const Color(0xFFFAF5FF) : const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: hasColors ? const Color(0xFFD8B4FE) : const Color(0xFFE2E8F0)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.palette_rounded, color: Color(0xFF9333EA), size: 18),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                isRtl ? 'تفعيل خيارات الألوان' : 'Enable Colors',
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                              ),
+                            ),
+                            Switch(
+                              value: hasColors,
+                              activeThumbColor: const Color(0xFF9333EA),
+                              onChanged: (val) => setState(() => hasColors = val),
+                            ),
+                          ],
+                        ),
+                        if (hasColors) ...[
+                          const SizedBox(height: 6),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: [
+                              ...ProductVariantsHelper.presetColors.map((preset) {
+                                final isSel = selectedColors.contains(preset.nameAr);
+                                return FilterChip(
+                                  selected: isSel,
+                                  label: Text(isRtl ? preset.nameAr : preset.nameEn, style: const TextStyle(fontSize: 11.5)),
+                                  avatar: CircleAvatar(backgroundColor: preset.color, radius: 7),
+                                  selectedColor: const Color(0xFFF3E8FF),
+                                  checkmarkColor: const Color(0xFF9333EA),
+                                  onSelected: (v) {
+                                    setState(() {
+                                      if (v) {
+                                        selectedColors.add(preset.nameAr);
+                                      } else {
+                                        selectedColors.remove(preset.nameAr);
+                                      }
+                                    });
+                                  },
+                                );
+                              }),
+                              ...selectedColors
+                                  .where((c) => !ProductVariantsHelper.presetColors.any((p) => p.nameAr == c))
+                                  .map((customColor) {
+                                return Chip(
+                                  label: Text(customColor, style: const TextStyle(fontSize: 11.5)),
+                                  backgroundColor: const Color(0xFFF3E8FF),
+                                  deleteIconColor: const Color(0xFF9333EA),
+                                  onDeleted: () => setState(() => selectedColors.remove(customColor)),
+                                );
+                              }),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: customColorCtrl,
+                                  decoration: InputDecoration(
+                                    hintText: isRtl ? 'إضافة لون مخصص آخر...' : 'Add custom color...',
+                                    isDense: true,
+                                    border: const OutlineInputBorder(),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              IconButton.filledTonal(
+                                onPressed: () {
+                                  final v = customColorCtrl.text.trim();
+                                  if (v.isNotEmpty && !selectedColors.contains(v)) {
+                                    setState(() {
+                                      selectedColors.add(v);
+                                      customColorCtrl.clear();
+                                    });
+                                  }
+                                },
+                                icon: const Icon(Icons.add, size: 18),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  // Sizes Option in Edit Dialog
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: hasSizes ? const Color(0xFFEFF6FF) : const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: hasSizes ? const Color(0xFF93C5FD) : const Color(0xFFE2E8F0)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.straighten_rounded, color: Color(0xFF2563EB), size: 18),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                isRtl ? 'تفعيل خيارات المقاسات' : 'Enable Sizes',
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                              ),
+                            ),
+                            Switch(
+                              value: hasSizes,
+                              activeThumbColor: const Color(0xFF2563EB),
+                              onChanged: (val) => setState(() => hasSizes = val),
+                            ),
+                          ],
+                        ),
+                        if (hasSizes) ...[
+                          const SizedBox(height: 6),
+                          Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            children: [
+                              ...ProductVariantsHelper.presetSizes.map((sz) {
+                                final isSel = selectedSizes.contains(sz);
+                                return FilterChip(
+                                  selected: isSel,
+                                  label: Text(sz, style: const TextStyle(fontSize: 11.5)),
+                                  selectedColor: const Color(0xFFDBEAFE),
+                                  checkmarkColor: const Color(0xFF2563EB),
+                                  onSelected: (v) {
+                                    setState(() {
+                                      if (v) {
+                                        selectedSizes.add(sz);
+                                      } else {
+                                        selectedSizes.remove(sz);
+                                      }
+                                    });
+                                  },
+                                );
+                              }),
+                              ...selectedSizes
+                                  .where((s) => !ProductVariantsHelper.presetSizes.contains(s))
+                                  .map((customSize) {
+                                return Chip(
+                                  label: Text(customSize, style: const TextStyle(fontSize: 11.5)),
+                                  backgroundColor: const Color(0xFFDBEAFE),
+                                  deleteIconColor: const Color(0xFF2563EB),
+                                  onDeleted: () => setState(() => selectedSizes.remove(customSize)),
+                                );
+                              }),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: customSizeCtrl,
+                                  decoration: InputDecoration(
+                                    hintText: isRtl ? 'إضافة مقاس مخصص آخر (مثل: 40×80×0.90 مم)...' : 'Add custom size...',
+                                    isDense: true,
+                                    border: const OutlineInputBorder(),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              IconButton.filledTonal(
+                                onPressed: () {
+                                  final v = customSizeCtrl.text.trim();
+                                  if (v.isNotEmpty && !selectedSizes.contains(v)) {
+                                    setState(() {
+                                      selectedSizes.add(v);
+                                      customSizeCtrl.clear();
+                                    });
+                                  }
+                                },
+                                icon: const Icon(Icons.add, size: 18),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -948,10 +1350,6 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
                               .getPublicUrl(fileName);
                         }
 
-                        final existingImages = (product['images'] is List)
-                            ? (product['images'] as List)
-                            : const [];
-
                         final updateData = <String, dynamic>{
                           'name_ar': nameArCtrl.text.trim().isNotEmpty ? nameArCtrl.text.trim() : product['name_ar'],
                           if (nameEnCtrl.text.trim().isNotEmpty) 'name': nameEnCtrl.text.trim(),
@@ -960,13 +1358,13 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
                           'price_usd': double.tryParse(usdCtrl.text) ?? 0,
                           'price_sdg': double.tryParse(sdgCtrl.text) ?? 0,
                           'stock': int.tryParse(stockCtrl.text) ?? 0,
+                          'images': ProductVariantsHelper.buildImagesArray(
+                            mainImageUrl: finalImageUrl ?? currentImageUrl,
+                            colors: hasColors ? selectedColors : const [],
+                            sizes: hasSizes ? selectedSizes : const [],
+                            description: descCtrl.text.trim(),
+                          ),
                         };
-
-                        if (finalImageUrl != null) {
-                          updateData['images'] = [finalImageUrl, ...existingImages.skip(1)];
-                        } else if (currentImageUrl == null && newImageBytes == null) {
-                          updateData['images'] = [];
-                        }
 
                         await Supabase.instance.client.from('products').update(updateData).eq('id', product['id']).eq('store_id', product['store_id']);
                         try { ref.invalidate(productsProvider); } catch (_) {}
@@ -1205,6 +1603,38 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
                         ),
                       ],
                     ),
+                    const SizedBox(height: 10),
+                    InkWell(
+                      onTap: () => UsdRateHistoryDialog.show(context),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.greenAccent.withValues(alpha: 0.45)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.calendar_month_rounded, color: Colors.greenAccent, size: 18),
+                            const SizedBox(width: 8),
+                            Text(
+                              isRtl
+                                  ? 'سجل تاريخ سعر الدولار بالتقويم (طلوعاً ونزولاً)'
+                                  : 'USD Rate History & Calendar Log',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white70, size: 13),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -1228,6 +1658,12 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
                       );
                     }
 
+                    _autoHealOutOfSyncProducts(
+                      storeId: storeId,
+                      products: products,
+                      effectiveRate: effectiveExchangeRate,
+                    );
+
                     return ListView.builder(
                       padding: const EdgeInsets.all(12),
                       itemCount: products.length,
@@ -1238,13 +1674,18 @@ class _MerchantInventoryScreenState extends ConsumerState<MerchantInventoryScree
                         final inStock = stock > 0;
                         final stockLabel = inStock ? (isRtl ? 'متوفر: $stock' : 'In Stock: $stock') : (isRtl ? 'نفد' : 'Out of Stock');
                         final imageUrls = product['images'] as List<dynamic>? ?? [];
-                        final imageUrl = imageUrls.isNotEmpty ? imageUrls.first.toString() : null;
+                        final imageUrl = ProductVariantsHelper.extractMainImageUrl(imageUrls);
 
-                        final sdg = double.tryParse(product['price_sdg']?.toString() ?? '0') ?? 0;
+                        final rawSdg = double.tryParse(product['price_sdg']?.toString() ?? '0') ?? 0;
                         double usd = double.tryParse(product['price_usd']?.toString() ?? '0') ?? 0;
                         
                         // Fallback display if USD isn't set yet in DB
-                        if (usd == 0 && sdg > 0 && effectiveExchangeRate > 0) usd = sdg / effectiveExchangeRate;
+                        if (usd == 0 && rawSdg > 0 && effectiveExchangeRate > 0) {
+                          usd = rawSdg / effectiveExchangeRate;
+                        }
+                        final sdg = (usd > 0 && effectiveExchangeRate > 0)
+                            ? (usd * effectiveExchangeRate)
+                            : rawSdg;
 
                         return Card(
                           margin: const EdgeInsets.only(bottom: 12),

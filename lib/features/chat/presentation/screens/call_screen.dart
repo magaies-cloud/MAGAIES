@@ -49,13 +49,15 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
   final List<Map<String, dynamic>> _signalQueue = [];
 
   bool _isMicOn = true;
-  bool _isSpeakerOn = false;
+  bool _isSpeakerOn = true;
   bool _isVideoOn = true;
   bool _isConnected = false;
   bool _isCalling = true; // جاري الاتصال (الرنين)
   String _callStatus = 'جاري الاتصال...';
   int _callDuration = 0;
   Timer? _callTimer;
+  Timer? _handshakeRetryTimer;
+  bool _isCreatingOffer = false;
 
   // أنيميشن الرنين
   late AnimationController _pulseController;
@@ -127,12 +129,37 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
     CallRingtoneService.stop();
     unawaited(LocalNotificationService.instance.cancelOngoingCallNotification());
     _callTimer?.cancel();
+    _handshakeRetryTimer?.cancel();
     _pulseController.dispose();
     _cleanupCall();
     super.dispose();
   }
 
+  Future<void> _configureNativeVoiceAudioSession() async {
+    if (kIsWeb) return;
+    try {
+      if (defaultTargetPlatform == TargetPlatform.iOS) {
+        await Helper.setAppleAudioConfiguration(
+          AppleAudioConfiguration(
+            appleAudioCategory: AppleAudioCategory.playAndRecord,
+            appleAudioCategoryOptions: {
+              AppleAudioCategoryOption.allowBluetooth,
+              AppleAudioCategoryOption.allowBluetoothA2DP,
+              if (_isSpeakerOn) AppleAudioCategoryOption.defaultToSpeaker,
+            },
+            appleAudioMode: AppleAudioMode.voiceChat,
+          ),
+        );
+      }
+      await Helper.setSpeakerphoneOn(_isSpeakerOn);
+    } catch (e) {
+      debugPrint('Audio session configuration note: $e');
+    }
+  }
+
   Future<void> _cleanupCall() async {
+    _handshakeRetryTimer?.cancel();
+    _handshakeRetryTimer = null;
     CallRingtoneService.stop();
     unawaited(LocalNotificationService.instance.cancelOngoingCallNotification());
     // Stops the native ringing on the callee if they haven't answered yet
@@ -153,18 +180,22 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
     await _peerConnection?.close();
     await _peerConnection?.dispose();
     
-    // دائماً تنظيف الـ renderers (الـ remoteRenderer ضروري حتى للصوت على الويب)
+    // دائماً تنظيف الـ renderers (الـ remoteRenderer ضروري حتى للصوت على الويب والآيفون)
     await _localRenderer.dispose();
     await _remoteRenderer.dispose();
     
     if (_signalingChannel != null) {
-      // فقط إلغاء الاشتراك بدون حذف القناة نهائياً
-      // حتى لا يتأثر مستمع المكالمات في شاشة المحادثة
-      _signalingChannel!.unsubscribe();
+      final ch = _signalingChannel!;
+      _signalingChannel = null;
+      try {
+        await ch.unsubscribe();
+        await _supabase.removeChannel(ch);
+      } catch (_) {}
     }
   }
 
   void _startCallTimer() {
+    if (_callTimer != null) return;
     _callTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) {
         setState(() => _callDuration++);
@@ -204,6 +235,16 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
         ),
       );
 
+      if (!widget.isIncoming) {
+        await CallRingtoneService.startOutgoingTone();
+        _createCallInvite();
+      } else {
+        await CallRingtoneService.stop();
+      }
+
+      // تهيئة جلسة الصوت للآيفون (AVAudioSession PlayAndRecord + VoiceChat) قبل فتح الميكروفون
+      await _configureNativeVoiceAudioSession();
+
       final mediaConstraints = <String, dynamic>{
         'audio': {
           'echoCancellation': true,
@@ -232,6 +273,13 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
         };
         _localStream = await navigator.mediaDevices.getUserMedia(basicConstraints);
       }
+
+      // التأكد من تفعيل مسار الصوت المحلي الصادر
+      if (_localStream != null) {
+        for (final audioTrack in _localStream!.getAudioTracks()) {
+          audioTrack.enabled = _isMicOn;
+        }
+      }
       
       if (_enableVideo) {
         _localRenderer.srcObject = _localStream;
@@ -239,12 +287,7 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
       if (mounted) setState(() {});
 
       await _setupPeerConnection();
-      _setupSignaling();
-
-      if (!widget.isIncoming) {
-        CallRingtoneService.startOutgoingTone();
-        _createCallInvite();
-      }
+      await _setupSignaling();
     } catch (e) {
       debugPrint('Error accessing microphone: $e');
       if (mounted) {
@@ -503,6 +546,16 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
         {'urls': 'stun:stun2.l.google.com:19302'},
         {'urls': 'stun:stun3.l.google.com:19302'},
         {'urls': 'stun:stun4.l.google.com:19302'},
+        {
+          'urls': [
+            'turn:openrelay.metered.ca:80',
+            'turn:openrelay.metered.ca:443',
+            'turn:openrelay.metered.ca:443?transport=tcp',
+            'turns:openrelay.metered.ca:443?transport=tcp',
+          ],
+          'username': 'openrelayproject',
+          'credential': 'openrelayproject',
+        },
       ],
       'sdpSemantics': 'unified-plan',
     };
@@ -515,7 +568,9 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
       switch (state) {
         case RTCIceConnectionState.RTCIceConnectionStateConnected:
         case RTCIceConnectionState.RTCIceConnectionStateCompleted:
+          _handshakeRetryTimer?.cancel();
           CallRingtoneService.stop();
+          unawaited(_configureNativeVoiceAudioSession());
           setState(() {
             _isConnected = true;
             _isCalling = false;
@@ -554,30 +609,64 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
       });
     };
 
-    _peerConnection?.onTrack = (event) {
+    _peerConnection?.onTrack = (event) async {
+      try {
+        event.track.enabled = true;
+        if (event.track.kind == 'audio' && !kIsWeb) {
+          try {
+            await Helper.setVolume(1.0, event.track);
+          } catch (_) {}
+        }
+      } catch (_) {}
+
       if (event.streams.isNotEmpty) {
-        // دائماً نربط الـ stream بالـ renderer (ضروري لتشغيل الصوت على الويب)
+        // دائماً نربط الـ stream بالـ renderer (ضروري لتشغيل الصوت على الويب والآيفون)
         _remoteRenderer.srcObject = event.streams[0];
+      } else {
+        try {
+          final remoteStream = _remoteRenderer.srcObject ?? await createLocalMediaStream('remote_stream');
+          await remoteStream.addTrack(event.track);
+          _remoteRenderer.srcObject = remoteStream;
+        } catch (e) {
+          debugPrint('Remote stream attach note: $e');
+        }
       }
+
       if (event.track.kind == 'audio') {
-        CallRingtoneService.stop();
+        _handshakeRetryTimer?.cancel();
+        await CallRingtoneService.stop();
+        await _configureNativeVoiceAudioSession();
         if (mounted) {
           setState(() {
             _isConnected = true;
             _isCalling = false;
             _callStatus = 'متصل';
           });
+          _pulseController.stop();
+          _startCallTimer();
+          _updateCallInvite('accepted');
         }
       }
     };
 
     // Add local tracks
     _localStream?.getTracks().forEach((track) {
+      track.enabled = true;
       _peerConnection?.addTrack(track, _localStream!);
     });
   }
 
-  void _setupSignaling() {
+  Future<void> _setupSignaling() async {
+    // إزالة أي قناة سابقة لتجنب تعارض الاشتراكات في Supabase Realtime
+    if (_signalingChannel != null) {
+      final oldCh = _signalingChannel!;
+      _signalingChannel = null;
+      try {
+        await oldCh.unsubscribe();
+        await _supabase.removeChannel(oldCh);
+      } catch (_) {}
+    }
+
     _signalingChannel = _supabase.channel('call_${widget.callID}');
 
     _signalingChannel?.onBroadcast(event: 'webrtc_signal', callback: (payload) {
@@ -604,44 +693,57 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
             : NameFormatter.formatUser(widget.currentUser);
 
         try {
-          _signalingChannel?.sendBroadcastMessage(
-            event: 'webrtc_signal',
-            payload: {
-              'sender_id': widget.currentUser.id,
-              'data': {
-                'type': 'join',
-                'caller_name': callerDisplayName,
-                'room_id': widget.callID,
-              },
-            },
-          );
-
-          // إرسال إشعار مباشر لقناة المستخدم المستهدف إن وجدت
-          if (widget.targetUserId != null && widget.targetUserId!.isNotEmpty) {
-            final targetChannel = _supabase.channel('user_call_${widget.targetUserId}');
-            targetChannel.subscribe((st, [err]) {
-              if (st == RealtimeSubscribeStatus.subscribed) {
-                try {
-                  targetChannel.sendBroadcastMessage(
-                    event: 'webrtc_signal',
-                    payload: {
-                      'sender_id': widget.currentUser.id,
-                      'data': {
-                        'type': 'join',
-                        'caller_name': callerDisplayName,
-                        'room_id': widget.callID,
-                      },
-                    },
-                  );
-                } catch (_) {}
-                Future.delayed(const Duration(milliseconds: 600), () {
-                  try {
-                    targetChannel.unsubscribe();
-                    _supabase.removeChannel(targetChannel);
-                  } catch (_) {}
-                });
+          if (widget.isIncoming) {
+            // الطرف المستقبِل بعد فتح الخط يرسل إشارة الجاهزية للمتصل لبدء تبادل الصوت فوراً
+            _sendSignal({'type': 'callee_ready', 'room_id': widget.callID});
+            _handshakeRetryTimer?.cancel();
+            _handshakeRetryTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
+              if (!mounted || _hasRemoteDescription || _isConnected) {
+                timer.cancel();
+                return;
               }
+              _sendSignal({'type': 'callee_ready', 'room_id': widget.callID});
             });
+          } else {
+            _signalingChannel?.sendBroadcastMessage(
+              event: 'webrtc_signal',
+              payload: {
+                'sender_id': widget.currentUser.id,
+                'data': {
+                  'type': 'join',
+                  'caller_name': callerDisplayName,
+                  'room_id': widget.callID,
+                },
+              },
+            );
+
+            // إرسال إشعار مباشر لقناة المستخدم المستهدف إن وجدت
+            if (widget.targetUserId != null && widget.targetUserId!.isNotEmpty) {
+              final targetChannel = _supabase.channel('user_call_${widget.targetUserId}');
+              targetChannel.subscribe((st, [err]) {
+                if (st == RealtimeSubscribeStatus.subscribed) {
+                  try {
+                    targetChannel.sendBroadcastMessage(
+                      event: 'webrtc_signal',
+                      payload: {
+                        'sender_id': widget.currentUser.id,
+                        'data': {
+                          'type': 'join',
+                          'caller_name': callerDisplayName,
+                          'room_id': widget.callID,
+                        },
+                      },
+                    );
+                  } catch (_) {}
+                  Future.delayed(const Duration(milliseconds: 600), () {
+                    try {
+                      targetChannel.unsubscribe();
+                      _supabase.removeChannel(targetChannel);
+                    } catch (_) {}
+                  });
+                }
+              });
+            }
           }
         } catch (_) {}
         // إرسال كافة الإشارات المؤجلة
@@ -657,9 +759,21 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
     final type = data['type'];
 
     if (type == 'join') {
-      // الطرف الآخر انضم - أنشئ العرض
-      _createOffer();
+      if (widget.isIncoming) {
+        // إذا كان المستقبِل جاهزاً واستلم join متأخرة من المتصل، نبلغه بجاهزية المستقبِل
+        _sendSignal({'type': 'callee_ready', 'room_id': widget.callID});
+      } else {
+        // الطرف الآخر انضم - أنشئ العرض
+        await _createOffer();
+      }
+    } else if (type == 'callee_ready') {
+      // المستقبِل فتح الخط وجاهز لاستقبال العرض الصوتي
+      if (!widget.isIncoming && !_isConnected) {
+        await _createOffer();
+      }
     } else if (type == 'offer') {
+      _handshakeRetryTimer?.cancel();
+      await CallRingtoneService.stop();
       final sdp = data['sdp'];
       await _peerConnection?.setRemoteDescription(
         RTCSessionDescription(sdp, type),
@@ -670,9 +784,11 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
         await _peerConnection?.addCandidate(c);
       }
       _pendingCandidates.clear();
-      _createAnswer();
+      await _createAnswer();
+      await _configureNativeVoiceAudioSession();
     } else if (type == 'answer') {
-      CallRingtoneService.stop();
+      _handshakeRetryTimer?.cancel();
+      await CallRingtoneService.stop();
       final sdp = data['sdp'];
       await _peerConnection?.setRemoteDescription(
         RTCSessionDescription(sdp, type),
@@ -683,7 +799,12 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
         await _peerConnection?.addCandidate(c);
       }
       _pendingCandidates.clear();
-      if (mounted) setState(() { _callStatus = 'جاري ربط الاتصال...'; });
+      await _configureNativeVoiceAudioSession();
+      if (mounted && !_isConnected) {
+        setState(() {
+          _callStatus = 'جاري ربط الاتصال...';
+        });
+      }
     } else if (type == 'candidate') {
       final candidate = RTCIceCandidate(
         data['candidate'],
@@ -697,23 +818,35 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
         _pendingCandidates.add(candidate);
       }
     } else if (type == 'hangup') {
-      CallRingtoneService.stop();
+      _handshakeRetryTimer?.cancel();
+      await CallRingtoneService.stop();
       if (mounted) Navigator.pop(context);
     }
   }
 
   Future<void> _createOffer() async {
-    final offer = await _peerConnection?.createOffer({
-      'offerToReceiveAudio': true,
-      'offerToReceiveVideo': _enableVideo,
-    });
-    if (offer == null) return;
-    await _peerConnection?.setLocalDescription(offer);
-    _sendSignal({'type': 'offer', 'sdp': offer.sdp});
+    if (_isCreatingOffer || _peerConnection == null) return;
+    _isCreatingOffer = true;
+    try {
+      final offer = await _peerConnection?.createOffer({
+        'offerToReceiveAudio': true,
+        'offerToReceiveVideo': _enableVideo,
+      });
+      if (offer == null) return;
+      await _peerConnection?.setLocalDescription(offer);
+      _sendSignal({'type': 'offer', 'sdp': offer.sdp});
+    } catch (e) {
+      debugPrint('Create offer error: $e');
+    } finally {
+      _isCreatingOffer = false;
+    }
   }
 
   Future<void> _createAnswer() async {
-    final answer = await _peerConnection?.createAnswer();
+    final answer = await _peerConnection?.createAnswer({
+      'offerToReceiveAudio': true,
+      'offerToReceiveVideo': _enableVideo,
+    });
     if (answer == null) return;
     await _peerConnection?.setLocalDescription(answer);
     _sendSignal({'type': 'answer', 'sdp': answer.sdp});
@@ -771,7 +904,7 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
     setState(() => _isSpeakerOn = nextState);
     if (!kIsWeb) {
       try {
-        await Helper.setSpeakerphoneOn(nextState);
+        await _configureNativeVoiceAudioSession();
       } catch (e) {
         debugPrint('Error toggling speakerphone: $e');
       }
@@ -829,6 +962,21 @@ class _CallScreenState extends State<CallScreen> with TickerProviderStateMixin {
                 ),
               ),
             ),
+
+            // ==========================================
+            // مشغل الصوت الخفي للمكالمات الصوتية (ضروري للآيفون والويب لتشغيل مسار الصوت الوارد)
+            // ==========================================
+            if (!_enableVideo || !_isConnected)
+              Positioned(
+                left: 0,
+                top: 0,
+                width: 1,
+                height: 1,
+                child: Opacity(
+                  opacity: 0.01,
+                  child: RTCVideoView(_remoteRenderer),
+                ),
+              ),
 
             // ==========================================
             // شاشة الفيديو (إذا كان مفعلاً)
@@ -1093,6 +1241,7 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> with TickerProv
   RealtimeChannel? _incomingChannel;
   Timer? _timeoutTimer;
   bool _isActionTaken = false;
+  bool _handedOverToCall = false;
 
   @override
   void initState() {
@@ -1152,24 +1301,27 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> with TickerProv
     } catch (_) {}
   }
 
-  void _cleanupIncomingChannel() {
+  Future<void> _cleanupIncomingChannel() async {
     _timeoutTimer?.cancel();
     _timeoutTimer = null;
     if (_incomingChannel != null) {
-      try {
-        _incomingChannel!.unsubscribe();
-        Supabase.instance.client.removeChannel(_incomingChannel!);
-      } catch (_) {}
+      final ch = _incomingChannel!;
       _incomingChannel = null;
+      try {
+        await ch.unsubscribe();
+        await Supabase.instance.client.removeChannel(ch);
+      } catch (_) {}
     }
   }
 
   @override
   void dispose() {
-    CallRingtoneService.isCallActive = false;
+    if (!_handedOverToCall) {
+      CallRingtoneService.isCallActive = false;
+      CallRingtoneService.stop();
+    }
     _isActionTaken = true;
-    _cleanupIncomingChannel();
-    CallRingtoneService.stop();
+    unawaited(_cleanupIncomingChannel());
     _pulseController.dispose();
     _slideController.dispose();
     super.dispose();
@@ -1184,11 +1336,12 @@ class _IncomingCallScreenState extends State<IncomingCallScreen> with TickerProv
     if (!mounted) return;
 
     _isActionTaken = true;
-    CallRingtoneService.stop();
-    _cleanupIncomingChannel();
+    _handedOverToCall = true;
+    await CallRingtoneService.stop();
+    await _cleanupIncomingChannel();
 
-    Navigator.pop(context); // Close incoming call screen
-    Navigator.push(
+    if (!mounted) return;
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(
         builder: (context) => CallScreen(

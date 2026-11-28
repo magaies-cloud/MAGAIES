@@ -6,6 +6,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:magaiees_marketplace/features/buyer/services/domain/models/service_provider_model.dart';
 import 'package:magaiees_marketplace/features/buyer/services/application/services_provider.dart';
 import 'package:magaiees_marketplace/core/utils/app_notification.dart';
+import 'package:magaiees_marketplace/core/utils/phone_formatter.dart';
 
 class ServiceProvidersScreen extends ConsumerStatefulWidget {
   const ServiceProvidersScreen({super.key});
@@ -24,7 +25,7 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) return;
       setState(() {
@@ -48,7 +49,7 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isRtl ? 'دليل الخدمات والمقاولات والنقل' : 'Services & Fleet Logistics'),
+        title: Text(isRtl ? 'دليل المقاولات والخدمات والنقل' : 'Contracting, Services & Logistics'),
         centerTitle: true,
         bottom: TabBar(
           controller: _tabController,
@@ -57,12 +58,16 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
           tabs: [
             Tab(text: isRtl ? 'جميع الخدمات' : 'All Services'),
             Tab(
+              icon: const Icon(Icons.domain_rounded, size: 18),
+              text: isRtl ? 'شركات المقاولات والخرسانة' : 'Contracting & Concrete',
+            ),
+            Tab(
               icon: const Icon(Icons.architecture, size: 18),
               text: isRtl ? 'الاستشارات الهندسية' : 'Engineering',
             ),
             Tab(
               icon: const Icon(Icons.handyman, size: 18),
-              text: isRtl ? 'العمالة الفنية' : 'Skilled Labor',
+              text: isRtl ? 'العمالة والفنيون' : 'Skilled Labor & Techs',
             ),
             Tab(
               icon: const Icon(Icons.local_shipping, size: 18),
@@ -75,8 +80,9 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
         controller: _tabController,
         children: [
           _buildProvidersList(context, null), // All
+          _buildProvidersList(context, 'contracting'),
           _buildProvidersList(context, 'engineering'),
-          _buildProvidersList(context, 'labor'),
+          _buildProvidersList(context, 'labor_and_tech'),
           _buildProvidersList(context, 'logistics'),
         ],
       ),
@@ -88,7 +94,11 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
 
     // Only show approved and verified providers to the public
     var filtered = _allProviders.where((p) => p.isVerified).toList();
-    if (categoryFilter != null) {
+    if (categoryFilter == 'labor_and_tech') {
+      filtered = filtered
+          .where((p) => p.categoryId == 'labor' || p.categoryId == 'technicians')
+          .toList();
+    } else if (categoryFilter != null) {
       filtered = filtered.where((p) => p.categoryId == categoryFilter).toList();
     }
 
@@ -202,12 +212,12 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isRtl ? 'مهندس، فني، أو صاحب شاحنة نقل؟' : 'Engineer, Technician or Fleet Owner?',
+                        isRtl ? 'شركة مقاولات، مكتب هندسي، فني، أو صاحب أسطول نقل؟' : 'Contracting Co., Engineer, Tech or Fleet Owner?',
                         style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 13.5, color: Color(0xFF0F172A)),
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        isRtl ? 'انضم لشبكة مقاييس المعتمدة لتصلك طلبات المشروعات والمواد' : 'Join Magaiees certified network for direct customer orders',
+                        isRtl ? 'انضم لشبكة مقاييس المعتمدة لتصلك عقود المشاريع وطلبات التوريد' : 'Join Magaiees certified network for direct project contracts & orders',
                         style: const TextStyle(color: Color(0xFF64748B), fontSize: 11.5),
                       ),
                     ],
@@ -233,8 +243,28 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
         ),
         const SliverToBoxAdapter(child: SizedBox(height: 10)),
 
-        // Subcategory Chips (Especially for Logistics / Fleet sub-classification)
-        if (categoryFilter == 'logistics')
+        // Subcategory Chips
+        if (categoryFilter == 'contracting')
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 12.0),
+              child: SizedBox(
+                height: 42,
+                child: ListView(
+                  scrollDirection: Axis.horizontal,
+                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                  children: [
+                    _buildSubChip('all', isRtl ? 'الكل' : 'All Companies', isRtl),
+                    _buildSubChip('خرسان', isRtl ? '🏗️ الهياكل الخرسانية المسلحة' : '🏗️ Concrete Structures', isRtl),
+                    _buildSubChip('تشطيب', isRtl ? '🎨 التشطيبات المتكاملة والديكور' : '🎨 Turnkey Finishing', isRtl),
+                    _buildSubChip('مقاولات', isRtl ? '🏢 المقاولات العامة والمباني' : '🏢 General Contracting', isRtl),
+                    _buildSubChip('هناجر', isRtl ? '🏭 الهناجر والمنشآت المعدنية' : '🏭 Steel Hangars', isRtl),
+                  ],
+                ),
+              ),
+            ),
+          )
+        else if (categoryFilter == 'logistics')
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.only(bottom: 12.0),
@@ -254,7 +284,7 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
               ),
             ),
           )
-        else if (categoryFilter == 'labor')
+        else if (categoryFilter == 'labor_and_tech')
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.only(bottom: 12.0),
@@ -358,11 +388,16 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
                               CircleAvatar(
                                 radius: 26,
                                 backgroundColor: _getDomainColor(p.categoryId).withValues(alpha: 0.12),
-                                child: Icon(
-                                  _getTradeIcon(p.categoryId, trade),
-                                  color: _getDomainColor(p.categoryId),
-                                  size: 28,
-                                ),
+                                backgroundImage: (p.avatarUrl != null && p.avatarUrl!.trim().isNotEmpty)
+                                    ? NetworkImage(p.avatarUrl!.trim())
+                                    : null,
+                                child: (p.avatarUrl == null || p.avatarUrl!.trim().isEmpty)
+                                    ? Icon(
+                                        _getTradeIcon(p.categoryId, trade),
+                                        color: _getDomainColor(p.categoryId),
+                                        size: 28,
+                                      )
+                                    : null,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -454,7 +489,26 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
                             ],
                           ),
 
-                          const SizedBox(height: 14),
+                          if (p.phone.trim().isNotEmpty) ...[
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                const Icon(Icons.phone_in_talk_rounded, size: 15, color: Color(0xFF059669)),
+                                const SizedBox(width: 6),
+                                PhoneFormatter.text(
+                                  p.phone,
+                                  style: const TextStyle(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF065F46),
+                                    fontFamily: 'monospace',
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+
+                          const SizedBox(height: 12),
 
                           Row(
                             children: [
@@ -468,7 +522,7 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
                                       if (!ok && context.mounted) {
                                         AppNotification.showInfo(
                                           context,
-                                          '${isRtl ? 'الاتصال بـ' : 'Calling'} $name (${p.phone})',
+                                          '${isRtl ? 'الاتصال بـ' : 'Calling'} $name (${PhoneFormatter.format(p.phone)})',
                                           icon: Icons.call,
                                         );
                                       }
@@ -476,7 +530,7 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
                                       if (context.mounted) {
                                         AppNotification.showInfo(
                                           context,
-                                          '${isRtl ? 'الاتصال بـ' : 'Calling'} $name (${p.phone})',
+                                          '${isRtl ? 'الاتصال بـ' : 'Calling'} $name (${PhoneFormatter.format(p.phone)})',
                                           icon: Icons.call,
                                         );
                                       }
@@ -552,8 +606,11 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
 
   List<Color> _getBannerGradient(String? category) {
     switch (category) {
+      case 'contracting':
+        return [const Color(0xFF0F292E), const Color(0xFF0F766E)];
       case 'engineering':
         return [const Color(0xFF1E3A8A), const Color(0xFF0284C7)];
+      case 'labor_and_tech':
       case 'labor':
         return [const Color(0xFF92400E), const Color(0xFFD97706)];
       case 'logistics':
@@ -565,49 +622,78 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
 
   IconData _getBannerIcon(String? category) {
     switch (category) {
-      case 'engineering': return Icons.architecture;
-      case 'labor': return Icons.handyman;
-      case 'logistics': return Icons.local_shipping;
-      default: return Icons.engineering;
+      case 'contracting':
+        return Icons.domain_rounded;
+      case 'engineering':
+        return Icons.architecture;
+      case 'labor_and_tech':
+      case 'labor':
+        return Icons.handyman;
+      case 'logistics':
+        return Icons.local_shipping;
+      default:
+        return Icons.engineering;
     }
   }
 
   String _getBannerTitle(String? category, bool isRtl) {
     switch (category) {
+      case 'contracting':
+        return isRtl
+            ? 'شركات المقاولات والتشطيبات والهياكل الخرسانية'
+            : 'Contracting, Concrete Structures & Turnkey Finishing';
       case 'engineering':
         return isRtl ? 'الاستشارات الهندسية والإشراف' : 'Engineering Consulting & Supervision';
+      case 'labor_and_tech':
       case 'labor':
         return isRtl ? 'العمالة الفنية والحرفية المتخصصة' : 'Skilled Tradesmen & Construction Labor';
       case 'logistics':
-        return isRtl ? 'أسطول النقل الثقيل، الدفارات، والتعتيل' : 'Heavy Truck Fleets, Dyna & Offloading';
+        return isRtl ? 'شركات الشحن، الأسطول الثقيل، والتعتيل' : 'Shipping Companies, Heavy Fleet & Offloading';
       default:
-        return isRtl ? 'دليل مقاولي وأساطيل منصة مقاييس' : 'Magaiees Services & Fleet Directory';
+        return isRtl ? 'دليل شركات المقاولات والخدمات وأساطيل مقاييس' : 'Magaiees Contracting, Services & Fleet Directory';
     }
   }
 
   String _getBannerSubtitle(String? category, bool isRtl) {
     switch (category) {
+      case 'contracting':
+        return isRtl
+            ? 'شركات معتمدة لتنفيذ الهياكل الخرسانية المسلحة، الأبراج، الهناجر، وتشطيبات تسليم المفتاح'
+            : 'Certified companies for reinforced concrete structures, buildings & turnkey finishing';
       case 'engineering':
         return isRtl ? 'مهندسون إنشائيون، معماريون، ومساحين لاستلام الصب والمخططات' : 'Structural, architectural & surveying certified engineers';
+      case 'labor_and_tech':
       case 'labor':
         return isRtl ? 'حدادين، نجارين، بنائين، سباكين، وكهربائيين معتمدين' : 'Certified steel fixers, carpenters, masons, plumbers & electricians';
       case 'logistics':
         return isRtl ? 'الدفارات للتشطيبات • المسطحات لسيخ 12م • القلابات للمواد السائبة • فرق التعتيل' : 'Dyna for finishes • Flatbed for 12m rebar • Dump trucks for bulk • Offloading crews';
       default:
-        return isRtl ? 'تواصل مباشرة مع أصحاب الشاحنات، المهندسين، والحرفيين' : 'Direct contact with truck fleets, engineers & skilled masons';
+        return isRtl ? 'تواصل مباشرة مع شركات المقاولات، المكاتب الهندسية، الحرفيين، وأساطيل الشحن' : 'Direct contact with contracting firms, engineers, tradesmen & truck fleets';
     }
   }
 
   Color _getDomainColor(String category) {
     switch (category) {
-      case 'engineering': return const Color(0xFF1E40AF);
-      case 'labor': return const Color(0xFFD97706);
-      case 'logistics': return const Color(0xFF059669);
-      default: return const Color(0xFF3B82F6);
+      case 'contracting':
+        return const Color(0xFF0F766E);
+      case 'engineering':
+        return const Color(0xFF1E40AF);
+      case 'labor':
+      case 'technicians':
+        return const Color(0xFFD97706);
+      case 'logistics':
+        return const Color(0xFF059669);
+      default:
+        return const Color(0xFF3B82F6);
     }
   }
 
   IconData _getTradeIcon(String category, String trade) {
+    if (category == 'contracting') {
+      if (trade.contains('تشطيب') || trade.contains('ديكور')) return Icons.format_paint_rounded;
+      if (trade.contains('هناجر') || trade.contains('معدن')) return Icons.factory_rounded;
+      return Icons.domain_rounded;
+    }
     if (category == 'logistics') {
       if (trade.contains('الدفارات') || trade.contains('Dyna')) return Icons.local_shipping;
       if (trade.contains('مسطحة') || trade.contains('Flatbed')) return Icons.rv_hookup;
@@ -778,20 +864,49 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
                                   ),
                                   items: [
                                     DropdownMenuItem(
-                                      value: 'technicians',
-                                      child: Text(isRtl ? '⚡ فنيون ومهنيون (كهربائي / سباك / نجار / حداد)' : 'Electrician / Plumber / Tradesman'),
+                                      value: 'contracting',
+                                      child: Text(
+                                        isRtl
+                                            ? '🏢 شركات المقاولات والهياكل الخرسانية والتشطيبات'
+                                            : 'Contracting, Concrete & Turnkey Finishing Co.',
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
                                     DropdownMenuItem(
                                       value: 'engineering',
-                                      child: Text(isRtl ? '🏗️ استشارات وتصميم هندسي (إنشائي / معماري / مساح)' : 'Engineering & Architectural'),
+                                      child: Text(
+                                        isRtl
+                                            ? '🏗️ استشارات وتصميم هندسي (إنشائي / معماري / مساح)'
+                                            : 'Engineering & Architectural',
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
                                     DropdownMenuItem(
                                       value: 'logistics',
-                                      child: Text(isRtl ? '🚚 أساطيل النقل واللوجستيات (دفار / قلاب / تريلا)' : 'Trucking, Dyna & Dump Logistics'),
+                                      child: Text(
+                                        isRtl
+                                            ? '🚚 شركات الشحن وأساطيل اللوجستيات (دفار / قلاب / تريلا)'
+                                            : 'Shipping, Trucking & Logistics Fleet',
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    DropdownMenuItem(
+                                      value: 'technicians',
+                                      child: Text(
+                                        isRtl
+                                            ? '⚡ فنيون ومهنيون (كهربائي / سباك / نجار / حداد)'
+                                            : 'Electrician / Plumber / Tradesman',
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
                                     DropdownMenuItem(
                                       value: 'labor',
-                                      child: Text(isRtl ? '🔨 مقاولات وعمالة تنفيذية (بناء / مليس / تعتيل)' : 'Construction Labor & Offloading'),
+                                      child: Text(
+                                        isRtl
+                                            ? '🔨 عمالة وحرفيون تنفيذيون (بناء / مليس / تعتيل)'
+                                            : 'Construction Labor & Offloading',
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
                                   ],
                                   onChanged: (val) {
@@ -820,9 +935,10 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
                                       child: TextFormField(
                                         controller: phoneCtrl,
                                         keyboardType: TextInputType.phone,
+                                        textDirection: TextDirection.ltr,
                                         decoration: InputDecoration(
                                           labelText: isRtl ? 'رقم الهاتف المباشر (واتساب/اتصال) *' : 'Direct Phone *',
-                                          hintText: '+968 9900 0000',
+                                          hintText: '+249 912 300 101',
                                           prefixIcon: const Icon(Icons.phone_rounded, size: 18),
                                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                                           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -836,7 +952,7 @@ class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen>
                                         controller: locationArCtrl,
                                         decoration: InputDecoration(
                                           labelText: isRtl ? 'المدينة ونطاق التغطية *' : 'Coverage City / Area *',
-                                          hintText: isRtl ? 'مثال: مسقط والسيب وبوشر' : 'e.g. Muscat & Seeb',
+                                          hintText: isRtl ? 'مثال: الخرطوم، بحري، بورتسودان' : 'e.g. Khartoum & Port Sudan',
                                           prefixIcon: const Icon(Icons.location_on_outlined, size: 18),
                                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                                           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),

@@ -1003,71 +1003,112 @@ class _AdminCategoriesScreenState extends ConsumerState<AdminCategoriesScreen> {
     final currencyFormatter = NumberFormat('#,##0.0', 'en_US');
     final topNameAr = insights.topSellingCategoryNameAr ?? '';
     final topNameEn = insights.topSellingCategoryNameEn ?? '';
-    
+
+    final cards = [
+      // Card 1: Total Sales Volume (Emerald Translucent)
+      _buildKpiCard(
+        title: isRtl ? 'حجم مبيعات الأقسام' : 'Category Sales Volume',
+        value: '${currencyFormatter.format(insights.totalSalesVolume)} ج.س',
+        subtitle: isRtl ? 'إجمالي المبيعات المنفذة' : 'Total order transactions',
+        icon: Icons.account_balance_wallet_rounded,
+        accentColor: const Color(0xFF047857),
+        cardTint: const Color(0xFF10B981).withValues(alpha: 0.11),
+        borderTint: const Color(0xFF10B981).withValues(alpha: 0.32),
+        iconBgColor: const Color(0xFF10B981).withValues(alpha: 0.18),
+      ),
+      // Card 2: Catalog Inventory Valuation (Indigo Translucent)
+      _buildKpiCard(
+        title: isRtl ? 'قيمة المخزون المعروض' : 'Inventory Valuation',
+        value: '${currencyFormatter.format(insights.totalInventoryValue)} ج.س',
+        subtitle: isRtl ? 'تقييم المنتجات بالكتالوج' : 'Listed catalog products value',
+        icon: Icons.inventory_2_rounded,
+        accentColor: const Color(0xFF4338CA),
+        cardTint: const Color(0xFF6366F1).withValues(alpha: 0.11),
+        borderTint: const Color(0xFF6366F1).withValues(alpha: 0.32),
+        iconBgColor: const Color(0xFF6366F1).withValues(alpha: 0.18),
+      ),
+      // Card 3: Sponsored Categories (Amber Translucent)
+      _buildKpiCard(
+        title: isRtl ? 'أقسام برعاية معلنين' : 'Sponsored Categories',
+        value: '${insights.advertiserCategoriesCount} ${isRtl ? "أقسام معلنة" : "Sponsored cats"}',
+        subtitle: isRtl ? 'شراكات متاجر وموردي الإعلانات' : 'Active advertiser partners',
+        icon: Icons.campaign_rounded,
+        accentColor: const Color(0xFFB45309),
+        cardTint: const Color(0xFFF59E0B).withValues(alpha: 0.12),
+        borderTint: const Color(0xFFF59E0B).withValues(alpha: 0.35),
+        iconBgColor: const Color(0xFFF59E0B).withValues(alpha: 0.20),
+      ),
+      // Card 4: Catalog Depth (Teal/Cyan Translucent)
+      _buildKpiCard(
+        title: isRtl ? 'هيكلية وتفرع الكتالوج' : 'Catalog Structure',
+        value: '${insights.totalCategoriesCount} ${isRtl ? "رئيسي" : "Main"} • ${insights.totalSubcategoriesCount} ${isRtl ? "فرعي" : "Sub"}',
+        subtitle: '${insights.totalProductsCount} ${isRtl ? "منتج معروض ونشط" : "active products listed"}',
+        icon: Icons.category_rounded,
+        accentColor: const Color(0xFF0F766E),
+        cardTint: const Color(0xFF14B8A6).withValues(alpha: 0.11),
+        borderTint: const Color(0xFF14B8A6).withValues(alpha: 0.32),
+        iconBgColor: const Color(0xFF14B8A6).withValues(alpha: 0.18),
+      ),
+      // Card 5: Best Selling Category (Rose/Purple Translucent)
+      _buildKpiCard(
+        title: isRtl ? 'القسم الأكثر طلباً' : 'Top Performing Category',
+        value: isRtl
+            ? (topNameAr.isNotEmpty ? topNameAr : 'لا يوجد مبيعات')
+            : (topNameEn.isNotEmpty ? topNameEn : 'No sales'),
+        subtitle: insights.topSellingCategorySales > 0
+            ? '${currencyFormatter.format(insights.topSellingCategorySales)} ج.س'
+            : (isRtl ? 'في انتظار أول طلب' : 'Awaiting first order'),
+        icon: Icons.local_fire_department_rounded,
+        accentColor: const Color(0xFFBE123C),
+        cardTint: const Color(0xFFF43F5E).withValues(alpha: 0.11),
+        borderTint: const Color(0xFFF43F5E).withValues(alpha: 0.32),
+        iconBgColor: const Color(0xFFF43F5E).withValues(alpha: 0.18),
+      ),
+    ];
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isMobile = constraints.maxWidth < 650;
         final isTablet = constraints.maxWidth >= 650 && constraints.maxWidth < 1100;
 
+        if (isMobile) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Column(
+              children: [
+                for (int i = 0; i < cards.length; i++) ...[
+                  cards[i],
+                  if (i < cards.length - 1) const SizedBox(height: 8),
+                ],
+              ],
+            ),
+          );
+        }
+
+        if (isTablet) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: Wrap(
+              spacing: 12,
+              runSpacing: 10,
+              children: cards.map((c) {
+                return SizedBox(
+                  width: (constraints.maxWidth - 12) / 2,
+                  child: c,
+                );
+              }).toList(),
+            ),
+          );
+        }
+
         return Padding(
-          padding: const EdgeInsets.only(bottom: 24.0),
-          child: GridView.count(
-            crossAxisCount: isMobile ? 1 : (isTablet ? 2 : 5),
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-            childAspectRatio: isMobile ? 3.4 : (isTablet ? 2.3 : 1.6),
+          padding: const EdgeInsets.only(bottom: 16.0),
+          child: Row(
             children: [
-              // Card 1: Total Sales Volume
-              _buildKpiCard(
-                title: isRtl ? 'حجم مبيعات الأقسام' : 'Category Sales Volume',
-                value: '${currencyFormatter.format(insights.totalSalesVolume)} ج.س',
-                subtitle: isRtl ? 'إجمالي المبيعات المنفذة' : 'Total order transactions',
-                icon: Icons.account_balance_wallet_rounded,
-                accentColor: const Color(0xFF059669),
-                bgColor: const Color(0xFFECFDF5),
-              ),
-              // Card 2: Catalog Inventory Valuation
-              _buildKpiCard(
-                title: isRtl ? 'قيمة المخزون المعروض' : 'Inventory Valuation',
-                value: '${currencyFormatter.format(insights.totalInventoryValue)} ج.س',
-                subtitle: isRtl ? 'تقييم المنتجات بالكتالوج' : 'Listed catalog products value',
-                icon: Icons.inventory_2_rounded,
-                accentColor: const Color(0xFF4F46E5),
-                bgColor: const Color(0xFFEEF2FF),
-              ),
-              // Card 3: Sponsored Categories
-              _buildKpiCard(
-                title: isRtl ? 'أقسام برعاية معلنين' : 'Sponsored Categories',
-                value: '${insights.advertiserCategoriesCount} ${isRtl ? "أقسام معلنة" : "Sponsored cats"}',
-                subtitle: isRtl ? 'شراكات متاجر وموردي الإعلانات' : 'Active advertiser partners',
-                icon: Icons.campaign_rounded,
-                accentColor: const Color(0xFFD97706),
-                bgColor: const Color(0xFFFFFBEB),
-              ),
-              // Card 4: Catalog Depth
-              _buildKpiCard(
-                title: isRtl ? 'هيكلية وتفرع الكتالوج' : 'Catalog Structure',
-                value: '${insights.totalCategoriesCount} ${isRtl ? "رئيسي" : "Main"} • ${insights.totalSubcategoriesCount} ${isRtl ? "فرعي" : "Sub"}',
-                subtitle: '${insights.totalProductsCount} ${isRtl ? "منتج معروض ونشط" : "active products listed"}',
-                icon: Icons.category_rounded,
-                accentColor: const Color(0xFF0D9488),
-                bgColor: const Color(0xFFF0FDFA),
-              ),
-              // Card 5: Best Selling Category
-              _buildKpiCard(
-                title: isRtl ? 'القسم الأكثر طلباً' : 'Top Performing Category',
-                value: isRtl 
-                    ? (topNameAr.isNotEmpty ? topNameAr : 'لا يوجد مبيعات') 
-                    : (topNameEn.isNotEmpty ? topNameEn : 'No sales'),
-                subtitle: insights.topSellingCategorySales > 0 
-                    ? '${currencyFormatter.format(insights.topSellingCategorySales)} ج.س'
-                    : (isRtl ? 'في انتظار أول طلب' : 'Awaiting first order'),
-                icon: Icons.local_fire_department_rounded,
-                accentColor: const Color(0xFFE11D48),
-                bgColor: const Color(0xFFFFF1F2),
-              ),
+              for (int i = 0; i < cards.length; i++) ...[
+                Expanded(child: cards[i]),
+                if (i < cards.length - 1) const SizedBox(width: 12),
+              ],
             ],
           ),
         );
@@ -1081,73 +1122,79 @@ class _AdminCategoriesScreenState extends ConsumerState<AdminCategoriesScreen> {
     required String subtitle,
     required IconData icon,
     required Color accentColor,
-    required Color bgColor,
+    required Color cardTint,
+    required Color borderTint,
+    required Color iconBgColor,
   }) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
+        color: cardTint,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: borderTint, width: 1.2),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: accentColor.withValues(alpha: 0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: iconBgColor,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: accentColor, size: 19),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
                   title,
                   style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey.shade600,
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w700,
+                    color: accentColor,
+                    height: 1.15,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: bgColor,
-                  borderRadius: BorderRadius.circular(10),
+                const SizedBox(height: 3),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 14.5,
+                    fontWeight: FontWeight.w900,
+                    color: Color(0xFF0F172A),
+                    letterSpacing: -0.2,
+                    height: 1.15,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                child: Icon(icon, color: accentColor, size: 20),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF0F172A),
-              letterSpacing: -0.3,
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF334155).withValues(alpha: 0.78),
+                    height: 1.1,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey.shade500,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -1832,348 +1879,324 @@ class _AdminCategoriesScreenState extends ConsumerState<AdminCategoriesScreen> {
     final hasAdvertiser = analytics?.hasAdvertiser ?? false;
     final advertiserStoreNames = analytics?.advertiserStoreNames ?? [];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Header with back button
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 12, offset: const Offset(0, 2))],
-            border: Border.all(color: Colors.grey.shade200),
-          ),
-          child: Row(
-            children: [
-              IconButton(
-                icon: Icon(Icons.arrow_back_rounded, color: _primaryBlue),
-                tooltip: isRtl ? 'رجوع' : 'Back',
-                onPressed: () => setState(() => _selectedCategory = null),
-              ),
-              const SizedBox(width: 8),
-              // Category image
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade200),
-                ),
-                child: category.imageUrl != null && category.imageUrl!.isNotEmpty
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(category.imageUrl!, fit: BoxFit.cover,
-                            errorBuilder: (c, e, s) => Icon(Icons.category, color: _primaryBlue, size: 24)),
-                      )
-                    : Icon(Icons.category, color: _primaryBlue, size: 24),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          isRtl ? category.nameAr : category.name,
-                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: _darkSlate),
-                        ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: category.isVisible ? const Color(0xFFECFDF5) : Colors.amber.shade50,
-                            borderRadius: BorderRadius.circular(6),
-                            border: Border.all(
-                              color: category.isVisible ? const Color(0xFFA7F3D0) : Colors.amber.shade300,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                category.isVisible ? Icons.visibility_rounded : Icons.visibility_off_rounded,
-                                size: 13,
-                                color: category.isVisible ? const Color(0xFF059669) : Colors.amber.shade900,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                category.isVisible ? (isRtl ? 'ظاهر للمشترين' : 'Visible to Buyers') : (isRtl ? 'مخفي عن المشترين' : 'Hidden from Buyers'),
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: category.isVisible ? const Color(0xFF047857) : Colors.amber.shade900,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        if (hasAdvertiser) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFEF3C7),
-                              borderRadius: BorderRadius.circular(6),
-                              border: Border.all(color: const Color(0xFFF59E0B)),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.campaign_rounded, size: 14, color: Color(0xFFD97706)),
-                                const SizedBox(width: 4),
-                                Text(
-                                  isRtl ? 'رعاية معلن' : 'Sponsored',
-                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFFB45309)),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${category.subCategories.length} ${isRtl ? "أقسام فرعية وماركات" : "sub-categories"} • $productsCount ${isRtl ? "منتج مسجل" : "products"}',
-                      style: TextStyle(color: Colors.grey.shade500, fontSize: 13),
-                    ),
-                  ],
-                ),
-              ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: category.isVisible ? const Color(0xFF059669) : Colors.amber.shade900,
-                      side: BorderSide(
-                        color: category.isVisible ? const Color(0xFF059669).withValues(alpha: 0.4) : Colors.amber.shade400,
-                      ),
-                      backgroundColor: category.isVisible ? const Color(0xFFF0FDF4) : const Color(0xFFFFFBEB),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                    onPressed: () => _toggleCategoryVisibility(category, isRtl),
-                    icon: Icon(category.isVisible ? Icons.visibility_outlined : Icons.visibility_off_rounded, size: 18),
-                    label: Text(
-                      category.isVisible ? (isRtl ? 'إخفاء القسم' : 'Hide Category') : (isRtl ? 'إظهار القسم' : 'Show Category'),
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  FilledButton.icon(
-                    style: FilledButton.styleFrom(
-                      backgroundColor: const Color(0xFF059669),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                    onPressed: () => _showAddSubCategoryDialog(context, category, isRtl),
-                    icon: const Icon(Icons.add_circle_outline, size: 18),
-                    label: Text(isRtl ? 'إضافة قسم فرعي' : 'Add Sub-category', style: const TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  const SizedBox(width: 12),
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: _primaryBlue,
-                      side: BorderSide(color: _primaryBlue.withValues(alpha: 0.3)),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
-                    onPressed: () => _showEditCategoryDialog(context, category, isRtl),
-                    icon: const Icon(Icons.edit_outlined, size: 18),
-                    label: Text(isRtl ? 'تعديل القسم' : 'Edit Category', style: const TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+    final detailKpiCards = [
+      _buildKpiCard(
+        title: isRtl ? 'حجم المبيعات' : 'Sales Volume',
+        value: '${currencyFormatter.format(salesVolume)} ج.س',
+        subtitle: isRtl ? 'مبيعات هذا القسم' : 'Category sales total',
+        icon: Icons.account_balance_wallet_rounded,
+        accentColor: const Color(0xFF047857),
+        cardTint: const Color(0xFF10B981).withValues(alpha: 0.11),
+        borderTint: const Color(0xFF10B981).withValues(alpha: 0.32),
+        iconBgColor: const Color(0xFF10B981).withValues(alpha: 0.18),
+      ),
+      _buildKpiCard(
+        title: isRtl ? 'قيمة المعروض' : 'Inventory Value',
+        value: '${currencyFormatter.format(inventoryValue)} ج.س',
+        subtitle: isRtl ? 'قيمة مخزون القسم' : 'Category inventory value',
+        icon: Icons.inventory_2_rounded,
+        accentColor: const Color(0xFF4338CA),
+        cardTint: const Color(0xFF6366F1).withValues(alpha: 0.11),
+        borderTint: const Color(0xFF6366F1).withValues(alpha: 0.32),
+        iconBgColor: const Color(0xFF6366F1).withValues(alpha: 0.18),
+      ),
+      _buildKpiCard(
+        title: isRtl ? 'المنتجات النشطة' : 'Active Products',
+        value: '$productsCount ${isRtl ? "منتج" : "prods"}',
+        subtitle: '${category.subCategories.length} ${isRtl ? "أقسام فرعية وماركات" : "sub-categories"}',
+        icon: Icons.shopping_bag_outlined,
+        accentColor: const Color(0xFF0F766E),
+        cardTint: const Color(0xFF14B8A6).withValues(alpha: 0.11),
+        borderTint: const Color(0xFF14B8A6).withValues(alpha: 0.32),
+        iconBgColor: const Color(0xFF14B8A6).withValues(alpha: 0.18),
+      ),
+      _buildKpiCard(
+        title: isRtl ? 'القطع المباعة' : 'Units Sold',
+        value: '$unitsSold ${isRtl ? "قطعة" : "units"}',
+        subtitle: isRtl ? 'إجمالي الوحدات المباعة' : 'Total units sold',
+        icon: Icons.local_shipping_outlined,
+        accentColor: const Color(0xFFBE123C),
+        cardTint: const Color(0xFFF43F5E).withValues(alpha: 0.11),
+        borderTint: const Color(0xFFF43F5E).withValues(alpha: 0.32),
+        iconBgColor: const Color(0xFFF43F5E).withValues(alpha: 0.18),
+      ),
+    ];
 
-        // Financial KPIs Row for this category
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.shade200),
-            boxShadow: [
-              BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 8, offset: const Offset(0, 2)),
-            ],
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Row(
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 20.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header with back button
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 2))],
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
+                    IconButton(
+                      icon: Icon(Icons.arrow_back_rounded, color: _primaryBlue),
+                      tooltip: isRtl ? 'رجوع' : 'Back',
+                      onPressed: () => setState(() => _selectedCategory = null),
+                    ),
+                    const SizedBox(width: 6),
                     Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(color: const Color(0xFFECFDF5), borderRadius: BorderRadius.circular(10)),
-                      child: const Icon(Icons.account_balance_wallet_rounded, color: Color(0xFF059669), size: 22),
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: category.imageUrl != null && category.imageUrl!.isNotEmpty
+                          ? ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.network(category.imageUrl!, fit: BoxFit.cover,
+                                  errorBuilder: (c, e, s) => Icon(Icons.category, color: _primaryBlue, size: 22)),
+                            )
+                          : Icon(Icons.category, color: _primaryBlue, size: 22),
                     ),
                     const SizedBox(width: 12),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(isRtl ? 'حجم المبيعات' : 'Sales Volume', style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
-                        const SizedBox(height: 2),
-                        Text('${currencyFormatter.format(salesVolume)} ج.س', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 4,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(
+                              isRtl ? category.nameAr : category.name,
+                              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: _darkSlate),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+                              decoration: BoxDecoration(
+                                color: category.isVisible ? const Color(0xFFECFDF5) : Colors.amber.shade50,
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: category.isVisible ? const Color(0xFFA7F3D0) : Colors.amber.shade300,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    category.isVisible ? Icons.visibility_rounded : Icons.visibility_off_rounded,
+                                    size: 12,
+                                    color: category.isVisible ? const Color(0xFF059669) : Colors.amber.shade900,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    category.isVisible ? (isRtl ? 'ظاهر للمشترين' : 'Visible to Buyers') : (isRtl ? 'مخفي عن المشترين' : 'Hidden from Buyers'),
+                                    style: TextStyle(
+                                      fontSize: 10.5,
+                                      fontWeight: FontWeight.bold,
+                                      color: category.isVisible ? const Color(0xFF047857) : Colors.amber.shade900,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (hasAdvertiser)
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFEF3C7),
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(color: const Color(0xFFF59E0B)),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.campaign_rounded, size: 13, color: Color(0xFFD97706)),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      isRtl ? 'رعاية معلن' : 'Sponsored',
+                                      style: const TextStyle(fontSize: 10.5, fontWeight: FontWeight.bold, color: Color(0xFFB45309)),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          '${category.subCategories.length} ${isRtl ? "أقسام فرعية وماركات" : "sub-categories"} • $productsCount ${isRtl ? "منتج مسجل" : "products"}',
+                          style: TextStyle(color: Colors.grey.shade500, fontSize: 12.5),
+                        ),
                       ],
                     ),
                   ],
                 ),
-              ),
-              Container(width: 1, height: 36, color: Colors.grey.shade200),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(color: const Color(0xFFEEF2FF), borderRadius: BorderRadius.circular(10)),
-                        child: const Icon(Icons.inventory_2_rounded, color: Color(0xFF4F46E5), size: 22),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 8,
+                  children: [
+                    OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: category.isVisible ? const Color(0xFF059669) : Colors.amber.shade900,
+                        side: BorderSide(
+                          color: category.isVisible ? const Color(0xFF059669).withValues(alpha: 0.4) : Colors.amber.shade400,
+                        ),
+                        backgroundColor: category.isVisible ? const Color(0xFFF0FDF4) : const Color(0xFFFFFBEB),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(isRtl ? 'قيمة المعروض' : 'Inventory Value', style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
-                          const SizedBox(height: 2),
-                          Text('${currencyFormatter.format(inventoryValue)} ج.س', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                        ],
+                      onPressed: () => _toggleCategoryVisibility(category, isRtl),
+                      icon: Icon(category.isVisible ? Icons.visibility_outlined : Icons.visibility_off_rounded, size: 17),
+                      label: Text(
+                        category.isVisible ? (isRtl ? 'إخفاء القسم' : 'Hide Category') : (isRtl ? 'إظهار القسم' : 'Show Category'),
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              Container(width: 1, height: 36, color: Colors.grey.shade200),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(color: const Color(0xFFF0FDFA), borderRadius: BorderRadius.circular(10)),
-                        child: const Icon(Icons.shopping_bag_outlined, color: Color(0xFF0D9488), size: 22),
+                    ),
+                    FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFF059669),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(isRtl ? 'المنتجات النشطة' : 'Active Products', style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
-                          const SizedBox(height: 2),
-                          Text('$productsCount ${isRtl ? "منتج" : "prods"}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                        ],
+                      onPressed: () => _showAddSubCategoryDialog(context, category, isRtl),
+                      icon: const Icon(Icons.add_circle_outline, size: 17),
+                      label: Text(isRtl ? 'إضافة قسم فرعي' : 'Add Sub-category', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                    ),
+                    OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: _primaryBlue,
+                        side: BorderSide(color: _primaryBlue.withValues(alpha: 0.3)),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              Container(width: 1, height: 36, color: Colors.grey.shade200),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(color: const Color(0xFFFFF1F2), borderRadius: BorderRadius.circular(10)),
-                        child: const Icon(Icons.local_shipping_outlined, color: Color(0xFFE11D48), size: 22),
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(isRtl ? 'القطع المباعة' : 'Units Sold', style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.w500)),
-                          const SizedBox(height: 2),
-                          Text('$unitsSold ${isRtl ? "قطعة" : "units"}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        // Advertiser Partnership Banner if sponsored
-        if (hasAdvertiser) ...[
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFFEF3C7),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFF59E0B)),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.campaign_rounded, color: Color(0xFFD97706), size: 24),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        isRtl ? 'قسم مدعوم بشراكات معلنين وموردين معتمدين' : 'Category Sponsored by Verified Advertisers',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF92400E)),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${isRtl ? "المتاجر المعلنة في هذا القسم: " : "Active advertiser stores: "}${advertiserStoreNames.join(" • ")}',
-                        style: const TextStyle(fontSize: 12, color: Color(0xFFB45309), fontWeight: FontWeight.w500),
-                      ),
-                    ],
-                  ),
+                      onPressed: () => _showEditCategoryDialog(context, category, isRtl),
+                      icon: const Icon(Icons.edit_outlined, size: 17),
+                      label: Text(isRtl ? 'تعديل القسم' : 'Edit Category', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-        ],
 
-        const SizedBox(height: 24),
-        // Subcategories grid
-        Expanded(
-          child: category.subCategories.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.inbox_outlined, size: 72, color: Colors.grey.shade300),
-                      const SizedBox(height: 16),
-                      Text(
-                        isRtl ? 'لا توجد أقسام فرعية بعد' : 'No sub-categories yet',
-                        style: TextStyle(fontSize: 18, color: Colors.grey.shade500, fontWeight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        isRtl ? 'اضغط على "إضافة قسم فرعي" للبدء' : 'Click "Add Sub-category" to get started',
-                        style: TextStyle(fontSize: 14, color: Colors.grey.shade400),
-                      ),
+          // Compact Translucent KPIs Row for this category
+          const SizedBox(height: 14),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth < 700) {
+                return Column(
+                  children: [
+                    for (int i = 0; i < detailKpiCards.length; i++) ...[
+                      detailKpiCards[i],
+                      if (i < detailKpiCards.length - 1) const SizedBox(height: 8),
                     ],
+                  ],
+                );
+              }
+              return Row(
+                children: [
+                  for (int i = 0; i < detailKpiCards.length; i++) ...[
+                    Expanded(child: detailKpiCards[i]),
+                    if (i < detailKpiCards.length - 1) const SizedBox(width: 12),
+                  ],
+                ],
+              );
+            },
+          ),
+
+          // Advertiser Partnership Banner if sponsored
+          if (hasAdvertiser) ...[
+            const SizedBox(height: 14),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF3C7),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: const Color(0xFFF59E0B)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.campaign_rounded, color: Color(0xFFD97706), size: 22),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          isRtl ? 'قسم مدعوم بشراكات معلنين وموردين معتمدين' : 'Category Sponsored by Verified Advertisers',
+                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5, color: Color(0xFF92400E)),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${isRtl ? "المتاجر المعلنة في هذا القسم: " : "Active advertiser stores: "}${advertiserStoreNames.join(" • ")}',
+                          style: const TextStyle(fontSize: 11.5, color: Color(0xFFB45309), fontWeight: FontWeight.w500),
+                        ),
+                      ],
+                    ),
                   ),
-                )
-              : GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 300,
-                    mainAxisSpacing: 16,
-                    crossAxisSpacing: 16,
-                    childAspectRatio: 1.1,
+                ],
+              ),
+            ),
+          ],
+
+          const SizedBox(height: 18),
+          // Subcategories grid (scrolls naturally with the page)
+          if (category.subCategories.isEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 48),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.inbox_outlined, size: 64, color: Colors.grey.shade300),
+                  const SizedBox(height: 12),
+                  Text(
+                    isRtl ? 'لا توجد أقسام فرعية بعد' : 'No sub-categories yet',
+                    style: TextStyle(fontSize: 17, color: Colors.grey.shade500, fontWeight: FontWeight.w600),
                   ),
-                  itemCount: category.subCategories.length,
-                  itemBuilder: (context, index) {
-                    final sub = category.subCategories[index];
-                    return _buildSubCategoryGridItem(context, sub, isRtl);
-                  },
-                ),
-        ),
-      ],
+                  const SizedBox(height: 6),
+                  Text(
+                    isRtl ? 'اضغط على "إضافة قسم فرعي" للبدء' : 'Click "Add Sub-category" to get started',
+                    style: TextStyle(fontSize: 13, color: Colors.grey.shade400),
+                  ),
+                ],
+              ),
+            )
+          else
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 260,
+                mainAxisSpacing: 14,
+                crossAxisSpacing: 14,
+                childAspectRatio: 1.15,
+              ),
+              itemCount: category.subCategories.length,
+              itemBuilder: (context, index) {
+                final sub = category.subCategories[index];
+                return _buildSubCategoryGridItem(context, sub, isRtl);
+              },
+            ),
+          const SizedBox(height: 24),
+        ],
+      ),
     );
   }
 
@@ -2610,92 +2633,148 @@ class _AdminCategoriesScreenState extends ConsumerState<AdminCategoriesScreen> {
       },
       child: Scaffold(
         backgroundColor: const Color(0xFFF8FAFC),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 24.0),
-          child: _selectedCategory != null
-              ? _buildSubCategoriesDetailView(
-                  context, 
-                  _selectedCategory!, 
-                  isRtl, 
-                  insights?.categoryAnalytics[_selectedCategory!.id],
-                )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              isRtl ? 'إدارة الأقسام والماركات التجارية' : 'Categories & Brands Management',
-                              style: TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: _darkSlate, letterSpacing: -0.5),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              isRtl ? 'إدارة تصنيفات الكتالوج، متابعة حجم المبيعات والمخزون، ودعم شراكات المعلنين' : 'Manage catalog hierarchy, monitor sales & inventory valuation, and support advertisers',
-                              style: TextStyle(color: Colors.grey.shade600, fontSize: 14, fontWeight: FontWeight.w500),
-                            ),
-                          ],
-                        ),
-                        FilledButton.icon(
-                          style: FilledButton.styleFrom(
-                            backgroundColor: _primaryBlue,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                            elevation: 2,
-                            shadowColor: _primaryBlue.withValues(alpha: 0.4),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        body: _selectedCategory != null
+            ? _buildSubCategoriesDetailView(
+                context,
+                _selectedCategory!,
+                isRtl,
+                insights?.categoryAnalytics[_selectedCategory!.id],
+              )
+            : Scrollbar(
+                thumbVisibility: true,
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics(),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 28.0,
+                    vertical: 20.0,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Wrap(
+                        spacing: 16,
+                        runSpacing: 12,
+                        alignment: WrapAlignment.spaceBetween,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                isRtl
+                                    ? 'إدارة الأقسام والماركات التجارية'
+                                    : 'Categories & Brands Management',
+                                style: TextStyle(
+                                  fontSize: 25,
+                                  fontWeight: FontWeight.w800,
+                                  color: _darkSlate,
+                                  letterSpacing: -0.5,
+                                ),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                isRtl
+                                    ? 'إدارة تصنيفات الكتالوج، متابعة حجم المبيعات والمخزون، ودعم شراكات المعلنين'
+                                    : 'Manage catalog hierarchy, monitor sales & inventory valuation, and support advertisers',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
-                          onPressed: () => _showAddCategoryDialog(context, isRtl),
-                          icon: const Icon(Icons.add_circle_outline, size: 20),
-                          label: Text(isRtl ? 'إضافة قسم رئيسي' : 'Add Main Category', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Financial & Catalog KPI Dashboard
-                    if (insights != null) _buildFinancialDashboard(insights, isRtl),
-
-                    // Filters and Sorting Row
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        final isWide = constraints.maxWidth > 1050;
-                        return isWide ? Row(
-                          children: [
-                            Expanded(flex: 3, child: _buildSegmentedControl(isRtl, insights)),
-                            const SizedBox(width: 16),
-                            Expanded(flex: 2, child: _buildSearchBar(isRtl)),
-                            const SizedBox(width: 16),
-                            _buildSortDropdown(isRtl),
-                            const SizedBox(width: 16),
-                            _buildViewToggle(isRtl),
-                          ],
-                        ) : Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            _buildSegmentedControl(isRtl, insights),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Expanded(child: _buildSearchBar(isRtl)),
-                                const SizedBox(width: 12),
-                                _buildSortDropdown(isRtl),
-                                const SizedBox(width: 12),
-                                _buildViewToggle(isRtl),
-                              ],
+                          FilledButton.icon(
+                            style: FilledButton.styleFrom(
+                              backgroundColor: _primaryBlue,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 14,
+                              ),
+                              elevation: 2,
+                              shadowColor: _primaryBlue.withValues(alpha: 0.4),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
-                          ],
-                        );
-                      }
-                    ),
-                    const SizedBox(height: 20),
+                            onPressed: () =>
+                                _showAddCategoryDialog(context, isRtl),
+                            icon: const Icon(Icons.add_circle_outline, size: 19),
+                            label: Text(
+                              isRtl
+                                  ? 'إضافة قسم رئيسي'
+                                  : 'Add Main Category',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
 
-                    // Category List or Grid View
-                    Expanded(
-                      child: categoriesAsync.when(
+                      // Financial & Catalog KPI Dashboard (Half-height + Distinct Translucent Colors)
+                      if (insights != null)
+                        _buildFinancialDashboard(insights, isRtl),
+
+                      // Filters and Sorting Row
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final isWide = constraints.maxWidth > 1050;
+                          return isWide
+                              ? Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 3,
+                                      child: _buildSegmentedControl(
+                                        isRtl,
+                                        insights,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 14),
+                                    Expanded(
+                                      flex: 2,
+                                      child: _buildSearchBar(isRtl),
+                                    ),
+                                    const SizedBox(width: 14),
+                                    _buildSortDropdown(isRtl),
+                                    const SizedBox(width: 14),
+                                    _buildViewToggle(isRtl),
+                                  ],
+                                )
+                              : Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    _buildSegmentedControl(isRtl, insights),
+                                    const SizedBox(height: 10),
+                                    Wrap(
+                                      spacing: 10,
+                                      runSpacing: 10,
+                                      crossAxisAlignment:
+                                          WrapCrossAlignment.center,
+                                      children: [
+                                        SizedBox(
+                                          width: constraints.maxWidth > 520
+                                              ? constraints.maxWidth - 290
+                                              : constraints.maxWidth,
+                                          child: _buildSearchBar(isRtl),
+                                        ),
+                                        _buildSortDropdown(isRtl),
+                                        _buildViewToggle(isRtl),
+                                      ],
+                                    ),
+                                  ],
+                                );
+                        },
+                      ),
+                      const SizedBox(height: 18),
+
+                      // Category List or Grid View (Scrolls smoothly with the whole page)
+                      categoriesAsync.when(
                         data: (allCategories) {
                           List<CategoryModel> segmentedCategories;
                           switch (_selectedSegment) {
@@ -2709,10 +2788,14 @@ class _AdminCategoriesScreenState extends ConsumerState<AdminCategoriesScreen> {
                               }).toList();
                               break;
                             case 2:
-                              segmentedCategories = allCategories.where((c) => c.isExclusiveToMagaiees).toList();
+                              segmentedCategories = allCategories
+                                  .where((c) => c.isExclusiveToMagaiees)
+                                  .toList();
                               break;
                             case 3:
-                              segmentedCategories = allCategories.where((c) => !c.isExclusiveToMagaiees).toList();
+                              segmentedCategories = allCategories
+                                  .where((c) => !c.isExclusiveToMagaiees)
+                                  .toList();
                               break;
                             case 4:
                               segmentedCategories = allCategories.where((c) {
@@ -2720,8 +2803,12 @@ class _AdminCategoriesScreenState extends ConsumerState<AdminCategoriesScreen> {
                                 return (a?.salesVolume ?? 0) > 0;
                               }).toList();
                               segmentedCategories.sort((a, b) {
-                                final sa = insights?.categoryAnalytics[a.id]?.salesVolume ?? 0;
-                                final sb = insights?.categoryAnalytics[b.id]?.salesVolume ?? 0;
+                                final sa = insights
+                                        ?.categoryAnalytics[a.id]?.salesVolume ??
+                                    0;
+                                final sb = insights
+                                        ?.categoryAnalytics[b.id]?.salesVolume ??
+                                    0;
                                 return sb.compareTo(sa);
                               });
                               break;
@@ -2729,10 +2816,16 @@ class _AdminCategoriesScreenState extends ConsumerState<AdminCategoriesScreen> {
                               segmentedCategories = List.from(allCategories);
                           }
 
-                          var filteredCategories = segmentedCategories.where((cat) {
+                          var filteredCategories =
+                              segmentedCategories.where((cat) {
                             if (_searchQuery.isEmpty) return true;
-                            final matchMain = cat.name.toLowerCase().contains(_searchQuery) || cat.nameAr.contains(_searchQuery);
-                            final matchSub = cat.subCategories.any((s) => s.name.toLowerCase().contains(_searchQuery) || s.nameAr.contains(_searchQuery));
+                            final matchMain = cat.name
+                                    .toLowerCase()
+                                    .contains(_searchQuery) ||
+                                cat.nameAr.contains(_searchQuery);
+                            final matchSub = cat.subCategories.any((s) =>
+                                s.name.toLowerCase().contains(_searchQuery) ||
+                                s.nameAr.contains(_searchQuery));
                             return matchMain || matchSub;
                           }).toList();
 
@@ -2742,13 +2835,17 @@ class _AdminCategoriesScreenState extends ConsumerState<AdminCategoriesScreen> {
                               final anB = insights?.categoryAnalytics[b.id];
                               switch (_selectedSort) {
                                 case 'sales_desc':
-                                  return (anB?.salesVolume ?? 0).compareTo(anA?.salesVolume ?? 0);
+                                  return (anB?.salesVolume ?? 0)
+                                      .compareTo(anA?.salesVolume ?? 0);
                                 case 'products_desc':
-                                  return (anB?.productsCount ?? 0).compareTo(anA?.productsCount ?? 0);
+                                  return (anB?.productsCount ?? 0)
+                                      .compareTo(anA?.productsCount ?? 0);
                                 case 'subcats_desc':
-                                  return b.subCategories.length.compareTo(a.subCategories.length);
+                                  return b.subCategories.length
+                                      .compareTo(a.subCategories.length);
                                 case 'alpha':
-                                  return (isRtl ? a.nameAr : a.name).compareTo(isRtl ? b.nameAr : b.name);
+                                  return (isRtl ? a.nameAr : a.name)
+                                      .compareTo(isRtl ? b.nameAr : b.name);
                                 default:
                                   return 0;
                               }
@@ -2756,13 +2853,33 @@ class _AdminCategoriesScreenState extends ConsumerState<AdminCategoriesScreen> {
                           }
 
                           if (filteredCategories.isEmpty) {
-                            return Center(
+                            return Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(vertical: 56),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.grey.shade200),
+                              ),
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.category_outlined, size: 64, color: Colors.grey.shade300),
-                                  const SizedBox(height: 16),
-                                  Text(isRtl ? 'لا توجد أقسام مطابقة للبحث أو التصفية' : 'No categories match the criteria', style: TextStyle(fontSize: 18, color: Colors.grey.shade500, fontWeight: FontWeight.w600)),
+                                  Icon(
+                                    Icons.category_outlined,
+                                    size: 60,
+                                    color: Colors.grey.shade300,
+                                  ),
+                                  const SizedBox(height: 14),
+                                  Text(
+                                    isRtl
+                                        ? 'لا توجد أقسام مطابقة للبحث أو التصفية'
+                                        : 'No categories match the criteria',
+                                    style: TextStyle(
+                                      fontSize: 17,
+                                      color: Colors.grey.shade500,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                 ],
                               ),
                             );
@@ -2770,30 +2887,55 @@ class _AdminCategoriesScreenState extends ConsumerState<AdminCategoriesScreen> {
 
                           return _isGridView
                               ? GridView.builder(
-                                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                                    maxCrossAxisExtent: 240,
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  gridDelegate:
+                                      const SliverGridDelegateWithMaxCrossAxisExtent(
+                                    maxCrossAxisExtent: 245,
                                     mainAxisSpacing: 16,
                                     crossAxisSpacing: 16,
-                                    childAspectRatio: 0.74,
+                                    childAspectRatio: 0.85,
                                   ),
                                   itemCount: filteredCategories.length,
                                   itemBuilder: (context, index) {
                                     final category = filteredCategories[index];
-                                    final analytics = insights?.categoryAnalytics[category.id];
-                                    return _buildCategoryGridCard(context, category, isRtl, analytics);
+                                    final analytics = insights
+                                        ?.categoryAnalytics[category.id];
+                                    return _buildCategoryGridCard(
+                                      context,
+                                      category,
+                                      isRtl,
+                                      analytics,
+                                    );
                                   },
                                 )
                               : ListView.separated(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
                                   itemCount: filteredCategories.length,
-                                  separatorBuilder: (context, index) => const SizedBox(height: 16),
+                                  separatorBuilder: (context, index) =>
+                                      const SizedBox(height: 14),
                                   itemBuilder: (context, index) {
                                     final category = filteredCategories[index];
-                                    final analytics = insights?.categoryAnalytics[category.id];
-                                    return _buildCategoryCard(context, category, isRtl, analytics);
+                                    final analytics = insights
+                                        ?.categoryAnalytics[category.id];
+                                    return _buildCategoryCard(
+                                      context,
+                                      category,
+                                      isRtl,
+                                      analytics,
+                                    );
                                   },
                                 );
                         },
-                        loading: () => Center(child: CircularProgressIndicator(color: _primaryBlue)),
+                        loading: () => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 64),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: _primaryBlue,
+                            ),
+                          ),
+                        ),
                         error: (e, st) => AdminErrorView(
                           error: e,
                           stackTrace: st,
@@ -2803,10 +2945,11 @@ class _AdminCategoriesScreenState extends ConsumerState<AdminCategoriesScreen> {
                           },
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 28),
+                    ],
+                  ),
                 ),
-        ),
+              ),
       ),
     );
   }

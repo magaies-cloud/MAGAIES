@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
 import 'package:magaiees_marketplace/core/services/call_kit_service.dart';
+import 'package:magaiees_marketplace/features/notifications/presentation/screens/notifications_screen.dart';
 import 'package:magaiees_marketplace/routing/app_router.dart';
 import 'package:magaiees_marketplace/routing/route_names.dart';
 
@@ -177,6 +178,10 @@ class LocalNotificationService {
     _navigateToTarget(payload);
   }
 
+  static void handleExternalPayload(String? payload) {
+    _navigateToTarget(payload);
+  }
+
   static void _navigateToTarget(String? payload) {
     try {
       if (payload != null && payload.startsWith('call:')) {
@@ -200,11 +205,17 @@ class LocalNotificationService {
       final navState = rootNavigatorKey.currentState;
       if (navState == null || !navState.mounted) return;
       final router = GoRouter.of(navState.context);
+      final loc = router.routerDelegate.currentConfiguration.uri.path;
       if (payload != null && payload.startsWith('chat:')) {
         final roomId = payload.substring(5);
-        final loc = router.routerDelegate.currentConfiguration.uri.path;
         final base = loc.startsWith('/merchant') ? RouteNames.merchantChat : RouteNames.buyerChat;
         router.go(roomId.isEmpty ? base : '$base/room/$roomId');
+      } else if (payload != null && payload.startsWith('notifications:')) {
+        navState.push(
+          MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+        );
+      } else if ((payload != null && payload.startsWith('buyer_order:')) || loc.startsWith('/buyer')) {
+        router.go(RouteNames.buyerOrders);
       } else {
         router.go(RouteNames.merchantOrders);
       }

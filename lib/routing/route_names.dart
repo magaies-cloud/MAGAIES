@@ -38,6 +38,7 @@ abstract final class RouteNames {
   static const String adminFinance = '/admin/finance';
   static const String adminSettings = '/admin/settings';
   static const String adminDigitalBroker = '/admin/digital-broker';
+  static const String adminSuppliers = '/admin/suppliers';
 
   // === Employee Routes ===
   static const String employeeDashboard = '/employee/dashboard';

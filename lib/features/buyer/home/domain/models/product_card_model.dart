@@ -1,3 +1,5 @@
+import 'package:magaiees_marketplace/core/utils/product_variants_helper.dart';
+
 class ProductCardModel {
   final String id;
   final String name;
@@ -24,6 +26,9 @@ class ProductCardModel {
   final bool isMagaieesExclusive;
   final double? storeUsdRate;
   final DateTime? lastUpdated;
+  final List<String> availableColors;
+  final List<String> availableSizes;
+  final String? description;
 
   const ProductCardModel({
     required this.id,
@@ -51,43 +56,73 @@ class ProductCardModel {
     this.isMagaieesExclusive = false,
     this.storeUsdRate,
     this.lastUpdated,
+    this.availableColors = const [],
+    this.availableSizes = const [],
+    this.description,
   });
 
   factory ProductCardModel.fromJson(Map<String, dynamic> json) {
-    final int qty = (json['stock'] as num?)?.toInt() ?? 
-                    (json['stockQuantity'] as num?)?.toInt() ?? 
-                    (json['stock_quantity'] as num?)?.toInt() ?? 
-                    100;
-    final bool active = (json['is_active'] ?? json['inStock'] ?? json['in_stock'] ?? true) == true || json['inStock'] == 1;
+    final int qty = (json['stock'] as num?)?.toInt() ??
+        (json['stockQuantity'] as num?)?.toInt() ??
+        (json['stock_quantity'] as num?)?.toInt() ??
+        100;
+    final bool active =
+        (json['is_active'] ?? json['inStock'] ?? json['in_stock'] ?? true) ==
+                true ||
+            json['inStock'] == 1;
     final bool available = active && qty > 0;
     return ProductCardModel(
       id: json['id']?.toString() ?? '',
       name: json['name'] ?? '',
       nameAr: json['nameAr'] ?? json['name_ar'] ?? '',
-      categoryId: json['categoryId']?.toString() ?? json['category_id']?.toString() ?? '1',
+      categoryId:
+          json['categoryId']?.toString() ?? json['category_id']?.toString() ?? '1',
       categoryName: json['categoryName'] ?? json['category_name'] ?? '',
       categoryNameAr: json['categoryNameAr'] ?? json['category_name_ar'] ?? '',
-      subCategoryId: json['subCategoryId']?.toString() ?? json['sub_category_id']?.toString() ?? json['subcategory_id']?.toString(),
+      subCategoryId: json['subCategoryId']?.toString() ??
+          json['sub_category_id']?.toString() ??
+          json['subcategory_id']?.toString(),
       subCategoryName: json['subCategoryName'] ?? json['sub_category_name'],
-      subCategoryNameAr: json['subCategoryNameAr'] ?? json['sub_category_name_ar'],
-      pricePerTon: double.tryParse(json['pricePerTon']?.toString() ?? json['price']?.toString() ?? '0') ?? 0.0,
-      priceInUsd: json['priceInUsd'] != null ? double.tryParse(json['priceInUsd'].toString()) : null,
+      subCategoryNameAr:
+          json['subCategoryNameAr'] ?? json['sub_category_name_ar'],
+      pricePerTon: double.tryParse(json['pricePerTon']?.toString() ??
+              json['price']?.toString() ??
+              '0') ??
+          0.0,
+      priceInUsd: json['priceInUsd'] != null
+          ? double.tryParse(json['priceInUsd'].toString())
+          : null,
       unit: json['unit'],
       unitAr: json['unitAr'] ?? json['unit_ar'] ?? 'طن',
-      imageUrl: json['imageUrl'] ?? json['image_url'],
-      merchantId: json['merchantId']?.toString() ?? json['merchant_id']?.toString() ?? '1',
+      imageUrl: ProductVariantsHelper.extractMainImageUrl(
+        json['images'],
+        json['imageUrl'] ?? json['image_url'],
+      ),
+      merchantId:
+          json['merchantId']?.toString() ?? json['merchant_id']?.toString() ?? '1',
       storeName: json['storeName'] ?? json['store_name'] ?? '',
       storeNameAr: json['storeNameAr'] ?? json['store_name_ar'] ?? '',
-      transportFeePerTon: double.tryParse(json['transportFeePerTon']?.toString() ?? '0') ?? 0.0,
-      offloadingFeePerTon: double.tryParse(json['offloadingFeePerTon']?.toString() ?? '0') ?? 0.0,
+      transportFeePerTon:
+          double.tryParse(json['transportFeePerTon']?.toString() ?? '0') ?? 0.0,
+      offloadingFeePerTon:
+          double.tryParse(json['offloadingFeePerTon']?.toString() ?? '0') ??
+              0.0,
       currency: json['currency'] ?? 'SDG',
       inStock: available,
       stockQuantity: qty,
-      isMagaieesExclusive: (json['isMagaieesExclusive'] ?? json['is_magaiees_exclusive'] ?? false) == true,
+      isMagaieesExclusive: (json['isMagaieesExclusive'] ??
+              json['is_magaiees_exclusive'] ??
+              false) ==
+          true,
       storeUsdRate: (json['storeUsdRate'] as num?)?.toDouble() ??
           (json['store_usd_rate'] as num?)?.toDouble() ??
           (json['usd_exchange_rate'] as num?)?.toDouble(),
-      lastUpdated: json['lastUpdated'] != null ? DateTime.tryParse(json['lastUpdated']) : null,
+      lastUpdated: json['lastUpdated'] != null
+          ? DateTime.tryParse(json['lastUpdated'])
+          : null,
+      availableColors: ProductVariantsHelper.extractColors(json),
+      availableSizes: ProductVariantsHelper.extractSizes(json),
+      description: ProductVariantsHelper.extractDescription(json),
     );
   }
 
@@ -118,6 +153,9 @@ class ProductCardModel {
       'isMagaieesExclusive': isMagaieesExclusive,
       'storeUsdRate': storeUsdRate,
       'lastUpdated': lastUpdated?.toIso8601String(),
+      'availableColors': availableColors,
+      'availableSizes': availableSizes,
+      if (description != null) 'description': description,
     };
   }
 
@@ -147,6 +185,9 @@ class ProductCardModel {
     bool? isMagaieesExclusive,
     double? storeUsdRate,
     DateTime? lastUpdated,
+    List<String>? availableColors,
+    List<String>? availableSizes,
+    String? description,
   }) {
     return ProductCardModel(
       id: id ?? this.id,
@@ -174,7 +215,9 @@ class ProductCardModel {
       isMagaieesExclusive: isMagaieesExclusive ?? this.isMagaieesExclusive,
       storeUsdRate: storeUsdRate ?? this.storeUsdRate,
       lastUpdated: lastUpdated ?? this.lastUpdated,
+      availableColors: availableColors ?? this.availableColors,
+      availableSizes: availableSizes ?? this.availableSizes,
+      description: description ?? this.description,
     );
   }
 }
-

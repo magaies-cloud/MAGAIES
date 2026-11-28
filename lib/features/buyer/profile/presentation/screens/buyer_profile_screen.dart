@@ -2,6 +2,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:magaiees_marketplace/features/auth/application/auth_provider.dart';
+import 'package:magaiees_marketplace/features/buyer/home/application/home_provider.dart';
+import 'package:magaiees_marketplace/features/buyer/home/domain/models/category_model.dart';
 import 'package:magaiees_marketplace/features/mode_switch/application/mode_provider.dart';
 import 'package:magaiees_marketplace/features/locale/application/locale_provider.dart';
 import 'package:magaiees_marketplace/features/admin/subscribers/application/subscribers_provider.dart';
@@ -38,8 +40,8 @@ class BiometricNotifier extends StateNotifier<bool> {
   }
 }
 
-// Provider to track the pending status of a merchant upgrade request
-final merchantUpgradePendingProvider = StateProvider<bool>((ref) => false);
+// Provider to track the pending status of a merchant upgrade request per user ID
+final merchantUpgradePendingProvider = StateProvider<String?>((ref) => null);
 
 class BuyerProfileScreen extends ConsumerWidget {
   const BuyerProfileScreen({super.key});
@@ -48,9 +50,18 @@ class BuyerProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authNotifierProvider).valueOrNull;
     final hasStore = ref.watch(hasStoreProvider);
-    final isUpgradePending = ref.watch(merchantUpgradePendingProvider) ||
-        (user?.permissions['merchant_upgrade_pending'] == true);
+    final hasRejectionReason = (user?.permissions['rejection_reason']?.toString().trim().isNotEmpty == true) &&
+        user?.role.isMerchant != true;
+    final pendingUserId = ref.watch(merchantUpgradePendingProvider);
+    final isUpgradePending = !hasRejectionReason &&
+        user != null &&
+        ((user.permissions['merchant_upgrade_pending'] == true) ||
+            (pendingUserId == user.id && user.permissions['merchant_upgrade_pending'] != false));
     final isUpgradeEnabled = ref.watch(merchantUpgradeSettingProvider);
+    final globalSettings = ref.watch(globalSettingsProvider);
+    final supportPhone = globalSettings.supportPhone;
+    final supportWhatsapp = globalSettings.supportWhatsapp;
+    final cleanWaNumber = supportWhatsapp.replaceAll(RegExp(r'[^0-9]'), '').replaceFirst(RegExp(r'^00'), '');
 
     return Scaffold(
       appBar: AppBar(
@@ -61,6 +72,7 @@ class BuyerProfileScreen extends ConsumerWidget {
         onRefresh: () async {
           ref.invalidate(merchantUpgradeSettingProvider);
           ref.invalidate(globalSettingsProvider);
+          ref.invalidate(hasStoreProvider);
           try {
             await ref.read(authNotifierProvider.notifier).refreshSession();
           } catch (_) {}
@@ -274,6 +286,28 @@ class BuyerProfileScreen extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 24),
+            ] else if (hasRejectionReason) ...[
+              Text(
+                context.isRtl ? 'حساب التاجر' : 'Merchant Account',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Card(
+                color: Colors.red.shade50,
+                child: ListTile(
+                  leading: const Icon(Icons.error_outline, color: Colors.red),
+                  title: Text(
+                    context.isRtl ? 'تم رفض طلب الترقية السابق' : 'Upgrade Request Rejected',
+                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.red),
+                  ),
+                  subtitle: Text(
+                    '${context.isRtl ? "السبب: " : "Reason: "}${user?.permissions['rejection_reason']}\n${context.isRtl ? "اضغط لإعادة تقديم المستندات" : "Tap to resubmit documents"}',
+                  ),
+                  trailing: const Icon(Icons.refresh, color: Colors.red),
+                  onTap: () => _showMerchantUpgradeDialog(context, ref),
+                ),
+              ),
+              const SizedBox(height: 24),
             ] else if (isUpgradeEnabled) ...[
               Text(
                 context.isRtl ? 'حساب التاجر' : 'Merchant Account',
@@ -451,18 +485,18 @@ class BuyerProfileScreen extends ConsumerWidget {
                 ListTile(
                   leading: const Icon(Icons.chat_bubble_outline, color: Colors.green),
                   title: Text(context.isRtl ? 'محادثة الدعم الفني (واتساب)' : 'WhatsApp Technical Support'),
-                  subtitle: const Text('0096899051925'),
+                  subtitle: Text(supportWhatsapp, textDirection: TextDirection.ltr, textAlign: context.isRtl ? TextAlign.right : TextAlign.left),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () async {
-                    final uri = Uri.parse('https://wa.me/96899051925');
+                    final uri = Uri.parse('https://wa.me/$cleanWaNumber');
                     try {
                       final launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
                       if (!launched && context.mounted) {
-                        context.showSnackBar(context.isRtl ? 'جاري فتح محادثة الدعم عبر واتساب...' : 'Opening WhatsApp Support...');
+                        context.showSnackBar(context.isRtl ? 'جاري فتح محادثة الدعم عبر واتساب ($supportWhatsapp)...' : 'Opening WhatsApp Support ($supportWhatsapp)...');
                       }
                     } catch (_) {
                       if (context.mounted) {
-                        context.showSnackBar(context.isRtl ? 'جاري فتح محادثة الدعم عبر واتساب...' : 'Opening WhatsApp Support...');
+                        context.showSnackBar(context.isRtl ? 'جاري فتح محادثة الدعم عبر واتساب ($supportWhatsapp)...' : 'Opening WhatsApp Support ($supportWhatsapp)...');
                       }
                     }
                   },
@@ -471,18 +505,19 @@ class BuyerProfileScreen extends ConsumerWidget {
                 ListTile(
                   leading: const Icon(Icons.headset_mic_outlined, color: Colors.indigo),
                   title: Text(context.isRtl ? 'الاتصال بالرقم الموحد' : 'Customer Service Hotline'),
-                  subtitle: const Text('0096899051925'),
+                  subtitle: Text(supportPhone, textDirection: TextDirection.ltr, textAlign: context.isRtl ? TextAlign.right : TextAlign.left),
                   trailing: const Icon(Icons.call, size: 18, color: Colors.indigo),
                   onTap: () async {
-                    final uri = Uri.parse('tel:0096899051925');
+                    final cleanTel = supportPhone.replaceAll(RegExp(r'[^0-9+]'), '');
+                    final uri = Uri.parse('tel:$cleanTel');
                     try {
                       final launched = await launchUrl(uri);
                       if (!launched && context.mounted) {
-                        context.showSnackBar(context.isRtl ? 'الاتصال بخدمة العملاء: 0096899051925' : 'Calling hotline: 0096899051925');
+                        context.showSnackBar(context.isRtl ? 'الاتصال بخدمة العملاء: $supportPhone' : 'Calling hotline: $supportPhone');
                       }
                     } catch (_) {
                       if (context.mounted) {
-                        context.showSnackBar(context.isRtl ? 'الاتصال بخدمة العملاء: 0096899051925' : 'Calling hotline: 0096899051925');
+                        context.showSnackBar(context.isRtl ? 'الاتصال بخدمة العملاء: $supportPhone' : 'Calling hotline: $supportPhone');
                       }
                     }
                   },
@@ -519,7 +554,7 @@ class BuyerProfileScreen extends ConsumerWidget {
                 ListTile(
                   leading: const Icon(Icons.info_outline, color: Colors.blue),
                   title: Text(context.isRtl ? 'عن منصة مقاييس' : 'About Magaiees Platform'),
-                  subtitle: const Text('Version 1.0.10 (Build 13)'),
+                  subtitle: const Text('Version 1.0.11 (Build 14)'),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () => _showAboutDialog(context),
                 ),
@@ -537,6 +572,7 @@ class BuyerProfileScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: 14),
             ),
             onPressed: () {
+              ref.read(merchantUpgradePendingProvider.notifier).state = null;
               ref.read(modeNotifierProvider.notifier).resetToBuyer();
               ref.read(authNotifierProvider.notifier).logout();
             },
@@ -617,161 +653,572 @@ class BuyerProfileScreen extends ConsumerWidget {
     String? pickedDocName;
     bool isSubmitting = false;
 
+    final currentUser = ref.read(authNotifierProvider).valueOrNull;
+    final Set<String> selectedIds = {};
+    final existingReq = currentUser?.permissions['requested_categories'] ??
+        currentUser?.permissions['allowed_categories'];
+    if (existingReq is List) {
+      for (final item in existingReq) {
+        if (item != null && item.toString().isNotEmpty) {
+          selectedIds.add(item.toString());
+        }
+      }
+    }
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (ctx) {
-        return StatefulBuilder(
-          builder: (ctx, setState) {
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(ctx).viewInsets.bottom,
-                top: 20,
-                left: 20,
-                right: 20,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.verified, color: Colors.blue),
-                      const SizedBox(width: 8),
-                      Text(
-                        isRtl ? 'طلب ترقية لحساب تاجر' : 'Merchant Upgrade Request',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    isRtl 
-                        ? 'يرجى تقديم بيانات متجرك ورفع مستندات التوثيق الرسمية للحصول على شارة "مستخدم موثق".'
-                        : 'Please provide your store details and upload official verification documents to get the "Verified" badge.',
-                    style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
-                  ),
-                  const SizedBox(height: 24),
-                  TextField(
-                    controller: storeNameController,
-                    decoration: InputDecoration(
-                      labelText: isRtl ? 'اسم المتجر / الشركة' : 'Store / Company Name',
-                      border: const OutlineInputBorder(),
-                      prefixIcon: const Icon(Icons.store),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    value: selectedDocType,
-                    decoration: InputDecoration(
-                      labelText: isRtl ? 'نوع المستند' : 'Document Type',
-                      border: const OutlineInputBorder(),
-                    ),
-                    items: docTypes.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-                    onChanged: (val) {
-                      if (val != null) setState(() => selectedDocType = val);
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      side: BorderSide(color: pickedDocBytes != null ? Colors.green : Colors.blue),
-                    ),
-                    onPressed: () async {
-                      final xFile = await ImagePickerHelper.pickImage(ctx, imageQuality: 80);
-                      if (xFile != null) {
-                        final bytes = await xFile.readAsBytes();
-                        setState(() {
-                          pickedDocBytes = bytes;
-                          pickedDocName = xFile.name;
-                        });
-                      }
-                    },
-                    icon: Icon(
-                      pickedDocBytes != null ? Icons.check_circle : Icons.upload_file,
-                      color: pickedDocBytes != null ? Colors.green : null,
-                    ),
-                    label: Text(
-                      pickedDocBytes != null
-                          ? (isRtl ? 'تم إرفاق المستند بنجاح' : 'Document Attached')
-                          : (isRtl ? 'رفع صورة المستند' : 'Upload Document Image'),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  FilledButton(
-                    style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
-                    onPressed: isSubmitting
-                        ? null
-                        : () async {
-                            final storeName = storeNameController.text.trim();
-                            if (storeName.isEmpty) {
-                              context.showErrorSnackBar(
-                                isRtl ? 'يرجى إدخال اسم المتجر أو الشركة' : 'Please enter the store or company name',
-                              );
-                              return;
-                            }
-                            setState(() => isSubmitting = true);
-                            try {
-                              final currentUser = ref.read(authNotifierProvider).valueOrNull;
-                              if (currentUser != null && currentUser.id.isNotEmpty) {
-                                final updatedPerms = Map<String, dynamic>.from(currentUser.permissions);
-                                updatedPerms['merchant_upgrade_pending'] = true;
-                                updatedPerms['requested_store_name'] = storeName;
-                                updatedPerms['verification_doc_type'] = selectedDocType;
-                                updatedPerms['upgrade_requested_at'] = DateTime.now().toUtc().toIso8601String();
+        return Consumer(
+          builder: (modalCtx, modalRef, _) {
+            final categoriesAsync = modalRef.watch(categoriesProvider);
+            final allCategories = (categoriesAsync.valueOrNull ?? <CategoryModel>[])
+                .where((c) => !c.isExclusiveToMagaiees)
+                .toList();
 
-                                if (pickedDocBytes != null) {
-                                  try {
-                                    final ext = (pickedDocName ?? 'jpg').split('.').last.toLowerCase();
-                                    final path = 'upgrade_docs/${currentUser.id}_${DateTime.now().millisecondsSinceEpoch}.$ext';
-                                    await Supabase.instance.client.storage.from('products').uploadBinary(
-                                      path,
-                                      pickedDocBytes!,
-                                      fileOptions: const FileOptions(upsert: true),
-                                    );
-                                    final publicUrl = Supabase.instance.client.storage.from('products').getPublicUrl(path);
-                                    updatedPerms['verification_doc_url'] = publicUrl;
-                                  } catch (_) {}
-                                }
+            return StatefulBuilder(
+              builder: (ctx, setState) {
+                int selectedMainCount = 0;
+                int selectedSubCount = 0;
+                for (final cat in allCategories) {
+                  final isMainSel = selectedIds.contains(cat.id);
+                  final subMatches = cat.subCategories
+                      .where((s) => isMainSel || selectedIds.contains(s.id))
+                      .length;
+                  if (isMainSel || subMatches > 0) {
+                    selectedMainCount++;
+                    selectedSubCount += subMatches;
+                  }
+                }
 
-                                await Supabase.instance.client.from('users').update({
-                                  'store_name': storeName,
-                                  'store_name_ar': storeName,
-                                  'permissions': updatedPerms,
-                                }).eq('id', currentUser.id);
-                                await ref.read(authNotifierProvider.notifier).refreshSession();
-                              }
-                            } catch (_) {}
-                            if (ctx.mounted) {
-                              Navigator.pop(ctx);
-                            }
-                            ref.read(merchantUpgradePendingProvider.notifier).state = true;
-                            if (context.mounted) {
-                              context.showSuccessSnackBar(
-                                isRtl
-                                    ? 'تم إرسال طلب الترقية بنجاح. سيتم مراجعته من قبل الإدارة.'
-                                    : 'Upgrade request submitted successfully. It will be reviewed by admin.',
-                              );
-                            }
-                          },
-                    child: isSubmitting
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                          )
-                        : Text(
-                            isRtl ? 'إرسال طلب التوثيق' : 'Submit Verification Request',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                return ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxHeight: MediaQuery.of(ctx).size.height * 0.90,
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(ctx).viewInsets.bottom,
+                      top: 20,
+                      left: 20,
+                      right: 20,
+                    ),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.verified, color: Colors.blue),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  isRtl ? 'طلب ترقية لحساب تاجر' : 'Merchant Upgrade Request',
+                                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              IconButton(
+                                onPressed: () => Navigator.pop(ctx),
+                                icon: const Icon(Icons.close_rounded),
+                              ),
+                            ],
                           ),
+                          const SizedBox(height: 8),
+                          Text(
+                            isRtl 
+                                ? 'يرجى تقديم بيانات متجرك، وتحديد الأقسام الرئيسية والفرعية التي ترغب بالإعلان فيها، ورفع مستند التوثيق الرسمي لمراجعته واعتماده من الإدارة.'
+                                : 'Please provide your store details, select the main and subcategories you want to advertise in, and upload official verification documents for admin approval.',
+                            style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+                          ),
+                          const SizedBox(height: 18),
+                          TextField(
+                            controller: storeNameController,
+                            decoration: InputDecoration(
+                              labelText: isRtl ? 'اسم المتجر / الشركة' : 'Store / Company Name',
+                              border: const OutlineInputBorder(),
+                              prefixIcon: const Icon(Icons.store),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Multi-Category & Subcategory Tree Selector
+                          Container(
+                            padding: const EdgeInsets.all(14),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: selectedIds.isNotEmpty
+                                    ? const Color(0xFF059669)
+                                    : const Color(0xFFCBD5E1),
+                                width: selectedIds.isNotEmpty ? 1.4 : 1.0,
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.account_tree_rounded, color: Color(0xFF059669), size: 20),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        isRtl
+                                            ? 'الأقسام الرئيسية والفرعية المطلوب الإعلان فيها *'
+                                            : 'Main & Subcategories to Advertise In *',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 13.5,
+                                          color: Color(0xFF0F172A),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  isRtl
+                                      ? 'يمكنك اختيار قسم رئيسي أو أكثر، وتحديد قسم فرعي أو أكثر داخل كل قسم رئيسي:'
+                                      : 'You can select one or more main categories and multiple subcategories within each:',
+                                  style: TextStyle(fontSize: 11.5, color: Colors.grey.shade600),
+                                ),
+                                const SizedBox(height: 10),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: selectedMainCount > 0
+                                            ? const Color(0xFFECFDF5)
+                                            : const Color(0xFFF1F5F9),
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: selectedMainCount > 0
+                                              ? const Color(0xFF6EE7B7)
+                                              : const Color(0xFFE2E8F0),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        selectedMainCount > 0
+                                            ? (isRtl
+                                                ? 'تم اختيار $selectedMainCount قسم رئيسي و $selectedSubCount قسم فرعي'
+                                                : 'Selected $selectedMainCount main & $selectedSubCount subcategories')
+                                            : (isRtl ? 'لم يتم اختيار أي قسم بعد' : 'No categories selected yet'),
+                                        style: TextStyle(
+                                          fontSize: 11.5,
+                                          fontWeight: FontWeight.bold,
+                                          color: selectedMainCount > 0
+                                              ? const Color(0xFF065F46)
+                                              : const Color(0xFF64748B),
+                                        ),
+                                      ),
+                                    ),
+                                    if (allCategories.isNotEmpty)
+                                      Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          TextButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                for (final c in allCategories) {
+                                                  selectedIds.add(c.id);
+                                                  for (final s in c.subCategories) {
+                                                    selectedIds.remove(s.id);
+                                                  }
+                                                }
+                                              });
+                                            },
+                                            style: TextButton.styleFrom(
+                                              visualDensity: VisualDensity.compact,
+                                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                                            ),
+                                            child: Text(
+                                              isRtl ? 'تحديد الكل' : 'Select All',
+                                              style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Color(0xFF059669)),
+                                            ),
+                                          ),
+                                          if (selectedIds.isNotEmpty)
+                                            TextButton(
+                                              onPressed: () {
+                                                setState(() => selectedIds.clear());
+                                              },
+                                              style: TextButton.styleFrom(
+                                                visualDensity: VisualDensity.compact,
+                                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                              ),
+                                              child: Text(
+                                                isRtl ? 'مسح' : 'Clear',
+                                                style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.bold, color: Colors.red.shade700),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                if (categoriesAsync.isLoading && allCategories.isEmpty)
+                                  const Padding(
+                                    padding: EdgeInsets.all(16.0),
+                                    child: Center(child: CircularProgressIndicator()),
+                                  )
+                                else if (allCategories.isEmpty)
+                                  Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Text(
+                                      isRtl ? 'لا توجد أقسام متاحة حالياً' : 'No categories available',
+                                      style: TextStyle(color: Colors.grey.shade600, fontSize: 12),
+                                    ),
+                                  )
+                                else
+                                  ConstrainedBox(
+                                    constraints: const BoxConstraints(maxHeight: 250),
+                                    child: Scrollbar(
+                                      thumbVisibility: true,
+                                      child: ListView.separated(
+                                        shrinkWrap: true,
+                                        itemCount: allCategories.length,
+                                        separatorBuilder: (_, _) => const SizedBox(height: 8),
+                                        itemBuilder: (context, idx) {
+                                          final cat = allCategories[idx];
+                                          final catName = isRtl ? cat.nameAr : cat.name;
+                                          final isMainSelected = selectedIds.contains(cat.id);
+                                          final selectedSubsInCat = cat.subCategories
+                                              .where((s) => isMainSelected || selectedIds.contains(s.id))
+                                              .toList();
+                                          final hasPartialSubs = !isMainSelected && selectedSubsInCat.isNotEmpty;
+
+                                          return Container(
+                                            decoration: BoxDecoration(
+                                              color: (isMainSelected || hasPartialSubs)
+                                                  ? const Color(0xFFF0FDF4)
+                                                  : Colors.white,
+                                              borderRadius: BorderRadius.circular(12),
+                                              border: Border.all(
+                                                color: isMainSelected
+                                                    ? const Color(0xFF059669)
+                                                    : (hasPartialSubs
+                                                        ? const Color(0xFF3B82F6)
+                                                        : const Color(0xFFE2E8F0)),
+                                                width: (isMainSelected || hasPartialSubs) ? 1.3 : 1.0,
+                                              ),
+                                            ),
+                                            child: Theme(
+                                              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                                              child: ExpansionTile(
+                                                tilePadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+                                                visualDensity: VisualDensity.compact,
+                                                leading: Checkbox(
+                                                  value: isMainSelected
+                                                      ? true
+                                                      : (hasPartialSubs ? null : false),
+                                                  tristate: true,
+                                                  activeColor: const Color(0xFF059669),
+                                                  onChanged: (val) {
+                                                    setState(() {
+                                                      if (isMainSelected || hasPartialSubs) {
+                                                        selectedIds.remove(cat.id);
+                                                        for (final s in cat.subCategories) {
+                                                          selectedIds.remove(s.id);
+                                                        }
+                                                      } else {
+                                                        selectedIds.add(cat.id);
+                                                        for (final s in cat.subCategories) {
+                                                          selectedIds.remove(s.id);
+                                                        }
+                                                      }
+                                                    });
+                                                  },
+                                                ),
+                                                title: Text(
+                                                  catName,
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 13.5,
+                                                    color: (isMainSelected || hasPartialSubs)
+                                                        ? const Color(0xFF065F46)
+                                                        : const Color(0xFF1E293B),
+                                                  ),
+                                                ),
+                                                subtitle: Text(
+                                                  isMainSelected
+                                                      ? (isRtl
+                                                          ? '✓ شامل جميع الأقسام الفرعية (${cat.subCategories.length})'
+                                                          : '✓ All subcategories selected (${cat.subCategories.length})')
+                                                      : (hasPartialSubs
+                                                          ? (isRtl
+                                                              ? 'تم تحديد ${selectedSubsInCat.length} من ${cat.subCategories.length} قسم فرعي'
+                                                              : '${selectedSubsInCat.length} of ${cat.subCategories.length} subcategories selected')
+                                                          : (isRtl
+                                                              ? 'اضغط لاختيار الأقسام الفرعية (${cat.subCategories.length})'
+                                                              : 'Tap to select subcategories (${cat.subCategories.length})')),
+                                                  style: TextStyle(
+                                                    fontSize: 11,
+                                                    color: isMainSelected
+                                                        ? const Color(0xFF059669)
+                                                        : (hasPartialSubs
+                                                            ? const Color(0xFF1D4ED8)
+                                                            : const Color(0xFF64748B)),
+                                                    fontWeight: (isMainSelected || hasPartialSubs)
+                                                        ? FontWeight.w600
+                                                        : FontWeight.normal,
+                                                  ),
+                                                ),
+                                                children: [
+                                                  if (cat.subCategories.isNotEmpty)
+                                                    Container(
+                                                      width: double.infinity,
+                                                      padding: const EdgeInsets.fromLTRB(12, 6, 12, 12),
+                                                      decoration: const BoxDecoration(
+                                                        color: Colors.white,
+                                                        borderRadius: BorderRadius.vertical(bottom: Radius.circular(11)),
+                                                      ),
+                                                      child: Wrap(
+                                                        spacing: 6,
+                                                        runSpacing: 6,
+                                                        children: cat.subCategories.map((sub) {
+                                                          final subName = isRtl ? sub.nameAr : sub.name;
+                                                          final isSubSel = isMainSelected || selectedIds.contains(sub.id);
+                                                          return FilterChip(
+                                                            selected: isSubSel,
+                                                            label: Text(
+                                                              subName,
+                                                              style: TextStyle(
+                                                                fontSize: 11.5,
+                                                                fontWeight: isSubSel ? FontWeight.bold : FontWeight.normal,
+                                                                color: isSubSel
+                                                                    ? const Color(0xFF1E3A8A)
+                                                                    : const Color(0xFF475569),
+                                                              ),
+                                                            ),
+                                                            selectedColor: const Color(0xFFDBEAFE),
+                                                            checkmarkColor: const Color(0xFF1D4ED8),
+                                                            backgroundColor: const Color(0xFFF1F5F9),
+                                                            side: BorderSide(
+                                                              color: isSubSel
+                                                                  ? const Color(0xFF60A5FA)
+                                                                  : const Color(0xFFE2E8F0),
+                                                            ),
+                                                            onSelected: (v) {
+                                                              setState(() {
+                                                                if (v) {
+                                                                  selectedIds.add(sub.id);
+                                                                  final allSubsSelected = cat.subCategories.isNotEmpty &&
+                                                                      cat.subCategories.every((s) => selectedIds.contains(s.id));
+                                                                  if (allSubsSelected) {
+                                                                    selectedIds.add(cat.id);
+                                                                    for (final s in cat.subCategories) {
+                                                                      selectedIds.remove(s.id);
+                                                                    }
+                                                                  }
+                                                                } else {
+                                                                  if (isMainSelected) {
+                                                                    selectedIds.remove(cat.id);
+                                                                    for (final s in cat.subCategories) {
+                                                                      if (s.id != sub.id) {
+                                                                        selectedIds.add(s.id);
+                                                                      }
+                                                                    }
+                                                                  } else {
+                                                                    selectedIds.remove(sub.id);
+                                                                  }
+                                                                }
+                                                              });
+                                                            },
+                                                          );
+                                                        }).toList(),
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          DropdownButtonFormField<String>(
+                            value: selectedDocType,
+                            decoration: InputDecoration(
+                              labelText: isRtl ? 'نوع المستند' : 'Document Type',
+                              border: const OutlineInputBorder(),
+                            ),
+                            items: docTypes.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+                            onChanged: (val) {
+                              if (val != null) setState(() => selectedDocType = val);
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          OutlinedButton.icon(
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              side: BorderSide(color: pickedDocBytes != null ? Colors.green : Colors.blue),
+                            ),
+                            onPressed: () async {
+                              final xFile = await ImagePickerHelper.pickImage(ctx, imageQuality: 80);
+                              if (xFile != null) {
+                                final bytes = await xFile.readAsBytes();
+                                setState(() {
+                                  pickedDocBytes = bytes;
+                                  pickedDocName = xFile.name;
+                                });
+                              }
+                            },
+                            icon: Icon(
+                              pickedDocBytes != null ? Icons.check_circle : Icons.upload_file,
+                              color: pickedDocBytes != null ? Colors.green : null,
+                            ),
+                            label: Text(
+                              pickedDocBytes != null
+                                  ? (isRtl ? 'تم إرفاق المستند بنجاح' : 'Document Attached')
+                                  : (isRtl ? 'رفع صورة المستند' : 'Upload Document Image'),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          FilledButton(
+                            style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+                            onPressed: isSubmitting
+                                ? null
+                                : () async {
+                                    final storeName = storeNameController.text.trim();
+                                    if (storeName.isEmpty) {
+                                      context.showErrorSnackBar(
+                                        isRtl ? 'يرجى إدخال اسم المتجر أو الشركة' : 'Please enter the store or company name',
+                                      );
+                                      return;
+                                    }
+                                    if (selectedIds.isEmpty) {
+                                      context.showErrorSnackBar(
+                                        isRtl
+                                            ? 'يرجى اختيار قسم رئيسي أو فرعي واحد على الأقل ترغب بالإعلان فيه'
+                                            : 'Please select at least one main or subcategory to advertise in',
+                                      );
+                                      return;
+                                    }
+                                    setState(() => isSubmitting = true);
+                                    try {
+                                      final currentUser = ref.read(authNotifierProvider).valueOrNull;
+                                      if (currentUser != null && currentUser.id.isNotEmpty) {
+                                        final requestedTree = <Map<String, dynamic>>[];
+                                        for (final cat in allCategories) {
+                                          final isMainSel = selectedIds.contains(cat.id);
+                                          final matchedSubs = cat.subCategories
+                                              .where((s) => isMainSel || selectedIds.contains(s.id))
+                                              .toList();
+                                          if (isMainSel || matchedSubs.isNotEmpty) {
+                                            requestedTree.add({
+                                              'category_id': cat.id,
+                                              'name_ar': cat.nameAr,
+                                              'name_en': cat.name,
+                                              'full_category': isMainSel,
+                                              'subcategories': matchedSubs
+                                                  .map((s) => {
+                                                        'id': s.id,
+                                                        'name_ar': s.nameAr,
+                                                        'name_en': s.name,
+                                                      })
+                                                  .toList(),
+                                            });
+                                          }
+                                        }
+
+                                        final updatedPerms = Map<String, dynamic>.from(currentUser.permissions);
+                                        updatedPerms['merchant_upgrade_pending'] = true;
+                                        updatedPerms['requested_store_name'] = storeName;
+                                        updatedPerms['verification_doc_type'] = selectedDocType;
+                                        updatedPerms['document_type'] = selectedDocType;
+                                        updatedPerms['requested_categories'] = selectedIds.toList();
+                                        updatedPerms['requested_categories_tree'] = requestedTree;
+                                        updatedPerms['allowed_categories'] = selectedIds.toList();
+                                        updatedPerms['upgrade_requested_at'] = DateTime.now().toUtc().toIso8601String();
+                                        updatedPerms.remove('rejection_reason');
+                                        updatedPerms.remove('rejected_at');
+
+                                        if (pickedDocBytes != null) {
+                                          final rawExt = (pickedDocName ?? 'jpg').split('.').last.toLowerCase();
+                                          final ext = (rawExt == 'png' || rawExt == 'webp' || rawExt == 'jpeg' || rawExt == 'jpg') ? rawExt : 'jpg';
+                                          final fileName = 'upgrade_doc_${currentUser.id}_${DateTime.now().millisecondsSinceEpoch}.$ext';
+                                          String? uploadedDocUrl;
+                                          try {
+                                            await Supabase.instance.client.storage.from('receipts').uploadBinary(
+                                              fileName,
+                                              pickedDocBytes!,
+                                              fileOptions: FileOptions(contentType: 'image/$ext', upsert: true),
+                                            );
+                                            uploadedDocUrl = Supabase.instance.client.storage.from('receipts').getPublicUrl(fileName);
+                                          } catch (_) {
+                                            try {
+                                              await Supabase.instance.client.storage.from('products_images').uploadBinary(
+                                                fileName,
+                                                pickedDocBytes!,
+                                                fileOptions: FileOptions(contentType: 'image/$ext', upsert: true),
+                                              );
+                                              uploadedDocUrl = Supabase.instance.client.storage.from('products_images').getPublicUrl(fileName);
+                                            } catch (_) {}
+                                          }
+                                          if (uploadedDocUrl != null && uploadedDocUrl.isNotEmpty) {
+                                            updatedPerms['verification_doc_url'] = uploadedDocUrl;
+                                          }
+                                        }
+
+                                        await Supabase.instance.client.from('users').update({
+                                          'store_name': storeName,
+                                          'store_name_ar': storeName,
+                                          'document_type': selectedDocType,
+                                          'is_verified': false,
+                                          'permissions': updatedPerms,
+                                        }).eq('id', currentUser.id);
+                                        ref.read(merchantUpgradePendingProvider.notifier).state = currentUser.id;
+                                        await ref.read(authNotifierProvider.notifier).refreshSession();
+                                      }
+                                      if (ctx.mounted) {
+                                        Navigator.pop(ctx);
+                                      }
+                                      if (context.mounted) {
+                                        context.showSuccessSnackBar(
+                                          isRtl
+                                              ? 'تم إرسال طلب الترقية والأقسام المختارة بنجاح. سيتم مراجعته من قبل الإدارة.'
+                                              : 'Upgrade request and selected categories submitted successfully for admin review.',
+                                        );
+                                      }
+                                    } catch (e) {
+                                      if (ctx.mounted) {
+                                        setState(() => isSubmitting = false);
+                                      }
+                                      if (context.mounted) {
+                                        context.showErrorSnackBar(
+                                          isRtl
+                                              ? 'تعذر إرسال طلب الترقية، يرجى المحاولة مرة أخرى: $e'
+                                              : 'Failed to submit upgrade request: $e',
+                                        );
+                                      }
+                                    }
+                                  },
+                            child: isSubmitting
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                  )
+                                : Text(
+                                    isRtl ? 'إرسال طلب التوثيق' : 'Submit Verification Request',
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                  ),
+                          ),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 24),
-                ],
-              ),
+                );
+              },
             );
-          }
+          },
         );
       },
     );
@@ -888,13 +1335,37 @@ class BuyerProfileScreen extends ConsumerWidget {
                       try {
                         final currentUser = ref.read(authNotifierProvider).valueOrNull;
                         if (currentUser != null && currentUser.id.isNotEmpty && !currentUser.role.isGuest) {
-                          final updatedPerms = Map<String, dynamic>.from(currentUser.permissions);
-                          updatedPerms['deletion_requested'] = true;
-                          updatedPerms['deleted_at'] = DateTime.now().toUtc().toIso8601String();
-                          await Supabase.instance.client.from('users').update({
-                            'is_suspended': true,
-                            'permissions': updatedPerms,
-                          }).eq('id', currentUser.id);
+                          bool hardDeleted = false;
+                          try {
+                            final rpcRes = await Supabase.instance.client.rpc(
+                              'delete_user_completely',
+                              params: {'target_user_id': currentUser.id},
+                            );
+                            if (rpcRes == true) hardDeleted = true;
+                          } catch (_) {}
+
+                          if (!hardDeleted) {
+                            try {
+                              final deleted = await Supabase.instance.client
+                                  .from('users')
+                                  .delete()
+                                  .eq('id', currentUser.id)
+                                  .select('id');
+                              hardDeleted = deleted.isNotEmpty;
+                            } catch (_) {}
+                          }
+
+                          if (!hardDeleted) {
+                            final updatedPerms = Map<String, dynamic>.from(currentUser.permissions);
+                            updatedPerms['is_deleted'] = true;
+                            updatedPerms['deletion_requested'] = true;
+                            updatedPerms['deleted_at'] = DateTime.now().toUtc().toIso8601String();
+                            await Supabase.instance.client.from('users').update({
+                              'is_suspended': true,
+                              'role': 'guest',
+                              'permissions': updatedPerms,
+                            }).eq('id', currentUser.id);
+                          }
                         }
                         const secureStorage = FlutterSecureStorage();
                         await secureStorage.deleteAll();
@@ -909,6 +1380,7 @@ class BuyerProfileScreen extends ConsumerWidget {
                               : 'Account deletion processed and signed out.',
                         );
                       }
+                      ref.read(merchantUpgradePendingProvider.notifier).state = null;
                       ref.read(modeNotifierProvider.notifier).resetToBuyer();
                       await ref.read(authNotifierProvider.notifier).logout();
                     },

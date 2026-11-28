@@ -23,6 +23,7 @@ import 'package:magaiees_marketplace/features/merchant/store_management/presenta
 import 'package:magaiees_marketplace/features/merchant/store_management/presentation/screens/merchant_reviews_screen.dart';
 import 'package:magaiees_marketplace/features/notifications/application/notifications_provider.dart';
 import 'package:magaiees_marketplace/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:magaiees_marketplace/features/merchant/presentation/widgets/usd_rate_history_dialog.dart';
 
 final merchantDashboardStatsProvider = Provider.autoDispose<AsyncValue<Map<String, dynamic>>>((ref) {
   final ordersAsync = ref.watch(merchantOrdersProvider);
@@ -503,6 +504,11 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.currency_exchange_rounded, color: Color(0xFF059669)),
+            tooltip: isRtl ? 'سجل تاريخ سعر الدولار' : 'USD Rate History',
+            onPressed: () => UsdRateHistoryDialog.show(context),
+          ),
           Consumer(
             builder: (context, ref, child) {
               final unreadCount = ref.watch(unreadNotificationsCountProvider);
@@ -817,6 +823,7 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
                               bottomTitles: AxisTitles(
                                 sideTitles: SideTitles(
                                   showTitles: true,
+                                  interval: 1,
                                   reservedSize: 30,
                                   getTitlesWidget: (value, meta) {
                                     final index = value.toInt();
@@ -888,7 +895,7 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
               ),
 
               SliverPadding(
-                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 24.0, bottom: 8.0),
+                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 20.0, bottom: 8.0),
                 sliver: SliverToBoxAdapter(
                   child: Text(
                     isRtl ? 'إحصائيات المتجر' : 'Store Metrics',
@@ -897,44 +904,55 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
                 ),
               ),
 
-              // Store Metrics Grid
+              // Store Metrics Grid (Compact 68px Height Cards)
               SliverPadding(
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                sliver: SliverGrid.count(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                  childAspectRatio: 1.35,
-                  children: [
-                    _buildMetricCard(
-                      context,
-                      title: isRtl ? 'الطلبات المعلقة' : 'Pending Orders',
-                      value: stats['pendingOrders']?.toString() ?? '0',
-                      icon: Icons.pending_actions,
-                      color: Colors.orange,
-                    ),
-                    _buildMetricCard(
-                      context,
-                      title: isRtl ? 'تم التسليم' : 'Delivered',
-                      value: stats['deliveredOrders']?.toString() ?? '0',
-                      icon: Icons.check_circle_outline,
-                      color: Colors.teal,
-                    ),
-                    _buildMetricCard(
-                      context,
-                      title: isRtl ? 'قيد النشاط' : 'Active Products',
-                      value: stats['activeProducts']?.toString() ?? '0',
-                      icon: Icons.inventory_2,
-                      color: Colors.blue,
-                    ),
-                    _buildMetricCard(
-                      context,
-                      title: isRtl ? 'العملاء' : 'Customers',
-                      value: stats['customers']?.toString() ?? '0',
-                      icon: Icons.people,
-                      color: Colors.purple,
-                    ),
-                  ],
+                sliver: SliverLayoutBuilder(
+                  builder: (context, sliverConstraints) {
+                    final cols = sliverConstraints.crossAxisExtent > 860 ? 4 : 2;
+                    return SliverGrid(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: cols,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                        mainAxisExtent: 68,
+                      ),
+                      delegate: SliverChildListDelegate([
+                        _buildCompactStoreStatCard(
+                          context,
+                          title: isRtl ? 'الطلبات المعلقة' : 'Pending Orders',
+                          value: stats['pendingOrders']?.toString() ?? '0',
+                          icon: Icons.pending_actions_rounded,
+                          color: Colors.orange,
+                          onTap: () => context.go(RouteNames.merchantOrders),
+                        ),
+                        _buildCompactStoreStatCard(
+                          context,
+                          title: isRtl ? 'تم التسليم' : 'Delivered',
+                          value: stats['deliveredOrders']?.toString() ?? '0',
+                          icon: Icons.check_circle_outline_rounded,
+                          color: Colors.teal,
+                          onTap: () => context.go(RouteNames.merchantOrders),
+                        ),
+                        _buildCompactStoreStatCard(
+                          context,
+                          title: isRtl ? 'قيد النشاط' : 'Active Products',
+                          value: stats['activeProducts']?.toString() ?? '0',
+                          icon: Icons.inventory_2_rounded,
+                          color: Colors.blue,
+                          onTap: () => context.go(RouteNames.merchantInventory),
+                        ),
+                        _buildCompactStoreStatCard(
+                          context,
+                          title: isRtl ? 'العملاء' : 'Customers',
+                          value: stats['customers']?.toString() ?? '0',
+                          icon: Icons.people_alt_rounded,
+                          color: Colors.purple,
+                          onTap: () => context.go(RouteNames.merchantOrders),
+                        ),
+                      ]),
+                    );
+                  },
                 ),
               ),
 
@@ -1021,6 +1039,81 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
     } else {
       return status?.toUpperCase() ?? 'PENDING';
     }
+  }
+
+  Widget _buildCompactStoreStatCard(
+    BuildContext context, {
+    required String title,
+    required String value,
+    required IconData icon,
+    required MaterialColor color,
+    VoidCallback? onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 9.0),
+          decoration: BoxDecoration(
+            color: color.shade50.withValues(alpha: 0.72),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: color.shade200.withValues(alpha: 0.85), width: 1.3),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.18),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: color.shade700, size: 20),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: color.shade900,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 6),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.88),
+                  borderRadius: BorderRadius.circular(9),
+                  border: Border.all(color: color.shade200.withValues(alpha: 0.7)),
+                ),
+                child: Text(
+                  value,
+                  style: TextStyle(
+                    color: color.shade900,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget _buildMetricCard(

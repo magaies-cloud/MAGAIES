@@ -5,7 +5,11 @@
   <base href="$FLUTTER_BASE_HREF">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="theme-color" content="#1E40AF">
-  <meta name="description" content="منصة مقاييس - سوق مواد البناء والمعدات">
+  <meta name="description" content="منصة مقاييس (Magaiees | مغاييس) - السوق الأول لمواد البناء والحديد والأسمنت والمعدات الهندسية والتوريدات">
+  <meta name="keywords" content="مقاييس, مغاييس, مقاييص, مغاييص, مقايس, مغايس, منصة مقاييس, منصة مغاييس, تطبيق مقاييس, Magaiees, Magayees, Magaies, مواد بناء, حديد, اسمنت, توريدات هندسية">
+  <meta property="og:site_name" content="منصة مقاييس | Magaiees">
+  <meta property="og:title" content="منصة مقاييس | Magaiees Marketplace">
+  <meta property="og:description" content="منصة مقاييس لمواد البناء والتوريدات والمعدات الهندسية">
   <!-- Flutter Web handles the viewport tag automatically -->
 
   <!-- Preconnect to Font & CDN Servers for Instant Loading -->
@@ -209,6 +213,13 @@
     window.addEventListener('click', unlockAudioContext, { once: true, capture: true });
     window.addEventListener('touchstart', unlockAudioContext, { once: true, capture: true });
     window.addEventListener('keydown', unlockAudioContext, { once: true, capture: true });
+
+    // Allow native browser Zoom (Ctrl + Mouse Wheel) in Chrome/Edge by preventing Flutter from swallowing Ctrl+Wheel events
+    window.addEventListener('wheel', function(e) {
+      if (e.ctrlKey || e.metaKey) {
+        e.stopImmediatePropagation();
+      }
+    }, { capture: true, passive: true });
   </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>

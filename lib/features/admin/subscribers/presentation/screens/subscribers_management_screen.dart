@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:magaiees_marketplace/core/enums/user_role.dart';
 import 'package:magaiees_marketplace/features/buyer/home/application/home_provider.dart';
+import 'package:magaiees_marketplace/features/buyer/home/domain/models/category_model.dart';
 import 'package:magaiees_marketplace/routing/route_names.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../application/subscribers_provider.dart';
@@ -13,6 +14,7 @@ import '../widgets/subscriber_detail_sheet.dart';
 import '../../../presentation/providers/settings_tab_provider.dart';
 import 'package:magaiees_marketplace/features/admin/presentation/widgets/admin_error_view.dart';
 import 'package:magaiees_marketplace/features/admin/application/ads_provider.dart';
+import 'package:magaiees_marketplace/core/utils/phone_formatter.dart';
 
 class SubscribersManagementScreen extends ConsumerStatefulWidget {
   const SubscribersManagementScreen({super.key});
@@ -25,6 +27,8 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   UiServerFilter _selectedFilter = UiServerFilter.all;
+  String _sortBy = 'newest'; // 'newest', 'highest_volume', 'most_orders', 'name_asc'
+  bool _showColorLegend = true;
   bool _isLoading = false;
   Timer? _debounce;
   SubscriberModel? _selectedSubscriber;
@@ -53,6 +57,7 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
   }
 
   void _onSearchChanged(String value) {
+    setState(() {});
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 400), () {
       ref.read(subscriberQueryProvider.notifier).state =
@@ -64,6 +69,30 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
     setState(() => _selectedFilter = filter);
     ref.read(subscriberQueryProvider.notifier).state =
         ref.read(subscriberQueryProvider).copyWith(filter: filter);
+  }
+
+  List<SubscriberModel> _applyLocalSort(List<SubscriberModel> list, bool isRtl) {
+    final sorted = List<SubscriberModel>.from(list);
+    switch (_sortBy) {
+      case 'highest_volume':
+        sorted.sort((a, b) => b.totalSpent.compareTo(a.totalSpent));
+        break;
+      case 'most_orders':
+        sorted.sort((a, b) => b.totalOrders.compareTo(a.totalOrders));
+        break;
+      case 'name_asc':
+        sorted.sort((a, b) {
+          final nameA = isRtl ? (a.nameAr.isNotEmpty ? a.nameAr : a.name) : a.name;
+          final nameB = isRtl ? (b.nameAr.isNotEmpty ? b.nameAr : b.name) : b.name;
+          return nameA.toLowerCase().compareTo(nameB.toLowerCase());
+        });
+        break;
+      case 'newest':
+      default:
+        sorted.sort((a, b) => b.joinedAt.compareTo(a.joinedAt));
+        break;
+    }
+    return sorted;
   }
 
   Future<void> _runAsync(Future<void> Function() action) async {
@@ -85,11 +114,13 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
 
     // If a subscriber is selected, show full-screen detail
     if (_selectedSubscriber != null) {
-      // Get the latest version from provider
       final latestSub = allSubscribers.cast<SubscriberModel?>().firstWhere(
         (s) => s?.id == _selectedSubscriber!.id,
         orElse: () => null,
       ) ?? _selectedSubscriber!;
+
+      final roleColor = _getRoleColor(latestSub.role);
+      final statusColor = _getStatusColor(latestSub.status);
 
       return PopScope(
         canPop: false,
@@ -97,86 +128,197 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
           if (!didPop) setState(() => _selectedSubscriber = null);
         },
         child: Scaffold(
-          backgroundColor: const Color(0xFFF8FAFC),
+          backgroundColor: const Color(0xFFF1F5F9),
           body: Stack(
             children: [
               Column(
                 children: [
-                  // Top navigation bar
+                  // Enhanced Color-Coded Top Navigation Bar for Detail View
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                    decoration: const BoxDecoration(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    decoration: BoxDecoration(
                       color: Colors.white,
-                      border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
+                      border: Border(
+                        top: BorderSide(color: roleColor, width: 4),
+                        bottom: const BorderSide(color: Color(0xFFE2E8F0)),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: roleColor.withValues(alpha: 0.06),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
-                    child: Row(
+                    child: Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 12,
+                      runSpacing: 10,
                       children: [
-                        IconButton.filledTonal(
-                          onPressed: () => setState(() => _selectedSubscriber = null),
-                          icon: Icon(isRtl ? Icons.arrow_forward_rounded : Icons.arrow_back_rounded, size: 20),
-                          style: IconButton.styleFrom(
-                            backgroundColor: const Color(0xFFEFF6FF),
-                            foregroundColor: const Color(0xFF1E40AF),
-                          ),
-                          tooltip: isRtl ? 'العودة لقائمة المشتركين' : 'Back to Subscribers',
-                        ),
-                        const SizedBox(width: 12),
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: _getRoleColor(latestSub.role).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Icon(_getRoleIcon(latestSub.role), color: _getRoleColor(latestSub.role), size: 20),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                isRtl ? (latestSub.nameAr.isNotEmpty ? latestSub.nameAr : latestSub.name) : latestSub.name,
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            FilledButton.tonalIcon(
+                              onPressed: () => setState(() => _selectedSubscriber = null),
+                              icon: Icon(isRtl ? Icons.arrow_forward_rounded : Icons.arrow_back_rounded, size: 18),
+                              label: Text(
+                                isRtl ? 'العودة لقائمة المشتركين' : 'Back to List',
+                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12.5),
                               ),
-                              Text(
-                                '${_getRoleName(latestSub.role, isRtl)} • ${latestSub.email}',
-                                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                              style: FilledButton.styleFrom(
+                                backgroundColor: const Color(0xFFEFF6FF),
+                                foregroundColor: const Color(0xFF1E40AF),
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                               ),
-                            ],
-                          ),
-                        ),
-                        // Quick action chips
-                        OutlinedButton.icon(
-                          onPressed: () => _showChangeRoleDialog(latestSub),
-                          icon: const Icon(Icons.manage_accounts_rounded, size: 16),
-                          label: Text(isRtl ? 'تغيير الدور' : 'Change Role', style: const TextStyle(fontSize: 12)),
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: const Color(0xFF1E40AF),
-                            side: const BorderSide(color: Color(0xFFBFDBFE)),
-                            backgroundColor: const Color(0xFFEFF6FF),
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          ),
-                        ),
-                        if (latestSub.role == UserRole.merchant) ...[
-                          const SizedBox(width: 8),
-                          OutlinedButton.icon(
-                            onPressed: () => _showCategoryPermissionsDialog(latestSub),
-                            icon: const Icon(Icons.admin_panel_settings_outlined, size: 16),
-                            label: Text(isRtl ? 'الأقسام والعمولات' : 'Categories', style: const TextStyle(fontSize: 12)),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: const Color(0xFF059669),
-                              side: const BorderSide(color: Color(0xFFA7F3D0)),
-                              backgroundColor: const Color(0xFFECFDF5),
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 14),
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: roleColor.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(color: roleColor.withValues(alpha: 0.3)),
+                              ),
+                              child: Icon(_getRoleIcon(latestSub.role), color: roleColor, size: 22),
+                            ),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      isRtl ? (latestSub.nameAr.isNotEmpty ? latestSub.nameAr : latestSub.name) : latestSub.name,
+                                      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: Color(0xFF0F172A)),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: roleColor.withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(color: roleColor.withValues(alpha: 0.3)),
+                                      ),
+                                      child: Text(
+                                        _getRoleName(latestSub.role, isRtl),
+                                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: roleColor),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: statusColor.withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(color: statusColor.withValues(alpha: 0.3)),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Container(
+                                            width: 6,
+                                            height: 6,
+                                            decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            _getStatusName(latestSub.status, isRtl),
+                                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: statusColor),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 3),
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      latestSub.membershipNumber.isNotEmpty ? latestSub.membershipNumber : latestSub.id.substring(0, 8),
+                                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.w600),
+                                    ),
+                                    Text(' • ', style: TextStyle(fontSize: 12, color: Colors.grey.shade500)),
+                                    if (latestSub.email.isNotEmpty)
+                                      Flexible(
+                                        child: Text(
+                                          latestSub.email,
+                                          style: TextStyle(fontSize: 12, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      )
+                                    else
+                                      PhoneFormatter.text(
+                                        latestSub.phone,
+                                        style: TextStyle(fontSize: 12, color: Colors.grey.shade700, fontWeight: FontWeight.w700, fontFamily: 'monospace'),
+                                      ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        // Quick Action Chips in Detail Header
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            if (latestSub.status == SubscriberStatus.pendingVerification)
+                              FilledButton.icon(
+                                onPressed: () => _runAsync(() => ref.read(subscribersProvider.notifier).approveMerchant(latestSub.id)),
+                                icon: const Icon(Icons.verified_rounded, size: 16),
+                                label: Text(isRtl ? 'اعتماد الحساب فوراً' : 'Approve Now', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: const Color(0xFF059669),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                              ),
+                            FilledButton.icon(
+                              onPressed: () => _showEditSubscriberBasicAndStoreDialog(latestSub),
+                              icon: const Icon(Icons.edit_note_rounded, size: 17),
+                              label: Text(
+                                isRtl ? 'تعديل البيانات والمتجر والهاتف' : 'Edit Profile & Store',
+                                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                              ),
+                              style: FilledButton.styleFrom(
+                                backgroundColor: const Color(0xFF1E40AF),
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              ),
+                            ),
+                            OutlinedButton.icon(
+                              onPressed: () => _showChangeRoleDialog(latestSub),
+                              icon: const Icon(Icons.manage_accounts_rounded, size: 16),
+                              label: Text(isRtl ? 'تغيير الدور' : 'Change Role', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: const Color(0xFF1E40AF),
+                                side: const BorderSide(color: Color(0xFF93C5FD)),
+                                backgroundColor: const Color(0xFFEFF6FF),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              ),
+                            ),
+                            if (latestSub.role == UserRole.merchant)
+                              OutlinedButton.icon(
+                                onPressed: () => _showCategoryPermissionsDialog(latestSub),
+                                icon: const Icon(Icons.admin_panel_settings_outlined, size: 16),
+                                label: Text(isRtl ? 'الأقسام والعمولات' : 'Categories & Rates', style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: const Color(0xFF059669),
+                                  side: const BorderSide(color: Color(0xFF6EE7B7)),
+                                  backgroundColor: const Color(0xFFECFDF5),
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                              ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -187,6 +329,7 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
                       isEmbedded: true,
                       onOpenCategoryPermissions: () => _showCategoryPermissionsDialog(latestSub),
                       onOpenChangeRole: () => _showChangeRoleDialog(latestSub),
+                      onOpenEditBasicInfo: () => _showEditSubscriberBasicAndStoreDialog(latestSub),
                       onClose: () => setState(() => _selectedSubscriber = null),
                     ),
                   ),
@@ -209,35 +352,49 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
     final allAds = adsAsync.valueOrNull ?? [];
     final activeAdsCount = allAds.where((a) => a.isActive).length;
 
-    // KPI Metrics calculation
-    final totalMerchants = allSubscribers.where((s) => s.role == UserRole.merchant).length;
-    final totalBuyers = allSubscribers.where((s) => s.role == UserRole.buyer).length;
-    final totalEmployees = allSubscribers.where((s) => s.role == UserRole.employee).length;
-    final totalActive = allSubscribers.where((s) => s.status == SubscriberStatus.active).length;
-    final totalSuspended = allSubscribers.where((s) => s.status == SubscriberStatus.suspended).length;
-    final totalPending = allSubscribers.where((s) => s.status == SubscriberStatus.pendingVerification).length;
-    final totalRejected = allSubscribers.where((s) => s.status == SubscriberStatus.rejectedVerification).length;
-    final totalAdvertisers = allSubscribers.where((s) => s.isAdvertiser || s.totalAdsCount > 0).length;
-    final totalCommercialVolume = allSubscribers.fold<double>(0.0, (sum, s) => sum + s.totalSpent);
+    // Global pool for KPI Metrics calculation (never collapses to 0 when filtering)
+    final snapshot = ref.read(subscribersProvider.notifier).allUsersSnapshot;
+    final globalPool = snapshot.isNotEmpty ? snapshot : allSubscribers;
+
+    final totalMerchants = globalPool.where((s) => s.role == UserRole.merchant).length;
+    final totalBuyers = globalPool.where((s) => s.role == UserRole.buyer).length;
+    final totalEmployees = globalPool.where((s) => s.role == UserRole.employee).length;
+    final totalActive = globalPool.where((s) => s.status == SubscriberStatus.active).length;
+    final totalSuspended = globalPool.where((s) => s.status == SubscriberStatus.suspended).length;
+    final totalPending = globalPool.where((s) => s.status == SubscriberStatus.pendingVerification).length;
+    final totalRejected = globalPool.where((s) => s.status == SubscriberStatus.rejectedVerification).length;
+    final totalAdvertisers = globalPool.where((s) => s.isAdvertiser || s.totalAdsCount > 0).length;
+    final totalCommercialVolume = globalPool.fold<double>(0.0, (sum, s) => sum + s.totalSpent);
+
+    final isMobileScreen = MediaQuery.of(context).size.width < 700;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: const Color(0xFFF1F5F9),
       body: Stack(
         children: [
           SingleChildScrollView(
             controller: _scrollController,
-            padding: const EdgeInsets.symmetric(horizontal: 32.0, vertical: 28.0),
+            padding: EdgeInsets.symmetric(
+              horizontal: isMobileScreen ? 12.0 : 26.0,
+              vertical: isMobileScreen ? 14.0 : 22.0,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 1. Executive Top Header with Actions
-                _buildHeader(context, isRtl, allSubscribers),
-                const SizedBox(height: 24),
+                // 1. Organized Executive Top Header Card with Color-Coded Controls
+                _buildHeader(
+                  context,
+                  isRtl,
+                  globalPool,
+                  totalActive: totalActive,
+                  totalPending: totalPending,
+                ),
+                const SizedBox(height: 20),
 
-                // 2. Modern Compact KPI Cards Bar
+                // 2. Interactive Semantic KPI Cards Grid (Click to Filter)
                 _buildKpiSummaryBar(
                   isRtl: isRtl,
-                  totalSubscribers: allSubscribers.length,
+                  totalSubscribers: globalPool.length,
                   totalMerchants: totalMerchants,
                   totalBuyers: totalBuyers,
                   totalEmployees: totalEmployees,
@@ -248,19 +405,24 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
                   activeAdsCount: activeAdsCount,
                   totalCommercialVolume: totalCommercialVolume,
                 ),
-                const SizedBox(height: 28),
+                const SizedBox(height: 20),
 
-                // 3. Search & Filter Bar with Professional Segmented Controls
+                // 3. Search, Sort & Color-Coded Filter Hub + Visual Color Legend
                 _buildFilterAndSearchBar(
-                  isRtl,
-                  allSubscribers,
-                  totalPending,
-                  totalRejected,
-                  totalAdvertisers > 0 ? totalAdvertisers : activeAdsCount,
+                  isRtl: isRtl,
+                  subscribers: allSubscribers,
+                  merchantsCount: totalMerchants,
+                  buyersCount: totalBuyers,
+                  employeesCount: totalEmployees,
+                  activeCount: totalActive,
+                  suspendedCount: totalSuspended,
+                  pendingCount: totalPending,
+                  rejectedCount: totalRejected,
+                  advertisersCount: totalAdvertisers > 0 ? totalAdvertisers : activeAdsCount,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 20),
 
-                // 4. Inline Enterprise Subscribers Master Table (100% Span, One Line per User)
+                // 4. High-Readability Color-Coded Subscribers Master Table
                 _buildSubscribersTableCard(context, isRtl, asyncSubscribers),
                 const SizedBox(height: 40),
               ],
@@ -279,175 +441,458 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
   }
 
   // ===========================================================================
-  // 1. EXECUTIVE HEADER
+  // 1. EXECUTIVE HEADER CARD WITH UNIFIED FULL-WIDTH CONTROL DECK
   // ===========================================================================
-  Widget _buildHeader(BuildContext context, bool isRtl, List<SubscriberModel> subscribers) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF7E22CE), Color(0xFFA855F7)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(14),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xFF7E22CE).withValues(alpha: 0.25),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
+  Widget _buildHeader(
+    BuildContext context,
+    bool isRtl,
+    List<SubscriberModel> subscribers, {
+    required int totalActive,
+    required int totalPending,
+  }) {
+    final currentUsdRate = ref.watch(platformUsdRateSettingProvider);
+    final isUpgradeEnabled = ref.watch(merchantUpgradeSettingProvider);
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFCBD5E1)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.05),
+            blurRadius: 18,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Top Multi-Color Semantic Accent Bar
+          Container(
+            height: 5,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Color(0xFF1E40AF),
+                  Color(0xFF6D28D9),
+                  Color(0xFF059669),
+                  Color(0xFFD97706),
                 ],
               ),
-              child: const Icon(Icons.people_alt_rounded, color: Colors.white, size: 24),
             ),
-            const SizedBox(width: 14),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isRtl ? 'إدارة المشتركين وقاعدة العملاء' : 'Subscribers & User Management',
-                  style: const TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF0F172A),
-                    letterSpacing: -0.5,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  isRtl
-                      ? 'متابعة شاملة لبيانات التجار، المشترين، الموظفين، وحالات النشاط والطلبات'
-                      : 'Comprehensive management of merchants, buyers, staff accounts, roles & activity',
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13, fontWeight: FontWeight.w500),
-                ),
-              ],
-            ),
-          ],
-        ),
-        Row(
-          children: [
-            // Add New Subscriber Button
-            FilledButton.icon(
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF1E40AF),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                elevation: 2,
-              ),
-              icon: const Icon(Icons.person_add_alt_1_rounded, size: 18),
-              label: Text(
-                isRtl ? 'إضافة مشترك جديد' : 'Add New User',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-              ),
-              onPressed: () => _showAddSubscriberDialog(context, isRtl),
-            ),
-            const SizedBox(width: 10),
+          ),
 
-            // Platform Gamification Rules
-            FilledButton.tonalIcon(
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFFFEF3C7),
-                foregroundColor: const Color(0xFFD97706),
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              icon: const Icon(Icons.stars_rounded, size: 18),
-              label: Text(
-                isRtl ? 'إعدادات المنصة ونقاط التجار' : 'Platform Rules',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-              ),
-              onPressed: () => _showGamificationSettingsDialog(context, isRtl),
-            ),
-            const SizedBox(width: 10),
-
-            // Quick Toggle for Merchant Upgrade in Buyer App
-            Builder(
-              builder: (ctx) {
-                final isUpgradeEnabled = ref.watch(merchantUpgradeSettingProvider);
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: isUpgradeEnabled ? const Color(0xFFEFF6FF) : const Color(0xFFFEF2F2),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isUpgradeEnabled ? const Color(0xFFBFDBFE) : const Color(0xFFFECACA),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.storefront_rounded,
-                        size: 18,
-                        color: isUpgradeEnabled ? const Color(0xFF1D4ED8) : const Color(0xFFDC2626),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        isRtl ? 'الترقية كتاجر:' : 'Merchant Upgrade:',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          color: isUpgradeEnabled ? const Color(0xFF1E40AF) : const Color(0xFF991B1B),
+          // Tier 1: Executive Identity + Primary Action Buttons
+          Padding(
+            padding: const EdgeInsets.fromLTRB(22, 18, 22, 18),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isCompact = constraints.maxWidth < 780;
+                final identitySection = Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(13),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF0F172A), Color(0xFF1E40AF)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF1E40AF).withValues(alpha: 0.24),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 8),
-                      Switch(
-                        value: isUpgradeEnabled,
-                        activeThumbColor: const Color(0xFF2563EB),
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        onChanged: (val) {
-                          ref.read(merchantUpgradeSettingProvider.notifier).toggleSetting(val);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                val
-                                    ? (isRtl ? 'تم تفعيل وإظهار طلب الترقية كتاجر في تطبيق المشتري' : 'Merchant upgrade option is now visible in Buyer App')
-                                    : (isRtl ? 'تم إيقاف وإخفاء طلب الترقية كتاجر من تطبيق المشتري' : 'Merchant upgrade option is now hidden in Buyer App'),
+                      child: const Icon(Icons.groups_3_rounded, color: Colors.white, size: 26),
+                    ),
+                    const SizedBox(width: 14),
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Wrap(
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            spacing: 8,
+                            runSpacing: 6,
+                            children: [
+                              Text(
+                                isRtl ? 'إدارة المشتركين وقاعدة العملاء' : 'Subscribers & User Directory',
+                                style: TextStyle(
+                                  fontSize: isCompact ? 18.5 : 22,
+                                  fontWeight: FontWeight.w900,
+                                  color: const Color(0xFF0F172A),
+                                  letterSpacing: -0.3,
+                                ),
                               ),
-                              backgroundColor: val ? const Color(0xFF10B981) : Colors.red,
-                              duration: const Duration(seconds: 2),
-                              behavior: SnackBarBehavior.floating,
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3.5),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFECFDF5),
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: const Color(0xFF6EE7B7)),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 7,
+                                      height: 7,
+                                      decoration: const BoxDecoration(
+                                        color: Color(0xFF059669),
+                                        shape: BoxShape.circle,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      isRtl ? '$totalActive حساب نشط' : '$totalActive Active',
+                                      style: const TextStyle(
+                                        fontSize: 11.5,
+                                        fontWeight: FontWeight.w800,
+                                        color: Color(0xFF065F46),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (totalPending > 0)
+                                InkWell(
+                                  onTap: () => _onFilterChanged(UiServerFilter.pending),
+                                  borderRadius: BorderRadius.circular(20),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3.5),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFFBEB),
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(color: const Color(0xFFFCD34D)),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        const Icon(Icons.hourglass_top_rounded, size: 13, color: Color(0xFFD97706)),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          isRtl ? '$totalPending بانتظار الاعتماد' : '$totalPending Pending',
+                                          style: const TextStyle(
+                                            fontSize: 11.5,
+                                            fontWeight: FontWeight.w800,
+                                            color: Color(0xFF92400E),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            isRtl
+                                ? 'منظومة متكاملة لإدارة التجار والمشترين والموظفين، التسعير المرجعي، والرسائل الجماعية الموجهة'
+                                : 'Unified command center for merchants, buyers, staff governance, USD pricing & targeted broadcasts',
+                            style: const TextStyle(
+                              color: Color(0xFF64748B),
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w500,
                             ),
-                          );
-                        },
+                          ),
+                        ],
                       ),
+                    ),
+                  ],
+                );
+
+                final primaryActions = Wrap(
+                  spacing: 10,
+                  runSpacing: 8,
+                  children: [
+                    FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFF1E40AF),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        elevation: 1,
+                      ),
+                      icon: const Icon(Icons.person_add_alt_1_rounded, size: 18),
+                      label: Text(
+                        isRtl ? 'إضافة مشترك جديد' : 'Add Subscriber',
+                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
+                      ),
+                      onPressed: () => _showAddSubscriberDialog(context, isRtl),
+                    ),
+                    FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: const Color(0xFF6D28D9),
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 13),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        elevation: 1,
+                      ),
+                      icon: const Icon(Icons.campaign_rounded, size: 19),
+                      label: Text(
+                        isRtl ? 'رسالة جماعية للمشتركين' : 'Bulk Broadcast',
+                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
+                      ),
+                      onPressed: () => _showBulkBroadcastDialog(context, isRtl),
+                    ),
+                  ],
+                );
+
+                if (isCompact) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      identitySection,
+                      const SizedBox(height: 14),
+                      primaryActions,
                     ],
-                  ),
+                  );
+                }
+
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(child: identitySection),
+                    const SizedBox(width: 16),
+                    primaryActions,
+                  ],
                 );
               },
             ),
-            const SizedBox(width: 10),
+          ),
 
-            // Refresh Button
-            IconButton.filledTonal(
-              icon: const Icon(Icons.refresh_rounded, size: 20),
-              tooltip: isRtl ? 'تحديث فوري' : 'Refresh Data',
-              style: IconButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: const Color(0xFF1E40AF),
-                padding: const EdgeInsets.all(12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  side: const BorderSide(color: Color(0xFFE2E8F0)),
-                ),
-              ),
-              onPressed: () => ref.read(subscribersProvider.notifier).loadSubscribers(reset: true),
+          // Tier 2: Unified Full-Width Operational Control Strip (Evenly Aligned Tiles)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+            decoration: const BoxDecoration(
+              color: Color(0xFFF8FAFC),
+              border: Border(top: BorderSide(color: Color(0xFFE2E8F0))),
             ),
-          ],
-        ),
-      ],
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final int cols = constraints.maxWidth > 960
+                    ? 4
+                    : (constraints.maxWidth > 520 ? 2 : 1);
+                const double gap = 10.0;
+                final double tileWidth =
+                    (constraints.maxWidth - (gap * (cols - 1))) / cols;
+
+                return Wrap(
+                  spacing: gap,
+                  runSpacing: gap,
+                  children: [
+                    // Tile 1: Official Platform USD Rate
+                    SizedBox(
+                      width: tileWidth,
+                      height: 48,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () => _showSubscriberUsdRateDialog(context, isRtl),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFF6EE7B7), width: 1.3),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFECFDF5),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(Icons.currency_exchange_rounded, size: 17, color: Color(0xFF059669)),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  isRtl ? 'سعر الدولار المعتمد' : 'Platform USD Rate',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFF059669),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  '${NumberFormat('#,##0').format(currentUsdRate)} ${isRtl ? "ج.س" : "SDG"}',
+                                  style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w900, color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Tile 2: Points & Commissions Rules
+                    SizedBox(
+                      width: tileWidth,
+                      height: 48,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () => _showGamificationSettingsDialog(context, isRtl),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFFCD34D), width: 1.3),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFFFFBEB),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: const Icon(Icons.stars_rounded, size: 17, color: Color(0xFFD97706)),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  isRtl ? 'قواعد النقاط والعمولات' : 'Points & Commissions',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                                ),
+                              ),
+                              const Icon(Icons.tune_rounded, size: 16, color: Color(0xFFB45309)),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Tile 3: Merchant Upgrade Gate Switch
+                    SizedBox(
+                      width: tileWidth,
+                      height: 48,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: isUpgradeEnabled ? const Color(0xFF6EE7B7) : const Color(0xFFFECDD3),
+                            width: 1.3,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: isUpgradeEnabled ? const Color(0xFFECFDF5) : const Color(0xFFFFF1F2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                isUpgradeEnabled ? Icons.storefront_rounded : Icons.lock_person_rounded,
+                                size: 17,
+                                color: isUpgradeEnabled ? const Color(0xFF059669) : const Color(0xFFE11D48),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                isUpgradeEnabled
+                                    ? (isRtl ? 'باب الترقية: مفتوح' : 'Upgrade: Open')
+                                    : (isRtl ? 'باب الترقية: مغلق' : 'Upgrade: Closed'),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w800,
+                                  color: isUpgradeEnabled ? const Color(0xFF065F46) : const Color(0xFF9F1239),
+                                ),
+                              ),
+                            ),
+                            Transform.scale(
+                              scale: 0.82,
+                              child: Switch(
+                                value: isUpgradeEnabled,
+                                activeThumbColor: const Color(0xFF059669),
+                                activeTrackColor: const Color(0xFFA7F3D0),
+                                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                onChanged: (val) {
+                                  ref.read(merchantUpgradeSettingProvider.notifier).toggleSetting(val);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        val
+                                            ? (isRtl ? '✅ تم تفعيل وإظهار طلب الترقية كتاجر في تطبيق المشتري' : 'Merchant upgrade option is now visible in Buyer App')
+                                            : (isRtl ? '🔒 تم إيقاف وإخفاء طلب الترقية كتاجر من تطبيق المشتري' : 'Merchant upgrade option is now hidden in Buyer App'),
+                                      ),
+                                      backgroundColor: val ? const Color(0xFF059669) : const Color(0xFFE11D48),
+                                      duration: const Duration(seconds: 2),
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Tile 4: Sync & Refresh Directory
+                    SizedBox(
+                      width: tileWidth,
+                      height: 48,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () => ref.read(subscribersProvider.notifier).loadSubscribers(reset: true),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: const Color(0xFFCBD5E1), width: 1.3),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.sync_rounded, size: 18, color: Color(0xFF1E40AF)),
+                              const SizedBox(width: 8),
+                              Text(
+                                isRtl ? 'تحديث ومزامنة السجل' : 'Refresh Directory',
+                                style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: Color(0xFF1E293B)),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   // ===========================================================================
-  // 2. COMPACT KPI SUMMARY BAR
+  // 2. INTERACTIVE COLOR-CODED KPI SUMMARY GRID (CLICK TO FILTER)
   // ===========================================================================
   Widget _buildKpiSummaryBar({
     required bool isRtl,
@@ -464,10 +909,10 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
   }) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final double spacing = 14.0;
+        const double spacing = 12.0;
         final int crossAxisCount = constraints.maxWidth > 1100
             ? 4
-            : (constraints.maxWidth > 650 ? 2 : 1);
+            : (constraints.maxWidth > 340 ? 2 : 1);
         final double cardWidth =
             (constraints.maxWidth - (spacing * (crossAxisCount - 1))) / crossAxisCount;
 
@@ -478,78 +923,134 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
           runSpacing: spacing,
           children: [
             _buildKpiCard(
-              title: isRtl ? 'إجمالي المشتركين' : 'Total Users',
+              title: isRtl ? 'إجمالي المشتركين' : 'Total Subscribers',
               value: '$totalSubscribers',
+              subtitle: isRtl ? 'كافة الحسابات المسجلة' : 'All registered accounts',
+              badgeText: isRtl ? 'الكل' : 'All',
               icon: Icons.groups_rounded,
-              bgColor: const Color(0xFFFAF5FF),
-              borderColor: const Color(0xFFE9D5FF),
-              iconColor: const Color(0xFF9333EA),
+              accentColor: const Color(0xFF7E22CE), // Royal Purple
+              softBgColor: const Color(0xFFFAF5FF),
+              borderColor: const Color(0xFFD8B4FE),
               width: cardWidth,
+              isSelected: _selectedFilter == UiServerFilter.all,
+              onTap: () => _onFilterChanged(UiServerFilter.all),
             ),
             _buildKpiCard(
-              title: isRtl ? 'التجار المعتمدين' : 'Merchants',
+              title: isRtl ? 'التجار المعتمدون' : 'Verified Merchants',
               value: '$totalMerchants',
+              subtitle: isRtl ? 'أصحاب المتاجر والتوريد' : 'Active store owners',
+              badgeText: totalSubscribers > 0
+                  ? '${((totalMerchants / totalSubscribers) * 100).round()}%'
+                  : '0%',
               icon: Icons.storefront_rounded,
-              bgColor: const Color(0xFFF0FDF4),
-              borderColor: const Color(0xFFBBF7D0),
-              iconColor: const Color(0xFF059669),
+              accentColor: const Color(0xFF059669), // Emerald Green
+              softBgColor: const Color(0xFFECFDF5),
+              borderColor: const Color(0xFF6EE7B7),
               width: cardWidth,
+              isSelected: _selectedFilter == UiServerFilter.merchants,
+              onTap: () => _onFilterChanged(
+                _selectedFilter == UiServerFilter.merchants ? UiServerFilter.all : UiServerFilter.merchants,
+              ),
             ),
             _buildKpiCard(
-              title: isRtl ? 'المشترون والعملاء' : 'Buyers',
+              title: isRtl ? 'المشترون والعملاء' : 'Buyers & Customers',
               value: '$totalBuyers',
+              subtitle: isRtl ? 'حسابات الشراء المباشر والشركات' : 'Direct & corporate buyers',
+              badgeText: totalSubscribers > 0
+                  ? '${((totalBuyers / totalSubscribers) * 100).round()}%'
+                  : '0%',
               icon: Icons.shopping_bag_rounded,
-              bgColor: const Color(0xFFEFF6FF),
-              borderColor: const Color(0xFFBFDBFE),
-              iconColor: const Color(0xFF2563EB),
+              accentColor: const Color(0xFF2563EB), // Royal Blue
+              softBgColor: const Color(0xFFEFF6FF),
+              borderColor: const Color(0xFF93C5FD),
               width: cardWidth,
+              isSelected: _selectedFilter == UiServerFilter.buyers,
+              onTap: () => _onFilterChanged(
+                _selectedFilter == UiServerFilter.buyers ? UiServerFilter.all : UiServerFilter.buyers,
+              ),
             ),
-            // Advertisers & Campaigns KPI Card
             _buildKpiCard(
-              title: isRtl ? 'المعلنون والإعلانات' : 'Advertisers & Ads',
-              value: isRtl ? '$totalAdvertisers معلن ($activeAdsCount نشط)' : '$totalAdvertisers Adv ($activeAdsCount Ads)',
+              title: isRtl ? 'المعلنون والحملات' : 'Advertisers & Ads',
+              value: '$totalAdvertisers',
+              subtitle: isRtl ? '$activeAdsCount حملة إعلانية نشطة حالياً' : '$activeAdsCount active campaigns',
+              badgeText: isRtl ? 'تسويق' : 'Ads',
               icon: Icons.campaign_rounded,
-              bgColor: const Color(0xFFFDF4FF),
+              accentColor: const Color(0xFFC026D3), // Fuchsia / Magenta
+              softBgColor: const Color(0xFFFDF4FF),
               borderColor: const Color(0xFFF0ABFC),
-              iconColor: const Color(0xFFC026D3),
               width: cardWidth,
+              isSelected: _selectedFilter == UiServerFilter.advertisers,
+              onTap: () => _onFilterChanged(
+                _selectedFilter == UiServerFilter.advertisers ? UiServerFilter.all : UiServerFilter.advertisers,
+              ),
             ),
-            // Financial Volume KPI Card
             _buildKpiCard(
               title: isRtl ? 'حجم المعاملات المالية' : 'Financial Volume',
               value: '$formattedVolume ج.س',
+              subtitle: isRtl ? 'إجمالي المبيعات والمشتريات الحية' : 'Total live sales & purchases',
+              badgeText: isRtl ? 'ترتيب بالأعلى ↕' : 'Sort Top ↕',
               icon: Icons.account_balance_wallet_rounded,
-              bgColor: const Color(0xFFECFDF5),
-              borderColor: const Color(0xFFA7F3D0),
-              iconColor: const Color(0xFF047857),
+              accentColor: const Color(0xFF047857), // Deep Emerald
+              softBgColor: const Color(0xFFF0FDF4),
+              borderColor: const Color(0xFF86EFAC),
               width: cardWidth,
+              isSelected: _sortBy == 'highest_volume',
+              onTap: () {
+                setState(() {
+                  _sortBy = _sortBy == 'highest_volume' ? 'newest' : 'highest_volume';
+                });
+              },
             ),
             _buildKpiCard(
-              title: isRtl ? 'طاقم العمل والموظفين' : 'Staff',
+              title: isRtl ? 'طاقم العمل والموظفون' : 'Platform Staff',
               value: '$totalEmployees',
+              subtitle: isRtl ? 'موظفو الإدارة والمتابعة' : 'Operations & support team',
+              badgeText: isRtl ? 'فريق العمل' : 'Staff',
               icon: Icons.badge_rounded,
-              bgColor: const Color(0xFFFFFBEB),
-              borderColor: const Color(0xFFFDE68A),
-              iconColor: const Color(0xFFD97706),
+              accentColor: const Color(0xFFD97706), // Amber Gold
+              softBgColor: const Color(0xFFFFFBEB),
+              borderColor: const Color(0xFFFCD34D),
               width: cardWidth,
+              isSelected: _selectedFilter == UiServerFilter.employees,
+              onTap: () => _onFilterChanged(
+                _selectedFilter == UiServerFilter.employees ? UiServerFilter.all : UiServerFilter.employees,
+              ),
             ),
             _buildKpiCard(
               title: isRtl ? 'الحسابات النشطة' : 'Active Accounts',
               value: '$totalActive',
-              icon: Icons.check_circle_rounded,
-              bgColor: const Color(0xFFECFEFF),
-              borderColor: const Color(0xFFA5F3FC),
-              iconColor: const Color(0xFF0891B2),
+              subtitle: isRtl ? 'حسابات موثقة وفعّالة بالمنصة' : 'Verified & active users',
+              badgeText: totalSubscribers > 0
+                  ? '${((totalActive / totalSubscribers) * 100).round()}%'
+                  : '0%',
+              icon: Icons.verified_user_rounded,
+              accentColor: const Color(0xFF0891B2), // Cyan / Teal
+              softBgColor: const Color(0xFFECFEFF),
+              borderColor: const Color(0xFF67E8F9),
               width: cardWidth,
+              isSelected: _selectedFilter == UiServerFilter.active,
+              onTap: () => _onFilterChanged(
+                _selectedFilter == UiServerFilter.active ? UiServerFilter.all : UiServerFilter.active,
+              ),
             ),
             _buildKpiCard(
-              title: isRtl ? 'الموقوفين والمعلقين' : 'Suspended / Pending',
+              title: isRtl ? 'الموقوفون وقيد المراجعة' : 'Pending & Suspended',
               value: '${totalSuspended + totalPending}',
+              subtitle: isRtl
+                  ? '$totalPending قيد المراجعة • $totalSuspended موقوف'
+                  : '$totalPending Pending • $totalSuspended Suspended',
+              badgeText: (totalSuspended + totalPending) > 0
+                  ? (isRtl ? 'يتطلب إجراء' : 'Action Needed')
+                  : (isRtl ? 'مستقر' : 'Clear'),
               icon: Icons.warning_amber_rounded,
-              bgColor: const Color(0xFFFFF1F2),
+              accentColor: const Color(0xFFE11D48), // Rose Red
+              softBgColor: const Color(0xFFFFF1F2),
               borderColor: const Color(0xFFFECDD3),
-              iconColor: const Color(0xFFE11D48),
               width: cardWidth,
+              isSelected: _selectedFilter == UiServerFilter.pending || _selectedFilter == UiServerFilter.suspended,
+              onTap: () => _onFilterChanged(
+                totalPending > 0 ? UiServerFilter.pending : UiServerFilter.suspended,
+              ),
             ),
           ],
         );
@@ -560,273 +1061,622 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
   Widget _buildKpiCard({
     required String title,
     required String value,
+    required String subtitle,
+    required String badgeText,
     required IconData icon,
-    required Color bgColor,
+    required Color accentColor,
+    required Color softBgColor,
     required Color borderColor,
-    required Color iconColor,
     required double width,
+    required bool isSelected,
+    required VoidCallback onTap,
   }) {
-    return Container(
-      width: width,
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: borderColor, width: 1.2),
-        boxShadow: [
-          BoxShadow(
-            color: iconColor.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: iconColor,
-              borderRadius: BorderRadius.circular(10),
-              boxShadow: [
-                BoxShadow(
-                  color: iconColor.withValues(alpha: 0.25),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: width,
+          decoration: BoxDecoration(
+            color: isSelected ? softBgColor : Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isSelected ? accentColor : const Color(0xFFE2E8F0),
+              width: isSelected ? 2.0 : 1.2,
             ),
-            child: Icon(icon, color: Colors.white, size: 18),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: Colors.grey.shade700,
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    color: Color(0xFF0F172A),
-                    letterSpacing: -0.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ===========================================================================
-  // 3. SEARCH AND PROFESSIONAL FILTER BAR
-  // ===========================================================================
-  Widget _buildFilterAndSearchBar(
-    bool isRtl,
-    List<SubscriberModel> subscribers,
-    int pendingCount,
-    int rejectedCount, [
-    int advertisersCount = 0,
-  ]) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF0F172A).withValues(alpha: 0.03),
-            blurRadius: 14,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              // Search input
-              Expanded(
-                flex: 3,
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: _onSearchChanged,
-                  decoration: InputDecoration(
-                    hintText: isRtl
-                        ? 'ابحث بالاسم، البريد الإلكتروني، رقم الهاتف أو اسم المتجر...'
-                        : 'Search by Name, Email, Phone, or Store Name...',
-                    hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 13),
-                    prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF1E40AF), size: 20),
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: const Icon(Icons.clear, size: 18),
-                            onPressed: () {
-                              _searchController.clear();
-                              _onSearchChanged('');
-                              setState(() {});
-                            },
-                          )
-                        : null,
-                    filled: true,
-                    fillColor: const Color(0xFFF8FAFC),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
-                    ),
-                  ),
-                ),
+            boxShadow: [
+              BoxShadow(
+                color: isSelected
+                    ? accentColor.withValues(alpha: 0.14)
+                    : const Color(0xFF0F172A).withValues(alpha: 0.03),
+                blurRadius: isSelected ? 14 : 8,
+                offset: const Offset(0, 3),
               ),
-              const SizedBox(width: 14),
-
-              // Total matching counter badge
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Colored Top Indicator Strip
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+                height: 4,
+                width: double.infinity,
+                color: accentColor,
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.person_search_rounded, size: 16, color: Color(0xFF64748B)),
-                    const SizedBox(width: 6),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(9),
+                          decoration: BoxDecoration(
+                            color: softBgColor,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: borderColor),
+                          ),
+                          child: Icon(icon, color: accentColor, size: 20),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: isSelected ? accentColor : softBgColor,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: isSelected ? accentColor : borderColor),
+                          ),
+                          child: Text(
+                            badgeText,
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w800,
+                              color: isSelected ? Colors.white : accentColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
                     Text(
-                      '${subscribers.length} ${isRtl ? "مستخدم" : "Users"}',
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Color(0xFF334155)),
+                      value,
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w900,
+                        color: Color(0xFF0F172A),
+                        letterSpacing: -0.5,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: accentColor,
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w800,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        color: Color(0xFF64748B),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+        ),
+      ),
+    );
+  }
 
-          // Professional Segment Buttons
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _buildSegmentFilterButton(
-                  filter: UiServerFilter.all,
-                  label: isRtl ? 'كل المشتركين' : 'All Users',
-                  icon: Icons.groups_rounded,
-                  isRtl: isRtl,
-                ),
-                const SizedBox(width: 8),
-                _buildSegmentFilterButton(
-                  filter: UiServerFilter.merchants,
-                  label: isRtl ? 'التجار المعتمدين' : 'Merchants',
-                  icon: Icons.storefront_rounded,
-                  isRtl: isRtl,
-                ),
-                const SizedBox(width: 8),
-                _buildSegmentFilterButton(
-                  filter: UiServerFilter.buyers,
-                  label: isRtl ? 'المشترين والعملاء' : 'Buyers',
-                  icon: Icons.shopping_bag_rounded,
-                  isRtl: isRtl,
-                ),
-                const SizedBox(width: 8),
-                // Advertisers Filter Button
-                _buildSegmentFilterButton(
-                  filter: UiServerFilter.advertisers,
-                  label: isRtl ? 'المعلنون وأصحاب الحملات' : 'Advertisers',
-                  icon: Icons.campaign_rounded,
-                  badgeCount: advertisersCount > 0 ? advertisersCount : null,
-                  isRtl: isRtl,
-                ),
-                const SizedBox(width: 8),
-                // Navigate to Settings → Employees tab
-                InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () {
-                    ref.read(settingsTabIndexProvider.notifier).state = 6;
-                    context.go(RouteNames.adminSettings);
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFFBEB),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFFDE68A), width: 1.2),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.badge_rounded, size: 16, color: Color(0xFFD97706)),
-                        const SizedBox(width: 6),
-                        Text(
-                          isRtl ? 'فريق العمل والموظفين' : 'Staff & Employees',
-                          style: const TextStyle(
-                            color: Color(0xFF92400E),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12.5,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        const Icon(Icons.arrow_forward_ios_rounded, size: 12, color: Color(0xFFD97706)),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                _buildSegmentFilterButton(
-                  filter: UiServerFilter.pending,
-                  label: isRtl ? 'قيد الاعتماد' : 'Pending Verification',
-                  icon: Icons.hourglass_top_rounded,
-                  badgeCount: pendingCount > 0 ? pendingCount : null,
-                  isRtl: isRtl,
-                ),
-                const SizedBox(width: 8),
-                _buildSegmentFilterButton(
-                  filter: UiServerFilter.rejected,
-                  label: isRtl ? 'الطلبات المرفوضة' : 'Rejected Requests',
-                  icon: Icons.cancel_outlined,
-                  badgeCount: rejectedCount > 0 ? rejectedCount : null,
-                  isRtl: isRtl,
-                ),
-                const SizedBox(width: 8),
-                _buildSegmentFilterButton(
-                  filter: UiServerFilter.active,
-                  label: isRtl ? 'الحسابات النشطة' : 'Active Only',
-                  icon: Icons.check_circle_outline_rounded,
-                  isRtl: isRtl,
-                ),
-                const SizedBox(width: 8),
-                _buildSegmentFilterButton(
-                  filter: UiServerFilter.suspended,
-                  label: isRtl ? 'الموقوفين' : 'Suspended',
-                  icon: Icons.block_rounded,
-                  isRtl: isRtl,
-                ),
-              ],
-            ),
+  // ===========================================================================
+  // 3. FULL-WIDTH SEARCH, SORT & SEGMENTED CATEGORY TRACK
+  // ===========================================================================
+  Widget _buildFilterAndSearchBar({
+    required bool isRtl,
+    required List<SubscriberModel> subscribers,
+    required int merchantsCount,
+    required int buyersCount,
+    required int employeesCount,
+    required int activeCount,
+    required int suspendedCount,
+    required int pendingCount,
+    required int rejectedCount,
+    required int advertisersCount,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: const Color(0xFFCBD5E1)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF0F172A).withValues(alpha: 0.035),
+            blurRadius: 14,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final isWide = constraints.maxWidth >= 920;
+
+          final searchField = TextField(
+            controller: _searchController,
+            onChanged: _onSearchChanged,
+            style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: Color(0xFF0F172A)),
+            decoration: InputDecoration(
+              hintText: isRtl
+                  ? 'ابحث بالاسم، رقم العضوية، البريد، الهاتف، أو اسم المتجر...'
+                  : 'Search by Name, Membership ID, Email, Phone, or Store...',
+              hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13, fontWeight: FontWeight.normal),
+              prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF1E40AF), size: 20),
+              suffixIcon: _searchController.text.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear_rounded, size: 18, color: Color(0xFF64748B)),
+                      onPressed: () {
+                        _searchController.clear();
+                        _onSearchChanged('');
+                      },
+                    )
+                  : null,
+              filled: true,
+              fillColor: const Color(0xFFF8FAFC),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Color(0xFF1E40AF), width: 1.6),
+              ),
+            ),
+          );
+
+          final sortPill = Container(
+            height: 46,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF8FAFC),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFCBD5E1)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.sort_rounded, size: 18, color: Color(0xFF1E40AF)),
+                const SizedBox(width: 6),
+                Text(
+                  isRtl ? 'ترتيب:' : 'Sort:',
+                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF475569)),
+                ),
+                const SizedBox(width: 6),
+                DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: _sortBy,
+                    isDense: true,
+                    style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
+                    items: [
+                      DropdownMenuItem(
+                        value: 'newest',
+                        child: Text(isRtl ? 'الأحدث انضماماً' : 'Newest First'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'highest_volume',
+                        child: Text(isRtl ? 'الأعلى تعاملاً مالياً' : 'Highest Financial Volume'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'most_orders',
+                        child: Text(isRtl ? 'الأكثر طلبات' : 'Most Orders'),
+                      ),
+                      DropdownMenuItem(
+                        value: 'name_asc',
+                        child: Text(isRtl ? 'الاسم (أ - ي)' : 'Name (A - Z)'),
+                      ),
+                    ],
+                    onChanged: (val) {
+                      if (val != null) setState(() => _sortBy = val);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+
+          final legendBtn = InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => setState(() => _showColorLegend = !_showColorLegend),
+            child: Container(
+              height: 46,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: _showColorLegend ? const Color(0xFFFAF5FF) : const Color(0xFFF8FAFC),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: _showColorLegend ? const Color(0xFFD8B4FE) : const Color(0xFFCBD5E1),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.palette_outlined,
+                    size: 16,
+                    color: _showColorLegend ? const Color(0xFF7E22CE) : const Color(0xFF64748B),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    isRtl ? 'دليل الألوان' : 'Color Guide',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w800,
+                      color: _showColorLegend ? const Color(0xFF7E22CE) : const Color(0xFF475569),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+
+          final countBadge = Container(
+            height: 46,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEFF6FF),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFFBFDBFE)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.fact_check_outlined, size: 16, color: Color(0xFF1E40AF)),
+                const SizedBox(width: 6),
+                Text(
+                  '${subscribers.length} ${isRtl ? "مشترك معروض" : "Shown"}',
+                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12, color: Color(0xFF1E40AF)),
+                ),
+              ],
+            ),
+          );
+
+          final roleButtons = <Widget>[
+            _buildSegmentFilterButton(
+              filter: UiServerFilter.all,
+              label: isRtl ? 'كل المشتركين' : 'All Users',
+              icon: Icons.groups_rounded,
+              semanticColor: const Color(0xFF1E40AF),
+              badgeCount: subscribers.length,
+              isRtl: isRtl,
+              expandContent: isWide,
+            ),
+            _buildSegmentFilterButton(
+              filter: UiServerFilter.merchants,
+              label: isRtl ? 'التجار المعتمدون' : 'Merchants',
+              icon: Icons.storefront_rounded,
+              semanticColor: const Color(0xFF059669),
+              badgeCount: merchantsCount > 0 ? merchantsCount : null,
+              isRtl: isRtl,
+              expandContent: isWide,
+            ),
+            _buildSegmentFilterButton(
+              filter: UiServerFilter.buyers,
+              label: isRtl ? 'المشترون والعملاء' : 'Buyers',
+              icon: Icons.shopping_bag_rounded,
+              semanticColor: const Color(0xFF2563EB),
+              badgeCount: buyersCount > 0 ? buyersCount : null,
+              isRtl: isRtl,
+              expandContent: isWide,
+            ),
+            _buildSegmentFilterButton(
+              filter: UiServerFilter.advertisers,
+              label: isRtl ? 'المعلنون والحملات' : 'Advertisers',
+              icon: Icons.campaign_rounded,
+              semanticColor: const Color(0xFFC026D3),
+              badgeCount: advertisersCount > 0 ? advertisersCount : null,
+              isRtl: isRtl,
+              expandContent: isWide,
+            ),
+            _buildSegmentFilterButton(
+              filter: UiServerFilter.employees,
+              label: isRtl ? 'الموظفون' : 'Staff',
+              icon: Icons.badge_rounded,
+              semanticColor: const Color(0xFFD97706),
+              badgeCount: employeesCount > 0 ? employeesCount : null,
+              isRtl: isRtl,
+              expandContent: isWide,
+            ),
+          ];
+
+          final statusButtons = <Widget>[
+            _buildSegmentFilterButton(
+              filter: UiServerFilter.active,
+              label: isRtl ? 'الحسابات النشطة' : 'Active',
+              icon: Icons.check_circle_outline_rounded,
+              semanticColor: const Color(0xFF0891B2),
+              badgeCount: activeCount > 0 ? activeCount : null,
+              isRtl: isRtl,
+              expandContent: isWide,
+            ),
+            _buildSegmentFilterButton(
+              filter: UiServerFilter.pending,
+              label: isRtl ? 'قيد الاعتماد' : 'Pending',
+              icon: Icons.hourglass_top_rounded,
+              semanticColor: const Color(0xFFD97706),
+              badgeCount: pendingCount > 0 ? pendingCount : null,
+              isRtl: isRtl,
+              expandContent: isWide,
+            ),
+            _buildSegmentFilterButton(
+              filter: UiServerFilter.rejected,
+              label: isRtl ? 'الطلبات المرفوضة' : 'Rejected',
+              icon: Icons.cancel_outlined,
+              semanticColor: const Color(0xFFE11D48),
+              badgeCount: rejectedCount > 0 ? rejectedCount : null,
+              isRtl: isRtl,
+              expandContent: isWide,
+            ),
+            _buildSegmentFilterButton(
+              filter: UiServerFilter.suspended,
+              label: isRtl ? 'الحسابات الموقوفة' : 'Suspended',
+              icon: Icons.block_rounded,
+              semanticColor: const Color(0xFFDC2626),
+              badgeCount: suspendedCount > 0 ? suspendedCount : null,
+              isRtl: isRtl,
+              expandContent: isWide,
+            ),
+            InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () {
+                ref.read(settingsTabIndexProvider.notifier).state = 6;
+                context.go(RouteNames.adminSettings);
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFFBEB),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFFCD34D), width: 1.2),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: isWide ? MainAxisSize.max : MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.admin_panel_settings_rounded, size: 16, color: Color(0xFFB45309)),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        isRtl ? 'صلاحيات الموظفين' : 'Staff Permissions',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Color(0xFF92400E),
+                          fontWeight: FontWeight.w800,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    const Icon(Icons.open_in_new_rounded, size: 12, color: Color(0xFFD97706)),
+                  ],
+                ),
+              ),
+            ),
+          ];
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Row 1: Full-Width Search & Quick Sort Controls
+              if (isWide)
+                Row(
+                  children: [
+                    Expanded(child: searchField),
+                    const SizedBox(width: 10),
+                    sortPill,
+                    const SizedBox(width: 10),
+                    legendBtn,
+                    const SizedBox(width: 10),
+                    countBadge,
+                  ],
+                )
+              else
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    searchField,
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [sortPill, legendBtn, countBadge],
+                    ),
+                  ],
+                ),
+
+              const SizedBox(height: 14),
+              const Divider(height: 1, color: Color(0xFFF1F5F9)),
+              const SizedBox(height: 14),
+
+              // Row 2: Full-Width Role Categories Track ("تصنيف الفئات بالمسار كاملاً")
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: isWide
+                    ? Row(
+                        children: [
+                          for (int i = 0; i < roleButtons.length; i++) ...[
+                            if (i > 0) const SizedBox(width: 8),
+                            Expanded(child: roleButtons[i]),
+                          ],
+                        ],
+                      )
+                    : SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            for (int i = 0; i < roleButtons.length; i++) ...[
+                              if (i > 0) const SizedBox(width: 8),
+                              roleButtons[i],
+                            ],
+                          ],
+                        ),
+                      ),
+              ),
+              const SizedBox(height: 10),
+
+              // Row 3: Full-Width Account Status & Governance Track ("حالة الحساب بالمسار كاملاً")
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFC),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: isWide
+                    ? Row(
+                        children: [
+                          for (int i = 0; i < statusButtons.length; i++) ...[
+                            if (i > 0) const SizedBox(width: 8),
+                            Expanded(child: statusButtons[i]),
+                          ],
+                        ],
+                      )
+                    : SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            for (int i = 0; i < statusButtons.length; i++) ...[
+                              if (i > 0) const SizedBox(width: 8),
+                              statusButtons[i],
+                            ],
+                          ],
+                        ),
+                      ),
+              ),
+
+              // Collapsible Illustrative Color Legend Bar
+              if (_showColorLegend) ...[
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: Wrap(
+                    spacing: 18,
+                    runSpacing: 8,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.info_outline_rounded, size: 15, color: Color(0xFF475569)),
+                          const SizedBox(width: 6),
+                          Text(
+                            isRtl ? 'دليل الألوان البصري:' : 'Visual Color Legend:',
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFF334155),
+                            ),
+                          ),
+                        ],
+                      ),
+                      _buildLegendItem(
+                        color: const Color(0xFF059669),
+                        label: isRtl ? 'أخضر زمردي: تاجر معتمد / مبيعات / نشط' : 'Emerald: Merchant / Sales / Active',
+                      ),
+                      _buildLegendItem(
+                        color: const Color(0xFF2563EB),
+                        label: isRtl ? 'أزرق ملكي: مشتري / طلبات شراء / موثق' : 'Blue: Buyer / Orders / Verified',
+                      ),
+                      _buildLegendItem(
+                        color: const Color(0xFFC026D3),
+                        label: isRtl ? 'أرجواني: معلن / حملات تسويقية' : 'Fuchsia: Advertiser / Campaigns',
+                      ),
+                      _buildLegendItem(
+                        color: const Color(0xFF7E22CE),
+                        label: isRtl ? 'بنفسجي: تسهيلات شركات B2B / إدارة' : 'Purple: B2B Credit / Admin',
+                      ),
+                      _buildLegendItem(
+                        color: const Color(0xFFD97706),
+                        label: isRtl ? 'كهرماني ذهبي: موظف / قيد المراجعة / نقاط' : 'Amber: Staff / Pending / Points',
+                      ),
+                      _buildLegendItem(
+                        color: const Color(0xFFE11D48),
+                        label: isRtl ? 'أحمر قرمزي: حساب موقوف / مرفوض' : 'Crimson: Suspended / Rejected',
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildLegendItem({required Color color, required String label}) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(3),
+            boxShadow: [
+              BoxShadow(
+                color: color.withValues(alpha: 0.3),
+                blurRadius: 4,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 11.5,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF475569),
+          ),
+        ),
+      ],
     );
   }
 
@@ -834,27 +1684,29 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
     required UiServerFilter filter,
     required String label,
     required IconData icon,
+    required Color semanticColor,
     required bool isRtl,
     int? badgeCount,
+    bool expandContent = false,
   }) {
     final isSelected = _selectedFilter == filter;
     return InkWell(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(11),
       onTap: () => _onFilterChanged(filter),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF1E40AF) : const Color(0xFFF8FAFC),
-          borderRadius: BorderRadius.circular(12),
+          color: isSelected ? semanticColor : Colors.white,
+          borderRadius: BorderRadius.circular(11),
           border: Border.all(
-            color: isSelected ? const Color(0xFF1E40AF) : const Color(0xFFE2E8F0),
-            width: 1.2,
+            color: isSelected ? semanticColor : semanticColor.withValues(alpha: 0.28),
+            width: isSelected ? 1.5 : 1.0,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0xFF1E40AF).withValues(alpha: 0.25),
+                    color: semanticColor.withValues(alpha: 0.25),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -862,36 +1714,41 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
               : null,
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: expandContent ? MainAxisSize.max : MainAxisSize.min,
           children: [
             Icon(
               icon,
               size: 16,
-              color: isSelected ? Colors.white : const Color(0xFF64748B),
+              color: isSelected ? Colors.white : semanticColor,
             ),
             const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: isSelected ? Colors.white : const Color(0xFF334155),
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                fontSize: 12.5,
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: isSelected ? Colors.white : const Color(0xFF1E293B),
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12.5,
+                ),
               ),
             ),
             if (badgeCount != null) ...[
               const SizedBox(width: 6),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                padding: const EdgeInsets.symmetric(horizontal: 6.5, vertical: 1.5),
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.white : const Color(0xFFD97706),
+                  color: isSelected ? Colors.white : semanticColor.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
                   '$badgeCount',
                   style: TextStyle(
-                    color: isSelected ? const Color(0xFF1E40AF) : Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
+                    color: isSelected ? semanticColor : semanticColor,
+                    fontSize: 10.5,
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
               ),
@@ -902,10 +1759,8 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
     );
   }
 
-  /// Styled button that navigates to Settings → Employees & Staff tab (index 6)
-
   // ===========================================================================
-  // 4. INLINE ENTERPRISE SUBSCRIBERS MASTER TABLE (100% WIDTH, ONE LINE)
+  // 4. HIGH-READABILITY COLOR-CODED SUBSCRIBERS MASTER TABLE
   // ===========================================================================
   Widget _buildSubscribersTableCard(
     BuildContext context,
@@ -913,14 +1768,15 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
     AsyncValue<List<SubscriberModel>> asyncSubscribers,
   ) {
     final notifier = ref.watch(subscribersProvider.notifier);
+    final categoriesAsync = ref.watch(categoriesProvider);
+    final allCategories = categoriesAsync.valueOrNull ?? <CategoryModel>[];
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFCBD5E1)),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF0F172A).withValues(alpha: 0.04),
@@ -929,41 +1785,92 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
           ),
         ],
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Table Title Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF7E22CE).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(10),
+          // Table Card Header Banner
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
+            decoration: const BoxDecoration(
+              color: Color(0xFFF8FAFC),
+              border: Border(bottom: BorderSide(color: Color(0xFFE2E8F0))),
+            ),
+            child: Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 16,
+              runSpacing: 10,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(9),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E40AF).withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFFBFDBFE)),
+                      ),
+                      child: const Icon(Icons.table_chart_rounded, color: Color(0xFF1E40AF), size: 20),
                     ),
-                    child: const Icon(Icons.people_outline_rounded, color: Color(0xFF7E22CE), size: 20),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    isRtl ? 'سجل بيانات المشتركين والمتاجر الحية' : 'Subscribers & Merchant Directory Ledger',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: Color(0xFF0F172A),
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            isRtl ? 'السجل التفصيلي للمشتركين والمتاجر' : 'Subscribers & Merchants Master Ledger',
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF0F172A),
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            isRtl
+                                ? 'انقر على أي صف لعرض الملف الكامل للمشترك وإدارة صلاحياته وحساباته المالية'
+                                : 'Click any row to open full subscriber profile, permissions, and financial settings',
+                            style: const TextStyle(color: Color(0xFF64748B), fontSize: 12, fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                // Active Filter Indicator Chip
+                if (_selectedFilter != UiServerFilter.all)
+                  InkWell(
+                    onTap: () => _onFilterChanged(UiServerFilter.all),
+                    borderRadius: BorderRadius.circular(10),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEF2F2),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: const Color(0xFFFECACA)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.filter_alt_off_rounded, size: 15, color: Color(0xFFDC2626)),
+                          const SizedBox(width: 6),
+                          Text(
+                            isRtl ? 'إلغاء الفلتر وعرض الكل' : 'Clear Filter & Show All',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                              color: Color(0xFFDC2626),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ],
-              ),
-              Text(
-                isRtl ? 'جميع التفاصيل والحالات معروضة في سطر واحد شامل' : 'All details & status in a single row',
-                style: TextStyle(color: Colors.grey.shade500, fontSize: 12, fontWeight: FontWeight.w500),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 20),
 
           // Table Content
           asyncSubscribers.when(
@@ -973,24 +1880,48 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
                 child: CircularProgressIndicator(color: Color(0xFF1E40AF)),
               ),
             ),
-            error: (err, stack) => AdminErrorView(
-              error: err,
-              stackTrace: stack,
-              onRetry: () => ref.read(subscribersProvider.notifier).loadSubscribers(reset: true),
+            error: (err, stack) => Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: AdminErrorView(
+                error: err,
+                stackTrace: stack,
+                onRetry: () => ref.read(subscribersProvider.notifier).loadSubscribers(reset: true),
+              ),
             ),
-            data: (subs) {
+            data: (rawSubs) {
+              final subs = _applyLocalSort(rawSubs, isRtl);
+
               if (subs.isEmpty) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 60),
+                  padding: const EdgeInsets.symmetric(vertical: 64),
                   child: Center(
                     child: Column(
                       children: [
-                        Icon(Icons.person_off_rounded, size: 64, color: Colors.grey.shade300),
-                        const SizedBox(height: 14),
-                        Text(
-                          isRtl ? 'لا يوجد مشتركين مطابقين للبحث أو الفلتر' : 'No subscribers found matching query',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey.shade500),
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFF1F5F9),
+                            shape: BoxShape.circle,
+                            border: Border.all(color: const Color(0xFFE2E8F0)),
+                          ),
+                          child: const Icon(Icons.person_off_rounded, size: 48, color: Color(0xFF94A3B8)),
                         ),
+                        const SizedBox(height: 16),
+                        Text(
+                          isRtl ? 'لا يوجد مشتركون مطابقون للبحث أو الفلتر المحدد' : 'No subscribers found matching your filter',
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: Color(0xFF334155)),
+                        ),
+                        const SizedBox(height: 8),
+                        if (_selectedFilter != UiServerFilter.all || _searchController.text.isNotEmpty)
+                          OutlinedButton.icon(
+                            onPressed: () {
+                              _searchController.clear();
+                              _onSearchChanged('');
+                              _onFilterChanged(UiServerFilter.all);
+                            },
+                            icon: const Icon(Icons.refresh_rounded, size: 16),
+                            label: Text(isRtl ? 'إعادة ضبط البحث والفلاتر' : 'Reset Filters'),
+                          ),
                       ],
                     ),
                   ),
@@ -1002,72 +1933,196 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
                   LayoutBuilder(
                     builder: (context, tableConstraints) {
                       final double tableWidth =
-                          tableConstraints.maxWidth > 1180 ? tableConstraints.maxWidth : 1180;
+                          tableConstraints.maxWidth > 1240 ? tableConstraints.maxWidth : 1240;
 
                       return SingleChildScrollView(
                         scrollDirection: Axis.horizontal,
                         child: ConstrainedBox(
                           constraints: BoxConstraints(minWidth: tableWidth),
                           child: DataTable(
-                            headingRowColor: const WidgetStatePropertyAll(Color(0xFFF8FAFC)),
+                            showCheckboxColumn: false,
+                            headingRowHeight: 54,
+                            headingRowColor: const WidgetStatePropertyAll(Color(0xFFF1F5F9)),
                             headingTextStyle: const TextStyle(
-                              fontWeight: FontWeight.w800,
-                              color: Color(0xFF1E293B),
-                              fontSize: 13,
+                              fontWeight: FontWeight.w900,
+                              color: Color(0xFF0F172A),
+                              fontSize: 12.5,
                             ),
-                            dataRowMaxHeight: 74,
-                            columnSpacing: 22,
-                            horizontalMargin: 16,
+                            dataRowMinHeight: 74,
+                            dataRowMaxHeight: 90,
+                            columnSpacing: 18,
+                            horizontalMargin: 20,
                             dividerThickness: 1,
                             columns: [
-                              DataColumn(label: Text(isRtl ? 'المشترك والاسم' : 'Subscriber Name')),
-                              DataColumn(label: Text(isRtl ? 'البريد الإلكتروني والهاتف' : 'Contact & Phone')),
-                              DataColumn(label: Text(isRtl ? 'نوع الحساب والرتبة' : 'Role & Tier')),
-                              DataColumn(label: Text(isRtl ? 'حالة الحساب والنشاط' : 'Status & Activity')),
-                              DataColumn(label: Text(isRtl ? 'المتجر وسوق التوريد' : 'Store / Entity')),
-                              DataColumn(label: Text(isRtl ? 'حجم الطلبات' : 'Orders Count')),
-                              DataColumn(label: Text(isRtl ? 'حجم المعاملات المالية' : 'Financial Volume')),
-                              DataColumn(label: Text(isRtl ? 'تاريخ الانضمام' : 'Joined Date')),
-                              DataColumn(label: Text(isRtl ? 'الإجراءات السريعة' : 'Inline Actions')),
+                              DataColumn(
+                                label: Text(isRtl ? '#' : '#', style: const TextStyle(color: Color(0xFF64748B))),
+                              ),
+                              DataColumn(
+                                label: _buildColumnHeader(
+                                  Icons.person_rounded,
+                                  isRtl ? 'المشترك والعضوية' : 'Subscriber & ID',
+                                  const Color(0xFF1E40AF),
+                                ),
+                              ),
+                              DataColumn(
+                                label: _buildColumnHeader(
+                                  Icons.contact_phone_rounded,
+                                  isRtl ? 'بيانات التواصل' : 'Contact Info',
+                                  const Color(0xFF0284C7),
+                                ),
+                              ),
+                              DataColumn(
+                                label: _buildColumnHeader(
+                                  Icons.badge_rounded,
+                                  isRtl ? 'نوع الحساب والرتبة' : 'Role & Tier',
+                                  const Color(0xFF7E22CE),
+                                ),
+                              ),
+                              DataColumn(
+                                label: _buildColumnHeader(
+                                  Icons.verified_user_rounded,
+                                  isRtl ? 'حالة الحساب' : 'Account Status',
+                                  const Color(0xFF059669),
+                                ),
+                              ),
+                              DataColumn(
+                                label: _buildColumnHeader(
+                                  Icons.storefront_rounded,
+                                  isRtl ? 'المتجر والأقسام المصرحة' : 'Store & Authorized Categories',
+                                  const Color(0xFF047857),
+                                ),
+                              ),
+                              DataColumn(
+                                label: _buildColumnHeader(
+                                  Icons.shopping_bag_rounded,
+                                  isRtl ? 'الطلبات' : 'Orders',
+                                  const Color(0xFF2563EB),
+                                ),
+                              ),
+                              DataColumn(
+                                label: _buildColumnHeader(
+                                  Icons.payments_rounded,
+                                  isRtl ? 'الحجم المالي والإنفاق' : 'Financial Volume',
+                                  const Color(0xFF059669),
+                                ),
+                              ),
+                              DataColumn(
+                                label: _buildColumnHeader(
+                                  Icons.calendar_today_rounded,
+                                  isRtl ? 'الانضمام' : 'Joined',
+                                  const Color(0xFFD97706),
+                                ),
+                              ),
+                              DataColumn(
+                                label: _buildColumnHeader(
+                                  Icons.tune_rounded,
+                                  isRtl ? 'الإجراءات السريعة' : 'Quick Actions',
+                                  const Color(0xFF334155),
+                                ),
+                              ),
                             ],
-                            rows: subs.map((sub) {
+                            rows: List.generate(subs.length, (index) {
+                              final sub = subs[index];
                               final statusColor = _getStatusColor(sub.status);
                               final statusText = _getStatusName(sub.status, isRtl);
                               final roleColor = _getRoleColor(sub.role);
                               final roleName = _getRoleName(sub.role, isRtl);
                               final displayName = isRtl ? (sub.nameAr.isNotEmpty ? sub.nameAr : sub.name) : sub.name;
+                              final isB2bEnabled = sub.permissions['b2b_credit_enabled'] == true;
+                              final hasAds = sub.isAdvertiser || sub.totalAdsCount > 0;
+                              final secondaryPhone = sub.permissions['secondary_phone']?.toString().trim() ?? '';
+
+                              // Semantic Row Background Color for Immediate Visual Readability
+                              Color rowBgColor;
+                              if (sub.status == SubscriberStatus.suspended) {
+                                rowBgColor = const Color(0xFFFFF1F2).withValues(alpha: 0.55);
+                              } else if (sub.status == SubscriberStatus.pendingVerification) {
+                                rowBgColor = const Color(0xFFFFFBEB).withValues(alpha: 0.65);
+                              } else if (sub.status == SubscriberStatus.rejectedVerification) {
+                                rowBgColor = const Color(0xFFFEF2F2).withValues(alpha: 0.45);
+                              } else {
+                                rowBgColor = index.isEven ? Colors.white : const Color(0xFFF8FAFC);
+                              }
 
                               return DataRow(
+                                color: WidgetStatePropertyAll(rowBgColor),
+                                onSelectChanged: (_) => _showDetailSheet(context, sub),
                                 cells: [
-                                  // 1. Subscriber Avatar & Name
+                                  // 0. Serial Row Index
+                                  DataCell(
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFFF1F5F9),
+                                        borderRadius: BorderRadius.circular(6),
+                                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                                      ),
+                                      child: Text(
+                                        '${index + 1}',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: 11.5,
+                                          color: Color(0xFF475569),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+                                  // 1. Subscriber Avatar, Name, Membership ID & Special Badges
                                   DataCell(
                                     Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Container(
-                                          height: 38,
-                                          width: 38,
-                                          decoration: BoxDecoration(
-                                            gradient: LinearGradient(
-                                              colors: [roleColor, roleColor.withValues(alpha: 0.7)],
-                                              begin: Alignment.topLeft,
-                                              end: Alignment.bottomRight,
-                                            ),
-                                            shape: BoxShape.circle,
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: roleColor.withValues(alpha: 0.25),
-                                                blurRadius: 6,
-                                                offset: const Offset(0, 2),
+                                        Stack(
+                                          clipBehavior: Clip.none,
+                                          children: [
+                                            Container(
+                                              height: 42,
+                                              width: 42,
+                                              decoration: BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: [roleColor, roleColor.withValues(alpha: 0.75)],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                ),
+                                                borderRadius: BorderRadius.circular(12),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: roleColor.withValues(alpha: 0.22),
+                                                    blurRadius: 6,
+                                                    offset: const Offset(0, 2),
+                                                  ),
+                                                ],
                                               ),
-                                            ],
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              displayName.isNotEmpty ? displayName[0].toUpperCase() : 'U',
-                                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15),
+                                              child: Center(
+                                                child: Text(
+                                                  displayName.trim().isNotEmpty ? displayName.trim()[0].toUpperCase() : 'U',
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w900,
+                                                    fontSize: 16,
+                                                  ),
+                                                ),
+                                              ),
                                             ),
-                                          ),
+                                            if (sub.isVerified)
+                                              Positioned(
+                                                bottom: -3,
+                                                right: -3,
+                                                child: Container(
+                                                  padding: const EdgeInsets.all(1.5),
+                                                  decoration: const BoxDecoration(
+                                                    color: Colors.white,
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: const Icon(
+                                                    Icons.verified_rounded,
+                                                    size: 14,
+                                                    color: Color(0xFF2563EB),
+                                                  ),
+                                                ),
+                                              ),
+                                          ],
                                         ),
                                         const SizedBox(width: 12),
                                         Column(
@@ -1077,15 +2132,20 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
                                             Row(
                                               mainAxisSize: MainAxisSize.min,
                                               children: [
-                                                Text(
-                                                  displayName,
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: Color(0xFF0F172A),
-                                                    fontSize: 13.5,
+                                                ConstrainedBox(
+                                                  constraints: const BoxConstraints(maxWidth: 165),
+                                                  child: Text(
+                                                    displayName,
+                                                    style: const TextStyle(
+                                                      fontWeight: FontWeight.w800,
+                                                      color: Color(0xFF0F172A),
+                                                      fontSize: 13.5,
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
                                                   ),
                                                 ),
-                                                if (sub.isAdvertiser || sub.totalAdsCount > 0) ...[
+                                                if (hasAds) ...[
                                                   const SizedBox(width: 6),
                                                   Container(
                                                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -1101,7 +2161,11 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
                                                         const SizedBox(width: 3),
                                                         Text(
                                                           isRtl ? 'معلن (${sub.totalAdsCount})' : 'Ad (${sub.totalAdsCount})',
-                                                          style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFC026D3)),
+                                                          style: const TextStyle(
+                                                            fontSize: 10,
+                                                            fontWeight: FontWeight.w800,
+                                                            color: Color(0xFFC026D3),
+                                                          ),
                                                         ),
                                                       ],
                                                     ),
@@ -1109,9 +2173,49 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
                                                 ],
                                               ],
                                             ),
-                                            Text(
-                                              'ID: ${sub.id.length > 8 ? sub.id.substring(0, 8) : sub.id}',
-                                              style: TextStyle(color: Colors.grey.shade400, fontSize: 11, fontFamily: 'monospace'),
+                                            const SizedBox(height: 4),
+                                            Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                                  decoration: BoxDecoration(
+                                                    color: const Color(0xFFF1F5F9),
+                                                    borderRadius: BorderRadius.circular(4),
+                                                    border: Border.all(color: const Color(0xFFCBD5E1)),
+                                                  ),
+                                                  child: Text(
+                                                    sub.membershipNumber.isNotEmpty
+                                                        ? sub.membershipNumber
+                                                        : 'ID:${sub.id.length > 6 ? sub.id.substring(0, 6).toUpperCase() : sub.id}',
+                                                    style: const TextStyle(
+                                                      color: Color(0xFF475569),
+                                                      fontSize: 10.5,
+                                                      fontWeight: FontWeight.w700,
+                                                      fontFamily: 'monospace',
+                                                    ),
+                                                  ),
+                                                ),
+                                                if (isB2bEnabled) ...[
+                                                  const SizedBox(width: 5),
+                                                  Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                                    decoration: BoxDecoration(
+                                                      color: const Color(0xFFFAF5FF),
+                                                      borderRadius: BorderRadius.circular(4),
+                                                      border: Border.all(color: const Color(0xFFD8B4FE)),
+                                                    ),
+                                                    child: const Text(
+                                                      'B2B',
+                                                      style: TextStyle(
+                                                        color: Color(0xFF7E22CE),
+                                                        fontSize: 9.5,
+                                                        fontWeight: FontWeight.w900,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ],
                                             ),
                                           ],
                                         ),
@@ -1119,7 +2223,7 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
                                     ),
                                   ),
 
-                                  // 2. Email & Phone
+                                  // 2. Contact Info (Email, Primary Phone & Secondary Phone)
                                   DataCell(
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1128,23 +2232,176 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
                                         Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            const Icon(Icons.email_outlined, size: 13, color: Color(0xFF64748B)),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              sub.email.isNotEmpty ? sub.email : '-',
-                                              style: const TextStyle(color: Color(0xFF334155), fontSize: 12, fontWeight: FontWeight.w500),
+                                            const Icon(Icons.email_outlined, size: 13, color: Color(0xFF2563EB)),
+                                            const SizedBox(width: 5),
+                                            ConstrainedBox(
+                                              constraints: const BoxConstraints(maxWidth: 165),
+                                              child: Text(
+                                                sub.email.isNotEmpty ? sub.email : '-',
+                                                style: const TextStyle(
+                                                  color: Color(0xFF1E293B),
+                                                  fontSize: 11.5,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
                                             ),
                                           ],
                                         ),
-                                        const SizedBox(height: 2),
+                                        const SizedBox(height: 3),
                                         Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            const Icon(Icons.phone_outlined, size: 13, color: Color(0xFF64748B)),
-                                            const SizedBox(width: 4),
+                                            const Icon(Icons.phone_iphone_rounded, size: 13, color: Color(0xFF059669)),
+                                            const SizedBox(width: 5),
+                                            if (sub.phone.isNotEmpty)
+                                              PhoneFormatter.text(
+                                                sub.phone,
+                                                style: const TextStyle(
+                                                  color: Color(0xFF0F172A),
+                                                  fontSize: 11.5,
+                                                  fontWeight: FontWeight.w800,
+                                                  fontFamily: 'monospace',
+                                                ),
+                                              )
+                                            else
+                                              Text(
+                                                isRtl ? 'بدون هاتف' : 'No phone',
+                                                style: const TextStyle(
+                                                  color: Color(0xFF94A3B8),
+                                                  fontSize: 11.5,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                        if (secondaryPhone.isNotEmpty) ...[
+                                          const SizedBox(height: 2),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Icon(Icons.phone_callback_rounded, size: 11.5, color: Color(0xFF7E22CE)),
+                                              const SizedBox(width: 4),
+                                              PhoneFormatter.text(
+                                                secondaryPhone,
+                                                style: const TextStyle(
+                                                  color: Color(0xFF6B21A8),
+                                                  fontSize: 10.5,
+                                                  fontWeight: FontWeight.w700,
+                                                  fontFamily: 'monospace',
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+
+                                  // 3. Role & Tier / Points
+                                  DataCell(
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: roleColor.withValues(alpha: 0.12),
+                                            borderRadius: BorderRadius.circular(8),
+                                            border: Border.all(color: roleColor.withValues(alpha: 0.35)),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(_getRoleIcon(sub.role), size: 13.5, color: roleColor),
+                                              const SizedBox(width: 5),
+                                              Text(
+                                                roleName,
+                                                style: TextStyle(
+                                                  color: roleColor,
+                                                  fontSize: 11.5,
+                                                  fontWeight: FontWeight.w800,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        if (sub.role == UserRole.merchant) ...[
+                                          const SizedBox(height: 4),
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              const Icon(Icons.stars_rounded, size: 12, color: Color(0xFFD97706)),
+                                              const SizedBox(width: 3),
+                                              Text(
+                                                '${sub.merchantPoints} ${isRtl ? "نقطة" : "pts"} • ${_formatTierName(sub.merchantTier, isRtl)}',
+                                                style: const TextStyle(
+                                                  fontSize: 10.5,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Color(0xFFB45309),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+
+                                  // 4. Status & Verification
+                                  DataCell(
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                          decoration: BoxDecoration(
+                                            color: statusColor.withValues(alpha: 0.12),
+                                            borderRadius: BorderRadius.circular(20),
+                                            border: Border.all(color: statusColor.withValues(alpha: 0.35)),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                width: 7,
+                                                height: 7,
+                                                decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle),
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                statusText,
+                                                style: TextStyle(
+                                                  color: statusColor,
+                                                  fontSize: 11.5,
+                                                  fontWeight: FontWeight.w800,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(height: 3),
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(
+                                              sub.isVerified ? Icons.verified_rounded : Icons.gpp_maybe_outlined,
+                                              size: 11.5,
+                                              color: sub.isVerified ? const Color(0xFF2563EB) : const Color(0xFFD97706),
+                                            ),
+                                            const SizedBox(width: 3),
                                             Text(
-                                              sub.phone.isNotEmpty ? sub.phone : '-',
-                                              style: TextStyle(color: Colors.grey.shade500, fontSize: 11),
+                                              sub.isVerified
+                                                  ? (isRtl ? 'حساب موثق' : 'Verified')
+                                                  : (isRtl ? 'غير موثق' : 'Unverified'),
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w700,
+                                                color: sub.isVerified ? const Color(0xFF1E40AF) : const Color(0xFFB45309),
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -1152,116 +2409,106 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
                                     ),
                                   ),
 
-                                  // 3. Role & Tier
+                                  // 5. Store / Entity & Configured Categories Preview
                                   DataCell(
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                      decoration: BoxDecoration(
-                                        color: roleColor.withValues(alpha: 0.1),
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(color: roleColor.withValues(alpha: 0.25)),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(_getRoleIcon(sub.role), size: 14, color: roleColor),
-                                          const SizedBox(width: 5),
-                                          Text(
-                                            roleName,
-                                            style: TextStyle(color: roleColor, fontSize: 12, fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-
-                                  // 4. Status & Activity (Active / Suspended / Pending)
-                                  DataCell(
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                      decoration: BoxDecoration(
-                                        color: statusColor.withValues(alpha: 0.1),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(color: statusColor.withValues(alpha: 0.25)),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Container(
-                                            width: 7,
-                                            height: 7,
-                                            decoration: BoxDecoration(color: statusColor, shape: BoxShape.circle),
-                                          ),
-                                          const SizedBox(width: 6),
-                                          Text(
-                                            statusText,
-                                            style: TextStyle(color: statusColor, fontSize: 12, fontWeight: FontWeight.bold),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-
-                                  // 5. Store / Entity
-                                  DataCell(
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: const Color(0xFFF8FAFC),
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: const Color(0xFFE2E8F0)),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Icon(
-                                            sub.role == UserRole.merchant ? Icons.storefront_rounded : Icons.person_outline,
-                                            size: 14,
-                                            color: sub.role == UserRole.merchant ? const Color(0xFF059669) : Colors.grey.shade600,
-                                          ),
-                                          const SizedBox(width: 5),
-                                          ConstrainedBox(
-                                            constraints: const BoxConstraints(maxWidth: 140),
-                                            child: Text(
-                                              sub.storeName != null && sub.storeName!.isNotEmpty
-                                                  ? sub.storeName!
-                                                  : (sub.role == UserRole.merchant
-                                                      ? (isRtl ? 'متجر معتمد' : 'Verified Store')
-                                                      : (isRtl ? 'مشتري مباشر' : 'Direct Buyer')),
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 11.5,
-                                                color: sub.role == UserRole.merchant ? const Color(0xFF065F46) : const Color(0xFF475569),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        InkWell(
+                                          onTap: () => _showEditSubscriberBasicAndStoreDialog(sub),
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: sub.role == UserRole.merchant
+                                                  ? const Color(0xFFECFDF5)
+                                                  : const Color(0xFFF8FAFC),
+                                              borderRadius: BorderRadius.circular(8),
+                                              border: Border.all(
+                                                color: sub.role == UserRole.merchant
+                                                    ? const Color(0xFFA7F3D0)
+                                                    : const Color(0xFFE2E8F0),
                                               ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  sub.role == UserRole.merchant
+                                                      ? Icons.storefront_rounded
+                                                      : (sub.role == UserRole.employee ? Icons.support_agent_rounded : Icons.person_outline_rounded),
+                                                  size: 13.5,
+                                                  color: sub.role == UserRole.merchant
+                                                      ? const Color(0xFF059669)
+                                                      : const Color(0xFF64748B),
+                                                ),
+                                                const SizedBox(width: 5),
+                                                ConstrainedBox(
+                                                  constraints: const BoxConstraints(maxWidth: 150),
+                                                  child: Text(
+                                                    sub.storeName != null && sub.storeName!.isNotEmpty
+                                                        ? (isRtl && sub.storeNameAr != null && sub.storeNameAr!.isNotEmpty
+                                                            ? sub.storeNameAr!
+                                                            : sub.storeName!)
+                                                        : (sub.role == UserRole.merchant
+                                                            ? (isRtl ? 'متجر معتمد' : 'Verified Store')
+                                                            : (sub.role == UserRole.employee
+                                                                ? (isRtl ? 'إدارة المنصة' : 'Platform Team')
+                                                                : (isRtl ? 'مشتري مباشر' : 'Direct Buyer'))),
+                                                    style: TextStyle(
+                                                      fontWeight: FontWeight.w800,
+                                                      fontSize: 11.5,
+                                                      color: sub.role == UserRole.merchant
+                                                          ? const Color(0xFF065F46)
+                                                          : const Color(0xFF475569),
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                                if (sub.role == UserRole.merchant) ...[
+                                                  const SizedBox(width: 4),
+                                                  const Icon(Icons.edit_outlined, size: 11, color: Color(0xFF059669)),
+                                                ],
+                                              ],
                                             ),
                                           ),
+                                        ),
+                                        if (sub.role == UserRole.merchant) ...[
+                                          const SizedBox(height: 4),
+                                          _buildInlineMerchantCategoriesPreview(sub, allCategories, isRtl),
                                         ],
-                                      ),
+                                      ],
                                     ),
                                   ),
 
                                   // 6. Orders Count
                                   DataCell(
                                     Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFFEFF6FF),
+                                        color: sub.totalOrders > 0 ? const Color(0xFFEFF6FF) : const Color(0xFFF8FAFC),
                                         borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: const Color(0xFFBFDBFE)),
+                                        border: Border.all(
+                                          color: sub.totalOrders > 0 ? const Color(0xFFBFDBFE) : const Color(0xFFE2E8F0),
+                                        ),
                                       ),
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          const Icon(Icons.shopping_bag_outlined, size: 14, color: Color(0xFF1E40AF)),
+                                          Icon(
+                                            Icons.shopping_bag_outlined,
+                                            size: 13.5,
+                                            color: sub.totalOrders > 0 ? const Color(0xFF1E40AF) : const Color(0xFF94A3B8),
+                                          ),
                                           const SizedBox(width: 4),
                                           Text(
                                             '${sub.totalOrders} ${isRtl ? "طلب" : "Orders"}',
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontWeight: FontWeight.w800,
-                                              fontSize: 12,
-                                              color: Color(0xFF1E40AF),
+                                              fontSize: 11.5,
+                                              color: sub.totalOrders > 0 ? const Color(0xFF1E40AF) : const Color(0xFF64748B),
                                             ),
                                           ),
                                         ],
@@ -1269,39 +2516,66 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
                                     ),
                                   ),
 
-                                  // 7. Financial Volume & Ad Spend
+                                  // 7. Financial Volume & Ad Spend (Color-Coded by Role)
                                   DataCell(
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       children: [
-                                        Text(
-                                          '${NumberFormat('#,##0.##', isRtl ? 'ar' : 'en').format(sub.totalSpent)} ج.س',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w800,
-                                            fontSize: 12.5,
-                                            color: Color(0xFF0F172A),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                          decoration: BoxDecoration(
+                                            color: sub.totalSpent > 0
+                                                ? (sub.role == UserRole.merchant
+                                                    ? const Color(0xFFECFDF5)
+                                                    : const Color(0xFFEFF6FF))
+                                                : Colors.transparent,
+                                            borderRadius: BorderRadius.circular(6),
+                                          ),
+                                          child: Text(
+                                            '${NumberFormat('#,##0.##', isRtl ? 'ar' : 'en').format(sub.totalSpent)} ج.س',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w900,
+                                              fontSize: 12.5,
+                                              color: sub.totalSpent > 0
+                                                  ? (sub.role == UserRole.merchant
+                                                      ? const Color(0xFF047857)
+                                                      : const Color(0xFF1E40AF))
+                                                  : const Color(0xFF64748B),
+                                            ),
                                           ),
                                         ),
+                                        const SizedBox(height: 2),
                                         if (sub.totalAdSpend > 0)
                                           Text(
                                             isRtl
                                                 ? 'إعلانات: ${NumberFormat('#,##0.##', 'ar').format(sub.totalAdSpend)} ج.س'
                                                 : 'Ads: ${NumberFormat('#,##0.##', 'en').format(sub.totalAdSpend)} SDG',
-                                            style: const TextStyle(fontSize: 10, color: Color(0xFFC026D3), fontWeight: FontWeight.bold),
+                                            style: const TextStyle(
+                                              fontSize: 10,
+                                              color: Color(0xFFC026D3),
+                                              fontWeight: FontWeight.w800,
+                                            ),
                                           )
                                         else
-                                          Text(
-                                            sub.role == UserRole.merchant
-                                                ? (isRtl ? 'إجمالي مبيعات' : 'Total Sales')
-                                                : (isRtl ? 'إجمالي مشتريات' : 'Total Purchases'),
-                                            style: TextStyle(color: Colors.grey.shade500, fontSize: 10.5),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                                            child: Text(
+                                              sub.role == UserRole.merchant
+                                                  ? (isRtl ? 'إجمالي المبيعات' : 'Total Sales')
+                                                  : (isRtl ? 'إجمالي المشتريات' : 'Total Purchases'),
+                                              style: const TextStyle(
+                                                color: Color(0xFF64748B),
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
                                           ),
                                       ],
                                     ),
                                   ),
 
-                                  // 8. Joined Date
+                                  // 8. Joined Date & Account Age
                                   DataCell(
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1309,45 +2583,124 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
                                       children: [
                                         Text(
                                           DateFormat('yyyy-MM-dd').format(sub.joinedAt),
-                                          style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF475569), fontSize: 12),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xFF334155),
+                                            fontSize: 12,
+                                          ),
                                         ),
-                                        Text(
-                                          '${DateTime.now().difference(sub.joinedAt).inDays} ${isRtl ? "يوم" : "days"}',
-                                          style: TextStyle(color: Colors.grey.shade400, fontSize: 10.5, fontWeight: FontWeight.w500),
+                                        const SizedBox(height: 2),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFFFFBEB),
+                                            borderRadius: BorderRadius.circular(4),
+                                          ),
+                                          child: Text(
+                                            isRtl
+                                                ? 'منذ ${DateTime.now().difference(sub.joinedAt).inDays} يوم'
+                                                : '${DateTime.now().difference(sub.joinedAt).inDays}d ago',
+                                            style: const TextStyle(
+                                              color: Color(0xFFB45309),
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ),
 
-                                  // 9. Inline Actions with PopupMenu
+                                  // 9. Quick Actions Bar
                                   DataCell(
                                     Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        ElevatedButton.icon(
-                                          icon: const Icon(Icons.settings_suggest_rounded, size: 16),
-                                          label: Text(isRtl ? 'إدارة' : 'Manage', style: const TextStyle(fontSize: 12)),
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: const Color(0xFF1E40AF),
-                                            foregroundColor: Colors.white,
+                                        if (sub.status == SubscriberStatus.pendingVerification) ...[
+                                          Tooltip(
+                                            message: isRtl ? 'اعتماد الحساب وترقيته فوراً' : 'Approve Now',
+                                            child: IconButton.filled(
+                                              onPressed: () => _runAsync(() => ref.read(subscribersProvider.notifier).approveMerchant(sub.id)),
+                                              icon: const Icon(Icons.check_rounded, size: 16),
+                                              style: IconButton.styleFrom(
+                                                backgroundColor: const Color(0xFF059669),
+                                                foregroundColor: Colors.white,
+                                                minimumSize: const Size(32, 32),
+                                                padding: EdgeInsets.zero,
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 5),
+                                        ],
+                                        Tooltip(
+                                          message: isRtl ? 'تعديل الاسم واسم المتجر وأرقام الهاتف' : 'Edit Profile, Store & Phone',
+                                          child: IconButton.outlined(
+                                            onPressed: () => _showEditSubscriberBasicAndStoreDialog(sub),
+                                            icon: const Icon(Icons.edit_note_rounded, size: 17, color: Color(0xFF1E40AF)),
+                                            style: IconButton.styleFrom(
+                                              backgroundColor: const Color(0xFFF8FAFC),
+                                              side: const BorderSide(color: Color(0xFFCBD5E1)),
+                                              minimumSize: const Size(34, 34),
+                                              padding: EdgeInsets.zero,
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 5),
+                                        FilledButton.tonalIcon(
+                                          icon: const Icon(Icons.visibility_rounded, size: 15),
+                                          label: Text(
+                                            isRtl ? 'التفاصيل' : 'Details',
+                                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w800),
+                                          ),
+                                          style: FilledButton.styleFrom(
+                                            backgroundColor: const Color(0xFFEFF6FF),
+                                            foregroundColor: const Color(0xFF1E40AF),
                                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                            elevation: 0,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(8),
+                                              side: const BorderSide(color: Color(0xFFBFDBFE)),
+                                            ),
                                           ),
                                           onPressed: () => _showDetailSheet(context, sub),
                                         ),
                                         const SizedBox(width: 4),
                                         PopupMenuButton<String>(
-                                          icon: const Icon(Icons.more_vert_rounded, size: 20, color: Color(0xFF64748B)),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                          icon: const Icon(Icons.more_vert_rounded, size: 20, color: Color(0xFF475569)),
+                                          tooltip: isRtl ? 'خيارات سريعة' : 'More Actions',
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                                           itemBuilder: (ctx) => [
+                                            PopupMenuItem(
+                                              value: 'profile',
+                                              child: Row(
+                                                children: [
+                                                  const Icon(Icons.badge_outlined, size: 18, color: Color(0xFF1E40AF)),
+                                                  const SizedBox(width: 8),
+                                                  Text(isRtl ? 'فتح الملف الكامل' : 'Full Profile', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+                                                ],
+                                              ),
+                                            ),
+                                            PopupMenuItem(
+                                              value: 'edit_info',
+                                              child: Row(
+                                                children: [
+                                                  const Icon(Icons.edit_note_rounded, size: 19, color: Color(0xFF0284C7)),
+                                                  const SizedBox(width: 8),
+                                                  Text(
+                                                    isRtl ? 'تعديل البيانات واسم المتجر والهاتف' : 'Edit Profile, Store & Phone',
+                                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
                                             PopupMenuItem(
                                               value: 'role',
                                               child: Row(
                                                 children: [
-                                                  const Icon(Icons.manage_accounts_rounded, size: 18, color: Color(0xFF1E40AF)),
+                                                  const Icon(Icons.manage_accounts_rounded, size: 18, color: Color(0xFF7E22CE)),
                                                   const SizedBox(width: 8),
-                                                  Text(isRtl ? 'تغيير الدور' : 'Change Role', style: const TextStyle(fontSize: 13)),
+                                                  Text(isRtl ? 'تغيير الدور / الصلاحية' : 'Change Role', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                                                 ],
                                               ),
                                             ),
@@ -1358,11 +2711,11 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
                                                   children: [
                                                     const Icon(Icons.admin_panel_settings_outlined, size: 18, color: Color(0xFF059669)),
                                                     const SizedBox(width: 8),
-                                                    Text(isRtl ? 'الأقسام والعمولات' : 'Categories & Commissions', style: const TextStyle(fontSize: 13)),
+                                                    Text(isRtl ? 'الأقسام والعمولات' : 'Categories & Commissions', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
                                                   ],
                                                 ),
                                               ),
-                                            if (sub.isAdvertiser || sub.totalAdsCount > 0)
+                                            if (hasAds)
                                               PopupMenuItem(
                                                 value: 'ads',
                                                 child: Row(
@@ -1371,7 +2724,7 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
                                                     const SizedBox(width: 8),
                                                     Text(
                                                       isRtl ? 'الحملات الإعلانية (${sub.totalAdsCount})' : 'Ad Campaigns (${sub.totalAdsCount})',
-                                                      style: const TextStyle(fontSize: 13),
+                                                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                                                     ),
                                                   ],
                                                 ),
@@ -1390,8 +2743,8 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
                                                   Text(
                                                     sub.status == SubscriberStatus.suspended
                                                         ? (isRtl ? 'تنشيط الحساب' : 'Activate')
-                                                        : (isRtl ? 'إيقاف الحساب' : 'Suspend'),
-                                                    style: const TextStyle(fontSize: 13),
+                                                        : (isRtl ? 'إيقاف الحساب مؤقتاً' : 'Suspend'),
+                                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
                                                   ),
                                                 ],
                                               ),
@@ -1402,13 +2755,22 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
                                                 children: [
                                                   const Icon(Icons.delete_outline_rounded, size: 18, color: Color(0xFFDC2626)),
                                                   const SizedBox(width: 8),
-                                                  Text(isRtl ? 'حذف الحساب' : 'Delete', style: const TextStyle(fontSize: 13, color: Color(0xFFDC2626))),
+                                                  Text(
+                                                    isRtl ? 'حذف الحساب' : 'Delete',
+                                                    style: const TextStyle(fontSize: 13, color: Color(0xFFDC2626), fontWeight: FontWeight.w700),
+                                                  ),
                                                 ],
                                               ),
                                             ),
                                           ],
                                           onSelected: (val) {
                                             switch (val) {
+                                              case 'profile':
+                                                _showDetailSheet(context, sub);
+                                                break;
+                                              case 'edit_info':
+                                                _showEditSubscriberBasicAndStoreDialog(sub);
+                                                break;
                                               case 'role':
                                                 _showChangeRoleDialog(sub);
                                                 break;
@@ -1432,7 +2794,7 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
                                   ),
                                 ],
                               );
-                            }).toList(),
+                            }),
                           ),
                         ),
                       );
@@ -1442,7 +2804,7 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
                     const SizedBox(height: 16),
                     const Center(
                       child: Padding(
-                        padding: EdgeInsets.all(8.0),
+                        padding: EdgeInsets.all(12.0),
                         child: CircularProgressIndicator(color: Color(0xFF1E40AF), strokeWidth: 2.5),
                       ),
                     ),
@@ -1456,14 +2818,628 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
     );
   }
 
+  /// Builds an inline preview of the Merchant's authorized categories and custom commission right in the table row
+  Widget _buildInlineMerchantCategoriesPreview(
+    SubscriberModel sub,
+    List<CategoryModel> allCategories,
+    bool isRtl,
+  ) {
+    final rawAllowed = sub.permissions['allowed_categories'];
+    bool allowAll = false;
+    Set<String> allowedIds = {};
+    if (rawAllowed == 'all' || rawAllowed == null) {
+      allowAll = true;
+    } else if (rawAllowed is List) {
+      allowedIds = rawAllowed.map((e) => e.toString()).toSet();
+      if (allowedIds.isEmpty) allowAll = true;
+    }
+
+    final bool hasCustomStoreComm = sub.permissions['has_custom_commission'] == true;
+    final dynamic customStoreCommPct = sub.permissions['custom_commission_percentage'];
+    final rawComms = sub.permissions['category_commissions'];
+    final int customCatCommsCount = rawComms is Map ? rawComms.length : 0;
+
+    // Resolve names of authorized categories
+    final List<String> resolvedCatNames = [];
+    if (!allowAll && allCategories.isNotEmpty) {
+      for (final cat in allCategories) {
+        final isMain = allowedIds.contains(cat.id);
+        final hasSub = cat.subCategories.any((s) => allowedIds.contains(s.id));
+        if (isMain || hasSub) {
+          resolvedCatNames.add(isRtl ? (cat.nameAr.isNotEmpty ? cat.nameAr : cat.name) : cat.name);
+        }
+      }
+    }
+
+    return InkWell(
+      onTap: () => _showCategoryPermissionsDialog(sub),
+      borderRadius: BorderRadius.circular(6),
+      child: Wrap(
+        spacing: 4,
+        runSpacing: 3,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          if (allowAll)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: const Color(0xFFECFEFF),
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: const Color(0xFFA5F3FC)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.account_tree_rounded, size: 10.5, color: Color(0xFF0891B2)),
+                  const SizedBox(width: 3),
+                  Text(
+                    isRtl ? 'كل الأقسام' : 'All Categories',
+                    style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w800, color: Color(0xFF0E7490)),
+                  ),
+                ],
+              ),
+            )
+          else if (resolvedCatNames.isNotEmpty) ...[
+            ...resolvedCatNames.take(2).map((name) => Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEFF6FF),
+                    borderRadius: BorderRadius.circular(5),
+                    border: Border.all(color: const Color(0xFFBFDBFE)),
+                  ),
+                  child: Text(
+                    name,
+                    style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w800, color: Color(0xFF1E40AF)),
+                  ),
+                )),
+            if (resolvedCatNames.length > 2)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E40AF),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Text(
+                  '+${resolvedCatNames.length - 2}',
+                  style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w900, color: Colors.white),
+                ),
+              ),
+          ] else
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              decoration: BoxDecoration(
+                color: const Color(0xFFEFF6FF),
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: const Color(0xFFBFDBFE)),
+              ),
+              child: Text(
+                isRtl ? '${allowedIds.length} قسم مخصص' : '${allowedIds.length} Custom Cats',
+                style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w800, color: Color(0xFF1E40AF)),
+              ),
+            ),
+
+          if (hasCustomStoreComm && customStoreCommPct != null)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF3C7),
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: const Color(0xFFF59E0B)),
+              ),
+              child: Text(
+                isRtl ? 'عمولة $customStoreCommPct%' : '$customStoreCommPct%',
+                style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w900, color: Color(0xFFB45309)),
+              ),
+            )
+          else if (customCatCommsCount > 0)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+              decoration: BoxDecoration(
+                color: const Color(0xFFFEF3C7),
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: const Color(0xFFF59E0B)),
+              ),
+              child: Text(
+                isRtl ? '$customCatCommsCount عمولة قسم' : '$customCatCommsCount Rates',
+                style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w900, color: Color(0xFFB45309)),
+              ),
+            ),
+
+          if (sub.directPaymentEnabled)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+              decoration: BoxDecoration(
+                color: const Color(0xFFECFDF5),
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(color: const Color(0xFF6EE7B7)),
+              ),
+              child: Text(
+                isRtl ? 'دفع مباشر' : 'Direct Pay',
+                style: const TextStyle(fontSize: 9.5, fontWeight: FontWeight.w800, color: Color(0xFF059669)),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildColumnHeader(IconData icon, String title, Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 15, color: color),
+        const SizedBox(width: 6),
+        Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.w900,
+            color: Color(0xFF0F172A),
+            fontSize: 12.5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _formatTierName(String tier, bool isRtl) {
+    switch (tier.toLowerCase()) {
+      case 'gold':
+      case 'golden':
+        return isRtl ? 'ذهبي' : 'Gold';
+      case 'silver':
+        return isRtl ? 'فضي' : 'Silver';
+      case 'bronze':
+        return isRtl ? 'برونزي' : 'Bronze';
+      case 'platinum':
+      case 'vip':
+        return isRtl ? 'بلاتيني' : 'Platinum';
+      default:
+        return isRtl ? 'مبتدئ' : 'Starter';
+    }
+  }
+
   // ===========================================================================
   // HELPER DIALOGS & METHODS
   // ===========================================================================
 
-
-
   void _showDetailSheet(BuildContext context, SubscriberModel subscriber) {
     setState(() => _selectedSubscriber = subscriber);
+  }
+
+  /// Comprehensive Dialog to Edit Subscriber's Basic Info, Store Name (Ar/En), Phone Numbers & Tier
+  void _showEditSubscriberBasicAndStoreDialog(SubscriberModel subscriber) {
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+
+    final nameArCtrl = TextEditingController(text: subscriber.nameAr.isNotEmpty ? subscriber.nameAr : subscriber.name);
+    final nameEnCtrl = TextEditingController(text: subscriber.name);
+    final emailCtrl = TextEditingController(text: subscriber.email);
+    final phoneCtrl = TextEditingController(text: PhoneFormatter.format(subscriber.phone));
+    final secondaryPhoneCtrl = TextEditingController(
+      text: PhoneFormatter.format(subscriber.permissions['secondary_phone']?.toString() ?? ''),
+    );
+    final addressCtrl = TextEditingController(
+      text: subscriber.permissions['address']?.toString() ?? '',
+    );
+    final membershipCtrl = TextEditingController(text: subscriber.membershipNumber);
+    final storeNameArCtrl = TextEditingController(
+      text: subscriber.storeNameAr ?? subscriber.storeName ?? '',
+    );
+    final storeNameEnCtrl = TextEditingController(
+      text: subscriber.storeName ?? subscriber.storeNameAr ?? '',
+    );
+    final docTypeCtrl = TextEditingController(text: subscriber.documentType ?? '');
+
+    bool isVerified = subscriber.isVerified;
+    String selectedTier = ['beginner', 'bronze', 'silver', 'gold', 'platinum']
+            .contains(subscriber.merchantTier.toLowerCase())
+        ? subscriber.merchantTier.toLowerCase()
+        : 'beginner';
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (dlgCtx, setDlgState) {
+          return AlertDialog(
+            backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+            titlePadding: const EdgeInsets.fromLTRB(24, 22, 24, 14),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEFF6FF),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFBFDBFE)),
+                  ),
+                  child: const Icon(Icons.edit_note_rounded, color: Color(0xFF1E40AF), size: 24),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isRtl ? 'تعديل البيانات الأساسية واسم المتجر والهاتف' : 'Edit Subscriber, Store & Contact Info',
+                        style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 17, color: Color(0xFF0F172A)),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        isRtl
+                            ? 'يتم تحديث بيانات المشترك ومتجره فورياً في قاعدة البيانات والسوق'
+                            : 'Updates subscriber profile and store record across the marketplace',
+                        style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            content: SizedBox(
+              width: 560,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Section 1: Basic Identity
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF8FAFC),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFFE2E8F0)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.person_rounded, size: 17, color: Color(0xFF1E40AF)),
+                              const SizedBox(width: 6),
+                              Text(
+                                isRtl ? 'البيانات الشخصية ورقم العضوية' : 'Personal Identity & Membership',
+                                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: Color(0xFF1E40AF)),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: nameArCtrl,
+                                  decoration: InputDecoration(
+                                    labelText: isRtl ? 'الاسم بالعربية *' : 'Arabic Name *',
+                                    prefixIcon: const Icon(Icons.badge_outlined, size: 18),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: TextField(
+                                  controller: nameEnCtrl,
+                                  decoration: InputDecoration(
+                                    labelText: isRtl ? 'الاسم بالإنجليزية' : 'English Name',
+                                    prefixIcon: const Icon(Icons.person_outline, size: 18),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: membershipCtrl,
+                                  decoration: InputDecoration(
+                                    labelText: isRtl ? 'رقم العضوية المرجعي' : 'Membership No.',
+                                    prefixIcon: const Icon(Icons.card_membership_rounded, size: 18),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: TextField(
+                                  controller: docTypeCtrl,
+                                  decoration: InputDecoration(
+                                    labelText: isRtl ? 'نوع الوثيقة (سجل تجاري/هوية)' : 'Document Type',
+                                    prefixIcon: const Icon(Icons.description_outlined, size: 18),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+
+                    // Section 2: Phone Numbers & Contact Details
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF0FDF4),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFFBBF7D0)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.contact_phone_rounded, size: 17, color: Color(0xFF059669)),
+                              const SizedBox(width: 6),
+                              Text(
+                                isRtl ? 'أرقام الهاتف وبيانات الاتصال والعنوان' : 'Phone Numbers, Email & Address',
+                                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: Color(0xFF065F46)),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: phoneCtrl,
+                                  keyboardType: TextInputType.phone,
+                                  textDirection: TextDirection.ltr,
+                                  decoration: InputDecoration(
+                                    labelText: isRtl ? 'رقم الهاتف الأساسي *' : 'Primary Phone *',
+                                    prefixIcon: const Icon(Icons.phone_iphone_rounded, size: 18, color: Color(0xFF059669)),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: TextField(
+                                  controller: secondaryPhoneCtrl,
+                                  keyboardType: TextInputType.phone,
+                                  textDirection: TextDirection.ltr,
+                                  decoration: InputDecoration(
+                                    labelText: isRtl ? 'رقم هاتف إضافي / واتساب' : 'Secondary / WhatsApp Phone',
+                                    prefixIcon: const Icon(Icons.phone_callback_rounded, size: 18, color: Color(0xFF7E22CE)),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: emailCtrl,
+                                  keyboardType: TextInputType.emailAddress,
+                                  textDirection: TextDirection.ltr,
+                                  decoration: InputDecoration(
+                                    labelText: isRtl ? 'البريد الإلكتروني' : 'Email Address',
+                                    prefixIcon: const Icon(Icons.email_outlined, size: 18, color: Color(0xFF2563EB)),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: TextField(
+                                  controller: addressCtrl,
+                                  decoration: InputDecoration(
+                                    labelText: isRtl ? 'المدينة / العنوان' : 'City / Address',
+                                    prefixIcon: const Icon(Icons.location_on_outlined, size: 18, color: Color(0xFFD97706)),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+
+                    // Section 3: Store Name (Ar/En), Merchant Tier & Verification Status
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFFBEB),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: const Color(0xFFFDE68A)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.storefront_rounded, size: 17, color: Color(0xFFD97706)),
+                              const SizedBox(width: 6),
+                              Text(
+                                isRtl ? 'اسم المتجر والرتبة والتوثيق' : 'Store Name, Tier & Verification',
+                                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: Color(0xFF92400E)),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: TextField(
+                                  controller: storeNameArCtrl,
+                                  decoration: InputDecoration(
+                                    labelText: isRtl ? 'اسم المتجر (بالعربية)' : 'Store Name (Arabic)',
+                                    prefixIcon: const Icon(Icons.store_rounded, size: 18, color: Color(0xFF059669)),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: TextField(
+                                  controller: storeNameEnCtrl,
+                                  decoration: InputDecoration(
+                                    labelText: isRtl ? 'اسم المتجر (بالإنجليزية)' : 'Store Name (English)',
+                                    prefixIcon: const Icon(Icons.store_mall_directory_outlined, size: 18, color: Color(0xFF047857)),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 10),
+                          DropdownButtonFormField<String>(
+                            initialValue: selectedTier,
+                            decoration: InputDecoration(
+                              labelText: isRtl ? 'رتبة التاجر (Merchant Tier)' : 'Merchant Tier',
+                              prefixIcon: const Icon(Icons.military_tech_rounded, size: 18, color: Color(0xFFD97706)),
+                              filled: true,
+                              fillColor: Colors.white,
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                              isDense: true,
+                            ),
+                            items: [
+                              DropdownMenuItem(value: 'beginner', child: Text(isRtl ? 'مبتدئ (Starter)' : 'Starter')),
+                              DropdownMenuItem(value: 'bronze', child: Text(isRtl ? 'برونزي (Bronze)' : 'Bronze')),
+                              DropdownMenuItem(value: 'silver', child: Text(isRtl ? 'فضي (Silver)' : 'Silver')),
+                              DropdownMenuItem(value: 'gold', child: Text(isRtl ? 'ذهبي (Gold)' : 'Gold')),
+                              DropdownMenuItem(value: 'platinum', child: Text(isRtl ? 'بلاتينيوم (Platinum)' : 'Platinum')),
+                            ],
+                            onChanged: (v) {
+                              if (v != null) setDlgState(() => selectedTier = v);
+                            },
+                          ),
+                          const SizedBox(height: 8),
+                          SwitchListTile(
+                            title: Text(
+                              isRtl ? 'توثيق الحساب رسمياً (Verified Badge)' : 'Official Account Verification',
+                              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13, color: Color(0xFF0F172A)),
+                            ),
+                            subtitle: Text(
+                              isVerified
+                                  ? (isRtl ? 'الحساب موثق وتظهر له شارة التوثيق الزرقاء' : 'Verified badge is active')
+                                  : (isRtl ? 'الحساب غير موثق (قيد المراجعة)' : 'Account is unverified'),
+                              style: const TextStyle(fontSize: 11.5, color: Color(0xFF64748B)),
+                            ),
+                            value: isVerified,
+                            activeTrackColor: const Color(0xFF2563EB),
+                            contentPadding: EdgeInsets.zero,
+                            onChanged: (val) => setDlgState(() => isVerified = val),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actionsPadding: const EdgeInsets.fromLTRB(24, 8, 24, 20),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(dlgCtx),
+                child: Text(isRtl ? 'إلغاء' : 'Cancel', style: const TextStyle(color: Color(0xFF64748B), fontWeight: FontWeight.w700)),
+              ),
+              FilledButton.icon(
+                icon: const Icon(Icons.save_rounded, size: 18),
+                label: Text(isRtl ? 'حفظ التعديلات' : 'Save Changes', style: const TextStyle(fontWeight: FontWeight.w800)),
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF1E40AF),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                onPressed: () async {
+                  if (nameArCtrl.text.trim().isEmpty && nameEnCtrl.text.trim().isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(isRtl ? 'يرجى إدخال اسم المشترك' : 'Subscriber name is required')),
+                    );
+                    return;
+                  }
+                  Navigator.pop(dlgCtx);
+                  await _runAsync(() async {
+                    try {
+                      await ref.read(subscribersProvider.notifier).updateSubscriberBasicAndStoreInfo(
+                            userId: subscriber.id,
+                            name: nameEnCtrl.text.trim().isNotEmpty ? nameEnCtrl.text.trim() : nameArCtrl.text.trim(),
+                            nameAr: nameArCtrl.text.trim().isNotEmpty ? nameArCtrl.text.trim() : nameEnCtrl.text.trim(),
+                            email: emailCtrl.text.trim(),
+                            phone: phoneCtrl.text.trim(),
+                            secondaryPhone: secondaryPhoneCtrl.text.trim(),
+                            cityOrAddress: addressCtrl.text.trim(),
+                            membershipNumber: membershipCtrl.text.trim(),
+                            storeName: storeNameEnCtrl.text.trim(),
+                            storeNameAr: storeNameArCtrl.text.trim(),
+                            isVerified: isVerified,
+                            merchantTier: selectedTier,
+                            documentType: docTypeCtrl.text.trim(),
+                          );
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              isRtl
+                                  ? '✅ تم تحديث البيانات الأساسية واسم المتجر وأرقام الهاتف بنجاح'
+                                  : 'Profile, store name & phone numbers updated successfully',
+                            ),
+                            backgroundColor: const Color(0xFF059669),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error: $e'),
+                            backgroundColor: const Color(0xFFDC2626),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    }
+                  });
+                },
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 
   void _showAddSubscriberDialog(BuildContext context, bool isRtl) {
@@ -1537,8 +3513,10 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
                     TextField(
                       controller: phoneCtrl,
                       keyboardType: TextInputType.phone,
+                      textDirection: TextDirection.ltr,
                       decoration: InputDecoration(
                         labelText: isRtl ? 'رقم الهاتف' : 'Phone Number',
+                        hintText: '+249 912 300 101',
                         prefixIcon: const Icon(Icons.phone_outlined, size: 20),
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                         isDense: true,
@@ -1643,7 +3621,8 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
 
     List<String> allowed = [];
     bool allowAll = false;
-    final currentPerms = subscriber.permissions['allowed_categories'];
+    final currentPerms = subscriber.permissions['allowed_categories'] ??
+        subscriber.permissions['requested_categories'];
     if (currentPerms is List) {
       allowed = currentPerms.map((e) => e.toString()).toList();
     } else if (currentPerms == 'all' || currentPerms == null) {
@@ -2015,9 +3994,25 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
                                                                     setDlgState(() {
                                                                       if (val == true) {
                                                                         selectedIds.add(sub.id);
+                                                                        final allSubsSelected = cat.subCategories.isNotEmpty &&
+                                                                            cat.subCategories.every((s) => selectedIds.contains(s.id));
+                                                                        if (allSubsSelected) {
+                                                                          selectedIds.add(cat.id);
+                                                                          for (final s in cat.subCategories) {
+                                                                            selectedIds.remove(s.id);
+                                                                          }
+                                                                        }
                                                                       } else {
-                                                                        selectedIds.remove(sub.id);
-                                                                        selectedIds.remove(cat.id);
+                                                                        if (isMainSelected) {
+                                                                          selectedIds.remove(cat.id);
+                                                                          for (final s in cat.subCategories) {
+                                                                            if (s.id != sub.id) {
+                                                                              selectedIds.add(s.id);
+                                                                            }
+                                                                          }
+                                                                        } else {
+                                                                          selectedIds.remove(sub.id);
+                                                                        }
                                                                       }
                                                                     });
                                                                   },
@@ -2384,6 +4379,9 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
           ElevatedButton(
             onPressed: () async {
               Navigator.pop(context);
+              if (_selectedSubscriber?.id == subscriber.id) {
+                setState(() => _selectedSubscriber = null);
+              }
               await _runAsync(() => ref.read(subscribersProvider.notifier).removeSubscriber(subscriber.id));
             },
             style: ElevatedButton.styleFrom(
@@ -2654,6 +4652,621 @@ class _SubscribersManagementScreenState extends ConsumerState<SubscribersManagem
       case SubscriberStatus.pendingVerification: return const Color(0xFFF59E0B);
       case SubscriberStatus.rejectedVerification: return const Color(0xFFE11D48);
     }
+  }
+
+  void _showSubscriberUsdRateDialog(BuildContext context, bool isRtl) {
+    final oldRate = ref.read(platformUsdRateSettingProvider);
+    final rateCtrl = TextEditingController(text: oldRate.toStringAsFixed(0));
+
+    showDialog(
+      context: context,
+      builder: (ctx) => Directionality(
+        textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+        child: AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFECFDF5),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(Icons.currency_exchange_rounded, color: Color(0xFF059669), size: 24),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  isRtl ? 'ضبط سعر صرف الدولار المعتمد' : 'Platform USD Exchange Rate',
+                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
+                ),
+              ),
+            ],
+          ),
+          content: SizedBox(
+            width: 440,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0FDF4),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFF86EFAC)),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.notifications_active_rounded, color: Color(0xFF059669), size: 19),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          isRtl
+                              ? 'عند تغيير السعر، يظهر إشعار فوري أعلى الشاشة للتجار المرتبطين بسعر المنصة فقط (ولا يظهر للمشترين نهائياً).'
+                              : 'Updating notifies synced Merchants ONLY at the top of their screen (Buyers are never notified).',
+                          style: const TextStyle(fontSize: 12.5, color: Color(0xFF065F46), fontWeight: FontWeight.w600, height: 1.45),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: rateCtrl,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    labelText: isRtl ? 'سعر الدولار الجديد (ج.س)' : 'New USD Rate (SDG)',
+                    helperText: isRtl
+                        ? 'السعر الحالي: ${NumberFormat('#,##0').format(oldRate)} ج.س'
+                        : 'Current rate: ${NumberFormat('#,##0').format(oldRate)} SDG',
+                    suffixText: isRtl ? 'ج.س' : 'SDG',
+                    prefixIcon: const Icon(Icons.attach_money_rounded, color: Color(0xFF059669)),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(isRtl ? 'إلغاء' : 'Cancel'),
+            ),
+            FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: const Color(0xFF059669),
+                padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              icon: const Icon(Icons.check_circle_rounded, size: 18),
+              label: Text(isRtl ? 'حفظ وإشعار التجار' : 'Save & Notify Merchants'),
+              onPressed: () async {
+                final newRate = double.tryParse(rateCtrl.text.trim());
+                if (newRate != null && newRate > 0) {
+                  Navigator.pop(ctx);
+                  await ref.read(platformUsdRateSettingProvider.notifier).updateRate(newRate);
+                  if (mounted) {
+                    ScaffoldMessenger.of(this.context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          isRtl
+                              ? '✅ تم تغيير سعر الدولار من ${NumberFormat('#,##0').format(oldRate)} إلى ${NumberFormat('#,##0').format(newRate)} ج.س وإشعار التجار المرتبطين'
+                              : 'USD rate updated from ${NumberFormat('#,##0').format(oldRate)} to ${NumberFormat('#,##0').format(newRate)} SDG',
+                        ),
+                        backgroundColor: const Color(0xFF059669),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  }
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showBulkBroadcastDialog(BuildContext context, bool isRtl) {
+    final snapshot = ref.read(subscribersProvider.notifier).allUsersSnapshot;
+    final currentFiltered = ref.read(subscribersProvider).valueOrNull ?? [];
+    final pool = (snapshot.isNotEmpty ? snapshot : currentFiltered)
+        .where((s) => s.role != UserRole.admin && s.role != UserRole.guest)
+        .toList();
+
+    String selectedSegment = 'approved_merchants';
+    String selectedType = 'admin_broadcast_info';
+    bool isSending = false;
+
+    final titleCtrl = TextEditingController(
+      text: isRtl ? '📢 تعميم إداري من منصة مقاييس' : '📢 Official Notice from Magaiees',
+    );
+    final bodyCtrl = TextEditingController();
+
+    List<SubscriberModel> resolveTargets(String segment) {
+      switch (segment) {
+        case 'approved_merchants':
+          return pool.where((s) => s.role == UserRole.merchant && s.status == SubscriberStatus.active).toList();
+        case 'buyers_active':
+          return pool.where((s) => s.role == UserRole.buyer && s.status == SubscriberStatus.active).toList();
+        case 'suspended':
+          return pool.where((s) => s.status == SubscriberStatus.suspended).toList();
+        case 'pending_merchants':
+          return pool.where((s) => s.status == SubscriberStatus.pendingVerification).toList();
+        case 'all_merchants':
+          return pool.where((s) => s.role == UserRole.merchant).toList();
+        case 'advertisers':
+          return pool.where((s) => s.isAdvertiser || s.totalAdsCount > 0).toList();
+        case 'current_filter':
+          return currentFiltered.where((s) => s.role != UserRole.admin && s.role != UserRole.guest).toList();
+        case 'all_active':
+        default:
+          return pool.where((s) => s.status == SubscriberStatus.active).toList();
+      }
+    }
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) {
+          final targets = resolveTargets(selectedSegment);
+          final segments = <Map<String, dynamic>>[
+            {
+              'id': 'approved_merchants',
+              'label': isRtl ? 'التجار المعتمدون' : 'Approved Merchants',
+              'icon': Icons.verified_rounded,
+              'color': const Color(0xFF059669),
+              'count': resolveTargets('approved_merchants').length,
+            },
+            {
+              'id': 'buyers_active',
+              'label': isRtl ? 'المشترون النشطون' : 'Active Buyers',
+              'icon': Icons.shopping_bag_rounded,
+              'color': const Color(0xFF1E40AF),
+              'count': resolveTargets('buyers_active').length,
+            },
+            {
+              'id': 'suspended',
+              'label': isRtl ? 'الحسابات الموقوفة' : 'Suspended Accounts',
+              'icon': Icons.block_rounded,
+              'color': const Color(0xFFDC2626),
+              'count': resolveTargets('suspended').length,
+            },
+            {
+              'id': 'pending_merchants',
+              'label': isRtl ? 'التجار قيد التوثيق' : 'Pending Merchants',
+              'icon': Icons.hourglass_top_rounded,
+              'color': const Color(0xFFD97706),
+              'count': resolveTargets('pending_merchants').length,
+            },
+            {
+              'id': 'all_merchants',
+              'label': isRtl ? 'جميع التجار' : 'All Merchants',
+              'icon': Icons.storefront_rounded,
+              'color': const Color(0xFF0D9488),
+              'count': resolveTargets('all_merchants').length,
+            },
+            {
+              'id': 'advertisers',
+              'label': isRtl ? 'المعلنون' : 'Advertisers',
+              'icon': Icons.campaign_rounded,
+              'color': const Color(0xFF9333EA),
+              'count': resolveTargets('advertisers').length,
+            },
+            {
+              'id': 'current_filter',
+              'label': isRtl ? 'نتائج الفلتر الحالي' : 'Current Table Filter',
+              'icon': Icons.filter_alt_rounded,
+              'color': const Color(0xFF475569),
+              'count': resolveTargets('current_filter').length,
+            },
+            {
+              'id': 'all_active',
+              'label': isRtl ? 'جميع المشتركين النشطين' : 'All Active Users',
+              'icon': Icons.groups_rounded,
+              'color': const Color(0xFF4F46E5),
+              'count': resolveTargets('all_active').length,
+            },
+          ];
+
+          final isWarn = selectedType == 'admin_broadcast_warning';
+          final isPromo = selectedType == 'admin_broadcast_promo';
+          final previewColors = isWarn
+              ? const [Color(0xFF9A3412), Color(0xFFEA580C)]
+              : (isPromo
+                  ? const [Color(0xFF4C1D95), Color(0xFF7C3AED)]
+                  : const [Color(0xFF1E3A8A), Color(0xFF2563EB)]);
+
+          return Directionality(
+            textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+            child: Dialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(22)),
+              insetPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 24),
+              child: Container(
+                width: 680,
+                constraints: const BoxConstraints(maxHeight: 760),
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(colors: [Color(0xFF6D28D9), Color(0xFF1E40AF)]),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: const Icon(Icons.campaign_rounded, color: Colors.white, size: 26),
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                isRtl ? 'نظام الرسائل والتنبيهات الجماعية الموجهة' : 'Targeted Bulk Broadcast Center',
+                                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: Color(0xFF0F172A)),
+                              ),
+                              const SizedBox(height: 3),
+                              Text(
+                                isRtl
+                                    ? 'إرسال إشعار فوري أعلى الشاشة وداخل مركز التنبيهات لفئة محددة من المشتركين'
+                                    : 'Send instant top-screen and in-app notifications to specific subscriber segments',
+                                style: const TextStyle(fontSize: 12.5, color: Color(0xFF64748B)),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: isSending ? null : () => Navigator.pop(ctx),
+                          icon: const Icon(Icons.close_rounded),
+                        ),
+                      ],
+                    ),
+                    const Divider(height: 24),
+
+                    Flexible(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // 1. Segment Picker
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  isRtl ? '1. اختر الفئة المستهدفة:' : '1. Select Target Segment:',
+                                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5, color: Color(0xFF0F172A)),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF3E8FF),
+                                    borderRadius: BorderRadius.circular(20),
+                                    border: Border.all(color: const Color(0xFFD8B4FE)),
+                                  ),
+                                  child: Text(
+                                    isRtl ? 'عدد المستلمين: ${targets.length} حساب' : 'Recipients: ${targets.length}',
+                                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: Color(0xFF6B21A8)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: segments.map((seg) {
+                                final id = seg['id'] as String;
+                                final isSelected = selectedSegment == id;
+                                final color = seg['color'] as Color;
+                                return InkWell(
+                                  borderRadius: BorderRadius.circular(12),
+                                  onTap: () {
+                                    setDialogState(() {
+                                      selectedSegment = id;
+                                      if (id == 'suspended') {
+                                        selectedType = 'admin_broadcast_warning';
+                                        titleCtrl.text = isRtl ? '⚠️ تنبيه إداري بخصوص حالة حسابك' : '⚠️ Account Status Notice';
+                                      } else if (id == 'approved_merchants' || id == 'all_merchants') {
+                                        selectedType = 'admin_broadcast_info';
+                                        titleCtrl.text = isRtl ? '🏪 تعميم هام لتجار منصة مقاييس' : '🏪 Important Merchant Notice';
+                                      } else if (id == 'buyers_active') {
+                                        selectedType = 'admin_broadcast_promo';
+                                        titleCtrl.text = isRtl ? '✨ جديد منصة مقاييس لعملائنا الكرام' : '✨ New on Magaiees Marketplace';
+                                      }
+                                    });
+                                  },
+                                  child: AnimatedContainer(
+                                    duration: const Duration(milliseconds: 160),
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                                    decoration: BoxDecoration(
+                                      color: isSelected ? color : color.withValues(alpha: 0.06),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: isSelected ? color : color.withValues(alpha: 0.3),
+                                        width: isSelected ? 1.6 : 1.0,
+                                      ),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(seg['icon'] as IconData, size: 16, color: isSelected ? Colors.white : color),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          seg['label'] as String,
+                                          style: TextStyle(
+                                            fontSize: 12.5,
+                                            fontWeight: FontWeight.w800,
+                                            color: isSelected ? Colors.white : const Color(0xFF1E293B),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                          decoration: BoxDecoration(
+                                            color: isSelected ? Colors.white.withValues(alpha: 0.22) : color.withValues(alpha: 0.14),
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                          child: Text(
+                                            '${seg['count']}',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.w900,
+                                              color: isSelected ? Colors.white : color,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                            const SizedBox(height: 18),
+
+                            // 2. Notification Tone / Style
+                            Text(
+                              isRtl ? '2. مظهر وأولوية الإشعار:' : '2. Notification Style:',
+                              style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5, color: Color(0xFF0F172A)),
+                            ),
+                            const SizedBox(height: 8),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                ChoiceChip(
+                                  selected: selectedType == 'admin_broadcast_info',
+                                  label: Text(isRtl ? '🔔 تعميم رسمي (أزرق)' : '🔔 Official Info'),
+                                  onSelected: (_) => setDialogState(() => selectedType = 'admin_broadcast_info'),
+                                ),
+                                ChoiceChip(
+                                  selected: selectedType == 'admin_broadcast_promo',
+                                  label: Text(isRtl ? '✨ عروض وتحديثات (بنفسجي)' : '✨ Promo / Update'),
+                                  onSelected: (_) => setDialogState(() => selectedType = 'admin_broadcast_promo'),
+                                ),
+                                ChoiceChip(
+                                  selected: selectedType == 'admin_broadcast_warning',
+                                  label: Text(isRtl ? '⚠️ تنبيه هام / موقوفين (برتقالي)' : '⚠️ Urgent / Warning'),
+                                  onSelected: (_) => setDialogState(() => selectedType = 'admin_broadcast_warning'),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 14),
+
+                            // Quick Ready Templates
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 6,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                Text(
+                                  isRtl ? 'قوالب سريعة:' : 'Quick Templates:',
+                                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                                ),
+                                ActionChip(
+                                  label: Text(isRtl ? 'تحديث أسعار ومخزون التجار' : 'Merchant Inventory Update', style: const TextStyle(fontSize: 11.5)),
+                                  onPressed: () => setDialogState(() {
+                                    titleCtrl.text = '🏪 تعميم لتجار منصة مقاييس المعتمدين';
+                                    bodyCtrl.text = 'نرجو من السادة التجار مراجعة وتحديث توفر المخزون والأسعار لضمان سرعة اعتماد طلبات العملاء.';
+                                  }),
+                                ),
+                                ActionChip(
+                                  label: Text(isRtl ? 'رسالة للحسابات الموقوفة' : 'Suspended Account Notice', style: const TextStyle(fontSize: 11.5)),
+                                  onPressed: () => setDialogState(() {
+                                    selectedSegment = 'suspended';
+                                    selectedType = 'admin_broadcast_warning';
+                                    titleCtrl.text = '⚠️ تنبيه إداري بخصوص تفعيل حسابك';
+                                    bodyCtrl.text = 'يرجى التواصل مع إدارة منصة مقاييس لاستكمال متطلبات مراجعة الحساب وإعادة تفعيله.';
+                                  }),
+                                ),
+                                ActionChip(
+                                  label: Text(isRtl ? 'تنبيه عروض للمشترين' : 'Buyers Offer Notice', style: const TextStyle(fontSize: 11.5)),
+                                  onPressed: () => setDialogState(() {
+                                    selectedSegment = 'buyers_active';
+                                    selectedType = 'admin_broadcast_promo';
+                                    titleCtrl.text = '✨ عروض وتوريدات جديدة على مقاييس';
+                                    bodyCtrl.text = 'تصفح أحدث عروض مواد البناء والحديد والأسمنت المعتمدة بأفضل الأسعار المباشرة عبر منصة مقاييس.';
+                                  }),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 14),
+
+                            // 3. Title & Body Inputs
+                            TextField(
+                              controller: titleCtrl,
+                              onChanged: (_) => setDialogState(() {}),
+                              decoration: InputDecoration(
+                                labelText: isRtl ? 'عنوان الرسالة الجماعية' : 'Broadcast Title',
+                                prefixIcon: const Icon(Icons.title_rounded),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            TextField(
+                              controller: bodyCtrl,
+                              maxLines: 3,
+                              onChanged: (_) => setDialogState(() {}),
+                              decoration: InputDecoration(
+                                labelText: isRtl ? 'نص الرسالة والتفاصيل' : 'Broadcast Message Body',
+                                hintText: isRtl ? 'اكتب نص الرسالة التي ستظهر للمشتركين المستهدفين...' : 'Write your message here...',
+                                prefixIcon: const Icon(Icons.chat_bubble_outline_rounded),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+
+                            // Live Top-Screen Preview Card
+                            Text(
+                              isRtl ? 'معاينة شكل الظهور أعلى شاشة التطبيق:' : 'Top-of-Screen Banner Preview:',
+                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF64748B)),
+                            ),
+                            const SizedBox(height: 6),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(colors: previewColors),
+                                borderRadius: BorderRadius.circular(14),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: previewColors.last.withValues(alpha: 0.25),
+                                    blurRadius: 10,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    isWarn ? Icons.warning_amber_rounded : (isPromo ? Icons.auto_awesome_rounded : Icons.campaign_rounded),
+                                    color: Colors.white,
+                                    size: 24,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          titleCtrl.text.trim().isEmpty
+                                              ? (isRtl ? 'عنوان الرسالة' : 'Message Title')
+                                              : titleCtrl.text.trim(),
+                                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w900, fontSize: 13.5),
+                                        ),
+                                        const SizedBox(height: 3),
+                                        Text(
+                                          bodyCtrl.text.trim().isEmpty
+                                              ? (isRtl ? 'سيظهر نص رسالتك الجماعية هنا فور الإرسال...' : 'Your broadcast message will appear here...')
+                                              : bodyCtrl.text.trim(),
+                                          style: TextStyle(color: Colors.white.withValues(alpha: 0.92), fontSize: 12, height: 1.35),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+
+                    // Footer Actions
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: isSending ? null : () => Navigator.pop(ctx),
+                          child: Text(isRtl ? 'إلغاء' : 'Cancel'),
+                        ),
+                        const SizedBox(width: 10),
+                        FilledButton.icon(
+                          style: FilledButton.styleFrom(
+                            backgroundColor: const Color(0xFF6D28D9),
+                            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 13),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          icon: isSending
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                )
+                              : const Icon(Icons.send_rounded, size: 18),
+                          label: Text(
+                            isRtl
+                                ? 'إرسال الآن (${targets.length} مشترك)'
+                                : 'Send Now (${targets.length})',
+                            style: const TextStyle(fontWeight: FontWeight.w800),
+                          ),
+                          onPressed: (isSending || targets.isEmpty)
+                              ? null
+                              : () async {
+                                  if (titleCtrl.text.trim().isEmpty || bodyCtrl.text.trim().isEmpty) {
+                                    ScaffoldMessenger.of(this.context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(isRtl ? 'يرجى كتابة عنوان ونص الرسالة الجماعية أولاً' : 'Please enter title and message body'),
+                                        backgroundColor: Colors.red,
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                    return;
+                                  }
+                                  setDialogState(() => isSending = true);
+                                  try {
+                                    final sentCount = await ref.read(subscribersProvider.notifier).sendBulkBroadcast(
+                                          targetUserIds: targets.map((s) => s.id).toList(),
+                                          title: titleCtrl.text.trim(),
+                                          body: bodyCtrl.text.trim(),
+                                          type: selectedType,
+                                        );
+                                    if (ctx.mounted) Navigator.pop(ctx);
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(this.context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            isRtl
+                                                ? '✅ تم إرسال الرسالة الجماعية بنجاح إلى $sentCount مشترك!'
+                                                : '✅ Broadcast sent successfully to $sentCount subscribers!',
+                                          ),
+                                          backgroundColor: const Color(0xFF059669),
+                                          behavior: SnackBarBehavior.floating,
+                                        ),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    setDialogState(() => isSending = false);
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(this.context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(isRtl ? 'حدث خطأ أثناء الإرسال: $e' : 'Failed to send broadcast: $e'),
+                                          backgroundColor: Colors.red,
+                                          behavior: SnackBarBehavior.floating,
+                                        ),
+                                      );
+                                    }
+                                  }
+                                },
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 }
 

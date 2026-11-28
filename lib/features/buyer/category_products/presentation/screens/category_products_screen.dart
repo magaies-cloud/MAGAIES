@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -138,10 +139,13 @@ class _CategoryProductsScreenState extends ConsumerState<CategoryProductsScreen>
                     child: bannerImageUrl != null && bannerImageUrl.isNotEmpty
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(12),
-                            child: Image.network(
-                              ImageOptimizer.optimize(bannerImageUrl, width: 150),
+                            child: CachedNetworkImage(
+                              imageUrl: ImageOptimizer.optimize(bannerImageUrl, width: 150),
+                              memCacheWidth: 180,
                               fit: BoxFit.cover,
-                              errorBuilder: (c, e, s) => Icon(_getCategoryIcon(widget.categoryId), size: 28, color: Theme.of(context).primaryColor),
+                              fadeInDuration: const Duration(milliseconds: 120),
+                              placeholder: (c, url) => Icon(_getCategoryIcon(widget.categoryId), size: 28, color: Theme.of(context).primaryColor.withValues(alpha: 0.4)),
+                              errorWidget: (c, url, e) => Icon(_getCategoryIcon(widget.categoryId), size: 28, color: Theme.of(context).primaryColor),
                             ),
                           )
                         : Icon(_getCategoryIcon(widget.categoryId), size: 28, color: Theme.of(context).primaryColor),
@@ -382,10 +386,17 @@ class _CategoryProductsScreenState extends ConsumerState<CategoryProductsScreen>
                                       child: img != null && img.isNotEmpty
                                           ? ClipRRect(
                                               borderRadius: BorderRadius.circular(10),
-                                              child: Image.network(
-                                                ImageOptimizer.optimize(img, width: 100),
+                                              child: CachedNetworkImage(
+                                                imageUrl: ImageOptimizer.optimize(img, width: 100),
+                                                memCacheWidth: 140,
                                                 fit: BoxFit.cover,
-                                                errorBuilder: (c, e, s) => Icon(
+                                                fadeInDuration: const Duration(milliseconds: 120),
+                                                placeholder: (c, url) => Icon(
+                                                  Icons.category_rounded,
+                                                  size: 20,
+                                                  color: Theme.of(context).primaryColor.withValues(alpha: 0.35),
+                                                ),
+                                                errorWidget: (c, url, e) => Icon(
                                                   Icons.category_rounded,
                                                   size: 20,
                                                   color: Theme.of(context).primaryColor,

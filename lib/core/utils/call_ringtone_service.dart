@@ -17,6 +17,32 @@ class CallRingtoneService {
       await _player!.setReleaseMode(ReleaseMode.loop);
       if (!kIsWeb) {
         await _player!.setPlayerMode(PlayerMode.mediaPlayer);
+        // الحفاظ على جلسة الصوت في iOS بوضع playAndRecord حتى لا يقوم مشغل الرنين
+        // بتعطيل الميكروفون أو قطع صوت WebRTC عند فتح الخط على أجهزة الآيفون
+        try {
+          await _player!.setAudioContext(
+            AudioContext(
+              iOS: AudioContextIOS(
+                category: AVAudioSessionCategory.playAndRecord,
+                options: const {
+                  AVAudioSessionOptions.allowBluetooth,
+                  AVAudioSessionOptions.allowBluetoothA2DP,
+                  AVAudioSessionOptions.defaultToSpeaker,
+                  AVAudioSessionOptions.mixWithOthers,
+                },
+              ),
+              android: const AudioContextAndroid(
+                isSpeakerphoneOn: true,
+                stayAwake: true,
+                contentType: AndroidContentType.sonification,
+                usageType: AndroidUsageType.notificationRingtone,
+                audioFocus: AndroidAudioFocus.none,
+              ),
+            ),
+          );
+        } catch (e) {
+          debugPrint('Ringtone AudioContext config note: $e');
+        }
       }
     }
     return _player!;

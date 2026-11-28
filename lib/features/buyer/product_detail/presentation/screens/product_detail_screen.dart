@@ -12,6 +12,7 @@ import 'package:magaiees_marketplace/core/utils/unit_formatter.dart';
 import 'package:magaiees_marketplace/core/enums/user_role.dart';
 import 'package:magaiees_marketplace/core/providers/ugc_moderation_provider.dart';
 import 'package:magaiees_marketplace/features/buyer/home/domain/models/product_card_model.dart';
+import 'package:magaiees_marketplace/core/utils/product_variants_helper.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 
 class ProductDetailScreen extends ConsumerStatefulWidget {
@@ -25,6 +26,8 @@ class ProductDetailScreen extends ConsumerStatefulWidget {
 class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   int quantity = 1;
   bool _isConnectingChat = false;
+  String? _selectedColor;
+  String? _selectedSize;
 
   @override
   Widget build(BuildContext context) {
@@ -302,6 +305,232 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
+                // Product Description & Technical Specifications Card (if entered by merchant)
+                if (product.description != null && product.description!.trim().isNotEmpty) ...[
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFCBD5E1)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.description_outlined, color: Color(0xFF1E40AF), size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              isRtl ? 'وصف الصنف والمواصفات الفنية:' : 'Product Description & Technical Specs:',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 14,
+                                color: Color(0xFF0F172A),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          product.description!.trim(),
+                          style: const TextStyle(
+                            fontSize: 13.5,
+                            height: 1.5,
+                            color: Color(0xFF334155),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                // Interactive Color Selector (if enabled by merchant)
+                if (product.availableColors.isNotEmpty) ...[
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFAF5FF),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFD8B4FE)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.palette_rounded, color: Color(0xFF9333EA), size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              isRtl ? 'اختر اللون المطلوب:' : 'Select Color:',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 14,
+                                color: Color(0xFF581C87),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF9333EA),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                _selectedColor ?? product.availableColors.first,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: product.availableColors.map((colorName) {
+                            final effectiveColor = _selectedColor ?? product.availableColors.first;
+                            final isSelected = effectiveColor == colorName;
+                            final swatchColor = ProductVariantsHelper.getColorForName(colorName);
+                            return InkWell(
+                              borderRadius: BorderRadius.circular(20),
+                              onTap: () => setState(() => _selectedColor = colorName),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 180),
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                                decoration: BoxDecoration(
+                                  color: isSelected ? const Color(0xFF9333EA) : Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: isSelected ? const Color(0xFF9333EA) : const Color(0xFFCBD5E1),
+                                    width: isSelected ? 2 : 1,
+                                  ),
+                                  boxShadow: isSelected
+                                      ? [
+                                          BoxShadow(
+                                            color: const Color(0xFF9333EA).withValues(alpha: 0.25),
+                                            blurRadius: 6,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ]
+                                      : null,
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Container(
+                                      width: 16,
+                                      height: 16,
+                                      decoration: BoxDecoration(
+                                        color: swatchColor,
+                                        shape: BoxShape.circle,
+                                        border: Border.all(color: Colors.black26, width: 1),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      colorName,
+                                      style: TextStyle(
+                                        fontSize: 12.5,
+                                        fontWeight: FontWeight.w700,
+                                        color: isSelected ? Colors.white : const Color(0xFF334155),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                ],
+                // Interactive Size Selector (if enabled by merchant)
+                if (product.availableSizes.isNotEmpty) ...[
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFF93C5FD)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.straighten_rounded, color: Color(0xFF2563EB), size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              isRtl ? 'اختر المقاس المطلوب:' : 'Select Size:',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: 14,
+                                color: Color(0xFF1E3A8A),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF2563EB),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                _selectedSize ?? product.availableSizes.first,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: product.availableSizes.map((sizeName) {
+                            final effectiveSize = _selectedSize ?? product.availableSizes.first;
+                            final isSelected = effectiveSize == sizeName;
+                            return InkWell(
+                              borderRadius: BorderRadius.circular(18),
+                              onTap: () => setState(() => _selectedSize = sizeName),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 180),
+                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                                decoration: BoxDecoration(
+                                  color: isSelected ? const Color(0xFF2563EB) : Colors.white,
+                                  borderRadius: BorderRadius.circular(18),
+                                  border: Border.all(
+                                    color: isSelected ? const Color(0xFF2563EB) : const Color(0xFFCBD5E1),
+                                    width: isSelected ? 2 : 1,
+                                  ),
+                                ),
+                                child: Text(
+                                  sizeName,
+                                  style: TextStyle(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: isSelected ? Colors.white : const Color(0xFF334155),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                ],
                 Row(
                   children: [
                     Text(isRtl ? 'الكمية:' : 'Quantity:', style: Theme.of(context).textTheme.titleLarge),
@@ -377,10 +606,27 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                   );
                                   return;
                                 }
-                                ref.read(cartNotifierProvider.notifier).addProduct(product, quantity.toDouble());
+                                final effectiveColor = product.availableColors.isNotEmpty
+                                    ? (_selectedColor ?? product.availableColors.first)
+                                    : null;
+                                final effectiveSize = product.availableSizes.isNotEmpty
+                                    ? (_selectedSize ?? product.availableSizes.first)
+                                    : null;
+                                ref.read(cartNotifierProvider.notifier).addProduct(
+                                      product,
+                                      quantity.toDouble(),
+                                      selectedColor: effectiveColor,
+                                      selectedSize: effectiveSize,
+                                    );
+                                final variantInfo = [
+                                  if (effectiveColor != null) (isRtl ? 'اللون: $effectiveColor' : 'Color: $effectiveColor'),
+                                  if (effectiveSize != null) (isRtl ? 'المقاس: $effectiveSize' : 'Size: $effectiveSize'),
+                                ].join(' | ');
                                 AppNotification.showSuccess(
                                   context,
-                                  isRtl ? 'تمت الإضافة إلى السلة' : 'Added to cart',
+                                  variantInfo.isNotEmpty
+                                      ? (isRtl ? 'تمت الإضافة إلى السلة ($variantInfo)' : 'Added to cart ($variantInfo)')
+                                      : (isRtl ? 'تمت الإضافة إلى السلة' : 'Added to cart'),
                                   icon: Icons.shopping_bag_outlined,
                                 );
                               },

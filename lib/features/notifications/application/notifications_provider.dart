@@ -7,7 +7,8 @@ class NotificationsNotifier extends StateNotifier<AsyncValue<List<Map<String, dy
     _init();
   }
 
-  StreamSubscription? _subscription;
+  RealtimeChannel? _channel;
+  Timer? _pollTimer;
 
   void _init() {
     final user = Supabase.instance.client.auth.currentUser;
@@ -16,24 +17,60 @@ class NotificationsNotifier extends StateNotifier<AsyncValue<List<Map<String, dy
       return;
     }
 
-    _subscription = Supabase.instance.client
-        .from('notifications')
-        .stream(primaryKey: ['id'])
-        .eq('user_id', user.id)
-        .order('created_at', ascending: false)
-        .listen(
-      (data) {
-        state = AsyncValue.data(data);
-      },
-      onError: (error, stackTrace) {
-        state = AsyncValue.error(error, stackTrace);
-      },
-    );
+    _fetchNotifications(user.id);
+
+    try {
+      _channel = Supabase.instance.client
+          .channel('user_notifs_${user.id}_${DateTime.now().millisecondsSinceEpoch}')
+          .onPostgresChanges(
+            event: PostgresChangeEvent.all,
+            schema: 'public',
+            table: 'notifications',
+            filter: PostgresChangeFilter(
+              type: PostgresChangeFilterType.eq,
+              column: 'user_id',
+              value: user.id,
+            ),
+            callback: (_) {
+              _fetchNotifications(user.id);
+            },
+          )
+          .subscribe();
+    } catch (_) {}
+
+    _pollTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+      _fetchNotifications(user.id);
+    });
+  }
+
+  Future<void> _fetchNotifications(String userId) async {
+    if (!mounted) return;
+    try {
+      final data = await Supabase.instance.client
+          .from('notifications')
+          .select()
+          .eq('user_id', userId)
+          .order('created_at', ascending: false)
+          .timeout(const Duration(seconds: 10));
+      if (mounted) {
+        state = AsyncValue.data(List<Map<String, dynamic>>.from(data as List));
+      }
+    } catch (_) {
+      if (mounted && !state.hasValue) {
+        state = const AsyncValue.data([]);
+      }
+    }
   }
 
   @override
   void dispose() {
-    _subscription?.cancel();
+    _pollTimer?.cancel();
+    if (_channel != null) {
+      try {
+        _channel!.unsubscribe();
+        Supabase.instance.client.removeChannel(_channel!);
+      } catch (_) {}
+    }
     super.dispose();
   }
 
@@ -43,24 +80,25 @@ class NotificationsNotifier extends StateNotifier<AsyncValue<List<Map<String, dy
           .from('notifications')
           .update({'is_read': true})
           .eq('id', notificationId);
-    } catch (e) {
-      // Handle error gracefully if needed
-    }
+      final user = Supabase.instance.client.auth.currentUser;
+      if (user != null) {
+        unawaited(_fetchNotifications(user.id));
+      }
+    } catch (_) {}
   }
 
   Future<void> markAllAsRead() async {
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) return;
-    
+
     try {
       await Supabase.instance.client
           .from('notifications')
           .update({'is_read': true})
           .eq('user_id', user.id)
           .eq('is_read', false);
-    } catch (e) {
-      // Handle error gracefully if needed
-    }
+      unawaited(_fetchNotifications(user.id));
+    } catch (_) {}
   }
 }
 
@@ -70,7 +108,7 @@ final notificationsProvider = StateNotifierProvider<NotificationsNotifier, Async
 
 final unreadNotificationsCountProvider = Provider<int>((ref) {
   final notificationsState = ref.watch(notificationsProvider);
-  
+
   return notificationsState.maybeWhen(
     data: (notifications) {
       return notifications.where((n) => n['is_read'] != true).length;

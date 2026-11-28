@@ -20,7 +20,7 @@ class AdminFinanceNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>
       final results = await Future.wait([
         supabase.from('merchant_payout_requests').select('*').order('created_at', ascending: false).limit(10000).catchError((_) => []),
         supabase.from('stores').select('id, name, name_ar, owner_id, custom_commission_percentage, has_custom_commission').limit(10000).catchError((_) => []),
-        supabase.from('orders').select('id, order_number, total_amount, paid_amount, status, payment_status, created_at, store_id, payment_method, notes, transport_fee, offloading_fee').order('created_at', ascending: false).limit(10000).catchError((_) => []),
+        supabase.from('orders').select('id, total_amount, paid_amount, status, payment_status, created_at, store_id, payment_method, notes, transport_fee, offloading_fee, commission_rate_applied, commission_amount').order('created_at', ascending: false).limit(10000).catchError((_) => []),
         supabase.from('payments').select('*').limit(10000).catchError((_) => []),
         supabase.from('gamification_settings').select('enable_commission, commission_percentage').eq('id', 1).maybeSingle().catchError((_) => null),
         supabase.from('ads').select('id, title, company, price, created_at').limit(10000).catchError((_) => []),
@@ -242,7 +242,7 @@ class AdminFinanceNotifier extends StateNotifier<AsyncValue<Map<String, dynamic>
           'total_order_amount': totalAmount,
           'commission': commission,
           'commission_rate': appliedRate,
-          'order_number': o['order_number']?.toString() ?? shortId,
+          'order_number': OrderNumberFormatter.formatFromMap(Map<String, dynamic>.from(o as Map)),
           'merchant_share': merchantShare,
           'payment_status': payStatus,
           'reference_number': refNumber,

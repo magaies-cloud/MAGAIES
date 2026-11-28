@@ -60,6 +60,10 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
   bool _maintenanceMode = false;
   bool _darkModeEnabled = false;
   bool _optionalUpdatesOnly = true;
+  final _latestAppVersionCtrl = TextEditingController(text: '1.0.11');
+  final _updateMsgCtrl = TextEditingController(
+    text: 'يتوفر إصدار جديد من تطبيق منصة مقاييس يتضمن تحسينات في الأداء وميزات جديدة.',
+  );
 
   // Social & Store URLs
   final _playStoreCtrl = TextEditingController(text: 'https://play.google.com/store/apps/details?id=com.magaiees.app');
@@ -167,6 +171,8 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
     _websiteCtrl.dispose();
     _aboutCtrl.dispose();
     _maintenanceMsgCtrl.dispose();
+    _latestAppVersionCtrl.dispose();
+    _updateMsgCtrl.dispose();
     _playStoreCtrl.dispose();
     _appStoreCtrl.dispose();
     _facebookCtrl.dispose();
@@ -293,6 +299,11 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
     _aboutCtrl.text = data['about'] ?? _aboutCtrl.text;
     _maintenanceMsgCtrl.text = data['maintenanceMsg'] ?? _maintenanceMsgCtrl.text;
     _maintenanceMode = data['maintenanceMode'] ?? _maintenanceMode;
+    if (data.containsKey('optionalUpdatesOnly')) {
+      _optionalUpdatesOnly = data['optionalUpdatesOnly'] == true || data['optionalUpdatesOnly'] == 'true';
+    }
+    _latestAppVersionCtrl.text = data['latestAppVersion']?.toString() ?? _latestAppVersionCtrl.text;
+    _updateMsgCtrl.text = data['updateMessageAr']?.toString() ?? _updateMsgCtrl.text;
     _playStoreCtrl.text = data['playStore'] ?? _playStoreCtrl.text;
     _appStoreCtrl.text = data['appStore'] ?? _appStoreCtrl.text;
     _facebookCtrl.text = data['facebook'] ?? _facebookCtrl.text;
@@ -388,6 +399,9 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
       'maintenanceMsg': _maintenanceMsgCtrl.text.trim(),
       'maintenanceMode': _maintenanceMode,
       'darkModeEnabled': _darkModeEnabled,
+      'optionalUpdatesOnly': _optionalUpdatesOnly,
+      'latestAppVersion': _latestAppVersionCtrl.text.trim(),
+      'updateMessageAr': _updateMsgCtrl.text.trim(),
       'playStore': _playStoreCtrl.text.trim(),
       'appStore': _appStoreCtrl.text.trim(),
       'facebook': _facebookCtrl.text.trim(),
@@ -1026,16 +1040,47 @@ class _AdminSettingsScreenState extends ConsumerState<AdminSettingsScreen> with 
           const SizedBox(height: 10),
           _buildSwitch(
             title: isRtl ? 'التحديثات اختيارية وغير إجبارية (Optional Updates Mode) 🟢' : 'Optional Updates Mode',
-            subtitle: isRtl ? 'تثبيت التحديثات والتحسينات كإجراء اختياري سلس دون إجبار المستخدمين على التحديث أو مقاطعة عملهم' : 'Allow users to update optionally without forced interruptions',
+            subtitle: isRtl
+                ? 'عند التفعيل: يظهر للمستخدم زر (لاحقاً) لإغلاق رسالة التحديث والمتابعة. وعند الإيقاف: يصبح التحديث إجبارياً'
+                : 'Allow users to dismiss update prompts and continue using the app',
             value: _optionalUpdatesOnly,
             activeColor: _kEmerald,
             icon: Icons.system_update_rounded,
             statusBadge: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(color: _kEmerald.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
-              child: const Text('اختياري دائم ✅', style: TextStyle(color: _kEmerald, fontSize: 10, fontWeight: FontWeight.bold)),
+              decoration: BoxDecoration(
+                color: (_optionalUpdatesOnly ? _kEmerald : _kRose).withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                _optionalUpdatesOnly ? 'اختياري (مع زر إغلاق) ✅' : 'تحديث إجباري 🔒',
+                style: TextStyle(
+                  color: _optionalUpdatesOnly ? _kEmerald : _kRose,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
             onChanged: (val) => setState(() => _optionalUpdatesOnly = val),
+          ),
+          const SizedBox(height: 10),
+          _buildField(
+            controller: _latestAppVersionCtrl,
+            label: isRtl ? 'رقم أحدث إصدار في المتجرين (Google Play & App Store)' : 'Latest Store App Version',
+            icon: Icons.new_releases_rounded,
+            hintText: '1.0.11',
+            helperText: isRtl
+                ? 'الإصدار الحالي للتطبيق هو ${GlobalSettings.currentAppVersion}. إذا رفعت إصداراً أحدث للمتجرين (مثلاً 1.0.12) وكتبته هنا، ستظهر رسالة التحديث تلقائياً للمستخدمين.'
+                : 'Current build is ${GlobalSettings.currentAppVersion}. Enter a higher version (e.g. 1.0.12) to trigger the update prompt.',
+            iconColor: _kEmerald,
+          ),
+          const SizedBox(height: 12),
+          _buildField(
+            controller: _updateMsgCtrl,
+            label: isRtl ? 'رسالة إشعار التحديث التي تظهر للمستخدم' : 'Update Prompt Message',
+            icon: Icons.notifications_active_rounded,
+            maxLines: 2,
+            iconColor: _kEmerald,
           ),
         ],
       ),

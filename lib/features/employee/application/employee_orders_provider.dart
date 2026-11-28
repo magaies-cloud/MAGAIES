@@ -207,8 +207,11 @@ class EmployeeOrders extends _$EmployeeOrders {
         final newRec = payload.newRecord;
         final eventType = payload.eventType;
 
+        final isEmployeeOrder = newRec['store_id'] == null ||
+            (newRec['notes']?.toString().contains('حصري') ?? false);
         final isNewPending = eventType == PostgresChangeEvent.insert &&
-            (newRec['status'] == 'pending' || newRec['status'] == null);
+            (newRec['status'] == 'pending' || newRec['status'] == null) &&
+            isEmployeeOrder;
 
         if (isNewPending) {
           playOrderNotificationSound();
@@ -456,10 +459,9 @@ class EmployeeOrders extends _$EmployeeOrders {
           await _supabase.from('notifications').insert({
             'user_id': buyerId,
             'title': 'تم رفض إشعار التحويل',
-            'title_ar': 'تم رفض إشعار التحويل',
             'body': 'تم رفض إشعار التحويل للطلب: $reason. يرجى إرفاق إشعار صحيح.',
-            'body_ar': 'تم رفض إشعار التحويل للطلب: $reason. يرجى إرفاق إشعار صحيح.',
-            'type': 'order',
+            'type': 'order_update',
+            'related_id': orderId,
           });
         } catch (_) {}
       }

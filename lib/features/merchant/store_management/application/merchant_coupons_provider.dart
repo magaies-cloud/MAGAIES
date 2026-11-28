@@ -27,16 +27,25 @@ class MerchantCouponsNotifier extends StateNotifier<AsyncValue<Map<String, dynam
           
       final enableCoupons = settingsResponse?['enable_coupons'] ?? false;
 
-      // Fetch coupons
+      // Fetch coupons and normalize column aliases for UI compatibility
       final couponsResponse = await _supabase
           .from('coupons')
           .select()
           .eq('merchant_id', merchantId)
           .order('created_at', ascending: false);
 
+      final normalizedCoupons = (couponsResponse as List).map((raw) {
+        final c = Map<String, dynamic>.from(raw as Map);
+        c['type'] ??= c['discount_type'] ?? 'percentage';
+        c['value'] ??= c['discount_value'] ?? 0;
+        c['min_order_amount'] ??= c['min_order_value'] ?? 0;
+        c['expiry_date'] ??= c['expires_at'];
+        return c;
+      }).toList();
+
       state = AsyncValue.data({
         'enableCoupons': enableCoupons,
-        'coupons': couponsResponse,
+        'coupons': normalizedCoupons,
       });
     } catch (e, st) {
       state = AsyncValue.error(e, st);
@@ -57,12 +66,12 @@ class MerchantCouponsNotifier extends StateNotifier<AsyncValue<Map<String, dynam
 
       await _supabase.from('coupons').insert({
         'merchant_id': merchantId,
-        'code': code,
-        'type': type,
-        'value': value,
-        'min_order_amount': minOrder,
+        'code': code.trim(),
+        'discount_type': type,
+        'discount_value': value,
+        'min_order_value': minOrder,
         'usage_limit': limit,
-        'expiry_date': expiry.toIso8601String(),
+        'expires_at': expiry.toIso8601String(),
         'is_active': true,
       });
       await _loadCoupons(); // Refresh list after insertion

@@ -11,6 +11,8 @@ import 'package:magaiees_marketplace/core/constants/app_colors.dart';
 import 'package:magaiees_marketplace/features/buyer/cart/application/cart_provider.dart';
 import 'package:magaiees_marketplace/features/buyer/orders/presentation/screens/buyer_orders_screen.dart';
 import 'package:magaiees_marketplace/features/chat/application/chat_provider.dart';
+import 'package:magaiees_marketplace/core/services/local_notification_service.dart';
+import 'package:magaiees_marketplace/core/services/push_notification_service.dart';
 
 /// Shell scaffold for the Buyer mode with bottom navigation and
 /// global real-time orders listener for instant alert tones and banners.
@@ -40,6 +42,7 @@ class _BuyerShellState extends ConsumerState<BuyerShell> {
     if (user == null) return;
 
     try {
+      PushNotificationService.instance.syncTokenWithServer();
       await _buyerOrdersChannel?.unsubscribe();
 
       final channelName = 'buyer_global_orders_${user.id}_${DateTime.now().millisecondsSinceEpoch}';
@@ -78,15 +81,20 @@ class _BuyerShellState extends ConsumerState<BuyerShell> {
                   final buyerApproved = newRec['buyer_approved_fees'];
                   final transportFee = newRec['transport_fee'];
                   final status = newRec['status']?.toString();
-                  final orderId = newRec['id']?.toString();
+                  final orderId = newRec['id']?.toString() ?? 'order';
 
                   final notes = newRec['notes']?.toString() ?? '';
                   final paymentStatus = newRec['payment_status']?.toString();
                   final isRejected = paymentStatus == 'unpaid' && notes.contains('rejection_reason:');
 
+                  String sysTitle = isRtl ? '📦 تحديث بخصوص طلبك' : '📦 Order Update';
+                  String sysBody = isRtl ? 'تم تحديث حالة طلبك، اضغط للمراجعة والتفاصيل.' : 'Your order has been updated.';
+
                   if (isRejected) {
                     final rawReason = notes.split('rejection_reason:').last.split('\n').first.trim();
                     final reason = rawReason.isNotEmpty ? rawReason : (isRtl ? 'الإشعار غير واضح أو البيانات غير مطابقة' : 'Invalid or unverified receipt');
+                    sysTitle = isRtl ? '⚠️ تم رفض إشعار الدفع للطلب' : '⚠️ Payment Receipt Rejected';
+                    sysBody = reason;
                     AppNotification.showRejected(
                       context,
                       orderId: orderId,
@@ -94,57 +102,133 @@ class _BuyerShellState extends ConsumerState<BuyerShell> {
                       onTap: () => widget.navigationShell.goBranch(2),
                     );
                   } else if (status == 'processing') {
+                    sysTitle = isRtl ? '⚙️ جاري تجهيز طلبك الآن' : '⚙️ Order Processing';
+                    sysBody = isRtl ? 'بدأ التاجر في تجهيز طلبيتك.' : 'Merchant started processing your order.';
                     AppNotification.showProcessing(
                       context,
                       orderId: orderId,
                       onTap: () => widget.navigationShell.goBranch(2),
                     );
                   } else if (status == 'shipped') {
+                    sysTitle = isRtl ? '🚚 تم شحن طلبك!' : '🚚 Order Shipped!';
+                    sysBody = isRtl ? 'طلبك الآن في الطريق إليك مع شركة الشحن!' : 'Your order is on the way!';
                     AppNotification.showShipped(
                       context,
                       orderId: orderId,
-                      message: isRtl ? 'طلبك الآن في طريق إليك مع شركة الشحن!' : 'Your order is on the way!',
+                      message: sysBody,
                       onTap: () => widget.navigationShell.goBranch(2),
                     );
                   } else if (status == 'delivered') {
+                    sysTitle = isRtl ? '🎉 تم تسليم طلبك بنجاح!' : '🎉 Order Delivered!';
+                    sysBody = isRtl ? 'تم تسليم الطلب بنجاح! شكراً لتعاملك معنا.' : 'Order delivered successfully! Thank you.';
                     AppNotification.showDelivered(
                       context,
                       orderId: orderId,
-                      message: isRtl ? 'تم تسليم الطلب بنجاح! شكراً لتعاملك معنا.' : 'Order delivered successfully! Thank you.',
+                      message: sysBody,
                       onTap: () => widget.navigationShell.goBranch(2),
                     );
                   } else if (status == 'cancelled') {
+                    sysTitle = isRtl ? '❌ تم إلغاء الطلب' : '❌ Order Cancelled';
+                    sysBody = isRtl ? 'تم إلغاء الطلب، اضغط لعرض التفاصيل.' : 'Your order has been cancelled.';
                     AppNotification.showCancelled(
                       context,
                       orderId: orderId,
                       onTap: () => widget.navigationShell.goBranch(2),
                     );
                   } else if (buyerApproved == false && transportFee != null) {
+                    sysTitle = isRtl ? '🚛 تم تحديد رسوم الترحيل لطلبك!' : '🚛 Shipping Fees Set!';
+                    sysBody = isRtl ? 'قام التاجر بتحديد رسوم النقل والتنزيل، اضغط للموافقة وإتمام الطلب.' : 'Merchant set shipping fees. Tap to review and approve.';
                     AppNotification.showFeesSet(
                       context,
                       orderId: orderId,
                       onTap: () => widget.navigationShell.goBranch(2),
                     );
                   } else if (paymentStatus == 'paid' || paymentStatus == 'partial') {
+                    sysTitle = isRtl ? '✅ تم اعتماد الدفع لطلبك!' : '✅ Payment Approved!';
+                    sysBody = isRtl
+                        ? (paymentStatus == 'paid' ? 'تم اعتماد الدفع بالكامل بنجاح!' : 'تم اعتماد دفعة مالية جزئية للطلب.')
+                        : (paymentStatus == 'paid' ? 'Full payment verified and approved!' : 'Partial payment verified and approved.');
                     AppNotification.showPaymentApproved(
                       context,
                       orderId: orderId,
-                      message: isRtl
-                          ? (paymentStatus == 'paid' ? 'تم اعتماد الدفع بالكامل بنجاح!' : 'تم اعتماد دفعة مالية جزئية للطلب.')
-                          : (paymentStatus == 'paid' ? 'Full payment verified and approved!' : 'Partial payment verified and approved.'),
+                      message: sysBody,
                       onTap: () => widget.navigationShell.goBranch(2),
                     );
                   } else {
                     AppNotification.showBanner(
                       context,
-                      title: isRtl ? '📦 تحديث بخصوص طلبك' : '📦 Order Update',
-                      message: isRtl ? 'تم تحديث حالة طلبك، اضغط للمراجعة والتفاصيل.' : 'Your order has been updated.',
+                      title: sysTitle,
+                      message: sysBody,
                       orderId: orderId,
                       actionLabel: isRtl ? 'عرض' : 'View',
                       onAction: () => widget.navigationShell.goBranch(2),
                     );
                   }
+
+                  if (payload.eventType != PostgresChangeEvent.insert) {
+                    LocalNotificationService.instance.showOrderNotification(
+                      orderId: '${orderId}_${status}_$paymentStatus',
+                      title: sysTitle,
+                      body: sysBody,
+                      payload: 'buyer_order:$orderId',
+                    );
+                  }
                 }
+              }
+            },
+          )
+          .onPostgresChanges(
+            event: PostgresChangeEvent.insert,
+            schema: 'public',
+            table: 'notifications',
+            filter: PostgresChangeFilter(
+              type: PostgresChangeFilterType.eq,
+              column: 'user_id',
+              value: user.id,
+            ),
+            callback: (payload) {
+              final newRec = payload.newRecord;
+              final type = newRec['type']?.toString() ?? 'general';
+
+              // STRICT GUARD: Platform USD rate alerts are exclusively for Merchants, never Buyers
+              if (type == 'usd_rate_changed') return;
+
+              NotificationSoundService.play();
+              ref.invalidate(buyerOrdersProvider);
+              final title = newRec['title_ar']?.toString() ??
+                  newRec['title']?.toString() ??
+                  '🔔 إشعار جديد من مقاييس';
+              final body = newRec['body_ar']?.toString() ??
+                  newRec['body']?.toString() ??
+                  'يوجد تحديث جديد على حسابك أو طلبك.';
+              final relatedId = newRec['related_id']?.toString() ?? 'buyer_notif_${DateTime.now().millisecondsSinceEpoch}';
+              LocalNotificationService.instance.showOrderNotification(
+                orderId: relatedId,
+                title: title,
+                body: body,
+                payload: 'buyer_order:$relatedId',
+              );
+
+              if (mounted && type.startsWith('admin_broadcast')) {
+                final isWarning = type == 'admin_broadcast_warning';
+                final isPromo = type == 'admin_broadcast_promo';
+                AppNotification.showBanner(
+                  context,
+                  title: title,
+                  message: body,
+                  icon: isWarning
+                      ? Icons.warning_amber_rounded
+                      : (isPromo ? Icons.auto_awesome_rounded : Icons.campaign_rounded),
+                  gradientColors: isWarning
+                      ? const [Color(0xFF9A3412), Color(0xFFEA580C)]
+                      : (isPromo
+                          ? const [Color(0xFF4C1D95), Color(0xFF7C3AED)]
+                          : const [Color(0xFF1E3A8A), Color(0xFF2563EB)]),
+                  glowColor: isWarning
+                      ? const Color(0xFFF97316)
+                      : (isPromo ? const Color(0xFF8B5CF6) : const Color(0xFF3B82F6)),
+                  duration: const Duration(milliseconds: 6500),
+                );
               }
             },
           )

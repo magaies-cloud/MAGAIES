@@ -13,8 +13,21 @@ class CartNotifier extends _$CartNotifier {
     return const CartModel();
   }
 
-  void addProduct(ProductCardModel product, double quantity) {
-    final existingIndex = state.items.indexWhere((i) => i.product.id == product.id);
+  void addProduct(
+    ProductCardModel product,
+    double quantity, {
+    String? selectedColor,
+    String? selectedSize,
+  }) {
+    final effectiveColor = selectedColor ??
+        (product.availableColors.isNotEmpty ? product.availableColors.first : null);
+    final effectiveSize = selectedSize ??
+        (product.availableSizes.isNotEmpty ? product.availableSizes.first : null);
+
+    final existingIndex = state.items.indexWhere((i) =>
+        i.product.id == product.id &&
+        i.selectedColor == effectiveColor &&
+        i.selectedSize == effectiveSize);
     if (existingIndex >= 0) {
       final existingItem = state.items[existingIndex];
       final newItems = List<CartItemModel>.from(state.items);
@@ -22,7 +35,15 @@ class CartNotifier extends _$CartNotifier {
       state = state.copyWith(items: newItems);
     } else {
       state = state.copyWith(
-        items: [...state.items, CartItemModel(product: product, quantity: quantity)],
+        items: [
+          ...state.items,
+          CartItemModel(
+            product: product,
+            quantity: quantity,
+            selectedColor: effectiveColor,
+            selectedSize: effectiveSize,
+          ),
+        ],
       );
     }
   }

@@ -16,6 +16,7 @@ import 'package:magaiees_marketplace/core/network/supabase_safe_query.dart';
 import 'package:magaiees_marketplace/core/utils/order_number_formatter.dart';
 import 'package:magaiees_marketplace/core/widgets/product_image_preview_box.dart';
 import 'package:magaiees_marketplace/core/utils/name_formatter.dart';
+import 'package:magaiees_marketplace/core/utils/phone_formatter.dart';
 
 // Store info provider for merchant orders screen
 final merchantOrdersStoreProvider = FutureProvider.autoDispose<Map<String, dynamic>?>((ref) async {
@@ -178,11 +179,13 @@ final merchantOrdersProvider = StreamProvider.autoDispose<List<Map<String, dynam
           callback: (payload) {
             final newRec = payload.newRecord;
             final rowStoreId = newRec['store_id']?.toString();
-            if (rowStoreId == storeId || rowStoreId == null) {
+            if (rowStoreId != null && rowStoreId == storeId) {
               fetchOrders();
               if (payload.eventType == PostgresChangeEvent.insert) {
                 NotificationSoundService.play();
               }
+            } else if (rowStoreId == null) {
+              fetchOrders();
             }
           },
         )
@@ -644,14 +647,34 @@ class _OrderCard extends StatelessWidget {
                       children: [
                         Icon(Icons.person_outline, size: 16, color: Colors.purple.shade700),
                         const SizedBox(width: 6),
-                        Expanded(
+                        Flexible(
                           child: Text(
-                            '${isRtl ? 'المشتري' : 'Buyer'}: $buyerName${buyerPhone.isNotEmpty ? ' ($buyerPhone)' : ''}',
+                            '${isRtl ? 'المشتري' : 'Buyer'}: $buyerName',
                             style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.purple.shade800),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        if (buyerPhone.isNotEmpty) ...[
+                          const SizedBox(width: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(6),
+                              border: Border.all(color: Colors.purple.shade200),
+                            ),
+                            child: PhoneFormatter.text(
+                              buyerPhone,
+                              style: TextStyle(
+                                fontSize: 11.5,
+                                fontWeight: FontWeight.w800,
+                                color: Colors.purple.shade900,
+                                fontFamily: 'monospace',
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   );
@@ -2342,11 +2365,21 @@ class _MerchantChatButtonState extends ConsumerState<_MerchantChatButton> {
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             icon: const Icon(Icons.person_off_outlined, color: Colors.orange, size: 40),
             title: Text(widget.isRtl ? 'طلب زائر بدون حساب' : 'Guest Order'),
-            content: Text(
-              widget.isRtl
-                  ? 'هذا الطلب تم تنفيذه بواسطة زائر دون حساب مستخدم دائم.\nيمكنك التواصل مع المشتري هاتفياً:\n$buyerPhone'
-                  : 'This order was placed by a guest without an account.\nYou can contact them by phone:\n$buyerPhone',
-              textAlign: TextAlign.center,
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  widget.isRtl
+                      ? 'هذا الطلب تم تنفيذه بواسطة زائر دون حساب مستخدم دائم.\nيمكنك التواصل مع المشتري هاتفياً:'
+                      : 'This order was placed by a guest without an account.\nYou can contact them by phone:',
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                PhoneFormatter.text(
+                  buyerPhone,
+                  style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 15, fontFamily: 'monospace'),
+                ),
+              ],
             ),
             actions: [
               TextButton(

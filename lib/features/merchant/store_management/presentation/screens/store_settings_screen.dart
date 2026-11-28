@@ -11,9 +11,12 @@ import 'package:magaiees_marketplace/core/providers/global_settings_provider.dar
 import 'package:magaiees_marketplace/features/merchant/inventory/presentation/screens/merchant_inventory_screen.dart';
 import 'package:magaiees_marketplace/features/merchant/dashboard/application/merchant_wallet_provider.dart';
 import 'package:magaiees_marketplace/features/buyer/home/application/home_provider.dart';
+import 'package:magaiees_marketplace/core/network/supabase_safe_query.dart';
 import 'package:magaiees_marketplace/core/utils/data_validator.dart';
+import 'package:magaiees_marketplace/core/utils/phone_formatter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:magaiees_marketplace/routing/route_names.dart';
+import 'package:magaiees_marketplace/features/merchant/presentation/widgets/usd_rate_history_dialog.dart';
 
 class StoreSettingsScreen extends ConsumerStatefulWidget {
   const StoreSettingsScreen({super.key});
@@ -45,6 +48,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
   final _b2bApprovedBuyersController = TextEditingController();
 
   String _usdRateSource = 'platform';
+  bool _usdRateAlertsEnabled = true;
   final _customUsdRateController = TextEditingController();
   
   bool _isLoading = true;
@@ -81,7 +85,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
         _storeId = res['id'];
         _nameController.text = res['name'] ?? '';
         _crController.text = res['cr_number'] ?? '';
-        _phoneController.text = res['contact_phone'] ?? '';
+        _phoneController.text = PhoneFormatter.format(res['contact_phone']?.toString() ?? '');
         _addressController.text = res['address'] ?? '';
         _workingHoursController.text = res['working_hours'] ?? '';
         _returnPolicyController.text = res['return_policy'] ?? '';
@@ -110,13 +114,19 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
         if (userRes['permissions'] is Map) {
           final perms = userRes['permissions'] as Map<String, dynamic>;
           _usdRateSource = perms['usd_rate_source'] ?? _usdRateSource;
+          final rawAlerts = perms['usd_rate_alerts_enabled'];
+          if (rawAlerts is bool) {
+            _usdRateAlertsEnabled = rawAlerts;
+          } else if (rawAlerts != null) {
+            _usdRateAlertsEnabled = rawAlerts.toString().toLowerCase() != 'false';
+          }
           final savedRate = perms['store_usd_rate']?.toString() ??
               (res != null && res['usd_exchange_rate'] != null ? res['usd_exchange_rate'].toString() : null) ??
               ref.read(globalSettingsProvider).platformUsdRate.toStringAsFixed(0);
           _customUsdRateController.text = savedRate;
           _bankakAccountController.text = perms['bankak_account']?.toString() ?? '';
           _bankakNameController.text = perms['bankak_name']?.toString() ?? '';
-          _ocashPhoneController.text = perms['ocash_phone']?.toString() ?? '';
+          _ocashPhoneController.text = PhoneFormatter.format(perms['ocash_phone']?.toString() ?? '');
           _ocashNameController.text = perms['ocash_name']?.toString() ?? '';
           _acceptCod = perms['accept_cod'] ?? true;
           _acceptB2b = perms['accept_b2b'] ?? true;
@@ -137,6 +147,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
       
       final prefs = await SharedPreferences.getInstance();
       _chatSoundsEnabled = prefs.getBool('chat_sounds') ?? true;
+      await prefs.setBool('usd_rate_alerts_enabled', _usdRateAlertsEnabled);
     } catch (e) {
       debugPrint('Error loading store data: $e');
     }
@@ -172,37 +183,69 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
         };
 
         if (_storeId != null) {
-          await Supabase.instance.client
-              .from('stores')
-              .update(data)
-              .eq('id', _storeId!);
+          await safeSupabaseQuery(
+            () => Supabase.instance.client
+                .from('stores')
+                .update(data)
+                .eq('id', _storeId!),
+          );
 
           try {
-            await Supabase.instance.client
-                .from('stores')
-                .update({'usd_exchange_rate': effectiveRate})
-                .eq('id', _storeId!);
+            await safeSupabaseQuery(
+              () => Supabase.instance.client
+                  .from('stores')
+                  .update({'usd_exchange_rate': effectiveRate})
+                  .eq('id', _storeId!),
+            );
           } catch (_) {}
 
-          // Recalculate product prices based on effective USD rate
+          // Recalculate product prices based on effective USD rate (only updating rows that actually changed)
           try {
-            final products = await Supabase.instance.client
-                .from('products')
-                .select('id, price_usd, price_sdg')
-                .eq('store_id', _storeId!);
-            for (var p in products) {
-              double usd = double.tryParse(p['price_usd']?.toString() ?? '0') ?? 0;
-              double sdg = double.tryParse(p['price_sdg']?.toString() ?? '0') ?? 0;
-              if (usd == 0 && sdg > 0 && effectiveRate > 0) {
-                usd = sdg / effectiveRate;
+            final products = await safeSupabaseQuery(
+              () => Supabase.instance.client
+                  .from('products')
+                  .select('id, price_usd, price_sdg')
+                  .eq('store_id', _storeId!),
+              fallback: () => <dynamic>[],
+            );
+            final updates = <Map<String, dynamic>>[];
+            for (final p in products) {
+              final rawUsd = double.tryParse(p['price_usd']?.toString() ?? '0') ?? 0;
+              final rawSdg = double.tryParse(p['price_sdg']?.toString() ?? '0') ?? 0;
+              double usd = rawUsd;
+              if (usd == 0 && rawSdg > 0 && effectiveRate > 0) {
+                usd = rawSdg / effectiveRate;
               }
               if (usd > 0) {
-                final newSdg = usd * effectiveRate;
-                await Supabase.instance.client.from('products').update({
-                  'price_sdg': newSdg,
-                  'price_usd': usd,
-                }).eq('id', p['id']).eq('store_id', _storeId!);
+                final newSdg = double.parse((usd * effectiveRate).toStringAsFixed(2));
+                final roundedUsd = double.parse(usd.toStringAsFixed(2));
+                if ((newSdg - rawSdg).abs() >= 0.5 || (roundedUsd - rawUsd).abs() >= 0.01) {
+                  updates.add({
+                    'id': p['id'],
+                    'price_sdg': newSdg,
+                    'price_usd': roundedUsd,
+                  });
+                }
               }
+            }
+            for (var i = 0; i < updates.length; i += 3) {
+              final batch = updates.skip(i).take(3);
+              await Future.wait(
+                batch.map((item) async {
+                  try {
+                    await safeSupabaseQuery(
+                      () => Supabase.instance.client
+                          .from('products')
+                          .update({
+                            'price_sdg': item['price_sdg'],
+                            'price_usd': item['price_usd'],
+                          })
+                          .eq('id', item['id'])
+                          .eq('store_id', _storeId!),
+                    );
+                  } catch (_) {}
+                }),
+              );
             }
             ref.invalidate(merchantStoreInfoProvider);
             ref.invalidate(merchantInventoryProvider);
@@ -223,6 +266,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
             ? Map<String, dynamic>.from(userRow['permissions'] as Map)
             : <String, dynamic>{};
         perms['usd_rate_source'] = _usdRateSource;
+        perms['usd_rate_alerts_enabled'] = _usdRateAlertsEnabled;
         perms['store_usd_rate'] = effectiveRate;
         perms['bankak_account'] = _bankakAccountController.text.trim();
         perms['bankak_name'] = _bankakNameController.text.trim();
@@ -292,13 +336,25 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
     _ocashNameController.dispose();
     _b2bApprovedBuyersController.dispose();
     _customUsdRateController.dispose();
-    _userRealtimeChannel?.unsubscribe();
-    _storeRealtimeChannel?.unsubscribe();
+    final uCh = _userRealtimeChannel;
+    if (uCh != null) {
+      uCh.unsubscribe();
+      Supabase.instance.client.removeChannel(uCh);
+    }
+    final sCh = _storeRealtimeChannel;
+    if (sCh != null) {
+      sCh.unsubscribe();
+      Supabase.instance.client.removeChannel(sCh);
+    }
     super.dispose();
   }
 
   void _subscribeToUserRealtime(String userId) {
-    _userRealtimeChannel?.unsubscribe();
+    final oldCh = _userRealtimeChannel;
+    if (oldCh != null) {
+      oldCh.unsubscribe();
+      Supabase.instance.client.removeChannel(oldCh);
+    }
     _userRealtimeChannel = Supabase.instance.client
         .channel('store_settings_user_$userId')
         .onPostgresChanges(
@@ -331,6 +387,12 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                   final perms = record['permissions'] as Map<String, dynamic>;
                   if (perms.containsKey('usd_rate_source') && perms['usd_rate_source'] != null) {
                     _usdRateSource = perms['usd_rate_source'].toString();
+                  }
+                  if (perms.containsKey('usd_rate_alerts_enabled') && perms['usd_rate_alerts_enabled'] != null) {
+                    final rawAlerts = perms['usd_rate_alerts_enabled'];
+                    _usdRateAlertsEnabled = rawAlerts is bool
+                        ? rawAlerts
+                        : rawAlerts.toString().toLowerCase() != 'false';
                   }
                   if (perms.containsKey('store_usd_rate') && perms['store_usd_rate'] != null) {
                     final r = perms['store_usd_rate'];
@@ -365,8 +427,10 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                   }
                 }
               });
-              ref.invalidate(merchantStoreInfoProvider);
-              ref.invalidate(merchantWalletProvider);
+              if (!_isLoading) {
+                ref.invalidate(merchantStoreInfoProvider);
+                ref.invalidate(merchantWalletProvider);
+              }
             }
           },
         )
@@ -374,7 +438,11 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
   }
 
   void _subscribeToStoreRealtime(String storeId) {
-    _storeRealtimeChannel?.unsubscribe();
+    final oldCh = _storeRealtimeChannel;
+    if (oldCh != null) {
+      oldCh.unsubscribe();
+      Supabase.instance.client.removeChannel(oldCh);
+    }
     _storeRealtimeChannel = Supabase.instance.client
         .channel('store_settings_store_$storeId')
         .onPostgresChanges(
@@ -402,13 +470,67 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                   _isOpen = record['is_open'] == true;
                 }
               });
-              ref.invalidate(merchantStoreInfoProvider);
-              ref.invalidate(merchantInventoryProvider);
-              ref.invalidate(productsProvider);
+              if (!_isLoading) {
+                ref.invalidate(merchantStoreInfoProvider);
+                ref.invalidate(merchantInventoryProvider);
+                ref.invalidate(productsProvider);
+              }
             }
           },
         )
         .subscribe();
+  }
+
+  Future<void> _toggleUsdRateAlerts(bool enabled) async {
+    setState(() => _usdRateAlertsEnabled = enabled);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('usd_rate_alerts_enabled', enabled);
+    } catch (_) {}
+
+    final user = ref.read(authNotifierProvider).valueOrNull;
+    if (user == null) return;
+
+    try {
+      final userRow = await safeSupabaseQuery(
+        () => Supabase.instance.client
+            .from('users')
+            .select('permissions')
+            .eq('id', user.id)
+            .maybeSingle(),
+        fallback: () => null,
+      );
+      final perms = (userRow != null && userRow['permissions'] is Map)
+          ? Map<String, dynamic>.from(userRow['permissions'] as Map)
+          : <String, dynamic>{};
+      perms['usd_rate_alerts_enabled'] = enabled;
+
+      await safeSupabaseQuery(
+        () => Supabase.instance.client
+            .from('users')
+            .update({'permissions': perms})
+            .eq('id', user.id),
+      );
+
+      if (mounted) {
+        final isRtl = Directionality.of(context) == TextDirection.rtl;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              enabled
+                  ? (isRtl
+                      ? '🔔 تم تفعيل تنبيه الشريط العلوي وإشعارات تغيّر سعر الدولار'
+                      : '🔔 Dollar rate top-banner & push alerts enabled')
+                  : (isRtl
+                      ? '🔕 تم إيقاف تنبيه الشريط العلوي وإشعارات تغيّر سعر الدولار'
+                      : '🔕 Dollar rate top-banner & push alerts disabled'),
+            ),
+            backgroundColor: enabled ? const Color(0xFF059669) : const Color(0xFF475569),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (_) {}
   }
 
   Future<void> _saveExchangeRateOnly() async {
@@ -435,44 +557,80 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
     setState(() => _isLoading = true);
 
     try {
-      final userRow = await Supabase.instance.client.from('users').select('permissions').eq('id', user.id).maybeSingle();
+      final userRow = await safeSupabaseQuery(
+        () => Supabase.instance.client.from('users').select('permissions').eq('id', user.id).maybeSingle(),
+        fallback: () => null,
+      );
       final perms = (userRow != null && userRow['permissions'] is Map)
           ? Map<String, dynamic>.from(userRow['permissions'] as Map)
           : <String, dynamic>{};
       perms['usd_rate_source'] = _usdRateSource;
+      perms['usd_rate_alerts_enabled'] = _usdRateAlertsEnabled;
       perms['store_usd_rate'] = effectiveRate;
 
-      await Supabase.instance.client.from('users').update({
-        'permissions': perms,
-      }).eq('id', user.id);
+      await safeSupabaseQuery(
+        () => Supabase.instance.client.from('users').update({
+          'permissions': perms,
+        }).eq('id', user.id),
+      );
 
-      await Supabase.instance.client.from('stores').update({
-        'usd_exchange_rate': effectiveRate,
-      }).eq('id', _storeId!);
+      await safeSupabaseQuery(
+        () => Supabase.instance.client.from('stores').update({
+          'usd_exchange_rate': effectiveRate,
+        }).eq('id', _storeId!),
+      );
 
-      // Recalculate product prices based on effective USD rate
-      final products = await Supabase.instance.client
-          .from('products')
-          .select('id, price_usd, price_sdg')
-          .eq('store_id', _storeId!);
-      for (var p in products) {
-        double usd = double.tryParse(p['price_usd']?.toString() ?? '0') ?? 0;
-        double sdg = double.tryParse(p['price_sdg']?.toString() ?? '0') ?? 0;
-        if (usd == 0 && sdg > 0 && effectiveRate > 0) {
-          usd = sdg / effectiveRate;
+      // Recalculate product prices based on effective USD rate (only updating rows that actually changed)
+      final products = await safeSupabaseQuery(
+        () => Supabase.instance.client
+            .from('products')
+            .select('id, price_usd, price_sdg')
+            .eq('store_id', _storeId!),
+        fallback: () => <dynamic>[],
+      );
+
+      final updates = <Map<String, dynamic>>[];
+      for (final p in products) {
+        final rawUsd = double.tryParse(p['price_usd']?.toString() ?? '0') ?? 0;
+        final rawSdg = double.tryParse(p['price_sdg']?.toString() ?? '0') ?? 0;
+        double usd = rawUsd;
+        if (usd == 0 && rawSdg > 0 && effectiveRate > 0) {
+          usd = rawSdg / effectiveRate;
         }
         if (usd > 0) {
-          final newSdg = usd * effectiveRate;
-          await Supabase.instance.client.from('products').update({
-            'price_sdg': newSdg,
-            'price_usd': usd,
-          }).eq('id', p['id']).eq('store_id', _storeId!);
+          final newSdg = double.parse((usd * effectiveRate).toStringAsFixed(2));
+          final roundedUsd = double.parse(usd.toStringAsFixed(2));
+          if ((newSdg - rawSdg).abs() >= 0.5 || (roundedUsd - rawUsd).abs() >= 0.01) {
+            updates.add({
+              'id': p['id'],
+              'price_sdg': newSdg,
+              'price_usd': roundedUsd,
+            });
+          }
         }
       }
 
-      ref.invalidate(merchantStoreInfoProvider);
-      ref.invalidate(merchantInventoryProvider);
-      ref.invalidate(productsProvider);
+      for (var i = 0; i < updates.length; i += 3) {
+        final batch = updates.skip(i).take(3);
+        await Future.wait(
+          batch.map((item) async {
+            try {
+              await safeSupabaseQuery(
+                () => Supabase.instance.client
+                    .from('products')
+                    .update({
+                      'price_sdg': item['price_sdg'],
+                      'price_usd': item['price_usd'],
+                    })
+                    .eq('id', item['id'])
+                    .eq('store_id', _storeId!),
+              );
+            } catch (e) {
+              debugPrint('Warning updating product ${item['id']} price: $e');
+            }
+          }),
+        );
+      }
 
       if (mounted) {
         final isRtl = Directionality.of(context) == TextDirection.rtl;
@@ -485,11 +643,24 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
       }
     } catch (e) {
       if (mounted) {
+        final isRtl = Directionality.of(context) == TextDirection.rtl;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(
+              isRtl
+                  ? 'تعذر تحديث سعر الصرف بسبب ضعف الاتصال، يرجى المحاولة مرة أخرى.'
+                  : 'Could not update exchange rate due to connection error. Please try again.',
+            ),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
+      ref.invalidate(merchantStoreInfoProvider);
+      ref.invalidate(merchantInventoryProvider);
+      try {
+        ref.invalidate(productsProvider);
+      } catch (_) {}
       if (mounted) {
         setState(() => _isLoading = false);
       }
@@ -698,6 +869,7 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                                     TextFormField(
                                       controller: _ocashPhoneController,
                                       keyboardType: TextInputType.phone,
+                                      textDirection: TextDirection.ltr,
                                       decoration: InputDecoration(
                                         labelText: isRtl ? 'رقم المحفظة / الهاتف' : 'O-Cash Phone No',
                                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -1194,7 +1366,8 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _phoneController,
-                      decoration: InputDecoration(labelText: isRtl ? 'رقم الهاتف (إلزامي)' : 'Phone (Required)', border: const OutlineInputBorder(), prefixIcon: const Icon(Icons.phone)),
+                      textDirection: TextDirection.ltr,
+                      decoration: InputDecoration(labelText: isRtl ? 'رقم الهاتف (إلزامي)' : 'Phone (Required)', hintText: '+249 912 300 101', border: const OutlineInputBorder(), prefixIcon: const Icon(Icons.phone)),
                       keyboardType: TextInputType.phone,
                       validator: (val) => DataValidator.validatePhone(val, isRtl: isRtl),
                     ),
@@ -1248,32 +1421,56 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                                         if (val != null) setState(() => _usdRateSource = val);
                                       },
                                     ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Text(
-                                                isRtl ? 'سعر صرف منصة مقاييس المعتمد' : 'Official Platform USD Rate',
-                                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
-                                              ),
-                                              const SizedBox(width: 8),
-                                              Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                                decoration: BoxDecoration(
-                                                  color: const Color(0xFFDCFCE7),
-                                                  borderRadius: BorderRadius.circular(6),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Wrap(
+                                              crossAxisAlignment: WrapCrossAlignment.center,
+                                              spacing: 8,
+                                              runSpacing: 6,
+                                              children: [
+                                                Text(
+                                                  isRtl ? 'سعر صرف منصة مقاييس المعتمد' : 'Official Platform USD Rate',
+                                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                                                 ),
-                                                child: Text(
-                                                  isRtl ? 'موصى به' : 'Recommended',
-                                                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF15803D)),
+                                                Container(
+                                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                                  decoration: BoxDecoration(
+                                                    color: const Color(0xFFDCFCE7),
+                                                    borderRadius: BorderRadius.circular(6),
+                                                  ),
+                                                  child: Text(
+                                                    isRtl ? 'موصى به' : 'Recommended',
+                                                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF15803D)),
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 4),
+                                                InkWell(
+                                                  onTap: () => UsdRateHistoryDialog.show(context),
+                                                  borderRadius: BorderRadius.circular(8),
+                                                  child: Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                                    decoration: BoxDecoration(
+                                                      color: const Color(0xFF0B0E11),
+                                                      borderRadius: BorderRadius.circular(8),
+                                                    ),
+                                                    child: Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        const Icon(Icons.candlestick_chart_rounded, size: 14, color: Color(0xFFFCD535)),
+                                                        const SizedBox(width: 4),
+                                                        Text(
+                                                          isRtl ? 'سجل ومؤشر الدولار 📈' : 'Rate History 📈',
+                                                          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Colors.white),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 4),
                                           Text(
                                             isRtl
                                                 ? 'يتم تحديث أسعار منتجاتك بالجنيه تلقائياً وفق السعر المعتمد للمنصة (1\$ = ${NumberFormat('#,##0').format(platformRate)} ج.س)'
@@ -1362,6 +1559,60 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                                 ),
                               ),
                             ),
+                            const SizedBox(height: 12),
+                            Container(
+                              decoration: BoxDecoration(
+                                color: _usdRateAlertsEnabled
+                                    ? const Color(0xFFF0FDF4)
+                                    : const Color(0xFFF8FAFC),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: _usdRateAlertsEnabled
+                                      ? const Color(0xFF86EFAC)
+                                      : const Color(0xFFCBD5E1),
+                                ),
+                              ),
+                              child: SwitchListTile(
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                                secondary: Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: _usdRateAlertsEnabled
+                                        ? const Color(0xFFDCFCE7)
+                                        : const Color(0xFFE2E8F0),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Icon(
+                                    _usdRateAlertsEnabled
+                                        ? Icons.notifications_active_rounded
+                                        : Icons.notifications_off_rounded,
+                                    color: _usdRateAlertsEnabled
+                                        ? const Color(0xFF15803D)
+                                        : const Color(0xFF64748B),
+                                    size: 20,
+                                  ),
+                                ),
+                                title: Text(
+                                  isRtl
+                                      ? 'تنبيه تغيّر سعر الدولار في الشريط الأعلى'
+                                      : 'Top-Banner Dollar Rate Change Alert',
+                                  style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 13.5),
+                                ),
+                                subtitle: Text(
+                                  isRtl
+                                      ? (_usdRateAlertsEnabled
+                                          ? 'مفعّل: يظهر لك تنبيه فوري أعلى الشاشة مع صوت عند زيادة أو انخفاض سعر الدولار'
+                                          : 'متوقف: لن يظهر شريط التنبيه العلوي أو إشعار تغيّر سعر الدولار')
+                                      : (_usdRateAlertsEnabled
+                                          ? 'Enabled: Instant top banner & push alert when USD rate changes'
+                                          : 'Disabled: Top banner & push alerts for USD rate changes are muted'),
+                                  style: TextStyle(fontSize: 11.5, color: Colors.grey.shade700),
+                                ),
+                                value: _usdRateAlertsEnabled,
+                                activeThumbColor: const Color(0xFF16A34A),
+                                onChanged: _toggleUsdRateAlerts,
+                              ),
+                            ),
                             const SizedBox(height: 14),
                             SizedBox(
                               width: double.infinity,
@@ -1387,9 +1638,26 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                     const SizedBox(height: 32),
                     const SizedBox(height: 32),
                     
-                    Text(isRtl ? 'إعدادات إضافية' : 'Additional Settings', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                    Text(isRtl ? 'إعدادات التنبيهات وإعدادات المتجر الإضافية' : 'Alerts & Additional Settings', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                     const SizedBox(height: 16),
-                    const SizedBox(height: 16),
+                    SwitchListTile(
+                      title: Text(isRtl ? 'تنبيهات تغيّر سعر صرف الدولار (الشريط العلوي)' : 'Dollar Rate Change Alerts (Top Banner)'),
+                      subtitle: Text(
+                        isRtl
+                            ? 'تفعيل أو إيقاف الإشعار الذي يظهر أعلى شاشة تطبيق التاجر عند زيادة أو انخفاض سعر الدولار'
+                            : 'Enable or mute top-screen notifications when platform USD rate changes',
+                      ),
+                      value: _usdRateAlertsEnabled,
+                      activeThumbColor: const Color(0xFF16A34A),
+                      onChanged: _toggleUsdRateAlerts,
+                      secondary: Icon(
+                        _usdRateAlertsEnabled
+                            ? Icons.currency_exchange_rounded
+                            : Icons.notifications_off_outlined,
+                        color: _usdRateAlertsEnabled ? const Color(0xFF16A34A) : Colors.grey,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
                     SwitchListTile(
                       title: Text(isRtl ? 'أصوات المحادثة' : 'Chat Sounds'),
                       subtitle: Text(isRtl ? 'تشغيل تنبيه صوتي عند تلقي رسالة جديدة' : 'Play sound when receiving a new message'),

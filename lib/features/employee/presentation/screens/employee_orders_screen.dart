@@ -7,6 +7,7 @@ import 'package:magaiees_marketplace/features/auth/application/auth_provider.dar
 import 'package:magaiees_marketplace/features/employee/application/employee_orders_provider.dart';
 import 'package:magaiees_marketplace/features/chat/application/chat_provider.dart';
 import 'package:magaiees_marketplace/core/utils/app_notification.dart';
+import 'package:magaiees_marketplace/core/utils/phone_formatter.dart';
 
 const Color _kDarkNavy = Color(0xFF0F172A);
 const Color _kRoyalBlue = Color(0xFF2563EB);
@@ -461,7 +462,10 @@ class _EmployeeOrdersScreenState extends ConsumerState<EmployeeOrdersScreen> wit
                               children: [
                                 const Icon(Icons.phone_in_talk_rounded, color: _kEmerald, size: 15),
                                 const SizedBox(width: 4),
-                                Text(order.buyerPhone, style: const TextStyle(color: _kEmerald, fontWeight: FontWeight.bold, fontSize: 12)),
+                                PhoneFormatter.text(
+                                  order.buyerPhone,
+                                  style: const TextStyle(color: _kEmerald, fontWeight: FontWeight.bold, fontSize: 12, fontFamily: 'monospace'),
+                                ),
                               ],
                             ),
                           ),

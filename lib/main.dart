@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:magaiees_marketplace/core/network/supabase_retry_http_client.dart';
 import 'package:magaiees_marketplace/bootstrap.dart';
 import 'package:magaiees_marketplace/app.dart';
 
@@ -89,11 +90,12 @@ void main() async {
     debugPrint('SystemChrome configuration warning: $e');
   }
 
-  // Initialize Supabase with safety guard so startup never hangs
+  // Initialize Supabase with safety guard and resilient HTTP client so stale sockets recover automatically
   try {
     await Supabase.initialize(
       url: 'https://ktxiqgajgvbbrbumtufe.supabase.co',
       anonKey: 'sb_publishable_n5bTkwOUGdVCEmApubP86Q_NoH0EsxD',
+      httpClient: SupabaseRetryHttpClient(),
     ).timeout(const Duration(seconds: 8));
   } catch (e) {
     debugPrint('Supabase initialization warning: $e');

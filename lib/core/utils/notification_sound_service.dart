@@ -1,30 +1,71 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:magaiees_marketplace/core/utils/call_ringtone_service.dart';
 
 /// Centralized notification sound service for Magaiees app.
-/// Plays the custom Magaiees notification tone at key order lifecycle events.
+/// Plays the custom Magaiees notification tone at key order, approval, and chat lifecycle events.
 class NotificationSoundService {
   static AudioPlayer? _player;
   static bool _isPlaying = false;
 
-  /// Play the Magaiees notification sound.
-  static Future<void> play() async {
-    if (_isPlaying) return;
-    _isPlaying = true;
-    try {
-      if (_player == null) {
-        _player = AudioPlayer();
-        if (!kIsWeb) {
-          await _player!.setPlayerMode(PlayerMode.lowLatency);
+  static Future<AudioPlayer> _getConfiguredPlayer() async {
+    if (_player == null) {
+      _player = AudioPlayer();
+      await _player!.setReleaseMode(ReleaseMode.stop);
+      if (!kIsWeb) {
+        await _player!.setPlayerMode(PlayerMode.mediaPlayer);
+        try {
+          await _player!.setAudioContext(
+            AudioContext(
+              iOS: AudioContextIOS(
+                category: AVAudioSessionCategory.playback,
+                options: const {
+                  AVAudioSessionOptions.mixWithOthers,
+                },
+              ),
+              android: const AudioContextAndroid(
+                isSpeakerphoneOn: true,
+                stayAwake: false,
+                contentType: AndroidContentType.sonification,
+                usageType: AndroidUsageType.notificationEvent,
+                audioFocus: AndroidAudioFocus.gainTransientMayDuck,
+              ),
+            ),
+          );
+        } catch (e) {
+          debugPrint('Notification AudioContext note: $e');
         }
       }
-      await _player!.stop();
-      await _player!.play(AssetSource('audio/magaiees_notify.mp3'), volume: 1.0);
+    }
+    return _player!;
+  }
+
+  /// Play the Magaiees notification sound with haptic vibration on mobile.
+  static Future<void> play() async {
+    if (CallRingtoneService.isCallActive) return;
+    if (_isPlaying) return;
+    _isPlaying = true;
+
+    try {
+      if (!kIsWeb) {
+        try {
+          HapticFeedback.mediumImpact();
+        } catch (_) {}
+      }
+
+      final player = await _getConfiguredPlayer();
+      await player.stop();
+      await player.setVolume(1.0);
+      try {
+        await player.play(AssetSource('audio/magaiees_notify.wav'), volume: 1.0);
+      } catch (_) {
+        await player.play(AssetSource('audio/magaiees_notify.mp3'), volume: 1.0);
+      }
     } catch (e) {
-      // Gracefully handle browser autoplay policy restriction
       debugPrint('Notification sound note: $e');
     } finally {
-      Future.delayed(const Duration(milliseconds: 1500), () {
+      Future.delayed(const Duration(milliseconds: 1200), () {
         _isPlaying = false;
       });
     }

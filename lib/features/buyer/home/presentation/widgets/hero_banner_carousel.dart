@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:magaiees_marketplace/features/admin/application/ads_provider.dart';
@@ -15,6 +16,21 @@ class _HeroBannerCarouselState extends ConsumerState<HeroBannerCarousel> {
   final PageController _pageController = PageController(viewportFraction: 0.93);
   int _currentPage = 0;
   Timer? _timer;
+  final Set<String> _precachedUrls = {};
+
+  void _precacheAds(BuildContext context, List<AdModel> ads) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      for (final ad in ads) {
+        if (ad.imageUrl.isNotEmpty && _precachedUrls.add(ad.imageUrl)) {
+          precacheImage(
+            CachedNetworkImageProvider(ad.imageUrl, maxWidth: 900),
+            context,
+          );
+        }
+      }
+    });
+  }
 
   @override
   void initState() {
@@ -60,10 +76,11 @@ class _HeroBannerCarouselState extends ConsumerState<HeroBannerCarousel> {
     
     return asyncAds.when(
       loading: () => const SizedBox(height: 180, child: Center(child: CircularProgressIndicator())),
-      error: (_, __) => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
       data: (allAds) {
         final activeAds = allAds.where((a) => a.isActive).toList();
         if (activeAds.isEmpty) return const SizedBox.shrink();
+        _precacheAds(context, activeAds);
 
         // Ensure current page doesn't exceed new bounds
     if (_currentPage >= activeAds.length) {
@@ -118,13 +135,33 @@ class _HeroBannerCarouselState extends ConsumerState<HeroBannerCarousel> {
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        // Background Image
-                        Image.network(
-                          ad.imageUrl,
+                        // Background Image (Disk-cached + memory-optimized)
+                        CachedNetworkImage(
+                          imageUrl: ad.imageUrl,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Container(
+                          memCacheWidth: 900,
+                          fadeInDuration: const Duration(milliseconds: 150),
+                          placeholder: (context, url) => Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.blueGrey.shade900,
+                                  Colors.grey.shade800,
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => Container(
                             color: Colors.grey.shade800,
-                            child: const Center(child: Icon(Icons.broken_image, color: Colors.white54, size: 40)),
+                            child: const Center(
+                              child: Icon(
+                                Icons.broken_image,
+                                color: Colors.white54,
+                                size: 40,
+                              ),
+                            ),
                           ),
                         ),
                         // Subtle gradient for text readability at the bottom
@@ -163,37 +200,68 @@ class _HeroBannerCarouselState extends ConsumerState<HeroBannerCarousel> {
                             ),
                           ),
                         ),
-                        // Company Name & CTA
+                        // Company Name, Ad Title & CTA
                         Positioned(
-                          bottom: 16,
-                          right: isRtl ? 16 : null,
-                          left: isRtl ? null : 16,
+                          bottom: 14,
+                          right: isRtl ? 16 : 64,
+                          left: isRtl ? 64 : 16,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(
-                                ad.company,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
+                              if (ad.title.isNotEmpty)
+                                Text(
+                                  ad.title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w900,
+                                    height: 1.2,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 4),
+                              const SizedBox(height: 2),
                               Row(
                                 children: [
-                                  Text(
-                                    isRtl ? 'تصفح العرض' : 'View Offer',
-                                    style: TextStyle(
-                                      color: Colors.white.withValues(alpha: 0.9),
-                                      fontSize: 14,
+                                  Flexible(
+                                    child: Text(
+                                      ad.company,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: Colors.white.withValues(alpha: 0.92),
+                                        fontSize: 13.5,
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                     ),
                                   ),
-                                  const SizedBox(width: 4),
-                                  Icon(
-                                    isRtl ? Icons.arrow_back : Icons.arrow_forward,
-                                    color: Colors.white,
-                                    size: 14,
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.2),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          isRtl ? 'تصفح العرض' : 'View Offer',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 11.5,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Icon(
+                                          isRtl ? Icons.arrow_back : Icons.arrow_forward,
+                                          color: Colors.white,
+                                          size: 12,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
                               ),

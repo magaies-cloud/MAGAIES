@@ -12,6 +12,7 @@ import 'package:printing/printing.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:magaiees_marketplace/features/admin/digital_broker/application/admin_digital_broker_provider.dart';
 import 'package:magaiees_marketplace/features/admin/presentation/widgets/admin_error_view.dart';
+import 'package:magaiees_marketplace/core/utils/phone_formatter.dart';
 import 'package:magaiees_marketplace/core/utils/web_download_helper.dart' as web_helper;
 
 class QuoteRequestsManagementScreen extends ConsumerStatefulWidget {
@@ -935,9 +936,9 @@ class _QuoteRequestsManagementScreenState
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                Text(
+                PhoneFormatter.text(
                   req.buyerPhone,
-                  style: const TextStyle(fontSize: 11, color: Color(0xFF64748B)),
+                  style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontFamily: 'monospace', fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(width: 8),
                 InkWell(
@@ -1145,7 +1146,7 @@ class _QuoteRequestsManagementScreenState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(req.buyerName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-                      Text(req.buyerPhone, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11)),
+                      PhoneFormatter.text(req.buyerPhone, style: const TextStyle(color: Color(0xFF64748B), fontSize: 11, fontFamily: 'monospace')),
                     ],
                   ),
                 ),
@@ -1353,9 +1354,9 @@ class _QuoteRequestsManagementScreenState
                                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
                                 ),
                                 const SizedBox(height: 2),
-                                Text(
+                                PhoneFormatter.text(
                                   req.buyerPhone,
-                                  style: const TextStyle(color: Color(0xFF64748B), fontSize: 12),
+                                  style: const TextStyle(color: Color(0xFF64748B), fontSize: 12, fontFamily: 'monospace', fontWeight: FontWeight.w700),
                                 ),
                               ],
                             ),
@@ -1740,9 +1741,11 @@ class _QuoteRequestsManagementScreenState
                         Expanded(
                           child: TextFormField(
                             controller: buyerPhoneCtrl,
+                            keyboardType: TextInputType.phone,
+                            textDirection: TextDirection.ltr,
                             decoration: InputDecoration(
                               labelText: 'رقم الهاتف *',
-                              hintText: '0912345678',
+                              hintText: '+249 912 300 101',
                               filled: true,
                               fillColor: const Color(0xFFF8FAFC),
                               border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
@@ -2031,7 +2034,7 @@ ${userExtra.isNotEmpty ? 'ملاحظات: $userExtra\n' : ''}
                 ),
                 const Divider(height: 24),
                 _buildVoucherRow('اسم المشتري / الجهة:', req.buyerName),
-                _buildVoucherRow('رقم هاتف الاتصال:', req.buyerPhone),
+                _buildVoucherRow('رقم هاتف الاتصال:', PhoneFormatter.format(req.buyerPhone), isLtr: true),
                 _buildVoucherRow('موعد التسليم بالموقع:', req.deliveryDate ?? 'فوري عند التعاقد'),
                 _buildVoucherRow('المورد المعلن المعتمد:', req.assignedSupplier ?? 'قيد التعيين والمطابقة'),
                 _buildVoucherRow('حالة الطلب الحالية:', req.status == 'closed' ? 'مكتمل ومورد ✅' : (req.status == 'contacted' ? 'تم التواصل والتسعير 📞' : 'قيد الانتظار والمطابقة ⏳')),
@@ -2105,14 +2108,21 @@ ${userExtra.isNotEmpty ? 'ملاحظات: $userExtra\n' : ''}
     );
   }
 
-  Widget _buildVoucherRow(String title, String val) {
+  Widget _buildVoucherRow(String title, String val, {bool isLtr = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(title, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
-          Text(val, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+          Directionality(
+            textDirection: isLtr ? TextDirection.ltr : Directionality.of(context),
+            child: Text(
+              val,
+              textDirection: isLtr ? TextDirection.ltr : null,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF0F172A)),
+            ),
+          ),
         ],
       ),
     );

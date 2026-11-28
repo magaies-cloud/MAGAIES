@@ -7,6 +7,14 @@ import 'package:google_fonts/google_fonts.dart';
 class AppTheme {
   const AppTheme._();
 
+  static const List<String> _emojiFallbackFonts = [
+    'Segoe UI Emoji',
+    'Apple Color Emoji',
+    'Noto Color Emoji',
+    'Segoe UI Symbol',
+    'sans-serif',
+  ];
+
   /// Light theme for buyer mode.
   static ThemeData get lightTheme {
     final cairoFont = GoogleFonts.cairo().fontFamily;
@@ -24,7 +32,8 @@ class AppTheme {
       colorScheme: colorScheme,
       scaffoldBackgroundColor: AppColors.surface,
       fontFamily: cairoFont,
-      textTheme: GoogleFonts.cairoTextTheme(),
+      fontFamilyFallback: _emojiFallbackFonts,
+      textTheme: GoogleFonts.cairoTextTheme().apply(fontFamilyFallback: _emojiFallbackFonts),
       appBarTheme: const AppBarTheme(
         centerTitle: true,
         elevation: 0,
@@ -119,7 +128,8 @@ class AppTheme {
         surface: const Color(0xFF0F172A), // Navy Card
       ),
       fontFamily: cairoFont,
-      textTheme: GoogleFonts.cairoTextTheme(ThemeData.dark().textTheme),
+      fontFamilyFallback: _emojiFallbackFonts,
+      textTheme: GoogleFonts.cairoTextTheme(ThemeData.dark().textTheme).apply(fontFamilyFallback: _emojiFallbackFonts),
       appBarTheme: const AppBarTheme(
         centerTitle: true,
         elevation: 0,

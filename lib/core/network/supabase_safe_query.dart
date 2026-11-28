@@ -24,11 +24,27 @@ bool isJwtExpiredError(dynamic error) {
   return str.contains('pgrst301') || str.contains('jwt expired');
 }
 
-/// Executes a Supabase query with automatic retry on clock skew (PGRST303) or token expiration (PGRST301).
+/// Checks if an error is a transient socket/network error (e.g. Bad file descriptor, connection reset).
+bool isTransientNetworkError(dynamic error) {
+  if (error == null) return false;
+  final str = error.toString().toLowerCase();
+  return str.contains('bad file descriptor') ||
+      str.contains('connection closed') ||
+      str.contains('connection reset') ||
+      str.contains('connection abort') ||
+      str.contains('broken pipe') ||
+      str.contains('socketexception') ||
+      str.contains('handshakeexception') ||
+      str.contains('clientexception') ||
+      str.contains('semaphore timeout');
+}
+
+/// Executes a Supabase query with automatic retry on clock skew (PGRST303), token expiration (PGRST301),
+/// or transient socket errors (Bad file descriptor / connection closed).
 Future<T> safeSupabaseQuery<T>(
   Future<T> Function() queryFn, {
   int maxRetries = 4,
-  Duration initialDelay = const Duration(milliseconds: 1800),
+  Duration initialDelay = const Duration(milliseconds: 800),
   T Function()? fallback,
 }) async {
   int attempt = 0;
@@ -39,12 +55,15 @@ Future<T> safeSupabaseQuery<T>(
     } catch (e) {
       final bool isClockSkew = isClockSkewError(e);
       final bool isExpired = isJwtExpiredError(e);
+      final bool isTransientNet = isTransientNetworkError(e);
 
-      if ((isClockSkew || isExpired) && attempt <= maxRetries) {
-        final delayMs = initialDelay.inMilliseconds * attempt;
+      if ((isClockSkew || isExpired || isTransientNet) && attempt <= maxRetries) {
+        final delayMs = isTransientNet
+            ? (350 * attempt)
+            : (initialDelay.inMilliseconds * attempt);
         debugPrint(
-          '[safeSupabaseQuery] Caught transient auth error (clockSkew=$isClockSkew, expired=$isExpired). '
-          'Attempt $attempt of $maxRetries. Waiting ${delayMs}ms before retry...',
+          '[safeSupabaseQuery] Caught transient error (clockSkew=$isClockSkew, expired=$isExpired, '
+          'transientNet=$isTransientNet). Attempt $attempt of $maxRetries. Waiting ${delayMs}ms before retry...',
         );
 
         // IMPORTANT: Only refresh session when token is EXPIRED (PGRST301).

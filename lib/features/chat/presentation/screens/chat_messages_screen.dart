@@ -37,7 +37,6 @@ class _ChatMessagesScreenState extends ConsumerState<ChatMessagesScreen> {
   DateTime? _lastSeen;
   bool _isOnline = false;
 
-  StreamSubscription? _presenceSubscription;
   RealtimeChannel? _callSignalChannel;
   final AudioPlayer _audioPlayer = AudioPlayer();
   int _lastMessageCount = 0;
@@ -58,12 +57,7 @@ class _ChatMessagesScreenState extends ConsumerState<ChatMessagesScreen> {
       
       _presenceTimer = Timer.periodic(const Duration(seconds: 15), (_) {
         _updatePresence();
-        // Force a re-evaluation of _isOnline locally even if no stream event comes
-        if (_lastSeen != null && mounted) {
-          setState(() {
-            _isOnline = DateTime.now().toUtc().difference(_lastSeen!).inMinutes < 2;
-          });
-        }
+        _refreshOtherUserStatus();
       });
     });
   }
@@ -73,6 +67,46 @@ class _ChatMessagesScreenState extends ConsumerState<ChatMessagesScreen> {
     if (user != null) {
       ChatService.markAsRead(roomId: widget.roomId, currentUserId: user.id);
       ChatService.updateLastSeen(user.id);
+    }
+  }
+
+  bool _isBuyerRoleInRoom = true;
+
+  Future<void> _refreshOtherUserStatus() async {
+    if (!mounted || _otherUserId == null || _otherUserId!.isEmpty) return;
+    try {
+      final userRes = await Supabase.instance.client
+          .from('users')
+          .select('name, name_ar, last_seen')
+          .eq('id', _otherUserId!)
+          .maybeSingle()
+          .timeout(const Duration(seconds: 6));
+
+      if (userRes != null && mounted) {
+        setState(() {
+          final formattedUserName = NameFormatter.formatName(
+            name: userRes['name']?.toString(),
+            nameAr: userRes['name_ar']?.toString(),
+          );
+          if (!_isBuyerRoleInRoom || _otherUserName == null || _otherUserName!.isEmpty) {
+            if (formattedUserName.isNotEmpty) {
+              _otherUserName = formattedUserName;
+            }
+          }
+          if (userRes['last_seen'] != null) {
+            _lastSeen = DateTime.tryParse(userRes['last_seen'].toString());
+            if (_lastSeen != null) {
+              _isOnline = DateTime.now().toUtc().difference(_lastSeen!).inMinutes < 2;
+            }
+          }
+        });
+      }
+    } catch (_) {
+      if (_lastSeen != null && mounted) {
+        setState(() {
+          _isOnline = DateTime.now().toUtc().difference(_lastSeen!).inMinutes < 2;
+        });
+      }
     }
   }
 
@@ -90,6 +124,7 @@ class _ChatMessagesScreenState extends ConsumerState<ChatMessagesScreen> {
       if (roomRes == null) return;
       
       final isBuyer = roomRes['buyer_id'] == user.id;
+      _isBuyerRoleInRoom = isBuyer;
       final otherId = isBuyer ? roomRes['merchant_id'] : roomRes['buyer_id'];
       _otherUserId = otherId?.toString();
 
@@ -115,44 +150,12 @@ class _ChatMessagesScreenState extends ConsumerState<ChatMessagesScreen> {
         } catch (_) {}
       }
       
-      _presenceSubscription = Supabase.instance.client
-          .from('users')
-          .stream(primaryKey: ['id'])
-          .eq('id', otherId)
-          .listen((data) {
-        if (data.isNotEmpty && mounted) {
-          // Find the exact user because stream might return multiple rows if eq() is ignored by the SDK
-          final userRes = data.firstWhere(
-            (u) => u['id'] == otherId,
-            orElse: () => <String, dynamic>{},
-          );
-          
-          if (userRes.isNotEmpty) {
-            setState(() {
-              final formattedUserName = NameFormatter.formatName(
-                name: userRes['name']?.toString(),
-                nameAr: userRes['name_ar']?.toString(),
-              );
-              // Only overwrite if it wasn't already set to a store name, or if user is merchant
-              if (!isBuyer || _otherUserName == null || _otherUserName!.isEmpty) {
-                if (formattedUserName.isNotEmpty) {
-                  _otherUserName = formattedUserName;
-                }
-              }
-              if (userRes['last_seen'] != null) {
-                _lastSeen = DateTime.tryParse(userRes['last_seen'].toString());
-                if (_lastSeen != null) {
-                  _isOnline = DateTime.now().toUtc().difference(_lastSeen!).inMinutes < 2;
-                }
-              }
-            });
-          }
-        }
-      });
+      await _refreshOtherUserStatus();
     } catch (_) {}
   }
 
   void _setupCallListener() {
+    if (CallRingtoneService.isCallActive) return;
     // تنظيف القناة القديمة إذا وجدت
     if (_callSignalChannel != null) {
       try {
@@ -221,7 +224,6 @@ class _ChatMessagesScreenState extends ConsumerState<ChatMessagesScreen> {
         Supabase.instance.client.removeChannel(_callSignalChannel!);
       } catch (_) {}
     }
-    _presenceSubscription?.cancel();
     _presenceTimer?.cancel();
     _messageController.dispose();
     _scrollController.dispose();
@@ -521,7 +523,29 @@ class _ChatMessagesScreenState extends ConsumerState<ChatMessagesScreen> {
           Expanded(
             child: messagesAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
-              error: (e, _) => Center(child: Text('Error: $e')),
+              error: (_, _) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.wifi_off_rounded, size: 48, color: Colors.grey.shade400),
+                      const SizedBox(height: 12),
+                      Text(
+                        isRtl ? 'تعذر تحميل الرسائل بسبب ضعف الاتصال' : 'Connection interrupted while loading messages',
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: Colors.grey.shade700),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 12),
+                      FilledButton.icon(
+                        onPressed: () => ref.invalidate(chatMessagesProvider(widget.roomId)),
+                        icon: const Icon(Icons.refresh_rounded, size: 18),
+                        label: Text(isRtl ? 'إعادة المحاولة' : 'Retry'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               data: (messages) {
                 // Play sound and auto-scroll when new messages arrive
                 if (messages.length > _lastMessageCount) {

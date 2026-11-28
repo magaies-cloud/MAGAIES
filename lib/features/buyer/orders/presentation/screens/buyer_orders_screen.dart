@@ -74,6 +74,11 @@ final buyerOrdersProvider = StreamProvider.autoDispose<List<Map<String, dynamic>
         event: PostgresChangeEvent.all,
         schema: 'public',
         table: 'orders',
+        filter: PostgresChangeFilter(
+          type: PostgresChangeFilterType.eq,
+          column: 'buyer_id',
+          value: user.id,
+        ),
         callback: (payload) async {
           final newRec = payload.newRecord;
           String? rowBuyerId = newRec['buyer_id']?.toString();
@@ -87,9 +92,11 @@ final buyerOrdersProvider = StreamProvider.autoDispose<List<Map<String, dynamic>
               rowBuyerId = check?['buyer_id']?.toString();
             } catch (_) {}
           }
-          if (rowBuyerId == user.id || rowBuyerId == null) {
+          if (rowBuyerId != null && rowBuyerId == user.id) {
             fetchOrders();
-            NotificationSoundService.play();
+            if (payload.eventType != PostgresChangeEvent.insert) {
+              NotificationSoundService.play();
+            }
           }
         },
       )

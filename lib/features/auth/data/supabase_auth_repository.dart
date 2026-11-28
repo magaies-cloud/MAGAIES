@@ -91,11 +91,20 @@ class SupabaseAuthRepository implements AuthRepository {
       }
 
       final mappedUser = _mapSupabaseDataToUserModel(userData);
-      if (userData['is_suspended'] == true || mappedUser.permissions['deletion_requested'] == true) {
+      if (userData['is_suspended'] == true ||
+          mappedUser.permissions['deletion_requested'] == true ||
+          mappedUser.permissions['is_deleted'] == true ||
+          mappedUser.role == UserRole.guest) {
         try {
           await _supabase.auth.signOut();
         } catch (_) {}
         throw Exception('Account deleted or suspended');
+      }
+      if (mappedUser.permissions['otp_pending'] == true) {
+        try {
+          await _supabase.auth.signOut();
+        } catch (_) {}
+        throw Exception('يرجى تفعيل الحساب برمز التحقق (OTP) أولاً');
       }
       return mappedUser;
     }

@@ -49,10 +49,15 @@ final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 @Riverpod(keepAlive: true)
 GoRouter goRouter(GoRouterRef ref) {
   final notifier = ref.watch(routerNotifierProvider);
+  final initialFragment = Uri.base.fragment;
+  final effectiveInitialLocation =
+      (initialFragment.isNotEmpty && initialFragment.startsWith('/'))
+          ? initialFragment
+          : RouteNames.buyerHome;
 
   return GoRouter(
     navigatorKey: rootNavigatorKey,
-    initialLocation: RouteNames.buyerHome,
+    initialLocation: effectiveInitialLocation,
     debugLogDiagnostics: true,
     refreshListenable: notifier,
     redirect: (context, state) => _redirect(ref, state),
@@ -333,6 +338,11 @@ GoRouter goRouter(GoRouterRef ref) {
         parentNavigatorKey: rootNavigatorKey,
         builder: (context, state) => const AdminShell(initialIndex: 9),
       ),
+      GoRoute(
+        path: RouteNames.adminSuppliers,
+        parentNavigatorKey: rootNavigatorKey,
+        builder: (context, state) => const AdminShell(initialIndex: 10),
+      ),
 
       // === Employee Shell ===
       GoRoute(
@@ -344,6 +354,10 @@ GoRouter goRouter(GoRouterRef ref) {
     errorBuilder: (context, state) {
       final user = ref.read(authNotifierProvider).valueOrNull;
       if (user != null && user.role.isAdmin) {
+        final loc = state.uri.path;
+        if (loc.startsWith('/admin/subscribers')) {
+          return const AdminShell(initialIndex: 1);
+        }
         return const AdminShell(initialIndex: 0);
       }
       return const BuyerHomeScreen();
@@ -403,10 +417,10 @@ String? _redirect(Ref ref, GoRouterState state) {
     }
   }
 
-  // 3. Guard admin routes — require admin role
+  // 3. Guard admin routes — require admin role (if guest, send to login so admin can sign in)
   final isAdminRoute = currentPath.startsWith('/admin');
   if (isAdminRoute && !user.role.isAdmin) {
-    return RouteNames.buyerHome;
+    return user.role.isGuest ? RouteNames.login : RouteNames.buyerHome;
   }
 
   // 4. Guard merchant routes — require hasStore or isStoreStaff (admins always allowed for inspection)

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:magaiees_marketplace/features/admin/orders/application/orders_provider.dart';
 import 'package:magaiees_marketplace/features/admin/presentation/widgets/admin_error_view.dart';
+import 'package:magaiees_marketplace/core/utils/phone_formatter.dart';
 
 class AdminOrdersScreen extends ConsumerStatefulWidget {
   const AdminOrdersScreen({super.key});
@@ -1420,7 +1421,7 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> with Sing
               Expanded(
                 flex: 3,
                 child: Tooltip(
-                  message: '${order.buyerName ?? (isRtl ? "غير مسجل" : "Unregistered")}${order.buyerPhone != null ? " (${order.buyerPhone})" : ""}',
+                  message: '${order.buyerName ?? (isRtl ? "غير مسجل" : "Unregistered")}${order.buyerPhone != null ? " (${PhoneFormatter.format(order.buyerPhone)})" : ""}',
                   child: Row(
                     children: [
                       Icon(Icons.person_outline_rounded, size: 15, color: isDark ? Colors.white54 : const Color(0xFF64748B)),
@@ -2054,8 +2055,8 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> with Sing
                                 Icons.person,
                                 [
                                   {'label': isRtl ? 'الاسم' : 'Name', 'value': order.buyerName ?? (isRtl ? 'غير معروف' : 'Unknown')},
-                                  {'label': isRtl ? 'الهاتف' : 'Phone', 'value': order.buyerPhone ?? '-'},
-                                  {'label': isRtl ? 'البريد' : 'Email', 'value': order.buyerEmail ?? '-'},
+                                  {'label': isRtl ? 'الهاتف' : 'Phone', 'value': order.buyerPhone != null && order.buyerPhone!.isNotEmpty ? PhoneFormatter.format(order.buyerPhone) : '-', 'ltr': 'true'},
+                                  {'label': isRtl ? 'البريد' : 'Email', 'value': order.buyerEmail ?? '-', 'ltr': 'true'},
                                 ],
                                 isRtl,
                               ),
@@ -2480,12 +2481,16 @@ class _AdminOrdersScreenState extends ConsumerState<AdminOrdersScreen> with Sing
                   ),
                 ),
                 Expanded(
-                  child: Text(
-                    item['value']!,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w900,
-                      fontSize: 13.5,
-                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  child: Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: Text(
+                      item['value']!,
+                      textDirection: item['ltr'] == 'true' ? TextDirection.ltr : null,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w900,
+                        fontSize: 13.5,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      ),
                     ),
                   ),
                 ),

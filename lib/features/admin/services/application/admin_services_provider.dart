@@ -32,6 +32,7 @@ class AdminServicesState {
 /// Aggregated accounting, operational, and advertiser insights for services
 class AdminServicesInsights {
   final int totalProvidersCount;
+  final int contractingCount;
   final int engineeringCount;
   final int logisticsCount;
   final int techniciansCount;
@@ -48,6 +49,7 @@ class AdminServicesInsights {
 
   const AdminServicesInsights({
     this.totalProvidersCount = 0,
+    this.contractingCount = 0,
     this.engineeringCount = 0,
     this.logisticsCount = 0,
     this.techniciansCount = 0,
@@ -188,6 +190,8 @@ final adminServicesInsightsProvider = FutureProvider.autoDispose<AdminServicesIn
   int logisticsOrdersCount = 0;
 
   for (var o in ordersRaw) {
+    final status = (o['status']?.toString() ?? '').toLowerCase();
+    if (status == 'cancelled' || status == 'ملغي' || status == 'ملغى') continue;
     final t = (o['transport_fee'] as num?)?.toDouble() ?? 0.0;
     final of = (o['offloading_fee'] as num?)?.toDouble() ?? 0.0;
     if (t > 0 || of > 0) logisticsOrdersCount++;
@@ -195,6 +199,7 @@ final adminServicesInsightsProvider = FutureProvider.autoDispose<AdminServicesIn
     totalOffloading += of;
   }
 
+  int contracting = 0;
   int eng = 0;
   int log = 0;
   int tech = 0;
@@ -211,6 +216,9 @@ final adminServicesInsightsProvider = FutureProvider.autoDispose<AdminServicesIn
 
   for (var p in providers) {
     switch (p.categoryId) {
+      case 'contracting':
+        contracting++;
+        break;
       case 'engineering':
         eng++;
         break;
@@ -236,7 +244,10 @@ final adminServicesInsightsProvider = FutureProvider.autoDispose<AdminServicesIn
     sumRating += p.rating;
     totalContracts += p.contractValue;
 
-    if (p.rating >= 4.9 || p.categoryId == 'logistics' || p.contractType != 'none') {
+    if (p.rating >= 4.9 ||
+        p.categoryId == 'logistics' ||
+        p.categoryId == 'contracting' ||
+        p.contractType != 'none') {
       sponsored++;
     }
 
@@ -248,6 +259,7 @@ final adminServicesInsightsProvider = FutureProvider.autoDispose<AdminServicesIn
 
   return AdminServicesInsights(
     totalProvidersCount: providers.length,
+    contractingCount: contracting,
     engineeringCount: eng,
     logisticsCount: log,
     techniciansCount: tech,
