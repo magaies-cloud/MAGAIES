@@ -3078,7 +3078,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (!window.__MagaieesPanoramicSidebarLoaded && !document.querySelector('script[src*="sidebar-panoramic-flyout.js"]')) {
         const pfScript = document.createElement('script');
-        pfScript.src = 'js/sidebar-panoramic-flyout.js?v=20261104_v5';
+        pfScript.src = 'js/sidebar-panoramic-flyout.js?v=20261128_v6';
         pfScript.defer = true;
         document.head.appendChild(pfScript);
     }

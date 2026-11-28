@@ -751,7 +751,7 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20261016_v28"></script>
+    <script defer src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
     <script defer src="js/print-engine.js?v=<?php echo file_exists('js/print-engine.js') ? filemtime('js/print-engine.js') : '1.0.0'; ?>"></script>
     <script defer src="js/sales-invoice.js?v=<?php echo file_exists('js/sales-invoice.js') ? filemtime('js/sales-invoice.js') : '1.0.0'; ?>"></script>
 </body>

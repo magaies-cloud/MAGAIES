@@ -472,8 +472,8 @@ if (file_exists(__DIR__ . '/includes/sidebar.php')) include __DIR__ . '/includes
             <a href="purchase.php" class="sr-btn sr-btn-amber" title="إصدار فاتورة مشتريات جديدة">
                 🛍️ فاتورة مشتريات
             </a>
-            <a href="purchase-receipt.php" class="sr-btn sr-btn-sky" title="بوابة استلام شحنات المشتريات">
-                🚛 استلام بضاعة
+            <a href="smart-logistics.php?mode=purchases" class="sr-btn sr-btn-sky" title="استلام المشتريات">
+                📥 استلام المشتريات
             </a>
             <a href="aging-report.php?tab=ap" class="sr-btn sr-btn-rose" title="أعمار ديون الموردين والالتزامات">
                 ⏳ أعمار ديون الموردين

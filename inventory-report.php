@@ -216,8 +216,7 @@ $header_theme_class = "header-theme-inventory";
         <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; background:rgba(15,23,42,0.78); border:1px solid rgba(167,139,250,0.28); border-radius:14px; padding:9px 14px;">
             <div style="display:flex; align-items:center; gap:7px; flex-wrap:wrap;">
                 <span style="font-weight:900; font-size:0.84rem; color:#c084fc;">🔗 التكامل المحاسبي والمخزني المباشر:</span>
-                <a href="smart-logistics.php?mode=purchases" style="text-decoration:none; padding:4px 10px; border-radius:8px; background:rgba(52,211,153,0.14); border:1px solid rgba(52,211,153,0.35); color:#34d399; font-size:0.76rem; font-weight:800;">🚚 بوابة استلام المشتريات</a>
-                <a href="purchase-receipt.php" style="text-decoration:none; padding:4px 10px; border-radius:8px; background:rgba(56,189,248,0.14); border:1px solid rgba(56,189,248,0.35); color:#38bdf8; font-size:0.76rem; font-weight:800;">📥 سند استلام بضاعة GRN</a>
+                <a href="smart-logistics.php?mode=purchases" style="text-decoration:none; padding:4px 10px; border-radius:8px; background:rgba(52,211,153,0.14); border:1px solid rgba(52,211,153,0.35); color:#34d399; font-size:0.76rem; font-weight:800;">📥 استلام المشتريات</a>
                 <a href="sales-delivery.php" style="text-decoration:none; padding:4px 10px; border-radius:8px; background:rgba(251,191,36,0.14); border:1px solid rgba(251,191,36,0.35); color:#fbbf24; font-size:0.76rem; font-weight:800;">📤 بوابة تسليم المبيعات</a>
                 <a href="journal.php" style="text-decoration:none; padding:4px 10px; border-radius:8px; background:rgba(168,85,247,0.14); border:1px solid rgba(168,85,247,0.35); color:#c084fc; font-size:0.76rem; font-weight:800;">📒 قيود المخازن والتسويات</a>
                 <a href="general-ledger.php" style="text-decoration:none; padding:4px 10px; border-radius:8px; background:rgba(244,114,182,0.14); border:1px solid rgba(244,114,182,0.35); color:#f472b6; font-size:0.76rem; font-weight:800;">📖 دفتر الأستاذ العام</a>
@@ -328,7 +327,7 @@ $header_theme_class = "header-theme-inventory";
         </div>
     </div>
 
-    <script src="js/app.js?v=20261016_v28"></script>
+    <script src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
     <script>
         let unifiedChart = null;
         let currentViewMode = 'trend';
@@ -404,7 +403,7 @@ $header_theme_class = "header-theme-inventory";
 
             const items = (getStorageData('erp_items_v1') || []).filter(i => i && !i.deleted);
             const warehouses = (getStorageData('erp_warehouses_v1') || []).filter(w => w && !w.deleted);
-            const purchases = (getStorageData('erp_purchase_invoices_v1') || []).filter(p => p && !p.deleted && p.status !== 'draft' && p.status !== 'preliminary');
+            const purchases = (getStorageData('erp_purchase_invoices_v1') || []).filter(p => p && !p.deleted && !p.isDeleted && p.status !== 'draft' && p.status !== 'preliminary');
             const seenPR = new Set(purchases.map(p => String(p.id || p.invoiceNo || '')));
             (getStorageData('erp_purchase_returns_v1') || []).filter(r => r && !r.deleted && !r.reversed).forEach(pr => {
                 const rid = String(pr.id || pr.returnNo || '');

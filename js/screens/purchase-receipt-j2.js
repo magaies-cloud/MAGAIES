@@ -937,38 +937,38 @@
             updateSummary();
             showToast('⚡ تم تعبئة كامل الكميات المتبقية لجميع الأصناف (100%)', 'success');
         };
-        window.quickReceiveInvoiceFromHub = function(invId) {
+        window.quickReceiveInvoiceFromHub = function(invId, confirmedExec = false) {
             const cleanId = String(invId || '').trim();
             if (!cleanId) return;
-            if (!pendingMap[cleanId]) {
-                try { calculatePendingGoods(); } catch (_e) {}
-            }
+            if (!pendingMap[cleanId]) { try { calculatePendingGoods(); } catch (_e) {} }
             if (!pendingMap[cleanId]) {
                 showToast('⚠️ هذه الفاتورة مستلمة بالكامل أو غير موجودة في قائمة الانتظار', 'info');
                 return;
             }
-            window._isQuickHubReceiving = true;
-            window._isSavingGRN = false;
-            window._grnSingleSaveLocked = false;
+            if (!confirmedExec) { window.openGrnTwoStepFullReceiptModal(cleanId); return; }
+            window._isQuickHubReceiving = true; window._isSavingGRN = false; window._grnSingleSaveLocked = false;
             try {
                 if (typeof window.triggerGrnAudioChime === 'function') window.triggerGrnAudioChime('instant');
                 openReceiptEditor(cleanId);
                 window.fillAllRemainingGRNQty();
+                const modalWhSels = document.querySelectorAll('.grn-twostep-row-wh');
+                const defWh = (Array.isArray(warehousesDb) && warehousesDb.find(w => w && w.id !== 'w-damaged' && w.id !== 'PENDING_RECEIPT')) ? warehousesDb.find(w => w && w.id !== 'w-damaged' && w.id !== 'PENDING_RECEIPT').id : 'w-main';
                 if (Array.isArray(receiptLines)) {
-                    const defWh = (Array.isArray(warehousesDb) && warehousesDb.find(w => w && w.id !== 'w-damaged')) ? warehousesDb.find(w => w && w.id !== 'w-damaged').id : 'w-main';
-                    receiptLines.forEach(l => { if (!l.warehouseId) l.warehouseId = defWh; });
+                    receiptLines.forEach((l, idx) => { l.warehouseId = (modalWhSels[idx] && modalWhSels[idx].value) ? modalWhSels[idx].value : (l.warehouseId || defWh); });
                 }
+                document.getElementById('grn-twostep-full-modal')?.remove();
                 window.saveReceiptNote(true);
-                showHub();
-                calculatePendingGoods();
-                renderPendingInvoices(false);
+                showHub(); calculatePendingGoods(); renderPendingInvoices(false);
                 if (typeof window.updateGrnHubFinStrip === 'function') window.updateGrnHubFinStrip();
-                showToast(`⚡ تم الفحص والاستلام الفوري الكامل للفاتورة (${cleanId}) بنجاح`, 'success');
+                showToast(`⚡ تم الفحص والاستلام الكامل للفاتورة (${cleanId}) بنجاح`, 'success');
             } finally {
-                window._isQuickHubReceiving = false;
-                window._isSavingGRN = false;
-                window._grnSingleSaveLocked = false;
+                window._isQuickHubReceiving = false; window._isSavingGRN = false; window._grnSingleSaveLocked = false;
             }
+        };
+        window.openGrnTwoStepFullReceiptModal = function(cleanId) {
+            const invData = pendingMap[cleanId]; if (!invData || typeof window.launchGrnHubFullReceipt2027 !== 'function') return;
+            const validWhs = (warehousesDb || []).filter(w => w && w.id !== 'PENDING_RECEIPT');
+            window.launchGrnHubFullReceipt2027(cleanId, invData, validWhs, getSupplierName(invData.supplierId), typeof suppliersDb !== 'undefined' ? suppliersDb : [], typeof allPurchases !== 'undefined' ? allPurchases : [], typeof itemsDb !== 'undefined' ? itemsDb : [], getItemName, typeof generateGRNNumber === 'function' ? generateGRNNumber : null, () => { openReceiptEditor(cleanId); showToast('✂️ تم فتح محرر التوزيع والتقسيم الجزئي للفاتورة #' + cleanId, 'info'); }, () => window.quickReceiveInvoiceFromHub(cleanId, true));
         };
         window.zeroAllGRNQty = function() {
             if (!Array.isArray(receiptLines) || !receiptLines.length) return;

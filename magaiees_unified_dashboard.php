@@ -1301,7 +1301,7 @@ function switchToMobileEdition() {
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20261104_v30"></script>
+    <script defer src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
 <script src="js/screens/magaiees_unified_dashboard-j2.js?v=<?= @filemtime(__DIR__ . '/js/screens/magaiees_unified_dashboard-j2.js') ?: '2027' ?>"></script>
 
         <!-- AI CFO Modal -->

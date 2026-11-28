@@ -717,7 +717,7 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
 </div>
 
 <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20261016_v28"></script>
+    <script defer src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
     <script defer src="js/voucher-qr-barcode-suite.js?v=20261103"></script>
     <script>
     document.addEventListener('DBReady', async () => {

@@ -594,7 +594,7 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
 <!-- Long Press HUD Overlay for 8-second Save & Lock -->
 <?php include 'includes/studio-modals.php'; ?>
 <script src="js/localforage.min.js"></script>
-<script src="js/app.js?v=20261016_v28"></script>
+<script src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
 <script src="js/preview-item-ledger.js?v=20261029_fast"></script>
 
 <script>(function(){var l=0,q=[];window.ensureGlobalBgMedia=function(c){if(l&&typeof window.quickHeaderPlay==='function'){if(c)c();return;}if(c)q.push(c);if(document.querySelector('script[data-lazy-bgm]'))return;var s=document.createElement('script');s.src='js/global_background_media.js?v=<?= @filemtime(__DIR__."/js/global_background_media.js")?:2027 ?>';s.dataset.lazyBgm='1';s.onload=function(){l=1;q.splice(0).forEach(function(fn){try{fn();}catch(_){}});};document.body.appendChild(s);};['quickHeaderPlay','setHeaderMediaVolume','quickHeaderStop','openBackgroundPopout','toggleHeaderMediaDropdown','playPersistentMedia'].forEach(function(fn){if(typeof window[fn]!=='function')window[fn]=function(){var a=arguments;window.ensureGlobalBgMedia(function(){if(typeof window[fn]==='function')window[fn].apply(window,a);});};});try{if(localStorage.getItem('erp_bg_media_playing')==='1'||localStorage.getItem('magaies_live_tv_active')==='1')window.addEventListener('DOMContentLoaded',function(){setTimeout(function(){window.ensureGlobalBgMedia();},300);},{once:true});}catch(_){}})();</script>

@@ -605,7 +605,7 @@ $header_theme_class = 'header-theme-dashboard';
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20261103_v29"></script>
+    <script defer src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
     <script>
         let jobs = [];
         let jobsViewMode = 'kanban';

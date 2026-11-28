@@ -683,7 +683,7 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
     </style>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20261016_v28"></script>
+    <script defer src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
     <script>
         const ITEMS_STORAGE_KEY = 'erp_items_v1';
         let itemsDb = [];

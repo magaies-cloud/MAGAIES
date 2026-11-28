@@ -31,7 +31,7 @@ $header_theme_class = 'header-theme-reports';
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/all.min.css?v=2027">
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20261016_v28"></script>
+    <script defer src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
     <link rel="stylesheet" href="css/local-fonts.css?v=2027">
     <style>
         :root {

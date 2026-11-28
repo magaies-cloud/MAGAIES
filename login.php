@@ -799,7 +799,7 @@ window.DETECTED_TENANT_ID = <?php echo json_encode($detectedTenantId); ?>;
 
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/modern-alerts.js?v=<?php echo file_exists('js/modern-alerts.js') ? filemtime('js/modern-alerts.js') : '1'; ?>"></script>
-    <script defer src="js/app.js?v=20261016_v28"></script>
+    <script defer src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
 
     <script>
         // ==================== FORGOT PASSWORD LOGIC ====================

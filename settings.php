@@ -1408,7 +1408,7 @@ try {
 <script defer src="js/leaflet.js"></script>
 <script defer src="js/modern-alerts.js?v=<?php echo file_exists('js/modern-alerts.js') ? filemtime('js/modern-alerts.js') : '1'; ?>"></script>
 <script defer src="js/permissions-manager.js?v=20261016_v28"></script>
-<script defer src="js/app.js?v=20261016_v28"></script>
+<script defer src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
 <script defer src="js/whatsapp-integration.js?v=20261029_fast"></script>
 <script>
 // Language switcher logic for settings page

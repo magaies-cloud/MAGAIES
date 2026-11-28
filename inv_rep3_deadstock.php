@@ -236,7 +236,7 @@ usort($report_data, function($a, $b) { return $b['days_dormant'] <=> $a['days_do
     </div> <!-- Close .dashboard-container -->
 
     <script defer src="js/localforage.min.js?v=20260723_v14"></script>
-    <script defer src="js/app.js?v=20261016_v28"></script>
+    <script defer src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
 </body>
 </html>
 

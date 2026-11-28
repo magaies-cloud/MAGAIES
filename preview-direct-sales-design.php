@@ -534,7 +534,7 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
 <!-- Long Press HUD Overlay for 8-second Save & Lock -->
 <?php include 'includes/studio-modals.php'; ?>
 <script src="js/localforage.min.js"></script>
-<script src="js/app.js?v=20261016_v28"></script>
+<script src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
 <script src="js/print-engine.js?v=20261029_fast"></script>
 <script src="js/direct-sales-preview-studio.js?v=20261029_fast"></script>
 

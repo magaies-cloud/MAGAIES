@@ -430,7 +430,7 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
 
     </div>
 
-    <script defer src="js/app.js?v=20261016_v28"></script>
+    <script defer src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
     <script>
         // Clock functionality for header
         function updateClock() {

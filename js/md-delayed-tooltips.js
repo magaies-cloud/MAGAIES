@@ -995,7 +995,7 @@
         const hasDirectTip = !!resolveTipForElement(raw);
         const explainableTarget = hasDirectTip
             ? raw
-            : raw.closest('button, a, input, select, textarea, th, label, .filter-group, .pro-field-card, .input-group, .form-group, .kpi-card, .stat-card, .fin-metric-pill, .gl-summary-strip > div, [onclick], [data-md-tip], [data-col-id], [data-rc-invoice-no], [data-rc-account-name], #sl-lbl-inv-no, #sl-lbl-party-name');
+            : raw.closest('button, a, input, select, textarea, th, label, .filter-group, .pro-field-card, .input-group, .form-group, .kpi-card, .stat-card, .fin-metric-pill, .gl-summary-strip > div, [onclick], [data-md-tip], [data-col-id], [data-rc-invoice-no], [data-rc-account-name], [data-rc-item-id], [data-rc-item-name], #sl-lbl-inv-no, #sl-lbl-party-name');
 
         if (!explainableTarget) return;
 
@@ -1107,6 +1107,15 @@
             '</div>'
         ) : '';
 
+        const itemAttrEl = raw.closest('[data-rc-item-id],[data-rc-item-name]');
+        const rcItemId = itemAttrEl ? String(itemAttrEl.getAttribute('data-rc-item-id') || '').trim() : '';
+        const rcItemName = itemAttrEl ? String(itemAttrEl.getAttribute('data-rc-item-name') || '').trim() : '';
+        const rcItemHtml = (rcItemId || rcItemName) ? (
+            '<div style="border-top:1px solid ' + divBdr + ';margin:5px 0 6px;padding-top:6px;">' +
+                '<button type="button" id="rc-goto-item-card" data-item="' + escRc(rcItemId || rcItemName) + '" style="width:100%;display:flex;align-items:center;justify-content:center;gap:7px;padding:8px 10px;border-radius:8px;border:1.8px solid ' + (isLight ? '#047857' : '#34d399') + ';background:linear-gradient(135deg,#059669,#047857);color:#ffffff;font-family:inherit;font-size:12.5px;font-weight:900;cursor:pointer;box-shadow:0 4px 12px rgba(5,150,105,0.35);"><span>📊</span><span>الذهاب إلى كرت الصنف (' + escRc(rcItemName || rcItemId) + ')</span></button>' +
+            '</div>'
+        ) : '';
+
         m.style.minWidth = '272px';
         m.style.background = isLight ? 'var(--lt-card-1, #ffffff)' : 'linear-gradient(165deg,#0f1d3a 0%,#060c1d 100%)';
         m.style.border = isLight ? '2.5px solid var(--lt-border, #3b1806)' : '1.8px solid rgba(56,189,248,0.65)';
@@ -1118,6 +1127,7 @@
                 '<button type="button" data-rc-act="text" style="display:flex;align-items:center;justify-content:center;gap:6px;padding:7px 8px;border:1.8px solid ' + (isLight ? '#b45309' : 'rgba(250,204,21,0.4)') + ';border-radius:8px;background:' + (isLight ? '#fef3c7' : 'rgba(250,204,21,0.14)') + ';color:' + (isLight ? '#000000' : '#fde047') + ';font-family:inherit;font-size:12.5px;font-weight:900;cursor:pointer;"><span>📖</span><span>شرح كتابي كامل</span></button>' +
             '</div>' +
             '<button type="button" data-rc-act="guide" style="width:100%;display:flex;align-items:center;justify-content:center;gap:7px;padding:7px 10px;margin-bottom:6px;border-radius:8px;border:1.8px solid ' + (isLight ? '#6d28d9' : '#a78bfa') + ';background:' + (isLight ? '#ede9fe' : 'rgba(139,92,246,0.18)') + ';color:' + (isLight ? '#1e1b4b' : '#ede9fe') + ';font-family:inherit;font-size:12px;font-weight:900;cursor:pointer;"><span>🎓</span><span>المرشد الذكي التفاعلي لكامل الشاشة</span></button>' +
+            rcItemHtml +
             rcInvHtml +
             rcAccHtml +
             (screenBtnTarget
@@ -1142,7 +1152,33 @@
                   '<button type="button" data-rc-act="colcfg" style="width:100%;display:flex;align-items:center;gap:9px;padding:7px 11px;border:none;border-radius:9px;background:transparent;color:' + accTxt + ';font-family:inherit;font-size:12.5px;font-weight:900;cursor:pointer;text-align:right;"><span>⚙️</span><span>تخصيص وتنسيق الأعمدة</span></button>'
                 : '');
 
+        const rcColTh = raw.closest('th');
+        const resolveRcColKeyAndSel = (th) => {
+            if (!th) return null;
+            const tbl = th.closest('table');
+            if (!tbl) return null;
+            const tblSel = tbl.id ? ('#' + tbl.id) : (tbl.closest('[id]') ? ('#' + tbl.closest('[id]').id + ' table') : 'table');
+            const regK = th.getAttribute('data-regcol');
+            const frK = th.getAttribute('data-frcol') || th.getAttribute('data-rkey');
+            const idx = Array.from(th.parentElement.children).indexOf(th) + 1;
+            const colTag = regK ? ('reg_' + regK) : (frK ? ('fr_' + frK) : ('nth_' + idx));
+            const baseCell = regK ? `${tblSel} [data-regcol="${regK}"]` : (frK && th.hasAttribute('data-frcol') ? `${tblSel} [data-frcol="${frK}"]` : `${tblSel} tr > *:nth-child(${idx})`);
+            const sampleTd = tbl.querySelector(regK ? `tbody td[data-regcol="${regK}"]` : (frK && th.hasAttribute('data-frcol') ? `tbody td[data-frcol="${frK}"]` : `tbody tr > td:nth-child(${idx})`));
+            return { key: location.pathname + '::' + tblSel + '::' + colTag, sel: `${baseCell}, ${baseCell} span:not(.sl-badge), ${baseCell} div`, sample: sampleTd || th };
+        };
+        const rcColInfo = resolveRcColKeyAndSel(rcColTh);
+        const saveColStyle = (patch) => {
+            if (!rcColInfo) return;
+            try {
+                const map = JSON.parse(localStorage.getItem('erp_rc_col_styles_v1') || '{}');
+                map[rcColInfo.key] = Object.assign({}, map[rcColInfo.key] || { sel: rcColInfo.sel }, patch, { sel: rcColInfo.sel });
+                localStorage.setItem('erp_rc_col_styles_v1', JSON.stringify(map));
+                fetch('api/save_grid_config.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ grid_id: 'rc_col_styles_v1', config: map }) }).catch(() => {});
+                if (typeof window.__applyLockedFieldStyleSheet === 'function') window.__applyLockedFieldStyleSheet();
+            } catch (_) {}
+        };
         const saveTargetStyle = () => {
+            if (rcColInfo) { saveColStyle({}); return; }
             if (!numTarget || !numTarget.id) return;
             try {
                 const map = JSON.parse(localStorage.getItem('erp_unified_field_props_v1') || '{}');
@@ -1152,6 +1188,7 @@
                     ff: numTarget.style.fontFamily, comma: numTarget.dataset.useComma || '1', dec: numTarget.dataset.decPlaces || '2'
                 };
                 localStorage.setItem('erp_unified_field_props_v1', JSON.stringify(map));
+                fetch('api/save_grid_config.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ grid_id: 'unified_field_props_v1', config: map }) }).catch(() => {});
                 if (typeof window.__applyLockedFieldStyleSheet === 'function') window.__applyLockedFieldStyleSheet();
             } catch (_) {}
         };
@@ -1159,9 +1196,19 @@
             nb.onclick = (ev) => {
                 ev.preventDefault(); ev.stopPropagation();
                 if (!numTarget) return;
+                const delta = nb.getAttribute('data-rc-num') === 'fs-inc' ? 1.5 : -1.5;
+                if (rcColInfo) {
+                    const map = JSON.parse(localStorage.getItem('erp_rc_col_styles_v1') || '{}');
+                    const prevFs = map[rcColInfo.key] && map[rcColInfo.key].fs ? parseFloat(map[rcColInfo.key].fs) : 0;
+                    const refEl = rcColInfo.sample.querySelector('span, div') || rcColInfo.sample;
+                    const curPx = prevFs || parseFloat(window.getComputedStyle(refEl).fontSize) || 13;
+                    const nextPx = +(Math.max(8, Math.min(38, curPx + delta))).toFixed(1);
+                    saveColStyle({ fs: nextPx + 'px' });
+                    return;
+                }
                 window.currentTargetInput = numTarget;
                 const curPx = parseFloat(window.getComputedStyle(numTarget).fontSize) || 18;
-                const nextPx = Math.max(11, Math.min(46, curPx + (nb.getAttribute('data-rc-num') === 'fs-inc' ? 2 : -2)));
+                const nextPx = Math.max(9, Math.min(46, curPx + (delta > 0 ? 2 : -2)));
                 numTarget.style.setProperty('font-size', nextPx + 'px', 'important');
                 saveTargetStyle();
             };
@@ -1170,12 +1217,14 @@
             wb.onclick = (ev) => {
                 ev.preventDefault(); ev.stopPropagation();
                 if (!numTarget) return;
+                if (rcColInfo) { saveColStyle({ fw: wb.getAttribute('data-rc-wt') }); return; }
                 numTarget.style.setProperty('font-weight', wb.getAttribute('data-rc-wt'), 'important');
                 saveTargetStyle();
             };
         });
         const applyCol = (c) => {
             if (!numTarget || !c) return;
+            if (rcColInfo) { saveColStyle({ col: c }); const pk = m.querySelector('#rc-color-picker'); if (pk && c.startsWith('#') && c.length === 7) pk.value = c; return; }
             numTarget.dataset.lockedColor = c;
             numTarget.style.setProperty('color', c, 'important');
             numTarget.style.setProperty('-webkit-text-fill-color', c, 'important');
@@ -1213,7 +1262,7 @@
             };
         });
         const fSel = m.querySelector('#rc-font-sel');
-        if (fSel) { fSel.onclick = (ev) => ev.stopPropagation(); fSel.onchange = (ev) => { if (numTarget) { numTarget.style.setProperty('font-family', ev.target.value, 'important'); saveTargetStyle(); } }; }
+        if (fSel) { fSel.onclick = (ev) => ev.stopPropagation(); fSel.onchange = (ev) => { if (rcColInfo) { saveColStyle({ ff: ev.target.value }); } else if (numTarget) { numTarget.style.setProperty('font-family', ev.target.value, 'important'); saveTargetStyle(); } }; }
         const svBtn = m.querySelector('#rc-save-num-props');
         if (svBtn) svBtn.onclick = (ev) => { ev.preventDefault(); ev.stopPropagation(); if (typeof window.saveNumberProperties === 'function') { window.currentTargetInput = numTarget; window.saveNumberProperties(); } saveTargetStyle(); hideRcMenu(); if (typeof window.showToast === 'function') window.showToast('💾 تم حفظ خصائص وتنسيق الخانة بنجاح', 'success', 1800); };
         m.querySelectorAll('button[data-rc-scr]').forEach(sb => {
@@ -1258,6 +1307,13 @@
                 if (ph && navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(ph);
                 cpPhBtn.textContent = '✅ تم';
                 if (typeof window.showToast === 'function') window.showToast('📋 تم نسخ رقم الهاتف: ' + ph, 'success', 1800);
+            };
+        }
+        const itemCardBtn = m.querySelector('#rc-goto-item-card');
+        if (itemCardBtn) {
+            itemCardBtn.onclick = (ev) => {
+                ev.preventDefault(); ev.stopPropagation(); hideRcMenu();
+                window.open('item-ledger.php?item=' + encodeURIComponent(itemCardBtn.getAttribute('data-item') || ''), '_blank');
             };
         }
         const origInvBtn = m.querySelector('#rc-goto-orig-invoice');
@@ -1314,12 +1370,29 @@
                 }
                 if (p.col) css += `html body input#${id}[id], html body #${id}[id], html body #${id}[id]:focus, html body #${id}[id]:hover, html:not(.light-theme) body #scp-proportional-root input#${id}[id], html body #scp-proportional-root #${id}[id], html body #scp-proportional-root #${id}[id]:focus, html body #scp-proportional-root #${id}[id]:hover { color: ${p.col} !important; -webkit-text-fill-color: ${p.col} !important; caret-color: ${p.col} !important; }\n`;
             });
+            const colMap = JSON.parse(localStorage.getItem('erp_rc_col_styles_v1') || '{}');
+            Object.entries(colMap).forEach(([k, p]) => {
+                if (!p || !p.sel || !k.startsWith(location.pathname + '::')) return;
+                let decls = '';
+                if (p.fs) decls += `font-size: ${p.fs} !important; `;
+                if (p.fw) decls += `font-weight: ${p.fw} !important; `;
+                if (p.ff) decls += `font-family: ${p.ff} !important; `;
+                if (p.col) decls += `color: ${p.col} !important; -webkit-text-fill-color: ${p.col} !important; `;
+                if (decls) css += `${p.sel} { ${decls}}\n`;
+            });
             let st = document.getElementById('erp-locked-field-colors');
             if (!st) { st = document.createElement('style'); st.id = 'erp-locked-field-colors'; }
             (document.body || document.documentElement).appendChild(st);
             st.textContent = css;
         } catch (_) {}
     };
+    fetch('api/get_grid_config.php?grid_id=rc_col_styles_v1').then(r => r.json()).then(d => {
+        if (d && d.config && typeof d.config === 'object') {
+            const cur = JSON.parse(localStorage.getItem('erp_rc_col_styles_v1') || '{}');
+            localStorage.setItem('erp_rc_col_styles_v1', JSON.stringify(Object.assign({}, d.config, cur)));
+            window.__applyLockedFieldStyleSheet();
+        }
+    }).catch(() => {});
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', window.__applyLockedFieldStyleSheet);
     else window.__applyLockedFieldStyleSheet();
     window.addEventListener('load', window.__applyLockedFieldStyleSheet);

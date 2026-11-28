@@ -325,14 +325,9 @@ try {
                     <div class="title">فاتورة مبيعات</div>
                 </div>
             </button>
-            <button onclick="window.location.href='sales-delivery.php'" class="hub-action-card card-green animate-scale stagger-2">
+            <button onclick="window.location.href='smart-logistics.php?mode=sales'" class="hub-action-card card-green animate-scale stagger-2">
                 <div class="text-content">
-                    <div class="title">بوابة تسليم المبيعات</div>
-                </div>
-            </button>
-            <button onclick="if(typeof window.openDeliveryHub === 'function') window.openDeliveryHub();" class="hub-action-card card-teal animate-scale stagger-2" style="background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(5,150,105,0.35)); border: 1px solid rgba(52,211,153,0.5);">
-                <div class="text-content">
-                    <div class="title">فاتورة تقسيم وتسليم المبيعات</div>
+                    <div class="title">تسليم وتقسيم مبيعات</div>
                 </div>
             </button>
             <button onclick="window.location.href='sales-invoice.php'" class="hub-action-card card-orange animate-scale stagger-3">

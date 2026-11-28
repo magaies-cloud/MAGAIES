@@ -108,7 +108,7 @@
                 screens: [
                     { href: 'direct-sales.php', label: 'المبيعات المباشرة ونقاط البيع', icon: 'fa-cart-shopping', color: '#38bdf8', border: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)' },
                     { href: 'sales-invoice.php', label: 'مرتجع المبيعات واسترداد البضائع', icon: 'fa-receipt', color: '#34d399', border: '#10b981', bg: 'rgba(16, 185, 129, 0.2)' },
-                    { href: 'sales-delivery.php', label: 'بوابة تسليم المبيعات', icon: 'fa-truck-ramp-box', color: '#f87171', border: '#ef4444', bg: 'rgba(248, 113, 113, 0.2)' },
+                    { href: 'smart-logistics.php?mode=sales', label: 'تسليم وتقسيم مبيعات', icon: 'fa-truck-ramp-box', color: '#10b981', border: '#059669', bg: 'rgba(16, 185, 129, 0.2)' },
                     { href: 'reserved-sales.php', label: 'حجوزات المبيعات', icon: 'fa-bookmark', color: '#fbbf24', border: '#f59e0b', bg: 'rgba(251, 191, 36, 0.2)' }
                 ]
             },

@@ -144,7 +144,7 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
 
     <!-- Required for DBReady and IndexedDB -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20261016_v28"></script>
+    <script defer src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
     <script>
         document.addEventListener('DBReady', () => {
             if (!localStorage.getItem('authToken')) { window.location.href = 'login.php'; return; }

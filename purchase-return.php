@@ -297,8 +297,7 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
                 </div>
                 <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                     <a href="purchase.php" style="text-decoration:none; background:rgba(249,115,22,0.15); border:1px solid rgba(249,115,22,0.4); color:#fdba74; padding:5px 11px; border-radius:8px; font-size:0.78rem; font-weight:800;">💵 فاتورة مشتريات</a>
-                    <a href="smart-logistics.php?mode=purchases" style="text-decoration:none; background:rgba(14,165,233,0.15); border:1px solid rgba(56,189,248,0.4); color:#38bdf8; padding:5px 11px; border-radius:8px; font-size:0.78rem; font-weight:800;">📥 بوابة استلام المشتريات</a>
-                    <a href="purchase-receipt.php" style="text-decoration:none; background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); color:#34d399; padding:5px 11px; border-radius:8px; font-size:0.78rem; font-weight:800;">🚛 استلام بضاعة GRN</a>
+                    <a href="smart-logistics.php?mode=purchases" style="text-decoration:none; background:rgba(14,165,233,0.15); border:1px solid rgba(56,189,248,0.4); color:#38bdf8; padding:5px 11px; border-radius:8px; font-size:0.78rem; font-weight:800;">📥 استلام المشتريات</a>
                     <a href="supplier_reliability.php" style="text-decoration:none; background:rgba(245,158,11,0.15); border:1px solid rgba(251,191,36,0.4); color:#fbbf24; padding:5px 11px; border-radius:8px; font-size:0.78rem; font-weight:800;">🤝 اعتمادية الموردين 360°</a>
                     <a href="item-ledger.php" style="text-decoration:none; background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.4); color:#d8b4fe; padding:5px 11px; border-radius:8px; font-size:0.78rem; font-weight:800;">📊 كشف حركة الصنف</a>
                 </div>
@@ -494,7 +493,7 @@ if (!headers_sent() && extension_loaded('zlib') && !ini_get('zlib.output_compres
 
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/accounting-engine.js"></script>
-    <script defer src="js/app.js?v=20261016_v28"></script>
+    <script defer src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
     <script>
         let allPurchases = [];
         let itemsDb = [];

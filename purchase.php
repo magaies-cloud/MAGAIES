@@ -218,17 +218,10 @@ try {
                 </div>
             </button>
 
-            <!-- Goods Receipt Note -->
-            <button onclick="window.location.href='purchase-receipt.php'" class="hub-action-card card-blue">
-                <div class="text-content">
-                    <div class="title">استلام بضاعة</div>
-                </div>
-            </button>
-
             <!-- Unified Smart Logistics Portal -->
             <button onclick="window.location.href='smart-logistics.php?mode=purchases'" class="hub-action-card card-teal" style="border-color: rgba(56,189,248,0.55); box-shadow: 0 0 22px rgba(14,165,233,0.3);">
                 <div class="text-content">
-                    <div class="title">بوابة استلام المشتريات</div>
+                    <div class="title">استلام المشتريات</div>
                 </div>
             </button>
 
@@ -944,7 +937,7 @@ try {
     <script>window.addEventListener('load',function(){var f=function(){if(!window.html2pdf&&!document.getElementById('lazy-h2p')){var s=document.createElement('script');s.id='lazy-h2p';s.src='js/html2pdf.bundle.min.js';document.body.appendChild(s);}};if(window.requestIdleCallback)requestIdleCallback(f,{timeout:1800});else setTimeout(f,900);},{once:true});</script>
     <script defer src="js/whatsapp-integration.js?v=20261029_fast"></script>
     <script defer src="js/erp-whatsapp-suite.js?v=20261029_fast"></script>
-    <script defer src="js/app.js?v=20261016_v28"></script>
+    <script defer src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
     <script defer src="js/print-engine.js"></script>
     <script defer src="js/accounting-engine.js?v=<?php echo file_exists('js/accounting-engine.js') ? filemtime('js/accounting-engine.js') : '1.0.0'; ?>"></script>
     <script defer src="js/purchase-pro-v5.js?v=<?php echo file_exists('js/purchase-pro-v5.js') ? filemtime('js/purchase-pro-v5.js') : '20261030_v5'; ?>"></script>

@@ -237,7 +237,7 @@ body { padding-top: 0 !important; }
 <?php include 'includes/studio-modals.php'; ?>
 
 <script src="js/localforage.min.js"></script>
-<script src="js/app.js?v=20261016_v28"></script>
+<script src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
 
 <script>
 // ── Preview Inventory Report Engine ──

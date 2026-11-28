@@ -578,7 +578,7 @@
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20261016_v28"></script>
+    <script defer src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
     <script>
         const ITEMS_STORAGE_KEY = 'erp_items_v1';
         const INVENTORY_STORAGE_KEY = 'erp_inventory_v1';
@@ -655,7 +655,7 @@
 
             // 1. ADD Purchases (Inward) — SUBTRACT if Return (prevent parent+GRN double counting)
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
-            purchases = purchases.filter(x => x && !x.deleted && x.status !== 'draft' && x.status !== 'preliminary');
+            purchases = purchases.filter(x => x && !x.deleted && !x.isDeleted && x.status !== 'draft' && x.status !== 'preliminary');
             const seenPurRetIds = new Set(purchases.map(p => String(p.id || p.invoiceNo || '')));
             (JSON.parse(localStorage.getItem('erp_purchase_returns_v1') || '[]') || []).filter(r => r && !r.deleted && !r.reversed).forEach(pr => {
                 const rid = String(pr.id || pr.returnNo || '');
@@ -1232,13 +1232,51 @@
             });
 
             // 2. Purchases, Purchase Returns, Stocktake Adjustments (exclude parent invoice once GRNs exist or while pending_receipt)
-            let purchases = (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []).filter(x => !x.deleted);
+            let purchases = (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []).filter(x => x && !x.deleted && !x.isDeleted && x.status !== 'draft' && x.status !== 'preliminary');
             const cardGrnParents = new Set();
-            purchases.forEach(p => { if (p && p.isGRN && p.originalInvoiceId) cardGrnParents.add(String(p.originalInvoiceId).trim()); });
+            const cardGrnByParentItem = {};
+            purchases.forEach(p => {
+                if (p && p.isGRN && p.originalInvoiceId) {
+                    const pk = String(p.originalInvoiceId).trim();
+                    cardGrnParents.add(pk);
+                    (p.items || p.lines || []).forEach(gl => {
+                        const ik = pk + '|' + String(gl.itemId || gl.productId || '');
+                        cardGrnByParentItem[ik] = (cardGrnByParentItem[ik] || 0) + (parseFloat(gl.quantity ?? gl.qty) || 0);
+                    });
+                }
+            });
             purchases.forEach(inv => {
-                if (!inv.isGRN && !inv.isReturn && !inv.isAdjustment) {
-                    const ik1 = String(inv.invoiceNo || '').trim(), ik2 = String(inv.id || '').trim();
-                    if (inv.receiptStatus === 'pending_receipt' || inv.receiptStatus === 'partial_received' || String(inv.warehouseId || inv.warehouse || '') === 'PENDING_RECEIPT' || (ik1 && cardGrnParents.has(ik1)) || (ik2 && cardGrnParents.has(ik2))) return;
+                const ik1 = String(inv.invoiceNo || '').trim(), ik2 = String(inv.id || '').trim();
+                const pKey = ik1 || ik2;
+                const isPendingOrPartial = !inv.isGRN && !inv.isReturn && !inv.isAdjustment && (inv.receiptStatus === 'pending_receipt' || inv.receiptStatus === 'partial_received' || String(inv.warehouseId || inv.warehouse || '') === 'PENDING_RECEIPT' || (ik1 && cardGrnParents.has(ik1)) || (ik2 && cardGrnParents.has(ik2)));
+                if (isPendingOrPartial) {
+                    let dStrP = (inv.date || inv.createdAt || '').toString().slice(0,10);
+                    (inv.items || inv.lines || []).forEach(line => {
+                        const itemId = String(line.itemId || line.productId || '');
+                        const origQ = parseFloat(line.quantity ?? line.qty) || 0;
+                        const recSoFar = Math.max(cardGrnByParentItem[(ik1 || pKey) + '|' + itemId] || 0, cardGrnByParentItem[(ik2 || pKey) + '|' + itemId] || 0);
+                        const remPending = +(origQ - recSoFar).toFixed(4);
+                        if (remPending <= 0.0001) return;
+                        const item = itemsDb.find(i => String(i.id) === itemId) || {};
+                        const factorP = parseFloat(line.customFactor || line.factor) || 1;
+                        rows.push({
+                            date: new Date(inv.date || inv.createdAt || Date.now()),
+                            dateStr: dStrP || '-',
+                            typeCode: 'PENDING_GRN',
+                            typeName: recSoFar > 0 ? `⏳ متبقي بالطريق (${remPending} من ${origQ})` : '⏳ بضاعة قيد الاستلام',
+                            badgeColor: '#f59e0b',
+                            ref: inv.invoiceNo || inv.id || '-',
+                            docUrl: `smart-logistics.php?mode=purchases&inv=${encodeURIComponent(inv.invoiceNo || inv.id || '')}`,
+                            itemId: itemId,
+                            itemName: item.name || line.itemName || line.name || 'صنف',
+                            warehouse: getWarehouseName('PENDING_RECEIPT'),
+                            inQty: Math.abs(remPending * factorP),
+                            outQty: 0,
+                            unit: line.unitName || line.unit || item.baseUnit || item.unit || 'وحدة',
+                            notes: `بانتظار الاستلام من فاتورة #${inv.invoiceNo || inv.id}`
+                        });
+                    });
+                    return;
                 }
                 let hdrWh = getWarehouseName(inv.warehouseId || inv.warehouse);
                 let dStr = (inv.date || inv.receiveDate || inv.createdAt || '').toString().slice(0,10);

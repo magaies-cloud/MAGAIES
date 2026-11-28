@@ -79,19 +79,11 @@
                     samePageAction: () => { if (typeof window.openInvoiceEditor === 'function') window.openInvoiceEditor('pending_delivery'); }
                 },
                 {
-                    title: 'بوابة تسليم المبيعات',
+                    title: 'تسليم وتقسيم مبيعات',
                     icon: '📤',
                     color: '#10b981',
                     rgb: '16, 185, 129',
-                    href: 'sales-delivery.php'
-                },
-                {
-                    title: 'فاتورة تقسيم وتسليم المبيعات',
-                    icon: '✂️',
-                    color: '#34d399',
-                    rgb: '52, 211, 153',
-                    href: 'direct-sales.php?action=split',
-                    samePageAction: () => { if (typeof window.openDeliveryHub === 'function') window.openDeliveryHub(); }
+                    href: 'smart-logistics.php?mode=sales'
                 },
                 {
                     title: 'فاتورة مبدئية',
@@ -133,18 +125,11 @@
                     samePageAction: () => { if (typeof window.openPurchaseEditor === 'function') window.openPurchaseEditor('direct'); }
                 },
                 {
-                    title: 'بوابة استلام المشتريات',
+                    title: 'استلام المشتريات',
                     icon: '📥',
                     color: '#22d3ee',
                     rgb: '34, 211, 238',
                     href: 'smart-logistics.php?mode=purchases'
-                },
-                {
-                    title: 'استلام بضاعة',
-                    icon: '🚛',
-                    color: '#38bdf8',
-                    rgb: '56, 189, 248',
-                    href: 'purchase-receipt.php'
                 },
                 {
                     title: 'مرتجع المشتريات واسترداد البضائع',

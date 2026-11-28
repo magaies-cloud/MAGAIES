@@ -436,7 +436,7 @@
                 <!-- السطر الأول (الأعلى): حالة الشاشة + البوابة اللوجستية + زر التحويل + عداد الأذونات + الفلاتر المحاسبية (الكل، التاريخ من وإلى مع أيقونة التقويم يمين التاريخ، المورد، المستودع، البحث) -->
                 <div class="neo-card-title">
                     <div id="hub-top-bar-items">
-                                                <span id="hub-title-text">قيد الاستلام</span><a href="smart-logistics.php?mode=purchases&from=purchase-receipt.php" id="btn-grn-logistics-portal" class="btn-action" style="text-decoration:none;">📥 بوابة استلام المشتريات</a>
+                                                <span id="hub-title-text">قيد الاستلام</span><a href="smart-logistics.php?mode=purchases&from=purchase-receipt.php" id="btn-grn-logistics-portal" class="btn-action" style="text-decoration:none;">📥 استلام المشتريات</a>
                         <div id="grn-3level-bar" style="display:none !important;"></div>
                         
                         <div class="uiverse-switch demo3" title="اضغط للتبديل بين البضاعة قيد الاستلام والأذونات المستلمة">
@@ -685,12 +685,12 @@
     <!-- Notification Toast Container -->
     <div class="toast-container" id="toast-container" style="position:fixed; bottom:20px; left:20px; z-index:99999; display:flex; flex-direction:column; gap:10px;"></div>
 
-    <script src="js/magaies-offline-sync.js?v=20261014"></script>
+    <script defer src="js/magaies-offline-sync.js?v=20261014"></script>
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20261016_v28"></script>
+    <script defer src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
     <script>(function(){var l=0,v="<?php echo file_exists('js/magaies-smart-guide.js') ? filemtime('js/magaies-smart-guide.js') : '2027'; ?>";window.loadMagaiesSmartGuide=function(c){if(l){if(c)c();return;}l=1;var s=document.createElement('script');s.src='js/magaies-smart-guide.js?v='+v;s.onload=function(){if(c)c();};document.body.appendChild(s);};window.addEventListener('keydown',function(e){if(e.key==='F1'){e.preventDefault();window.loadMagaiesSmartGuide();}});window.addEventListener('contextmenu',function(){window.loadMagaiesSmartGuide();},{once:true,passive:true});})();</script>
     <script defer src="js/elsajana-universal-ui-2027.js?v=<?php echo file_exists('js/elsajana-universal-ui-2027.js') ? filemtime('js/elsajana-universal-ui-2027.js') : 1; ?>"></script>
-<script src="js/screens/purchase-receipt-j1.js?v=<?= @filemtime(__DIR__ . '/js/screens/purchase-receipt-j1.js') ?: '2027' ?>"></script>
+<script defer src="js/screens/purchase-receipt-j1.js?v=<?= @filemtime(__DIR__ . '/js/screens/purchase-receipt-j1.js') ?: '2027' ?>"></script>
 
     <!-- Context Menu HTML -->
     <div id="grid-context-menu" style="display: none; position: absolute; z-index: 100000; background: rgba(15, 23, 42, 0.95);  border: 1px solid #38bdf8; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); padding: 5px; min-width: 150px;">
@@ -1519,7 +1519,8 @@
         }
     </style>
 
-<script src="js/screens/purchase-receipt-j2.js?v=<?= @filemtime(__DIR__ . '/js/screens/purchase-receipt-j2.js') ?: '2027' ?>"></script>
+<script defer src="js/full-receipt-confirm-2027.js?v=<?= @filemtime(__DIR__ . '/js/full-receipt-confirm-2027.js') ?: '2027' ?>"></script>
+<script defer src="js/screens/purchase-receipt-j2.js?v=<?= @filemtime(__DIR__ . '/js/screens/purchase-receipt-j2.js') ?: '2027' ?>"></script>
     <!-- ══════════════════════════════════════════════════════════════════════════
          PURCHASE DESIGN CONSTITUTION 2027 — APPLIED TO PURCHASE-RECEIPT.PHP
          9 Tones + Sculpted Borders + Financial Strip + Price Radar + AI Audit
@@ -1539,7 +1540,7 @@
         </div>
     </div>
 
-<script id="grn-purchase-constitution-2027-script" src="js/screens/purchase-receipt-j3.js?v=<?= @filemtime(__DIR__ . '/js/screens/purchase-receipt-j3.js') ?: '2027' ?>"></script>
+<script defer id="grn-purchase-constitution-2027-script" src="js/screens/purchase-receipt-j3.js?v=<?= @filemtime(__DIR__ . '/js/screens/purchase-receipt-j3.js') ?: '2027' ?>"></script>
 <style id="grn-clean-minimal-2027">
 #grn-cross-screen-nav, #grn-hub-filters-bar, #grn-3level-bar, #btn-grn-c4-impact-pill, #btn-grn-c5-role-pill, #btn-grn-c6-sync-pill, #btn-grn-c7-eye-pill,
 #grn-c8-tafqeet-bar, #grn-c8-parked-strip, #grn-c9-staged-banner, #grn-c10-commercial-bar, #grn-c12-security-bar, #grn-c13-cyber-bar, #grn-c14-command-bar,

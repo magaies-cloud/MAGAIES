@@ -102,7 +102,16 @@
                 }
                 return [];
             }
-            allPurchases = loadKey('erp_purchase_invoices_v1');
+            const mergedPurMap = new Map();
+            ['erp_purchase_invoices_v1', 'erp_purchases_v5', 'magaies_local_purchase_invoices_v1'].forEach(k => {
+                (loadKey(k) || []).forEach(p => {
+                    if (!p || typeof p !== 'object') return;
+                    const pid = String(p.id || p.invoiceNo || '').trim();
+                    if (!pid) return;
+                    mergedPurMap.set(pid, mergedPurMap.has(pid) ? Object.assign({}, mergedPurMap.get(pid), p) : p);
+                });
+            });
+            allPurchases = Array.from(mergedPurMap.values());
             itemsDb = loadKey('erp_items_v1');
             suppliersDb = loadKey('erp_suppliers_v1');
             if (!Array.isArray(suppliersDb)) suppliersDb = [];
@@ -146,7 +155,7 @@
             populateWarehouseSelect();
             calculatePendingGoods();
             renderPendingInvoices();
-            syncPurchaseReceiptsWithMariaDB();
+            setTimeout(syncPurchaseReceiptsWithMariaDB, 120);
         }
 
         let _isSyncingPurReceiptsDB = false;
@@ -186,6 +195,7 @@
                         localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
                         calculatePendingGoods();
                         renderPendingInvoices(false);
+                        if (typeof renderReceivedInvoices === 'function' && currentHubView === 'received') renderReceivedInvoices(false);
                     }
                 }
             } catch (e) {
@@ -201,21 +211,18 @@
             return u ? u.name : id;
         }
 
-        if (window.APP_READY) {
-            initData();
-            if (typeof window.pullFromCloud === 'function') {
-                window.pullFromCloud(true);
-            }
-        } else {
-            document.addEventListener('DBReady', () => {
-                initData();
-                if (typeof window.pullFromCloud === 'function') {
-                    window.pullFromCloud(true);
-                }
-            });
+        let _grnInitTimer = null;
+        function scheduleGrnFastInit() {
+            if (_grnInitTimer) clearTimeout(_grnInitTimer);
+            _grnInitTimer = setTimeout(() => { initData(); }, 90);
         }
-        window.addEventListener('cloudDataRestored', initData);
-        window.addEventListener('strictDataReady', initData);
+        initData();
+        document.addEventListener('DBReady', () => {
+            scheduleGrnFastInit();
+            setTimeout(() => { if (typeof window.pullFromCloud === 'function') window.pullFromCloud(true); }, 1800);
+        });
+        window.addEventListener('cloudDataRestored', scheduleGrnFastInit);
+        window.addEventListener('strictDataReady', scheduleGrnFastInit);
 
         function populateWarehouseSelect() {
             const select = document.getElementById('actual-warehouse');
@@ -235,78 +242,68 @@
         // For each invoice, sum quantities where warehouseId == 'PENDING_RECEIPT' or unreceived Mobile purchase invoices.
         // Original invoices add positive pending qty. Returns subtract pending qty. GRNs subtract pending qty.
         function calculatePendingGoods() {
-            pendingMap = {}; // target: { invId: { supplierId, date, lines: { itemId: { unitId, qty, originalLine } } } }
-
-            // Base tracking by invoice
-            const grnInvoiceIds = new Set(allPurchases.filter(x => x && !x.deleted && (x.isGRN || x.isReturn) && x.originalInvoiceId).map(x => String(x.originalInvoiceId)));
-            allPurchases.filter(inv => !inv.deleted && inv.status !== 'draft' && inv.status !== 'proforma' && inv.id !== editingGRNId && (inv.isGRN || inv.isReturn || grnInvoiceIds.has(String(inv.invoiceNo || inv.id)) || (inv.receiptStatus !== 'received' && inv.status !== 'received'))).forEach(inv => {
-                const rootInvId = inv.isReturn || inv.isGRN ? inv.originalInvoiceId : (inv.invoiceNo || inv.id);
-                if (!rootInvId) {
-                    return;
-                }
-
-                if (!pendingMap[rootInvId]) {
-                    pendingMap[rootInvId] = {
-                        supplierId: inv.customer || inv.customerId || inv.supplierId || inv.supplierName || inv.supplier,
-                        supplierName: inv.supplierName || inv.vendorName || inv.supplier || '',
-                        date: inv.date || (inv.savedAt ? inv.savedAt.split('T')[0] : ''),
-                        createdBy: inv.createdBy || inv.createdByName || 'unknown',
-                        lines: {}
-                    };
-                } else if (inv.createdBy && pendingMap[rootInvId].createdBy === 'unknown') {
-                    pendingMap[rootInvId].createdBy = inv.createdBy;
-                }
-
-                const items = inv.items || inv.lines || [];
-                const globalWh = inv.warehouse;
-
-                const isOriginal = (!inv.isReturn && !inv.isGRN);
-                items.forEach(line => {
-                    const lineWh = line.warehouseId || globalWh;
-                    const isMobileUnreceived = isOriginal && (inv.receiptStatus === 'pending_receipt' || (!line.warehouseId && (line.qty !== undefined || line.name !== undefined)));
-                    const isPending = isMobileUnreceived || (lineWh === 'PENDING_RECEIPT' || !lineWh || lineWh === '⏳ بضاعة قيد الاستلام (لم تحدد بعد)' || lineWh === '⏳ بضاعة قيد الاستلام');
-
-                    if (isPending) {
-                        const resolvedItemId = line.itemId || line.id || line.name || line.itemName || 'صنف';
-                        const resolvedUnit = line.unitId || line.selectedUnit || line.unit || line.unitName || 'حبة';
-                        const lineKey = resolvedItemId + '|' + resolvedUnit;
-                        if (!pendingMap[rootInvId].lines[lineKey]) {
-                            pendingMap[rootInvId].lines[lineKey] = {
-                                itemId: resolvedItemId,
-                                itemName: line.name || line.itemName || '',
-                                unitId: resolvedUnit,
-                                unitName: line.unitName || line.selectedUnit || line.unit || 'حبة',
-                                factor: line.customFactor || line.factor || line.equiv || line.conversionFactor || 1,
-                                price: parseFloat(line.price) || 0,
-                                origQty: 0,
-                                pendingQty: 0
-                            };
-                        }
-                        
-                        const q = parseFloat(line.quantity !== undefined ? line.quantity : line.qty) || 0;
-                        if (isOriginal && q > 0) {
-                            pendingMap[rootInvId].lines[lineKey].origQty = (pendingMap[rootInvId].lines[lineKey].origQty || 0) + q;
-                        }
-                        pendingMap[rootInvId].lines[lineKey].pendingQty += q;
-                    }
+            pendingMap = {};
+            const activePur = (allPurchases || []).filter(p => p && !p.deleted && !p.isDeleted && p.id !== editingGRNId);
+            const grnsByRoot = {};
+            activePur.filter(p => p.isGRN || p.isReturn).forEach(doc => {
+                const rootId = String(doc.originalInvoiceId || '').trim();
+                if (!rootId) return;
+                if (!grnsByRoot[rootId]) grnsByRoot[rootId] = { byKey: {}, count: 0 };
+                if (doc.isGRN) grnsByRoot[rootId].count++;
+                const lines = doc.items || doc.lines || [];
+                const hasNegReversal = lines.some(l => (parseFloat(l.quantity ?? l.qty ?? 0) || 0) < 0);
+                lines.forEach(line => {
+                    const rawQ = parseFloat(line.quantity ?? line.qty ?? 0) || 0;
+                    if (hasNegReversal && rawQ > 0) return;
+                    const deductQ = Math.abs(rawQ);
+                    const k = String(line.itemId || line.id || line.name || line.itemName || 'صنف').trim();
+                    grnsByRoot[rootId].byKey[k] = (grnsByRoot[rootId].byKey[k] || 0) + deductQ;
                 });
             });
 
-            // Cleanup: remove items with <= 0 pending qty, and invoices with no pending items
-            Object.keys(pendingMap).forEach(invId => {
-                const lines = pendingMap[invId].lines;
-                Object.keys(lines).forEach(lk => {
-                    // Precision fix
-                    lines[lk].pendingQty = Math.round(lines[lk].pendingQty * 100) / 100;
-                    if (!lines[lk].origQty) {
-                        lines[lk].origQty = lines[lk].pendingQty;
+            activePur.filter(inv => !inv.isGRN && !inv.isReturn && inv.status !== 'draft' && inv.status !== 'proforma').forEach(inv => {
+                const rootInvId = String(inv.invoiceNo || inv.id || '').trim();
+                if (!rootInvId) return;
+                const recInfo = grnsByRoot[rootInvId] || { byKey: {}, count: 0 };
+                const items = inv.items || inv.lines || [];
+                const globalWh = inv.warehouseId || inv.warehouse || '';
+                const isAlreadyDirectRcvd = (inv.receiptStatus === 'received' || inv.status === 'received') && recInfo.count === 0 && globalWh && globalWh !== 'PENDING_RECEIPT' && !String(globalWh).includes('قيد الاستلام');
+                if (isAlreadyDirectRcvd) return;
+
+                const linesMap = {};
+                items.forEach(line => {
+                    const origQ = parseFloat(line.quantity ?? line.qty ?? 0) || 0;
+                    if (origQ <= 0) return;
+                    const resolvedItemId = String(line.itemId || line.id || line.name || line.itemName || 'صنف').trim();
+                    const resolvedUnit = line.unitId || line.selectedUnit || line.unit || line.unitName || 'حبة';
+                    const lineKey = resolvedItemId + '|' + resolvedUnit;
+                    const prevRec = Math.min(origQ, parseFloat(recInfo.byKey[resolvedItemId] || line.receivedQty || 0) || 0);
+                    const remQ = Math.round(Math.max(0, origQ - prevRec) * 100) / 100;
+                    if (remQ <= 0) return;
+                    if (!linesMap[lineKey]) {
+                        linesMap[lineKey] = {
+                            itemId: resolvedItemId,
+                            itemName: line.name || line.itemName || '',
+                            unitId: resolvedUnit,
+                            unitName: line.unitName || line.selectedUnit || line.unit || 'حبة',
+                            factor: line.customFactor || line.factor || line.equiv || line.conversionFactor || 1,
+                            price: parseFloat(line.price ?? line.unitPrice ?? 0) || 0,
+                            origQty: 0,
+                            pendingQty: 0
+                        };
                     }
-                    if (lines[lk].pendingQty <= 0) {
-                        delete lines[lk];
-                    }
+                    linesMap[lineKey].origQty += origQ;
+                    linesMap[lineKey].pendingQty = Math.round((linesMap[lineKey].pendingQty + remQ) * 100) / 100;
                 });
-                if (Object.keys(lines).length === 0) {
-                    delete pendingMap[invId];
+
+                if (Object.keys(linesMap).length > 0) {
+                    pendingMap[rootInvId] = {
+                        supplierId: inv.customer || inv.customerId || inv.supplierId || inv.supplierName || inv.supplier,
+                        supplierName: inv.supplierName || inv.vendorName || inv.supplier || '',
+                        date: (inv.date || inv.savedAt || '').slice(0, 10),
+                        createdBy: inv.createdBy || inv.createdByName || 'unknown',
+                        lines: linesMap
+                    };
                 }
             });
         }
@@ -392,7 +389,7 @@
                 
                 itemsToRender.forEach(id => {
                     const invData = pendingMap[id];
-                    const supName = getSupplierName(invData.supplierId);
+                    const supName = invData.supplierName || getSupplierName(invData.supplierId);
                     
                     const linesArr = Object.values(invData.lines);
                     const totalPendingItems = linesArr.length;
@@ -402,8 +399,8 @@
                         ? ('$' + (pendingValSdg / exRate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }))
                         : (Math.round(pendingValSdg).toLocaleString('en-US') + ' ج.س');
                     const itemsBarsHtml = linesArr.map(l => {
-                        const nm = getItemName(l.itemId);
-                        const origQ = Math.max(0.0001, parseFloat(l.originalLine?.quantity ?? l.originalLine?.qty ?? l.pendingQty) || 1);
+                        const nm = l.itemName || getItemName(l.itemId);
+                        const origQ = Math.max(0.0001, parseFloat(l.origQty || l.pendingQty) || 1);
                         const pendQ = Math.max(0, parseFloat(l.pendingQty) || 0);
                         const pct = Math.max(0, Math.min(100, Math.round((pendQ / origQ) * 100)));
                         const lVal = Math.round(pendQ * (parseFloat(l.price) || 0));
@@ -720,7 +717,12 @@
                         <div class="base-rcv-qty grn-col-baseQty" style="${getColStyleObj('rcvBase').boxStyle}">${fmtColVal('rcvBase', rcvBaseQty)}</div>
                     </td>
                     <td style="padding: 4px 3px;">
-                        <select class="wh-select grn-col-warehouse" style="width: 100%; height: 48px; padding: 0 8px; background: rgba(2, 6, 23, 0.85); border: 1px solid rgba(56, 189, 248, 0.28); font-family: '${whCol.font}', 'Cairo', 'Tajawal', sans-serif !important; color: ${whCol.color}; font-size: ${whCol.size}px !important; font-weight: 700 !important; text-align: ${whCol.align} !important; border-radius: 9px; outline: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);">${whOptions}</select>
+                        <div style="display:flex; align-items:center; gap:4px;">
+                            <select class="wh-select grn-col-warehouse" style="flex:1; height: 48px; padding: 0 8px; background: rgba(2, 6, 23, 0.85); border: 1px solid rgba(56, 189, 248, 0.28); font-family: '${whCol.font}', 'Cairo', 'Tajawal', sans-serif !important; color: ${whCol.color}; font-size: ${whCol.size}px !important; font-weight: 700 !important; text-align: ${whCol.align} !important; border-radius: 9px; outline: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);">${whOptions}</select>
+                            ${line.isSplit
+                                ? `<button type="button" onclick="removeSplit(event, '${line.id}')" title="دمج مع السطر الأصلي" style="height:48px; padding:0 9px; border-radius:9px; border:1px solid rgba(248,113,113,0.5); background:rgba(239,68,68,0.18); color:#fca5a5; font-weight:900; cursor:pointer;">✕</button>`
+                                : `<button type="button" onclick="splitLine(event, '${line.id}')" title="تقسيم الكمية بين مخزنين (مثلاً 7 و 3)" style="height:48px; padding:0 9px; border-radius:9px; border:1px solid rgba(56,189,248,0.5); background:rgba(14,165,233,0.18); color:#7dd3fc; font-weight:900; cursor:pointer; white-space:nowrap;">✂️ قسّم</button>`}
+                        </div>
                     </td>
                     <td style="padding: 4px 3px;">
                         <input type="text" class="notes-input" value="${line.notes || ''}" placeholder="ملحوظة الاستلام..." style="width: 100%; height: 48px; padding: 0 10px; background: rgba(2, 6, 23, 0.85); border: 1px solid rgba(56, 189, 248, 0.28); font-family: 'Cairo', 'Tajawal', sans-serif; color: #f8fafc; font-size: 13px; font-weight: 700; border-radius: 9px; outline: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); transition: border-color 0.2s;">
@@ -767,16 +769,30 @@
                         this.value = clean;
                     }
                     let val = parseFloat(clean);
-                    if (isNaN(val) || val < 0) {
-                        val = 0;
-                    }
-                    if (val > line.maxPending) {
-                        if (typeof showToast === 'function') showToast('تنبيه: الكمية المستلمة تتجاوز الكمية المعلقة (' + line.maxPending + ')', 'warning');
-                    }
-                    line.receiveQty = val;
-                    const curFactor = (line.factor !== undefined && line.factor !== null) ? parseFloat(line.factor) : factor;
-                    if (baseRcvCell) {
-                        baseRcvCell.textContent = fmtColVal('rcvBase', val * curFactor);
+                    if (isNaN(val) || val < 0) val = 0;
+                    const siblings = receiptLines.filter(x => x.lineGroup === line.lineGroup && x.id !== line.id);
+                    if (siblings.length === 1) {
+                        if (val > line.maxPending) { val = line.maxPending; this.value = String(val); }
+                        line.receiveQty = val;
+                        siblings[0].receiveQty = Math.max(0, +(line.maxPending - val).toFixed(4));
+                        const curFactor = (line.factor !== undefined && line.factor !== null) ? parseFloat(line.factor) : factor;
+                        if (baseRcvCell) baseRcvCell.textContent = fmtColVal('rcvBase', val * curFactor);
+                        const sibIdx = receiptLines.findIndex(x => x.id === siblings[0].id);
+                        const sibTr = tbody.children[sibIdx];
+                        if (sibTr) {
+                            const sInp = sibTr.querySelector('.qty-input'); if (sInp) sInp.value = String(siblings[0].receiveQty);
+                            const sBase = sibTr.querySelector('.base-rcv-qty'); if (sBase) sBase.textContent = fmtColVal('rcvBase', siblings[0].receiveQty * (siblings[0].factor || curFactor));
+                        }
+                    } else {
+                        const otherQty = siblings.reduce((acc, x) => acc + (parseFloat(x.receiveQty) || 0), 0);
+                        const maxAllowed = Math.max(0, +(line.maxPending - otherQty).toFixed(4));
+                        if (val > maxAllowed) {
+                            if (typeof showToast === 'function') showToast('تم ضبط السقف تلقائياً للمتبقي المتاح (' + maxAllowed + ')', 'warning');
+                            val = maxAllowed; this.value = String(val);
+                        }
+                        line.receiveQty = val;
+                        const curFactor = (line.factor !== undefined && line.factor !== null) ? parseFloat(line.factor) : factor;
+                        if (baseRcvCell) baseRcvCell.textContent = fmtColVal('rcvBase', val * curFactor);
                     }
                     updateSummary();
                 });

@@ -1463,7 +1463,7 @@
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20261016_v28"></script>
+    <script defer src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
     <script defer src="js/master-data-core.js?v=<?php echo file_exists('js/master-data-core.js') ? filemtime('js/master-data-core.js') : '20261030_v10'; ?>"></script>
 
     <!-- 🛡️ الدستور الأول والثاني (1&2 من 14): المحرك السيادي للسمات، الشاشات الوليدة، تناسب الأبعاد 6:8، الخفة القصوى 2G، الكيرسر، والبحث الذكي -->

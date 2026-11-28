@@ -296,7 +296,7 @@ if (!function_exists('convertReportAmount')) {
         });
     </script>
     </div>
-    <script defer src="js/app.js?v=20261016_v28"></script>
+    <script defer src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
     <style>
         html[data-theme="warm_cream"] body, html[data-theme="ultra_white"] body, html[data-theme="exec_gray"] body {
             background: var(--bg-primary, #f8fafc) !important;

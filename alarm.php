@@ -3598,6 +3598,6 @@ foreach ($rules as $r) {
         } catch (_) {}
     });
     </script>
-    <script defer src="js/app.js?v=20261016_v28"></script>
+    <script defer src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
 </body>
 </html>

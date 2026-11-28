@@ -31,7 +31,7 @@ $page_title = 'العقل الذكي الموحد';
     
     <script defer src="js/vendor/chart.umd.min.js"></script>
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20261016_v28"></script>
+    <script defer src="js/app.js?v=<?php echo filemtime('js/app.js'); ?>"></script>
     
     <style>
         :root {
